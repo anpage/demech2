@@ -276,7 +276,6 @@ void FirstEyepoint(void)
 // Updates the camera for the frame in the view mode GetViewMode picks (the free camera without a
 // local player): the cockpit, tracking, external, drop or free camera, driven by INPUT.MAP's
 // eyepoint and track sinks.
-// Stack-slot permutation of the locals.
 // FUNCTION: MW2 0x100110f7
 // FUNCTION: MW2MATROX 0x10008d87
 // FUNCTION: MW23DFX 0x1002dc90
@@ -366,7 +365,7 @@ void UpdateEyepoint(void)
 			pitch = g_deltaTime * 0x2d0000 / 0xb5;
 		}
 		else if (g_sinkEyepointTilt < 0) {
-			pitch = -(g_deltaTime * 0x2d0000) / 0xb5;
+			pitch = g_deltaTime * -0x2d0000 / 0xb5;
 		}
 		else {
 			pitch = 0;

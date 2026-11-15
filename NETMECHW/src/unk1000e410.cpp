@@ -75,8 +75,6 @@ void FUN_1000e410(HWND p_dialog, MechS32 p_force)
 // The launch dialog (pane 8): the players and whether they are ready. "Ready" (0x435) tells the
 // host the local player is, if the mission's tonnage allows the mech and another player is in;
 // "Cancel" takes it back. In a team game the players' names are in their team's color.
-// Matches except for the stack slots of the locals, which VC++ 2.2 permutes (which moves the
-// targets of the jump tables).
 // FUNCTION: NETMECHW 0x1000e58d
 BOOL CALLBACK FUN_1000e58d(HWND p_dialog, UINT p_message, WPARAM p_wParam, LPARAM p_lParam)
 {
@@ -322,7 +320,7 @@ BOOL CALLBACK FUN_1000e58d(HWND p_dialog, UINT p_message, WPARAM p_wParam, LPARA
 			break;
 		}
 
-		break;
+		return FALSE;
 	}
 
 	return FALSE;

@@ -16,7 +16,6 @@
 #pragma warning(disable : 4102) /* a label only the __asm block jumps to */
 
 // Returns whether the screen point (p_x, p_y) lies above the horizon of p_eyepoint's view.
-// The 3Dfx edition's diff is register allocation, scheduling and float operand order only.
 // FUNCTION: MW2 0x10071930
 // FUNCTION: MW2MATROX 0x1007b8d0
 // FUNCTION: MW23DFX 0x10028ee0
@@ -38,7 +37,7 @@ MechS32 IsAboveHorizon(MechS32 p_x, MechS32 p_y, Eyepoint* p_eyepoint)
 	a = p_eyepoint->m_viewMatrix.m_rows[0][1];
 	c = p_eyepoint->m_viewMatrix.m_rows[1][1];
 	e = p_eyepoint->m_viewMatrix.m_rows[2][1];
-	if (offsetY * c / d + a * offsetX / b > -e) {
+	if ((offsetY * c) / d + (a * offsetX) / b > -e) {
 		return TRUE;
 	}
 	else {

@@ -2,14 +2,13 @@
 # address, function, unit, then the recipe: `pad N` symbols declared ahead of the unit, and/or
 # `rename old=new ...` of the function's locals. Found by tools/witness.py, checked by tools/certify.py.
 
-0x100013a0 ProjectMapViewVertex mapview.c pad 1
 0x10001630 LerpPaneRect recttransition.c pad 2
 0x10002080 LoadFramePrj anim2d.c pad 17
-0x100022f0 DrawAnim2d anim2d.c pad 17
+0x100022f0 DrawAnim2d anim2d.c pad 49
 0x100024b0 ChooseArtResolution setres.c pad 14
-0x10003a60 DrawMapTarget cockpit.c pad 23
+0x10003a60 DrawMapTarget cockpit.c pad 22
 0x10003c10 DrawMapNavPoints cockpit.c pad 8
-0x10004ec0 ShowBanner render.c pad 15
+0x10004ec0 ShowBanner render.c pad 14
 0x10005120 GdiBegin gdi.c pad 2
 0x10005430 GdiBitBltRect gdi.c pad 13
 0x10005740 GdiSetPaletteWithBrightness gdi.c pad 20
@@ -29,23 +28,27 @@
 0x10008300 RemoveTask callbacks.c pad 8
 0x100083d0 RunTimedCallbacks callbacks.c pad 8
 0x10009400 SimWindowProc simmain.c pad 11
+0x100098f0 CollapseWhitespace objective.c pad 21
 0x1000a080 TestObjectiveCondition objective.c pad 7
-0x1000a110 ObjectiveConditionsHold objective.c pad 7
-0x1000acd0 RestartStarMission objective.c pad 16
-0x1000ad60 GetTeamHomeTarget objective.c pad 5
+0x1000a110 ObjectiveConditionsHold objective.c pad 3
+0x1000acd0 RestartStarMission objective.c pad 12
+0x1000ad60 GetTeamHomeTarget objective.c pad 1
 0x1000b1d0 ClipRayToGround ray.c pad 2
 0x1000b230 ClipRaySlab ray.c pad 1
-0x1000c640 BuildQuadtreeChild quadtree.c pad 6
+0x1000c1f0 ApplyCollisionDamage mechcollision.c pad 3
+0x1000c550 BuildShapeQuadtree quadtree.c pad 12
+0x1000c640 BuildQuadtreeChild quadtree.c pad 3
 0x1000d170 GetQuadtreeSize quadtree.c pad 14
 0x1000d7b0 TestRayFaces shapecollision.c pad 12
 0x1000d920 ComputeModelBounds boundbox.c pad 13
 0x1000dbe0 RemoveSceneShape shapelists.c pad 4
 0x1000dc60 EnableShapeCollision shapelists.c pad 4
-0x1000e6e0 ColorCycleTask objectanim.c pad 3
+0x1000e6e0 ColorCycleTask objectanim.c pad 2
 0x1000fff0 IsBelowFacePlane collision.c pad 1
 0x100101f0 GetHighestSurface collision.c pad 1
 0x10010650 TestShapeRay collision.c pad 7
 0x10010830 IntersectRayFace collision.c pad 5
+0x100110d0 IsPointInFaceYZ collision.c pad 16
 0x10011f80 FindAIName ai.c pad 8
 0x10012520 TargetAttacker ai.c pad 3
 0x100125d0 ChooseTeamLeader ai.c pad 7
@@ -60,6 +63,7 @@
 0x10014390 OrderStarSlot ai.c pad 2
 0x10014520 AssignStarObjective ai.c pad 10
 0x10014880 GetObjectiveTarget ai.c pad 1
+0x10015090 CanSeeTarget lineofsight.c pad 1
 0x10015410 BlowOffChunk debris.c pad 6
 0x10015aa0 FindDebrisPiece debris.c pad 7
 0x10015ad0 DamageChunksInRadius debris.c pad 6
@@ -84,7 +88,7 @@
 0x1001d2d0 TargetGameThing targeting.c pad 4
 0x1001d810 GetLocalTargetObject targeting.c pad 11
 0x1001db60 TargetNearestEnemy targeting.c pad 2
-0x1001e670 DamageCockpitPanels staticmem.c pad 6
+0x1001e670 DamageCockpitPanels staticmem.c pad 5
 0x1001e820 DrawWeaponPanel weaponpanel.c pad 1
 0x1001ea40 RunManeuver maneuvers.c pad 12
 0x1001f260 FindManeuver maneuvers.c pad 2
@@ -114,6 +118,7 @@
 0x10026770 GetClassObject classtable.c pad 10
 0x100269a0 ReleaseObjShape classtable.c pad 14
 0x100269f0 ForgetObjShape classtable.c pad 3
+0x10028ee0 IsAboveHorizon horizon.c pad 2
 0x10029060 ComputeShapeBounds shape.c pad 3
 0x10029460 AddModel shape.c pad 3
 0x10029760 RemoveSelectedModel shape.c pad 13
@@ -123,13 +128,13 @@
 0x10029c10 TransformShapeCenter shape.c pad 13
 0x10029cb0 ApproximateShapeDistance shape.c pad 13
 0x1002a080 DrawShapeList depthsort.c pad 21
-0x1002a890 AreTextureMapsOn faceshade.c pad 2
+0x1002a890 AreTextureMapsOn faceshade.c pad 1
 0x1002a8e0 DrawBand bandpoly.c pad 4
 0x1002ab50 SelectPane palette.c pad 3
 0x1002ac40 ApplyPaletteResource palette.c pad 4
 0x1002ad50 StartPaletteFade palette.c pad 5
-0x1002b730 ProjectVertex queueface.c pad 6
-0x1002c770 ProjectPolygon queueface.c pad 15
+0x1002b730 ProjectVertex queueface.c pad 5
+0x1002c770 ProjectPolygon queueface.c pad 13
 0x1002d410 FUN_10051ba1 animation.c pad 11
 0x1002d920 StartCameraShakeKey camerashake.c pad 5
 0x1002e8a0 UpdateFreeEyeView eyepoint.c pad 4
@@ -180,26 +185,31 @@
 0x1003cae0 StepSpinner overlay.c pad 4
 0x1003d580 GetPrjResourceSize prjfile.c pad 11
 0x1003d720 ReadPrjResource prjfile.c pad 1
+0x1003f6f0 AfterWorldLoader world.c pad 30
 0x1003f8c0 FreeBwdNames bwdnames.c pad 12
 0x1003f900 SetUpStarMission missionsetup.c pad 17
 0x1003fe70 FindEventList missionsetup.c pad 7
 0x10040060 FlushEventLists missionsetup.c pad 10
-0x10040a10 SaveSndCfg config.c pad 22
-0x10042de0 SetTeamFormations resource.c pad 16
+0x10040a10 SaveSndCfg config.c pad 21
+0x10042de0 SetTeamFormations resource.c pad 15
+0x10043090 GetTriangleNormal resource.c pad 4
+0x100431f0 GetPointNormalPlane resource.c pad 11
 0x100437a0 UpdateWeaponFireState weapons.c pad 19
 0x10043cc0 SpawnShot weapons.c pad 3
-0x10043f80 SelectNextWeaponInGroup weapons.c pad 17
+0x10043f80 SelectNextWeaponInGroup weapons.c pad 16
 0x10044030 SelectNextWeapon weapons.c pad 2
-0x100440c0 SelectNextWeaponGroup weapons.c pad 7
-0x10044220 JettisonAmmo weapons.c pad 5
-0x10044440 FireWeaponGroup weapons.c pad 6
+0x100440c0 SelectNextWeaponGroup weapons.c pad 6
+0x10044220 JettisonAmmo weapons.c pad 4
+0x10044440 FireWeaponGroup weapons.c pad 5
 0x10044c40 FirstShots shots.c rename effect=zqai i=zqaj shot=zqak
 0x10044eb0 UpdateAllShots shots.c rename i=zqai shot=zqaj
 0x10045840 SwayShot shots.c rename p_shot=zqal p_x=zqam sideX=zqai sideY=zqaj sideZ=zqak
 0x10045910 GuideMissileToTarget shots.c rename distance=zqap dx=zqal dy=zqan dz=zqao p_shot=zqae player=zqad targetX=zqaa targetY=zqab targetZ=zqac thing=zqai vx=zqaj vy=zqak vz=zqam
 0x10045b90 DetonateShot shots.c rename impact=zqai p_explode=zqal p_index=zqak shot=zqaj
+0x10045d00 SpawnEffectEx shots.c pad 3 rename cameraX=zqaj cameraZ=zqak chain=zqam chainType=zqbm closer=zqal count=zqac current=zqab distance=zqbx dx=zqaz dy=zqbv dz=zqbh effect=zqap flags=zqbf i=zqao info=zqa1 p_owner=zqae p_type=zqau pieces=zqai quiet=zqan slot=zqaq take=zqaa volume=zqad
 0x10046490 UpdateEffects shots.c pad 1 rename effect=zqak i=zqaj radius=zqam release=zqai restore=zqal x=zqan y=zqao z=zqap
 0x10046700 DamageMechsInRadius shots.c pad 4 rename damage=zqap dx=zqai dy=zqaj dz=zqal i=zqam mech=zqak p_owner=zqaa player=zqao reach=zqan
+0x100468b0 DamageThingsInRadius shots.c pad 3 rename distance=zqan dx=zqaj dy=zqak dz=zqal i=zqam p_owner=zqae radius=zqac reach=zqaa shape=zqad thing=zqai x=zqao y=zqap z=zqab
 0x10046a90 KillGameThing shots.c pad 1
 0x10046e70 HeatMechsNearFires shots.c pad 12 rename distance=zqaf dx=zqam dy=zqan dz=zqab heat=zqad i=zqae mech=zqap player=zqag radius=zqao reach=zqaa root=zqak shape=zqac x=zqai y=zqaj z=zqal
 0x10047020 StartNuke shots.c rename duration=zqai effect=zqak i=zqaj p_player=zqam shape=zqal

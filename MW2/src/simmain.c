@@ -987,7 +987,7 @@ LRESULT CALLBACK SimWindowProc(HWND p_hWnd, UINT p_msg, WPARAM p_wParam, LPARAM 
 	return DefWindowProc(p_hWnd, p_msg, p_wParam, p_lParam);
 }
 
-// The 3Dfx edition's diff is register allocation and instruction scheduling only.
+// The Matrox edition returns when the mouse message loop's PeekMessage finds nothing.
 // FUNCTION: MW2 0x10067bbc
 // FUNCTION: MW2MATROX 0x10090ca7
 // FUNCTION: MW23DFX 0x10009680
@@ -1001,7 +1001,7 @@ void HandleMessages(void)
 
 	if (!g_shouldQuit && PeekMessage(&msg, NULL, 0, 0, PM_REMOVE)) {
 		while (!g_mouseOutsideClientWindow && msg.message >= WM_MOUSEFIRST && msg.message <= WM_MBUTTONDBLCLK) {
-#ifdef MW2_ACCEL
+#ifdef MW2_MATROX
 			if (!PeekMessage(&msg, NULL, 0, 0, PM_REMOVE)) {
 				return;
 			}

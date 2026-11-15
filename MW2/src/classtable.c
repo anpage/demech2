@@ -70,7 +70,6 @@ MechS32 g_classTableReady = 0;
 ClassEntry g_classTable[0x30c];
 
 // Loads the shapes of p_player's entries for its base level (m_baseLevel) into one pool block.
-// The 3Dfx edition's diff is register allocation, scheduling and block layout only.
 // FUNCTION: MW2 0x1001ce90
 // FUNCTION: MW2MATROX 0x1006d550
 // FUNCTION: MW23DFX 0x100260e0
@@ -87,7 +86,7 @@ MechS32 LoadBaseLevelShapes(Player* p_player)
 		}
 	}
 
-	buffer = StaticPoolAlloc(GetObjSize() * count & 0xffff, g_staticPoolTags[2]);
+	buffer = StaticPoolAlloc((MechU16) (GetObjSize() * count), g_staticPoolTags[2]);
 	if (buffer == NULL) {
 		return 0;
 	}

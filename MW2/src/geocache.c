@@ -1321,11 +1321,7 @@ void LoadQuadtreeBoxes(QuadtreeNode* p_node, MechU8* p_data, MechS32 p_size)
 	dz = abs(dz);
 #endif
 	scaleX = (dx + 9) / 10;
-#ifdef MW2_ACCEL
 	scaleY = (dy + 9) * 2 / 10;
-#else
-	scaleY = (dy * 2 + 18) / 10;
-#endif
 	scaleZ = (dz + 9) / 10;
 	SetShapeScale(scaleX, scaleY, scaleZ);
 	SetShapeFlags(4);

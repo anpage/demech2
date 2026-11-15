@@ -87,16 +87,14 @@ void CollapseWhitespace(MechChar* p_text)
 	src = p_text;
 	dst = p_text;
 	while (*src) {
-		*dst = *src++;
+		*dst++ = *src++;
 		if (isspace(*src)) {
 			while (*src && isspace(*src)) {
 				src++;
 			}
 
-			*++dst = ' ';
+			*dst++ = ' ';
 		}
-
-		dst++;
 	}
 
 	*dst = '\0';
@@ -104,8 +102,8 @@ void CollapseWhitespace(MechChar* p_text)
 
 // Starts a star's mission: stamps its start time and places the team at the nav of its first
 // objective, when that is a nav (or at the origin). Returns whether it was.
-// Stack-slot permutation of the locals. The original tests the target's kind by loading its high
-// byte and shifting it back ((MechU16) (kind << 8) == 0x100); the mask compiles to a byte compare.
+// The original tests the target's kind by loading its high byte and shifting it back
+// ((MechU16) (kind << 8) == 0x100); the mask compiles to a byte compare.
 // The 3Dfx edition's diff is register allocation, scheduling and comparison operand order only.
 // FUNCTION: MW2 0x1001aa02
 // FUNCTION: MW2MATROX 0x1001eda2
@@ -122,18 +120,16 @@ MechS32 DoFirstObjtv(StarMission* p_mission, MechS32 p_team)
 #ifdef MW2_ACCEL
 	found = FALSE;
 	x = y = z = heading = 0;
-	g_missionTime = g_currentClock / 181;
-	if (p_mission->m_objectives[0].m_targetCount > 0 &&
-		(MechU16) ((MechU8) (p_mission->m_objectives[0].m_targets[0] >> 8) << 8) == 0x100) {
 #else
 	x = 0;
 	y = 0;
 	z = 0;
 	heading = 0;
 	found = FALSE;
-	g_missionTime = g_currentClock / 181;
-	if (p_mission->m_objectives[0].m_targetCount > 0 && (p_mission->m_objectives[0].m_targets[0] & 0xff00) == 0x100) {
 #endif
+	g_missionTime = g_currentClock / 181;
+	if (p_mission->m_objectives[0].m_targetCount > 0 &&
+		(MechU16) ((MechU8) (p_mission->m_objectives[0].m_targets[0] >> 8) << 8) == 0x100) {
 		nav = (MechU8) p_mission->m_objectives[0].m_targets[0];
 		if (nav < g_navCount) {
 			x = g_navTable[nav].m_position[0];
@@ -234,8 +230,8 @@ MechS32 IsTeamNearTarget(MechU8* p_target, MechS32 p_team)
 #endif
 	Player* target;
 	GameThing* thing;
-	MechScalar x;
 	MechScalar y;
+	MechScalar x;
 	MechScalar z;
 	MechScalar radius;
 	NavPoint* nav;
@@ -512,8 +508,6 @@ MechS32 AnnounceMissionResult(MechS32 p_star, MechS32 p_status)
 }
 
 // Returns whether condition p_condition of star p_star's objective p_objective holds.
-// Stack-slot permutation of objective, other, star, state and kind; the original scales star
-// before other in the objective's address (index order).
 // FUNCTION: MW2 0x1001b580
 // FUNCTION: MW2MATROX 0x1001f8dd
 // FUNCTION: MW23DFX 0x1000a080
@@ -530,14 +524,15 @@ MechS32 TestObjectiveCondition(MechS32 p_star, MechS32 p_objective, MechS32 p_co
 	other = objective->m_conditions[p_condition].m_objective;
 	star = objective->m_conditions[p_condition].m_star;
 	state = g_objectiveTable[star].m_objectives[other].m_state;
-	return (kind == 1 && (state == 5 || state == 6)) || (kind == 2 && state == 5) || (kind == 3 && state == 6) ? TRUE
-																											   : FALSE;
+	if ((kind == 1 && (state == 5 || state == 6)) || (kind == 2 && state == 5) || (kind == 3 && state == 6)) {
+		return TRUE;
+	}
+
+	return FALSE;
 }
 
 // Returns whether the conditions of star p_star's objective p_objective hold: one of them, or
 // every one. A finished objective's don't; a type 0x10 objective's always do.
-// Stack-slot permutation of all, objective, result, i and holds; the original computes the
-// objective's index before the star's (index order).
 // FUNCTION: MW2 0x1001b66c
 // FUNCTION: MW2MATROX 0x1001f9c9
 // FUNCTION: MW23DFX 0x1000a110
@@ -566,7 +561,6 @@ MechS32 ObjectiveConditionsHold(MechS32 p_star, MechS32 p_objective)
 		}
 
 		holds = TestObjectiveCondition(p_star, p_objective, i);
-#ifdef MW2_ACCEL
 		if (all) {
 			result &= holds;
 			if (!result) {
@@ -576,36 +570,14 @@ MechS32 ObjectiveConditionsHold(MechS32 p_star, MechS32 p_objective)
 		else if (holds) {
 			return TRUE;
 		}
-#else
-		if (!all) {
-			if (holds) {
-				return TRUE;
-			}
-		}
-		else {
-			result &= holds;
-			if (!result) {
-				return FALSE;
-			}
-		}
-#endif
 	}
 
-#ifdef MW2_ACCEL
 	if (all) {
 		return TRUE;
 	}
 	else {
 		return FALSE;
 	}
-#else
-	if (!all) {
-		return FALSE;
-	}
-	else {
-		return TRUE;
-	}
-#endif
 }
 
 // Updates star p_star's objective p_objective while its conditions hold: whether its targets are

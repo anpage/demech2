@@ -318,9 +318,8 @@ void UnlockCachedResource(MechS32 p_id, const char* p_type)
 
 // Returns resource p_id of type p_type from project file p_file, locked in the cache: the cached
 // copy, or one read in, purging unlocked items while the cache is full or memory runs out. A
-// missing resource is logged to symlog.txt and reported. p_unk0x0c goes unused.
-// The only diff is a stack-slot permutation of the locals.
-// The 3Dfx edition's diff is register allocation, scheduling and stack layout only.
+// missing resource is logged to symlog.txt (closed even when it didn't open) and reported.
+// p_unk0x0c goes unused.
 // FUNCTION: MW2 0x1001a19f
 // FUNCTION: MW2MATROX 0x10055f3e
 // FUNCTION: MW23DFX 0x100243f0
@@ -368,8 +367,9 @@ void* LoadCachedResource(MechS32 p_file, MechS32 p_id, const char* p_type, undef
 		file = fopen("symlog.txt", "a");
 		if (file) {
 			fprintf(file, "Couldn't load ID=%d Type=%s\n", p_id, p_type);
-			fclose(file);
 		}
+
+		fclose(file);
 
 		Error(0x20, "Non-existant resource (type: %s  id: %i)\n", p_type, p_id);
 		if (g_missionTimerStopped) {
@@ -394,8 +394,9 @@ void* LoadCachedResource(MechS32 p_file, MechS32 p_id, const char* p_type, undef
 		file2 = fopen("symlog.txt", "a");
 		if (file2) {
 			fprintf(file2, "Couldn't load ID=%d Type=%s\n", p_id, p_type);
-			fclose(file2);
 		}
+
+		fclose(file2);
 
 		Error(0x20, "Non-existant resource (type: %s  id: %i)\n", p_type, p_id);
 		if (g_missionTimerStopped) {

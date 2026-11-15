@@ -563,11 +563,12 @@ void DrawMapContents(CockpitLayout* p_layout)
 {
 	MechS32 id;
 	PANE* viewport;
-#ifndef MW2_ACCEL
-	MechS32 unused;
-#endif
+#ifdef MW2_ACCEL
 	MechS32 y;
 	MechS32 x;
+#else
+	MapPoint center;
+#endif
 	Player* player;
 	void* shape;
 
@@ -575,12 +576,21 @@ void DrawMapContents(CockpitLayout* p_layout)
 	player = g_players[g_localPlayerId];
 	DrawMapNavPoints(p_layout);
 	if (g_cockpitLayoutIndex != 4) {
+#ifdef MW2_ACCEL
 		x = (viewport->m_x1 - viewport->m_x0 + 1) >> 1;
 		y = (viewport->m_y1 - viewport->m_y0 + 1) >> 1;
+#else
+		center.m_xy.m_x = (viewport->m_x1 - viewport->m_x0 + 1) >> 1;
+		center.m_xy.m_y = (viewport->m_y1 - viewport->m_y0 + 1) >> 1;
+#endif
 		id = p_layout->m_icons[0][0] + HUD_ART_RESOLUTION;
 		shape = LoadCachedResource(g_mw2PrjHandle, id, g_resTagShp, 0);
 		if (shape) {
+#ifdef MW2_ACCEL
 			VFX_shape_draw(viewport, shape, 0, x, y);
+#else
+			VFX_shape_draw(viewport, shape, 0, center.m_xy.m_x, center.m_xy.m_y);
+#endif
 			UnlockCachedResource(id, g_resTagShp);
 			DrawMapUnits(p_layout);
 		}
@@ -655,12 +665,12 @@ void DrawMapUnits(CockpitLayout* p_layout)
 #endif
 
 // Draws the local player's target: in the view, or clamped to its edge when outside it.
-// Stack-slot permutation; m_icons[row][side] loads the table before the row (index order).
 // FUNCTION: MW2 0x1003e689
 // FUNCTION: MW2MATROX 0x1007432d
 // FUNCTION: MW23DFX 0x10003a60
 void DrawMapTarget(CockpitLayout* p_layout)
 {
+	MechS32 row;
 	MechS32 index;
 	Player* player;
 	MechS32 visible;
@@ -674,7 +684,6 @@ void DrawMapTarget(CockpitLayout* p_layout)
 #else
 	MapPoint pos;
 #endif
-	MechS32 row;
 	MechU32 target;
 	void* shape;
 
@@ -1510,14 +1519,15 @@ void DrawSatelliteStatic(void)
 		g_satelliteStaticState = 2;
 		g_staticNoiseUntil = g_currentClock + RandomIntBelow(transition->m_def->m_duration);
 		StartRectTransition(transition);
-		g_showHud = 0;
 	case 2:
+		g_showHud = 0;
 		transition->m_state->m_elapsed = RandomIntBelow(transition->m_def->m_duration - g_deltaTime - 1);
 		DrawMapViewTransition(1, layout, transition, 1);
 		if (g_staticNoiseUntil < g_currentClock) {
 			g_satelliteStaticState = 0;
-			break;
 		}
+		break;
+	default:
 		break;
 	}
 }

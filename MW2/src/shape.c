@@ -576,9 +576,10 @@ void ComputeFaceNormal(Face* p_face, Vertex* p_vertices)
 				p_face->m_modelNormalY = p_face->m_normal[1] = ny;
 				p_face->m_modelNormalZ = p_face->m_normal[2] = nz;
 				bestArea = area;
-				if (area > 16) {
-					return;
-				}
+			}
+
+			if (area > 16) {
+				return;
 			}
 		}
 	}
@@ -807,7 +808,6 @@ void DestroyObjShape(Shape* p_shape)
 }
 
 // Returns the bytes the shape, its models and its bounding data take.
-// The only diff is a stack-slot permutation of model, vertex and size.
 // The 3Dfx edition's diff is register allocation and instruction scheduling only.
 // FUNCTION: MW2 0x1003b7cc
 // FUNCTION: MW2MATROX 0x100289f3
@@ -838,12 +838,8 @@ MechS32 GetShapeMemorySize(Shape* p_shape)
 		}
 	}
 
-#ifdef MW2_ACCEL
 	size += GetBoundBoxSize(p_shape);
 	return size;
-#else
-	return size + GetBoundBoxSize(p_shape);
-#endif
 }
 
 // The Matrox edition ends this object with shapegeom.c's functions, a unit of its own in 1.1.

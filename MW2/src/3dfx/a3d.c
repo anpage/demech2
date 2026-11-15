@@ -1054,8 +1054,6 @@ MechS32 FUN_10067a90(A3DSubVertex* p_a, A3DSubVertex* p_b, A3DSubVertex* p_out)
 
 // Draws the triangle p_triangle unless it is too deep or its texture coordinates span more than
 // 128 texels; returns 0 when it isn't drawn for its texture coordinates.
-// The loops' pointer is in another register, and the x87 stores are scheduled differently.
-// The 3Dfx edition's diff is register allocation, scheduling and float operand order only.
 // FUNCTION: MW23DFX 0x10067b60
 MechS32 FUN_10067b60(A3DSubVertex* p_triangle)
 {
@@ -1103,7 +1101,7 @@ MechS32 FUN_10067b60(A3DSubVertex* p_triangle)
 		vertices[i].m_x += g_a3dOffsetX;
 		vertices[i].m_y += g_a3dOffsetY;
 		vertices[i].m_tmuW = vertices[i].m_w;
-		w = vertices[i].m_w * 255.0f;
+		w = vertices[i].m_tmuW * 255.0f;
 		vertices[i].m_u *= w;
 		vertices[i].m_v = w * vertices[i].m_v;
 	}
@@ -1114,8 +1112,6 @@ MechS32 FUN_10067b60(A3DSubVertex* p_triangle)
 
 // Draws the triangle p_triangle, split in two through the midpoint of its long edge until it can
 // be drawn (FUN_10067b60), at most 8 levels deep.
-// The comparison is made before the first copy in the original.
-// The 3Dfx edition's diff is register allocation, scheduling and block layout only.
 // FUNCTION: MW23DFX 0x10067d00
 MechS32 FUN_10067d00(A3DSubVertex* p_triangle, MechS32 p_level)
 {
@@ -1137,18 +1133,19 @@ MechS32 FUN_10067d00(A3DSubVertex* p_triangle, MechS32 p_level)
 		return FALSE;
 	}
 
-	first[0] = p_triangle[0];
-	if (p_triangle[1].m_depth <= middle.m_depth) {
-		first[1] = p_triangle[1];
-		first[2] = middle;
-		second[0] = p_triangle[1];
-		second[1] = middle;
-	}
-	else {
+	if (p_triangle[1].m_depth > middle.m_depth) {
+		first[0] = p_triangle[0];
 		first[1] = middle;
 		first[2] = p_triangle[1];
 		second[0] = middle;
 		second[1] = p_triangle[1];
+	}
+	else {
+		first[0] = p_triangle[0];
+		first[1] = p_triangle[1];
+		first[2] = middle;
+		second[0] = p_triangle[1];
+		second[1] = middle;
 	}
 
 	second[2] = p_triangle[2];
@@ -1182,8 +1179,8 @@ void FUN_10067e60(A3DVertex* p_vertices, MechS32 p_count)
 	grDrawPolygonVertexList(p_count, (GrVertex*) polygon);
 }
 
-// The x87 interpolations are scheduled differently.
-// The 3Dfx edition's diff is register allocation, scheduling and float operand order only.
+// In case 2 the original loads p_out and p_edge after the division (after the FDIV check's
+// branches), in case 1 before it.
 // FUNCTION: MW23DFX 0x10067ef0
 void A3D_EdgeCrossing(
 	MechS32 p_axis,
@@ -1195,6 +1192,7 @@ void A3D_EdgeCrossing(
 )
 {
 	MechFloat t;
+	MechFloat w;
 
 	switch (p_axis) {
 	case 1:
@@ -1202,7 +1200,8 @@ void A3D_EdgeCrossing(
 		p_out->m_x = p_edge;
 		p_out->m_y = (p_b->m_y - p_a->m_y) * t + p_a->m_y;
 		if (p_flags & 8) {
-			p_out->m_w = (p_b->m_w - p_a->m_w) * t + p_a->m_w;
+			w = p_a->m_w;
+			p_out->m_w = (p_b->m_w - w) * t + w;
 		}
 		else {
 			p_out->m_w = p_a->m_w;
@@ -1213,7 +1212,8 @@ void A3D_EdgeCrossing(
 		p_out->m_y = p_edge;
 		p_out->m_x = (p_b->m_x - p_a->m_x) * t + p_a->m_x;
 		if (p_flags & 8) {
-			p_out->m_w = (p_b->m_w - p_a->m_w) * t + p_a->m_w;
+			w = p_a->m_w;
+			p_out->m_w = (p_b->m_w - w) * t + w;
 		}
 		else {
 			p_out->m_w = p_a->m_w;

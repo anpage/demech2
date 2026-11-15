@@ -6,10 +6,12 @@
 0x100010ed AppendHonorBreakdown debrief.cpp rename bonus=zqao hit=zqae hitBonus=zqaj honor=zqaf i=zqah multiplier=zqap objective=zqan points=zqam secondary=zqai star=zqak tertiary=zqad tons=zqag width=zqal
 0x10001ca0 BuildDebriefText debrief.cpp rename honor=zqaf i=zqah minutes=zqag seconds=zqad time=zqae width=zqai
 0x100023bf GetTrialRank debrief.cpp rename count=zqae i=zqad
+0x100024a3 DrawMissionDebrief debrief.cpp rename career=zqaf file=zqai height=zqag left=zqad name=zqah top=zqae width=zqaj
 0x10003320 FindMechAt mechvariant.cpp rename bottom=zqai i=zqag left=zqae mech=zqad right=zqaf top=zqah
 0x1000345a FitText mechvariant.cpp pad 6 rename out=zqad width=zqae
 0x100034de EditPilotName mechvariant.cpp rename i=zqag label=zqad left=zqae mech=zqah top=zqaf
 0x10003690 ShowFormationMech mechvariant.cpp rename label=zqad left=zqaf mech=zqai name=zqag top=zqah type=zqae
+0x10003a4e DrawStarInfo mechvariant.cpp rename i=zqad mass=zqae
 0x100043c2 StarConfigCallback mechvariant.cpp rename button=zqae i=zqad mech=zqaf
 0x100050f0 FindResourceIdByName resourcename.c rename c=zqaj data=zqag entry=zqah i=zqai id=zqaf j=zqad name=zqak table=zqae
 0x10005232 FindResourceNameById resourcename.c rename c=zqaj data=zqaf entry=zqag i=zqai j=zqad result=zqah table=zqae
@@ -32,9 +34,12 @@
 0x1000b284 AddRearArmor mechbay.cpp pad 1
 0x1000b6f4 FindMekItem mechbay.cpp rename location=zqad slot=zqae
 0x1000befe LoadMekFile mechbay.cpp pad 4 rename data=zqae i=zqaf id=zqad j=zqag k=zqah
+0x1000cba7 PlayChassisName mechbay.cpp rename audioData=zqae audioSize=zqad
 0x1000d0d4 DrawMechBay mechbay.cpp rename data=zqae i=zqaf size=zqah star=zqad variant=zqag
 0x1000db35 MechBayCallback mechbay.cpp rename button=zqaf i=zqae pressed=zqad tab=zqag
 0x1000e670 ShellWindowProc shellmain.cpp rename helpFile=zqad mouseY=zqaf msg=zqae paint=zqag
+0x1000f35e ShellMain shellmain.cpp rename fromSim=zqah itemData=zqaf itemSize=zqad msg=zqag unk0x14=zqae
+0x1000fe86 PlayMidiSong shellmain.cpp pad 5 rename data=zqae result=zqaf size=zqad song=zqag
 0x100103e2 LoadSettingsFromRegistry shellmain.cpp rename key=zqah result=zqae size=zqaf type=zqag value=zqad
 0x1001053e SaveSettingsToRegistry shellmain.cpp rename key=zqaf result=zqae value=zqad
 0x10010d88 ProfileRefreshModes refreshmode.c pad 1
@@ -49,17 +54,26 @@
 0x100139e7 FreeCacheEntry resourcecache.c rename bucket=zqaf entry=zqad type=zqae
 0x10013b11 DumpResourceCache resourcecache.c rename entry=zqae file=zqah i=zqag name=zqad type=zqaf
 0x10013cb5 LoadCachedResource resourcecache.c rename block=zqae bucket=zqaf entry=zqad file=zqai log=zqah size=zqag
+0x10014040 DrawClanHall clanhall.cpp rename data=zqad size=zqaf unused=zqae
+0x1001445c ClanHallCallback clanhall.cpp rename button=zqae data=zqad size=zqaf
 0x10014b60 ShowPilotCallsigns rosterscreen.cpp rename i=zqaf pilot=zqad top=zqae
 0x10014dfe DrawMissionListEntry rosterscreen.cpp pad 3
+0x10015008 DrawPilotRoster rosterscreen.cpp rename data=zqad i=zqaf size=zqag slot=zqae
 0x1001534c PilotRosterCallback rosterscreen.cpp pad 6 rename button=zqae pilot=zqad tab=zqaf
 0x100164f2 PlayFullscreenVideoFrame video.cpp rename palette=zqae result=zqaf video=zqad
 0x1001661b UpdateVideos video.cpp pad 10
 0x10016cc0 SetVideoFlags video.cpp pad 9
+0x1001703b LoadVideoFile video.cpp pad 1
 0x1001776c PrintMonoLine debugout.c rename destination=zqad index=zqae length=zqag source=zqaf
 0x100177e9 PrintMono debugout.c rename length=zqae offset=zqad
+0x10017982 DebugPrintInternal debugout.c rename args=zqae message=zqad
+0x100293fc ArchiveReader::PrevPage archivereader.cpp rename button=zqad i=zqaf link=zqag page=zqah unused=zqae
 0x100296df ArchiveReader::NextPage archivereader.cpp rename button=zqad i=zqae link=zqaf page=zqag
+0x1002991e ArchiveReader::OpenTopic archivereader.cpp rename i=zqae page=zqag topic=zqad unused=zqaf
+0x10029db5 ArchiveReader::Load archivereader.cpp rename command=zqaj data=zqb0 i=zqag length=zqa5 offset=zqai page=zqay picture=zqa4 rest=zqat result=zqbp size=zqaf soundStarted=zqa7 text=zqae topicEntry=zqaw topics=zqah unk0x2c=zqau unused=zqav wordLength=zqad
 0x1002da80 LoadPilotRoster pilotroster.cpp rename file=zqae i=zqaf pilot=zqad
 0x1002dc60 ExpandTextEscapes textpages.cpp rename file=zqai i=zqad length=zqae number=zqaf rank=zqah textLength=zqag
+0x1002e09b LayoutTextPages textpages.cpp rename page=zqad text=zqae
 0x1002e1b1 LoadTextPages textpages.cpp rename i=zqad node=zqae
 0x1002e47a ProjectArchive::FindNextBwdNode projectarchive.cpp rename end=zqad node=zqae type=zqaf
 0x1002e67f BwdAddRegistryTemplate projectarchive.cpp pad 12
@@ -88,9 +102,12 @@
 0x10031d75 InputFreeDevices input.c pad 1
 0x100321ad InputWriteModifiers input.c rename button=zqaf device=zqae i=zqad
 0x10037cf7 ShellApplyMissionUiInfo missionui.cpp rename briefing=zqad file=zqag i=zqah j=zqaj name=zqae pos=zqai star=zqaf title=zqak
+0x100382e6 DrawMissionBriefing missionui.cpp rename audioData=zqae audioSize=zqag i=zqaf pos=zqad
 0x10038744 MissionBriefingCallback missionui.cpp rename button=zqag i=zqaf pos=zqad variant=zqae
 0x10039280 ReadTokens tokenstream.c rename count=zqae result=zqad token=zqaf
 0x1003949e ReadFileToken tokenstream.c rename buffer=zqag c=zqaf last=zqah length=zqad trimmed=zqae
+0x1003a151 ReadyRoomCallback readyroom.cpp rename button=zqag data=zqad name=zqae size=zqah type=zqaf
+0x1003aac5 MouseState::ReadMouseState mousestate.cpp rename leftDown=zqaf middleDown=zqae point=zqad rightDown=zqag
 0x1003ad36 FillJoystickDeviceInfo joystick.c rename axisNames=zqah axisShortNames=zqae buttonNames=zqaf buttonShortNames=zqai caps=zqad count=zqag data=zqaj
 0x1003b246 JoystickOpenDevice joystick.c rename button=zqah caps=zqae data=zqai info=zqag infoEx=zqad range=zqaf
 0x1003b8c9 JoystickPoll joystick.c rename i=zqae info=zqad
@@ -99,7 +116,9 @@
 0x1003c3ba CollectionRemove collection.c rename i=zqae index=zqad item=zqaf
 0x1003c45f CollectionFind collection.c rename found=zqad i=zqag item=zqae key=zqaf
 0x1003c5f0 CollectionGet collection.c pad 5
+0x1003c966 CadetTrainingCallback cadettraining.cpp rename button=zqaf data=zqad i=zqae size=zqag
 0x1003d884 VideoSound::VideoSound audio.cpp rename format=zqae minimum=zqad
+0x1003dd89 MainMenuCallback mainmenu.cpp rename button=zqae data=zqad size=zqaf
 0x1003ea0f CpcEditTextField cockpitcontrols.cpp rename glyph=zqag key=zqad length=zqaf width=zqae
 0x1003ef32 CpcDrawBinding cockpitcontrols.cpp rename colors=zqag control=zqah device=zqad glyph=zqae label=zqaf
 0x1003f136 CpcDrawAxisButton cockpitcontrols.cpp rename button=zqah colors=zqag device=zqad glyph=zqae label=zqaf
@@ -117,10 +136,17 @@
 0x100425d3 CpcLoadConfigSlot cockpitcontrols.cpp rename file=zqaf path=zqae slot=zqad
 0x100429cf CpcSaveDeviceFile cockpitcontrols.cpp rename binding=zqad config=zqaf file=zqah index=zqae path=zqag
 0x1004381b DragVolumeSlider options.cpp rename previous=zqad value=zqae volume=zqaf
+0x10043a72 DrawOptions options.cpp rename audioData=zqae audioSize=zqaf paletteSize=zqad
+0x10043e25 ShowDialog options.cpp rename count=zqad id=zqaf line=zqae
 0x10044451 EditTextField keyboardinput.cpp rename glyph=zqag key=zqad length=zqaf width=zqae
+0x10044880 Page::Page page.cpp pad 3 rename data=zqaf glyphs=zqad result=zqae size=zqag
+0x10044a96 Page::ReadToken page.cpp pad 1
 0x100460a0 InitGammaTable brightness.c rename exponent=zqah i=zqaf j=zqae row=zqag x=zqad
+0x10046200 DrawBriefing briefing.cpp rename height=zqaf i=zqah left=zqad name=zqag top=zqae width=zqai
 0x100474f0 TextGlyph::DrawNextChar textglyph.cpp pad 1
 0x100479b7 TextGlyph::TextGlyph textglyph.cpp pad 1
+0x10047c6c TMPackDataBase::TMPackDataBase tmpackdatabase.cpp rename count=zqai current=zqah entry=zqae fileSize=zqaf i=zqaj next=zqag offset=zqak result=zqad
+0x10047f03 TMPackDataBase::~TMPackDataBase tmpackdatabase.cpp rename entry=zqad i=zqae
 0x10048051 TMPackDataBase::GetDBItem tmpackdatabase.cpp rename data=zqae entry=zqad
 0x1004813f TMPackDataBase::GetDBItemLZ tmpackdatabase.cpp rename dst=zqag entry=zqaf flags=zqad n=zqaj out=zqai remaining=zqae src=zqah
 0x1004843e TMPackDataBase::ReadDBItemLine tmpackdatabase.cpp rename c=zqae entry=zqad i=zqaf

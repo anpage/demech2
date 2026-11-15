@@ -48,7 +48,12 @@ extern "C"
 	MechS32 GetFaceShade(Face* p_face, Vertex* p_vertices);
 	void QueueFace(Face* p_face, Vertex* p_vertices);
 #ifdef MW2_ACCEL
-	ProjectedVertex* ClipProjectedEdge(ProjectedVertex* p_a, ProjectedVertex* p_b, MechFloat p_plane);
+	ProjectedVertex* ClipProjectedEdge(
+		ProjectedVertex* p_a,
+		ProjectedVertex* p_b,
+		MechFloat p_plane,
+		MechS32 p_unk0x0c
+	);
 	MechS32 ProjectPolygon(Vertex* p_vertices, MechU32 p_count, MechS32 p_unk0x08);
 #endif
 

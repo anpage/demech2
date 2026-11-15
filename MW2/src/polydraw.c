@@ -1094,11 +1094,11 @@ void FUN_100692db(Eyepoint* p_eyepoint)
 // one bit of the case; the parts are filled in g_skyColor (the sky, with m_drawSky) and
 // g_groundColor (the ground, with m_drawGround), and with m_horizonBand a shaded band over the
 // horizon blends the sky into the ground.
-// Stack-slot permutation; the original calls IsAboveHorizon for the corners in the order of the
-// terms, (x0, y1) first (commutative operand order).
+// The original calls IsAboveHorizon for the corners in the order of the terms, (x0, y1) first,
+// which the corner bits written as shifts keep.
 // The Matrox edition's draws the textured sky and ground first (skygnd.par), takes the colors from
-// their textures, and draws through its renderer; its diffs are the operand orders of the corner
-// sum and of the 16-bit color's terms.
+// their textures, and draws through its renderer. Its original converts each 16-bit color from
+// the green term first.
 // FUNCTION: MW2 0x1004320b
 // FUNCTION: MW2MATROX 0x10069419
 void DrawSkyAndGround(Eyepoint* p_eyepoint)
@@ -1162,8 +1162,8 @@ void DrawSkyAndGround(Eyepoint* p_eyepoint)
 	roll.m_rows[0][1] = -roll.m_rows[1][0];
 	roll.m_rows[3][0] = roll.m_rows[3][1] = roll.m_rows[3][2] = 0;
 	TransformPoint(&roll, &dx, &dy, &dz);
-	corners = IsAboveHorizon(x0, y1, p_eyepoint) * 4 + IsAboveHorizon(x1, y1, p_eyepoint) * 8 +
-			  IsAboveHorizon(x1, y0, p_eyepoint) * 2 + IsAboveHorizon(x0, y0, p_eyepoint);
+	corners = (IsAboveHorizon(x0, y1, p_eyepoint) << 2) + (IsAboveHorizon(x1, y1, p_eyepoint) << 3) +
+			  (IsAboveHorizon(x1, y0, p_eyepoint) << 1) + IsAboveHorizon(x0, y0, p_eyepoint);
 	if (!g_skyColorsRead) {
 		FUN_100519b0(0x18c, &g_skyRed, &g_skyGreen, &g_skyBlue);
 		FUN_100519b0(0x108, &g_groundRed, &g_groundGreen, &g_groundBlue);
@@ -1534,6 +1534,7 @@ void DrawSkyAndGround(Eyepoint* p_eyepoint)
 		A3D_DrawPolygon(&g_currentPane, 4, band);
 	}
 #else
+	MechS32 dy;
 	MechS32 y1;
 	MechS32 x1;
 	MechS32 yLeft;
@@ -1542,7 +1543,6 @@ void DrawSkyAndGround(Eyepoint* p_eyepoint)
 	MechS32 dx;
 	PANE rect;
 	MechU32 band[4 * 6];
-	MechS32 dy;
 	MechS32 dz;
 	MechS32 xBottom;
 	MechS32 yRight;
@@ -1565,8 +1565,8 @@ void DrawSkyAndGround(Eyepoint* p_eyepoint)
 	roll.m_rows[0][1] = -roll.m_rows[1][0];
 	roll.m_rows[3][0] = roll.m_rows[3][1] = roll.m_rows[3][2] = 0;
 	TransformPoint(&roll, &dx, &dy, &dz);
-	corners = IsAboveHorizon(x0, y1, p_eyepoint) * 4 + IsAboveHorizon(x1, y1, p_eyepoint) * 8 +
-			  IsAboveHorizon(x1, y0, p_eyepoint) * 2 + IsAboveHorizon(x0, y0, p_eyepoint);
+	corners = (IsAboveHorizon(x0, y1, p_eyepoint) << 2) + (IsAboveHorizon(x1, y1, p_eyepoint) << 3) +
+			  (IsAboveHorizon(x1, y0, p_eyepoint) << 1) + IsAboveHorizon(x0, y0, p_eyepoint);
 	band[2] = band[8] = g_skyColor << 16;
 	band[14] = band[20] = (g_groundColor - 1) << 16;
 	switch (corners) {

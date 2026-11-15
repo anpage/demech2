@@ -537,11 +537,11 @@ void QueueFace(Face* p_face, Vertex* p_vertices)
 #endif
 
 // ClipEdgeToNearPlane for two projected vertices, at the depth p_plane (the new vertex still
-// takes g_viewNearPlane's depth).
-// The 3Dfx edition's diff is register allocation, scheduling and float operand order only.
+// takes g_viewNearPlane's depth). It takes a fourth argument it doesn't read (the 3Dfx edition
+// pops it). Nothing in either edition calls it.
 // FUNCTION: MW2MATROX 0x10077fa7
 // FUNCTION: MW23DFX 0x1002c250
-ProjectedVertex* ClipProjectedEdge(ProjectedVertex* p_a, ProjectedVertex* p_b, MechFloat p_plane)
+ProjectedVertex* ClipProjectedEdge(ProjectedVertex* p_a, ProjectedVertex* p_b, MechFloat p_plane, MechS32 p_unk0x0c)
 {
 	MechFloat x0;
 	MechFloat y0;
@@ -596,8 +596,8 @@ ProjectedVertex* ClipProjectedEdge(ProjectedVertex* p_a, ProjectedVertex* p_b, M
 	if (z1 <= z0) {
 		if (FIXED_IS_NONZERO(span = z0 - z1)) {
 			toPlane = p_plane - z1;
-			x0 = (x0 - x1) * toPlane / span + x1;
-			y0 = (y0 - y1) * toPlane / span + y1;
+			x0 = ((x0 - x1) * toPlane) / span + x1;
+			y0 = ((y0 - y1) * toPlane) / span + y1;
 			u0 = (u0 - u1) * toPlane / span + u1;
 			v0 = (v0 - v1) * toPlane / span + v1;
 			reda = (reda - redb) * toPlane / span + redb;
@@ -611,10 +611,10 @@ ProjectedVertex* ClipProjectedEdge(ProjectedVertex* p_a, ProjectedVertex* p_b, M
 	else {
 		if (FIXED_IS_NONZERO(span = z1 - z0)) {
 			toPlane = p_plane - z0;
-			x0 = (x1 - x0) * toPlane / span + x0;
-			y0 = (y1 - y0) * toPlane / span + y0;
-			u0 = (u1 - u0) * toPlane / span + u0;
-			v0 = (v1 - v0) * toPlane / span + v0;
+			x0 = ((x1 - x0) * toPlane) / span + x0;
+			y0 = ((y1 - y0) * toPlane) / span + y0;
+			u0 = ((u1 - u0) * toPlane) / span + u0;
+			v0 = ((v1 - v0) * toPlane) / span + v0;
 			reda = (redb - reda) * toPlane / span + reda;
 			greena = (greenb - greena) * toPlane / span + greena;
 			bluea = (blueb - bluea) * toPlane / span + bluea;

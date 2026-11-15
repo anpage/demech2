@@ -17,10 +17,18 @@ instruction. Each kind is a rewrite that keeps what the code computes:
                a chain of one of add, and, or, xor (mov r, a; add r, b; add r, c) in any order of
                its operands, none of which reads r; x87: fadd and fmul, and fsub/fsubr,
                fdiv/fdivr with theirs
+  chains       a comparison of two chains of loads (mov eax, [a]; mov eax, [eax*4+g]; mov ecx, [b];
+               ... cmp [eax+8], ecx), its sides evaluated in the other order or registers, the
+               final dereference moved between a chain and the comparison, the condition mirrored
+               with the comparison's operands; or two chains that give an address's base and index
+               (p->m_items[i]), evaluated in the other order or registers; the chains only load
+               (no stores or calls) and read no register but their own and ebp
 
 Each rewrite also checks that what it changes is dead afterwards: a register the swapped loads
 leave holding the other value, and the flags a mirrored comparison sets (written again before
-they're read on every path, following the function's jumps). No kind changes an operation's width or
+they're read on every path, following the function's jumps; with the callee's decorated name, a
+call reads only its register arguments), and that no operand moved into or out of a load reads the
+register the load writes. No kind changes an operation's width or
 signedness, a constant, a displacement of a member, a referenced global or function, or the number
 of instructions. At /Od those kinds are all the entropy there is (CLAUDE.md, "Codegen Patterns"):
 an instruction moved, merged, added or missing is a source difference, and so is everything this
@@ -50,12 +58,23 @@ Optimized code (/Ox units) has more, and four more kinds, checked together:
 An operand nothing names (an unannotated symbol, an import the original's import table doesn't
 list) matches nothing.
 
+In optimized code, a source difference whose only effect is scheduling still looks like entropy.
+`--coverage` narrows that (the plan's rule 5, tools/coverage.py): an optimized function is
+covered when an /Od target proves the same function (exact or witnessed) and both targets'
+preprocessed units give it the same tokens and the same declarations, every one it reaches
+transitively (types, struct layouts, prototypes, inline bodies; macros are expanded). The 3Dfx
+edition is covered by the Matrox edition only, the Matrox edition's optimized units by 1.1. The
+report and the JSON (`covered_by`, or `uncovered` and why) say which; it changes no function's
+verdict or cost. It needs the compilers (cl /EP) and the covering targets' states
+(`--cover-states`, their certify.py or audit.py --json, or certified here).
+
 What remains `unexplained` is either a difference to fix or one to record in
 `tools/known_diffs.txt`: a line per target and function, with a hash of the function's rebuilt and
 original code (so another diff of the same function no longer matches it) and the reason. With
 `--check`, the tool fails on an unexplained function without a matching line, on a line whose hash
 no longer matches, and on a line whose function is proven or classified now (remove it). The reason
-`undiagnosed` marks a line nobody has looked at: it keeps the unexplained weight.
+`undiagnosed` marks a line nobody has looked at, and a reason that says `to investigate` one whose
+cause isn't settled yet (it says what was found so far): both keep the unexplained weight.
 
 Costs (summed per target): 0 byte-identical, 1 a witness by padding, 2 one with renamed locals, 25
 classified, 250 a known difference with a reason, 1000 unexplained or undiagnosed.
@@ -70,6 +89,7 @@ byte-identical or witnessed, with the verdict at REV^.
 usage (from the repository root, with reccmp's environment):
   python tools/audit.py --target MW2 [--build build-wine] [--wine PATH] [--function NAME ...]
                         [--check | --write] [--json FILE] [--markdown FILE] [-v]
+                        [--coverage [--cover-states JSON ...]]
   python tools/audit.py --target MW2 --objects DIR ...   (objects and listings from certify.py)
   python tools/audit.py --corpus [--wine PATH]
   python tools/audit.py --find-corpus REV --target MW23DFX [--wine PATH]
@@ -91,7 +111,7 @@ from capstone.x86 import X86_OP_IMM, X86_OP_MEM, X86_OP_REG
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from certify import COST, Certify, _Unit, unit_annotations  # noqa: E402
 from funccmp import ends, read_yaml_paths  # noqa: E402
-from unitbuild import IMAGE_SYM_CLASS_EXTERNAL, NUMBERED, ROOT, TARGETS, Image, Object  # noqa: E402
+from unitbuild import IMAGE_REL_I386_DIR32, IMAGE_SYM_CLASS_EXTERNAL, NUMBERED, ROOT, TARGETS, Image, Object  # noqa: E402
 from witness import read_listing, slot_plan  # noqa: E402
 
 KNOWN = ROOT / "tools" / "known_diffs.txt"
@@ -145,10 +165,11 @@ def family(name):
     return "flags" if name in ("eflags", "flags") else FAMILIES.get(name, name)
 
 
-def dead_after(code, position, name):
+def dead_after(code, position, name, callees=None):
     """Whether a register (or "flags") is dead after `position`: on every path, written before it
     is read (following jumps to positions in the function; a call may read it, a return or a jump
-    out of the function does). Conservative."""
+    out of the function does). Conservative. With `callees` (address: decorated name), a call
+    reads only the registers its callee's name says it takes, and clobbers eax, ecx and edx."""
     seen = set()
     work = [position + 1]
     while work:
@@ -160,14 +181,19 @@ def dead_after(code, position, name):
             if k >= len(code) or code[k].kind != "code":
                 return False
             ins = code[k]
-            if name in ins.reads:
+            zeroing = ins.mnemonic in ("xor", "sub") and len(ins.ops) == 2 and ins.ops[0] == ins.ops[1] and ins.ops[0][0] == "reg"
+            if name in ins.reads and not (zeroing and name == family(ins.ops[0][1])):  # xor r, r reads nothing
                 return False
             if ins.mnemonic == "call":
                 if name in ("eax", "flags"):  # a call clobbers eax and the flags; /Gr passes ecx, edx
                     break
+                if callees is not None and name in CLOBBERED and name not in call_reads(callee_name(ins, callees)):
+                    break
                 return False
             if name in ins.writes:
                 break
+            if ins.mnemonic.startswith("ret") and name == "flags":
+                break  # no convention returns anything in the flags
             if ins.mnemonic.startswith(("ret", "loop")):
                 return False
             if ins.mnemonic.startswith("j"):
@@ -220,8 +246,10 @@ def lift(code, start, relocate, table_at, extent, tables=()):
                     targets.add(value[1])
                 if value is None and branch:
                     value = ("label", op.imm)
-                    if jump:
-                        targets.add(op.imm)  # a call's target is another function, not more of this one
+                    if jump and 0 <= op.imm < extent:
+                        # a call's target is another function, not more of this one, and so is
+                        # a jump past the function's extent (a tail jump to a later function)
+                        targets.add(op.imm)
                 ops.append(value if value is not None else ("imm", op.imm))
             elif op.type == X86_OP_MEM:
                 disp = relocate(offset + e.disp_offset) if e.disp_size == 4 else None
@@ -281,6 +309,10 @@ class Lifted:
                 offset = symbol.value + addend - function.start
                 if 0 <= offset <= len(function.code) and (symbol.storage != IMAGE_SYM_CLASS_EXTERNAL or symbol is function.symbol):
                     return ("label", offset)
+            if symbol.section in (-1, 0xFFFF):  # an absolute symbol
+                return ("addr", (symbol.value + addend) & 0xFFFFFFFF)
+            if symbol.name == "__except_list":  # the CRT's absolute 0: the SEH chain at fs:[0]
+                return ("addr", addend & 0xFFFFFFFF)
             target = annotations.address_of(symbol.name)
             if target is not None:
                 self.callees[(target + addend) & 0xFFFFFFFF] = symbol.name
@@ -294,8 +326,41 @@ class Lifted:
             data = obj.data_at(symbol, addend) if symbol.section > 0 else None
             if data:
                 return ("data", bytes(data))
+            data = relocated_data(symbol, addend)
+            if data:
+                return ("data", data)
             self.unverified.append(symbol.name)
             return ("unknown", symbol.name)
+
+        def relocated_data(symbol, addend, limit=256):
+            """The bytes of a data symbol that holds relocations (an SEH scope table: its filters
+            and handlers are labels of this function), each relocated field resolved to the
+            original's address, or None when one names nothing the original's addresses show."""
+            section = obj.section_of(symbol)
+            if section is None or section.data is None or symbol.section == function.symbol.section:
+                return None
+            start = symbol.value + addend
+            later = [s.value for s in obj.symbols if s.section == symbol.section and s.value > start]
+            end = min(min(later) if later else len(section.data), len(section.data), start + limit)
+            data = bytearray(section.data[start:end])
+            for o, target, kind in section.relocations:
+                if not start <= o < end:
+                    continue
+                if kind != IMAGE_REL_I386_DIR32 or o + 4 > end:
+                    return None
+                inner = struct.unpack_from("<i", data, o - start)[0]
+                if target is function.symbol or (target.section == function.symbol.section and target.storage != IMAGE_SYM_CLASS_EXTERNAL):
+                    offset = target.value + inner - function.start
+                    if not 0 <= offset <= len(function.code):
+                        return None
+                    value = address + offset
+                else:
+                    known = annotations.address_of(target.name)
+                    if known is None:
+                        return None
+                    value = known + inner
+                struct.pack_into("<I", data, o - start, value & 0xFFFFFFFF)
+            return bytes(data)
 
         def ours_table(at):
             if at not in relocations or not self.at_table(function.code, relocations, at):
@@ -381,6 +446,10 @@ class Lifted:
             return op[:5] + (("label", op[5] - address),) + op[6:]  # a jump table inside the function
         if op[0] == "mem" and isinstance(op[5], int) and op[2] is None and op[5] >= 0x10000:
             return op[:5] + (("addr", op[5] & 0xFFFFFFFF),) + op[6:]
+        if op[0] == "imm" and address <= op[1] < address + extent:
+            # an address inside the function that isn't a branch (a recursive function pushing
+            # itself, an SEH handler's label): our relocation names it as a label too
+            return ("label", op[1] - address)
         if op[0] == "imm" and op[1] >= 0x10000:
             return ("imm", op[1])
         return op
@@ -441,6 +510,11 @@ def is_slot(op):
     return op[0] == "mem" and op[2] == "ebp" and op[3] is None and isinstance(op[5], int) and op[5] < 0
 
 
+def is_local(op):
+    """A slot, or an element of a local array (`[ebp+i*4-720]`: the displacement names the array)."""
+    return op[0] == "mem" and op[2] == "ebp" and isinstance(op[5], int) and op[5] < 0
+
+
 def apply_slots(ours, theirs, local_list, image):
     """Rewrite our [ebp-N] by a one-to-one map of whole locals, if one maps us onto the original:
     (the rewritten code, None), or (None, why there is none: None when no slot differs)."""
@@ -449,7 +523,7 @@ def apply_slots(ours, theirs, local_list, image):
         if a.mnemonic != b.mnemonic or len(a.ops) != len(b.ops):
             continue
         for x, y in zip(a.ops, b.ops):
-            if is_slot(x) and is_slot(y):
+            if is_local(x) and is_local(y) and x[3:5] == y[3:5]:
                 pairs.append((x[5], y[5]))
     if not any(x != y for x, y in pairs):
         return None, None
@@ -483,7 +557,7 @@ def apply_slots(ours, theirs, local_list, image):
         return None, None
 
     def remap(op):
-        if not is_slot(op) or op[5] < starts[0]:
+        if not is_local(op) or op[5] < starts[0]:
             return op
         k = max(i for i, s in enumerate(starts) if s <= op[5])
         return op[:5] + (op[5] + shift.get(k, 0),) + op[6:]
@@ -496,7 +570,7 @@ def copy(ins, mnemonic=None, ops=None):
                ins.access, ins.raw)
 
 
-def rewrites(ours, k):
+def rewrites(ours, k, callees=None):
     """Candidate rewrites of our code around position k: (kind, first position, new instructions)."""
     out = []
     n = len(ours)
@@ -514,12 +588,14 @@ def rewrites(ours, k):
             if a[0] == "reg" or b[0] == "reg":
                 out.append(("mirror", c, [copy(cmp, ops=[b, a]), mirrored]))
         if c >= 1 and ours[c - 1].mnemonic in ("mov", "movsx", "movzx") and ours[c - 1].ops[0] == a and b[0] in ("mem", "reg", "imm", "addr") \
-                and a[0] == "reg" and dead_after(ours, c + 1, family(a[1])):
+                and a[0] == "reg" and dead_after(ours, c + 1, family(a[1])) \
+                and family(a[1]) not in operand_registers(b) | operand_registers(ours[c - 1].ops[1]):
             load = ours[c - 1]
             if b[0] == "mem" and load.ops[1][0] == "mem" and b[6] == load.ops[1][6] or b[0] != "mem" and load.mnemonic == "mov":
                 out.append(("mirror", c - 1, [copy(load, ops=[a, b]), copy(cmp, ops=[a, load.ops[1]]), mirrored]))
         if c >= 1 and ours[c - 1].mnemonic == "mov" and b[0] == "reg" and ours[c - 1].ops[0] == b and a[0] == "mem" \
-                and ours[c - 1].ops[1][0] == "mem" and ours[c - 1].ops[1][6] == a[6] and dead_after(ours, c + 1, family(b[1])):
+                and ours[c - 1].ops[1][0] == "mem" and ours[c - 1].ops[1][6] == a[6] and dead_after(ours, c + 1, family(b[1])) \
+                and family(b[1]) not in operand_registers(a) | operand_registers(ours[c - 1].ops[1]):
             # mov r, x; cmp y, r  becomes  mov r, y; cmp x, r (the condition mirrored)
             load = ours[c - 1]
             out.append(("mirror", c - 1, [copy(load, ops=[b, a]), copy(cmp, ops=[load.ops[1], b]), mirrored]))
@@ -532,13 +608,16 @@ def rewrites(ours, k):
             source, other = load.ops[1], op.ops[1]
             if source[0] == "mem" and other[0] == "mem" and source[6] != other[6]:
                 continue
-            if source[0] == "mem" and other[0] == "mem":
-                continue  # two memory operands can't both be the op's
+            dest = load.ops[0]
+            if dest[0] == "reg" and family(dest[1]) in operand_registers(source) | operand_registers(other) or \
+                    dest[0] == "mem" and "mem" in (source[0], other[0]):
+                continue  # an operand that reads what the load writes isn't the same value after it
             out.append(("commutative", c - 1, [copy(load, ops=[load.ops[0], other]), copy(op, ops=[op.ops[0], source])]))
         if c >= 2 and op.mnemonic in COMMUTATIVE and len(op.ops) == 2 and op.ops[1][0] == "reg":
             first, second = ours[c - 2], ours[c - 1]
             if first.mnemonic == second.mnemonic == "mov" and {first.ops[0], second.ops[0]} == {op.ops[0], op.ops[1]} \
-                    and dead_after(ours, c, family(op.ops[1][1])):
+                    and dead_after(ours, c, family(op.ops[1][1])) \
+                    and not {family(first.ops[0][1]), family(second.ops[0][1])} & (operand_registers(first.ops[1]) | operand_registers(second.ops[1])):
                 out.append(("commutative", c - 2, [copy(first, ops=[first.ops[0], second.ops[1]]), copy(second, ops=[second.ops[0], first.ops[1]]), op]))
     # x87: fld a; fop b  becomes  fld b; fop' a.
     for c in (k - 1, k, k + 1):
@@ -563,6 +642,213 @@ def rewrites(ours, k):
             mask, condition = X87_MIRROR[key]
             out.append(("mirror", c - 1, [copy(load, ops=[cmp.ops[0]]), copy(cmp, ops=[load.ops[0]]), status,
                                          copy(test, ops=[test.ops[0], ("imm", mask)]), copy(jcc, condition)]))
+    out += load_chains(ours, k, callees)
+    return out
+
+
+# A comparison of two chains of loads, evaluated in the other order.
+#
+# At /Od the compilers order the sides of a comparison by the symbol table, and a side can be a
+# chain of loads: g_players[a]->m_team == g_players[b]->m_team is
+#     mov eax, [a]; mov eax, [eax*4+g_players]; mov ecx, [b]; mov ecx, [ecx*4+g_players];
+#     mov ecx, [ecx+8]; cmp [eax+8], ecx; jne
+# and the same source can evaluate b's side first. Each side is a chain of loads into one register
+# (every instruction writes it, the first reads no register but ebp, the others only their own),
+# and its value is what the comparison's operand on that side reads: the register, or memory
+# through it (the final dereference, which can move between the chain and the comparison). The
+# rewrite evaluates the sides in either order, in either register, with the final dereference on
+# either side, and the condition mirrored when the comparison's operands are swapped. Sound when
+# the chains only load (no stores or calls: their reads commute), neither reads the other's
+# register, both registers are dead after the condition and the flags are read only by it.
+
+CHAIN_LOADS = ("mov", "movsx", "movzx", "lea")
+SIZED = {("eax", 4): "eax", ("eax", 2): "ax", ("eax", 1): "al", ("ecx", 4): "ecx", ("ecx", 2): "cx", ("ecx", 1): "cl",
+         ("edx", 4): "edx", ("edx", 2): "dx", ("edx", 1): "dl", ("ebx", 4): "ebx", ("ebx", 2): "bx", ("ebx", 1): "bl",
+         ("esi", 4): "esi", ("edi", 4): "edi"}
+REGISTER_SIZE = {name: size for (_, size), name in SIZED.items()}
+
+
+def operand_registers(op):
+    """The register families an operand reads (an address's base and index, or the register)."""
+    if op[0] == "reg":
+        return {family(op[1])}
+    if op[0] == "mem":
+        return {family(r) for r in (op[2], op[3]) if r}
+    return set()
+
+
+def chain_back(ours, end, fam):
+    """The chain of loads into `fam` that ends just before position `end`: its first position, or
+    None. Every instruction writes the whole register from a source that reads no register but ebp
+    and fam (the first: ebp only)."""
+    k = end - 1
+    while k >= 0:
+        ins = ours[k]
+        if ins.kind != "code" or ins.mnemonic not in CHAIN_LOADS or len(ins.ops) != 2:
+            return None
+        dest, source = ins.ops
+        if dest[0] != "reg" or dest[1] != fam or source[0] != "mem" and not (source[0] in ("reg", "imm", "addr") and ins.mnemonic == "mov"):
+            return None
+        if ins.mnemonic == "lea" and source[0] != "mem" or source[0] == "mem" and source[1] not in (None, "ds"):
+            return None
+        reads = operand_registers(source) - {"ebp"}
+        if not reads <= {fam}:
+            return None
+        if not reads:
+            return k
+        k -= 1
+    return None
+
+
+def renamed(op, mapping):
+    """An operand with its registers' families renamed (al to cl with eax to ecx)."""
+    def one(name):
+        if name is None or family(name) not in mapping:
+            return name
+        fam, part = PART[name]
+        target = mapping[fam]
+        return {"e": target, "x": target[1:], "l": target[1] + "l", "h": target[1] + "h"}[part]
+    if op[0] == "reg":
+        return ("reg", one(op[1]))
+    if op[0] == "mem":
+        return op[:2] + (one(op[2]), one(op[3])) + op[4:]
+    return op
+
+
+def address_chains(ours, k, callees=None):
+    """An address whose base and index are two chains of loads (p->m_items[i]: mov eax, [p];
+    mov eax, [eax+16]; mov ecx, [i]; mov eax, [eax+ecx*4]), the chains evaluated in the other
+    order or registers. The instruction that uses the address reads no other register and writes
+    at most a whole register; both registers are dead after it but the one it writes."""
+    out = []
+    n = len(ours)
+    for c in range(k + 1, min(n, k + 40)):
+        use = ours[c]
+        if use.kind != "code":
+            continue
+        memory = [j for j, op in enumerate(use.ops) if op[0] == "mem"]
+        if len(memory) != 1:
+            continue
+        m = use.ops[memory[0]]
+        if not m[2] or not m[3] or m[1] not in (None, "ds"):
+            continue
+        fa, fb = family(m[2]), family(m[3])
+        if fa == fb or "ebp" in (fa, fb) or "esp" in (fa, fb):
+            continue
+        written = None
+        others = [(op, access) for j, (op, access) in enumerate(zip(use.ops, use.access)) if j != memory[0]]
+        if any(op[0] == "reg" and (access & 1 or use.mnemonic not in CHAIN_LOADS or op[1] not in REGISTER_SIZE or REGISTER_SIZE[op[1]] != 4)
+               for op, access in others) or any(op[0] not in ("reg", "imm") for op, _ in others):
+            continue
+        if others and others[0][0][0] == "reg":
+            written = family(others[0][0][1])
+        if use.reads - {fa, fb, "ebp", "esp"} or "flags" in use.reads:
+            continue
+        last = family(ours[c - 1].ops[0][1]) if ours[c - 1].ops and ours[c - 1].ops[0][0] == "reg" else None
+        if last not in (fa, fb):
+            continue
+        second = chain_back(ours, c, last)
+        first_fam = fb if last == fa else fa
+        first = chain_back(ours, second, first_fam) if second is not None else None
+        if first is None or first > k:
+            break
+        if any(f != written and not dead_after(ours, c, f, callees) for f in (fa, fb)):
+            break
+        chains = {last: [ours[x] for x in range(second, c)], first_fam: [ours[x] for x in range(first, second)]}
+        for one, two in ((first_fam, last), (last, first_fam)):
+            for r1, r2 in ((first_fam, last), (last, first_fam)):
+                new = []
+                for fam, reg in ((one, r1), (two, r2)):
+                    for ins in chains[fam]:
+                        dest, source = ins.ops
+                        source = renamed(source, {fam: reg})
+                        new.append(Ins(ins.offset, ins.mnemonic, [("reg", reg), source], "", "code", operand_registers(source), {reg}, [2, 1], ((), (reg,))))
+                address = renamed(m, {one: r1, two: r2})
+                for operand in [address] + ([address[:2] + (address[3], address[2]) + address[4:]] if m[4] == 1 else []):
+                    ops = list(use.ops)
+                    ops[memory[0]] = operand  # [a+b] is [b+a]
+                    candidate = new + [copy(use, ops=ops)]
+                    if [show(i) for i in candidate] != [show(i) for i in ours[first : c + 1]]:
+                        out.append(("chains", first, candidate))
+        break
+    return out
+
+
+def load_chains(ours, k, callees=None):
+    out = address_chains(ours, k, callees)
+    n = len(ours)
+    for c in range(k + 1, min(n - 1, k + 40)):
+        cmp = ours[c]
+        if cmp.kind != "code" or cmp.mnemonic != "cmp" or len(cmp.ops) != 2:
+            continue
+        reader = ours[c + 1]
+        if reader.mnemonic not in MIRROR or not dead_after(ours, c + 1, "flags"):
+            continue
+        a, b = cmp.ops
+        if a[0] not in ("reg", "mem") or b[0] not in ("reg", "mem") or a[0] == b[0] == "mem":
+            continue
+        fa, fb = operand_registers(a) - {"ebp"}, operand_registers(b) - {"ebp"}
+        if len(fa) != 1 or len(fb) != 1 or fa == fb:
+            continue
+        fa, fb = fa.pop(), fb.pop()
+        if a[0] == "mem" and (a[3] and family(a[3]) != fa or a[1] not in (None, "ds")) or \
+                b[0] == "mem" and (b[3] and family(b[3]) != fb or b[1] not in (None, "ds")):
+            continue
+        # The two chains: the second ends at the comparison, the first just before it.
+        last = family(ours[c - 1].ops[0][1]) if c >= 1 and ours[c - 1].ops and ours[c - 1].ops[0][0] == "reg" else None
+        if last not in (fa, fb):
+            continue
+        second = chain_back(ours, c, last)
+        first_fam = fb if last == fa else fa
+        first = chain_back(ours, second, first_fam) if second is not None else None
+        if first is None or first > k:
+            break
+        if any(not dead_after(ours, c + 1, f, callees) for f in (fa, fb)):
+            break
+        # Each side: (its chain of (mnemonic, source) loads, the operand the comparison reads).
+        sides = {}
+        for fam, start, end in ((first_fam, first, second), (last, second, c)):
+            sides[fam] = [(ours[x].mnemonic, ours[x].ops[1]) for x in range(start, end)]
+        values = {fa: (sides[fa], a), fb: (sides[fb], b)}
+        forms = {}
+        for fam, (chain, final) in values.items():
+            # The side's forms: as written; its final dereference moved into the chain (a register
+            # operand); its chain's last load moved into the comparison (a memory operand).
+            options = [(chain, final)]
+            size = REGISTER_SIZE.get(final[1]) if final[0] == "reg" else final[6]
+            if final[0] == "mem":
+                options.append((chain + [("mov", final)], ("reg", SIZED.get((fam, size)))))
+            elif chain and chain[-1][0] == "mov" and chain[-1][1][0] == "mem" and len(chain) > 1 and final[1] == fam \
+                    and chain[-1][1][6] == 4:
+                options.append((chain[:-1], chain[-1][1]))
+            forms[fam] = [(ch, fi, size) for ch, fi in options if fi[0] == "reg" and fi[1] or fi[0] == "mem"]
+        original_order = (fa, fb)  # the comparison's operands: a's side, then b's
+        for one, two in ((first_fam, last), (last, first_fam)):  # which side is evaluated first
+            for r1, r2 in ((first_fam, last), (last, first_fam)):  # the registers they're evaluated in
+                for c1, f1, s1 in forms[one]:
+                    for c2, f2, s2 in forms[two]:
+                        if f1[0] == f2[0] == "mem" or len(c1) + len(c2) != c - first or s1 != s2:
+                            continue
+                        new = []
+                        for fam, reg, chain in ((one, r1, c1), (two, r2, c2)):
+                            mapping = {fam: reg}
+                            for mnemonic, source in chain:
+                                source = renamed(source, mapping)
+                                dest = ("reg", reg if mnemonic != "mov" or source[0] != "mem" or source[6] == 4 else SIZED.get((reg, source[6])))
+                                new.append(Ins(ours[first].offset, mnemonic, [dest, source], "", "code", operand_registers(source),
+                                               {reg}, [2, 1], ((), (dest[1],))))
+                        finals = {one: renamed(f1, {one: r1}), two: renamed(f2, {two: r2})}
+                        for left, right in ((original_order[0], original_order[1]), (original_order[1], original_order[0])):
+                            x, y = finals[left], finals[right]
+                            if x[0] == "mem" and y[0] == "mem" or ("reg", None) in (x, y):
+                                continue
+                            swapped = left != original_order[0]
+                            compare = copy(cmp, ops=[x, y])
+                            compare.reads = operand_registers(x) | operand_registers(y)
+                            candidate = new + [compare, copy(reader, MIRROR[reader.mnemonic]) if swapped else reader]
+                            if [show(i) for i in candidate] != [show(i) for i in ours[first : c + 2]]:
+                                out.append(("chains", first, candidate))
+        break
     return out
 
 
@@ -628,6 +914,18 @@ UNKNOWN_MEMORY = ("call", "ret", "leave", "enter", "pushal", "popal", "pushad", 
 
 def is_terminator(ins):
     return ins.kind != "code" or ins.mnemonic.startswith(("j", "ret", "loop")) or ins.mnemonic == "(the original goes on)"
+
+
+def callee_name(ins, callees):
+    """The decorated name a call's target has in our code, or None."""
+    target = ins.ops[0] if ins.ops else None
+    if target and target[0] == "addr":
+        return callees.get(target[1])
+    if target and target[0] == "unknown":
+        return target[1]
+    if target and target[0] == "mem" and isinstance(target[5], tuple) and target[5][0] == "addr" and target[2] is None:
+        return callees.get(target[5][1])
+    return None
 
 
 def call_reads(name):
@@ -1334,7 +1632,7 @@ def classify(lifted, local_list, optimized_unit, steps=None):
             return kinds, None
         k = bad[0]
         chain = reassociate(ours, theirs, k, image)
-        candidates = rewrites(ours, k) + ([("commutative", chain[0], chain[1])] if chain else [])
+        candidates = rewrites(ours, k, lifted.callees) + ([("commutative", chain[0], chain[1])] if chain else [])
         for kind, first, new in candidates:
             window = range(first, first + len(new))
             if all(same(new[i - first], theirs[i], image) for i in window):
@@ -1426,7 +1724,8 @@ def write_known(path, target, results, known):
             lines.append("%s %s %s %s %s" % (target, r["address"], r["name"], r["hash"], reason))
     header = ["# Functions that are neither byte-identical, proven by a witness nor classified (tools/audit.py),",
               "# and why: target, address, function, a hash of both sides' code, the reason. `undiagnosed` marks",
-              "# a line nobody has looked at yet. tools/audit.py --check fails on an unexplained function",
+              "# a line nobody has looked at yet, `to investigate` one whose cause isn't settled (both weigh as",
+              "# unexplained). tools/audit.py --check fails on an unexplained function",
               "# without a line, on a hash that no longer matches, and on a line whose function no longer needs it.", ""]
     order = {t: k for k, t in enumerate(TARGETS)}
     lines.sort(key=lambda l: (order.get(l.split()[0], 99), l.split()[1]))
@@ -1551,6 +1850,8 @@ def main():
     parser.add_argument("--show", action="store_true", help="Print both sides of each --function, as lifted")
     parser.add_argument("--check", action="store_true", help="Fail on what tools/known_diffs.txt doesn't cover")
     parser.add_argument("--write", action="store_true", help="Rewrite the target's lines of tools/known_diffs.txt")
+    parser.add_argument("--coverage", action="store_true", help="Report which optimized functions an /Od proof covers (rule 5; needs the compilers)")
+    parser.add_argument("--cover-states", nargs="*", metavar="JSON", help="For --coverage: the covering targets' certify.py or audit.py --json (else certified here)")
     parser.add_argument("--json")
     parser.add_argument("--markdown")
     parser.add_argument("-v", "--verbose", action="store_true")
@@ -1617,10 +1918,10 @@ def main():
         if r["verdict"] == "unexplained" and k:
             if k["hash"] != r["hash"]:
                 failures.append("%s %s: its code changed since tools/known_diffs.txt's line %d (rerun --write and review the reason)" % (r["address"], r["name"], k["line"]))
-            elif k["reason"] != "undiagnosed":
+            elif k["reason"] != "undiagnosed" and "to investigate" not in k["reason"]:
                 r["verdict"], r["reason"] = "known", k["reason"]
             else:
-                r["reason"] = "undiagnosed"
+                r["reason"] = k["reason"]
         elif r["verdict"] == "unexplained":
             failures.append("%s %s: unexplained, and not in tools/known_diffs.txt" % (r["address"], r["name"]))
         elif k:
@@ -1641,13 +1942,116 @@ def main():
         for failure in failures:
             print(failure)
     print("%s: %d functions: %s; cost %d" % (args.target, len(results), ", ".join("%d %s" % (counts[v], v) for v in ("exact", "witness", "classified", "known", "unexplained") if counts[v]), total))
+    coverage_summary = None
+    if args.coverage:
+        wanted = cover(args, args.target, tree, manifest, results, certify.annotations)
+        coverage_summary = {}
+        for verdict in ("exact", "witness", "classified", "known", "unexplained"):
+            group = [r for r in wanted if r["verdict"] == verdict]
+            if group:
+                coverage_summary[verdict] = {"covered": sum("covered_by" in r for r in group), "functions": len(group)}
+        if args.verbose:
+            for r in wanted:
+                if r["verdict"] not in ("exact", "witness"):
+                    what = "covered by %(target)s %(address)s (%(state)s)" % r["covered_by"] if "covered_by" in r else "not covered: " + r["uncovered"]
+                    print("%s %-11s %-32s %s" % (r["address"], r["verdict"], r["name"], what))
+        print("%s: coverage of %d optimized functions by an /Od proof (report-only): %s" % (args.target, len(wanted), ", ".join(
+            "%s %d of %d" % (v, c["covered"], c["functions"]) for v, c in coverage_summary.items()) or "none"))
     if args.json:
-        Path(args.json).write_text(json.dumps({"target": args.target, "cost": total, "functions": results}, indent=1) + "\n")
+        data = {"target": args.target, "cost": total, "functions": results}
+        if coverage_summary is not None:
+            data["coverage"] = coverage_summary
+        Path(args.json).write_text(json.dumps(data, indent=1) + "\n")
     return 1 if args.check and failures else 0
 
 
 def _unit(manifest, name):
     return _Unit(manifest["units"][name])
+
+
+def cover(args, target, tree, manifest, results, annotations):
+    """Rule 5 (tools/coverage.py): sets each optimized function's `covered_by` (the target, address
+    and state of the /Od proof that covers it) or `uncovered` (why not). Report-only."""
+    import coverage
+    from funccmp import Annotations, source_roots
+    from unitbuild import Target
+
+    optimized = {u for u, e in manifest["units"].items() if e.get("optimized")}
+    wanted = [r for r in results if r["unit"] in optimized]
+    if not wanted:
+        return []
+    build = ROOT / args.build
+    mine = Target(target, build)
+    scratch = build / "certify" / (target + "-coverage")
+    names = {}  # address -> (name, the definition's file and line)
+    for r in wanted:
+        found = [a for a in annotations.functions.get(r["name"], []) if a.offset == int(r["address"], 16)]
+        if found:
+            names[r["address"]] = (str(Path(found[0].filename).resolve()), found[0].line_number)
+    proofs = {}  # (file, line) -> (target, address, state, unit name) of a covering /Od proof
+    reasons = {}  # (file, line) -> why a coverer doesn't cover
+    coverer_units = {}  # coverer target -> {unit name: Unit}
+    for other in coverage.COVERERS.get(target, []):
+        theirs = Target(other, build)
+        units = {u.name: u for u in theirs.units if u.language in ("C", "CXX")}
+        unit_of = {str(p.resolve()): u for u in units.values() for p in u.files(tree).values()}
+        states = None
+        for path in args.cover_states or []:
+            data = json.loads(Path(path).read_text())
+            if (data.get("summary") or data).get("target") == other:
+                states = {s["address"]: (s.get("verdict", s["state"]), s.get("unit")) for s in data["functions"]}
+        if states is None:
+            print("coverage: certifying %s" % other)
+            certifier = Certify(other, build, args.wine, args.jobs, tree)
+            out = build / "certify" / (other + "-cover")
+            certifier.compile(out, listings=False)
+            states = {s["address"]: (s["state"], s["unit"]) for s in certifier.compare(out, Image(read_yaml_paths(tree).get(other)))}
+        other_annotations = Annotations(other, source_roots(other, tree), tree)
+        for name, found in other_annotations.functions.items():
+            for a in found:
+                key = (str(Path(a.filename).resolve()), a.line_number)
+                if key in proofs:
+                    continue
+                state, unit = states.get("%#010x" % a.offset, (None, None))
+                unit = units.get(unit) or unit_of.get(key[0])  # a fragment two units include: certify's
+                if unit is None or state is None:
+                    reasons.setdefault(key, "%s doesn't compile it" % other)
+                elif re.search(r"(?:^|\s)[/-]O[x12]", unit.arguments):
+                    reasons.setdefault(key, "%s compiles it optimized too" % other)
+                elif state not in ("exact", "witness"):
+                    reasons.setdefault(key, "%s's /Od function is %s" % (other, state))
+                else:
+                    proofs[key] = (other, "%#010x" % a.offset, state, unit.name)
+                    coverer_units.setdefault(other, {})[unit.name] = unit
+    # The preprocessed units, each target's own.
+    own_units = {u.name: u for u in mine.units if u.name in {r["unit"] for r in wanted}}
+    texts = {target: coverage.preprocess(mine, list(own_units.values()), tree, scratch / target, args.wine, args.jobs)}
+    for other, units in coverer_units.items():
+        texts[other] = coverage.preprocess(Target(other, build), list(units.values()), tree, scratch / other, args.wine, args.jobs)
+    parsed = {}
+
+    def closure(t, unit, name):
+        if (t, unit) not in parsed:
+            text = texts[t].get(unit)
+            parsed[(t, unit)] = coverage.Items(text) if text else None
+        items = parsed[(t, unit)]
+        return items.closure(name) if items else None
+
+    for r in wanted:
+        key = names.get(r["address"])
+        proof = proofs.get(key) if key else None
+        if proof is None:
+            r["uncovered"] = reasons.get(key, "no /Od target compiles it") if key else "no annotation in a source file"
+            continue
+        other, address, state, unit = proof
+        a, b = closure(target, r["unit"], r["name"]), closure(other, unit, r["name"])
+        if a is None or b is None:
+            r["uncovered"] = "its definition isn't found in the preprocessed unit"
+        elif a != b:
+            r["uncovered"] = "%s: %s" % (other, coverage.difference(a, b))
+        else:
+            r["covered_by"] = {"target": other, "address": address, "state": state, "tokens": coverage.fingerprint(a)}
+    return wanted
 
 
 if __name__ == "__main__":

@@ -90,7 +90,6 @@ void FUN_10011120(HWND p_dialog, MechS32 p_force)
 }
 
 // The briefing dialog (pane 6): the mission's briefing and the game options, and the chat.
-// Matches except for the stack slots of the locals, which VC++ 2.2 permutes.
 // FUNCTION: NETMECHW 0x100113ec
 BOOL CALLBACK FUN_100113ec(HWND p_dialog, UINT p_message, WPARAM p_wParam, LPARAM p_lParam)
 {
@@ -281,7 +280,7 @@ BOOL CALLBACK FUN_100113ec(HWND p_dialog, UINT p_message, WPARAM p_wParam, LPARA
 			break;
 		}
 
-		break;
+		return FALSE;
 	}
 
 	return FALSE;

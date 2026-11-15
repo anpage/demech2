@@ -122,7 +122,6 @@ MechChar* ExpandTextEscapes(MechChar* p_text, MechChar* p_quote)
 
 // Lays out p_text (p_size bytes, the last of which becomes its terminator) on as many pages as
 // it takes, adding them to p_pages. With p_quote, the text's escapes are expanded first.
-// Not 100%: the stack slots of page, text and the new temporaries are permuted.
 // FUNCTION: MW2SHELL 0x1002e09b
 void LayoutTextPages(
 	MechChar* p_text,

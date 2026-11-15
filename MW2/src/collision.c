@@ -692,7 +692,6 @@ MechS32 IsPointInFace(Face* p_face, Vertex* p_vertices, MechScalar p_x, MechScal
 
 // Tests whether (p_x, p_z) lies within the face, seen from above: the point must have vertices on
 // each side, and the edges crossing its z must pass it on both sides.
-// The 3Dfx edition's diff is register allocation, scheduling and float operand order only.
 // FUNCTION: MW2 0x100357f8
 // FUNCTION: MW2MATROX 0x100246e2
 // FUNCTION: MW23DFX 0x10010a90
@@ -797,7 +796,7 @@ MechS32 IsPointInFaceXZ(Face* p_face, Vertex* p_vertices, MechScalar p_x, MechSc
 		}
 
 #ifdef MW2_ACCEL
-		offset = vertex->m_worldX - p_x +
+		offset = (vertex->m_worldX - p_x) +
 				 (prev->m_worldX - vertex->m_worldX) * (p_z - vertex->m_worldZ) / (prev->m_worldZ - vertex->m_worldZ);
 		if (FIXED_IS_NEGATIVE(offset)) {
 #else
@@ -841,7 +840,6 @@ MechS32 IsPointInFaceXZ(Face* p_face, Vertex* p_vertices, MechScalar p_x, MechSc
 }
 
 // Tests whether (p_x, p_y) lies within the face, seen along z.
-// The 3Dfx edition's diff is register allocation, scheduling and float operand order only.
 // FUNCTION: MW2 0x10035b5b
 // FUNCTION: MW2MATROX 0x10024aa5
 // FUNCTION: MW23DFX 0x10010db0
@@ -946,7 +944,7 @@ MechS32 IsPointInFaceXY(Face* p_face, Vertex* p_vertices, MechScalar p_x, MechSc
 		}
 
 #ifdef MW2_ACCEL
-		offset = vertex->m_worldX - p_x +
+		offset = (vertex->m_worldX - p_x) +
 				 (prev->m_worldX - vertex->m_worldX) * (p_y - vertex->m_worldY) / (prev->m_worldY - vertex->m_worldY);
 		if (FIXED_IS_NEGATIVE(offset)) {
 #else
@@ -990,7 +988,6 @@ MechS32 IsPointInFaceXY(Face* p_face, Vertex* p_vertices, MechScalar p_x, MechSc
 }
 
 // Tests whether (p_y, p_z) lies within the face, seen along x.
-// The 3Dfx edition's diff is register allocation, scheduling and float operand order only.
 // FUNCTION: MW2 0x10035ebe
 // FUNCTION: MW2MATROX 0x10024e68
 // FUNCTION: MW23DFX 0x100110d0
@@ -1095,7 +1092,7 @@ MechS32 IsPointInFaceYZ(Face* p_face, Vertex* p_vertices, MechScalar p_y, MechSc
 		}
 
 #ifdef MW2_ACCEL
-		offset = vertex->m_worldY - p_y +
+		offset = (vertex->m_worldY - p_y) +
 				 (prev->m_worldY - vertex->m_worldY) * (p_z - vertex->m_worldZ) / (prev->m_worldZ - vertex->m_worldZ);
 		if (FIXED_IS_NEGATIVE(offset)) {
 #else

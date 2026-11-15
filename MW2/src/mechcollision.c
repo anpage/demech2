@@ -583,7 +583,6 @@ void DamageMechsInCollision(Mech* p_mech, Mech* p_other)
 // Damages p_mech by a collision along the last collision normal: from below (the normal points
 // down) the legs, scaled by the other mech's mass, from above both side torsos at half, and
 // otherwise the section facing the normal. p_other is NULL for a building or the ground.
-// MW2MATROX multiplies p_damage * 2 * m_tons in another order.
 // The 3Dfx edition's diff is register allocation, scheduling and float operand order only.
 // FUNCTION: MW2 0x1007669e
 // FUNCTION: MW2MATROX 0x10076927
@@ -608,7 +607,7 @@ void ApplyCollisionDamage(Mech* p_mech, Mech* p_other, MechScalar p_damage)
 		else {
 #ifdef MW2_ACCEL
 			// Twice the damage scaled by the masses, where 1.1 has four times.
-			damage = (p_damage * 2 * p_other->m_tons) / (p_mech->m_tons > 0 ? p_mech->m_tons : 1);
+			damage = (p_damage * 2 * (MechDouble) p_other->m_tons) / (p_mech->m_tons > 0 ? p_mech->m_tons : 1);
 #else
 			damage = MulDiv64(p_damage << 2, p_other->m_tons, p_mech->m_tons > 0 ? p_mech->m_tons : 1);
 #endif

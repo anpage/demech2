@@ -1383,7 +1383,6 @@ MechS32 BwdExecuteStream(BwdStream* p_stream)
 
 // Loads the mission world p_name (a resource number or a file name): resets the teams, the
 // thing table and the shape offset, then executes its BWD stream. Returns whether it loaded.
-// Stack-slot permutation of the locals.
 // FUNCTION: MW2 0x1000d30f
 // FUNCTION: MW2MATROX 0x10048c6d
 // FUNCTION: MW23DFX 0x1003f5e0
@@ -1431,14 +1430,8 @@ MechS32 LoadWorld(MechChar* p_name)
 		Error(0xb, "%s", key->m_name);
 		return FALSE;
 	}
-#ifdef MW2_ACCEL
 
 	return TRUE;
-#else
-	else {
-		return TRUE;
-	}
-#endif
 }
 
 // Counts the players and game things of each side and gives each game thing the radius of its

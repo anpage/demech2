@@ -82,7 +82,6 @@ void DrawCadetTraining(TMPackDataBase* p_database, MechS32 p_campaign, char**, W
 
 // The training screen's frame: once the trainer's welcome is over, the mission buttons and the
 // room's sound; EXIT, or a training mission after the trainer's video.
-// Not 100%: the stack slots of the locals are permuted.
 // FUNCTION: MW2SHELL 0x1003c966
 void CadetTrainingCallback(
 	TMPackDataBase* p_database,

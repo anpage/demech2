@@ -2876,8 +2876,6 @@ void HandleStarOrder(MechS32 p_team, AiMessage* p_order)
 
 // Sends members of star p_team after p_target: every free one on objective 4, else the free one
 // nearest the target's value (or the leader). Whether one went.
-// Stack-slot permutation: chosen, count, diff, i, leader, member, members, mission, nearest,
-// objective, required, result and slot and team.
 // FUNCTION: MW2 0x10055811
 // FUNCTION: MW2MATROX 0x10084aac
 // FUNCTION: MW23DFX 0x10014950
@@ -2972,9 +2970,9 @@ MechS32 AssignStarTarget(MechS32 p_team, MechU16 p_target)
 			member->m_ai.m_flags &= ~0x40;
 			return TRUE;
 		}
-
-		return FALSE;
 	}
+
+	return FALSE;
 }
 
 // Run by star p_team's leader: hands its posted order on and sends an idle member after the

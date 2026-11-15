@@ -350,8 +350,6 @@ void SaveSoundConfig()
 	}
 }
 
-// Stack-slot permutation: original paletteSize is at [ebp-0x10] and audioSize at
-// [ebp-0x14]; VC++ assigns them [ebp-0x14] and [ebp-0x10] here.
 // FUNCTION: MW2SHELL 0x10043a72
 void DrawOptions()
 {
@@ -461,7 +459,6 @@ BOOL CALLBACK ShowDialogProc(HWND p_hDlg, UINT p_msg, WPARAM p_wParam, LPARAM);
 // Shows a message box. p_text holds up to three lines separated by '|', then after a '#' the
 // buttons, also separated by '|': two buttons pick the yes/no dialog (0x80), anything else the
 // OK dialog (0x81). A single line goes in the middle. Returns the dialog's result (0 for yes).
-// Not 100%: the stack slots of count, line, id and the p_text++ temporary are permuted.
 // FUNCTION: MW2SHELL 0x10043e25
 MechS32 ShowDialog(const char* p_text, MechS32)
 {
@@ -508,7 +505,7 @@ MechS32 ShowDialog(const char* p_text, MechS32)
 		id = 0x81;
 	}
 
-	return DialogBoxParam(g_module, MAKEINTRESOURCE(id), g_gameWindow, (DLGPROC) ShowDialogProc, 0);
+	return DialogBoxParam(g_module, (LPCSTR) id, g_gameWindow, (DLGPROC) ShowDialogProc, 0);
 }
 
 // FUNCTION: MW2SHELL 0x10043f9a

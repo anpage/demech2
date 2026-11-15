@@ -314,7 +314,6 @@ MechS32 GetChassisCount()
 }
 
 // Sets up the mission briefing screen. p_wParam is WM_USER + 0xe for a trial.
-// Not 100%: the stack slots of pos, audioData, i and audioSize are permuted.
 // FUNCTION: MW2SHELL 0x100382e6
 void DrawMissionBriefing(TMPackDataBase* p_database, MechChar** p_scenario, WPARAM p_wParam)
 {

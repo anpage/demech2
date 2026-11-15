@@ -375,15 +375,9 @@ void BoxText(PANE* p_target, MechChar* p_text, Point p_pos, void* p_font, MechS3
 	}
 
 	left = p_pos.m_x;
-#ifdef MW2_ACCEL
 	top = p_pos.m_y - 1;
 	right = p_pos.m_x + width;
 	bottom = p_pos.m_y + height + 1;
-#else
-	right = p_pos.m_x + width;
-	bottom = p_pos.m_y + height + 1;
-	top = p_pos.m_y - 1;
-#endif
 	VFX_line_draw(p_target, left, top, right, top, 0, PIXEL_COLOR(p_color));
 	VFX_line_draw(p_target, left, bottom, right, bottom, 0, PIXEL_COLOR(p_color));
 	VFX_line_draw(p_target, left, top, left, bottom, 0, PIXEL_COLOR(p_color));

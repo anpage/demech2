@@ -34,7 +34,6 @@ HWND g_unk0x1001efa0;
 // Shows the game options in the host's dialog p_dialog, if they changed since they were last
 // shown or p_force is set: the mission's name, the players' names, the option check boxes and
 // values.
-// Matches except for the stack slots of the locals, which VC++ 2.2 permutes.
 // FUNCTION: NETMECHW 0x100089d0
 void FUN_100089d0(HWND p_dialog, MechS32 p_force)
 {

@@ -125,8 +125,6 @@ void FUN_100064e4(HWND p_dialog)
 }
 
 // The connection dialog: the player name and the service provider.
-// Matches except for the stack slots of the locals, which VC++ 2.2 permutes (which moves the
-// targets of the WM_HOTKEY jump table).
 // FUNCTION: NETMECHW 0x1000654c
 BOOL CALLBACK FUN_1000654c(HWND p_dialog, UINT p_message, WPARAM p_wParam, LPARAM)
 {
@@ -246,6 +244,7 @@ BOOL CALLBACK FUN_1000654c(HWND p_dialog, UINT p_message, WPARAM p_wParam, LPARA
 			break;
 		default:
 			return TRUE;
+			break;
 		}
 
 		return FALSE;

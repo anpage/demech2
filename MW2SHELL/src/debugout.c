@@ -142,8 +142,6 @@ void SetDebugLogName(MechChar* p_fileName)
 	strncpy(g_debugLogName, p_fileName, 0x100);
 }
 
-// Stack-slot permutation: original message is at [ebp-0x100] and args at [ebp-0x104];
-// VC++ assigns them [ebp-0x104] and [ebp-4] here.
 // FUNCTION: MW2SHELL 0x10017982
 void DebugPrintInternal(MechChar* p_message, ...)
 {
@@ -168,6 +166,8 @@ void DebugPrintInternal(MechChar* p_message, ...)
 		if (g_debugWindow != NULL) {
 			MessageBox(g_debugWindow, message, g_debugMessageTitle, g_debugMessageBoxType);
 		}
+		break;
+	default:
 		break;
 	}
 }

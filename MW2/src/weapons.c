@@ -304,8 +304,6 @@ void UpdateWeaponFireState(Mech* p_mech)
 
 // Launches one shot of p_slot's weapon from the player's current hardpoint. Returns 0 when the
 // weapon can't fire again: no hardpoint, or out of ammunition.
-// Stack-slot permutation: result, shot, def, found, dx, dy, dz, i and speed. Comparison order: the
-// original compares m_binCount with m_binIndex the other way round (either source order compiles alike).
 // FUNCTION: MW2 0x1004506c
 // FUNCTION: MW2MATROX 0x1002be15
 // FUNCTION: MW23DFX 0x10043cc0
@@ -320,6 +318,7 @@ MechS32 SpawnShot(Player* p_player, WeaponSlot* p_slot)
 	MechScalar dz;
 	MechS32 i;
 	MechScalar speed;
+	MechS32 spread;
 
 	def = &g_weaponDefs[p_slot->m_type];
 	result = 1;
@@ -397,7 +396,8 @@ MechS32 SpawnShot(Player* p_player, WeaponSlot* p_slot)
 			shot->m_steering[1] = FixedMul16(-g_gravity, def->m_gravity << 16);
 #endif
 			shot->m_steering[0] = shot->m_steering[2] = 0;
-			SpawnLaunchFx(p_player, shot->m_object, dx, dy, dz, shot->m_type == 3 || shot->m_type == 4);
+			spread = shot->m_type == 3 || shot->m_type == 4;
+			SpawnLaunchFx(p_player, shot->m_object, dx, dy, dz, spread);
 			ShowObjTree(shot->m_object);
 			DisableObjTreeCollision(shot->m_object);
 			UpdateObj(shot->m_object);
@@ -1015,8 +1015,6 @@ void PlaceAtFiringObj(Player* p_player, SceneObject* p_obj)
 
 // Places a launched shot's object at the player's hardpoint, pointing along the launch
 // direction, and sets it moving. p_spread moves it up to 100 units off the line.
-// Commutative operand order: the original calls FixedMul16(p_dz, sideX) first for upY. Stack-slot
-// permutation of the locals.
 // FUNCTION: MW2 0x10046573
 // FUNCTION: MW2MATROX 0x1002d3e4
 // FUNCTION: MW23DFX 0x10044ac0
@@ -1070,7 +1068,7 @@ void SpawnLaunchFx(
 		x += FixedMul16(offset, sideX);
 		z += FixedMul16(offset, sideZ);
 		upX = FixedMul16(p_dy, sideZ);
-		upY = FixedMul16(p_dz, sideX) + FixedMul16(sideZ, p_dx);
+		upY = FixedMul16(sideZ, p_dx) + FixedMul16(p_dz, sideX);
 		upZ = -FixedMul16(sideX, p_dy);
 		x += FixedMul16(offset, upX);
 		y += FixedMul16(offset, upY);

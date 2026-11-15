@@ -341,7 +341,6 @@ void RunMenuStatus(MenuDefinition* p_menu, MenuControl* p_control, MechS32 p_ind
 
 // A list of choices (MenuChoices): while selected, Space or Right (0xc8) picks the next and Left
 // (0xc9) the previous, wrapping, and its number key the next.
-// Stack-slot permutation; m_texts[value] loads the array before the index (index order).
 // The 3Dfx edition's diff is register allocation, scheduling and jump table addresses only.
 // FUNCTION: MW2 0x10073136
 // FUNCTION: MW2MATROX 0x1007e92e
@@ -451,8 +450,8 @@ void RunMenuChoice(MenuDefinition* p_menu, MenuControl* p_control, MechS32 p_ind
 		}
 
 		apply = FALSE;
+	case 3:
 		break;
-	case 3:;
 	}
 
 	if (((MenuChoices*) p_control->m_data)->m_count > 0) {

@@ -136,9 +136,8 @@ void UpdateDoor(Mech* p_mech)
 // Updates a mech of this class: in state 2 it heads for the nav point of its team's current
 // objective, when that is a nav objective; states 0, 1 and 3 go to 2, and in state 4 it is
 // destroyed after a delay.
-// Stack-slot permutation of the locals. The original tests the target's kind by loading its high
-// byte and shifting it back ((MechU16) (kind << 8) == 0x100); the mask compiles to a byte compare.
-// The 3Dfx edition's diff is register allocation, scheduling and float operand order only.
+// The original tests the target's kind by loading its high byte and shifting it back
+// ((MechU16) (kind << 8) == 0x100), where a mask would compile to a byte compare.
 // FUNCTION: MW2 0x1006844e
 // FUNCTION: MW2MATROX 0x10088b99
 // FUNCTION: MW23DFX 0x10021f20
@@ -166,12 +165,8 @@ void LateUpdateDoor(Mech* p_mech)
 		objective = &g_objectiveTable[team].m_objectives[g_currentObjective[team]];
 		mech->m_player->m_targetInfo.m_target = 0;
 		mech->m_player->m_steering->m_autopilot = 0;
-#ifdef MW2_ACCEL
 		if (objective->m_type == 0x100 && objective->m_targetCount > 0 &&
 			(MechU16) ((MechU8) (objective->m_targets[0] >> 8) << 8) == 0x100) {
-#else
-		if (objective->m_type == 0x100 && objective->m_targetCount > 0 && (objective->m_targets[0] & 0xff00) == 0x100) {
-#endif
 			nav = (MechU8) objective->m_targets[0];
 			GetObjPosition(mech->m_player->m_obj, &x, &y, &z);
 			navX = g_navTable[nav].m_position[0];
@@ -250,7 +245,6 @@ void ShutdownDoor(Mech* p_mech)
 }
 
 // Allocates p_player's mech, its weapons and sections, and sets them up.
-// The only diff is a stack-slot permutation of the locals.
 // FUNCTION: MW2 0x10068772
 // FUNCTION: MW2MATROX 0x10088ed4
 // FUNCTION: MW23DFX 0x100221a0
@@ -273,7 +267,7 @@ MechS32 CreateDoor(MechS32 p_index, Player* p_player)
 	}
 
 	mech = buffer;
-	weapons = (WeaponSlot*) (mech + 1);
+	weapons = (WeaponSlot*) ((Mech*) buffer + 1);
 	sections = (MechSection*) (weapons + 10);
 	extra = sections + 8;
 	mech->m_weapons = weapons;

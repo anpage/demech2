@@ -657,12 +657,10 @@ void MoveVideo(MechS32 p_index, MechS32 p_left, MechS32 p_top)
 // Opens the video p_name in the slot. A video with sound that the audio subsystem can play gets
 // Smacker's sound (flag 0x2000). With flag 0x1000 the first frame goes straight to the screen, with
 // flag 2 to the back buffer, otherwise to a buffer of its own.
-// Not 100%: the stack slots of dataDrive, result and the delete temporaries are permuted.
 // FUNCTION: MW2SHELL 0x1001703b
 BOOL LoadVideoFile(FmvSlot* p_slot, const MechChar* p_name)
 {
 	undefined4 dataDrive;
-	MechS32 result;
 
 	dataDrive = g_videoOnDataDrive;
 	p_slot->m_smack = SmackOpen(GetPathToVideo(p_name), ((p_slot->m_flags & 0x40) >> 1) | 0xfe00, 0);
@@ -704,14 +702,7 @@ BOOL LoadVideoFile(FmvSlot* p_slot, const MechChar* p_name)
 
 	if (p_slot->m_flags & 0x1000) {
 		p_slot->m_frame = 1;
-		if (g_windowActive != 0) {
-			result = g_currentDisplayBackend->m_acquireFramebuffer();
-		}
-		else {
-			result = -1;
-		}
-
-		if (result == 0) {
+		if ((g_windowActive ? g_currentDisplayBackend->m_acquireFramebuffer() : -1) == 0) {
 			SmackToBuffer(
 				p_slot->m_smack,
 				p_slot->m_left,

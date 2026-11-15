@@ -469,9 +469,9 @@ void UpdateProjection(Eyepoint* p_eyepoint)
 	MechS32 bottom;
 	MechS32 c;
 	MechS32 centerY;
+	MechS32 left;
 	MechS32 right;
 	MechS32 aspect;
-	MechS32 left;
 	MechS32 scaled2;
 	MechS32 low2;
 	MechS32 offsetY;
@@ -642,8 +642,8 @@ void GetEyepointTransform(Eyepoint* p_eyepoint, Matrix* p_matrix)
 // Projects the world point (*p_x, *p_y, *p_z) onto the screen in place (*p_z the depth). A point
 // at or behind the near plane is projected mirrored. Returns whether it is in front and on the
 // screen.
-// Stack-slot permutation of the locals. The Matrox edition's rebuild sums the dot products' terms
-// and compares the depth and the screen bounds in the other operand order (entropy).
+// The Matrox edition's original sums each dot product's terms in its own order (y's and z's from
+// the dz term) and compares the near plane with the depth from the other side.
 // The 3Dfx edition's diff is register allocation, scheduling and float operand order only.
 // FUNCTION: MW2 0x1004c11d
 // FUNCTION: MW2MATROX 0x1002975e
@@ -725,8 +725,9 @@ MechS32 ProjectWorldPoint(MechScalar* p_x, MechScalar* p_y, MechScalar* p_z)
 	if (behind) {
 		return 0;
 	}
-
-	return *p_x >= g_viewLeft && *p_x <= g_viewRight && *p_y >= g_viewTop && *p_y <= g_viewBottom;
+	else {
+		return *p_x >= g_viewLeft && *p_x <= g_viewRight && *p_y >= g_viewTop && *p_y <= g_viewBottom;
+	}
 #endif
 }
 

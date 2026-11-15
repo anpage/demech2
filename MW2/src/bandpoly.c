@@ -49,10 +49,9 @@ void DrawBandPolygon(MechU32 p_flags, MechS32 p_count, MechU32* p_points, MechS3
 // Draws a band as a textured quad (DrawAnimatedPolygon) from the first three points of a polygon: the
 // two whose m_unk0x0c/m_unk0x10 mark its ends (mode 0), or a square about the second one (mode
 // 1). A negative mark flips the texture. Returns half the band's width, or 0 without both ends.
-// The only diff is a stack-slot permutation of the locals.
 // The Matrox edition's takes the projected vertices themselves (their texture coordinates mark the
 // ends; a negative v flips the texture where 1.1 tests u), and the renderer's argument p_unk0x14.
-// The only other diff is a stack-slot permutation of the locals.
+// Its original adds dy first to y0 and x1 (y1 + dy keeps y1 first).
 // FUNCTION: MW2 0x100107de
 // FUNCTION: MW2MATROX 0x100459b0
 // FUNCTION: MW23DFX 0x1002a8e0
@@ -171,13 +170,13 @@ MechS32 DrawBand(MechU32 p_color, MechS32 p_count, MechS32* p_points, MechS32 p_
 	DrawAnimatedPolygon(p_color, 4, points, p_luma, 1, 0, p_unk0x14, 1);
 	return dx;
 #else
+	MechS32 y1;
 	MechS32 x0;
 	MechS32 y0;
 	MechS32 x1;
 	MechS32 step;
 	MechS32 flip;
 	MechS32 i;
-	MechS32 y1;
 	MechS32 haveStart;
 	MechS32 dy;
 	MechS32 dx;

@@ -117,10 +117,6 @@ MechS32 GetTextWidth(const MechChar* p_text, void* p_font)
 // Lists the objectives of priority p_priority the local player's star can see, from p_pos, each
 // with its state at the right edge of the panel. A name longer than 31 characters takes two
 // lines. In a network game whose only listed objective is a secondary one, it counts as primary.
-// Stack-slot permutation of the locals (label, objective, twoLines, height, i, target, mission,
-// primary, secondary, count, x and y).
-// MW2MATROX: &g_objectiveTable[g_localStar].m_objectives[i] loads g_localStar first (index
-// operand order).
 // FUNCTION: MW2 0x100050d1
 // FUNCTION: MW2MATROX 0x10021a1d
 // FUNCTION: MW23DFX 0x100176d0
@@ -241,7 +237,6 @@ void DrawObjectiveList(CockpitPanel* p_panel, Point* p_pos, void* p_font, MechU8
 				g_textColors[0xe] = PIXEL_COLOR(0xe);
 				VFX_string_draw(p_panel->m_target, p_pos->m_x, p_pos->m_y, p_font, text, g_textColors);
 				g_textColors[0xe] = PIXEL_COLOR(0xe);
-				break;
 			}
 
 			p_pos->m_y += height;

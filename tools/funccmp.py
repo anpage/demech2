@@ -145,10 +145,14 @@ class Annotations:
         lines = Path(function.filename).read_text(encoding="utf-8").split("\n")[function.line_number - 1 : function.end_line]
         return function_name(" ".join(line for line in lines if not line.lstrip().startswith("#")))
 
+    # The CRT's aliases: two public names at one address, of which the annotations name the one
+    # reccmp keeps (library_msvc.h).
+    ALIASES = {"__stricmp": "__strcmpi", "__strcmpi": "__stricmp", "__alloca_probe": "__chkstk", "__chkstk": "__alloca_probe"}
+
     def address_of(self, symbol):
         """The annotated address of a COFF symbol's entity, or None."""
         plain = re.sub(r"\$S\d+$", "", symbol_name(symbol))  # a function's static: _x$S123
-        for name in (symbol, plain):
+        for name in (symbol, plain, self.ALIASES.get(symbol)):
             found = self.names.get(name)
             if found and len(found) == 1:
                 return next(iter(found))

@@ -1593,7 +1593,6 @@ MechS32 CreateMech(MechS32 p_index, Player* p_player)
 
 // Lays out p_mech's allocation (its ten weapons, eight sections and 25 ammunition bins after it)
 // and empties the weapons and the bins.
-// Stack-slot permutation of the locals.
 // The 3Dfx edition's diff is register allocation and instruction scheduling only.
 // FUNCTION: MW2 0x10019881
 // FUNCTION: MW2MATROX 0x10010043
@@ -1602,10 +1601,10 @@ void InitMechArrays(struct Mech* p_mech)
 {
 	AmmoBin* bin;
 	WeaponSlot* slot;
-	AmmoBin* bins = NULL;
-	MechS32 i;
-	WeaponSlot* weapons = NULL;
 	MechSection* sections = NULL;
+	WeaponSlot* weapons = NULL;
+	MechS32 i;
+	AmmoBin* bins = NULL;
 
 	weapons = (WeaponSlot*) (p_mech + 1);
 	sections = (MechSection*) (weapons + 10);

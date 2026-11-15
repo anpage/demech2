@@ -99,6 +99,7 @@ void ClearFramePrj(FramePrj* p_prj)
 MechS16 LoadAnim2d(MechU32 p_flags, MechS32 p_frameTime, MechS32 p_type, MechS16* p_resourceId)
 {
 	Anim2d* anim;
+	MechS32 index;
 
 	if (g_anim2dCount >= 7) {
 		return -1;
@@ -124,7 +125,8 @@ MechS16 LoadAnim2d(MechU32 p_flags, MechS32 p_frameTime, MechS32 p_type, MechS16
 	anim->m_flags = p_flags;
 	anim->m_frameTime = p_frameTime;
 	anim->m_resourceId = *p_resourceId;
-	return g_anim2dCount++;
+	index = g_anim2dCount++;
+	return index;
 }
 
 // Frees one animation, or all of them for a negative index.
