@@ -76,23 +76,63 @@ def read_records(path):
 TOKEN = re.compile(r"""//[^\n]*|/\*.*?\*/|"(?:\\.|[^"\\\n])*"|'(?:\\.|[^'\\\n])*'|[A-Za-z_$][\w$]*|\d[\w.]*|->|::|\S""", re.S)
 
 
-def rename(text, first, last, names):
-    """The text with the identifiers in `names` renamed between two lines (1-based, inclusive),
-    members (after `.`, `->` or `::`) and preprocessor lines left alone."""
-    lines = text.split("\n")
-    body = "\n".join(lines[first - 1 : last])
+def rename_tokens(body, names, directives=False):
+    """`body` with the identifiers in `names` renamed, members (after `.`, `->` or `::`) left alone,
+    and preprocessor lines too unless `directives`."""
     out, at, previous = [], 0, ""
     for m in TOKEN.finditer(body):
         token = m.group(0)
         line_start = body.rfind("\n", 0, m.start()) + 1
         directive = body[line_start : m.start()].lstrip().startswith("#")
-        if token in names and previous not in (".", "->", "::") and not directive:
+        if token in names and previous not in (".", "->", "::") and (directives or not directive):
             out.append(body[at : m.start()] + names[token])
             at = m.end()
         if not token.startswith(("//", "/*")):
             previous = token
     out.append(body[at:])
-    return "\n".join(lines[: first - 1] + "".join(out).split("\n") + lines[last:])
+    return "".join(out)
+
+
+DEFINE = re.compile(r"^[ \t]*#[ \t]*define[ \t]+(\w+)")
+
+
+def local_macros(lines, first, last):
+    """The macros the file defines whose every use lies between two lines (1-based, inclusive):
+    [(first line, last line)] of each definition, continuation lines included. A macro written
+    to expand a function's own locals (`page.cpp`'s `PAGE_ADD_LINK`) names them in its body, so a
+    rename of those locals renames them there too."""
+    spans = []
+    for i, line in enumerate(lines):
+        m = DEFINE.match(line)
+        if not m:
+            continue
+        end = i
+        while lines[end].endswith("\\") and end + 1 < len(lines):
+            end += 1
+        name = re.compile(r"\b%s\b" % re.escape(m.group(1)))
+        uses = [j for j, other in enumerate(lines) if (j < i or j > end) and name.search(other)]
+        if uses and all(first - 1 <= j < last for j in uses):
+            spans.append((i, end))
+    return spans
+
+
+def rename(text, first, last, names):
+    """The text with the identifiers in `names` renamed between two lines (1-based, inclusive),
+    members (after `.`, `->` or `::`) and preprocessor lines left alone, and in the bodies of the
+    macros only that range uses. Line count unchanged."""
+    lines = text.split("\n")
+    for start, end in local_macros(lines, first, last):
+        # The macro's name and parameters stay, and so do the locals its parameters shadow.
+        original = "\n".join(lines[start : end + 1])
+        head = DEFINE.match(original).end()
+        params = re.match(r"\(([^)]*)\)", original[head:])
+        if params:
+            head += params.end()
+        shadowed = set(re.findall(r"\w+", params.group(1))) if params else set()
+        macro_names = {k: v for k, v in names.items() if k not in shadowed}
+        lines[start : end + 1] = (original[:head] + rename_tokens(original[head:], macro_names, directives=True)).split("\n")
+    body = "\n".join(lines[first - 1 : last])
+    return "\n".join(lines[: first - 1] + rename_tokens(body, names).split("\n") + lines[last:])
 
 
 def unit_annotations(annotations, unit, obj, tree=ROOT):
