@@ -461,13 +461,12 @@ MechS32 JoystickCenterAxis(void)
 // Reads the joystick into the six axes (Y and X first, then Z, R, U and V as far as the device has
 // them) and the two button words, the POV hat setting the buttons its directions map to.
 // Returns 1 without somewhere to put them, else 0.
-// The 3Dfx edition's is 1.1's, without clearing the JOYINFOEX or setting its size.
-// FUNCTION: MW2 0x1004aa6b
+#ifdef MW2_MATROX
+// The Matrox edition's adds each reading to g_joystickAxisSums and hands the sums on (as
+// g_joystickAxes) only when the read succeeds, keeping the last axes otherwise.
 // FUNCTION: MW2MATROX 0x10026b7e
-// FUNCTION: MW23DFX 0x1003ae80
 MechS32 JoystickPoll(JoystickData* p_data, MechS32* p_axes, MechU32* p_buttons)
 {
-#ifdef MW2_MATROX
 	MMRESULT result;
 	MechS32 i;
 	JOYINFOEX info;
@@ -572,7 +571,13 @@ MechS32 JoystickPoll(JoystickData* p_data, MechS32* p_axes, MechU32* p_buttons)
 	}
 
 	return 0;
+}
 #else
+// The 3Dfx edition's is 1.1's, without clearing the JOYINFOEX or setting its size.
+// FUNCTION: MW2 0x1004aa6b
+// FUNCTION: MW23DFX 0x1003ae80
+MechS32 JoystickPoll(JoystickData* p_data, MechS32* p_axes, MechU32* p_buttons)
+{
 	MechS32 i;
 	JOYINFOEX info;
 
@@ -642,8 +647,8 @@ MechS32 JoystickPoll(JoystickData* p_data, MechS32* p_axes, MechU32* p_buttons)
 	}
 
 	return 0;
-#endif
 }
+#endif
 
 // FUNCTION: MW2 0x1004ad42
 // FUNCTION: MW2MATROX 0x10026f79

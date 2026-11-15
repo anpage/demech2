@@ -89,7 +89,6 @@ MW2MATROX 0x1008fb5a SimMain 3759ed931e94 to investigate: the rebuild's SEH scop
 MW23DFX 0x10001220 CullMapViewShape 2c933b53d420 2.2 sums the dot products in another order than the original: reordering a float sum isn't a rewrite the audit has
 MW23DFX 0x100014b0 ProjectMapPoint 253aa17b5753 2.2 sums the dot products in another order than the original: reordering a float sum isn't a rewrite the audit has
 MW23DFX 0x10002870 ProfileRefreshModes 47b4685b3ce2 mirrored comparisons whose loads are in swapped registers, plus register allocation the audit's webs don't reproduce
-MW23DFX 0x10002aa0 ToggleFullScreen 919fd8ccf4f0 the original passes another string to its debug print (at 0x102496c8) than the rebuild's "ToggleFullScreen(1): pause_timer(TRUE)\n": a source difference to investigate
 MW23DFX 0x10002e40 LayoutMessageBoxes 321843797bcb the original saves another set of callee-saved registers (a push/pop more or less), so the instruction counts differ
 MW23DFX 0x10002f20 ShowInGameMessage 18c083826b24 mirrored comparisons whose loads are in swapped registers, plus register allocation the audit's webs don't reproduce
 MW23DFX 0x10003620 DrawMapView c3d950af9799 to investigate: the frame's offsets differ ([esp+36] against the original's [esp+28] at #25)

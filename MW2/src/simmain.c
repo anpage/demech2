@@ -1071,13 +1071,11 @@ void UpdatePauseState(void)
 	}
 }
 
-// FUNCTION: MW2 0x10067e23
-// FUNCTION: MW2MATROX 0x10090f1b
+#ifdef MW2_3DFX
+// The 3Dfx edition's: 800x600 with the registry's "Res800x600" setting, 640x480 otherwise.
 // FUNCTION: MW23DFX 0x10009890
 void SetGameResolution(char* p_driverName)
 {
-#ifdef MW2_3DFX
-	// The 3Dfx edition's: 800x600 with the registry's "Res800x600" setting, 640x480 otherwise.
 	DWORD res800x600;
 
 	if (!ReadRegistryDword("Res800x600", &res800x600)) {
@@ -1094,7 +1092,12 @@ void SetGameResolution(char* p_driverName)
 		g_gameWindowWidth = 640;
 		g_gameWindowHeight = 480;
 	}
+}
 #else
+// FUNCTION: MW2 0x10067e23
+// FUNCTION: MW2MATROX 0x10090f1b
+void SetGameResolution(char* p_driverName)
+{
 	if (_strcmpi(p_driverName, "MCGA.DLL") == 0) {
 		g_gameWindowWidth = 320;
 		g_gameWindowHeight = 200;
@@ -1111,5 +1114,5 @@ void SetGameResolution(char* p_driverName)
 		g_gameWindowWidth = 320;
 		g_gameWindowHeight = 200;
 	}
-#endif
 }
+#endif
