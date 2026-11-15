@@ -28,7 +28,9 @@ and a content hint for human classification, not a verdict:
                       thing (type and name) and they differ only in initializer or annotation:
                       another target's address, or a .data/.bss duplicate
   float conversion    MechScalar, MechFloat, FIXED_*, float/double, fabs, float literals (or the
-                      fixed-point side of a group whose other branch has them)
+                      fixed-point side of a group whose other branch has them); at file scope
+                      only MechScalar, FIXED_*, fabs or __ftol, or a group with a fixed-point
+                      side (a float type alone, a prototype or a renderer's layout, isn't one)
   declaration         file scope, declarations only
   code                the rest
   empty               nothing at all (an empty #else)
@@ -616,6 +618,8 @@ def hints(src, group, infos, scope):
     """A primary hint and tags per branch."""
     out = []
     group_float = any(i["float_tokens"] for i in infos)
+    group_fixed = any(i["fixed_tokens"] for i in infos)
+    strong = lambda i: any(t.startswith("FIXED_") or t in ("MechScalar", "fabs", "__ftol") for t in i["float_tokens"])
     layout = (scope != "function" and len(infos) > 1 and all(i["definitions"] for i in infos)
               and all(i["definitions"] == infos[0]["definitions"] for i in infos))
     for info in infos:
@@ -624,7 +628,13 @@ def hints(src, group, infos, scope):
             tags.append("include")
         if info["annotations"]:
             tags.append("annotations")
-        if info["float_tokens"] or (group_float and info["fixed_tokens"]):
+        if scope == "function":
+            float_like = info["float_tokens"] or (group_float and info["fixed_tokens"])
+        else:
+            # At file scope a float type alone (a prototype's double, a renderer's vertex layout)
+            # is no conversion: it takes MechScalar/FIXED_*/fabs, or a fixed-point counterpart.
+            float_like = strong(info) or (group_fixed and (info["float_tokens"] or info["fixed_tokens"]))
+        if float_like:
             tags.append("float")
         if info["only_includes"]:
             primary = "include selection"
@@ -829,6 +839,9 @@ def build_sites(sources, files, reach, functions, by_name, targets):
                             ranges = {t: [first, last] for t in addresses}
                 else:
                     scope, fname = brace_scope(src, group.start, view)
+            container = None
+            if scope in ("aggregate", "macro"):
+                container, fname = fname, None  # the struct, initialized global or MASM macro around it
             branches = []
             compiled = {}
             infos = []
@@ -865,10 +878,19 @@ def build_sites(sources, files, reach, functions, by_name, targets):
                 "condition": condition_of(src, group, 0), "macros": macros,
                 "kind": "asm" if src.asm else ("header" if path.suffix.lower() == ".h" else "source"),
                 "hint": site_hint, "parent": parent, "context": context, "scope": scope, "function": fname,
+                "container": container,
                 "annotations": addresses, "function_lines": ranges, "branches": branches,
                 "built_by": {t: len(reach.units[t].get(path, ())) for t in targets},
                 "reached_by": {t: len(reach.groups[t].get((path, gid), ())) for t in targets},
             }
+            if any(site["built_by"].values()) and not any(site["reached_by"].values()):
+                # No comparison build reaches the group: the portable C's, if a toolchain test
+                # encloses it, or text no build compiles (a test its enclosing branch decided).
+                enclosing = context + ([condition_of(src, group.parent[0], group.parent[1])] if group.parent else [])
+                site["unreached"] = "portable C" if any(TOOLCHAIN_RE.search(c) for c in enclosing) else "dead"
+                for br in branches:
+                    br["unreached"] = site["unreached"]
+            site["dead_branches"] = [br["index"] for br in branches if br.get("unreached") == "dead"]
             sites.append(site)
     return sites
 
@@ -895,8 +917,8 @@ def file_scope_proof(site, compiled, target, reach, functions, by_name, sources,
         for key in ("functions", "prototypes", "globals", "typedefs", "types", "macros", "procs", "data"):
             names.update(c.get(key) or ())
         inside.append(br["body"])
-    if site["scope"] in ("macro", "aggregate") and site["function"]:
-        names.add(site["function"])  # a MASM macro, or the struct or initialized global the site sits in
+    if site["scope"] in ("macro", "aggregate") and site["container"]:
+        names.add(site["container"])  # a MASM macro, or the struct or initialized global the site sits in
     names = {n for n in names if len(n) > 2 and n not in KEYWORDS}
     defined, users = [], []
     if site["kind"] == "asm":
@@ -983,6 +1005,9 @@ def main():
             if not site["built_by"][t]:
                 proof[t] = {"state": "not built"}
                 continue
+            if site.get("unreached"):
+                proof[t] = {"state": site["unreached"]}  # no comparison build reaches the group
+                continue
             if not site["reached_by"][t]:
                 proof[t] = {"state": "not reached"}  # an enclosing conditional leaves it out
                 continue
@@ -1033,6 +1058,7 @@ def summarize(sites, targets, tooling):
     s["file_scope"] = {t: dict(Counter(file_scope_kind(x["proof"][t]) for x in sites if x["proof"][t]["state"] == "file scope"))
                        for t in targets}
     s["unproven_sites_any"] = sum(1 for x in sites if any(x["proof"][t]["state"] == "not proven" for t in targets))
+    s["sites_with_dead_branches"] = [x["id"] for x in sites if x["dead_branches"]]
     s["unreached_branches"] = dict(Counter(br["unreached"] for x in sites for br in x["branches"] if br.get("unreached")))
     s["tooling_references"] = len(tooling)
     s["tooling_files"] = len({r["file"] for r in tooling})
@@ -1062,7 +1088,8 @@ def print_summary(s, targets):
           ", ".join("%s %d" % (t, s["proven_by_absence"][t]) for t in targets))
     print("file scope:", "; ".join("%s %s" % (t, ", ".join("%s %d" % kv for kv in sorted(s["file_scope"][t].items())))
                                    for t in targets))
-    print("branches no simulator compiles:", ", ".join("%s %d" % kv for kv in sorted(s["unreached_branches"].items())))
+    print("branches no simulator compiles:", ", ".join("%s %d" % kv for kv in sorted(s["unreached_branches"].items())),
+          "| sites with a dead branch:", ", ".join("#%d" % i for i in s["sites_with_dead_branches"]) or "none")
     print("tooling references: %d lines in %d files" % (s["tooling_references"], s["tooling_files"]))
 
 
@@ -1087,7 +1114,8 @@ def markdown(sites, tooling, s, targets):
            "the tool can't evaluate encloses it). Proof per target: `proven`/`not proven` by the enclosing function's certify",
            "state (a target that compiles none of the branches is proven by the function too: the implicit #else); `file:` for",
            "file scope, the proven share of the functions the compiled branch defines and of those that use what it declares;",
-           "`not reached` when an enclosing conditional leaves the group out, `not built` when the target doesn't compile the file.",
+           "`not reached` when an enclosing conditional leaves the group out for that target, `dead` when no build reaches it,",
+           "`portable C` when only the portable (COMPAT_MODE) builds do, `not built` when the target doesn't compile the file.",
            ""]
     out.append("%d sites in %d files (%d nested)." % (s["sites"], s["files"], s["nested"]))
     out.append("")
@@ -1098,7 +1126,7 @@ def markdown(sites, tooling, s, targets):
         out += ["## %s" % f, "", "| # | lines | condition | function | branches | hints | %s |" % " | ".join(SHORT[t] for t in targets),
                 "|---|---|---|---|---|---|" + "---|" * len(targets)]
         for x in by_file[f]:
-            fn = x["function"] or ""
+            fn = x["function"] or x["container"] or ""
             if x["scope"] == "function" and x["annotations"]:
                 fn = "%s (%s)" % (fn, ", ".join("%s %s" % (SHORT[t], a) for t, a in x["annotations"].items()))
             elif x["scope"] != "function":
@@ -1125,6 +1153,7 @@ def markdown(sites, tooling, s, targets):
             "- sites by macro set: " + ", ".join("%s %d" % kv for kv in sorted(s["by_macro_set"].items(), key=lambda kv: -kv[1])),
             "- sites by hint: " + ", ".join("%s %d" % kv for kv in sorted(s["sites_by_hint"].items(), key=lambda kv: -kv[1])),
             "- branches no simulator compiles: " + ", ".join("%s %d" % kv for kv in sorted(s["unreached_branches"].items())),
+            "- sites with a dead branch (text no build compiles): " + (", ".join("#%d" % i for i in s["sites_with_dead_branches"]) or "none"),
             "- proven by the absence of every branch (the implicit #else): "
             + ", ".join("%s %d" % (t, s["proven_by_absence"][t]) for t in targets),
             "- file-scope sites: "
