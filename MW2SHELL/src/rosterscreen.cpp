@@ -261,7 +261,6 @@ BOOL CALLBACK QuickTipsDialogProc(HWND p_hDlg, UINT p_msg, WPARAM p_wParam, LPAR
 
 // Opens the pilot roster of the campaign's clan hall: the ten pilot slots, the active pilot's
 // record, and the menu.
-// Not 100%: the stack slots of data, slot, i and size are permuted.
 // FUNCTION: MW2SHELL 0x10015008
 void DrawPilotRoster(TMPackDataBase* p_database, MechS32 p_campaign, MechU8* p_pilotChosen, char**)
 {
@@ -288,7 +287,7 @@ void DrawPilotRoster(TMPackDataBase* p_database, MechS32 p_campaign, MechU8* p_p
 		break;
 	}
 
-	for (i = 0; i < 10; i++, slot++) {
+	for (i = 0; i < 10; slot++, i++) {
 		g_rosterPilots[i] = &g_pilotRoster[slot];
 		if (g_currentPilot) {
 			g_pilotRoster[slot].m_active = 0;

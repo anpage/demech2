@@ -657,7 +657,6 @@ MechS32 RandomSampleRate(void)
 }
 
 // Stops the playing samples; p_all stops the speech sample too.
-// Matches but for the registers, which VC++ 2.2 allocates differently.
 // FUNCTION: MW2 0x1007ec7f
 // FUNCTION: MW2MATROX 0x10087358
 // FUNCTION: MW23DFX 0x10032c70
@@ -681,7 +680,6 @@ void StopSamples(MechS32 p_all)
 	}
 }
 
-// The 3Dfx edition's diff is register allocation and instruction scheduling only.
 // FUNCTION: MW2 0x1007ed1e
 // FUNCTION: MW2MATROX 0x100873f7
 // FUNCTION: MW23DFX 0x10032cc0

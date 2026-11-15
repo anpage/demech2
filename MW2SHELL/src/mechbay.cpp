@@ -652,8 +652,7 @@ void RemoveUnassigned(MechS32 p_id)
 		return;
 	}
 
-	j = 0;
-	for (i = 0; i < 78; i++) {
+	for (i = 0, j = 0; i < 78; i++) {
 		if (g_variant.m_unassigned[i].m_id == p_id) {
 			g_variant.m_unassigned[i].m_id = -1;
 			g_variant.m_unassignedCount--;
@@ -838,8 +837,7 @@ void RemoveAmmo(MechS32 p_id)
 	MechS32 j;
 	MechS32 i;
 
-	j = 0;
-	for (i = 0; i < 25; i++) {
+	for (i = 0, j = 0; i < 25; i++) {
 		if (g_variant.m_ammo[i] == p_id) {
 			g_variant.m_ammo[i] = -1;
 		}
@@ -886,8 +884,7 @@ void RemoveWeapon(MechS32 p_id)
 	MechS32 j;
 	MechS32 i;
 
-	j = 0;
-	for (i = 0; i < 10; i++) {
+	for (i = 0, j = 0; i < 10; i++) {
 		if (g_variant.m_weapons[i] == p_id) {
 			g_variant.m_weapons[i] = -1;
 		}
@@ -907,8 +904,7 @@ void RemoveWeapon(MechS32 p_id)
 	}
 
 	p_id = p_id * 100 + 10001;
-	j = 0;
-	for (i = 0; i < 25; i++) {
+	for (i = 0, j = 0; i < 25; i++) {
 		if (g_variant.m_ammo[i] / 100 == p_id / 100) {
 			g_variant.m_ammo[i] = -1;
 		}
@@ -1033,8 +1029,7 @@ void UpdateWeaponMass()
 {
 	MechS32 i;
 
-	g_variant.m_weaponMass = 0;
-	for (i = 0; i < 10; i++) {
+	for (i = 0, g_variant.m_weaponMass = 0; i < 10; i++) {
 		if (g_variant.m_weapons[i] != -1) {
 			g_variant.m_weaponMass += g_weapons[g_variant.m_weapons[i] / 100].m_mass;
 		}
@@ -2922,7 +2917,7 @@ void HideChassisVideo()
 	SetVideoFlags(0x10, 0x20, 0x20);
 }
 
-// Plays the selected mech's name. Stack-slot permutation: audioData and audioSize.
+// Plays the selected mech's name.
 // FUNCTION: MW2SHELL 0x1000cba7
 void PlayChassisName()
 {

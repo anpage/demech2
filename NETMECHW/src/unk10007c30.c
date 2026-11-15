@@ -152,8 +152,6 @@ void FUN_10007c5a(MechChar* p_mechFile, MechChar* p_text, MechS32 p_textSize)
 // Fills the variant list box p_hWnd with the variants of the chassis p_code: its standard ones
 // from mw2.prj, then the player's own, MEK\<p_code><nn>USR.MEK, labelled with their names.
 // Selects the current variant's first entry.
-// Matches except for the stack slots of the locals, which VC++ 2.2 permutes, and the commutative
-// order of i + g_unk0x1001fe74 (the original loads i first).
 // FUNCTION: NETMECHW 0x100080e1
 void FUN_100080e1(HWND p_hWnd, MechChar* p_code)
 {

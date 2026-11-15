@@ -75,7 +75,6 @@ MechS32 g_objectiveCount;
 StarMission g_objectiveTable[16];
 
 // Collapses each run of whitespace after a character of p_text into one space.
-// The 3Dfx edition's diff is register allocation and instruction scheduling only.
 // FUNCTION: MW2 0x1001a910
 // FUNCTION: MW2MATROX 0x1001ecb0
 // FUNCTION: MW23DFX 0x100098f0
@@ -87,16 +86,14 @@ void CollapseWhitespace(MechChar* p_text)
 	src = p_text;
 	dst = p_text;
 	while (*src) {
-		*dst = *src++;
+		*dst++ = *src++;
 		if (isspace(*src)) {
 			while (*src && isspace(*src)) {
 				src++;
 			}
 
-			*++dst = ' ';
+			*dst++ = ' ';
 		}
-
-		dst++;
 	}
 
 	*dst = '\0';
@@ -104,9 +101,8 @@ void CollapseWhitespace(MechChar* p_text)
 
 // Starts a star's mission: stamps its start time and places the team at the nav of its first
 // objective, when that is a nav (or at the origin). Returns whether it was.
-// Stack-slot permutation of the locals. The original tests the target's kind by loading its high
-// byte and shifting it back ((MechU16) (kind << 8) == 0x100); the mask compiles to a byte compare.
-// The 3Dfx edition's diff is register allocation, scheduling and comparison operand order only.
+// The original tests the target's kind by loading its high byte and shifting it back
+// ((MechU16) (kind << 8) == 0x100); the mask compiles to a byte compare.
 // FUNCTION: MW2 0x1001aa02
 // FUNCTION: MW2MATROX 0x1001eda2
 // FUNCTION: MW23DFX 0x10009990
@@ -122,18 +118,16 @@ MechS32 DoFirstObjtv(StarMission* p_mission, MechS32 p_team)
 #ifdef MW2_ACCEL
 	found = FALSE;
 	x = y = z = heading = 0;
-	g_missionTime = g_currentClock / 181;
-	if (p_mission->m_objectives[0].m_targetCount > 0 &&
-		(MechU16) ((MechU8) (p_mission->m_objectives[0].m_targets[0] >> 8) << 8) == 0x100) {
 #else
 	x = 0;
 	y = 0;
 	z = 0;
 	heading = 0;
 	found = FALSE;
-	g_missionTime = g_currentClock / 181;
-	if (p_mission->m_objectives[0].m_targetCount > 0 && (p_mission->m_objectives[0].m_targets[0] & 0xff00) == 0x100) {
 #endif
+	g_missionTime = g_currentClock / 181;
+	if (p_mission->m_objectives[0].m_targetCount > 0 &&
+		(MechU16) ((MechU8) (p_mission->m_objectives[0].m_targets[0] >> 8) << 8) == 0x100) {
 		nav = (MechU8) p_mission->m_objectives[0].m_targets[0];
 		if (nav < g_navCount) {
 			x = g_navTable[nav].m_position[0];
@@ -220,8 +214,6 @@ MechS32 HasTeamReachedTarget(MechU8* p_target, MechS32 p_team)
 
 // Returns whether a live member of team p_team is near an objective target (within 20000, or a
 // nav's radius). The local player reaching a nav marks it reached and plays sound 0xe7.
-// The Matrox edition's rebuild sums the squared distances' terms in another order (entropy).
-// The 3Dfx edition's diff is register allocation, scheduling and float operand order only.
 // FUNCTION: MW2 0x1001ad5b
 // FUNCTION: MW2MATROX 0x1001f0f8
 // FUNCTION: MW23DFX 0x10009b80
@@ -234,8 +226,8 @@ MechS32 IsTeamNearTarget(MechU8* p_target, MechS32 p_team)
 #endif
 	Player* target;
 	GameThing* thing;
-	MechScalar x;
 	MechScalar y;
+	MechScalar x;
 	MechScalar z;
 	MechScalar radius;
 	NavPoint* nav;
@@ -512,8 +504,6 @@ MechS32 AnnounceMissionResult(MechS32 p_star, MechS32 p_status)
 }
 
 // Returns whether condition p_condition of star p_star's objective p_objective holds.
-// Stack-slot permutation of objective, other, star, state and kind; the original scales star
-// before other in the objective's address (index order).
 // FUNCTION: MW2 0x1001b580
 // FUNCTION: MW2MATROX 0x1001f8dd
 // FUNCTION: MW23DFX 0x1000a080
@@ -530,14 +520,15 @@ MechS32 TestObjectiveCondition(MechS32 p_star, MechS32 p_objective, MechS32 p_co
 	other = objective->m_conditions[p_condition].m_objective;
 	star = objective->m_conditions[p_condition].m_star;
 	state = g_objectiveTable[star].m_objectives[other].m_state;
-	return (kind == 1 && (state == 5 || state == 6)) || (kind == 2 && state == 5) || (kind == 3 && state == 6) ? TRUE
-																											   : FALSE;
+	if ((kind == 1 && (state == 5 || state == 6)) || (kind == 2 && state == 5) || (kind == 3 && state == 6)) {
+		return TRUE;
+	}
+
+	return FALSE;
 }
 
 // Returns whether the conditions of star p_star's objective p_objective hold: one of them, or
 // every one. A finished objective's don't; a type 0x10 objective's always do.
-// Stack-slot permutation of all, objective, result, i and holds; the original computes the
-// objective's index before the star's (index order).
 // FUNCTION: MW2 0x1001b66c
 // FUNCTION: MW2MATROX 0x1001f9c9
 // FUNCTION: MW23DFX 0x1000a110
@@ -566,7 +557,6 @@ MechS32 ObjectiveConditionsHold(MechS32 p_star, MechS32 p_objective)
 		}
 
 		holds = TestObjectiveCondition(p_star, p_objective, i);
-#ifdef MW2_ACCEL
 		if (all) {
 			result &= holds;
 			if (!result) {
@@ -576,43 +566,20 @@ MechS32 ObjectiveConditionsHold(MechS32 p_star, MechS32 p_objective)
 		else if (holds) {
 			return TRUE;
 		}
-#else
-		if (!all) {
-			if (holds) {
-				return TRUE;
-			}
-		}
-		else {
-			result &= holds;
-			if (!result) {
-				return FALSE;
-			}
-		}
-#endif
 	}
 
-#ifdef MW2_ACCEL
 	if (all) {
 		return TRUE;
 	}
 	else {
 		return FALSE;
 	}
-#else
-	if (!all) {
-		return FALSE;
-	}
-	else {
-		return TRUE;
-	}
-#endif
 }
 
 // Updates star p_star's objective p_objective while its conditions hold: whether its targets are
 // done (by its type: destroyed, reached, ...), whether its time is up, and what it does when done
 // (types 0x10000 and up end or reset other objectives and missions). Sets its state: 5 successful,
 // 6 failed, 8 failed for another star, 3 still going.
-// Matches but for register allocation, operand order and scheduling, which VC++ 2.2's /Ox varies.
 // FUNCTION: MW2 0x1001b79a
 // FUNCTION: MW2MATROX 0x1001faf7
 // FUNCTION: MW23DFX 0x1000a1d0

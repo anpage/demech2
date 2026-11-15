@@ -225,9 +225,6 @@ MechScalar Hypot2D(MechScalar p_x, MechScalar p_y)
 
 // The unit normal of the triangle (p_x0, p_y0, p_z0), (p_x1, p_y1, p_z1), (p_x2, p_y2, p_z2): the
 // cross product of its edges over its length; returns the length.
-// Commutative operand order: the original computes each product's factors the other way round, and
-// reloads nz for its square. Stack-slot permutation: length, nx, ny and nz.
-// The 3Dfx edition's diff is register allocation, scheduling and float operand order only.
 // FUNCTION: MW2MATROX 0x1007f368
 // FUNCTION: MW23DFX 0x10030410
 MechS32 ComputeTriangleNormal(

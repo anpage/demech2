@@ -15,7 +15,6 @@
 // Tests whether the player can see its target: nothing but the target itself lies on the line
 // to it. With p_ahead, a target behind the player (between 90 and 270 degrees off the view)
 // is never seen.
-// The 3Dfx edition's diff is register allocation, scheduling and float operand order only.
 // FUNCTION: MW2 0x1006ca60
 // FUNCTION: MW2MATROX 0x1006d320
 // FUNCTION: MW23DFX 0x10015090
@@ -28,7 +27,7 @@ MechS32 CanSeeTarget(Player* p_player, MechS32 p_ahead)
 	MechU16 surface;
 
 	bearing = FIXED_MOD360(
-		p_player->m_heading + p_player->m_torsoTwist - p_player->m_targetInfo.m_heading + FIXED_CONST(360)
+		(p_player->m_heading + p_player->m_torsoTwist) - p_player->m_targetInfo.m_heading + FIXED_CONST(360)
 	);
 	if (p_ahead && bearing < FIXED_CONST(270) && bearing > FIXED_CONST(90)) {
 		return FALSE;

@@ -276,7 +276,6 @@ void FirstEyepoint(void)
 // Updates the camera for the frame in the view mode GetViewMode picks (the free camera without a
 // local player): the cockpit, tracking, external, drop or free camera, driven by INPUT.MAP's
 // eyepoint and track sinks.
-// Stack-slot permutation of the locals.
 // FUNCTION: MW2 0x100110f7
 // FUNCTION: MW2MATROX 0x10008d87
 // FUNCTION: MW23DFX 0x1002dc90
@@ -366,7 +365,7 @@ void UpdateEyepoint(void)
 			pitch = g_deltaTime * 0x2d0000 / 0xb5;
 		}
 		else if (g_sinkEyepointTilt < 0) {
-			pitch = -(g_deltaTime * 0x2d0000) / 0xb5;
+			pitch = g_deltaTime * -0x2d0000 / 0xb5;
 		}
 		else {
 			pitch = 0;
@@ -515,7 +514,6 @@ MechS32 RestoreView(Eyepoint* p_eyepoint, MechScalar* p_view)
 
 // Moves the camera to the next (p_next) or previous player, or back to the local player
 // (p_home), skipping players who left or whose mechs are gone.
-// The 3Dfx edition's diff is register allocation, scheduling and comparison operand order only.
 // FUNCTION: MW2 0x100115f4
 // FUNCTION: MW2MATROX 0x10009362
 // FUNCTION: MW23DFX 0x1002e070
@@ -846,7 +844,7 @@ void UpdateTrackView(MechScalar p_distance, MechScalar p_height, MechScalar p_ti
 // Updates the cockpit view each frame: resets the pilot's look ramps after an external view, turns
 // the view towards a held glance key (or back ahead once all are released), then places the
 // eyepoint unless the camera is shaking.
-// The 3Dfx edition reloads the glance flags after each store, which /Ow doesn't.
+// The 3Dfx edition reloads the glance flags after each store.
 // FUNCTION: MW2 0x10011cb0
 // FUNCTION: MW2MATROX 0x10009ae7
 // FUNCTION: MW23DFX 0x1002e640

@@ -211,6 +211,17 @@ jobs:
             echo "$target: $(( $(date +%s) - start )) s"
           done
 
+      - name: Digest the functions coverage compares
+        shell: bash
+        run: |
+          # The audit's coverage (an optimized function whose tokens and
+          # declarations are those of an /Od proof) compares preprocessed units, which needs the
+          # compilers; the verify jobs have none. tools/coverage.py writes each function's closure
+          # as digests into the artifact, and the verify jobs' audit reads them (--digests).
+          start=$(date +%s)
+          python tools/coverage.py --build build --out certify/coverage.json
+          echo "coverage digests: $(( $(date +%s) - start )) s"
+
       - name: Upload the objects
         uses: actions/upload-artifact@main
         with:
@@ -423,7 +434,7 @@ jobs:
             fi
             # What certify leaves unproven, classified constructively (tools/audit.py); an
             # unexplained function needs its line in tools/known_diffs.txt.
-            python tools/audit.py --target "$target" --objects "certify/$target" --check --json "${target}AUDIT.json" >>"${target}-certify.txt" 2>&1 || status=1
+            python tools/audit.py --target "$target" --objects "certify/$target" --check --json "${target}AUDIT.json" --markdown "${target}AUDIT.md" >>"${target}-certify.txt" 2>&1 || status=1
             cat "${target}-certify.txt"
           done
           echo "$status" >certify-status.txt
@@ -476,6 +487,7 @@ jobs:
             *STATES.json
             *STATES.md
             *AUDIT.json
+            *AUDIT.md
 
       - name: Upload PR comment payload
         if: ${{ github.event_name == 'pull_request' && always() }}
@@ -540,6 +552,7 @@ jobs:
               "${target}STATES.json"
               "${target}STATES.md"
               "${target}AUDIT.json"
+              "${target}AUDIT.md"
             )
           done
 

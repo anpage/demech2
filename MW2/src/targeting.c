@@ -499,7 +499,6 @@ MechS32 AddNavPoint(MechU32 p_owner, MechScalar p_x, MechScalar p_y, MechScalar 
 // Removes nav p_nav (an AI target id, 0x100 | index) if player p_owner placed it: the later navs
 // move down, and so do the players' targets, goals and navs pointing past it (not the local
 // player's own target). Returns the new nav count, or -1.
-// The 3Dfx edition's diff is register allocation and instruction scheduling only.
 // FUNCTION: MW2 0x1005ed4f
 // FUNCTION: MW2MATROX 0x100065bf
 // FUNCTION: MW23DFX 0x1001cb40
@@ -558,7 +557,6 @@ MechS32 RemoveNavPoint(MechU32 p_owner, MechU32 p_nav)
 // things, in that cycle; with p_step 0, or no target, it starts over from the first player. Marks
 // the target missing (0x1000) when none qualifies, and a change of target outside the nav points
 // turns the autopilot's steering over.
-// The 3Dfx edition's diff is register allocation and instruction scheduling only.
 // FUNCTION: MW2 0x1005ef5e
 // FUNCTION: MW2MATROX 0x100067cc
 // FUNCTION: MW23DFX 0x1001cca0
@@ -764,8 +762,6 @@ MechS32 TargetNavPoint(MechU32 p_player, MechS32 p_nav, MechU32 p_flags)
 // (flags 0x20000 and 0x40000), -3 for a player that can't be targeted or is p_player, -4 when
 // flag 0x10000 asks for a player with flag 0x40, -5 and -7 for targets the local player may not
 // pick, and -8 for a player without a shape.
-// MW2MATROX: p_player == g_localPlayerId and p_index >= g_playerCount compare in the other operand
-// order.
 // FUNCTION: MW2 0x1005f4ac
 // FUNCTION: MW2MATROX 0x10006d1a
 // FUNCTION: MW23DFX 0x1001d050
@@ -866,8 +862,6 @@ MechS32 TargetGamePiece(MechS32 p_player, MechS32 p_index, MechU32 p_flags)
 
 // Makes game thing p_index player p_player's target, like TargetGamePiece for a player. Returns 1,
 // or the same negative codes; its test of flag 0x10000 can never succeed.
-// MW2MATROX: the comparisons with g_localPlayerId load their operands in the other order.
-// MW2MATROX: p_index < g_gameThingCount compares in the other operand order too.
 // FUNCTION: MW2 0x1005f798
 // FUNCTION: MW2MATROX 0x10007012
 // FUNCTION: MW23DFX 0x1001d2d0
@@ -1158,7 +1152,6 @@ SceneObject* GetLocalTargetObject(void)
 // Targets the shape the local player points at (g_aimedShape): a player's mech (0x100) or a
 // game thing (0x200), when TargetGamePiece or TargetGameThing allows it. When UpdateTarget rejects the
 // new target, the old one comes back, with the autopilot.
-// The 3Dfx edition's diff is register allocation and instruction scheduling only.
 // FUNCTION: MW2 0x10060010
 // FUNCTION: MW2MATROX 0x100078ab
 // FUNCTION: MW23DFX 0x1001d870

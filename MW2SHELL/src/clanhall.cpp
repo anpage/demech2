@@ -50,7 +50,6 @@ void ClanHallCallback(TMPackDataBase*, MechS32* p_campaign, MechU8*, MechChar**,
 
 // Opens the clan hall. Coming back from registering a pilot (c_msgPilotRoster) sets up the new
 // pilot's star first.
-// Not 100%: the stack slots of unused, data and size are permuted.
 // FUNCTION: MW2SHELL 0x10014040
 void DrawClanHall(TMPackDataBase* p_database, MechS32 p_campaign, MechU8, WPARAM p_wParam)
 {
@@ -118,7 +117,6 @@ void DrawClanHall(TMPackDataBase* p_database, MechS32 p_campaign, MechU8, WPARAM
 
 // The clan hall's frame: CADET TRAINING, ARCHIVE HOLOPROJECTOR, READY ROOM, REGISTER and EXIT.
 // The Jade Falcon hall plays a door video before moving on.
-// Not 100%: the stack slots of data, button and size are permuted.
 // FUNCTION: MW2SHELL 0x1001445c
 void ClanHallCallback(TMPackDataBase*, MechS32* p_campaign, MechU8*, MechChar**, MechS32 p_msg)
 {

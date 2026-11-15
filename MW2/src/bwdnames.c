@@ -29,8 +29,6 @@ undefined4 g_unk0x100a9474 = 0;
 BwdNameNode* g_bwdNamesTail;
 
 // Appends a copy of a BWD name to the list.
-// Matches but for register allocation, operand order and scheduling, which VC++ 2.2's /Ox varies.
-// The 3Dfx edition's diff is register allocation and instruction scheduling only.
 // FUNCTION: MW2 0x10058560
 // FUNCTION: MW2MATROX 0x1002ddf0
 // FUNCTION: MW23DFX 0x1003f7e0

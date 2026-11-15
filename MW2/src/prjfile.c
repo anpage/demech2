@@ -211,7 +211,6 @@ MechS32 ClosePrjFile(MechS32 p_file)
 }
 
 // Returns the type's index in the header, or 0xffff.
-// The 3Dfx edition's diff is register allocation and instruction scheduling only.
 // FUNCTION: MW2 0x100720b7
 // FUNCTION: MW2MATROX 0x1000c6f7
 // FUNCTION: MW23DFX 0x1003d410

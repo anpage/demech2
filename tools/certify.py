@@ -97,7 +97,8 @@ def rename(text, first, last, names):
 
 def unit_annotations(annotations, unit, obj, tree=ROOT):
     """The unit's annotated functions: {COFF symbol: annotation}. A function annotated in one of
-    the unit's own files, or for an assembled unit, by name in a header."""
+    the unit's own files (a C function annotated by name in a header counts as annotated at its
+    definition: funccmp's Annotations), or for an assembled unit, by name in a header."""
     files = {str(path.resolve()) for path in unit.files(tree).values()}
     found = {}
     for symbol in obj.functions:

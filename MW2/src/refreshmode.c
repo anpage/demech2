@@ -293,8 +293,6 @@ void ShutdownRefreshMode(void)
 
 // Called once a frame while the refresh modes are profiled: times four frames of the current mode,
 // then moves to the next one; after the last, SelectFastestRefreshMode picks the fastest.
-// Matches but for register allocation, operand order and scheduling, which VC++ 2.2's /Ox varies.
-// The 3Dfx edition's diff is register allocation, scheduling and comparison operand order only.
 // FUNCTION: MW2 0x100770a8
 // FUNCTION: MW2MATROX 0x1007b124
 // FUNCTION: MW23DFX 0x10002870
@@ -400,7 +398,6 @@ void SelectFastestRefreshMode(void)
 // Switches between fullscreen and the first available windowed refresh mode, or back to the
 // fullscreen mode last selected. Unlike the shell's, it does nothing while the frame covers the
 // whole screen, unless g_shouldToggleFullscreen is set.
-// The 3Dfx edition's diff is register allocation, scheduling and comparison operand order only.
 // FUNCTION: MW2 0x10077392
 // FUNCTION: MW2MATROX 0x1007b40e
 // FUNCTION: MW23DFX 0x10002aa0

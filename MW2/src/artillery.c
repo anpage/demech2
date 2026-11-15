@@ -222,7 +222,6 @@ void ShutdownArtillery(Mech* p_mech)
 }
 
 // Allocates p_player's mech, its weapons and sections, and sets them up.
-// The only diff is a stack-slot permutation of the locals.
 // FUNCTION: MW2 0x1005a637
 // FUNCTION: MW2MATROX 0x1002eb54
 // FUNCTION: MW23DFX 0x10021c90
@@ -245,7 +244,7 @@ MechS32 CreateArtillery(MechS32 p_index, Player* p_player)
 	}
 
 	mech = buffer;
-	weapons = (WeaponSlot*) (mech + 1);
+	weapons = (WeaponSlot*) ((Mech*) buffer + 1);
 	sections = (MechSection*) (weapons + 10);
 	extra = sections + 8;
 	mech->m_weapons = weapons;

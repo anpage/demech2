@@ -285,8 +285,6 @@ void DamageChunk(MechS32 p_index, MechScalar p_damage)
 	}
 }
 
-// MW2MATROX stores velocityY and ground before comparing them (fst, fcomp) where the rebuild
-// compares first (fcom, fstp), the symbol-order entropy of UpdateWrappedRamp's comparison.
 // FUNCTION: MW2 0x100047c2
 // FUNCTION: MW2MATROX 0x1002ab7a
 // FUNCTION: MW23DFX 0x100156f0
@@ -424,8 +422,7 @@ void PushDebrisPiece(MechS32 p_index, MechScalar p_x, MechScalar p_y, MechScalar
 	piece->m_velocityZ += p_z;
 }
 
-// The only diff is the indirect call's displacement (g_debrisChunks[0].m_callback), which
-// reccmp leaves unmapped.
+// reccmp leaves the indirect call's displacement (g_debrisChunks[0].m_callback) unmapped.
 // FUNCTION: MW2 0x10004b4f
 // FUNCTION: MW2MATROX 0x1002affe
 // FUNCTION: MW23DFX 0x10015a00

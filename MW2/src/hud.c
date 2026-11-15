@@ -371,7 +371,6 @@ void DrawAltimeter(Mech* p_mech, MechS32 p_x, MechS32 p_y)
 
 // Lays out the altimeter and the compass from their shapes' extents. Each shape is released by
 // its extent plus its id, not by the id it was loaded with.
-// The 3Dfx edition's diff is register allocation and instruction scheduling only.
 // FUNCTION: MW2 0x10040f91
 // FUNCTION: MW2MATROX 0x1001ce3d
 // FUNCTION: MW23DFX 0x10022490
@@ -601,9 +600,6 @@ void DrawTargetMarker(Mech* p_mech)
 // Draws the compass's target markers: the target's bearing p_bearing from the heading (from the
 // torso, p_twistBearing, unless the target is a nav point), and the arrows above and below while
 // its pitch p_pitch is beyond 3 degrees. p_x and p_y go unused.
-// MW2MATROX: the two side arrows' y sums load g_compassOrigin.m_y first, and the bearing mark's
-// product p_bearing (commutative operands).
-// The 3Dfx edition's diff is register allocation, scheduling and float operand order only.
 // FUNCTION: MW2 0x1004161f
 // FUNCTION: MW2MATROX 0x1001d551
 // FUNCTION: MW23DFX 0x10022960
@@ -786,7 +782,6 @@ MechS32 ProjectAimPoint(Mech* p_mech, MechS32* p_x, MechS32* p_y)
 
 // Marks player p_player on the screen: brackets at the corners of its mech, sized by its radius
 // and depth, in its side's shapes; off the screen, an arrow at the edge.
-// The 3Dfx edition's diff is register allocation, scheduling and float operand order only.
 // FUNCTION: MW2 0x10041a14
 // FUNCTION: MW2MATROX 0x1001d9cd
 // FUNCTION: MW23DFX 0x10022cc0
@@ -870,7 +865,6 @@ void DrawPlayerBrackets(Player* p_player, MechS32 p_side)
 
 // Marks the object p_object on the screen like DrawPlayerBrackets a player: brackets around its shape,
 // at most half the screen apart, or an arrow at the edge.
-// The 3Dfx edition's diff is register allocation, scheduling and float operand order only.
 // FUNCTION: MW2 0x10041c3c
 // FUNCTION: MW2MATROX 0x1001dc23
 // FUNCTION: MW23DFX 0x10022ea0

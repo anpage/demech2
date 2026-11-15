@@ -256,9 +256,8 @@ void UpdateAllShots(void)
 // Moves the shot on by g_deltaTime and tests the segment it covered for a hit: a mech, a game
 // thing or the ground. A hit detonates the shot, just short of the point of impact; otherwise
 // it detonates when its lifetime runs out, or steers on toward its target.
-// Stack-slot permutation of the locals; the y < groundY comparison has its operands the other way
-// around. The Matrox edition's applies the damage after RecordAttack.
-// The 3Dfx edition's diff is a stack-slot permutation only (shots.c is /Od).
+// The Matrox edition applies the damage after RecordAttack; the 3Dfx edition skips the local
+// player's hit feedback while its flag 2 is set.
 // FUNCTION: MW2 0x1006a533
 // FUNCTION: MW2MATROX 0x1006b033
 // FUNCTION: MW23DFX 0x10044f60
@@ -409,7 +408,7 @@ void UpdateShot(MechS32 p_index)
 				g_careerRecord.m_teamHitsTaken++;
 			}
 
-#ifndef MW2_ACCEL
+#if !defined(MW2_ACCEL) || defined(MW2_3DFX)
 			if (!g_netRole || victim == g_localPlayerId) {
 				g_players[victim]->m_mech->m_deltaHeat += shot->m_heat;
 				ApplyDamageToMech(
@@ -421,7 +420,11 @@ void UpdateShot(MechS32 p_index)
 			}
 #endif
 
+#ifdef MW2_3DFX
+			if (victim == g_localPlayerId && !(g_players[g_localPlayerId]->m_flags & 2)) {
+#else
 			if (victim == g_localPlayerId) {
+#endif
 				shot->m_impact |= 0x4000;
 				if (hit->m_partId == 1 || hit->m_partId == 3 || hit->m_partId == 2 || hit->m_partId == 4) {
 					shot->m_impact |= 0x2000;
@@ -431,7 +434,7 @@ void UpdateShot(MechS32 p_index)
 			}
 
 			RecordAttack(shot->m_shooter, victim);
-#ifdef MW2_ACCEL
+#ifdef MW2_MATROX
 
 			if (!g_netRole || victim == g_localPlayerId) {
 				g_players[victim]->m_mech->m_deltaHeat += shot->m_heat;
@@ -459,8 +462,12 @@ void UpdateShot(MechS32 p_index)
 		}
 	}
 	else if (y < 0) {
+#ifdef MW2_3DFX
+		if ((groundY = GetTerrainHeight(x, y, z)) > y) {
+#else
 		groundY = GetTerrainHeight(x, y, z);
 		if (y < groundY) {
+#endif
 			hitResult = 1;
 			shot->m_impact |= c_impactGround;
 			ClipRayToGround(&ray, groundY);
@@ -698,9 +705,6 @@ void SpawnLaunchEffect(MechS32 p_type, Player* p_player)
 // (c_impactMech etc.), which picks a variant of it, and 0x4000 keeps its sound at full volume.
 // The effect takes a free slot of its type (none if three of them already burn within 500
 // units), and the effect camera may follow it from (p_camX, p_camY, p_camZ).
-// Stack-slot permutation of the locals; one distance comparison has its operands the other way
-// around.
-// The 3Dfx edition's diff is a stack-slot permutation only (shots.c is /Od).
 // FUNCTION: MW2 0x1006b1fb
 // FUNCTION: MW2MATROX 0x1006bdd0
 // FUNCTION: MW23DFX 0x10045d00
@@ -912,8 +916,12 @@ void SpawnEffectEx(
 				distance = dx * dx + dz * dz;
 				cameraX = g_eyepoint->m_lightX - g_eyepoint->m_x;
 				cameraZ = g_eyepoint->m_lightZ - g_eyepoint->m_z;
+#ifdef MW2_3DFX
+				if ((current = cameraX * cameraX + cameraZ * cameraZ) > distance) {
+#else
 				current = cameraX * cameraX + cameraZ * cameraZ;
 				if (current > distance) {
+#endif
 					closer = 1;
 				}
 				else {
@@ -1116,7 +1124,6 @@ void DamageMechsInRadius(
 }
 
 // Damages every game thing whose shape comes within p_radius of (p_x, p_y, p_z).
-// The 3Dfx edition's diff is a stack-slot permutation only (shots.c is /Od).
 // FUNCTION: MW2 0x1006bdb4
 // FUNCTION: MW2MATROX 0x1006c9d5
 // FUNCTION: MW23DFX 0x100468b0
@@ -1159,7 +1166,7 @@ void DamageThingsInRadius(
 		dy = y - p_y;
 		dz = z - p_z;
 		reach = radius + p_radius;
-#ifdef MW2_ACCEL
+#ifdef MW2_MATROX
 		if ((distance = ApproximateVectorLength(dx, dy, dz)) < reach) {
 #else
 		distance = ApproximateVectorLength(dx, dy, dz);
@@ -1307,8 +1314,6 @@ void DamageGameThing(
 }
 
 // Shows up to p_count free effects of type 0xb (all when 0) at (p_x, p_y, p_z) as debris.
-// Stack-slot permutation of the locals; the shown < p_count comparison has its operands the
-// other way around.
 // FUNCTION: MW2 0x1006c237
 // FUNCTION: MW2MATROX 0x1006ce62
 // FUNCTION: MW23DFX 0x10046d40
@@ -1320,10 +1325,8 @@ void ScatterDebris(MechScalar p_x, MechScalar p_y, MechScalar p_z, MechS32 p_cou
 	MechS32 i;
 	SceneObject* object;
 
-#ifdef MW2_ACCEL
 	effect = NULL;
 	object = NULL;
-#endif
 	shown = 0;
 	if (!p_count) {
 		p_count = 0x100;
@@ -1356,11 +1359,8 @@ void SaveCareerRecord(void)
 }
 
 // Heats up the mechs near burning game things (shapes of type 0x10), the more the closer.
-// Stack-slot permutation of the locals; the i != g_localPlayerId and distance < reach
-// comparisons have their operands the other way around.
-// MW2MATROX: in floats, with the heat scaled by FIXED_TO_SCALAR and a quarter where 1.1 shifts by
-// 3; distance < reach stores before it compares (fst, fcomp) where the rebuild compares first, and
-// i != g_localPlayerId compares in the other operand order.
+// MW2MATROX: in floats, with the heat scaled by FIXED_TO_SCALAR and a quarter where 1.1 shifts
+// by 3.
 // FUNCTION: MW2 0x1006c362
 // FUNCTION: MW2MATROX 0x1006cf8d
 // FUNCTION: MW23DFX 0x10046e70

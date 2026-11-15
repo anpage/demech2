@@ -5,8 +5,10 @@
 0x1000111a CenterWindow unk10001070.cpp rename desktop=zqak desktopRect=zqaj rect=zqai
 0x1000120a FUN_1000120a unk10001070.cpp pad 1 rename desktop=zqan desktopRect=zqaj height=zqao placement=zqab rect=zqai screenHeight=zqaa screenWidth=zqam unk0x24=zqak unk0x28=zqal width=zqap
 0x100013c2 IsBlankString unk10001070.cpp rename blank=zqai copy=zqaj
+0x10001567 SessionList::Clear sessionlist.cpp rename next=zqai session=zqaj
 0x10001626 SessionList::Find sessionlist.cpp rename found=zqaj session=zqai unused=zqak
 0x100016f4 SessionList::FindEntry sessionlist.cpp rename found=zqaj session=zqai unused=zqak
+0x1000189c SessionList::RemoveStale sessionlist.cpp rename index=zqai prev=zqak session=zqaj stale=zqal
 0x10001c0c SessionList::EnumPlayers sessionlist.cpp rename i=zqak result=zqai session=zqaj
 0x10001cf1 SessionList::ShowPlayers sessionlist.cpp rename i=zqan index=zqai name=zqak players=zqal result=zqaj session=zqao sessions=zqam
 0x10001e63 SessionThread sessionlist.cpp rename context=zqaj desc=zqak msg=zqam result=zqal running=zqai state=zqan
@@ -22,12 +24,15 @@
 0x100042d9 FUN_100042d9 unk10003660.cpp pad 13 rename button=zqal changed=zqam command=zqan dc=zqaj index=zqaa index2=zqab menu=zqao notify=zqak palette=zqai text=zqap
 0x10004a40 FUN_10004a40 unk10003660.cpp rename bits=zqap count=zqai data=zqal dc=zqak i=zqan info=zqao memory=zqam palette=zqaa resource=zqaj
 0x10004be3 FUN_10004be3 unk10003660.cpp rename bitmap=zqan dc=zqaj focus=zqal id=zqam info=zqak item=zqai
+0x10005023 FUN_10005023 unk10003660.cpp pad 1 rename options=zqak previous=zqaj result=zqai
 0x100057fa FUN_100057fa unk10003660.cpp rename high=zqai i=zqaj low=zqak
 0x10005923 FUN_10005923 unk10003660.cpp rename high=zqai i=zqaj low=zqak
 0x10005cdc FUN_10005cdc unk10003660.cpp rename key=zqaj result=zqai type=zqak
 0x10005d9e FUN_10005d9e unk10003660.cpp rename disposition=zqaj key=zqak result=zqai type=zqal
+0x10005e50 FUN_10005e50 unk10003660.cpp rename data=zqam drive=zqan drives=zqal find=zqak path=zqaj unused=zqai
 0x100062d9 AddServiceProvider unk10006060.cpp rename context=zqaj index=zqai listBox=zqak
 0x1000633a FUN_1000633a unk10006060.cpp rename index=zqal listBox=zqai message=zqam message2=zqan name=zqaj provider=zqak
+0x1000654c FUN_1000654c unk10006060.cpp rename caps=zqap command=zqaa created=zqac dc=zqam info=zqal listBox=zqab memoryDC=zqaj notify=zqan paint=zqai rect=zqao result=zqak
 0x10006ce0 HostSession unk10006ce0.cpp rename event=zqal failed=zqaj name=zqai unused=zqak
 0x10006f81 JoinSession unk10006ce0.cpp rename desc=zqam event=zqaa index=zqaj listBox=zqal name=zqai result=zqan session=zqap sessionName=zqak unused=zqao
 0x100072a2 FUN_100072a2 unk10006ce0.cpp rename command=zqak hosted=zqal notify=zqaj selection=zqai
@@ -35,6 +40,7 @@
 0x1000834d FUN_1000834d unk10007c30.c rename count=zqak id=zqaj size=zqal table=zqai
 0x100083e3 FUN_100083e3 unk10007c30.c pad 2 rename ammo=zqao i=zqal j=zqam mech=zqak sections=zqaj trailer=zqan weapons=zqai
 0x100086b1 FUN_100086b1 unk10007c30.c rename ammo=zqao i=zqal j=zqam mech=zqak sections=zqaj trailer=zqan weapons=zqai
+0x100089d0 FUN_100089d0 unk100089d0.cpp rename code=zqac count=zqap flags=zqai i=zqam id=zqak length=zqae missionName=zqad name=zqaa player=zqaj text=zqal unused0=zqao unused1=zqan unused2=zqab
 0x10008d5d FUN_10008d5d unk100089d0.cpp rename command=zqaj notify=zqai
 0x10009230 FUN_10009230 unk10009230.cpp rename data=zqam flags=zqai i=zqak index=zqal text=zqaj
 0x100098a2 FUN_100098a2 unk10009230.cpp pad 5 rename command=zqaa dc=zqal delta=zqaf header=zqae i=zqab index=zqac info=zqak memoryDC=zqaj mission=zqad notify=zqam paint=zqai rect=zqao text=zqan upDown=zqap
@@ -49,6 +55,7 @@
 0x1000bbb0 FUN_1000bbb0 unk1000b400.cpp rename copy=zqab file=zqam find=zqaa findData=zqap index=zqal mech=zqaj more=zqai path=zqan size=zqak written=zqao
 0x1000c08c FUN_1000c08c unk1000b400.cpp rename buffer=zqak change=zqai message=zqaj
 0x1000c142 FUN_1000c142 unk1000b400.cpp rename buffer=zqaj copy=zqam message=zqai name=zqal player=zqak
+0x1000c273 ChatLog::AddLine chatlog.cpp pad 6 rename body=zqam dc=zqan end=zqai first=zqbf i=zqcg index=zqad infoDc=zqac line=zqap metrics=zqas player=zqaz rect=zqaq removed=zqa1 rest=zqao saved=zqbk scrollInfo=zqak tabStop=zqbh text=zqab topIndex=zqaj width=zqaa wrap=zqal
 0x1000cb99 ChatLog::Attach chatlog.cpp rename scrollInfo=zqai tabStop=zqaj
 0x1000d092 ChatLog::Send chatlog.cpp rename chat=zqal message=zqaj packet=zqak self=zqai
 0x1000d250 FUN_1000d250 unk1000d250.cpp rename count=zqal i=zqak id=zqaj player=zqai unused=zqam
@@ -56,6 +63,7 @@
 0x1000d91f FUN_1000d91f unk1000d250.cpp rename count0=zqal count1=zqam i=zqak id=zqaj player=zqai
 0x1000dae1 FUN_1000dae1 unk1000d250.cpp rename command=zqap dc=zqam info=zqal memoryDC=zqaj notify=zqan paint=zqai point=zqak rect=zqao
 0x1000e410 FUN_1000e410 unk1000e410.cpp rename count=zqan i=zqak id=zqaj player=zqai unused0=zqam unused1=zqal
+0x1000e58d FUN_1000e58d unk1000e410.cpp rename command=zqab dc=zqan i=zqap info=zqam memoryDC=zqak notify=zqao paint=zqaj player=zqal ready=zqai rect=zqaa
 0x1000f27f FUN_1000f27f unk1000f0f0.cpp rename code=zqaj flags=zqam index=zqai node=zqal plrId=zqak
 0x1000f52c WriteNetDifficultyCfg unk1000f0f0.cpp rename cfg=zqaj file=zqai
 0x1000f7a6 BeginBwdStream bwdwriter.c rename dtbl=zqai header=zqak rev=zqaj
@@ -71,6 +79,7 @@
 0x10010e50 WatchPlayersThread unk10010e50.cpp rename i=zqao msg=zqak ping=zqal player=zqam result=zqaj running=zqai status=zqan
 0x10010fab AddMissingPlayer unk10010e50.cpp rename index=zqaj name=zqai
 0x10011030 BroadcastSettingsThread unk10011030.cpp rename buffer=zqak message=zqai msg=zqam running=zqal settings=zqaj
+0x100113ec FUN_100113ec unk10011120.cpp rename command=zqao dc=zqal info=zqak memoryDC=zqaj notify=zqam paint=zqai rect=zqan
 0x10011d60 ArchiveWrite prjfile.c rename buffer=zqaj chunk=zqak remaining=zqai
 0x10011dde ArchiveRead prjfile.c rename buffer=zqaj chunk=zqak remaining=zqai
 0x10011e5c OpenArchive prjfile.c rename fd=zqaj header=zqai size=zqal slot=zqak tag=zqam

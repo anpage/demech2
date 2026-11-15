@@ -244,9 +244,6 @@ void GetClientScreenRect(RECT* p_rect, MechS32 p_width, MechS32 p_height)
 }
 
 // Whether a client point lies inside the game window.
-// The original compares p_x >= g_gameWindowWidth (and p_y) with the global loaded first; moving
-// the definition and LONG parameters don't flip it. A POINT by value does, but the caller then
-// pushes its members through ecx, where the original pushes two scalars through eax.
 // FUNCTION: MW2 0x10068cb0
 __inline MechS32 IsInsideWindow(MechS32 p_x, MechS32 p_y)
 {

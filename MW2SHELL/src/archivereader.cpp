@@ -260,7 +260,6 @@ void ArchiveReader::NextPage()
 }
 
 // Follows a topic link: opens its entry in a child reader.
-// Stack-slot permutation: topic and unused.
 // FUNCTION: MW2SHELL 0x1002991e
 void ArchiveReader::OpenTopic(MechS32 p_id)
 {
@@ -382,7 +381,6 @@ MechS32 ArchiveReader::Run()
 
 // Reads an archive entry: a title command, then text, picture and topic commands up to the end
 // command. The text is laid out into as many pages as it needs.
-// Stack-slot permutation: most of the locals.
 // FUNCTION: MW2SHELL 0x10029db5
 void ArchiveReader::Load(MechS32 p_entry)
 {
@@ -402,7 +400,7 @@ void ArchiveReader::Load(MechS32 p_entry)
 	MechChar* text;
 	MechChar* rest;
 	MechS32 i;
-	MechU32 wordLength;
+	MechS32 wordLength;
 
 	page = NULL;
 	data = NULL;
@@ -451,7 +449,7 @@ void ArchiveReader::Load(MechS32 p_entry)
 				if (result != 2) {
 					wordLength = strlen(g_archiveLine);
 					length += wordLength;
-					offset += wordLength + 1;
+					offset += (MechU32) (wordLength + 1);
 					g_archiveLine[wordLength] = ' ';
 					g_archiveLine[wordLength + 1] = '\0';
 					if (!soundStarted && length >= 0x800) {

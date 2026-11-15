@@ -95,7 +95,6 @@ void RemoveAllTasks(TimedCallback** p_list)
 	}
 }
 
-// The 3Dfx edition's diff is register allocation and instruction scheduling only.
 // FUNCTION: MW2 0x1007d4b8
 // FUNCTION: MW2MATROX 0x10027488
 // FUNCTION: MW23DFX 0x10008380

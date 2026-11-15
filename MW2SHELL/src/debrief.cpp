@@ -661,7 +661,6 @@ MechS32 GetTrialRank(MissionResults* p_results, DifficultyConfig* p_difficulty)
 
 // Opens the debriefing screen: reads the mission's results and statistics, scores them for the
 // pilot and lays the text out on pages under the menu.
-// Not 100%: the stack slots of file, left, top, width, height, career and name are permuted.
 // FUNCTION: MW2SHELL 0x100024a3
 void DrawMissionDebrief(TMPackDataBase* p_database, MechS32 p_campaign, char** p_scenario)
 {

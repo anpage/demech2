@@ -25,8 +25,6 @@
 // A slider from 0 to 0x10000 (MenuControl::m_data holds its shapes: the left cap, the bar, the
 // right cap and the knob): while selected, Space or Right (0xc8) raises it by a tenth and Left
 // (0xc9) lowers it, and its number key raises it too.
-// The only diff is a stack-slot permutation of the locals.
-// The 3Dfx edition's diff is register allocation, scheduling and jump table addresses only.
 // FUNCTION: MW2 0x10072840
 // FUNCTION: MW2MATROX 0x1007e020
 // FUNCTION: MW23DFX 0x10064780
@@ -204,7 +202,6 @@ void RunMenuSlider(MenuDefinition* p_menu, MenuControl* p_control, MechS32 p_ind
 
 // A list of choices shown with a suffix from MenuChoices::m_suffix; it changes only through its
 // callbacks.
-// The 3Dfx edition's diff is register allocation, scheduling and jump table addresses only.
 // FUNCTION: MW2 0x10072dab
 // FUNCTION: MW2MATROX 0x1007e58b
 // FUNCTION: MW23DFX 0x10064b60
@@ -341,8 +338,6 @@ void RunMenuStatus(MenuDefinition* p_menu, MenuControl* p_control, MechS32 p_ind
 
 // A list of choices (MenuChoices): while selected, Space or Right (0xc8) picks the next and Left
 // (0xc9) the previous, wrapping, and its number key the next.
-// Stack-slot permutation; m_texts[value] loads the array before the index (index order).
-// The 3Dfx edition's diff is register allocation, scheduling and jump table addresses only.
 // FUNCTION: MW2 0x10073136
 // FUNCTION: MW2MATROX 0x1007e92e
 // FUNCTION: MW23DFX 0x10064d90
@@ -451,8 +446,8 @@ void RunMenuChoice(MenuDefinition* p_menu, MenuControl* p_control, MechS32 p_ind
 		}
 
 		apply = FALSE;
+	case 3:
 		break;
-	case 3:;
 	}
 
 	if (((MenuChoices*) p_control->m_data)->m_count > 0) {

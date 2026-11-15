@@ -165,12 +165,6 @@ StaticPoolSize* ReadStaticMemoryTable(char* p_mission)
 // Reads a mission stream: checks its version, adds its data table's counts (a stream read for the
 // first time adds all of them), and runs its scenario table and the streams it includes. Returns
 // FALSE on an error.
-// The data table's tag test compares in the other operand order, the REV record's byte swap
-// takes its terms in another order (the original moves the top byte in with mov al, cl), and
-// rev, node, table, known and type are a stack-slot permutation. MW2MATROX: the version test
-// and the data table's tag test compare in the other operand order (swapping the version test's
-// operands changed nothing), and the byte swap takes its terms in the original's order.
-// The 3Dfx edition's diff is register allocation, scheduling and comparison operand order only.
 // FUNCTION: MW2 0x10056503
 // FUNCTION: MW2MATROX 0x100857c3
 // FUNCTION: MW23DFX 0x100410e0

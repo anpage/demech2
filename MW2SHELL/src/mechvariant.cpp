@@ -528,7 +528,6 @@ void ShowFormationMech(MechS32 p_formation, MechS32 p_position, ButtonMenu* p_me
 }
 
 // Redraws the formation, mission, star size, tonnage limit and star mass lines.
-// Stack-slot permutation: i and mass.
 // FUNCTION: MW2SHELL 0x10003a4e
 void DrawStarInfo(MechS32 p_campaign)
 {
@@ -566,8 +565,7 @@ void DrawStarInfo(MechS32 p_campaign)
 	if (g_starMassLine) {
 		delete g_starMassLine;
 	}
-	mass = 0;
-	for (i = 0; i < g_selectedStar->m_count; i++) {
+	for (i = 0, mass = 0; i < g_selectedStar->m_count; i++) {
 		mass += g_mechMasses[i];
 	}
 	sprintf(g_starInfoText, "~Current Total Mass of the Star: %d.00 T", mass);

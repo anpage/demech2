@@ -39,7 +39,6 @@ void TMPackDataBase::DumpEntries()
 	}
 }
 
-// Stack-slot permutation: result, entry, fileSize, next, current, count, i and offset.
 // FUNCTION: MW2SHELL 0x10047c6c
 TMPackDataBase::TMPackDataBase(char* p_name)
 {

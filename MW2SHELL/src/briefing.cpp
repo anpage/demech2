@@ -49,7 +49,6 @@ void BriefingCallback(TMPackDataBase*, MechS32* p_campaign, MechU8*, MechChar**,
 // Opens the briefing screen: lays the scenario's briefing text (its first four letters, padded
 // with '_', plus "BRF1") out on pages under the menu. A campaign's last mission briefs from
 // KTWOBRF1/KTJFBRF1 once the pilot's rank is high enough.
-// Not 100%: the stack slots of left, top, width, height and i are permuted.
 // FUNCTION: MW2SHELL 0x10046200
 void DrawBriefing(TMPackDataBase* p_database, char* p_scenario, MechS32 p_campaign)
 {

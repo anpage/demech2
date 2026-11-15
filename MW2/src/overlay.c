@@ -280,7 +280,6 @@ MechChar g_monoBlankLine[0x50];
 MechChar g_monoBlankLineEnd;
 
 // Draws each debug overlay that is on, or blanks it once it goes off; called every frame.
-// The 3Dfx edition's diff is register allocation and instruction scheduling only.
 // FUNCTION: MW2 0x10058750
 // FUNCTION: MW2MATROX 0x1008dbe0
 // FUNCTION: MW23DFX 0x1003c550
@@ -340,8 +339,6 @@ void DrawDebugOverlays(void)
 }
 
 // Draws the 256 palette colours as a grid of 16 swatches per row.
-// Matches but for register allocation, operand order and scheduling, which VC++ 2.2's /Ox varies.
-// The 3Dfx edition's diff is register allocation and instruction scheduling only.
 // FUNCTION: MW2 0x100588a7
 // FUNCTION: MW2MATROX 0x1008dd05
 // FUNCTION: MW23DFX 0x1003c630

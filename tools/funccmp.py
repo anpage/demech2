@@ -108,6 +108,108 @@ def symbol_name(symbol):
     return undecorate(symbol) or re.sub(r"^[_@]|@\d+$", "", symbol)
 
 
+class LineFunction:
+    """A by-name FUNCTION marker placed at its function's definition (see Annotations)."""
+
+    def __init__(self, marker, filename, line_number, end_line):
+        self.marker, self.filename, self.line_number, self.end_line = marker, filename, line_number, end_line
+        self.by_name = True
+
+    def __getattr__(self, attribute):
+        return getattr(self.marker, attribute)
+
+
+# The edition macros each target defines (vc40/targets.cmake, vc22/targets.cmake): they decide
+# which of a function's #ifdef'd definitions a by-name marker names.
+EDITION_MACROS = ("MW2_ACCEL", "MW2_MATROX", "MW2_3DFX")
+EDITION_DEFINES = {"MW2MATROX": {"MW2_ACCEL", "MW2_MATROX"}, "MW23DFX": {"MW2_ACCEL", "MW2_3DFX"}}
+BLANKED = re.compile(r"//[^\n]*|/\*.*?\*/|\"(?:\\.|[^\"\\\n])*\"|'(?:\\.|[^'\\\n])*'", re.S)
+CONDITIONAL = re.compile(r"\s*#\s*(ifdef|ifndef|if|elif|else|endif)\b(.*)")
+
+
+def code_only(text):
+    """The text with comments, strings and character literals blanked (newlines kept)."""
+    return BLANKED.sub(lambda m: re.sub(r"[^\n]", " ", m.group()), text)
+
+
+def active_lines(text, defines):
+    """Per line (0-based), whether the line is compiled: an #ifdef, #ifndef or #if [!]defined() of
+    an edition macro, or #if 0 or 1, decides by `defines`; any other condition takes its first
+    branch (so that each function's braces are counted once, as a consistent build sees them)."""
+    out, stack = [], []  # per open #if: (this branch is active, a branch was taken)
+    for line in text.split("\n"):
+        m = CONDITIONAL.match(line)
+        if m:
+            kind, rest = m.group(1), m.group(2).strip()
+            if kind in ("ifdef", "ifndef", "if"):
+                c = re.fullmatch(r"(!?)\s*(?:defined\s*\(\s*(\w+)\s*\)|defined\s+(\w+))", rest) if kind == "if" else None
+                macro = rest.split()[0] if kind != "if" and rest else c and (c.group(2) or c.group(3))
+                if kind == "if" and rest in ("0", "1"):
+                    value = rest == "1"
+                elif macro in EDITION_MACROS:
+                    value = (macro in defines) != (kind == "ifndef" or bool(c and c.group(1)))
+                else:
+                    value = True
+                stack.append((value, value))
+            elif kind in ("else", "elif") and stack:
+                taken = stack[-1][1]
+                stack[-1] = (not taken and kind == "else", True)
+            elif kind == "endif" and stack:
+                stack.pop()
+            out.append(False)  # a directive is no code
+            continue
+        out.append(all(v for v, _ in stack))
+    return out
+
+
+def compiled_code(text, defines=()):
+    """The text as definition_lines reads it: comments, strings and the lines the preprocessor
+    skips blanked (see active_lines)."""
+    active = active_lines(text, set(defines))
+    return "\n".join(line if on else " " * len(line) for line, on in zip(code_only(text).split("\n"), active))
+
+
+def definition_lines(text, name, defines=(), code=None):
+    """The (first, last) line numbers (1-based) of each definition of a function in a C source that
+    other targets annotate (FUNCTION or STUB markers right above it) and the edition macros leave
+    in: a line outside any brace with the declarator `name(`, a body after its parameters. `code`:
+    the text's compiled_code, if already computed."""
+    out = []
+    if code is None:
+        code = compiled_code(text, defines)
+    pattern = re.compile(r"^[A-Za-z_][^;{}()]*?\b%s\s*\(" % re.escape(name), re.M)
+    for m in pattern.finditer(code):
+        before = code[: m.start()]
+        if before.count("{") != before.count("}"):
+            continue  # inside a body
+        first = code.count("\n", 0, m.start()) + 1
+        depth, k = 0, m.end() - 1
+        while k < len(code):
+            depth += code[k] == "("
+            depth -= code[k] == ")"
+            if depth == 0:
+                break
+            k += 1
+        rest = code[k + 1 :].lstrip()
+        if not rest.startswith("{"):
+            continue  # a prototype
+        start = len(code) - len(rest)
+        level, j = 0, start
+        while j < len(code):
+            level += code[j] == "{"
+            level -= code[j] == "}"
+            if level == 0:
+                break
+            j += 1
+        above = text[: m.start()].rstrip("\n").split("\n")
+        markers = []
+        while above and above[-1].lstrip().startswith("//"):
+            markers.append(above.pop())
+        if any(re.match(r"\s*// (FUNCTION|STUB): ", line) for line in markers):
+            out.append((first, code.count("\n", 0, j) + 1))
+    return out
+
+
 class Annotations:
     """The target's annotations, from the source tree (reccmp's parser)."""
 
@@ -133,6 +235,27 @@ class Annotations:
         for variable in codebase.iter_variables():
             self.names[variable.name].add(variable.offset)
         self.addresses = sorted(addresses)
+        # A C function annotated by name in a header (one an edition places out of its file's
+        # order) is a line function at its definition: the tools find it in the unit that compiles
+        # it like any other (its file's lines are what witness records rename).
+        sources = [p for p in files if p.suffix.lower() in (".c", ".cpp")]
+        texts, codes = {}, {}
+        defines = EDITION_DEFINES.get(target, ())
+        for name, markers in self.by_name.items():
+            if name in self.functions or len(markers) != 1 or not re.match(r"[A-Za-z_]\w*$", name):
+                continue
+            definitions = []
+            for path in sources:
+                if path not in texts:
+                    texts[path] = path.read_text(encoding="utf-8", errors="replace")
+                if name not in texts[path]:
+                    continue
+                if path not in codes:
+                    codes[path] = compiled_code(texts[path], defines)
+                definitions += [(path, lines) for lines in definition_lines(texts[path], name, defines, codes[path])]
+            if len(definitions) == 1:
+                path, (first, last) = definitions[0]
+                self.functions[name].append(LineFunction(markers[0], str(path), first, last))
 
     @staticmethod
     def name_of(function):
@@ -145,10 +268,14 @@ class Annotations:
         lines = Path(function.filename).read_text(encoding="utf-8").split("\n")[function.line_number - 1 : function.end_line]
         return function_name(" ".join(line for line in lines if not line.lstrip().startswith("#")))
 
+    # The CRT's aliases: two public names at one address, of which the annotations name the one
+    # reccmp keeps (library_msvc.h).
+    ALIASES = {"__stricmp": "__strcmpi", "__strcmpi": "__stricmp", "__alloca_probe": "__chkstk", "__chkstk": "__alloca_probe"}
+
     def address_of(self, symbol):
         """The annotated address of a COFF symbol's entity, or None."""
         plain = re.sub(r"\$S\d+$", "", symbol_name(symbol))  # a function's static: _x$S123
-        for name in (symbol, plain):
+        for name in (symbol, plain, self.ALIASES.get(symbol)):
             found = self.names.get(name)
             if found and len(found) == 1:
                 return next(iter(found))

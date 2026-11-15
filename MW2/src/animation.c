@@ -140,10 +140,7 @@ void RotateTexturePoint(MechFloat p_cos, MechFloat p_sin, MechFloat* p_u, MechFl
 #endif
 // MW2MATROX's (0x10050dbc) is another function: it draws through the Matrox edition's renderer.
 // MW23DFX's (0x1002c880) draws through its own renderer, in Glide's texture coordinates, and
-// clips the polygon to the pane edges p_unk0x18 selects. MW23DFX: register allocation (the
-// original keeps data on the stack and anim in ebx, the rebuild the other way around), which
-// shifts every stack offset by 4.
-// The 3Dfx edition's diff is register allocation and instruction scheduling only.
+// clips the polygon to the pane edges p_unk0x18 selects.
 // FUNCTION: MW2 0x10068d10
 // FUNCTION: MW2MATROX 0x10050dbc
 // FUNCTION: MW23DFX 0x1002c880
@@ -600,9 +597,6 @@ MechS32 DrawAnimatedPolygon(
 #endif
 }
 
-// MW23DFX: the same comparison and an addition's operand order, and the loop's end (0x10160cf0,
-// g_unk0x10184700 in the original).
-// The 3Dfx edition's diff is register allocation and the name of an address past an array.
 // FUNCTION: MW2 0x10068fb8
 // FUNCTION: MW2MATROX 0x10051278
 // FUNCTION: MW23DFX 0x1002ce50
@@ -650,8 +644,6 @@ void AdvanceAnimations(void)
 	}
 }
 
-// MW23DFX: register allocation of p_set, found and slot.
-// The 3Dfx edition's diff is register allocation and instruction scheduling only.
 // FUNCTION: MW2 0x10069124
 // FUNCTION: MW2MATROX 0x100513ed
 // FUNCTION: MW23DFX 0x1002cf10
@@ -1188,8 +1180,6 @@ MechS32 FUN_10051ea2(MechS32 p_index, ProjectedVertex** p_points, MechS32 p_coun
 #ifdef MW2_3DFX
 // Draws the polygon of p_count projected points with animation p_index + 0x100's texture (the
 // ground's), clipped to the pane, subdivided for its perspective (FUN_100674c0's mode 2). Returns 0.
-// Register allocation: the original keeps vertex in edi and g_unk0x100aa1d0 in ebx.
-// The 3Dfx edition's diff is register allocation and instruction scheduling only.
 // FUNCTION: MW23DFX 0x1002d460
 MechS32 FUN_10051c07(MechS32 p_index, ProjectedVertex** p_points, MechS32 p_count)
 {
@@ -1240,8 +1230,6 @@ MechS32 FUN_10051c07(MechS32 p_index, ProjectedVertex** p_points, MechS32 p_coun
 
 // FUN_10051c07 for the sky: its texture coordinates scaled to Glide's 0-255, drawn unclipped when
 // the clipper leaves it whole, in FUN_100674c0's mode 1.
-// Register allocation of p_count and vertex.
-// The 3Dfx edition's diff is register allocation and instruction scheduling only.
 // FUNCTION: MW23DFX 0x1002d590
 MechS32 FUN_10051ea2(MechS32 p_index, ProjectedVertex** p_points, MechS32 p_count)
 {

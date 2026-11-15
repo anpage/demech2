@@ -54,10 +54,7 @@ void CycleMechViewMode(void)
 #define MECH_VIEW_SHAPE(id) (id)
 #endif
 
-// Stack-slot permutation: camera, mech and saved and view. The original's longer displacements
-// make its code longer, so reccmp compares only the recompiled length of it.
-// MW2MATROX: clears each rendered view with the transparent pixel and presents the pane, and an
-// else joins the static test.
+// MW2MATROX: clears each rendered view with the transparent pixel and presents the pane.
 // FUNCTION: MW2 0x100509c8
 // FUNCTION: MW2MATROX 0x1008ad78
 // FUNCTION: MW23DFX 0x10011720
@@ -83,16 +80,9 @@ void DrawMechViewPanel(CockpitPanel* p_panel)
 			DrawMechViewStatic(p_panel);
 			return;
 		}
-#ifdef MW2_ACCEL
 		else if (RandomIntBelow(10) < 3) {
 			g_mechViewStatic = 1;
 		}
-#else
-
-		if (RandomIntBelow(10) < 3) {
-			g_mechViewStatic = 1;
-		}
-#endif
 	}
 	else if (p_panel->m_damage > 2 && g_mechViewMode != 1 && g_mechViewMode != 2) {
 		DrawMechViewStatic(p_panel);

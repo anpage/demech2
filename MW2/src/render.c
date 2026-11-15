@@ -347,7 +347,6 @@ void SecondRender(void)
 // distances, the scene's objects, and the animations.
 // MW2MATROX: wipes with the background's 16-bit pixel, keeps the clip distance it restores as a
 // float, and doesn't draw the bounding spheres.
-// The 3Dfx edition's diff is register allocation and instruction scheduling only.
 // FUNCTION: MW2 0x10012afe
 // FUNCTION: MW2MATROX 0x1001774e
 // FUNCTION: MW23DFX 0x10004b30

@@ -290,7 +290,6 @@ void PreloadCockpitSounds(void)
 // hardpoints 5, 3 and 7, the right ones (8 to 12) those on 4, 1 and 6, and the weapons on 2 and 0
 // fill the rest, alternating. Then reorders the weapons to match, left at even indices and right
 // at odd ones, renumbering their bins, and clears the slots left empty.
-// The 3Dfx edition's diff is registers, scheduling and the rebuild's .bss order (g_cockpitPanels).
 // FUNCTION: MW2 0x1006f4fa
 // FUNCTION: MW2MATROX 0x1007954a
 // FUNCTION: MW23DFX 0x1001dcc0

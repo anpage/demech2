@@ -224,9 +224,7 @@ void FUN_100692db(Eyepoint* p_eyepoint);
 // Clips the polygon of the p_count first vertices of g_a3dVertices to the pane's edges in
 // p_edges (1 left, 2 right, 4 top, 8 bottom), adding the vertices on the edges after them
 // (A3D_EdgeCrossing), and copies the result to g_a3dClipped. Returns its point count, -1 if nothing
-// is left, or 0 without p_edges. The Matrox edition doesn't call it; its only diff is a stack-slot
-// permutation of the locals.
-// The 3Dfx edition's diff is register allocation and instruction scheduling only.
+// is left, or 0 without p_edges. The Matrox edition doesn't call it.
 // FUNCTION: MW2MATROX 0x10067b90
 // FUNCTION: MW23DFX 0x10026a30
 MechS32 FUN_10067b90(MechU32 p_count, MechU32 p_edges, MechS32 p_unk0x08)
@@ -701,7 +699,6 @@ void FUN_10068856(
 }
 
 // Draws a polygon in palette color p_color, lit by each vertex's light if p_lit is set.
-// The 3Dfx edition's diff is register allocation and instruction scheduling only.
 // FUNCTION: MW2MATROX 0x100688fe
 // FUNCTION: MW23DFX 0x100272e0
 void FUN_100688fe(MechS32 p_count, ProjectedVertex** p_points, MechU32 p_color, MechS32 p_unk0x0c, MechS32 p_lit)
@@ -715,9 +712,16 @@ void FUN_100688fe(MechS32 p_count, ProjectedVertex** p_points, MechU32 p_color, 
 		point = *p_points++;
 		vertex->m_x = point->m_screenX;
 		vertex->m_y = point->m_screenY;
+		// The 3Dfx edition stores the color's components red first, the Matrox edition blue first.
+#ifdef MW2_3DFX
+		vertex->m_red = g_paletteRgb[p_color][0];
+		vertex->m_green = g_paletteRgb[p_color][1];
+		vertex->m_blue = g_paletteRgb[p_color][2];
+#else
 		vertex->m_blue = g_paletteRgb[p_color][2];
 		vertex->m_green = g_paletteRgb[p_color][1];
 		vertex->m_red = g_paletteRgb[p_color][0];
+#endif
 		if (p_lit) {
 			vertex->m_red *= point->m_light;
 			vertex->m_green *= point->m_light;
@@ -797,7 +801,6 @@ void FUN_100689f5(MechS32 p_count, ProjectedVertex** p_points, MechU32 p_color, 
 }
 
 // Draws the outline of a polygon in palette color p_color.
-// MW23DFX: the colors are stored in the other order (scheduling).
 // FUNCTION: MW2MATROX 0x10068b57
 // FUNCTION: MW23DFX 0x10027490
 void FUN_10068b57(MechS32 p_count, ProjectedVertex** p_points, MechU32 p_color)
@@ -825,9 +828,16 @@ void FUN_10068b57(MechS32 p_count, ProjectedVertex** p_points, MechU32 p_color)
 #endif
 		vertex->m_x = point->m_screenX;
 		vertex->m_y = point->m_screenY;
+		// The 3Dfx edition stores the color's components red first, as in FUN_100688fe.
+#ifdef MW2_3DFX
+		vertex->m_red = g_paletteRgb[p_color][0];
+		vertex->m_green = g_paletteRgb[p_color][1];
+		vertex->m_blue = g_paletteRgb[p_color][2];
+#else
 		vertex->m_blue = g_paletteRgb[p_color][2];
 		vertex->m_green = g_paletteRgb[p_color][1];
 		vertex->m_red = g_paletteRgb[p_color][0];
+#endif
 		vertex++;
 	}
 
@@ -847,7 +857,6 @@ void FUN_10068b57(MechS32 p_count, ProjectedVertex** p_points, MechU32 p_color)
 
 // Reads a line of at most p_size - 1 characters, with its newline, from p_file into p_buffer.
 // Returns its length plus one, or 0 at the end of the file.
-// Stack-slot permutation of the locals.
 // FUNCTION: MW2MATROX 0x10068c7b
 MechU32 ReadTextLine(FILE* p_file, MechChar* p_buffer, MechS32 p_size)
 {
@@ -1094,11 +1103,11 @@ void FUN_100692db(Eyepoint* p_eyepoint)
 // one bit of the case; the parts are filled in g_skyColor (the sky, with m_drawSky) and
 // g_groundColor (the ground, with m_drawGround), and with m_horizonBand a shaded band over the
 // horizon blends the sky into the ground.
-// Stack-slot permutation; the original calls IsAboveHorizon for the corners in the order of the
-// terms, (x0, y1) first (commutative operand order).
+// The original calls IsAboveHorizon for the corners in the order of the terms, (x0, y1) first,
+// which the corner bits written as shifts keep.
 // The Matrox edition's draws the textured sky and ground first (skygnd.par), takes the colors from
-// their textures, and draws through its renderer; its diffs are the operand orders of the corner
-// sum and of the 16-bit color's terms.
+// their textures, and draws through its renderer. Its original converts each 16-bit color from
+// the green term first.
 // FUNCTION: MW2 0x1004320b
 // FUNCTION: MW2MATROX 0x10069419
 void DrawSkyAndGround(Eyepoint* p_eyepoint)
@@ -1162,8 +1171,8 @@ void DrawSkyAndGround(Eyepoint* p_eyepoint)
 	roll.m_rows[0][1] = -roll.m_rows[1][0];
 	roll.m_rows[3][0] = roll.m_rows[3][1] = roll.m_rows[3][2] = 0;
 	TransformPoint(&roll, &dx, &dy, &dz);
-	corners = IsAboveHorizon(x0, y1, p_eyepoint) * 4 + IsAboveHorizon(x1, y1, p_eyepoint) * 8 +
-			  IsAboveHorizon(x1, y0, p_eyepoint) * 2 + IsAboveHorizon(x0, y0, p_eyepoint);
+	corners = (IsAboveHorizon(x0, y1, p_eyepoint) << 2) + (IsAboveHorizon(x1, y1, p_eyepoint) << 3) +
+			  (IsAboveHorizon(x1, y0, p_eyepoint) << 1) + IsAboveHorizon(x0, y0, p_eyepoint);
 	if (!g_skyColorsRead) {
 		FUN_100519b0(0x18c, &g_skyRed, &g_skyGreen, &g_skyBlue);
 		FUN_100519b0(0x108, &g_groundRed, &g_groundGreen, &g_groundBlue);
@@ -1534,6 +1543,7 @@ void DrawSkyAndGround(Eyepoint* p_eyepoint)
 		A3D_DrawPolygon(&g_currentPane, 4, band);
 	}
 #else
+	MechS32 dy;
 	MechS32 y1;
 	MechS32 x1;
 	MechS32 yLeft;
@@ -1542,7 +1552,6 @@ void DrawSkyAndGround(Eyepoint* p_eyepoint)
 	MechS32 dx;
 	PANE rect;
 	MechU32 band[4 * 6];
-	MechS32 dy;
 	MechS32 dz;
 	MechS32 xBottom;
 	MechS32 yRight;
@@ -1565,8 +1574,8 @@ void DrawSkyAndGround(Eyepoint* p_eyepoint)
 	roll.m_rows[0][1] = -roll.m_rows[1][0];
 	roll.m_rows[3][0] = roll.m_rows[3][1] = roll.m_rows[3][2] = 0;
 	TransformPoint(&roll, &dx, &dy, &dz);
-	corners = IsAboveHorizon(x0, y1, p_eyepoint) * 4 + IsAboveHorizon(x1, y1, p_eyepoint) * 8 +
-			  IsAboveHorizon(x1, y0, p_eyepoint) * 2 + IsAboveHorizon(x0, y0, p_eyepoint);
+	corners = (IsAboveHorizon(x0, y1, p_eyepoint) << 2) + (IsAboveHorizon(x1, y1, p_eyepoint) << 3) +
+			  (IsAboveHorizon(x1, y0, p_eyepoint) << 1) + IsAboveHorizon(x0, y0, p_eyepoint);
 	band[2] = band[8] = g_skyColor << 16;
 	band[14] = band[20] = (g_groundColor - 1) << 16;
 	switch (corners) {

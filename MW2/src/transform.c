@@ -53,7 +53,6 @@ static MechS32 TransformRow(Matrix* p_matrix, MechS32 p_row, MechS32 p_x, MechS3
 
 // Transforms the point (*p_x, *p_y, *p_z) by p_matrix: its 2.29 rotation, then its translation.
 // The products are an __asm block.
-// The 3Dfx edition's diff is register allocation, scheduling and float operand order only.
 // FUNCTION: MW2 0x1000d650
 // FUNCTION: MW2MATROX 0x10001870
 // FUNCTION: MW23DFX 0x1002eb50
@@ -241,7 +240,6 @@ void RotatePoint(Matrix* p_matrix, MechScalar* p_x, MechScalar* p_y, MechScalar*
 
 // Recomputes column p_column of p_matrix's 2.29 rotation as the cross product of the other two,
 // which makes it orthogonal to them again. The products are an __asm block.
-// The 3Dfx edition's diff is register allocation, scheduling and float operand order only.
 // FUNCTION: MW2 0x1000d7c0
 // FUNCTION: MW2MATROX 0x100019a4
 // FUNCTION: MW23DFX 0x1002ec20
@@ -485,7 +483,6 @@ MechS32 MatrixDot29(MechS32 p_ax, MechS32 p_ay, MechS32 p_az, MechS32 p_bx, Mech
 
 // Multiplies the rotations of p_a and p_b (2.29 fixed point) into p_dst. The
 // products are an __asm block.
-// The 3Dfx edition's diff is register allocation, scheduling and float operand order only.
 // FUNCTION: MW2 0x1000da0c
 // FUNCTION: MW2MATROX 0x10001b59
 // FUNCTION: MW23DFX 0x1002ed60
@@ -832,7 +829,6 @@ void CopyRotation(Matrix* p_src, Matrix* p_dst)
 // Builds p_matrix from three rotation angles (16.16 degrees) and a translation. The bits 0-1 of
 // p_flags pick the rotation order, and bit 2 builds the inverse rotation. A rotation about one axis
 // only is built directly. The products are __asm blocks.
-// The 3Dfx edition's diff is register allocation, scheduling and float operand order only.
 // FUNCTION: MW2 0x1000de3b
 // FUNCTION: MW2MATROX 0x10001f5f
 // FUNCTION: MW23DFX 0x1002f070

@@ -418,8 +418,6 @@ extern "C" LRESULT CALLBACK ShellWindowProc(HWND p_hWnd, UINT p_msg, WPARAM p_wP
 	return 0;
 }
 
-// Matches except for the stack slots of itemData, unk0x14 and itemSize (a consistent
-// permutation that VC++ 4.1 doesn't reproduce from this source).
 // FUNCTION: MW2SHELL 0x1000f35e
 extern "C" int __stdcall ShellMain(
 	HINSTANCE p_hInstance,
@@ -604,9 +602,8 @@ MechS32 PumpMessage()
 }
 
 // Starts the song of the shell message p_msg for the campaign, unless it is already playing.
-// Not 100%: the stack slots of size, data and result are permuted, and the table loads'
-// displacements (each table less c_msgBriefing entries) land on unrelated data, which reccmp names
-// after whatever symbol is there on each side.
+// The table loads' displacements (each table less c_msgBriefing entries) land on unrelated data,
+// which reccmp names after whatever symbol is there on each side.
 // FUNCTION: MW2SHELL 0x1000fe86
 void PlayMidiSong(UINT p_msg, MechS32 p_campaign)
 {

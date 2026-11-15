@@ -95,7 +95,6 @@ MechChar g_anonymousInstallationName[8];
 
 // Writes the target panel's text: the locked target's name (its short name when it changes, its
 // name after a while), coloured by its side, and its distance.
-// The 3Dfx edition's diff is register allocation and instruction scheduling only.
 // FUNCTION: MW2 0x1007b930
 // FUNCTION: MW2MATROX 0x10017e50
 // FUNCTION: MW23DFX 0x10020e40
@@ -310,7 +309,6 @@ void DrawTargetPanelText(CockpitPanel* p_panel)
 
 // Draws the target panel: the locked target through a camera behind it, a nav point's icon, or
 // static while the panel is damaged (m_damage).
-// The only diff is a stack-slot permutation of the locals.
 // FUNCTION: MW2 0x1007c126
 // FUNCTION: MW2MATROX 0x10018683
 // FUNCTION: MW23DFX 0x10021300

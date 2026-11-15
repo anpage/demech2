@@ -97,8 +97,6 @@ void PrintMonoLine(MechChar* p_text)
 	}
 }
 
-// Matches but for register allocation, operand order and scheduling, which VC++ 2.2's /Ox varies.
-// The 3Dfx edition's diff is register allocation, scheduling and comparison operand order only.
 // FUNCTION: MW2 0x1003a299
 // FUNCTION: MW2MATROX 0x1006e829
 // FUNCTION: MW23DFX 0x10007d00

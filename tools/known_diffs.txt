@@ -1,362 +1,228 @@
 # Functions that are neither byte-identical, proven by a witness nor classified (tools/audit.py),
 # and why: target, address, function, a hash of both sides' code, the reason. `undiagnosed` marks
-# a line nobody has looked at yet. tools/audit.py --check fails on an unexplained function
+# a line nobody has looked at yet, `to investigate` one whose cause isn't settled (both weigh as
+# unexplained). tools/audit.py --check fails on an unexplained function
 # without a line, on a hash that no longer matches, and on a line whose function no longer needs it.
 
-MW2SHELL 0x100024a3 DrawMissionDebrief 086321e7dcac undiagnosed
-MW2SHELL 0x10003a4e DrawStarInfo 74da4cd08715 undiagnosed
-MW2SHELL 0x10007cd4 RemoveUnassigned 65814d97e538 undiagnosed
-MW2SHELL 0x100082de RemoveAmmo a7195eeb9504 undiagnosed
-MW2SHELL 0x10008470 RemoveWeapon 2fad568ceb22 undiagnosed
-MW2SHELL 0x100089a8 UpdateWeaponMass 7c52795b3577 undiagnosed
-MW2SHELL 0x1000cba7 PlayChassisName 51f6ca7800d6 undiagnosed
-MW2SHELL 0x1000f35e ShellMain 32775dd5f700 undiagnosed
-MW2SHELL 0x1000fe86 PlayMidiSong f7bbe70da346 undiagnosed
-MW2SHELL 0x10014040 DrawClanHall 3812f8626ed1 undiagnosed
-MW2SHELL 0x1001445c ClanHallCallback df1b30436dcd undiagnosed
-MW2SHELL 0x10015008 DrawPilotRoster e4d427a81986 undiagnosed
-MW2SHELL 0x1001703b LoadVideoFile 6881fd238c6a undiagnosed
-MW2SHELL 0x10017982 DebugPrintInternal b08d57f2bb1a undiagnosed
-MW2SHELL 0x1002991e ArchiveReader::OpenTopic da6aa5615cab undiagnosed
-MW2SHELL 0x10029db5 ArchiveReader::Load 0346e9299f73 undiagnosed
-MW2SHELL 0x1002e09b LayoutTextPages 5cf733f4b119 undiagnosed
-MW2SHELL 0x100382e6 DrawMissionBriefing 3a7868e4f590 undiagnosed
-MW2SHELL 0x1003a151 ReadyRoomCallback 7cc684ef5e08 undiagnosed
-MW2SHELL 0x1003c966 CadetTrainingCallback 6cb993824849 undiagnosed
-MW2SHELL 0x1003dd89 MainMenuCallback 6e611024758a undiagnosed
-MW2SHELL 0x10043a72 DrawOptions 725994b89e3f undiagnosed
-MW2SHELL 0x10043e25 ShowDialog ea8cb723de4b undiagnosed
-MW2SHELL 0x10044880 Page::Page 1ef87fb74ca3 undiagnosed
-MW2SHELL 0x10044a96 Page::ReadToken b9311186422f undiagnosed
-MW2SHELL 0x10046200 DrawBriefing 16b83824e081 undiagnosed
-MW2SHELL 0x10047c6c TMPackDataBase::TMPackDataBase 2394fd79bb95 undiagnosed
-MW2 0x100050d1 DrawObjectiveList d7b76a9c0564 undiagnosed
-MW2 0x1000a9f5 BwdExecuteStream 206eab5643e1 undiagnosed
-MW2 0x1000d30f LoadWorld facca6927543 undiagnosed
-MW2 0x1000efa4 SendChatMsg 9b53030777cb undiagnosed
-MW2 0x100107de DrawBand 737cec5ca408 undiagnosed
-MW2 0x100110f7 UpdateEyepoint aa3ed90923e1 undiagnosed
-MW2 0x10019881 InitMechArrays 554965f867f1 undiagnosed
-MW2 0x1001a19f LoadCachedResource 34ed7fb47d0d undiagnosed
-MW2 0x1001a910 CollapseWhitespace b85880dc99a2 undiagnosed
-MW2 0x1001aa02 DoFirstObjtv 88bc91e46f38 undiagnosed
-MW2 0x1001b580 TestObjectiveCondition 4ae8ea64b199 undiagnosed
-MW2 0x1001b66c ObjectiveConditionsHold 15a4406438e3 undiagnosed
-MW2 0x1001da44 ChoosePlayerDetailLevels a6f85724dd10 undiagnosed
-MW2 0x1001df00 BuildShapeQuadtree a37a1551223e undiagnosed
-MW2 0x1001e0a7 BuildQuadtreeChild 6856c4a0fb7a undiagnosed
-MW2 0x1001e57a FaceOverlapsBox e068f3a8b7d0 undiagnosed
-MW2 0x1001e90f TestQuadtreeRay 62b383c95f7e undiagnosed
-MW2 0x1002116a LoadQuadtreeBoxes 1b2c5ea13e2a undiagnosed
-MW2 0x100354d3 IntersectRayFace 69c56a3b32e7 undiagnosed
-MW2 0x10036230 GetFaceColor b9a5e9e2e7cb undiagnosed
-MW2 0x1003ae96 ComputeShapeBounds 6989dc96f33b undiagnosed
-MW2 0x1003b0e4 ComputeFaceNormal 7256180cbaa7 undiagnosed
-MW2 0x1003b7cc GetShapeMemorySize 77332f6bc253 undiagnosed
-MW2 0x1003e32c DrawMapContents 10e9e4b5713a undiagnosed
-MW2 0x1003e689 DrawMapTarget 1ba1770da3c3 undiagnosed
-MW2 0x1003f74e DrawSatelliteStatic fee3a57cb4e0 undiagnosed
-MW2 0x1004320b DrawSkyAndGround a3c0a12615f3 undiagnosed
-MW2 0x1004506c SpawnShot d0af35e01656 undiagnosed
-MW2 0x10046573 SpawnLaunchFx a85c731114c8 undiagnosed
-MW2 0x10046750 ReelMotionTask e8c6fab7178d undiagnosed
-MW2 0x100498b0 InitStaticMem 1ecb50ed34c3 undiagnosed
-MW2 0x1004b344 UpdateGridObject 1f7744b8298b undiagnosed
-MW2 0x1004bc2e UpdateProjection 07bf347bdaa9 undiagnosed
-MW2 0x1004c11d ProjectWorldPoint 522bedb7fc18 undiagnosed
-MW2 0x1004d175 DrawHeatBar 70d84f39b0e0 undiagnosed
-MW2 0x1004e4e6 PostEventToList 015219f7193d undiagnosed
-MW2 0x1004f64a LoadPathTable cc7a60acc2e5 undiagnosed
-MW2 0x100509c8 DrawMechViewPanel f4c9920a8624 undiagnosed
-MW2 0x10055811 AssignStarTarget c8e82bc582f7 undiagnosed
-MW2 0x10056503 CountMissionStream 3bbe8d22ac69 undiagnosed
-MW2 0x10056e22 CenterRectOnScreen 16c5af23ad30 undiagnosed
-MW2 0x10057282 BoxText 50636654188e undiagnosed
-MW2 0x1005a637 CreateArtillery 0f51a34af645 undiagnosed
-MW2 0x1005b10b SkipCdTracks 0c0ada71a85f undiagnosed
-MW2 0x10066a50 SimMain 0ca8fee397bf undiagnosed
-MW2 0x1006844e LateUpdateDoor 19df3c5a1033 undiagnosed
-MW2 0x10068772 CreateDoor d7148abf2dbd undiagnosed
-MW2 0x1006a533 UpdateShot fad7b6a72882 undiagnosed
-MW2 0x1006b1fb SpawnEffectEx 10f0202b3b24 undiagnosed
-MW2 0x1006c237 ScatterDebris 3a701819395d undiagnosed
-MW2 0x1006c362 HeatMechsNearFires 8d62cddad7f4 undiagnosed
-MW2 0x10072840 RunMenuSlider 4ffd5aad6555 undiagnosed
-MW2 0x10073136 RunMenuChoice 953414a3a682 undiagnosed
-MW2 0x100758a0 MoveMechWithCollisions 391b4467c7e8 undiagnosed
-MW2 0x1007a97a LoadInputMap 9a3970f3a51e undiagnosed
-MW2 0x1007c126 DrawTargetPanel fb9025326591 undiagnosed
-MW2 0x1007f2d5 LoadShapeRecord ede42aac0bdb undiagnosed
-MW2MATROX 0x100014b1 LoadAnim2d b2663f7dc69a undiagnosed
-MW2MATROX 0x10001b59 MultiplyRotations b93b7f6a221d undiagnosed
-MW2MATROX 0x10001f5f BuildMatrixEx a6d36e87fa9f undiagnosed
-MW2MATROX 0x10002f1b SkipCdTracks 37f8f1a97c64 undiagnosed
-MW2MATROX 0x10004a71 SendChatMsg 7af099561cd6 undiagnosed
-MW2MATROX 0x10006d1a TargetGamePiece be57a36286e6 undiagnosed
-MW2MATROX 0x10007012 TargetGameThing 5ab0cb8aafe1 undiagnosed
-MW2MATROX 0x1000d29c UpdateMech ebbd02860304 undiagnosed
-MW2MATROX 0x1000e721 LateUpdateMech 0e2dd03f4d63 undiagnosed
-MW2MATROX 0x10010043 InitMechArrays 27551388a937 undiagnosed
-MW2MATROX 0x10010250 RunAutopilot c7ef29ff6956 undiagnosed
-MW2MATROX 0x10010727 CalculateHeat 7b2d9ddac2df undiagnosed
-MW2MATROX 0x100158f0 BuildShapeQuadtree 3a2d05e3cb47 undiagnosed
-MW2MATROX 0x10015ab5 BuildQuadtreeChild 838b9cdcc5ab undiagnosed
-MW2MATROX 0x10016037 FaceOverlapsBox 75546b13c24b undiagnosed
-MW2MATROX 0x10016b60 GetFaceColor 700152ba326b undiagnosed
-MW2MATROX 0x1001ce3d InitHudGauges 8fe4cc84cdee undiagnosed
-MW2MATROX 0x1001d551 DrawCompassMarkers ba80e69087b5 undiagnosed
-MW2MATROX 0x1001e414 CullMapViewShape a2b36b824016 undiagnosed
-MW2MATROX 0x1001e743 ProjectMapPoint 619472f3fb60 undiagnosed
-MW2MATROX 0x1001ecb0 CollapseWhitespace eb7a9c2cad01 undiagnosed
-MW2MATROX 0x1001f0f8 IsTeamNearTarget beb604e76eb0 undiagnosed
-MW2MATROX 0x1001f8dd TestObjectiveCondition 582c8d024c94 undiagnosed
-MW2MATROX 0x10021a1d DrawObjectiveList 306fb792d52b undiagnosed
-MW2MATROX 0x100232f0 QueueShapeLod 42f9f07c1826 undiagnosed
-MW2MATROX 0x100236a0 DrawDepthQueue 7306385c6f3c undiagnosed
-MW2MATROX 0x100277fe UpdateGridObject 0cde48c81f37 undiagnosed
-MW2MATROX 0x10027a60 ComputeShapeBounds 204af0ac0047 undiagnosed
-MW2MATROX 0x100284c7 ComputeFaceNormal 6b6801e67255 undiagnosed
-MW2MATROX 0x10028adb TransformModel 8b7476a79290 undiagnosed
-MW2MATROX 0x10028cf4 TransformShapeCenter e77ba3135a7e undiagnosed
-MW2MATROX 0x100292cc UpdateProjection 07eadb55858f undiagnosed
-MW2MATROX 0x1002975e ProjectWorldPoint fc7789f286fc undiagnosed
-MW2MATROX 0x10029957 CullSceneShape 5b4ed61301ce undiagnosed
-MW2MATROX 0x10029c23 CullShapeToFrustum 6c0d1cf8601f undiagnosed
-MW2MATROX 0x1002ab7a UpdateDebrisPiece 106b505389f4 undiagnosed
-MW2MATROX 0x1002b194 DamageChunksInRadius 18019f3c2047 undiagnosed
-MW2MATROX 0x1002d3e4 SpawnLaunchFx f6a362d6fb7e undiagnosed
-MW2MATROX 0x1002eb54 CreateArtillery 768f4c5305ba undiagnosed
-MW2MATROX 0x100459b0 DrawBand f4379e5dfaac undiagnosed
-MW2MATROX 0x100461f5 BwdExecuteStream 6ea8989d018d undiagnosed
-MW2MATROX 0x10049c58 GetTrianglePlane 3dba631e7254 undiagnosed
-MW2MATROX 0x10052318 TestRayBox ce04eaf3f577 undiagnosed
-MW2MATROX 0x10055f3e LoadCachedResource 865a1bf537fa undiagnosed
-MW2MATROX 0x1005a5f0 FUN_1005a5f0 0927427ea753 undiagnosed
-MW2MATROX 0x1005c430 A3DClipEdge b21771bd8485 undiagnosed
-MW2MATROX 0x1005ce20 FUN_1005ce20 90b0946644e0 undiagnosed
-MW2MATROX 0x1005d0a0 FUN_1005d0a0 ab693b28a7fd undiagnosed
-MW2MATROX 0x1005d140 FUN_1005d140 65b302e76069 undiagnosed
-MW2MATROX 0x1005d300 FUN_1005d300 5645cc607d3e undiagnosed
-MW2MATROX 0x1005d440 FUN_1005d440 51b2b120f8f5 undiagnosed
-MW2MATROX 0x1005d600 A3D_LoadTexture 140923332fcc undiagnosed
-MW2MATROX 0x1005d990 FUN_1005d990 9701b6972a21 undiagnosed
-MW2MATROX 0x1005dcf0 VRAM_defrag 8ca94e52538c undiagnosed
-MW2MATROX 0x1005e220 FUN_1005e220 05bbab160960 undiagnosed
-MW2MATROX 0x1005e2c0 HEAPCACHE_loaditem dd1821bc97cf undiagnosed
-MW2MATROX 0x1005e770 FUN_1005e770 d0fac2b9fdd6 undiagnosed
-MW2MATROX 0x1005e990 HEAP_defrag 52ee110edc6f undiagnosed
-MW2MATROX 0x1005ebb0 FUN_1005ebb0 59891f9471aa undiagnosed
-MW2MATROX 0x1005ec40 FUN_1005ec40 0bccc4ba4e10 undiagnosed
-MW2MATROX 0x1005f0c0 FUN_1005f0c0 8891633580e9 undiagnosed
-MW2MATROX 0x1005f8a0 FUN_1005f8a0 3c0c1b323fd6 undiagnosed
-MW2MATROX 0x1005fd70 FUN_1005fd70 4a198b167876 undiagnosed
-MW2MATROX 0x10061510 FUN_10061510 0ad59f42673d undiagnosed
-MW2MATROX 0x10061890 A3D_DrawOutline 62ffb6d5fdb8 undiagnosed
-MW2MATROX 0x10061cb0 A3D_DrawPolygon 366ee1a01fa9 undiagnosed
-MW2MATROX 0x10062010 A3D_map_polygon 0e18664bcb46 undiagnosed
-MW2MATROX 0x10062630 A3D_polygon_clip_XY_and_render ed844c09a474 undiagnosed
-MW2MATROX 0x10062cd0 A3D_GroundSkyPolyPlot ae50c8852b66 undiagnosed
-MW2MATROX 0x10063150 FUN_10063150 fd62bbe42af7 undiagnosed
-MW2MATROX 0x10064e20 FUN_10064e20 be9b4c89a2ab undiagnosed
-MW2MATROX 0x100651a0 FUN_100651a0 b5ea4535d4b4 undiagnosed
-MW2MATROX 0x10065710 FUN_10065710 c5d6f6a32d0a undiagnosed
-MW2MATROX 0x100659f0 FUN_100659f0 2017d28886a6 undiagnosed
-MW2MATROX 0x10065ce0 FUN_10065ce0 995c7f6d33e4 undiagnosed
-MW2MATROX 0x10066a50 A3D_EdgeCrossing bd7e23048ffd undiagnosed
-MW2MATROX 0x10066d30 A3D_Init e49c8c86c426 undiagnosed
-MW2MATROX 0x10066fd0 FUN_10066fd0 65b0ca70cef8 undiagnosed
-MW2MATROX 0x10067080 HEAP_init 30490fe536d2 undiagnosed
-MW2MATROX 0x10067260 FUN_10067260 61b682a3997c undiagnosed
-MW2MATROX 0x10067300 FUN_10067300 18777b3a3e59 undiagnosed
-MW2MATROX 0x100673c0 FUN_100673c0 9835e85963c9 undiagnosed
-MW2MATROX 0x10067b90 FUN_10067b90 7bc9402da13e undiagnosed
-MW2MATROX 0x10068c7b ReadTextLine 7cd4210b8014 undiagnosed
-MW2MATROX 0x10069419 DrawSkyAndGround ad69c7f6aad5 undiagnosed
-MW2MATROX 0x1006e13f ChoosePlayerDetailLevels bb3cae49b424 undiagnosed
-MW2MATROX 0x100704f2 PathTask bd41f71b6946 undiagnosed
-MW2MATROX 0x10071832 CenterRectOnScreen fa9de8fd56d3 undiagnosed
-MW2MATROX 0x1007465e DrawMapNavPoints d076b1129461 undiagnosed
-MW2MATROX 0x10075509 DrawSatelliteStatic c4b8a2fd0c48 undiagnosed
-MW2MATROX 0x10076927 ApplyCollisionDamage 315ce86da492 undiagnosed
-MW2MATROX 0x10076e20 GetViewVertex 3e81d9e121ef undiagnosed
-MW2MATROX 0x10077579 GetFaceShade 6d6a8735d333 undiagnosed
-MW2MATROX 0x1007770c QueueFace d448c4ab458a undiagnosed
-MW2MATROX 0x10078432 ProjectPolygon 85216966cbc7 undiagnosed
-MW2MATROX 0x10078f20 InitStaticMem 54353ffd3076 undiagnosed
-MW2MATROX 0x1007a9d9 DecideAIFire 0097fd3f1fc6 undiagnosed
-MW2MATROX 0x1007d2c1 LoadGamekeyMap 02eacc8431eb undiagnosed
-MW2MATROX 0x1007e92e RunMenuChoice bfa7616ede35 undiagnosed
-MW2MATROX 0x1007f368 ComputeTriangleNormal 6c631e457aa7 undiagnosed
-MW2MATROX 0x10084aac AssignStarTarget a53329c77c32 undiagnosed
-MW2MATROX 0x1008554f SweepTorso ee1806f52a8e undiagnosed
-MW2MATROX 0x100857c3 CountMissionStream a65122cd68ae undiagnosed
-MW2MATROX 0x10088ed4 CreateDoor c4bc061ba5a9 undiagnosed
-MW2MATROX 0x1008c850 LoadMechConfig da3c41979efb undiagnosed
-MW2MATROX 0x1008f185 DispDibFlip 33127937971a undiagnosed
-MW2MATROX 0x1008f225 DispDibBlitRect e7eb9bf3ae38 undiagnosed
-MW2MATROX 0x1008f2c5 DispDibStretchBlit e160ad84a7a6 undiagnosed
-MW2MATROX 0x1008f3f3 DispDibSetPalette 6bad00061bf9 undiagnosed
-MW2MATROX 0x1008f58d DispDibSetPaletteWithBrightness 7d09b7623247 undiagnosed
-MW2MATROX 0x1008f6e9 DispDibBlendPalettes ae59a0eaf267 undiagnosed
-MW2MATROX 0x1008fb5a SimMain 22e81bfc4d40 undiagnosed
-MW2MATROX 0x100908a4 SimWindowProc 2f15ec45e1c0 undiagnosed
-MW23DFX 0x10001220 CullMapViewShape 2c933b53d420 undiagnosed
-MW23DFX 0x100014b0 ProjectMapPoint 701332c6cac3 undiagnosed
-MW23DFX 0x10002870 ProfileRefreshModes 47b4685b3ce2 undiagnosed
-MW23DFX 0x10002aa0 ToggleFullScreen 919fd8ccf4f0 undiagnosed
-MW23DFX 0x10002e40 LayoutMessageBoxes 321843797bcb undiagnosed
-MW23DFX 0x10002f20 ShowInGameMessage 18c083826b24 undiagnosed
-MW23DFX 0x10003420 SwitchCockpitView 9738d4e52340 undiagnosed
-MW23DFX 0x10003620 DrawMapView c9d4f675736b undiagnosed
-MW23DFX 0x10004390 FUN_100751a9 53b089d87611 undiagnosed
-MW23DFX 0x100045f0 DrawSatelliteStatic 7f5a70ca753c undiagnosed
-MW23DFX 0x10004b30 DrawScene f15b54c5f557 undiagnosed
-MW23DFX 0x10005c20 ScaleRectToFrame 28bf72b5dbfb undiagnosed
-MW23DFX 0x10006960 TilePane 9ea39c2d16ff undiagnosed
-MW23DFX 0x10007d00 PrintMono ec5c4be185e1 undiagnosed
-MW23DFX 0x10008380 SignalTask ca3c8e4a3646 undiagnosed
-MW23DFX 0x10008850 SimMain e135db256329 undiagnosed
-MW23DFX 0x10009680 HandleMessages 34a00aa7fc64 undiagnosed
-MW23DFX 0x100098f0 CollapseWhitespace b8aec6a500a7 undiagnosed
-MW23DFX 0x10009990 DoFirstObjtv 70d9ade21d96 undiagnosed
-MW23DFX 0x10009b80 IsTeamNearTarget 6dc624c95496 undiagnosed
-MW23DFX 0x1000a1d0 UpdateObjective cbd9c1d1f465 undiagnosed
-MW23DFX 0x1000b5e0 MoveMechWithCollisions 0ca042aaf3b7 undiagnosed
-MW23DFX 0x1000be60 CollideWithBuildings ee50eb1e87f1 undiagnosed
-MW23DFX 0x1000c1f0 ApplyCollisionDamage e485dd451c24 undiagnosed
-MW23DFX 0x1000c550 BuildShapeQuadtree 720d357e8686 undiagnosed
-MW23DFX 0x1000c9a0 FaceOverlapsBox 6bd1c7f96e77 undiagnosed
-MW23DFX 0x1000cb10 ClassifyQuadtreePoint aa2d48f04bbc undiagnosed
-MW23DFX 0x1000ccf0 TestQuadtreeRay e3fc8a1bfb6c undiagnosed
-MW23DFX 0x1000e630 LoadAnimFile d009aff75dc2 undiagnosed
-MW23DFX 0x1000ee10 PathTask 866e47fef117 undiagnosed
-MW23DFX 0x1000fe60 GetObjLastChild 0d3f97dc364a undiagnosed
-MW23DFX 0x10010a90 IsPointInFaceXZ f357ad51c687 undiagnosed
-MW23DFX 0x10010db0 IsPointInFaceXY b7b853e554d0 undiagnosed
-MW23DFX 0x100110d0 IsPointInFaceYZ 0338029451c0 undiagnosed
-MW23DFX 0x10011570 UpdateGridObject 33e42907c479 undiagnosed
-MW23DFX 0x10012150 LogPlayerStatusLines 440b52ad34cf undiagnosed
-MW23DFX 0x100132c0 AiTransitionPush d924b278239a undiagnosed
-MW23DFX 0x10014290 OrderPlayers 486b93f8ef94 undiagnosed
-MW23DFX 0x10014ba0 LeadStar 447292b494f5 undiagnosed
-MW23DFX 0x10015090 CanSeeTarget 68a64fc25174 undiagnosed
-MW23DFX 0x10015e10 DestroyMech 53a4185268d0 undiagnosed
-MW23DFX 0x10015f50 CalculateHeat c86b314ad8a5 undiagnosed
-MW23DFX 0x100167b0 DestroyCriticalSlot 08a01a6b4403 undiagnosed
-MW23DFX 0x10019310 UpdateMech 2a243344e4ce undiagnosed
-MW23DFX 0x1001a180 LateUpdateMech 737a82487e96 undiagnosed
-MW23DFX 0x1001b170 InitMechArrays a362cf8e1c80 undiagnosed
-MW23DFX 0x1001b230 InitDamagePanel 4e5a08a4a70a undiagnosed
-MW23DFX 0x1001b620 DrawDamageOutline 029e45202b81 undiagnosed
-MW23DFX 0x1001c4a0 DrawHeatRateBar fb18b94957e0 undiagnosed
-MW23DFX 0x1001c810 DrawVerticalBar d4198d7f7336 undiagnosed
-MW23DFX 0x1001cb40 RemoveNavPoint d5d7e4b60b5f undiagnosed
-MW23DFX 0x1001cca0 CycleTarget 4df16bef5596 undiagnosed
-MW23DFX 0x1001d870 TargetAtReticle 855c9d1f225e undiagnosed
-MW23DFX 0x1001dcc0 LayoutWeaponPanels 44b83f35491b undiagnosed
-MW23DFX 0x1001f030 ChooseManeuver 962f0903267b undiagnosed
-MW23DFX 0x1001f6b0 GetOffsetPoint ccfcab137e0d undiagnosed
-MW23DFX 0x1001fc40 ManeuverWchick d2450c8336ad undiagnosed
-MW23DFX 0x1001ffd0 ManeuverCircle bd0b8b133fdb undiagnosed
-MW23DFX 0x100200f0 BrakeFall 3116fbd65c5d undiagnosed
-MW23DFX 0x10020ac0 DodgeShot 9d1a4e36ec91 undiagnosed
-MW23DFX 0x10020e40 DrawTargetPanelText edd1d263c243 undiagnosed
-MW23DFX 0x10021f20 LateUpdateDoor 0b4a91b250e5 undiagnosed
-MW23DFX 0x10022490 InitHudGauges 11e40fd61b9a undiagnosed
-MW23DFX 0x10022960 DrawCompassMarkers 2201e0053916 undiagnosed
-MW23DFX 0x10022cc0 DrawPlayerBrackets 0d1765269201 undiagnosed
-MW23DFX 0x10022ea0 DrawObjectBrackets b26fdc1a2e5f undiagnosed
-MW23DFX 0x100232b0 DecideAIFire 1329f9fb678b undiagnosed
-MW23DFX 0x10023d40 StaticPoolAlloc c4bbfe967bd9 undiagnosed
-MW23DFX 0x10023f10 AddStaticPoolType aff554ec5b75 undiagnosed
-MW23DFX 0x100243f0 LoadCachedResource 3d9495223702 undiagnosed
-MW23DFX 0x10024780 AllocGeoTables 12f684c526f8 undiagnosed
-MW23DFX 0x10024890 FreeGeoTables 604fd7a6be23 undiagnosed
-MW23DFX 0x10025410 AreStaticObjectsComplete 1d488bcc5d55 undiagnosed
-MW23DFX 0x10025450 LoadStaticObject eda85543a2eb undiagnosed
-MW23DFX 0x10025840 ToggleBlockBoxes 3ba7fc665aa4 undiagnosed
-MW23DFX 0x10025b70 LoadQuadtreeBoxes 2594577c76a1 undiagnosed
-MW23DFX 0x10025d80 InitializeDrawBuffer 4dc24e22713f undiagnosed
-MW23DFX 0x100260e0 LoadBaseLevelShapes 339ad442d59b undiagnosed
-MW23DFX 0x100267d0 ChoosePlayerDetailLevels 32cb9e9c349c undiagnosed
-MW23DFX 0x10026a30 FUN_10067b90 a012917ed7e7 undiagnosed
-MW23DFX 0x100272e0 FUN_100688fe dfad9547874b undiagnosed
-MW23DFX 0x10027490 FUN_10068b57 9710bd18152c undiagnosed
-MW23DFX 0x10028ee0 IsAboveHorizon 735e97f9167e undiagnosed
-MW23DFX 0x100298c0 ComputeNormalsAndBounds 5e5cbc0869f9 undiagnosed
-MW23DFX 0x10029a40 GetShapeMemorySize d753a5a2aab0 undiagnosed
-MW23DFX 0x10029ab0 TransformModel 3931de82245e undiagnosed
-MW23DFX 0x10029db0 RayShapeDistance 1bae8c6eb060 undiagnosed
-MW23DFX 0x10029f00 QueueShapeLod 7cc81b6b2f30 undiagnosed
-MW23DFX 0x1002a4b0 GetFaceColor 4b5633cb5696 undiagnosed
-MW23DFX 0x1002af80 StartPaletteCycle 8db6ac6d829b undiagnosed
-MW23DFX 0x1002b140 GetViewVertex e73988bf794a undiagnosed
-MW23DFX 0x1002b200 ClipEdgeToNearPlane d5bda15a55d6 undiagnosed
-MW23DFX 0x1002b830 GetFaceShade aee8267adf8e undiagnosed
-MW23DFX 0x1002b9b0 QueueFace b29393f4d3e3 the original keeps the face normal in three more locals (a 0x84-byte frame against 0x74)
-MW23DFX 0x1002c250 ClipProjectedEdge e5f0eb4d4be7 undiagnosed
-MW23DFX 0x1002c880 DrawAnimatedPolygon d5aa58d60abf undiagnosed
-MW23DFX 0x1002ce50 AdvanceAnimations e3efe18bcaf9 undiagnosed
-MW23DFX 0x1002cf10 AddAnimFrame 9bcf12baa232 undiagnosed
-MW23DFX 0x1002d460 FUN_10051c07 72ff76866844 undiagnosed
-MW23DFX 0x1002d590 FUN_10051ea2 20efb2185bf6 undiagnosed
-MW23DFX 0x1002e070 CycleTrackedPlayer 02d6d69027af undiagnosed
-MW23DFX 0x1002e640 UpdateCockpitView 9bfe11c578cc undiagnosed
-MW23DFX 0x1002eb50 TransformPoint 037efc379bb9 undiagnosed
-MW23DFX 0x1002ec20 OrthogonalizeMatrixColumn d2f96c4cc1c3 undiagnosed
-MW23DFX 0x1002ed60 MultiplyRotations 3ccbf7296e6d undiagnosed
-MW23DFX 0x1002f070 BuildMatrixEx 4fa27e230d73 undiagnosed
-MW23DFX 0x1002f740 UpdateProjection e06f2badd8bb undiagnosed
-MW23DFX 0x1002f9f0 ProjectWorldPoint b32f325e5ac7 undiagnosed
-MW23DFX 0x1002fba0 CullSceneShape 7cbb67251640 the original negates the depth once for both side tests (fchs, then fadd), where VC++ 2.2 folds the source's into an fsub; no source form tried keeps it
-MW23DFX 0x1002fdc0 CullShapeToFrustum f3ba1247e83d undiagnosed
-MW23DFX 0x10030410 ComputeTriangleNormal 704b5203b140 undiagnosed
-MW23DFX 0x10032c70 StopSamples 44e13b1898bd undiagnosed
-MW23DFX 0x10032cc0 UpdateAmbientSound 3e7c117559ba undiagnosed
-MW23DFX 0x10033b00 UpdateNetwork 78725fe473e1 undiagnosed
-MW23DFX 0x10036470 HandleDebugKey 28581852e427 undiagnosed
+MW2 0x1000a9f5 BwdExecuteStream 87779e59472d to investigate: the slot map fails late (#2157: ours [ebp-764], the original's [ebp-8]): a local the original keeps somewhere else; the rep record's i < g_thingCapacity loads g_thingCapacity first in the original
+MW2 0x1001e0a7 BuildQuadtreeChild 91c1d9c65c19 the indexed access entries[count - 1] has a displacement (the array's base - 4) that falls on the neighbouring local faces' slot, so the slot map can't tell which local it addresses (#187: ours [ebp+ecx*4-160], the original's -112)
+MW2 0x1003ae96 ComputeShapeBounds 6989dc96f33b the original sums dz² first and keeps d on the FPU stack for the comparison (fst, then fcomp), where the rebuild stores it (fstp) and reloads it: one instruction fewer; to investigate (4 pads match the instructions, but the slot map then fails on minX); the vertex address loads the model before the index in the original (a probe of the same source picks yet another order)
+MW2 0x1004320b DrawSkyAndGround 5b9b47416f3c the original mirrors the equality tests yRight == yLeft and xBottom == xTop, and the slot vote those mirrors produce fails (#248: ours [ebp-156], the original's [ebp-12]); to investigate
+MW2 0x10046750 ReelMotionTask e8c6fab7178d in the m_values[i] reads the original adds i to the event base before scaling frame (add eax, [i]; movsx [eax+frame*8+4]), 2 instructions shorter, plus a mirrored comparison with a global; the Matrox edition's rebuild of the same source does this with pad 8, but no pad up to 24 does under 4.1
+MW2 0x1004e4e6 PostEventToList 015219f7193d in g_objectiveTable[i].m_objectives[j] the original computes j's offset before i's (one instruction shorter), plus a mirrored comparison: an address sum's operand order the audit has no kind for, and no witness
+MW2 0x10056503 CountMissionStream a6cf71580804 the original ORs SWAP_TAG(rev->m_version)'s terms in another order, in which 4.1 merges the & 0xff term into mov al, cl (one instruction fewer); the order is the compiler's (the Matrox original has the order this build gives)
+MW2 0x1007a97a LoadInputMap 9a3970f3a51e name[strlen(name) - 1] folds to displacement -262, below the array's start, so the slot map attributes it to another local (#79: ours [ebp+ecx-262], the original's -258); slots otherwise, and padding finds no witness
+MW2MATROX 0x10001b59 MultiplyRotations b93b7f6a221d the x87 sums of products are added in another term order (a flattened float chain), and the slot map then fails (a22 and a20 overlap): reordering a float sum isn't a rewrite the audit has
+MW2MATROX 0x10001f5f BuildMatrixEx a6d36e87fa9f the x87 products' and sums' operands are in another order (fmul/fadd of chains): reordering a float chain isn't a rewrite the audit has
+MW2MATROX 0x1000d29c UpdateMech ebbd02860304 to investigate: at #323 the rebuild adds [ebp-96] where the original adds [ebp-28] (slots or an x87 operand order)
+MW2MATROX 0x1000e721 LateUpdateMech 0e2dd03f4d63 the original has 2 more instructions (cmp [ebp-40], 0; je at #793): a test the source lacks; to investigate
+MW2MATROX 0x10015ab5 BuildQuadtreeChild 13bfc9349455 the original loads m_minZ first in the Z sums (fld/fadd) and maxX/maxZ first in the bounds comparisons; reordering the source's operands didn't move the rebuild
+MW2MATROX 0x1001e414 CullMapViewShape ec72ba6389c2 the original sums the float dot products in another order (whole products swapped, and fmul operands too), keeping one on the FPU stack (fst), plus slots: reordering a float sum isn't a rewrite the audit has
+MW2MATROX 0x1001e743 ProjectMapPoint ced3510b4fc9 the original sums z's products as dx*Z0, dz*Z2, dy*Z1 and keeps one on the FPU stack (fst), plus slots and a mirror: reordering a float sum isn't a rewrite the audit has
+MW2MATROX 0x1001faf7 UpdateObjective 7c73fb58a1f1 to investigate: at #9 the rebuild reads the second parameter where the original reads the first (a mirrored comparison whose slot map fails, or the parameters' order)
+MW2MATROX 0x100232f0 QueueShapeLod 42f9f07c1826 the same instructions up to a register permutation (prev esi/edx, model edi/esi) and an fmul's operand order; the renamed zeroing xor has to move past the push that saves its register, which the audit's scheduling doesn't allow; the register permutation also covers cursor and the eyepoint
+MW2MATROX 0x10027a60 ComputeShapeBounds 204af0ac0047 as MW2's: the original sums dz² first and keeps d on the FPU stack for the comparison (fst, fcomp); to investigate
+MW2MATROX 0x10028adb TransformModel 8b7476a79290 the x87 products' factor order and the sums' term order differ, each operand loaded through its own pointer: reordering a float chain isn't a rewrite the audit has
+MW2MATROX 0x10028cf4 TransformShapeCenter e77ba3135a7e the x87 products' factors are loaded in the other order, each through its own pointer (mov eax, [p]; fld [eax+d]; mov eax, [q]; fmul [eax+d'] swapped): not a rewrite the audit has
+MW2MATROX 0x1002975e ProjectWorldPoint e3f1013ed842 the original sums each dot product's terms in its own order (the y and z rows start from the dz term) and mirrors the near-plane fcomp: reordering a float sum isn't a rewrite the audit has
+MW2MATROX 0x10029957 CullSceneShape ef5aba8815cb the original keeps dz on the FPU stack (fst) where the rebuild reloads it; slots otherwise; to investigate
+MW2MATROX 0x10029c23 CullShapeToFrustum 1bbe27999034 to investigate: at #53 the original loads another local first (fld [ebp-28] against the rebuild's [ebp-20]): slots or a float operand order
+MW2MATROX 0x1002ab7a UpdateDebrisPiece 106b505389f4 the original stores velocityY and reloads it for the < 1e-07f test (fstp, fld, fcomp), where the rebuild compares the sum still on the FPU stack (fcom, fstp); to investigate; ground too is stored before its comparison (fst, fcomp), as in UpdateWrappedRamp
+MW2MATROX 0x1002b194 DamageChunksInRadius 18019f3c2047 pad 9 reproduces the squares' order; what's left is slots plus the operand order of radius + p_radius, which the witness search doesn't combine with padding
+MW2MATROX 0x100461f5 BwdExecuteStream 4e4682d40985 a commutative add of two pointer chains ([eax+4] + [ecx+12]) and a mirror: two loaded operands in the other order, which the audit's kinds don't compose here; to investigate
+MW2MATROX 0x10049c58 GetTrianglePlane be5d88019510 the original sums d's products a*x1, c*z1, b*y1 and reloads c; the rebuild (4.0) starts the flattened chain with c, which it has just computed, and keeps it on the FPU stack (fst, fmul): one instruction fewer; a separate c = ...; statement compiles the same, so no source form tried changes the order
+MW2MATROX 0x1005a5f0 FUN_1005a5f0 fb1284c4dbc5 the original expands A3DClipEdge at 7 of its 12 call sites, the rebuild at 6, and its expansions are larger (40 fabs calls against 20; frame 0x7158 against 0x70e0; 2410 instructions against 1597); #pragma inline_depth and inline_recursion change nothing; to investigate
+MW2MATROX 0x1005ce20 FUN_1005ce20 c0831568ec8e the original keeps the conversion temporaries at esp+24 where the rebuild has esp+16: stack packing the audit doesn't reproduce
+MW2MATROX 0x1005d0a0 FUN_1005d0a0 1353c72302ba the original drops the unlink's compare of the head and keeps &item->next in ebx; while (g) { item = g; ... } gives both but loads the head twice per iteration; to investigate
+MW2MATROX 0x1005d140 FUN_1005d140 806e2879bf46 under #pragma optimize("w") the rebuild loads the free list's head before the stores to the block and its owner, the original after them, while still updating the counters in place, which needs w; to investigate
+MW2MATROX 0x1005d300 FUN_1005d300 5645cc607d3e the original tests the head twice before the loop and uses ebp (one instruction fewer or more than the rebuild's); to investigate
+MW2MATROX 0x1005d440 FUN_1005d440 b701bbe79faf under #pragma optimize("w") the rebuild loads the free list's head before the stores to the block and its owner, the original after them, while still updating the counters in place, which needs w; to investigate
+MW2MATROX 0x1005d600 A3D_LoadTexture 4f97e255a4bc the original keeps the item in eax (the rebuild esi) and increments both hit counters in place (inc [g]), one instruction fewer: register allocation and a no-aliasing form the rebuild doesn't reach
+MW2MATROX 0x1005d990 FUN_1005d990 f56fc932bd26 the list pointer and the size swap eax and ecx, and the counts differ by one to three instructions: register allocation the audit's webs don't reproduce; the original updates the free block's size in memory
+MW2MATROX 0x1005dcf0 VRAM_defrag 8ca94e52538c the original's frame is 4 or 8 bytes larger (one or two more spilled temporaries): stack packing the audit doesn't reproduce; also register allocation and the order of the level copy's loads
+MW2MATROX 0x1005e220 FUN_1005e220 d1a7973693b8 the original keeps the next pointer in edx (the rebuild esi) and does the last unlink store after the table store: the audit can't commute two stores through registers that point into the same item
+MW2MATROX 0x1005e2c0 HEAPCACHE_loaditem dd1821bc97cf the original loads the parameters into other registers, at other points (in A3D_polygon_clip_XY_and_render it loads the flags once into eax and copies them): register allocation the audit's webs don't reproduce; also the block order (the calls and stores follow the original)
+MW2MATROX 0x1005e770 FUN_1005e770 d0fac2b9fdd6 the list pointer and the size swap eax and ecx, and the counts differ by one to three instructions: register allocation the audit's webs don't reproduce
+MW2MATROX 0x1005e990 HEAP_defrag 52ee110edc6f the original's frame is 4 or 8 bytes larger (one or two more spilled temporaries): stack packing the audit doesn't reproduce
+MW2MATROX 0x1005ebb0 FUN_1005ebb0 4bb668f17f40 the original keeps the next pointer in edx (the rebuild esi) and does the last unlink store after the table store: the audit can't commute two stores through registers that point into the same item
+MW2MATROX 0x1005ec40 FUN_1005ec40 0bccc4ba4e10 the original keeps the quotient in edi where the rebuild spills it (334 instructions against 346): register allocation; the original keeps the 2x2 filter's index in esi over row pointers it reloads, where the rebuild strength-reduces them into walking pointers
+MW2MATROX 0x1005f0c0 FUN_1005f0c0 44d25bd2ab9a an imul's operands are in the other order, plus register allocation (443 instructions against the original's 448)
+MW2MATROX 0x1005f8a0 FUN_1005f8a0 3c0c1b323fd6 the x87 fild/fstp order is interleaved differently (fxch, fstp at #29): x87 scheduling the audit doesn't reproduce; also register allocation and stack slots, and the clip call reloads its first argument from memory in the original
+MW2MATROX 0x1005fd70 FUN_1005fd70 c8d513cef3e4 a mirrored x87 comparison with the operand loads in another order (1804 instructions against 1803); to investigate
+MW2MATROX 0x10061510 FUN_10061510 bf61893cdaae the code is identical: the original's trailing lea esp, [esp] padding is compared as code, and the rebuild's out-of-line __inline copy sits elsewhere with other padding
+MW2MATROX 0x10061890 A3D_DrawOutline eb5ca68e7d0e mirrored comparisons at the first difference, but 2 or 3 instructions short of the original: to investigate
+MW2MATROX 0x10061cb0 A3D_DrawPolygon aec25cd4677b mirrored comparisons at the first difference, but 2 or 3 instructions short of the original: to investigate
+MW2MATROX 0x10062010 A3D_map_polygon 5fed127b2499 the original loads the parameters into other registers, at other points (in A3D_polygon_clip_XY_and_render it loads the flags once into eax and copies them): register allocation the audit's webs don't reproduce
+MW2MATROX 0x10062630 A3D_polygon_clip_XY_and_render ed844c09a474 the original loads the parameters into other registers, at other points (in A3D_polygon_clip_XY_and_render it loads the flags once into eax and copies them): register allocation the audit's webs don't reproduce
+MW2MATROX 0x10062cd0 A3D_GroundSkyPolyPlot eb6bf00bca24 the original orders the stores to globals around a store through esi otherwise, which only #pragma optimize("w")'s no-alias assumption allows; the audit can't commute a store through a pointer with a store to a global
+MW2MATROX 0x10063150 FUN_10063150 fd62bbe42af7 two pairs of stack slots swapped (+32/+28 against +56/+52): stack packing the audit doesn't reproduce
+MW2MATROX 0x100651a0 FUN_100651a0 b5ea4535d4b4 the original loads the parameters into other registers, at other points (in A3D_polygon_clip_XY_and_render it loads the flags once into eax and copies them): register allocation the audit's webs don't reproduce
+MW2MATROX 0x100659f0 FUN_100659f0 5958dc78b276 the original loads the parameters into other registers, at other points (in A3D_polygon_clip_XY_and_render it loads the flags once into eax and copies them): register allocation the audit's webs don't reproduce; the original keeps g_eyepoint in a register
+MW2MATROX 0x10065ce0 FUN_10065ce0 995c7f6d33e4 the original's frame is 4 or 8 bytes larger (one or two more spilled temporaries): stack packing the audit doesn't reproduce
+MW2MATROX 0x10066a50 A3D_EdgeCrossing adca92efe150 in case 2 the original loads p_out and p_edge after the FDIV check's branches, in case 1 before; both editions do this, and no source form found gives it
+MW2MATROX 0x10066d30 A3D_Init e49c8c86c426 the original drops the add esp, 0xc after its parse call (the cleanup merged later) and loads 0x100e26a0 early: scheduling; to investigate
+MW2MATROX 0x10066fd0 FUN_10066fd0 65b0ca70cef8 the original reuses eax for the display's cache size: register allocation
+MW2MATROX 0x10067080 HEAP_init 30490fe536d2 the original loads g_unk0x100acb18 two stores earlier and so never needs ebx; no store order or type tried gives it
+MW2MATROX 0x10067260 FUN_10067260 61b682a3997c the original reloads g_primaryHeap inside the loop: to investigate (aliasing)
+MW2MATROX 0x10067300 FUN_10067300 18777b3a3e59 the original stores g_unk0x100acb0c and does the comparison in another order; to investigate
+MW2MATROX 0x100673c0 FUN_100673c0 9835e85963c9 the original tests the head twice before the loop and uses ebp (one instruction fewer or more than the rebuild's); to investigate; the original holds both texture list ends in registers
+MW2MATROX 0x10067b90 FUN_10067b90 7bc9402da13e the rebuild's frame is 8 bytes larger (0x854 against 0x84c): a temporary or local the original doesn't have; to investigate
+MW2MATROX 0x10068c7b ReadTextLine 7cd4210b8014 the original has 2 fewer instructions before label 0x1e: a source difference to investigate
+MW2MATROX 0x10069419 DrawSkyAndGround 72f4cb677126 the original converts the sky's 16-bit colour from the green term first (the or chain through __ftol), where the rebuild starts from red: an or chain of calls, which isn't a rewrite the audit has
+MW2MATROX 0x100704f2 PathTask bd41f71b6946 to investigate: the slot map fails at #109 (ours [ebp-216], the original's [ebp-76]); in the durations' sums the original scales i before it loads the path
+MW2MATROX 0x10077579 GetFaceShade dacab68cd0b9 to investigate: the slot map fails at #27 (fld [ebp-12] against the original's [ebp-4]); the dot product's terms are summed in another order
+MW2MATROX 0x1007770c QueueFace 8c7f5122bd2d the original has one more fld [eax+12]; fsub [g] sequence (#24): a statement the source lacks; to investigate; the dot products are summed in another order, and the loops' and the depth list's tests are mirrored
+MW2MATROX 0x10078432 ProjectPolygon 85216966cbc7 to investigate: the slot map puts point outside the named locals' area, though the original's frame has vertex right after in[20] (in at -0x978, vertex at -0x4c8): probably the tool mis-sizing the array; the witness search finds nothing either; the products are summed in another order, and i < p_count is mirrored
+MW2MATROX 0x1007a9d9 DecideAIFire 0097fd3f1fc6 the original adds the constant at 0x100a13c8, which doesn't hold the rebuild's 122880.0f: another constant or datum; to investigate; the rebuild also adds the two heats in the other order
+MW2MATROX 0x1007d2c1 LoadGamekeyMap 02eacc8431eb the original reads a 16-bit local with movsx where the rebuild reads a 32-bit one (#147: movsx eax, [ebp-4] against mov eax, [ebp-16]): a local's type differs; to investigate; also compares the two game key actions in the other operand order
+MW2MATROX 0x1007f368 ComputeTriangleNormal 6c631e457aa7 as GetTrianglePlane: the original sums ny², nz², nx² and reloads nz; the rebuild starts with nz and keeps it on the FPU stack (fst); source order doesn't change it (tried); the original also computes each product's factors the other way round
+MW2MATROX 0x1008554f SweepTorso ee1806f52a8e the original reads the parameter where the rebuild reads a local (#21): a source difference to investigate; the first m_maneuverEnd comparison loads its operands in the other order
+MW2MATROX 0x100857c3 CountMissionStream 0d6d3a4829fc as MW2's, but the other way round: the original ORs SWAP_TAG's terms in the plain order and the rebuild in the one 4.1's 1.1 build has; the order is the compiler's
+MW2MATROX 0x1008c850 LoadMechConfig da3c41979efb g_weaponDefs[t].a * g_weaponDefs[t].b has its imul operands (two load chains) in the other order, plus slots: two address chains as a commutative operation's operands isn't a rewrite the audit has
+MW2MATROX 0x1008f185 DispDibFlip 33127937971a in 4.0's /Ob1 expansion of DisplayDibWindowMessage, the original stores SendMessage's result into the global and then jumps out, where the rebuild jumps before the copy and has no jump after; to investigate whether the Matrox edition's DISPDIB.H spelled the helper differently
+MW2MATROX 0x1008f225 DispDibBlitRect e7eb9bf3ae38 in 4.0's /Ob1 expansion of DisplayDibWindowMessage, the original stores SendMessage's result into the global and then jumps out, where the rebuild jumps before the copy and has no jump after; to investigate whether the Matrox edition's DISPDIB.H spelled the helper differently
+MW2MATROX 0x1008f2c5 DispDibStretchBlit e160ad84a7a6 in 4.0's /Ob1 expansion of DisplayDibWindowMessage, the original stores SendMessage's result into the global and then jumps out, where the rebuild jumps before the copy and has no jump after; to investigate whether the Matrox edition's DISPDIB.H spelled the helper differently
+MW2MATROX 0x1008f3f3 DispDibSetPalette 6bad00061bf9 in 4.0's /Ob1 expansion of DisplayDibWindowMessage, the original stores SendMessage's result into the global and then jumps out, where the rebuild jumps before the copy and has no jump after; to investigate whether the Matrox edition's DISPDIB.H spelled the helper differently
+MW2MATROX 0x1008f58d DispDibSetPaletteWithBrightness 7d09b7623247 in 4.0's /Ob1 expansion of DisplayDibWindowMessage, the original stores SendMessage's result into the global and then jumps out, where the rebuild jumps before the copy and has no jump after; to investigate whether the Matrox edition's DISPDIB.H spelled the helper differently
+MW2MATROX 0x1008f6e9 DispDibBlendPalettes ae59a0eaf267 in 4.0's /Ob1 expansion of DisplayDibWindowMessage, the original stores SendMessage's result into the global and then jumps out, where the rebuild jumps before the copy and has no jump after; to investigate whether the Matrox edition's DISPDIB.H spelled the helper differently
+MW2MATROX 0x1008fb5a SimMain 3759ed931e94 to investigate: the rebuild's SEH scope table holds other bytes than the original's at 0x100a15b8 (#3)
+MW23DFX 0x10001220 CullMapViewShape 2c933b53d420 2.2 sums the dot products in another order than the original: reordering a float sum isn't a rewrite the audit has
+MW23DFX 0x100014b0 ProjectMapPoint 253aa17b5753 2.2 sums the dot products in another order than the original: reordering a float sum isn't a rewrite the audit has
+MW23DFX 0x10002870 ProfileRefreshModes 47b4685b3ce2 mirrored comparisons whose loads are in swapped registers, plus register allocation the audit's webs don't reproduce
+MW23DFX 0x10002aa0 ToggleFullScreen 919fd8ccf4f0 the original passes another string to its debug print (at 0x102496c8) than the rebuild's "ToggleFullScreen(1): pause_timer(TRUE)\n": a source difference to investigate
+MW23DFX 0x10002e40 LayoutMessageBoxes 321843797bcb the original saves another set of callee-saved registers (a push/pop more or less), so the instruction counts differ
+MW23DFX 0x10002f20 ShowInGameMessage 18c083826b24 mirrored comparisons whose loads are in swapped registers, plus register allocation the audit's webs don't reproduce
+MW23DFX 0x10003620 DrawMapView c3d950af9799 to investigate: the frame's offsets differ ([esp+36] against the original's [esp+28] at #25)
+MW23DFX 0x10004390 FUN_100751a9 2de13e45a3be to investigate: the blocks differ at #12
+MW23DFX 0x10004b30 DrawScene f15b54c5f557 register allocation and scheduling the audit's webs and search don't reach; to investigate
+MW23DFX 0x10005c20 ScaleRectToFrame 28bf72b5dbfb register allocation around the expanded FixedMul16 __asm: the original keeps p_src on the stack and reloads it for each product, the rebuild keeps it in edi (one instruction more)
+MW23DFX 0x10006960 TilePane 9ea39c2d16ff register allocation and scheduling the audit's webs and search don't reach; to investigate
+MW23DFX 0x10007d00 PrintMono ec5c4be185e1 register allocation (an address's base and index swapped, lea against add, another register for one value) the audit's webs don't map
+MW23DFX 0x10008380 SignalTask ca3c8e4a3646 register allocation and scheduling the audit's webs and search don't reach; to investigate
+MW23DFX 0x10008850 SimMain 3c41b939e174 the original keeps the unk0x24 = 1 store the rebuild drops as dead, and has 2 more instructions; the network-wait branch is scheduled differently; to investigate
+MW23DFX 0x10009990 DoFirstObjtv 70d9ade21d96 the original reads the byte at +0x12a (mov al; cmp al, 1), where 2.2 at /Ox folds the source's test into a word load (mov ax, [+0x129]; cmp ah, 1); to investigate
+MW23DFX 0x10009b80 IsTeamNearTarget 6dc624c95496 to investigate: the rebuild reads member 0x58 where the original reads 0x50 (#44), and its frame is 4 bytes larger (0x10 against 0xc)
+MW23DFX 0x1000a1d0 UpdateObjective 6407cc76c57b the original compares with a register it knows holds 0 (cmp r, reg) where the rebuild tests (test r, r): a register reused for a known value, which the audit doesn't reproduce
+MW23DFX 0x1000b5e0 MoveMechWithCollisions 0ca042aaf3b7 the rebuild's frame is 4 bytes larger (0x90 against 0x8c) and its x87 sequence for the sums differs (3 instructions): to investigate
+MW23DFX 0x1000be60 CollideWithBuildings ee50eb1e87f1 the rebuild's frame is 12 bytes larger (0x20 against 0x14) and a few loads differ: locals the original keeps in registers; to investigate
+MW23DFX 0x1000c9a0 FaceOverlapsBox 6bd1c7f96e77 register allocation and stack offsets the audit's webs and frame map don't reproduce; to investigate
+MW23DFX 0x1000cb10 ClassifyQuadtreePoint aa2d48f04bbc register allocation and stack offsets the audit's webs and frame map don't reproduce; to investigate
+MW23DFX 0x1000ccf0 TestQuadtreeRay 147db5e57d97 register allocation and stack offsets the audit's webs and frame map don't reproduce; to investigate
+MW23DFX 0x1000e630 LoadAnimFile d009aff75dc2 to investigate: the prologue is scheduled otherwise (push edi against movsx esi, [ecx] at #4)
+MW23DFX 0x1000ee10 PathTask de0108240801 register allocation (an address's base and index swapped, lea against add, another register for one value) the audit's webs don't map
+MW23DFX 0x1000fe60 GetObjLastChild 0d3f97dc364a the original compares with a register it knows holds 0 (cmp r, reg) where the rebuild tests (test r, r): a register reused for a known value, which the audit doesn't reproduce
+MW23DFX 0x10010a90 IsPointInFaceXZ a6bbd05df173 register allocation (ebx holds sides in the original, i in the rebuild) and an address's base/index order, which the audit's webs don't map
+MW23DFX 0x10010db0 IsPointInFaceXY 367c819b2068 register allocation (ebx holds sides in the original, i in the rebuild) and an address's base/index order, which the audit's webs don't map
+MW23DFX 0x10011570 UpdateGridObject 33e42907c479 the original saves another set of callee-saved registers (a push/pop more or less), so the instruction counts differ
+MW23DFX 0x10012730 LogStarMissionLines 3c562bc25f46 to investigate: 4 instructions more in the original (213 against 217), starting with the register a member test loads into (edx where the rebuild has eax, #16)
+MW23DFX 0x100132c0 AiTransitionPush d924b278239a the original loads [+334] into another register (mov ax where the rebuild has mov dx) and has more instructions (1 to 5); to investigate
+MW23DFX 0x10014290 OrderPlayers 486b93f8ef94 the original initialises a 16-bit local to 0 (xor bx, bx) where the rebuild uses -1 (mov bx, 0xffff): a constant differs; to investigate
+MW23DFX 0x10014ba0 LeadStar 447292b494f5 the original compares with a register it knows holds 0 (cmp r, reg) where the rebuild tests (test r, r): a register reused for a known value, which the audit doesn't reproduce
+MW23DFX 0x10015e10 DestroyMech 53a4185268d0 register allocation and scheduling the audit's webs and search don't reach; to investigate
+MW23DFX 0x10015f50 CalculateHeat b47c9714c9ce register allocation (cx against ax for m_flags) the audit's webs don't map; to investigate
+MW23DFX 0x100167b0 DestroyCriticalSlot 08a01a6b4403 the prologue is scheduled otherwise (lea/push/mov), the original has 7 more instructions, and [edx+88] against [esi+88]: to investigate
+MW23DFX 0x10019310 UpdateMech 2a243344e4ce the rebuild's frame is 0x20 bytes larger (0x90 against 0x70) and 4 instructions longer: locals the original keeps in registers or packs; to investigate
+MW23DFX 0x1001a180 LateUpdateMech 737a82487e96 the original has 5 more instructions and a 4-byte smaller frame (0x30 against 0x34); to investigate
+MW23DFX 0x1001b170 InitMechArrays a362cf8e1c80 the original stores the immediate 0xffff where the rebuild stores it through a register: register allocation of a known value
+MW23DFX 0x1001b230 InitDamagePanel 4e5a08a4a70a the original reuses values it has stored from registers (6 instructions fewer), plus register allocation; to investigate
+MW23DFX 0x1001b620 DrawDamageOutline 029e45202b81 register allocation and scheduling the audit's webs and search don't reach; to investigate
+MW23DFX 0x1001c4a0 DrawHeatRateBar fb18b94957e0 register allocation and scheduling the audit's webs and search don't reach; to investigate
+MW23DFX 0x1001c810 DrawVerticalBar d4198d7f7336 register allocation and scheduling the audit's webs and search don't reach; to investigate
+MW23DFX 0x1001cb40 RemoveNavPoint d5d7e4b60b5f register allocation decides the instruction's width: the original tests the flag as test ch, 1 (the value in ecx), the rebuild as test ebp, 0x100; the rep movsd setup is scheduled differently
+MW23DFX 0x1001cca0 CycleTarget 4df16bef5596 the original keeps the two stores to m_target apart (mov [edi+220], ebp; or [edi+220], 0x1000) where the rebuild merges them behind one jmp (cross-jumping), plus a mirrored comparison; no source form found
+MW23DFX 0x1001d870 TargetAtReticle 855c9d1f225e register allocation: the original keeps autopilot on the stack and previous in edi, the rebuild the other way round (statement order tried: no change)
+MW23DFX 0x1001dcc0 LayoutWeaponPanels 44b83f35491b register allocation and scheduling the audit's webs and search don't reach; to investigate; the rebuild's .bss order differs (g_cockpitPanels)
+MW23DFX 0x1001f030 ChooseManeuver 962f0903267b to investigate: the prologue is scheduled otherwise (mov ebx, [ecx+32] against push edi at #3)
+MW23DFX 0x1001f6b0 GetOffsetPoint ccfcab137e0d to investigate: the original has a nop at #46 and 2 more instructions
+MW23DFX 0x1001fc40 ManeuverWchick d2450c8336ad the original loads [+334] into another register (mov ax where the rebuild has mov dx) and has more instructions (1 to 5); to investigate
+MW23DFX 0x1001ffd0 ManeuverCircle bd0b8b133fdb the original loads [+334] into another register (mov ax where the rebuild has mov dx) and has more instructions (1 to 5); to investigate
+MW23DFX 0x100200f0 BrakeFall 3116fbd65c5d register allocation and stack offsets the audit's webs and frame map don't reproduce; to investigate
+MW23DFX 0x10020ac0 DodgeShot 9d1a4e36ec91 the rebuild's frame is 4 bytes larger (0x58 against 0x54): a local the original keeps in a register or packs; to investigate
+MW23DFX 0x10020e40 DrawTargetPanelText edd1d263c243 register allocation and scheduling the audit's webs and search don't reach; to investigate
+MW23DFX 0x10021f20 LateUpdateDoor 0b4a91b250e5 the original has 13 more instructions (#23: a reload of [ecx+76]), and loads the kind's bytes 240 and 239 separately where 2.2 shares one word load (mov ax; cmp ah); neither the shift nor the mask form changes this; to investigate
+MW23DFX 0x10022490 InitHudGauges 11e40fd61b9a register allocation and scheduling the audit's webs and search don't reach; to investigate
+MW23DFX 0x10022960 DrawCompassMarkers 2201e0053916 as the Matrox edition's: g_compassOrigin.m_y + g_compassSideArrowHeight / 2 evaluated in the other order, plus commutative x87 operands
+MW23DFX 0x10022cc0 DrawPlayerBrackets 0d1765269201 the rebuild's frame has one more slot (0x18 against 0x14): a local the original keeps in a register; to investigate
+MW23DFX 0x10022ea0 DrawObjectBrackets b26fdc1a2e5f the rebuild's frame has one more slot (0x1c against 0x18): a local the original keeps in a register; to investigate
+MW23DFX 0x100232b0 DecideAIFire 1329f9fb678b the original initialises a local the rebuild doesn't (mov [esp+8], 0 at #3): a source difference to investigate
+MW23DFX 0x10023d40 StaticPoolAlloc c4bbfe967bd9 the original saves another set of callee-saved registers (a push/pop more or less), so the instruction counts differ
+MW23DFX 0x10023f10 AddStaticPoolType aff554ec5b75 the original saves another set of callee-saved registers (a push/pop more or less), so the instruction counts differ
+MW23DFX 0x100243f0 LoadCachedResource 88ad19262c6c the original packs p_file's spill into the start of message (frame 0x64 against 0x68): stack packing the audit doesn't reproduce
+MW23DFX 0x10024780 AllocGeoTables 12f684c526f8 the original tests an allocation for NULL (test eax, eax; je) where the rebuild doesn't: a source difference to investigate
+MW23DFX 0x10024890 FreeGeoTables 604fd7a6be23 the original loads g_unk0x1024acb0 once more (#11): a source difference to investigate
+MW23DFX 0x10025410 AreStaticObjectsComplete 1d488bcc5d55 the original compares with a register it knows holds 0 (cmp r, reg) where the rebuild tests (test r, r): a register reused for a known value, which the audit doesn't reproduce
+MW23DFX 0x10025450 LoadStaticObject eda85543a2eb register allocation (an address's base and index swapped, lea against add, another register for one value) the audit's webs don't map
+MW23DFX 0x10025840 ToggleBlockBoxes 3ba7fc665aa4 the original's frame is 12 bytes larger (0x5c against 0x50) and one instruction longer: it stores SetShapeScale's arguments to locals and pushes those, where 2.2 computes the rebuild's into the argument slots; to investigate
+MW23DFX 0x10025b70 LoadQuadtreeBoxes 2594577c76a1 the original has one more instruction, and the parameters go to other registers (mov esi, ecx against mov ebx, edx); to investigate; the original stores SetShapeScale's arguments to locals and pushes those, as in ToggleBlockBoxes
+MW23DFX 0x10025d80 InitializeDrawBuffer 4dc24e22713f the original saves another set of callee-saved registers (a push/pop more or less), so the instruction counts differ
+MW23DFX 0x100267d0 ChoosePlayerDetailLevels 32cb9e9c349c register allocation (ebx reused for the count, then g_players's walk) and a mirrored loop test the audit can't map
+MW23DFX 0x10026a30 FUN_10067b90 6e3962170d3e to investigate: the original initialises a local the rebuild doesn't (mov [esp+12], 0 at #3)
+MW23DFX 0x10027490 FUN_10068b57 cb69be2ee489 the original stores the color's components red first (as FUN_100688fe does) and schedules the vertex's zeroing stores and the screen y conversion in another order (#19); to investigate whether a source order gives the original's schedule
+MW23DFX 0x100277b0 LoadSkyGroundSettings 6dc567f4061a to investigate: the blocks differ at #22
+MW23DFX 0x100278b0 FUN_10068e33 8c33ac40c857 to investigate: the blocks differ at #26
+MW23DFX 0x10027c80 DrawSkyAndGround 4feb4f24721f to investigate: 14 instructions more in the original (1345 against 1331) and its locals elsewhere in the frame from the first store ([esp+28] against [esp+8])
+MW23DFX 0x100298c0 ComputeNormalsAndBounds 5e5cbc0869f9 register allocation (an address's base and index swapped, lea against add, another register for one value) the audit's webs don't map
+MW23DFX 0x10029a40 GetShapeMemorySize d753a5a2aab0 register allocation (an address's base and index swapped, lea against add, another register for one value) the audit's webs don't map
+MW23DFX 0x10029ab0 TransformModel 3931de82245e x87 operand order (loads through pointers) the audit has no rewrite for
+MW23DFX 0x10029db0 RayShapeDistance 1bae8c6eb060 the original keeps deltaZ on the FPU stack for its square (fst, fmul), the rebuild stores the three deltas and reloads (one instruction more): x87 stack allocation
+MW23DFX 0x10029f00 QueueShapeLod 416b23d1b752 as the Matrox edition's: a register permutation and an fmul's operand order, with the zeroing xor on the other side of the push that saves its register, which the audit's scheduling doesn't allow
+MW23DFX 0x1002a4b0 GetFaceColor a5e2f11500e2 the original ORs the colour terms in another order (#223: or eax, ecx) and has 2 more instructions; to investigate
+MW23DFX 0x1002af80 StartPaletteCycle 8db6ac6d829b to investigate: the original moves the parameter as a dword (mov ebx, ecx) where the rebuild moves a byte (mov bl, cl): possibly a parameter's width
+MW23DFX 0x1002b140 GetViewVertex e73988bf794a x87 stack scheduling: the rebuild exchanges the stack around an fmul (fxch, fmul, fxch at #18), and the original has 2 more instructions; to investigate
+MW23DFX 0x1002b200 ClipEdgeToNearPlane d5bda15a55d6 a mirrored fcomp (#45), and the original has 3 more instructions; to investigate
+MW23DFX 0x1002b830 GetFaceShade e3734c69e19a register allocation and stack offsets the audit's webs and frame map don't reproduce; to investigate
+MW23DFX 0x1002b9b0 QueueFace 4a7a93821a07 the original keeps the face normal in three more locals (a 0x84-byte frame against 0x74)
+MW23DFX 0x1002c880 DrawAnimatedPolygon d5aa58d60abf the rebuild reloads [esp+124] once more than the original (#110); to investigate; the original keeps data on the stack and anim in ebx, the rebuild the other way round, which shifts every stack offset by 4
+MW23DFX 0x1002ce50 AdvanceAnimations e3efe18bcaf9 register allocation (an address's base and index swapped, lea against add, another register for one value) the audit's webs don't map; also a mirrored comparison, an addition's operand order, and the loop's end, an address past an array that the rebuild's .bss order puts at 0x10160cf0 (g_unk0x10184700 in the original)
+MW23DFX 0x1002cf10 AddAnimFrame 9bcf12baa232 register allocation (an address's base and index swapped, lea against add, another register for one value) the audit's webs don't map (p_set, found and slot)
+MW23DFX 0x1002d460 FUN_10051c07 72ff76866844 register allocation (the original keeps vertex in edi and g_unk0x100aa1d0 in ebx) and scheduling the audit's webs and search don't reach; to investigate
+MW23DFX 0x1002d590 FUN_10051ea2 20efb2185bf6 the original saves another set of callee-saved registers (a push/pop more or less), so the instruction counts differ; p_count and vertex are in other registers
+MW23DFX 0x1002e070 CycleTrackedPlayer 02d6d69027af the original saves another set of callee-saved registers (a push/pop more or less), so the instruction counts differ
+MW23DFX 0x1002e640 UpdateCockpitView 9bfe11c578cc to investigate: the original stores an immediate 0 where the rebuild zeroes a register (xor), and the blocks differ at #19; the original reloads the glance flags after each store, which /Ow doesn't
+MW23DFX 0x1002eb50 TransformPoint 037efc379bb9 x87 register operands (fmul st(n)) in another stack order: x87 scheduling the audit doesn't reproduce
+MW23DFX 0x1002ec20 OrthogonalizeMatrixColumn d2f96c4cc1c3 x87 stack slots differ ([esp+28] against [esp+20] at #48); to investigate
+MW23DFX 0x1002ed60 MultiplyRotations 3ccbf7296e6d x87 stack scheduling of the nine dot products (3 instructions fewer in the original)
+MW23DFX 0x1002f070 BuildMatrixEx 4fa27e230d73 x87 scheduling: an fmul by memory where the original uses st(2) (one instruction), and another stack slot
+MW23DFX 0x1002f740 UpdateProjection e06f2badd8bb the original loads [ecx+56] into edi once more (#5): to investigate
+MW23DFX 0x1002f9f0 ProjectWorldPoint 8b354484620e 2.2 folds the rebuild's float expressions into 5 more instructions than the original's (fmul st(2) against fmul st(1) at #15): float folding; to investigate
+MW23DFX 0x1002fba0 CullSceneShape 3fd8a05d7151 the original negates the depth once for both side tests (fchs, then fadd), where VC++ 2.2 folds the source's into an fsub; no source form tried keeps it
+MW23DFX 0x1002fdc0 CullShapeToFrustum 89561914b46f as CullSceneShape: the original's frame is 4 bytes larger (0x1c against 0x18) and it negates once where 2.2 folds into an fsub; to investigate
+MW23DFX 0x10030410 ComputeTriangleNormal 704b5203b140 x87 scheduling: the products' factors kept in other stack positions; the blocks differ at #51
+MW23DFX 0x10032000 StartSample 59d009ecc4d6 to investigate: the original's frame is 4 bytes larger (0x14 against 0x10) and it has one instruction fewer
+MW23DFX 0x10032c70 StopSamples 44e13b1898bd register allocation (an address's base and index swapped, lea against add, another register for one value) the audit's webs don't map
+MW23DFX 0x10032cc0 UpdateAmbientSound 3e7c117559ba the original saves another set of callee-saved registers (a push/pop more or less), so the instruction counts differ
+MW23DFX 0x10036470 HandleDebugKey 28581852e427 mirrored comparisons whose loads are in swapped registers, plus register allocation the audit's webs don't reproduce
 MW23DFX 0x100383d0 KeyboardPoll 395059084ca0 the original keeps the key-state copy as a loop, which /Ow unrolls in the rebuild (plain /Ox doesn't)
-MW23DFX 0x10039440 AddAnalogBinding f2624f10c629 undiagnosed
-MW23DFX 0x10039590 ParseInputConditions 64c742fafb66 undiagnosed
-MW23DFX 0x10039730 ParseInputMap 3952988ed1d7 undiagnosed
-MW23DFX 0x10039c90 LoadGamekeyMap 0e5d939f5e2a undiagnosed
-MW23DFX 0x1003a0a0 UpdateInputs 4189797d2eb1 undiagnosed
-MW23DFX 0x1003c550 DrawDebugOverlays 64fcaaab0bc1 undiagnosed
-MW23DFX 0x1003c630 DrawPaletteGrid 61a542994296 undiagnosed
-MW23DFX 0x1003d410 FindPrjType dad562431a13 undiagnosed
-MW23DFX 0x1003de10 BwdExecuteStream cf0bb893a4e1 undiagnosed
-MW23DFX 0x1003f7e0 AddBwdName 97370f5467fd undiagnosed
-MW23DFX 0x100401c0 LoadReels 4ac84881d66b undiagnosed
-MW23DFX 0x10040f60 GetKeywordName 8b89cae8fea7 undiagnosed
-MW23DFX 0x100410e0 CountMissionStream d6f276c4723a undiagnosed
-MW23DFX 0x10041410 LoadMechConfig 92c8a45a6d58 undiagnosed
-MW23DFX 0x10041c80 GetMechValue a66ee52633d3 undiagnosed
-MW23DFX 0x10042e10 RunIncludedStream 8ef076d5e7a7 undiagnosed
-MW23DFX 0x10043130 GetTrianglePlane fe4ae1477fd9 undiagnosed
-MW23DFX 0x10043270 CreateObjectNode a6d2627e23ab undiagnosed
-MW23DFX 0x10044560 UpdateWeaponLock 9ba9b5b73217 undiagnosed
-MW23DFX 0x10044f60 UpdateShot c96cd064c4a4 undiagnosed
-MW23DFX 0x10045d00 SpawnEffectEx 3eea178882e4 undiagnosed
-MW23DFX 0x100468b0 DamageThingsInRadius 31f6d405a8cb undiagnosed
+MW23DFX 0x10039440 AddAnalogBinding f2624f10c629 a mirrored comparison inside scheduled code the audit doesn't reach; to investigate
+MW23DFX 0x10039590 ParseInputConditions 64c742fafb66 a 16-bit local sits at [esp+18] in the original where the rebuild has [esp+16]: packed differently in the frame; to investigate
+MW23DFX 0x10039730 ParseInputMap 3952988ed1d7 as ParseInputConditions: a 16-bit local at [esp+14] against [esp+12]
+MW23DFX 0x10039c90 LoadGamekeyMap 0e5d939f5e2a register allocation (an address's base and index swapped, lea against add, another register for one value) the audit's webs don't map
+MW23DFX 0x1003a0a0 UpdateInputs 4189797d2eb1 register allocation (an address's base and index swapped, lea against add, another register for one value) the audit's webs don't map
+MW23DFX 0x1003c630 DrawPaletteGrid 61a542994296 register allocation (an address's base and index swapped, lea against add, another register for one value) the audit's webs don't map
+MW23DFX 0x1003d410 FindPrjType dad562431a13 the original returns through two epilogues (58 instructions against 52); if/else, an early return and ?: in a probe give none that splits them
+MW23DFX 0x1003de10 BwdExecuteStream ad9fecc11051 70 instructions more in the original and a larger frame (0xd8 against 0xcc): code the rebuild lacks or that the original expands differently; to investigate
+MW23DFX 0x1003f7e0 AddBwdName 97370f5467fd the original compares with a register it knows holds 0 (cmp r, reg) where the rebuild tests (test r, r): a register reused for a known value, which the audit doesn't reproduce
+MW23DFX 0x100401c0 LoadReels 75b0b3e78e9f register allocation (an address's base and index swapped, lea against add, another register for one value) the audit's webs don't map
+MW23DFX 0x10040f60 GetKeywordName 8b89cae8fea7 to investigate: the blocks differ at #4 (registers, and a loop's end address that names another global)
+MW23DFX 0x100410e0 CountMissionStream 324c003d821e the original ORs SWAP_TAG's terms in another order, as on MW2 (159 instructions against 161)
+MW23DFX 0x10041410 LoadMechConfig 92c8a45a6d58 to investigate: the blocks differ at #403
+MW23DFX 0x10041c80 GetMechValue a66ee52633d3 register allocation (an address's base and index swapped, lea against add, another register for one value) the audit's webs don't map
+MW23DFX 0x10042140 LoadShapeRecord 176e2e401cdb to investigate: the original's frame is 4 bytes smaller (0x70 against 0x74) and it has 5 instructions fewer (590 against 595)
+MW23DFX 0x10042e10 RunIncludedStream 8ef076d5e7a7 the original compares with a register it knows holds 0 (cmp r, reg) where the rebuild tests (test r, r): a register reused for a known value, which the audit doesn't reproduce
+MW23DFX 0x10043270 CreateObjectNode a6d2627e23ab the original compares with a register it knows holds 0 (cmp r, reg) where the rebuild tests (test r, r): a register reused for a known value, which the audit doesn't reproduce
+MW23DFX 0x10044560 UpdateWeaponLock 9ba9b5b73217 the original saves another set of callee-saved registers (a push/pop more or less), so the instruction counts differ
+MW23DFX 0x10044ac0 SpawnLaunchFx 359d19ea2115 2.2 sums upY's products in the order the unit's symbols give, another than the original's: two computed products swapped isn't a rewrite the audit has
 MW23DFX 0x1006298a VFX_ellipse_draw16 aeaa7b81c2f7 a direct call (no relocation) to another routine of vfx16.asm reaches another offset than the original's: the object's layout differs; to investigate
-MW23DFX 0x10064260 RestoreBrightness 06f87985fe53 undiagnosed
-MW23DFX 0x10064280 AbortMissionAction 10c3d43530db undiagnosed
-MW23DFX 0x100642e0 FleeToWindowsAction 800b641e3769 undiagnosed
-MW23DFX 0x10064780 RunMenuSlider 41c927c9cdaa undiagnosed
-MW23DFX 0x10064b60 RunMenuStatus 91c3f7b77ef3 undiagnosed
-MW23DFX 0x10064d90 RunMenuChoice 15cc2cfc46bb undiagnosed
-MW23DFX 0x100659c0 FirstMenu 38ecfc7bf869 undiagnosed
-MW23DFX 0x10065df0 RunMenuItems 82664f1b1781 undiagnosed
-MW23DFX 0x10066e70 FUN_10066e70 b52be62747e7 undiagnosed
-MW23DFX 0x100674c0 FUN_100674c0 a97d05314728 undiagnosed
-MW23DFX 0x10067b60 FUN_10067b60 5f34d7bc074d undiagnosed
-MW23DFX 0x10067d00 FUN_10067d00 91d084f923f5 undiagnosed
-MW23DFX 0x10067ef0 A3D_EdgeCrossing 3ef6f49e5379 undiagnosed
-NETMECHW 0x10005023 FUN_10005023 cbec3c45c64f undiagnosed
-NETMECHW 0x10005e50 FUN_10005e50 ddd75f332e87 undiagnosed
-NETMECHW 0x1000654c FUN_1000654c 95993a2d3994 undiagnosed
-NETMECHW 0x100080e1 FUN_100080e1 6743e365242a undiagnosed
-NETMECHW 0x100089d0 FUN_100089d0 bbf5d08e8250 undiagnosed
-NETMECHW 0x1000e58d FUN_1000e58d 3e1f001be351 undiagnosed
-NETMECHW 0x1000f720 AppendBwdNode f106816c50dd undiagnosed
-NETMECHW 0x100113ec FUN_100113ec b854ba9dc0a5 undiagnosed
+MW23DFX 0x10064260 RestoreBrightness 5a048e4842ea the original copies the brightness through a second register (mov eax, [g]; mov ecx, eax; mov [g'], eax), one instruction more: a chained assignment or a local the source lacks; to investigate
+MW23DFX 0x10064280 AbortMissionAction 10c3d43530db the original saves another set of callee-saved registers (a push/pop more or less), so the instruction counts differ (MW2's AbortMissionAction is exact from the same source)
+MW23DFX 0x100642e0 FleeToWindowsAction 800b641e3769 the original saves another set of callee-saved registers (a push/pop more or less), so the instruction counts differ
+MW23DFX 0x10064780 RunMenuSlider 41c927c9cdaa register allocation that changes forms: the original loads p_index into edx and m_flags into esi (test esi, 1), the rebuild uses sub ecx, [mem] and test al, 1
+MW23DFX 0x10064b60 RunMenuStatus 91c3f7b77ef3 as RunMenuSlider: register allocation that changes forms (sub ecx, [mem] against a load and a register sub)
+MW23DFX 0x10064d90 RunMenuChoice 15cc2cfc46bb as RunMenuSlider, and the original initialises two locals (mov [esp+8], 0; mov [esp+16], 1 at #5) the rebuild keeps elsewhere; to investigate
+MW23DFX 0x100659c0 FirstMenu 38ecfc7bf869 the original compares with a register it knows holds 0 (cmp r, reg) where the rebuild tests (test r, r): a register reused for a known value, which the audit doesn't reproduce
+MW23DFX 0x10065df0 RunMenuItems 82664f1b1781 the original saves another set of callee-saved registers (a push/pop more or less), so the instruction counts differ
+MW23DFX 0x10066e70 FUN_10066e70 b52be62747e7 the original reads texture-list addresses as immediates the audit doesn't name (cmp esi, 0x10265f90 = &g_a3dTextureTail; mov [esi+4], 0x10265b58), and behind them register allocation and store scheduling; the original keeps reset in ebp, rereads p_texture->m_buffer where the rebuild keeps it in a register, and has a smaller frame
+MW23DFX 0x100674c0 FUN_100674c0 a97d05314728 the original keeps subdivided in neither a register nor a slot: its paths jump straight to the draw or past it; to investigate
+MW23DFX 0x10067d00 FUN_10067d00 c7b888834cbf first[] and second[] swap places in the frame; everything else matches, and declaration order doesn't change it
+MW23DFX 0x10067ef0 A3D_EdgeCrossing 3fb16d4501b3 in case 2 the original loads p_out and p_edge after the FDIV check's branches, in case 1 before; both editions do this, and no source form found gives it
+NETMECHW 0x1000f720 AppendBwdNode f106816c50dd the original multiplies the padded size by one (mov ecx, eax; add eax, eax; sub eax, ecx: VC++ 2.2's sequence for an unfolded * 1, the x * -1 sequence without its neg); every constant form tried (1, 1u, 1L, casts, sizeof, an enum, 4/4, -1*-1, *=) is folded away, a static const gives an imul, and -(x * -1) keeps two negs

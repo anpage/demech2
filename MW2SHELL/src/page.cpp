@@ -60,7 +60,6 @@ MechChar g_pageTemp[0x400];
 		link = -1;                                                                                                     \
 	}
 
-// Stack-slot permutation: glyphs, result, data and size.
 // FUNCTION: MW2SHELL 0x10044880
 Page::Page(
 	Font* p_font,
@@ -136,9 +135,9 @@ MechS32 Page::ReadToken(
 	MechS32* p_offset
 )
 {
+	MechS32 i;
 	MechS32 count;
 	MechChar number[5];
-	MechS32 i;
 	MechS32 j;
 
 	if (*p_pos >= p_end) {

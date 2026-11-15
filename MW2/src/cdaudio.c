@@ -494,7 +494,6 @@ MechS32 PollCdDrive(void)
 }
 
 // Skips p_step tracks from the current one.
-// Stack-slot permutation: status and track.
 // FUNCTION: MW2 0x1005b10b
 // FUNCTION: MW2MATROX 0x10002f1b
 // FUNCTION: MW23DFX 0x10030cc0
@@ -523,9 +522,9 @@ void SkipCdTracks(CdAudioTracks* p_tracks, MechS32 p_step)
 				case c_cdStatusPaused:
 					PlayCdAudio(g_cdAudioTracks.m_trackPositions[track - g_cdAudioTracks.m_firstTrack], 0);
 					StopCdAudio();
+					g_pausedCdAudioPosition.m_track = track;
 					g_pausedCdAudioPosition.m_minute = 0;
 					g_pausedCdAudioPosition.m_second = 0;
-					g_pausedCdAudioPosition.m_track = track;
 					break;
 				}
 			}

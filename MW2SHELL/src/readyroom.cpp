@@ -122,7 +122,6 @@ void DrawReadyRoom(TMPackDataBase* p_database, MechS32 p_campaign, char** p_scen
 
 // The ready room's frame: CLAN HALL, MECH LAB, STAR CONFIG, MISSION BRIEFING, and for
 // FREEBIRTHTOAD the missions. The mech lab and briefing play a video before moving on.
-// Not 100%: the stack slots of the locals are permuted.
 // FUNCTION: MW2SHELL 0x1003a151
 void ReadyRoomCallback(TMPackDataBase* p_database, MechS32* p_campaign, MechU8*, MechChar** p_scenario, MechS32 p_msg)
 {

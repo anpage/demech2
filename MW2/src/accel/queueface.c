@@ -31,8 +31,6 @@ typedef MechS32 (*DrawFaceHook)(Face* p_face, Vertex* p_vertices, MechS32 p_flag
 
 // Returns the vertex's projected copy (m_projection), transforming it into view space (by
 // g_viewProjX0's rows, from the eyepoint g_viewEyeX) the first time.
-// Stack-slot permutation; the products sum in another order (commutative operand order).
-// The 3Dfx edition's diff is register allocation, scheduling and float operand order only.
 // FUNCTION: MW2MATROX 0x10076e20
 // FUNCTION: MW23DFX 0x1002b140
 ProjectedVertex* GetViewVertex(Vertex* p_vertex)
@@ -68,7 +66,6 @@ ProjectedVertex* GetViewVertex(Vertex* p_vertex)
 
 // Returns a new projected vertex where the edge from p_a to p_b crosses the near plane
 // (g_viewNearPlane), its values interpolated.
-// The 3Dfx edition's diff is register allocation, scheduling and comparison operand order only.
 // FUNCTION: MW2MATROX 0x10076f41
 // FUNCTION: MW23DFX 0x1002b200
 ProjectedVertex* ClipEdgeToNearPlane(Vertex* p_a, Vertex* p_b)
@@ -239,8 +236,6 @@ ProjectedVertex* ProjectVertex(ProjectedVertex* p_vertex)
 // Returns the shade (0x7f: full; 128 times the cosine) of p_face from the angle between its normal and the direction
 // from its first vertex to the light (g_viewLightX), or the light's direction itself with
 // g_directionalLight.
-// Stack-slot permutation; the dot product sums in another order (commutative operand order).
-// The 3Dfx edition's diff is register allocation, scheduling and float operand order only.
 // FUNCTION: MW2MATROX 0x10077579
 // FUNCTION: MW23DFX 0x1002b830
 MechS32 GetFaceShade(Face* p_face, Vertex* p_vertices)
@@ -292,10 +287,6 @@ MechS32 GetFaceShade(Face* p_face, Vertex* p_vertices)
 // projection hook (g_renderSettings) and adds the polygon to the list being built (g_depthList)
 // with its depth, by g_queuedShapeFlags's rule: the average (2), nearest (4) or farthest of its
 // vertices' depths. The vertices take their shades from the light, scaled by the shape's damage.
-// Stack-slot permutation; the dot products sum in another order (commutative operand order),
-// and the loops' and the depth list's tests compare in the other operand order.
-// The 3Dfx edition's is a stack-slot permutation, and it keeps the face normal in three more
-// locals (a 0x84-byte frame against 0x74).
 // FUNCTION: MW2MATROX 0x1007770c
 // FUNCTION: MW23DFX 0x1002b9b0
 void QueueFace(Face* p_face, Vertex* p_vertices)
@@ -537,11 +528,11 @@ void QueueFace(Face* p_face, Vertex* p_vertices)
 #endif
 
 // ClipEdgeToNearPlane for two projected vertices, at the depth p_plane (the new vertex still
-// takes g_viewNearPlane's depth).
-// The 3Dfx edition's diff is register allocation, scheduling and float operand order only.
+// takes g_viewNearPlane's depth). It takes a fourth argument it doesn't read (the 3Dfx edition
+// pops it). Nothing in either edition calls it.
 // FUNCTION: MW2MATROX 0x10077fa7
 // FUNCTION: MW23DFX 0x1002c250
-ProjectedVertex* ClipProjectedEdge(ProjectedVertex* p_a, ProjectedVertex* p_b, MechFloat p_plane)
+ProjectedVertex* ClipProjectedEdge(ProjectedVertex* p_a, ProjectedVertex* p_b, MechFloat p_plane, MechS32 p_unk0x0c)
 {
 	MechFloat x0;
 	MechFloat y0;
@@ -596,8 +587,8 @@ ProjectedVertex* ClipProjectedEdge(ProjectedVertex* p_a, ProjectedVertex* p_b, M
 	if (z1 <= z0) {
 		if (FIXED_IS_NONZERO(span = z0 - z1)) {
 			toPlane = p_plane - z1;
-			x0 = (x0 - x1) * toPlane / span + x1;
-			y0 = (y0 - y1) * toPlane / span + y1;
+			x0 = ((x0 - x1) * toPlane) / span + x1;
+			y0 = ((y0 - y1) * toPlane) / span + y1;
 			u0 = (u0 - u1) * toPlane / span + u1;
 			v0 = (v0 - v1) * toPlane / span + v1;
 			reda = (reda - redb) * toPlane / span + redb;
@@ -611,10 +602,10 @@ ProjectedVertex* ClipProjectedEdge(ProjectedVertex* p_a, ProjectedVertex* p_b, M
 	else {
 		if (FIXED_IS_NONZERO(span = z1 - z0)) {
 			toPlane = p_plane - z0;
-			x0 = (x1 - x0) * toPlane / span + x0;
-			y0 = (y1 - y0) * toPlane / span + y0;
-			u0 = (u1 - u0) * toPlane / span + u0;
-			v0 = (v1 - v0) * toPlane / span + v0;
+			x0 = ((x1 - x0) * toPlane) / span + x0;
+			y0 = ((y1 - y0) * toPlane) / span + y0;
+			u0 = ((u1 - u0) * toPlane) / span + u0;
+			v0 = ((v1 - v0) * toPlane) / span + v0;
 			reda = (redb - reda) * toPlane / span + reda;
 			greena = (greenb - greena) * toPlane / span + greena;
 			bluea = (blueb - bluea) * toPlane / span + bluea;
@@ -642,8 +633,6 @@ ProjectedVertex* ClipProjectedEdge(ProjectedVertex* p_a, ProjectedVertex* p_b, M
 // Transforms p_count vertices into view space, clips the polygon they make through the renderer
 // (FUN_1005a5f0) and projects the clipped vertices (ProjectVertex); returns their count. Its
 // callers pass a third argument it doesn't read.
-// Stack-slot permutation; the products sum in another order (commutative operand order), and i <
-// p_count compares in the other operand order.
 // FUNCTION: MW2MATROX 0x10078432
 // FUNCTION: MW23DFX 0x1002c770
 MechS32 ProjectPolygon(Vertex* p_vertices, MechU32 p_count, MechS32 p_unk0x08)

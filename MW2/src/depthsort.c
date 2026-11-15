@@ -93,9 +93,6 @@ MechS32 g_shapesConsidered;
 
 // Selects the shape's level of detail for p_depth (the first model whose distance, scaled by the
 // eyepoint, lies beyond it, or the last) and queues its faces. Returns 1 if it has no model.
-// MW2MATROX: register allocation (model, prev, cursor and the eyepoint swap registers).
-// Matches but for register allocation, operand order and scheduling, which VC++ 2.2's /Ox varies.
-// The 3Dfx edition's diff is register allocation, scheduling and float operand order only.
 // FUNCTION: MW2 0x100335d0
 // FUNCTION: MW2MATROX 0x100232f0
 // FUNCTION: MW23DFX 0x10029f00
@@ -336,8 +333,6 @@ void DrawShapeList(Shape* p_root)
 
 // Sorts the queue DrawShapeList built, moves its polygons to g_drawList in order, expanding
 // each whole shape into its own sorted run of polygons, and draws them.
-// MW2MATROX: the comparisons load their operands in the opposite order, and i and its offset swap
-// registers.
 // FUNCTION: MW2 0x10033a06
 // FUNCTION: MW2MATROX 0x100236a0
 // FUNCTION: MW23DFX 0x1002a170

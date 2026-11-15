@@ -161,8 +161,6 @@ void EndMapView(void)
 
 // Culls a shape against the map view's frustum: 1 hidden, 4 in front of the near plane, 5 past
 // the far plane, 6 and 7 outside the side planes, 0 visible. Keeps its depth in g_queueDepth.
-// In the Matrox edition, the dot products' sums take their operands in another order.
-// The 3Dfx edition's diff is register allocation, scheduling and float operand order only.
 // FUNCTION: MW2 0x10042206
 // FUNCTION: MW2MATROX 0x1001e414
 // FUNCTION: MW23DFX 0x10001220
@@ -300,7 +298,6 @@ ProjectedVertex* ProjectMapViewVertex(ProjectedVertex* p_vertex)
 
 // Projects p_point onto the map view in place. Returns whether it is in front of the eye and
 // on the screen. The Matrox edition projects the position p_position to p_screen instead.
-// The 3Dfx edition's diff is register allocation, scheduling and float operand order only.
 // FUNCTION: MW2 0x1004251e
 // FUNCTION: MW2MATROX 0x1001e743
 // FUNCTION: MW23DFX 0x100014b0

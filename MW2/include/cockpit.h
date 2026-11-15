@@ -58,7 +58,11 @@ extern "C"
 
 	extern CockpitGaugeFn g_cockpitGauges[10];
 	extern PANE g_cockpitGaugePanes[5];
-	extern void* g_unk0x100a5bb8[4];
+#ifdef MW2_ACCEL
+	extern Point* g_unk0x100ae424;
+#else
+extern void* g_unk0x100a5bb8[4];
+#endif
 	extern MechS32 g_satelliteStaticState;
 	extern void (*g_savedFrameDrawCallback)(void);
 	extern MechS32 g_savedShowCrosshair;

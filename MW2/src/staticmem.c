@@ -42,8 +42,6 @@ MechS32 AddStaticPoolType(MechS32 p_size, BwdTag p_tag);
 
 // Reads the mission's pool sizes, places the pools in groups of up to 0xffdc bytes, largest
 // first, and allocates the groups. Returns whether it could read the sizes.
-// Stack-slot permutation: i, pool, j, group and best. The loop tests and the comparisons of the
-// groups' free room follow the unit's symbol table in the other operand order.
 // FUNCTION: MW2 0x100498b0
 // FUNCTION: MW2MATROX 0x10078f20
 // FUNCTION: MW23DFX 0x10023bb0
@@ -113,7 +111,6 @@ MechS32 InitStaticMem(char* p_mission)
 }
 
 // Takes a block from the pool of a tag, logging the call to mw2.log.
-// The 3Dfx edition's diff is register allocation and instruction scheduling only.
 // FUNCTION: MW2 0x10049afb
 // FUNCTION: MW2MATROX 0x1007916a
 // FUNCTION: MW23DFX 0x10023d40
@@ -229,7 +226,6 @@ MechS32 ParseStaticPoolConfig(char* p_mission)
 
 // Adds room for a tag, making its pool on first use. Returns whether the pool still fits in a
 // group.
-// The 3Dfx edition's diff is register allocation and instruction scheduling only.
 // FUNCTION: MW2 0x10049da3
 // FUNCTION: MW2MATROX 0x10079410
 // FUNCTION: MW23DFX 0x10023f10

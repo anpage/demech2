@@ -1049,8 +1049,6 @@ void FUN_10004be3(WPARAM p_wParam, LPARAM p_lParam)
 
 // Shows the lobby's pane p_state, creating its dialog the first time; returns whether it could.
 // Entering a pane does its setup: 1, the connection, starts the lobby over.
-// Matches except for the stack slots of the locals, which VC++ 2.2 permutes, and the operand
-// order of the first comparison (the original loads p_state), which also shifts the jump table.
 // FUNCTION: NETMECHW 0x10005023
 MechS32 FUN_10005023(MechS32 p_state)
 {
@@ -1249,7 +1247,6 @@ MechS32 FUN_10005023(MechS32 p_state)
 		default:
 			g_unk0x10023108 = previous;
 			return FALSE;
-			break;
 		}
 
 		if (result) {
@@ -1491,7 +1488,6 @@ void FUN_10005e36()
 // Puts the path of the help file in p_path, of p_size bytes: mw2help.hlp in the current
 // directory, else on the first CD-ROM drive that has it. When the current directory has it, the
 // original closes a find handle it never set. The original's frame has room for one more local.
-// Matches except for the stack slots of the locals, which VC++ 2.2 permutes.
 // FUNCTION: NETMECHW 0x10005e50
 void FUN_10005e50(MechChar* p_path, MechS32 p_size)
 {
@@ -1505,28 +1501,28 @@ void FUN_10005e50(MechChar* p_path, MechS32 p_size)
 	strncpy(p_path, "mw2help.hlp", p_size);
 	if (FindFirstFile("mw2help.hlp", &data) != INVALID_HANDLE_VALUE) {
 		FindClose(find);
+		return;
 	}
-	else {
-		drives = (MechChar*) calloc(0x69, 1);
-		GetLogicalDriveStrings(0x69, drives);
-		sprintf(path, " :\\%s", "mw2help.hlp");
 
-		drive = drives;
-		while (*drive) {
-			if (GetDriveType(drive) == DRIVE_CDROM) {
-				path[0] = *drive;
-				find = FindFirstFile(path, &data);
-				if (find != INVALID_HANDLE_VALUE) {
-					FindClose(find);
-					strncpy(p_path, path, p_size);
-					free(drives);
-					return;
-				}
+	drives = (MechChar*) calloc(0x69, 1);
+	GetLogicalDriveStrings(0x69, drives);
+	sprintf(path, " :\\%s", "mw2help.hlp");
+
+	drive = drives;
+	while (*drive) {
+		if (GetDriveType(drive) == DRIVE_CDROM) {
+			path[0] = *drive;
+			find = FindFirstFile(path, &data);
+			if (find != INVALID_HANDLE_VALUE) {
+				FindClose(find);
+				strncpy(p_path, path, p_size);
+				free(drives);
+				return;
 			}
-
-			drive += 4;
 		}
 
-		free(drives);
+		drive += 4;
 	}
+
+	free(drives);
 }

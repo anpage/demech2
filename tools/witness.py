@@ -68,7 +68,8 @@ def read_listing(path):
     result, pending = {}, []
     for line in Path(path).read_text(errors="replace").split("\n"):
         m = re.match(r"^__\$\w+\$ = (-?\d+)\s*$", line)
-        if m:  # the C++ EH record: a fixed area at the top of the frame
+        if m:  # the C++ EH record: a fixed area at the top of the frame, which never moves
+            pending.append(("$EHRec", int(m.group(1)), False))
             continue
         m = re.match(r"^_(\S+)\$ = (-?\d+)\s*$", line)
         if m:
@@ -90,10 +91,14 @@ def read_listing(path):
 # Renaming
 
 
-def slot_plan(local_list, slots):
+def slot_plan(local_list, slots, unlisted=()):
     """The named locals in the order the original allocates them, or a reason there is none.
-    local_list: (name, offset, renameable) from the listing; slots: (ours, the original's)."""
-    named = sorted((offset, name, renameable) for name, offset, renameable in local_list if offset < 0)
+    local_list: (name, offset, renameable) from the listing; slots: (ours, the original's);
+    unlisted: (name, size) of locals the listing leaves out (2.2 omits the unreferenced ones),
+    placed into the frame's free room."""
+    # The C++ EH record ends the locals' area: the slots inside it stay where they are.
+    top = min([offset for name, offset, _ in local_list if name == "$EHRec"] or [0])
+    named = sorted((offset, name, renameable) for name, offset, renameable in local_list if offset < 0 and name != "$EHRec")
     if not named:
         return None, "no named locals"
     starts = [offset for offset, _, _ in named]
@@ -103,16 +108,23 @@ def slot_plan(local_list, slots):
             if ours != theirs:
                 return None, "an unnamed temporary moved (ebp%+d, the original's ebp%+d)" % (ours, theirs)
             continue
+        if ours >= top:
+            if ours != theirs:
+                return None, "the EH record moved"
+            continue
         index = max(k for k, start in enumerate(starts) if start <= ours)
         base = theirs - (ours - starts[index])
         if bases.setdefault(index, base) != base:
             return None, "%s is at two places in the original" % named[index][1]
-    sizes = [(starts[k + 1] if k + 1 < len(starts) else 0) - starts[k] for k in range(len(starts))]
+    sizes = [(starts[k + 1] if k + 1 < len(starts) else top) - starts[k] for k in range(len(starts))]
     taken = sorted((base, base + sizes[k], k) for k, base in bases.items())
-    for (_, end, k), (start, _, n) in zip(taken, taken[1:]):
+    for (base, end, k), (start, _, n) in zip(taken, taken[1:]):
         if end > start:
+            if start - base >= 4:  # a local the listing doesn't list (never referenced) took the room
+                sizes[k] = start - base
+                continue
             return None, "%s and %s overlap in the original" % (named[k][1], named[n][1])
-    if taken and (taken[0][0] < starts[0] or taken[-1][1] > 0):
+    if taken and (taken[0][0] < starts[0] or taken[-1][1] > top):
         return None, "%s is outside the named locals' area in the original" % named[taken[0][2]][1]
     # Locals the code never addresses go into the gaps, the largest first.
     free, at = [], starts[0]
@@ -120,16 +132,22 @@ def slot_plan(local_list, slots):
         if start > at:
             free.append([at, start])
         at = end
-    if at < 0:
-        free.append([at, 0])
+    if at < top:
+        free.append([at, top])
     for k in sorted((k for k in range(len(named)) if k not in bases), key=lambda k: -sizes[k]):
         gap = next((g for g in free if g[1] - g[0] >= sizes[k]), None)
         if gap is None:
             return None, "no room for %s in the original's frame" % named[k][1]
         bases[k] = gap[1] - sizes[k]
         gap[1] -= sizes[k]
-    order = sorted(bases, key=lambda k: -bases[k])
-    return [named[k][1] for k in order], None
+    placed = [(bases[k], named[k][1]) for k in bases]
+    for name, size in unlisted:
+        gap = next((g for g in reversed(free) if g[1] - g[0] >= size), None)
+        if gap is None:
+            continue
+        placed.append((gap[1] - size, name))
+        gap[1] -= size
+    return [name for _, name in sorted(placed, reverse=True)], None
 
 
 class ProbeUnit(Unit):
@@ -304,13 +322,21 @@ class Search:
             if optimized(unit):
                 entry.note("slots", "an optimized unit: padding only", pads)
                 continue
-            order, reason = slot_plan(local_list, comparison.slots)
+            # Scalars the body declares that the listing leaves out (never referenced).
+            listed = {name for name, _, _ in local_list}
+            body = Path(annotation.filename).read_text(encoding="utf-8").split("\n")[annotation.line_number - 1 : annotation.end_line]
+            unlisted = []
+            for line in body:
+                m = re.match(r"^\t(?:const )?\w+\s*\**\s*(\w+);$", line)
+                if m and m.group(1) not in listed:
+                    unlisted.append((m.group(1), 4))
+            order, reason = slot_plan(local_list, comparison.slots, unlisted)
             if order is None:
                 entry.note("slots", reason, pads)
                 continue
             # The compiler's temporaries ($T123) come after the named locals, in the order it
             # creates them, outside the hash: they must end the order.
-            while order and order[-1].startswith("$T"):
+            while order and (order[-1].startswith("$T") or order[-1] == "this"):
                 order = order[:-1]
             fixed = {name for name, _, renameable in local_list if not renameable} & set(order)
             if any(name.startswith("$T") for name in fixed):

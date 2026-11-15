@@ -139,7 +139,7 @@ void RunAutopilot(Mech* p_mech)
 		SteerToTarget(p_mech->m_player);
 		if (p_mech->m_player->m_maneuverFlag == 1) {
 #ifdef MW2_ACCEL
-			*(MechS32*) &p_mech->m_player->m_steering->m_throttle = p_mech->m_player->m_maneuverParam;
+			p_mech->m_player->m_steering->m_throttle = *(MechFloat*) &p_mech->m_player->m_maneuverParam;
 #else
 			p_mech->m_player->m_steering->m_throttle = p_mech->m_player->m_maneuverParam;
 #endif
@@ -181,7 +181,6 @@ void PunchInAutoHeading(Mech* p_mech)
 
 // Destroys p_mech on behalf of player p_killer, unless g_mechPoweredUp is clear: an intact
 // section holding an ammunition bin with ammunition left blows up first (DestroyCriticalSlot) instead.
-// Matches but for register allocation, operand order and scheduling, which VC++ 2.2's /Ox varies.
 // FUNCTION: MW2 0x10007d06
 // FUNCTION: MW2MATROX 0x1001059a
 // FUNCTION: MW23DFX 0x10015e10
@@ -238,8 +237,6 @@ void DestroyMech(MechS32 p_killer, Mech* p_mech)
 // in m_heat, 16.16 percent: overheating (bit 4, above 80) shuts the mech down after 6 seconds
 // (state 3), and above 100 the ammunition may explode (with bit 8) or the mech is destroyed after
 // 25 seconds; the local player hears the warnings. Cooling below 65 ends the shutdown.
-// MW2MATROX: the cooling product multiplies its operands in another order.
-// The 3Dfx edition's diff is register allocation, scheduling and float operand order only.
 // FUNCTION: MW2 0x10007e86
 // FUNCTION: MW2MATROX 0x10010727
 // FUNCTION: MW23DFX 0x10015f50
@@ -280,7 +277,7 @@ void CalculateHeat(Mech* p_mech)
 		factor = 2.0f;
 	}
 
-	cooling = p_mech->m_cooling * factor * g_deltaTime;
+	cooling = p_mech->m_cooling * factor * (MechDouble) g_deltaTime;
 	delta = p_mech->m_deltaHeat - cooling;
 	p_mech->m_heat += delta;
 	if (FIXED_IS_NEGATIVE(p_mech->m_heat)) {
@@ -623,7 +620,6 @@ void DestroySection(MechS32 p_attacker, Mech* p_mech, MechU32 p_section)
 // 10000) explodes with its shots, damaging the section, and the equipment loses its function (the
 // jump jets, the heat sinks, the engine, the gyro...). The local player hears which, unless
 // p_recursing; 8000 and 9000 hit another, random slot instead.
-// The 3Dfx edition's diff is register allocation, scheduling and comparison operand order only.
 // FUNCTION: MW2 0x10008c0f
 // FUNCTION: MW2MATROX 0x100114bd
 // FUNCTION: MW23DFX 0x100167b0

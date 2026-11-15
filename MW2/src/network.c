@@ -407,7 +407,6 @@ MechS32 FirstExternalCtrl(void)
 	return 1;
 }
 
-// The 3Dfx edition's diff is stack-slot permutation only (network.c is /Od).
 // FUNCTION: MW2 0x1000e68c
 // FUNCTION: MW2MATROX 0x1000406c
 // FUNCTION: MW23DFX 0x10033b00
@@ -650,8 +649,6 @@ void SendStateMsg(void)
 
 // Sends a chat line to player p_to, or to the players of side 1 (-3), those of side 0 (-2) or
 // everybody (-1). Fails on a line of 80 characters or more.
-// Matches except for a stack-slot permutation of i and size, the operand order of the
-// comparison of i with g_localPlayerId and the order the m_playerIds[p_to] index loads in.
 // FUNCTION: MW2 0x1000efa4
 // FUNCTION: MW2MATROX 0x10004a71
 // FUNCTION: MW23DFX 0x100344e0
@@ -958,7 +955,6 @@ void ReceiveWeaponsMsg(NetWeaponsMsg* p_msg, MechS32 p_slot)
 }
 
 // Sends player p_slot a collision push along the normal (p_x, p_y, p_z).
-// MW2MATROX: the m_playerIds[p_slot] index loads in the other order.
 // FUNCTION: MW2 0x1000faef
 // FUNCTION: MW2MATROX 0x100057cc
 // FUNCTION: MW23DFX 0x10035250

@@ -66,8 +66,6 @@ MechS32 RunAIWeapons(Player* p_player, MechScalar p_heading)
 // Decides whether p_player's AI fires its selected weapon: in range of its target, cool enough, the
 // weapon ready and loaded, and by chance per recycle time; otherwise it selects the next weapon.
 // Firing weapon types 0 and 4 also steers; a guided weapon's volley may lock on.
-// The Matrox edition's rebuild also adds the two heats in the other order (entropy).
-// Matches but for register allocation, operand order and scheduling, which VC++ 2.2's /Ox varies.
 // FUNCTION: MW2 0x1004b724
 // FUNCTION: MW2MATROX 0x1007a9d9
 // FUNCTION: MW23DFX 0x100232b0

@@ -115,7 +115,6 @@ void InitPanes(PANE* p_target)
 	}
 }
 
-// MW2MATROX: the operands of the comparison with g_paneIndex are the other way.
 // FUNCTION: MW2 0x1000242f
 // FUNCTION: MW2MATROX 0x1002d5cf
 // FUNCTION: MW23DFX 0x1002ab50
@@ -174,7 +173,6 @@ void ApplyPendingPalette(void)
 	}
 }
 
-// The Matrox edition ors the pixel's green and blue parts in the other order.
 // FUNCTION: MW2 0x1000258d
 // FUNCTION: MW2MATROX 0x1002d705
 // FUNCTION: MW23DFX 0x1002ac40
@@ -370,8 +368,6 @@ MechS32 StartPaletteFlash(MechS32 p_offset, MechS32 p_duration, MechS32 p_mode)
 	return StartPaletteFade(p_offset + g_basePalette, p_duration, p_mode);
 }
 
-// Matches but for the registers, which VC++ 2.2 allocates differently.
-// The 3Dfx edition's diff is register allocation and instruction scheduling only.
 // FUNCTION: MW2 0x100028b7
 // FUNCTION: MW2MATROX 0x1002db75
 // FUNCTION: MW23DFX 0x1002af80

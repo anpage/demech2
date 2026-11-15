@@ -70,7 +70,6 @@ void DrawMainMenu(TMPackDataBase* p_database, MechS32*)
 }
 
 // The main menu's frame: the trials of grievance, the two clan halls and EXIT.
-// Not 100%: the stack slots of data, button and size are permuted.
 // FUNCTION: MW2SHELL 0x1003dd89
 void MainMenuCallback(TMPackDataBase* p_database, MechS32* p_campaign, MechU8*, MechChar**, MechS32 p_msg)
 {
