@@ -112,15 +112,13 @@ MechS32 g_showAltimeter = 1;
 
 // The layout of the altimeter and the compass, from their shapes' extents (InitHudGauges).
 
+// The climb and dive arrows' width and height, one object: DrawCompassMarkers adds the height ahead
+// of g_compassOrigin.m_y, in the source's order, as the compiler leaves two struct members (a plain
+// global goes after a member), and the pair stays together in every edition.
 // GLOBAL: MW2 0x100be5a0
 // GLOBAL: MW2MATROX 0x100c1e58
 // GLOBAL: MW23DFX 0x1007c3e0
-static MechS32 g_compassArrowWidth;
-
-// GLOBAL: MW2 0x100be5a4
-// GLOBAL: MW2MATROX 0x100c1e5c
-// GLOBAL: MW23DFX 0x1007c3e4
-static MechS32 g_compassArrowHeight;
+static Point g_compassArrowSize;
 
 // GLOBAL: MW2 0x100be5a8
 // GLOBAL: MW2MATROX 0x100c1e50
@@ -451,8 +449,8 @@ void InitHudGauges(void)
 		MechS32 extent;
 
 		extent = VFX_shape_resolution(shape, 0);
-		g_compassArrowWidth = extent >> 16;
-		g_compassArrowHeight = extent & 0xffff;
+		g_compassArrowSize.m_x = extent >> 16;
+		g_compassArrowSize.m_y = extent & 0xffff;
 		UnlockCachedResource(extent + HUD_SHAPE(0x25), g_resTagShp);
 	}
 
@@ -636,7 +634,7 @@ void DrawCompassMarkers(
 		if (p_pitch > -FIXED_CONST(3)) {
 			DrawShapeOverPane(
 				g_compassOrigin.m_x,
-				g_compassOrigin.m_y - g_compassArrowHeight - g_compassTapeAbove,
+				g_compassOrigin.m_y - g_compassArrowSize.m_y - g_compassTapeAbove,
 				HUD_SHAPE(0x25),
 				target
 			);
@@ -645,7 +643,7 @@ void DrawCompassMarkers(
 		if (p_pitch < FIXED_CONST(3)) {
 			DrawShapeOverPane(
 				g_compassOrigin.m_x,
-				g_compassArrowHeight + g_compassOrigin.m_y + g_compassTapeBelow,
+				g_compassArrowSize.m_y + g_compassOrigin.m_y + g_compassTapeBelow,
 				HUD_SHAPE(0x1c),
 				target
 			);

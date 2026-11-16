@@ -111,14 +111,17 @@
 0x1001c1ca DodgeShot maneuvers.c pad 6 rename bearing=zqaj heading=zqaq hit=zqbn id=zqal index=zqcg j=zqar kind=zqbg maxAngle=zqai pitch=zqbk range=zqap ray=zqaa side=zqab step=zqa2 sx=zqak sy=zqam target=zqa0 x=zqbi y=zqan z=zqao
 0x1001c584 ChooseFlankPlace maneuvers.c rename angle=zqaj found=zqai i=zqak leader=zqam place=zqal
 0x1001caef DrawAltimeter hud.c rename gauge=zqam height=zqai level=zqab mark=zqac mech=zqap objectY=zqaj shape=zqao target=zqaa unused=zqak x=zqal y=zqan
-0x1001ce3d InitHudGauges hud.c pad 3 rename extent=zqam height=zqai origin=zqan shape=zqal target=zqak width=zqaj
+0x1001ce3d InitHudGauges hud.c pad 4 rename extent=zqay height=zqai origin=zqaz shape=zqal target=zqak width=zqaj
 0x1001d1b9 DrawCrosshair hud.c rename def=zqak pitch=zqaj range=zqap result=zqaa shape=zqan shapeIn=zqao shapeOut=zqam slot=zqab x=zqai y=zqal
 0x1001d3c9 DrawTargetMarker hud.c rename index=zqao offScreen=zqan onScreen=zqai player=zqap point=zqaa target=zqaj x=zqak y=zqal z=zqam
+0x1001d551 DrawCompassMarkers hud.c pad 9 rename gauge=zqai target=zqaj x=zqak x2=zqam y=zqal y2=zqan
 0x1001d7b6 DrawCompass hud.c rename gauge=zqal heading=zqai offset=zqan target=zqam x=zqaj x2=zqak
 0x1001d942 ProjectAimPoint hud.c rename ray=zqai result=zqam x=zqaj y=zqak z=zqal
-0x1001d9cd DrawPlayerBrackets hud.c pad 14 rename bottomLeft=zqab bottomRight=zqai point=zqac size=zqaj sx=zqan sy=zqao topLeft=zqap topRight=zqaa x=zqak y=zqal z=zqam
-0x1001dc23 DrawObjectBrackets hud.c rename bottomLeft=zqac bottomRight=zqai maxSize=zqap point=zqad size=zqaj sx=zqan sy=zqao topLeft=zqaa topRight=zqab x=zqak y=zqal z=zqam
-0x1001e0cb DrawPaneShape hud.c pad 7
+0x1001d9cd DrawPlayerBrackets hud.c pad 15 rename bottomLeft=zqab bottomRight=zqai point=zqac size=zqaj sx=zqan sy=zqao topLeft=zqap topRight=zqaa x=zqak y=zqal z=zqam
+0x1001dc23 DrawObjectBrackets hud.c pad 1 rename bottomLeft=zqac bottomRight=zqai maxSize=zqap point=zqad size=zqaj sx=zqan sy=zqao topLeft=zqaa topRight=zqab x=zqak y=zqal z=zqam
+0x1001df99 ClipRectToPane hud.c pad 1
+0x1001e01a FUN_1001e01a hud.c pad 3
+0x1001e0cb DrawPaneShape hud.c pad 8
 0x1001e5c0 ProjectMapViewVertex mapview.c pad 4
 0x1001ecb0 CollapseWhitespace objective.c rename dst=zqaj src=zqai
 0x1001eda2 DoFirstObjtv objective.c rename found=zqak heading=zqai nav=zqaj x=zqal y=zqam z=zqan
@@ -161,6 +164,7 @@
 0x10026b7e JoystickPoll joystick.c rename i=zqaj info=zqak result=zqai
 0x10026fa3 ReadJoystickOemName joystick.c rename key=zqaj result=zqai size=zqal type=zqak
 0x100275e0 SetGridObject gridobject.c rename count=zqan depth=zqao maxX=zqaa maxZ=zqap minX=zqak minZ=zqaj model=zqam span=zqai vertex=zqal
+0x10027cb8 AddModel shape.c pad 9 rename cursor=zqaj faceBytes=zqam memory=zqan model=zqai size=zqal vertexBytes=zqak
 0x100280e6 AddShapeFace shape.c rename face=zqai model=zqaj
 0x1002844f ComputeNormalsAndBounds shape.c rename i=zqaj model=zqai
 0x100284c7 ComputeFaceNormal shape.c pad 2 rename a=zqaj area=zqab b=zqan best=zqap bestArea=zqac i=zqaa length=zqad nx=zqai ny=zqal nz=zqam prev=zqao v0=zqae v1=zqaf v2=zqag vertex=zqak
@@ -437,7 +441,7 @@
 0x10081ce3 AiMessageDist ai.c pad 4 rename farthest=zqam farthestTarget=zqak limit=zqal result=zqaj target=zqai
 0x10081f24 FindNearestTarget ai.c rename blocker=zqak closer=zqam count=zqaa i=zqap member=zqan members=zqac mission=zqab nearest=zqaj objective=zqao target=zqai type=zqal
 0x10082431 AiStateMove ai.c rename heading=zqai range=zqaj
-0x10082e40 EnterAIState ai.c rename goalName=zqao goalType=zqak gt=zqaj line=zqaa logged=zqal mech=zqan nav=zqai navName=zqap targetType=zqam
+0x10082e40 EnterAIState ai.c rename goalName=zqan goalType=zqaj gt=zqay line=zqap logged=zqak mech=zqam nav=zqai navName=zqao targetType=zqal
 0x100835ea IsTargetDone ai.c rename flags=zqai index=zqam mask=zqal result=zqaj type=zqak
 0x10083850 HasAIState ai.c rename i=zqai j=zqaj script=zqak
 0x10083ab7 PlacePatrolNavs ai.c rename found=zqaj index=zqan nav=zqaa owner=zqai player=zqap range=zqao x=zqak y=zqal z=zqam
@@ -466,7 +470,7 @@
 0x1008836f MsiSetPalette msidraw.c pad 1
 0x10088b99 LateUpdateDoor door.c pad 8 rename dx=zqam dy=zqan dz=zqao mech=zqai nav=zqal navX=zqap navY=zqab navZ=zqad objective=zqak step=zqae team=zqaj x=zqaa y=zqac z=zqaf
 0x10088ed4 CreateDoor door.c rename buffer=zqan extra=zqap i=zqak mech=zqal sections=zqai size=zqaj slot=zqao weapons=zqam
-0x10089195 DrawHeatBar bargauges.c pad 2 rename color=zqam edge=zqad heat=zqan height=zqap level=zqak mech=zqal middle=zqae middleX=zqai rightX=zqaj target=zqac width=zqab x=zqao y=zqaa
+0x10089195 DrawHeatBar bargauges.c pad 1 rename color=zqam edge=zqad heat=zqan height=zqap level=zqak mech=zqal middle=zqae middleX=zqai rightX=zqaj target=zqac width=zqab x=zqao y=zqaa
 0x10089332 DrawHeatRateBar bargauges.c rename backColor=zqam fill=zqaj fillColor=zqai level=zqal mech=zqak
 0x100894b4 DrawThrottleGauge bargauges.c rename color=zqaj height=zqal mech=zqai value=zqao width=zqak x=zqam y=zqan
 0x100896bf DrawJumpFuelBar bargauges.c rename fill=zqai mech=zqaj

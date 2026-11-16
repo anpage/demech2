@@ -194,11 +194,11 @@ MechU32 GetFaceColor(Face* p_face, Vertex* p_vertices, MechU32 p_color, MechS32 
 	result = shade | high | low | mode;
 	return result;
 #else
-	MechS32 shade;
-	MechU32 kind;
-	MechU32 high;
 	MechU32 low;
+	MechU32 high;
+	MechS32 shade;
 	MechS32 mode;
+	MechU32 kind;
 	MechS32 value;
 	MechU32 result;
 	MechS32 level;

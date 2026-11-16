@@ -601,13 +601,13 @@ MechS32 IntersectRayFace(Face* p_face, Vertex* p_vertices, Ray* p_ray)
 	MechS32 denom;
 	MechS32 t;
 	MechS32 d;
-	Vertex* vertex;
 	MechS32 ny;
 	MechS32 nz;
 	MechS32 x;
 	MechS32 y;
 	MechS32 z;
 	MechS32 num;
+	Vertex* vertex;
 
 	nx = p_face->m_normal[0];
 	ny = p_face->m_normal[1];
