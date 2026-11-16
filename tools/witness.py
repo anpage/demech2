@@ -525,12 +525,14 @@ class Entry:
         self.pads, self.early = 0, ()
         self.unverified = []
 
-    def note(self, status, detail, pads):
+    def note(self, status, detail, pads, early=()):
         """Keep the closest verdict: slots-only (at the lowest padding) over another difference,
-        and the unpadded compile's difference over a padded one's."""
+        and the unpadded compile's difference over a padded one's. The padding is named as a
+        record would (what tools/declorder.py's --pads and --early take)."""
         rank = {"slots": 0, "other": 1}
         if self.status not in rank or rank[status] < rank[self.status] or rank[status] == rank[self.status] and not self.detail:
-            self.status, self.detail = status, detail + (" (with %d pads)" % pads if pads else "")
+            ahead = recipe({"pads": pads, "early": early, "renames": {}})
+            self.status, self.detail = status, detail + (" (with %s)" % ahead if ahead else "")
 
     def recipe(self):
         return recipe({"pads": self.pads, "early": self.early, "renames": self.renames})
@@ -550,7 +552,7 @@ class Search:
         self.compiler = Compiler(scratch, args.wine, args.jobs)
         self.ladders = {}
         self.entries = []
-        self.pads = 0
+        self.pads, self.ahead = 0, ()
 
     def compare(self, request, wanted=None):
         """{symbol: (Comparison, the function's locals, annotation)} of one compile, or an error."""
@@ -574,7 +576,7 @@ class Search:
                 entry.note("other", comparison.difference, pads)
                 continue
             if optimized(unit):
-                entry.note("slots", "an optimized unit: padding only", pads)
+                entry.note("slots", "an optimized unit: padding only", pads, self.ahead)
                 continue
             # Scalars the body declares that the listing leaves out (never referenced).
             listed = {name for name, _, _ in local_list}
@@ -590,7 +592,7 @@ class Search:
                 if order is None:
                     reason = voted
             if order is None:
-                entry.note("slots", reason, pads)
+                entry.note("slots", reason, pads, self.ahead)
                 continue
             # The compiler's temporaries ($T123) come after the named locals, in the order it
             # creates them, outside the hash: they must end the order.
@@ -616,7 +618,7 @@ class Search:
                 order = [unique.get(name, name) for name in order]
                 fixed -= set(unique)
             if any(name.startswith("$T") for name in fixed):
-                entry.note("slots", "a temporary among the named locals", pads)
+                entry.note("slots", "a temporary among the named locals", pads, self.ahead)
                 continue
             orders[symbol] = (order, fixed, scopes)
         if not orders:
@@ -653,7 +655,7 @@ class Search:
                 inner, reason = assign_scopes(scopes, entries, set(names.values()))
                 names = None if inner is None else dict(names, **inner)
             if names is None:
-                entry.note("slots", reason, pads)
+                entry.note("slots", reason, pads, self.ahead)
                 continue
             plans[symbol] = names
             texts[path.name] = rename(text, annotation.line_number, annotation.end_line, names)
@@ -710,7 +712,7 @@ class Search:
         failed, requests = [], []
         for job in jobs:
             unit, pads, early = job
-            self.pads = pads
+            self.pads, self.ahead = pads, early
             if not pending.get(unit.name):
                 continue
             compared = self.compare(compiled[job] if job in compiled else base[unit.name], pending[unit.name])
@@ -737,11 +739,12 @@ class Search:
         alternatives = []
         for request in requests:
             unit, pads, early = request.job
+            self.ahead = early
             compared = self.compare(request)
             if isinstance(compared, str):
                 for symbol in request.plans:
                     if symbol in pending[unit.name]:
-                        pending[unit.name][symbol].note("slots", "renamed: " + compared, pads)
+                        pending[unit.name][symbol].note("slots", "renamed: " + compared, pads, self.ahead)
                 continue
             for symbol in exact[unit.name]:
                 if not pads and not early and symbol in compared and not compared[symbol][0].exact:
@@ -756,7 +759,7 @@ class Search:
                     entry.pads, entry.early, entry.detail = pads, early, ""
                     del pending[unit.name][symbol]
                 else:
-                    entry.note("slots", "renamed, still differs" + (": " + comparison.difference if comparison is not None and comparison.difference else ""), pads)
+                    entry.note("slots", "renamed, still differs" + (": " + comparison.difference if comparison is not None and comparison.difference else ""), pads, self.ahead)
                     if getattr(entry, "alternatives", None):
                         for path, annotation, names in entry.alternatives:
                             text = rename(path.read_text(encoding="utf-8"), annotation.line_number, annotation.end_line, names)
