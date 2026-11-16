@@ -4,11 +4,6 @@
 # unexplained). tools/audit.py --check fails on an unexplained function
 # without a line, on a hash that no longer matches, and on a line whose function no longer needs it.
 
-MW2 0x1000a9f5 BwdExecuteStream 87779e59472d to investigate: the slot map fails late (#2157: ours [ebp-764], the original's [ebp-8]): a local the original keeps somewhere else; the rep record's i < g_thingCapacity loads g_thingCapacity first in the original
-MW2 0x1003ae96 ComputeShapeBounds 6989dc96f33b the original sums dz² first and keeps d on the FPU stack for the comparison (fst, then fcomp), where the rebuild stores it (fstp) and reloads it: one instruction fewer; to investigate (4 pads match the instructions, but the slot map then fails on minX); the vertex address loads the model before the index in the original (a probe of the same source picks yet another order)
-MW2 0x1004320b DrawSkyAndGround 5b9b47416f3c the original mirrors the equality tests yRight == yLeft and xBottom == xTop, and the slot vote those mirrors produce fails (#248: ours [ebp-156], the original's [ebp-12]); to investigate
-MW2 0x1004e4e6 PostEventToList 015219f7193d in g_objectiveTable[i].m_objectives[j] the original computes j's offset before i's (one instruction shorter), plus a mirrored comparison: an address sum's operand order the audit has no kind for, and no witness
-MW2 0x10056503 CountMissionStream a6cf71580804 the original ORs SWAP_TAG(rev->m_version)'s terms in another order, in which 4.1 merges the & 0xff term into mov al, cl (one instruction fewer); the order is the compiler's (the Matrox original has the order this build gives)
 MW2MATROX 0x10001b59 MultiplyRotations b93b7f6a221d the x87 sums of products are added in another term order (a flattened float chain), and the slot map then fails (a22 and a20 overlap): reordering a float sum isn't a rewrite the audit has
 MW2MATROX 0x10001f5f BuildMatrixEx a6d36e87fa9f the x87 products' and sums' operands are in another order (fmul/fadd of chains): reordering a float chain isn't a rewrite the audit has
 MW2MATROX 0x1000d29c UpdateMech ebbd02860304 to investigate: at #323 the rebuild adds [ebp-96] where the original adds [ebp-28] (slots or an x87 operand order)
@@ -18,7 +13,7 @@ MW2MATROX 0x1001e414 CullMapViewShape ec72ba6389c2 the original sums the float d
 MW2MATROX 0x1001e743 ProjectMapPoint ced3510b4fc9 the original sums z's products as dx*Z0, dz*Z2, dy*Z1 and keeps one on the FPU stack (fst), plus slots and a mirror: reordering a float sum isn't a rewrite the audit has
 MW2MATROX 0x1001faf7 UpdateObjective 7c73fb58a1f1 to investigate: at #9 the rebuild reads the second parameter where the original reads the first (a mirrored comparison whose slot map fails, or the parameters' order)
 MW2MATROX 0x100232f0 QueueShapeLod 42f9f07c1826 the same instructions up to a register permutation (prev esi/edx, model edi/esi) and an fmul's operand order; the renamed zeroing xor has to move past the push that saves its register, which the audit's scheduling doesn't allow; the register permutation also covers cursor and the eyepoint
-MW2MATROX 0x10027a60 ComputeShapeBounds 204af0ac0047 as MW2's: the original sums dz² first and keeps d on the FPU stack for the comparison (fst, fcomp); to investigate
+MW2MATROX 0x10027a60 ComputeShapeBounds 0d6d8bf43a3c the original stores d and keeps it on the FPU stack for the comparison (fst, then fcomp), where the rebuild compares first (fcom, then fstp); the declaration order that gives MW2's doesn't give 4.0's; to investigate
 MW2MATROX 0x10028adb TransformModel 8b7476a79290 the x87 products' factor order and the sums' term order differ, each operand loaded through its own pointer: reordering a float chain isn't a rewrite the audit has
 MW2MATROX 0x10028cf4 TransformShapeCenter e77ba3135a7e the x87 products' factors are loaded in the other order, each through its own pointer (mov eax, [p]; fld [eax+d]; mov eax, [q]; fmul [eax+d'] swapped): not a rewrite the audit has
 MW2MATROX 0x1002975e ProjectWorldPoint e3f1013ed842 the original sums each dot product's terms in its own order (the y and z rows start from the dz term) and mirrors the near-plane fcomp: reordering a float sum isn't a rewrite the audit has
@@ -26,7 +21,7 @@ MW2MATROX 0x10029957 CullSceneShape ef5aba8815cb the original keeps dz on the FP
 MW2MATROX 0x10029c23 CullShapeToFrustum 1bbe27999034 to investigate: at #53 the original loads another local first (fld [ebp-28] against the rebuild's [ebp-20]): slots or a float operand order
 MW2MATROX 0x1002ab7a UpdateDebrisPiece 106b505389f4 the original stores velocityY and reloads it for the < 1e-07f test (fstp, fld, fcomp), where the rebuild compares the sum still on the FPU stack (fcom, fstp); to investigate; ground too is stored before its comparison (fst, fcomp), as in UpdateWrappedRamp
 MW2MATROX 0x1002b194 DamageChunksInRadius 18019f3c2047 pad 9 reproduces the squares' order; what's left is slots plus the operand order of radius + p_radius, which the witness search doesn't combine with padding
-MW2MATROX 0x100461f5 BwdExecuteStream 4e4682d40985 a commutative add of two pointer chains ([eax+4] + [ecx+12]) and a mirror: two loaded operands in the other order, which the audit's kinds don't compose here; to investigate
+MW2MATROX 0x100461f5 BwdExecuteStream fef597cd7f6c a commutative add of two pointer chains ([eax+4] + [ecx+12]) and a mirror: two loaded operands in the other order, which the audit's kinds don't compose here; to investigate
 MW2MATROX 0x10049c58 GetTrianglePlane be5d88019510 the original sums d's products a*x1, c*z1, b*y1 and reloads c; the rebuild (4.0) starts the flattened chain with c, which it has just computed, and keeps it on the FPU stack (fst, fmul): one instruction fewer; a separate c = ...; statement compiles the same, so no source form tried changes the order
 MW2MATROX 0x1005a5f0 FUN_1005a5f0 fb1284c4dbc5 the original expands A3DClipEdge at 7 of its 12 call sites, the rebuild at 6, and its expansions are larger (40 fabs calls against 20; frame 0x7158 against 0x70e0; 2410 instructions against 1597); #pragma inline_depth and inline_recursion change nothing; to investigate
 MW2MATROX 0x1005ce20 FUN_1005ce20 c0831568ec8e the original keeps the conversion temporaries at esp+24 where the rebuild has esp+16: stack packing the audit doesn't reproduce
@@ -108,7 +103,6 @@ MW23DFX 0x1000fe60 GetObjLastChild 0d3f97dc364a the original compares with a reg
 MW23DFX 0x10010a90 IsPointInFaceXZ a6bbd05df173 register allocation (ebx holds sides in the original, i in the rebuild) and an address's base/index order, which the audit's webs don't map
 MW23DFX 0x10010db0 IsPointInFaceXY 367c819b2068 register allocation (ebx holds sides in the original, i in the rebuild) and an address's base/index order, which the audit's webs don't map
 MW23DFX 0x10011570 UpdateGridObject 57ec669668cd the original saves another set of callee-saved registers (a push/pop more or less), so the instruction counts differ
-MW23DFX 0x10012730 LogStarMissionLines 3c562bc25f46 to investigate: 4 instructions more in the original (213 against 217), starting with the register a member test loads into (edx where the rebuild has eax, #16)
 MW23DFX 0x100132c0 AiTransitionPush d924b278239a the original loads [+334] into another register (mov ax where the rebuild has mov dx) and has more instructions (1 to 5); to investigate
 MW23DFX 0x10014290 OrderPlayers 486b93f8ef94 the original initialises a 16-bit local to 0 (xor bx, bx) where the rebuild uses -1 (mov bx, 0xffff): a constant differs; to investigate
 MW23DFX 0x10014ba0 LeadStar 447292b494f5 the original compares with a register it knows holds 0 (cmp r, reg) where the rebuild tests (test r, r): a register reused for a known value, which the audit doesn't reproduce
@@ -123,8 +117,6 @@ MW23DFX 0x1001b620 DrawDamageOutline 029e45202b81 register allocation and schedu
 MW23DFX 0x1001c4a0 DrawHeatRateBar fb18b94957e0 register allocation and scheduling the audit's webs and search don't reach; to investigate
 MW23DFX 0x1001c810 DrawVerticalBar d4198d7f7336 register allocation and scheduling the audit's webs and search don't reach; to investigate
 MW23DFX 0x1001cb40 RemoveNavPoint d5d7e4b60b5f register allocation decides the instruction's width: the original tests the flag as test ch, 1 (the value in ecx), the rebuild as test ebp, 0x100; the rep movsd setup is scheduled differently
-MW23DFX 0x1001cca0 CycleTarget 4df16bef5596 the original keeps the two stores to m_target apart (mov [edi+220], ebp; or [edi+220], 0x1000) where the rebuild merges them behind one jmp (cross-jumping), plus a mirrored comparison; no source form found
-MW23DFX 0x1001d870 TargetAtReticle 855c9d1f225e register allocation: the original keeps autopilot on the stack and previous in edi, the rebuild the other way round (statement order tried: no change)
 MW23DFX 0x1001dcc0 LayoutWeaponPanels 44b83f35491b register allocation and scheduling the audit's webs and search don't reach; to investigate; the rebuild's .bss order differs (g_cockpitPanels)
 MW23DFX 0x1001f030 ChooseManeuver 962f0903267b to investigate: the prologue is scheduled otherwise (mov ebx, [ecx+32] against push edi at #3)
 MW23DFX 0x1001f6b0 GetOffsetPoint ccfcab137e0d to investigate: the original has a nop at #46 and 2 more instructions
@@ -137,7 +129,6 @@ MW23DFX 0x10022490 InitHudGauges 11e40fd61b9a register allocation and scheduling
 MW23DFX 0x10022960 DrawCompassMarkers 2201e0053916 as the Matrox edition's: g_compassOrigin.m_y + g_compassSideArrowHeight / 2 evaluated in the other order, plus commutative x87 operands
 MW23DFX 0x10022cc0 DrawPlayerBrackets 0d1765269201 the rebuild's frame has one more slot (0x18 against 0x14): a local the original keeps in a register; to investigate
 MW23DFX 0x10022ea0 DrawObjectBrackets b26fdc1a2e5f the rebuild's frame has one more slot (0x1c against 0x18): a local the original keeps in a register; to investigate
-MW23DFX 0x100232b0 DecideAIFire 1329f9fb678b the original initialises a local the rebuild doesn't (mov [esp+8], 0 at #3): a source difference to investigate
 MW23DFX 0x10023d40 StaticPoolAlloc c4bbfe967bd9 the original saves another set of callee-saved registers (a push/pop more or less), so the instruction counts differ
 MW23DFX 0x10023f10 AddStaticPoolType aff554ec5b75 the original saves another set of callee-saved registers (a push/pop more or less), so the instruction counts differ
 MW23DFX 0x100243f0 LoadCachedResource 88ad19262c6c the original packs p_file's spill into the start of message (frame 0x64 against 0x68): stack packing the audit doesn't reproduce
@@ -153,8 +144,6 @@ MW23DFX 0x10027490 FUN_10068b57 cb69be2ee489 the original stores the color's com
 MW23DFX 0x100277b0 LoadSkyGroundSettings 6dc567f4061a to investigate: the blocks differ at #22
 MW23DFX 0x100278b0 FUN_10068e33 8c33ac40c857 to investigate: the blocks differ at #26
 MW23DFX 0x10027c80 DrawSkyAndGround 4feb4f24721f to investigate: 14 instructions more in the original (1345 against 1331) and its locals elsewhere in the frame from the first store ([esp+28] against [esp+8])
-MW23DFX 0x100298c0 ComputeNormalsAndBounds 5e5cbc0869f9 register allocation (an address's base and index swapped, lea against add, another register for one value) the audit's webs don't map
-MW23DFX 0x10029a40 GetShapeMemorySize d753a5a2aab0 register allocation (an address's base and index swapped, lea against add, another register for one value) the audit's webs don't map
 MW23DFX 0x10029ab0 TransformModel 3931de82245e x87 operand order (loads through pointers) the audit has no rewrite for
 MW23DFX 0x10029db0 RayShapeDistance 1bae8c6eb060 the original keeps deltaZ on the FPU stack for its square (fst, fmul), the rebuild stores the three deltas and reloads (one instruction more): x87 stack allocation
 MW23DFX 0x10029f00 QueueShapeLod 416b23d1b752 as the Matrox edition's: a register permutation and an fmul's operand order, with the zeroing xor on the other side of the push that saves its register, which the audit's scheduling doesn't allow
@@ -185,7 +174,6 @@ MW23DFX 0x10032c70 StopSamples 44e13b1898bd register allocation (an address's ba
 MW23DFX 0x10032cc0 UpdateAmbientSound 3e7c117559ba the original saves another set of callee-saved registers (a push/pop more or less), so the instruction counts differ
 MW23DFX 0x10036470 HandleDebugKey 28581852e427 mirrored comparisons whose loads are in swapped registers, plus register allocation the audit's webs don't reproduce
 MW23DFX 0x100383d0 KeyboardPoll 395059084ca0 the original keeps the key-state copy as a loop, which /Ow unrolls in the rebuild (plain /Ox doesn't)
-MW23DFX 0x10039440 AddAnalogBinding f2624f10c629 a mirrored comparison inside scheduled code the audit doesn't reach; to investigate
 MW23DFX 0x10039590 ParseInputConditions 64c742fafb66 a 16-bit local sits at [esp+18] in the original where the rebuild has [esp+16]: packed differently in the frame; to investigate
 MW23DFX 0x10039730 ParseInputMap 3952988ed1d7 as ParseInputConditions: a 16-bit local at [esp+14] against [esp+12]
 MW23DFX 0x10039c90 LoadGamekeyMap 0e5d939f5e2a register allocation (an address's base and index swapped, lea against add, another register for one value) the audit's webs don't map
@@ -202,7 +190,6 @@ MW23DFX 0x10041c80 GetMechValue a66ee52633d3 register allocation (an address's b
 MW23DFX 0x10042140 LoadShapeRecord 566ad217282f to investigate: the original's frame is 4 bytes smaller (0x70 against 0x74) and it has 8 instructions fewer (590 against 598)
 MW23DFX 0x10042e10 RunIncludedStream 8ef076d5e7a7 the original compares with a register it knows holds 0 (cmp r, reg) where the rebuild tests (test r, r): a register reused for a known value, which the audit doesn't reproduce
 MW23DFX 0x10043270 CreateObjectNode a6d2627e23ab the original compares with a register it knows holds 0 (cmp r, reg) where the rebuild tests (test r, r): a register reused for a known value, which the audit doesn't reproduce
-MW23DFX 0x10044560 UpdateWeaponLock 9ba9b5b73217 the original saves another set of callee-saved registers (a push/pop more or less), so the instruction counts differ
 MW23DFX 0x10044ac0 SpawnLaunchFx 359d19ea2115 2.2 sums upY's products in the order the unit's symbols give, another than the original's: two computed products swapped isn't a rewrite the audit has
 MW23DFX 0x1006298a VFX_ellipse_draw16 aeaa7b81c2f7 a direct call (no relocation) to another routine of vfx16.asm reaches another offset than the original's: the object's layout differs; to investigate
 MW23DFX 0x10064260 RestoreBrightness 5a048e4842ea the original copies the brightness through a second register (mov eax, [g]; mov ecx, eax; mov [g'], eax), one instruction more: a chained assignment or a local the source lacks; to investigate

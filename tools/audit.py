@@ -97,7 +97,7 @@ no longer matches, and on a line whose function is proven or classified now (rem
 `undiagnosed` marks a line nobody has looked at, and a reason that says `to investigate` one whose
 cause isn't settled yet (it says what was found so far): both keep the unexplained weight.
 
-Costs (summed per target): 0 byte-identical, 1 a witness by padding, 2 one with renamed locals, 25
+Costs (summed per target): 0 byte-identical, 1 a witness by padding, 2 one with renamed locals, 3 one with a global redeclared early, 25
 classified, 250 a known difference with a reason, 1000 unexplained or undiagnosed.
 
 The corpus (`tools/audit_corpus.txt`, `--corpus`) holds real source differences that once passed for

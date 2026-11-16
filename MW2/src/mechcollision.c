@@ -60,9 +60,9 @@ MechS32 MoveMechWithCollisions(
 	MechScalar length;
 	MechScalar z1;
 	Ray ray;
-	MechScalar lift;
-	MechScalar dot;
 	Ray normal;
+	MechScalar dot;
+	MechScalar lift;
 
 	x0 = p_mech->m_player->m_position.m_x;
 	y0 = p_mech->m_player->m_position.m_y;

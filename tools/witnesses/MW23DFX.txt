@@ -1,11 +1,13 @@
 # MW23DFX: witnesses that a function differs from the original only by compiler entropy.
-# address, function, unit, then the recipe: `pad N` symbols declared ahead of the unit, and/or
-# `rename old=new ...` of the function's locals. Found by tools/witness.py, checked by tools/certify.py.
+# address, function, unit, then the recipe: `pad N` symbols declared ahead of the unit, `early DECL M`
+# one global redeclared after them (spaces as ~) and M more symbols, and/or `rename old=new ...` of
+# the function's locals. Found by tools/witness.py, checked by tools/certify.py.
 
 0x10001630 LerpPaneRect recttransition.c pad 2
 0x10002080 LoadFramePrj anim2d.c pad 17
 0x100022f0 DrawAnim2d anim2d.c pad 49
 0x100024b0 ChooseArtResolution setres.c pad 14
+0x10002aa0 ToggleFullScreen refreshmode.c pad 27
 0x10003420 SwitchCockpitView cockpit.c pad 43
 0x10003830 DrawMapContents cockpit.c pad 3
 0x10003960 DrawMapUnits cockpit.c pad 28
@@ -60,6 +62,7 @@
 0x10012520 TargetAttacker ai.c pad 3
 0x100125d0 ChooseTeamLeader ai.c pad 7
 0x10012650 LogPlayerSkillLines ai.c pad 11
+0x10012730 LogStarMissionLines ai.c pad 54
 0x10012bf0 AiMessageDist ai.c pad 13
 0x10012cd0 IsTargetDetectable ai.c pad 2
 0x10013a50 NextTarget ai.c pad 1
@@ -86,15 +89,18 @@
 0x10018c70 SetTeamFormation team.c pad 7
 0x10018cd0 SetPlayerSlot team.c pad 10
 0x10018d00 SetTeamLeader team.c pad 4
+0x10018dd0 PlaceTeam team.c pad 31
 0x10018ec0 GetTeamSlotPosition team.c pad 8
 0x1001b890 DrawArmorBars damagepanel.c pad 12
 0x1001bf90 FireJumpJetEffects fadepal.c pad 17
 0x1001c750 DrawJumpFuelBar bargauges.c pad 1
 0x1001c960 DrawHorizontalBar bargauges.c pad 2
+0x1001cca0 CycleTarget targeting.c pad 44
 0x1001cea0 TargetNavPoint targeting.c pad 9
 0x1001d050 TargetGamePiece targeting.c pad 8
 0x1001d2d0 TargetGameThing targeting.c pad 4
 0x1001d810 GetLocalTargetObject targeting.c pad 11
+0x1001d870 TargetAtReticle targeting.c pad 27
 0x1001db60 TargetNearestEnemy targeting.c pad 2
 0x1001e670 DamageCockpitPanels staticmem.c pad 5
 0x1001e820 DrawWeaponPanel weaponpanel.c pad 1
@@ -110,6 +116,7 @@
 0x10022b10 DrawCompass hud.c pad 13
 0x100230c0 DrawHudShape hud.c pad 1
 0x10023120 DrawPaneShape hud.c pad 1
+0x100232b0 DecideAIFire aiweapons.c pad 27
 0x100235e0 ReloadPlayerMech mechreload.c pad 3 rename flags=zqaj mech=zqai p_force=zqal p_player=zqak
 0x100239a0 RememberMechSegments mechreload.c rename id=zqai obj=zqaj p_mech=zqak
 0x10023bb0 InitStaticMem staticmem.c pad 2
@@ -130,13 +137,14 @@
 0x100269f0 ForgetObjShape classtable.c pad 3
 0x10027750 ReadTextLine polydraw.c pad 2
 0x10028ee0 IsAboveHorizon horizon.c pad 2
-0x10029060 ComputeShapeBounds shape.c pad 3
 0x10029210 ComputeFaceNormal shape.c pad 6
 0x10029460 AddModel shape.c pad 3
 0x10029760 RemoveSelectedModel shape.c pad 13
+0x100298c0 ComputeNormalsAndBounds shape.c pad 46
 0x10029950 ForEachShape shape.c pad 1
 0x100299c0 SetShapeLoadFlags shape.c pad 1
 0x10029a00 DestroyObjShape shape.c pad 2
+0x10029a40 GetShapeMemorySize shape.c pad 28
 0x10029c10 TransformShapeCenter shape.c pad 13
 0x10029cb0 ApproximateShapeDistance shape.c pad 13
 0x1002a080 DrawShapeList depthsort.c pad 21
@@ -150,6 +158,7 @@
 0x1002c770 ProjectPolygon queueface.c pad 13
 0x1002d410 FUN_10051ba1 animation.c pad 11
 0x1002d920 StartCameraShakeKey camerashake.c pad 5
+0x1002e280 UpdateTrackView eyepoint.c pad 2
 0x1002e8a0 UpdateFreeEyeView eyepoint.c pad 4
 0x1002ebc0 RotatePoint transform.c pad 2
 0x1002f4a0 ScaleVectorToLength transform.c pad 1
@@ -161,6 +170,7 @@
 0x10030c40 PollCdDrive cdaudio.c pad 5
 0x100310a0 IsCdTrackOnDisc cdaudio.c pad 11
 0x10031700 FreeSpeechEntry speech.c pad 21
+0x10031e30 DoAudio audio.c pad 63
 0x10032530 InitializeDigitalAudio soundfx.c pad 5
 0x10032670 ShutdownDigitalAudio soundfx.c pad 10
 0x10032700 ServeSamples soundfx.c pad 4
@@ -185,6 +195,8 @@
 0x10037310 HandleChatKey gamekeys.c pad 16
 0x100374e0 HandleGameKeys gamekeys.c pad 5
 0x10038de0 FindInputDevice inputmap.c pad 4
+0x10039140 GetOrCreateInputAxis inputmap.c pad 25
+0x10039440 AddAnalogBinding inputmap.c pad 25
 0x100396e0 CheckInputConditions inputmap.c pad 4
 0x10039ac0 LoadInputMap inputmap.c pad 24
 0x1003a5e0 NetReceive netio.c pad 5
@@ -217,6 +229,7 @@
 0x100440c0 SelectNextWeaponGroup weapons.c pad 6
 0x10044220 JettisonAmmo weapons.c pad 4
 0x10044440 FireWeaponGroup weapons.c pad 5
+0x10044560 UpdateWeaponLock weapons.c pad 45
 0x10044c40 FirstShots shots.c rename effect=zqai i=zqaj shot=zqak
 0x10044eb0 UpdateAllShots shots.c rename i=zqai shot=zqaj
 0x10045840 SwayShot shots.c rename p_shot=zqal p_x=zqam sideX=zqai sideY=zqaj sideZ=zqak

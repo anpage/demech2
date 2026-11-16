@@ -242,6 +242,7 @@ class Compiler:
                     texts.update(request.files)
                     texts[unit.name] = request.prefix + texts[unit.name]
                     for name, text in texts.items():
+                        (where / name).parent.mkdir(parents=True, exist_ok=True)  # a header under its folder: accel/a3d.h
                         (where / name).write_text(text, encoding="utf-8", newline="\n")
                     source = where / unit.name
                     include = "/I%s " % to_tool(unit.path(request.tree).parent)

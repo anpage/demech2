@@ -478,17 +478,17 @@ void UpdateProjection(Eyepoint* p_eyepoint)
 	MechS16 shift1;
 	MechS16 shift2;
 	Eyepoint* eyepoint;
-	MechS32 fovY;
-	MechS32 d;
-	MechS32 offsetX;
-	MechS32 b;
-	MechS32 halfWidth;
-	MechS32 top;
 	MechS32 halfHeight;
+	MechS32 top;
+	MechS32 halfWidth;
+	MechS32 b;
+	MechS32 offsetX;
+	MechS32 d;
+	MechS32 fovY;
 	MechS32 scaled1;
 	MechS32 low1;
-	MechS32 fov;
 	MechS32 a;
+	MechS32 fov;
 
 	eyepoint = p_eyepoint;
 	fov = eyepoint->m_fovX;

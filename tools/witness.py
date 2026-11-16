@@ -21,7 +21,8 @@ For each unit it compiles the source as the build does (tools/unitbuild.py), com
 annotated function with the original (tools/funccmp.py), and reports one of:
 
   exact      the bytes are the original's (relocated fields compared by their targets)
-  witness    exact once the locals are renamed and/or with N symbols declared ahead
+  witness    exact once the locals are renamed and/or with N symbols declared ahead (one of them,
+             with --early, a global of the unit's)
   slots      the only differences are stack slots, but no renaming tried reproduces them
   other      the first difference isn't a stack slot: it is printed
 
@@ -33,15 +34,30 @@ The locals are renamed, in a scratch copy, to names the compiler allocates in
 that order: a probe compiled twice (its locals declared forward, then reversed) sorts a pool of
 names into the hash's buckets and finds the order of the buckets, and within a bucket whether the
 first declared comes first, without knowing the hash. A C++ unit's probe is a member function,
-which places `this` (a name that can't change) among the buckets. Optimized units are searched by
-padding alone.
+which places `this` (a name that can't change) among the buckets. A nested scope's locals come
+after the function's own, scope by scope, each scope's in the hash's order (they are renamed per
+scope), or else, where their names are unique, among the function's own. With more locals than
+buckets, locals share buckets in their order of declaration: as early as it allows first, then the
+other ways it allows, fewest shared buckets first, each compiled until one gives the original.
+Optimized units are searched by padding alone.
+
+One global redeclared early (`--early N`, unoptimized units, after the paddings): which side of a
+comparison goes in a register, and which operand of a commutative operation loads first, follows the
+symbols' positions. Padding shifts every global of a unit at once, so a function whose comparisons
+with two globals need different paddings has no witness by padding. For each global such a function
+names, the unit is compiled with that global redeclared ahead of it (`extern int g_playerCount;`,
+its type spelled in base types and struct tags, since no header is in yet), among up to N typedefs
+before it and N after: that moves the one global alone, in this unit only, and changes no header.
+The original's headers are lost, and where they declared each global with them. A spelling the
+compiler rejects (another edition's type, a static) is dropped.
 
 usage (from the repository root, with reccmp's environment):
   python tools/witness.py --target MW2 [--build build-wine] [--wine PATH] [--unit ai.c ...]
-                          [--function NAME ...] [--pads N] [--jobs N] [--write] [--json FILE] [-v]
+                          [--function NAME ...] [--pads N] [--early N] [--jobs N] [--write] [--json FILE] [-v]
 
 --write records the witnesses in tools/witnesses/<TARGET>.txt: the records of the units and
-functions searched are replaced, the others kept.
+functions searched are replaced, the others kept; a search without --early keeps the records that
+redeclare a global unless it finds the function a witness without one.
 """
 
 import argparse
@@ -53,11 +69,12 @@ from collections import Counter, defaultdict
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
-from certify import TOKEN, pads_text, read_records, recipe, rename, unit_annotations  # noqa: E402
+from certify import EARLY, TOKEN, pads_text, read_records, recipe, rename, unit_annotations  # noqa: E402
 from funccmp import Annotations, Comparison, read_yaml_paths, source_roots, symbol_name  # noqa: E402
 from unitbuild import ROOT, TARGETS, Compiler, Image, Object, Request, Target, Unit  # noqa: E402
 
 FIXED = ("this",)  # locals the compiler names itself: they can't be renamed
+SHARED_PLANS = 200  # the other bucket sharings tried for a function whose locals outnumber the buckets
 
 
 def optimized(unit):
@@ -236,17 +253,113 @@ def ladder(compiler, target, unit, extras=()):
 
 
 def declaration_order(text, first, last, names):
-    """The position of each local's first appearance in the function's text: its declaration."""
-    body = "\n".join(text.split("\n")[first - 1 : last])
-    body = body[body.find("{") :]
-    seen, previous = {}, ""
+    """The position of each local's declaration in the function's text. A name declared in more than
+    one #if group (an edition's own body under #else) counts where the group that declares most of
+    `names` (the listing's, the target's) declares it; a name no line declares, at its first
+    appearance."""
+    lines = text.split("\n")[first - 1 : last]
+    start = next((k for k, line in enumerate(lines) if "{" in line), 0)
+    stack, current, declarations = [0], 0, []
+    for k in range(start, len(lines)):
+        line = lines[k]
+        if re.match(r"\s*#\s*if", line):
+            current += 1
+            stack.append(current)
+        elif re.match(r"\s*#\s*(else|elif)", line):
+            current += 1
+            stack[-1] = current
+        elif re.match(r"\s*#\s*endif", line) and len(stack) > 1:
+            stack.pop()
+        m = re.match(r"^\t+(?:const )?\w[\w ]*?[\s*]+(\w+)(?:\[[^\]]*\])*;$", line)
+        if m and m.group(1) in names:
+            declarations.append((m.group(1), stack[-1], k))
+    weight = Counter(group for _, group, _ in declarations)
+    position = {}
+    for name, group, k in declarations:
+        if name not in position or weight[group] > weight[position[name][0]]:
+            position[name] = (group, k)
+    places = {name: (k, 0) for name, (_, k) in position.items()}
+    previous, seen = "", 0
+    body = "\n".join(lines[start:])
     for m in TOKEN.finditer(body):
         token = m.group(0)
-        if token in names and token not in seen and previous not in (".", "->", "::"):
-            seen[token] = len(seen)
+        if token in names and token not in places and previous not in (".", "->", "::"):
+            places[token] = (start + body.count("\n", 0, m.start()), 1 + seen)
+            seen += 1
         if not token.startswith(("//", "/*")):
             previous = token
-    return seen
+    return {name: k for k, name in enumerate(sorted(places, key=lambda n: places[n]))}
+
+
+NESTED = re.compile(r"^(\w+)\$(\d+)$")  # a nested scope's local in a listing
+
+
+def scope_groups(body, tail, outer):
+    """A nested scope's locals, `tail` in their allocation order, as each scope's names (in that
+    order), or None when they don't come scope by scope. The listing numbers a name's copies in
+    their order of declaration, which matches each copy to its scope in the text."""
+    blocks, stack, count = defaultdict(list), [], 0
+    for line in body:
+        for char in line:
+            if char == "{":
+                count += 1
+                stack.append(count)
+            elif char == "}" and stack:
+                stack.pop()
+        m = re.match(r"^\t+(?:const )?\w[\w ]*?[\s*]+(\w+)(?:\[[^\]]*\])*;$", line)
+        if m and len(stack) > 1:
+            blocks[stack[-1]].append(m.group(1))
+    where = defaultdict(list)  # name -> the blocks declaring it, in order
+    for block in sorted(blocks):
+        for name in blocks[block]:
+            where[name].append(block)
+    copies = defaultdict(list)
+    for name in tail:
+        base, number = NESTED.match(name).groups()
+        copies[base].append(int(number))
+    block_of = {}
+    for base, numbers in copies.items():
+        if base in outer or len(numbers) != len(where[base]):
+            return None
+        for number, block in zip(sorted(numbers), where[base]):
+            block_of["%s$%d" % (base, number)] = block
+    groups, seen = [], set()
+    for name in tail:
+        block = block_of[name]
+        if groups and groups[-1][0] == block:
+            groups[-1][1].append(NESTED.match(name).group(1))
+        elif block in seen:
+            return None
+        else:
+            groups.append((block, [NESTED.match(name).group(1)]))
+            seen.add(block)
+    return [names for _, names in groups]
+
+
+def assign_scopes(scopes, entries, used):
+    """{local: new name} giving each scope's locals the buckets of their allocation order (a
+    scope's are allocated by the hash like the function's own), or (None, a reason). A name
+    several scopes declare gets one name."""
+    buckets = [entry[1][0] for entry in entries if entry[0] == "bucket"]
+    mapping = {}
+    for names in scopes:
+        if len(names) < 2:
+            continue
+        previous = -1
+        for k, local in enumerate(names):
+            if local in mapping:
+                position = buckets.index(mapping[local])
+                if position <= previous:
+                    return None, "%s's scopes need it in two places" % local
+                previous = position
+                continue
+            later = [buckets.index(mapping[n]) for n in names[k + 1 :] if n in mapping]
+            limit = min(later) if later else len(buckets)
+            free = [i for i in range(previous + 1, limit) if buckets[i] not in used and buckets[i] not in mapping.values()]
+            if not free:
+                return None, "no bucket for %s in its scope" % local
+            mapping[local], previous = buckets[free[0]], free[0]
+    return mapping, None
 
 
 def assign(order, entries, declared, fixed, share=False):
@@ -283,6 +396,60 @@ def assign(order, entries, declared, fixed, share=False):
     return mapping, None
 
 
+def bucket_plans(order, buckets, limit=20000):
+    """Ways to put the locals, in their allocation order, into the buckets in order (a bucket
+    holding up to its names' count), fewest locals per bucket first: [[(bucket index, [locals])]]."""
+    out = []
+
+    def go(pos, b, acc):
+        if len(out) >= limit:
+            return
+        if pos == len(order):
+            out.append(list(acc))
+            return
+        if b >= len(buckets) or len(order) - pos > sum(len(e[1]) for e in buckets[b:]):
+            return
+        for take in range(1, min(len(buckets[b][1]), len(order) - pos) + 1):
+            acc.append((b, order[pos : pos + take]))
+            go(pos + take, b + 1, acc)
+            acc.pop()
+        go(pos, b + 1, acc)
+
+    go(0, 0, [])
+    return out
+
+
+def shared_plans(order, entries, declared, limit):
+    """The renamings that share buckets as the order of declaration allows (within a bucket, the
+    compiler allocates its locals in their order of declaration, or the reverse), fewest shared
+    buckets first: up to `limit`."""
+    buckets = [e for e in entries if e[0] == "bucket"]
+    found = []
+
+    def go(pos, b, names, shares):
+        if len(found) >= 20000:
+            return
+        if pos == len(order):
+            found.append((shares, len(found), dict(names)))
+            return
+        if b >= len(buckets) or len(order) - pos > sum(len(e[1]) for e in buckets[b:]):
+            return
+        entry = buckets[b]
+        for take in range(1, min(len(entry[1]), len(order) - pos) + 1):
+            group = order[pos : pos + take]
+            if take > 1 and entry[2] * (declared.get(group[-1], -1) - declared.get(group[-2], -1)) <= 0:
+                break  # the order of declaration doesn't allow it, nor any longer group
+            for k, local in enumerate(group):
+                names[local] = entry[1][k]
+            go(pos + take, b + 1, names, shares + take - 1)
+            for local in group:
+                del names[local]
+        go(pos, b + 1, names, shares)
+
+    go(0, 0, {}, 0)
+    return [names for _, _, names in sorted(found, key=lambda f: f[:2])[:limit]]
+
+
 # ---------------------------------------------------------------------------------------------
 # The search
 
@@ -294,7 +461,7 @@ class Entry:
         self.status = None
         self.detail = ""
         self.renames = {}
-        self.pads = 0
+        self.pads, self.early, self.after = 0, None, 0
         self.unverified = []
 
     def note(self, status, detail, pads):
@@ -305,7 +472,7 @@ class Entry:
             self.status, self.detail = status, detail + (" (with %d pads)" % pads if pads else "")
 
     def recipe(self):
-        return recipe({"pads": self.pads, "renames": self.renames})
+        return recipe({"pads": self.pads, "early": self.early, "after": self.after, "renames": self.renames})
 
 
 class Search:
@@ -369,25 +536,53 @@ class Search:
             while order and (order[-1].startswith("$T") or order[-1] == "this"):
                 order = order[:-1]
             fixed = {name for name, _, renameable in local_list if not renameable} & set(order)
+            # A nested scope's locals (`poly$1015`) come after the function's own, scope by scope:
+            # the function's own are planned as usual, each scope's on its own.
+            scopes = None
+            tail = len(order)
+            while tail and NESTED.match(order[tail - 1]):
+                tail -= 1
+            if tail < len(order) and not any(NESTED.match(name) for name in order[:tail]):
+                scopes = scope_groups(body, order[tail:], set(order[:tail]))
+                if scopes is not None:
+                    fixed -= set(order[tail:])
+                    order = order[:tail]
+            if scopes is None:
+                # Otherwise a nested local whose name no other local has is renamed like the
+                # function's own (the hash places it by its name).
+                bases = Counter(name.split("$")[0] for name, _, _ in local_list if not name.startswith("$"))
+                unique = {name: NESTED.match(name).group(1) for name in fixed if NESTED.match(name) and bases[NESTED.match(name).group(1)] == 1}
+                order = [unique.get(name, name) for name in order]
+                fixed -= set(unique)
             if any(name.startswith("$T") for name in fixed):
                 entry.note("slots", "a temporary among the named locals", pads)
                 continue
-            orders[symbol] = (order, fixed)
+            orders[symbol] = (order, fixed, scopes)
         if not orders:
             return texts, plans
-        extras = sorted({n for _, fixed in orders.values() for n in fixed} - set(FIXED))
+        extras = sorted({n for _, fixed, _ in orders.values() for n in fixed} - set(FIXED))
         key = (unit.language, unit.compiler, tuple(extras))
         if key not in self.ladders:
             self.ladders[key] = ladder(self.compiler, self.target, unit, extras)
         entries = self.ladders[key]
-        for symbol, (order, fixed) in orders.items():
+        for symbol, (order, fixed, scopes) in orders.items():
             entry, annotation = pending[symbol], compared[symbol][2]
             path = Path(annotation.filename)
             text = texts.get(path.name) or path.read_text(encoding="utf-8")
             declared = declaration_order(path.read_text(encoding="utf-8"), annotation.line_number, annotation.end_line, set(order))
             names, reason = assign(order, entries, declared, fixed)
+            entry.alternatives = []
             if names is None:
                 names, reason = assign(order, entries, declared, fixed, share=True)
+                if not fixed and not scopes:
+                    # The greedy sharing may not be the compiler's: the others, fewest shares first.
+                    others = [n for n in shared_plans(order, entries, declared, SHARED_PLANS) if n != names]
+                    if names is None and others:
+                        names, others = others[0], others[1:]
+                    entry.alternatives = [(path, annotation, n) for n in others]
+            if names is not None and scopes:
+                inner, reason = assign_scopes(scopes, entries, set(names.values()))
+                names = None if inner is None else dict(names, **inner)
             if names is None:
                 entry.note("slots", reason, pads)
                 continue
@@ -420,48 +615,180 @@ class Search:
                     pending.setdefault(unit.name, {})[symbol] = entry
         by_name = {u.name: u for u in units}
         for pads in range(0, self.args.pads + 1):
-            self.pads = pads
             todo = [by_name[n] for n, entries in pending.items() if entries]
             if not todo:
                 break
-            if pads:
-                padded = {r.unit.name: r for r in self.compiler.run(self.target, [Request(u, ROOT, "pad", prefix=pads_text(pads), listing=True) for u in todo])}
-            requests, plans = [], {}
-            for unit in todo:
-                compared = self.compare(padded[unit.name] if pads else base[unit.name], pending[unit.name])
-                if isinstance(compared, str):
-                    continue
-                for symbol, entry in list(pending[unit.name].items()):
-                    if pads and symbol in compared and compared[symbol][0].exact:
-                        entry.status, entry.pads, entry.unverified, entry.detail = "witness", pads, compared[symbol][0].unverified, ""
-                        del pending[unit.name][symbol]
-                texts, plans[unit.name] = self.plan(unit, compared, {s: e for s, e in pending[unit.name].items() if s in compared})
-                if texts:
-                    requests.append(Request(unit, ROOT, "rename", texts, prefix=pads_text(pads), listing=True))
-            self.compiler.run(self.target, requests)
-            for request in requests:
-                unit = request.unit
-                compared = self.compare(request)
-                if isinstance(compared, str):
-                    for symbol in plans[unit.name]:
-                        pending[unit.name][symbol].note("slots", "renamed: " + compared, pads)
-                    continue
-                for symbol in exact[unit.name]:
-                    if not pads and symbol in compared and not compared[symbol][0].exact:
-                        print("warning: %s: renaming other functions' locals changed %s" % (unit.name, symbol))
-                for symbol, names in plans[unit.name].items():
-                    entry = pending[unit.name][symbol]
-                    comparison = compared[symbol][0] if symbol in compared else None
-                    if comparison is not None and comparison.exact:
-                        entry.status, entry.renames, entry.pads, entry.unverified = "witness", names, pads, comparison.unverified
-                        entry.detail = ""
-                        del pending[unit.name][symbol]
-                    else:
-                        entry.note("slots", "renamed, still differs" + (": " + comparison.difference if comparison is not None and comparison.difference else ""), pads)
-            self.compiler.discard(requests)
-            if pads:
-                self.compiler.discard(padded.values())
+            self.stage([(u, pads, None, 0) for u in todo], base, pending, exact)
+        if self.args.early:
+            self.early_stages(by_name, base, pending, exact)
         self.compiler.discard(base.values())
+
+    def stage(self, jobs, base, pending, exact):
+        """One round of compiles: each job (unit, pads, early, after) is the unit with that declared
+        ahead of it. A pending function exact there is witnessed; one that differs only in slots is
+        renamed, compiled again, and witnessed if that gives the original. Returns the jobs that
+        didn't compile."""
+        ahead = [job for job in jobs if job[1] or job[2]]
+        padded = self.compiler.run(self.target, [Request(u, ROOT, "pad", prefix=pads_text(pads, early, after), listing=True) for u, pads, early, after in ahead])
+        compiled = dict(zip(ahead, padded))
+        failed, requests = [], []
+        for job in jobs:
+            unit, pads, early, after = job
+            self.pads = pads
+            if not pending.get(unit.name):
+                continue
+            compared = self.compare(compiled[job] if job in compiled else base[unit.name], pending[unit.name])
+            if isinstance(compared, str):
+                failed.append(job)
+                continue
+            for symbol, entry in list(pending[unit.name].items()):
+                if job in compiled and symbol in compared and compared[symbol][0].exact:
+                    entry.status, entry.pads, entry.early, entry.after = "witness", pads, early, after
+                    entry.unverified, entry.detail = compared[symbol][0].unverified, ""
+                    del pending[unit.name][symbol]
+            texts, plans = self.plan(unit, compared, {s: e for s, e in pending[unit.name].items() if s in compared})
+            if texts:
+                request = Request(unit, ROOT, "rename", texts, prefix=pads_text(pads, early, after), listing=True)
+                request.job, request.plans = job, plans
+                requests.append(request)
+        self.compiler.run(self.target, requests)
+        alternatives = []
+        for request in requests:
+            unit, pads, early, after = request.job
+            compared = self.compare(request)
+            if isinstance(compared, str):
+                for symbol in request.plans:
+                    if symbol in pending[unit.name]:
+                        pending[unit.name][symbol].note("slots", "renamed: " + compared, pads)
+                continue
+            for symbol in exact[unit.name]:
+                if not pads and not early and symbol in compared and not compared[symbol][0].exact:
+                    print("warning: %s: renaming other functions' locals changed %s" % (unit.name, symbol))
+            for symbol, names in request.plans.items():
+                entry = pending[unit.name].get(symbol)
+                if entry is None:  # witnessed by an earlier job of this round
+                    continue
+                comparison = compared[symbol][0] if symbol in compared else None
+                if comparison is not None and comparison.exact:
+                    entry.status, entry.renames, entry.unverified = "witness", names, comparison.unverified
+                    entry.pads, entry.early, entry.after, entry.detail = pads, early, after, ""
+                    del pending[unit.name][symbol]
+                else:
+                    entry.note("slots", "renamed, still differs" + (": " + comparison.difference if comparison is not None and comparison.difference else ""), pads)
+                    if getattr(entry, "alternatives", None):
+                        for path, annotation, names in entry.alternatives:
+                            text = rename(path.read_text(encoding="utf-8"), annotation.line_number, annotation.end_line, names)
+                            alternative = Request(unit, ROOT, "share", {path.name: text}, prefix=pads_text(pads, early, after), listing=True)
+                            alternative.entry, alternative.symbol, alternative.names, alternative.job = entry, symbol, names, request.job
+                            alternatives.append(alternative)
+        # The other bucket sharings of the functions whose renaming didn't give the original.
+        self.compiler.run(self.target, alternatives)
+        for alternative in alternatives:
+            entry = alternative.entry
+            if entry.status == "witness":
+                continue
+            compared = self.compare(alternative)
+            if isinstance(compared, str) or alternative.symbol not in compared or not compared[alternative.symbol][0].exact:
+                continue
+            comparison = compared[alternative.symbol][0]
+            _, pads, early, after = alternative.job
+            entry.status, entry.renames, entry.unverified, entry.detail = "witness", alternative.names, comparison.unverified, ""
+            entry.pads, entry.early, entry.after = pads, early, after
+            pending[alternative.unit.name].pop(alternative.symbol, None)
+        self.compiler.discard(alternatives)
+        self.compiler.discard(requests)
+        self.compiler.discard(padded)
+        return failed
+
+    def named_globals(self, entry):
+        """The globals a function's body names."""
+        lines = Path(entry.annotation.filename).read_text(encoding="utf-8").split("\n")
+        body = "\n".join(lines[entry.annotation.line_number - 1 : entry.annotation.end_line])
+        return {m.group(0) for m in TOKEN.finditer(body) if m.group(0).startswith("g_")}
+
+    def early_stages(self, by_name, base, pending, exact):
+        """For the functions padding left: one of the globals a function names redeclared ahead of the
+        unit, with up to --early typedefs before it and after it. Padding shifts every global of a unit
+        at once, this one alone, so it reaches the functions whose comparisons with different globals
+        need different paddings. Unoptimized units only."""
+        table = Globals(self.target_name)
+        limit = self.args.early
+        queues = {}  # unit name -> [(global, spelling, before, after)], the nearest first
+        names = {}
+        for unit_name, entries in pending.items():
+            if not entries or optimized(by_name[unit_name]):
+                continue
+            names[unit_name] = {symbol: self.named_globals(entry) for symbol, entry in entries.items()}
+            spellings = [(g, sp) for g in sorted(set().union(*names[unit_name].values())) for sp in table.spellings(g)]
+            # Each spelling alone first: the ones the compiler rejects (another edition's type, a
+            # static) drop out.
+            failed = self.stage([(by_name[unit_name], 0, sp, 0) for _, sp in spellings], base, pending, exact)
+            bad = {job[2] for job in failed}
+            queues[unit_name] = [(g, sp, a, b) for a, b in sorted(((a, b) for a in range(limit + 1) for b in range(limit + 1) if a or b), key=lambda p: (p[0] + p[1], p))
+                                 for g, sp in spellings if sp not in bad]
+        size = max(1, self.compiler.jobs * 4)
+        while True:
+            jobs = []
+            for unit_name, queue in queues.items():
+                wanted = set().union(set(), *(names[unit_name][s] for s in pending[unit_name]))
+                queue[:] = [c for c in queue if c[0] in wanted]
+            live = [n for n, queue in queues.items() if queue]
+            if not live:
+                break
+            share = max(1, size // len(live))
+            for unit_name in live:
+                take, queues[unit_name][:] = queues[unit_name][:share], queues[unit_name][share:]
+                jobs += [(by_name[unit_name], a, sp, b) for _, sp, a, b in take]
+            self.stage(jobs, base, pending, exact)
+
+
+BASE_TYPES = {"char", "short", "int", "long", "float", "double", "signed", "unsigned"}
+SIMPLE_TYPEDEF = re.compile(r"^\s*(?:typedef\s+([\w ]+?)\s+(\w+)\s*;|#\s*define\s+(\w+)\s+([A-Za-z_][\w ]*?))\s*(?://.*|/\*.*)?$")
+GLOBAL_DECLARATION = re.compile(r"^\s*(?:extern\s+)?(?:struct\s+)?([A-Za-z_]\w*(?:\s+[A-Za-z_]\w*)*?)\s*(\**)\s*(g_\w+)\s*((?:\[[^\]]*\])*)\s*(?:=|;)")
+
+
+class Globals:
+    """How to redeclare a target's globals ahead of a unit, before any header: each one's type in
+    base types and struct tags, from the declarations in the target's sources. A type whose spelling
+    depends on the edition has several; the compiler rejects the wrong ones."""
+
+    def __init__(self, target):
+        self.aliases, self.declared = defaultdict(set), defaultdict(set)
+        files = [p for p in sorted((ROOT / "util").glob("*.h"))]
+        for root in source_roots(target):
+            files += [p for p in sorted((ROOT / root).rglob("*")) if p.suffix in (".h", ".c", ".cpp")]
+        for path in files:
+            for line in path.read_text(encoding="utf-8", errors="replace").split("\n"):
+                m = SIMPLE_TYPEDEF.match(line)
+                if m:
+                    self.aliases[m.group(2) or m.group(3)].add((m.group(1) or m.group(4)).strip())
+                m = GLOBAL_DECLARATION.match(line)
+                if m and m.group(1).split()[0] not in ("return", "typedef", "static", "const", "goto"):
+                    self.declared[m.group(3)].add((m.group(1), m.group(2), m.group(4)))
+
+    def base(self, text, depth=0):
+        """The spellings of a type in base types, or as a struct tag when nothing defines the name."""
+        words = text.split()
+        if all(w in BASE_TYPES for w in words):
+            return {" ".join(words)}
+        if len(words) != 1 or depth > 4:
+            return set()
+        if words[0] in self.aliases:
+            return {b for alias in self.aliases[words[0]] for b in self.base(alias, depth + 1)}
+        return {"struct " + words[0]} if not depth else set()
+
+    def spellings(self, name):
+        """The record forms (`int~g_x`, `struct~Player*~g_players[]`) a global may be redeclared with."""
+        out = set()
+        for type_text, stars, bounds in self.declared.get(name, ()):
+            dims = re.findall(r"\[([^\]]*)\]", bounds)
+            if any(not re.fullmatch(r"\d*", d.strip()) for d in dims[1:]):
+                continue
+            if dims and not re.fullmatch(r"\d*", dims[0].strip()):
+                dims[0] = ""  # a bound only the headers can spell: an incomplete array is compatible
+            for base in self.base(type_text):
+                out.add((base + stars + " " + name + "".join("[%s]" % d.strip() for d in dims)).replace(" ", "~"))
+        return sorted(o for o in out if EARLY.match(o))
 
 
 def claims(entry):
@@ -481,16 +808,20 @@ def claims(entry):
     return ""
 
 
-def write_records(path, target, entries, searched):
-    """Replace the records of the searched functions, keep the others."""
-    kept = [r for r in read_records(path) if (r["unit"], r["address"]) not in searched]
+def write_records(path, target, entries, searched, early=True):
+    """Replace the records of the searched functions, keep the others, and (a search without --early)
+    the records that redeclare a global, which it couldn't have found again: certify checks them."""
+    kept = [r for r in read_records(path) if (r["unit"], r["address"]) not in searched or not early and r["early"]]
     lines = {r["address"]: "%#010x %s %s %s" % (r["address"], r["name"], r["unit"], recipe(r)) for r in kept}
     for e in entries:
-        if e.status == "witness":
+        if e.status == "exact":
+            lines.pop(e.address, None)
+        elif e.status == "witness":
             lines[e.address] = "%#010x %s %s %s" % (e.address, e.name, e.unit.name, e.recipe())
     header = ["# %s: witnesses that a function differs from the original only by compiler entropy." % target,
-              "# address, function, unit, then the recipe: `pad N` symbols declared ahead of the unit, and/or",
-              "# `rename old=new ...` of the function's locals. Found by tools/witness.py, checked by tools/certify.py.", ""]
+              "# address, function, unit, then the recipe: `pad N` symbols declared ahead of the unit, `early DECL M`",
+              "# one global redeclared after them (spaces as ~) and M more symbols, and/or `rename old=new ...` of",
+              "# the function's locals. Found by tools/witness.py, checked by tools/certify.py.", ""]
     path.parent.mkdir(exist_ok=True)
     path.write_text("\n".join(header + [lines[a] for a in sorted(lines)]) + "\n")
 
@@ -504,6 +835,7 @@ def main():
     parser.add_argument("--unit", nargs="*", help="Only these units (ai.c)")
     parser.add_argument("--function", nargs="*", help="Only these functions")
     parser.add_argument("--pads", type=int, default=0, help="Also try up to N symbols declared ahead of the unit")
+    parser.add_argument("--early", type=int, default=0, help="Also try each global a function names redeclared ahead of the unit, among up to N typedefs before and after it")
     parser.add_argument("--jobs", type=int, default=os.cpu_count() or 4)
     parser.add_argument("--write", action="store_true", help="Record the witnesses in tools/witnesses/<TARGET>.txt")
     parser.add_argument("--json", help="Write every function's result to this file")
@@ -534,11 +866,11 @@ def main():
     if args.json:
         Path(args.json).write_text(json.dumps([
             {"address": "%#010x" % e.address, "name": e.name, "unit": e.unit.name, "status": e.status, "detail": e.detail,
-             "pads": e.pads, "renames": e.renames, "unverified": e.unverified, "claim": claims(e) if e.status != "exact" else ""}
+             "pads": e.pads, "early": e.early, "after": e.after, "renames": e.renames, "unverified": e.unverified, "claim": claims(e) if e.status != "exact" else ""}
             for e in entries], indent=1) + "\n")
     if args.write:
         record_file = ROOT / "tools" / "witnesses" / (args.target + ".txt")
-        write_records(record_file, args.target, entries, {(e.unit.name, e.address) for e in entries})
+        write_records(record_file, args.target, entries, {(e.unit.name, e.address) for e in entries}, bool(args.early))
         print("wrote %s" % record_file.relative_to(ROOT))
     return 0
 

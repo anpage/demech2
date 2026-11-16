@@ -652,14 +652,14 @@ void UpdateTrackView(MechScalar p_distance, MechScalar p_height, MechScalar p_ti
 	MechScalar offsetY;
 	MechScalar sine;
 	MechScalar heading;
-	MechScalar offsetZ;
-	MechScalar roll;
-	BearingDistance distance;
-	MechScalar height;
 	MechScalar cosine;
-	MechScalar x;
-	MechScalar unused;
+	MechScalar height;
+	BearingDistance distance;
+	MechScalar roll;
+	MechScalar offsetZ;
 	Mech* mech;
+	MechScalar unused;
+	MechScalar x;
 
 #ifdef MW2_FLOAT_SCALARS
 	GetPlayerEyeView(&pitch, &heading, &roll, &x, &y, &z);

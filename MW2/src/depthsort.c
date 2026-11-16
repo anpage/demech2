@@ -273,14 +273,14 @@ void SortDepthEntries(DepthEntry* p_first, DepthEntry* p_last)
 
 	lo = p_first;
 	{
-		QueuedPolygon* poly = lo->m_poly;
+		QueuedPolygon* pivotPoly = lo->m_poly;
 		lo->m_poly = hi->m_poly;
-		hi->m_poly = poly;
+		hi->m_poly = pivotPoly;
 	}
 	{
-		MechScalar depth = lo->m_depth;
+		MechScalar pivotDepth = lo->m_depth;
 		lo->m_depth = hi->m_depth;
-		hi->m_depth = depth;
+		hi->m_depth = pivotDepth;
 	}
 
 	if (hi - 1 > p_first) {

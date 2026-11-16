@@ -1557,15 +1557,15 @@ void DrawSkyAndGround(Eyepoint* p_eyepoint)
 	MechS32 yLeft;
 	MechS32 corners;
 	MechS32 y0;
+	MechS32 x0;
 	MechS32 dx;
 	PANE rect;
 	MechU32 band[4 * 6];
 	MechS32 dz;
+	MechS32 xTop;
 	MechS32 xBottom;
 	MechS32 yRight;
-	MechS32 xTop;
 	MechS32 gradient;
-	MechS32 x0;
 	Matrix roll;
 
 	x0 = p_eyepoint->m_viewLeft;
