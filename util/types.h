@@ -61,8 +61,6 @@ typedef char MechChar;
 #ifdef MW2_ACCEL
 /* The simulation's 16.16 fixed-point values are floats (MechScalar, FIXED_*) */
 #define MW2_FLOAT_SCALARS
-/* An event's target id is a 16-bit word */
-#define MW2_TARGET_ID_U16
 
 /* The A3D renderer interface and its records: queued polygons, projected vertices, depth lists */
 #define MW2_A3D

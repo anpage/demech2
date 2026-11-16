@@ -3,8 +3,9 @@
 
 A witness record (`tools/witnesses/<TARGET>.txt`, found by `tools/witness.py`) says that a
 function compiles to the original's bytes once its locals are renamed and/or N typedefs are
-declared ahead of its unit: both change only what the original can't tell us (the locals' names
-are lost; its headers declared another number of things). This script trusts none of that: it
+declared ahead of its unit, one of its globals redeclared among them (`early`): all change only what
+the original can't tell us (the locals' names are lost; its headers declared another number of
+things, in another order). This script trusts none of that: it
 applies each record to a scratch copy of the unit, compiles it with the build's own command
 (tools/unitbuild.py), and compares the function with the original (tools/funccmp.py). It knows
 nothing about the compilers and searches for nothing.
@@ -15,7 +16,7 @@ nothing about the compilers and searches for nothing.
 
 A record that no longer gives the original's bytes fails, and so does one whose function is
 exact without it. Every function has a cost, summed per target: 0 exact, 1 a witness by padding
-alone, 2 one that renames locals, 1000 unproven.
+alone, 2 one that renames locals, 3 one that redeclares a global early, 1000 unproven.
 
 usage (from the repository root):
   python tools/certify.py --target MW2 [--build build-wine] [--wine PATH] [--json STATES.json]
@@ -43,15 +44,29 @@ from funccmp import Annotations, Comparison, read_yaml_paths, source_roots, symb
 from unitbuild import ROOT, TARGETS, Compiler, Image, Object, Request, Target  # noqa: E402
 
 PAD = "typedef int ZqWitnessPad%d;\n"
-COST = {"exact": 0, "pad": 1, "rename": 2, "unproven": 1000}
+COST = {"exact": 0, "pad": 1, "rename": 2, "early": 3, "unproven": 1000}
+# One global redeclared among the paddings: `extern` and a single declarator of base types, struct
+# tags and array bounds, its spaces written `~` in the record. Nothing else gets into the scratch copy.
+EARLY = re.compile(r"^(?:(?:unsigned|signed|char|short|int|long|float|double|struct~\w+)~?)+\**~?\w+(?:\[\d*\])*$")
 
 
-def pads_text(count):
-    return "".join(PAD % i for i in range(count))
+def pads_text(count, early=None, after=0):
+    """The text declared ahead of a unit: `count` typedefs, then (a record's `early`) one global's
+    redeclaration and `after` more typedefs."""
+    text = "".join(PAD % i for i in range(count))
+    if early:
+        if not EARLY.match(early):
+            raise SystemExit("not a redeclaration of one global: %s" % early)
+        text += "extern %s;\n" % early.replace("~", " ") + "".join(PAD % i for i in range(count, count + after))
+    return text
+
+
+def prefix(record):
+    return pads_text(record["pads"], record["early"], record["after"])
 
 
 def read_records(path):
-    """[{address, name, unit, pads, renames}] from a witness file."""
+    """[{address, name, unit, pads, early, after, renames}] from a witness file."""
     records = []
     if not path.exists():
         return records
@@ -59,13 +74,17 @@ def read_records(path):
         if not line.strip() or line.startswith("#"):
             continue
         address, name, unit, *recipe = line.split()
-        record = {"address": int(address, 16), "name": name, "unit": unit, "pads": 0, "renames": {}}
+        record = {"address": int(address, 16), "name": name, "unit": unit, "pads": 0, "early": None, "after": 0, "renames": {}}
         mode = None
         for word in recipe:
-            if word in ("pad", "rename"):
+            if word in ("pad", "early", "rename"):
                 mode = word
             elif mode == "pad":
                 record["pads"] = int(word)
+            elif mode == "early" and record["early"] is None:
+                record["early"] = word
+            elif mode == "early":
+                record["after"] = int(word)
             else:
                 old, new = word.split("=")
                 record["renames"][old] = new
@@ -170,9 +189,9 @@ class Certify:
         requests = [Request(u, self.tree, "plain", listing=listings and u.language != "ASM_MASM") for u in units]
         groups = defaultdict(list)
         for record in self.records:
-            groups[(record["unit"], record["pads"])].append(record)
+            groups[(record["unit"], record["pads"], record["early"] or "", record["after"])].append(record)
         variants = []
-        for (unit_name, pads), group in sorted(groups.items()):
+        for (unit_name, pads, early, after), group in sorted(groups.items()):
             unit = by_name.get(unit_name)
             if unit is None:
                 self.failures += ["%s: no such unit (%s)" % (r["name"], unit_name) for r in group]
@@ -187,9 +206,9 @@ class Certify:
                     path = Path(found[0].filename)
                     text = texts.get(path.name) or path.read_text(encoding="utf-8")
                     texts[path.name] = rename(text, found[0].line_number, found[0].end_line, record["renames"])
-            request = Request(unit, self.tree, "pad%d" % pads, texts, prefix=pads_text(pads))
+            request = Request(unit, self.tree, "pad%d" % pads, texts, prefix=pads_text(pads, early, after))
             requests.append(request)
-            variants.append((unit_name, pads, request))
+            variants.append((unit_name, pads, early, after, request))
         self.compiler.run(self.target, requests)
         out = Path(out)
         shutil.rmtree(out, ignore_errors=True)
@@ -208,9 +227,12 @@ class Certify:
                     entry["asm"] = "%d.asm" % k
                     shutil.copy(request.asm, out / entry["asm"])
                 manifest["units"][request.unit.name] = entry
-        for unit_name, pads, request in variants:
+        for unit_name, pads, early, after, request in variants:
             if not request.error:
-                manifest["variants"].append({"unit": unit_name, "pads": pads, "obj": "%d.obj" % requests.index(request)})
+                variant = {"unit": unit_name, "pads": pads, "obj": "%d.obj" % requests.index(request)}
+                if early:
+                    variant.update(early=early, after=after)
+                manifest["variants"].append(variant)
         (out / "manifest.json").write_text(json.dumps(manifest, indent=1) + "\n")
         self.compiler.discard(requests)
 
@@ -219,7 +241,7 @@ class Certify:
         objects = Path(objects)
         manifest = json.loads((objects / "manifest.json").read_text())
         units = {u.name: u for u in (self.target.units if self.target else [])}
-        variants = {(v["unit"], v["pads"]): Object(objects / v["obj"]) for v in manifest["variants"]}
+        variants = {(v["unit"], v["pads"], v.get("early", ""), v.get("after", 0)): Object(objects / v["obj"]) for v in manifest["variants"]}
         records = {(r["unit"], r["address"]): r for r in self.records}
         used = set()
         states = []
@@ -236,12 +258,12 @@ class Certify:
                         self.failures.append("%s (%s): exact without its witness: remove the record" % (record["name"], unit_name))
                 elif record:
                     used.add((unit_name, annotation.offset))
-                    variant = variants.get((unit_name, record["pads"]))
+                    variant = variants.get((unit_name, record["pads"], record["early"] or "", record["after"]))
                     witnessed = None
                     if variant is not None and symbol in variant.functions:
                         witnessed = Comparison(variant.functions[symbol], variant, image, annotation.offset, self.annotations)
                     if witnessed is not None and witnessed.exact:
-                        state["state"], kind = "witness", "rename" if record["renames"] else "pad"
+                        state["state"], kind = "witness", "early" if record["early"] else "rename" if record["renames"] else "pad"
                         state["recipe"] = recipe(record)
                     else:
                         state["state"], kind = "unproven", "unproven"
@@ -281,6 +303,8 @@ def recipe(record):
     parts = []
     if record["pads"]:
         parts.append("pad %d" % record["pads"])
+    if record.get("early"):
+        parts.append("early %s %d" % (record["early"], record.get("after", 0)))
     if record["renames"]:
         parts.append("rename " + " ".join("%s=%s" % item for item in sorted(record["renames"].items())))
     return " ".join(parts)
@@ -385,7 +409,7 @@ def markdown(total, states, failures):
              "| byte-identical | %d |" % total["exact"],
              "| proven by a witness (`tools/witnesses/%s.txt`) | %d |" % (total["target"], total["witness"]),
              "| unproven | %d |" % total["unproven"], "",
-             "Cost: %d (0 byte-identical, 1 a witness by padding, 2 one that renames locals, 1000 unproven)." % total["cost"], ""]
+             "Cost: %d (0 byte-identical, 1 a witness by padding, 2 one that renames locals, 3 one that redeclares a global early, 1000 unproven)." % total["cost"], ""]
     if failures:
         lines += ["## Record failures", ""] + ["- " + f for f in failures] + [""]
     lines += ["## Not byte-identical", "", "| Address | Function | Unit | State | Recipe or first difference |", "|---|---|---|---|---|"]

@@ -1,9 +1,11 @@
 # MW2MATROX: witnesses that a function differs from the original only by compiler entropy.
-# address, function, unit, then the recipe: `pad N` symbols declared ahead of the unit, and/or
-# `rename old=new ...` of the function's locals. Found by tools/witness.py, checked by tools/certify.py.
+# address, function, unit, then the recipe: `pad N` symbols declared ahead of the unit, `early DECL M`
+# one global redeclared after them (spaces as ~) and M more symbols, and/or `rename old=new ...` of
+# the function's locals. Found by tools/witness.py, checked by tools/certify.py.
 
 0x10001000 FindSoundFile missionaudio.c rename added=zqak entry=zqai slot=zqaj
 0x10001913 RotatePoint transform.c pad 1
+0x100019a4 OrthogonalizeMatrixColumn transform.c pad 45 rename a0=zqai a1=zqak a2=zqan b0=zqaj b1=zqal b2=zqap x=zqam y=zqao z=zqaa
 0x1000233f GetMatrixAngles transform.c rename length=zqal pitch=zqai roll=zqaj yaw=zqak
 0x100025b0 GetCdAudioAuxDevice cdaudio.c rename caps=zqam device=zqaj found=zqak i=zqal numDevs=zqai
 0x100026c5 InitCdAudio cdaudio.c pad 3 rename cdNumber=zqak error=zqai name=zqal openParms=zqao quantity=zqaj setParms=zqan sysinfoParms=zqam
@@ -40,9 +42,9 @@
 0x10008d87 UpdateEyepoint eyepoint.c rename climb=zqaj mode=zqak pan=zqam pitch=zqan speed=zqal strafe=zqao turn=zqai
 0x10009362 CycleTrackedPlayer eyepoint.c pad 1
 0x10009431 GetPlayerEyeView eyepoint.c rename player=zqal x=zqai y=zqaj z=zqak
-0x10009653 UpdateTrackView eyepoint.c pad 11 rename angle=zqb9 cosine=zqam distance=zqao dx=zqcg dy=zqa0 dz=zqaa floor=zqbi heading=zqaj height=zqal mech=zqac offsetX=zqay offsetY=zqaz offsetZ=zqbg pitch=zqai roll=zqak sine=zqap tilt=zqbj turn=zqby unused=zqab x=zqan y=zqbz z=zqbk
+0x10009653 UpdateTrackView eyepoint.c pad 11 rename angle=zqct cosine=zqbx distance=zqan dx=zqbz dy=zqbk dz=zqap floor=zqb8 heading=zqaj height=zqbh mech=zqaq offsetX=zqay offsetY=zqaz offsetZ=zqal pitch=zqai roll=zqak sine=zqao tilt=zqbi turn=zqcd unused=zqaa x=zqam y=zqby z=zqbj
 0x10009c7c GetCockpitEyeView eyepoint.c rename pan=zqai tilt=zqaj
-0x10009d1d UpdateDropView eyepoint.c pad 3 rename unk0x0c=zqaj unk0x10=zqai unk0x14=zqak x=zqal y=zqam z=zqan
+0x10009d1d UpdateDropView eyepoint.c pad 3 rename midpointStep=zqao unk0x0c=zqaj unk0x10=zqai unk0x14=zqak x=zqal y=zqam z=zqan
 0x10009e0a UpdateFreeEyeView eyepoint.c pad 13 rename cosHeading=zqaj cosPitch=zqak floor=zqai sinHeading=zqal sinPitch=zqam speed=zqan
 0x1000a065 TurnBillboards eyepoint.c rename heading=zqaj obj=zqao pitch=zqai shape=zqak x=zqal y=zqam z=zqan
 0x1000a170 FindIniSection inifile.c rename buffer=zqal end=zqak file=zqaj line=zqai
@@ -109,6 +111,7 @@
 0x1001c1ca DodgeShot maneuvers.c pad 6 rename bearing=zqaj heading=zqaq hit=zqbn id=zqal index=zqcg j=zqar kind=zqbg maxAngle=zqai pitch=zqbk range=zqap ray=zqaa side=zqab step=zqa2 sx=zqak sy=zqam target=zqa0 x=zqbi y=zqan z=zqao
 0x1001c584 ChooseFlankPlace maneuvers.c rename angle=zqaj found=zqai i=zqak leader=zqam place=zqal
 0x1001caef DrawAltimeter hud.c rename gauge=zqam height=zqai level=zqab mark=zqac mech=zqap objectY=zqaj shape=zqao target=zqaa unused=zqak x=zqal y=zqan
+0x1001ce3d InitHudGauges hud.c pad 3 rename extent=zqam height=zqai origin=zqan shape=zqal target=zqak width=zqaj
 0x1001d1b9 DrawCrosshair hud.c rename def=zqak pitch=zqaj range=zqap result=zqaa shape=zqan shapeIn=zqao shapeOut=zqam slot=zqab x=zqai y=zqal
 0x1001d3c9 DrawTargetMarker hud.c rename index=zqao offScreen=zqan onScreen=zqai player=zqap point=zqaa target=zqaj x=zqak y=zqal z=zqam
 0x1001d7b6 DrawCompass hud.c rename gauge=zqal heading=zqai offset=zqan target=zqam x=zqaj x2=zqak
@@ -165,6 +168,7 @@
 0x100289f3 GetShapeMemorySize shape.c rename face=zqal i=zqak model=zqaj size=zqai vertex=zqam
 0x10028e14 ApproximateShapeDistance shape.c rename deltaX=zqai deltaY=zqaj deltaZ=zqak radius=zqal
 0x10028f0e RayShapeDistance shape.c rename check=zqak deltaX=zqaj deltaY=zqal deltaZ=zqam excess=zqan radius=zqai result=zqap t=zqao
+0x10029070 SelectEyepoint view.c pad 30
 0x10029ef0 OpenBwdStream bwd.c rename data=zqaj dot=zqak file=zqam header=zqal id=zqai line=zqap result=zqan size=zqao
 0x1002a1eb GetNextNode bwd.c pad 2 rename next=zqaj result=zqak size=zqai
 0x1002a3bf LogKeywordName bwd.c rename line=zqai name=zqaj
@@ -378,7 +382,7 @@
 0x100757c0 PowerDownMapView cockpit.c pad 15
 0x100758c0 AbortMissionAction dorcs.c rename digit=zqak saved=zqai selected=zqaj
 0x10075976 FleeToWindowsAction dorcs.c rename digit=zqak player=zqai selected=zqaj
-0x10075a80 MoveMechWithCollisions mechcollision.c pad 3 rename bounce=zqbk dot=zqac hit=zqbz length=zqaa lift=zqab normal=zqad nx=zqay ny=zqaj nz=zqak over=zqal ray=zqai shape=zqbj x0=zqcf x1=zqam y0=zqap y1=zqan z0=zqaq z1=zqao
+0x10075a80 MoveMechWithCollisions mechcollision.c pad 3 rename bounce=zqbk dot=zqar hit=zqbz length=zqaa lift=zqab normal=zqa2 nx=zqay ny=zqaj nz=zqak over=zqal ray=zqai shape=zqbj x0=zqcf x1=zqam y0=zqap y1=zqan z0=zqaq z1=zqao
 0x10075f6c CollideWithMechs mechcollision.c pad 4 rename dist=zqae dx=zqak dy=zqal dz=zqam i=zqao id=zqap mech=zqai otherRadius=zqac player=zqaf pos=zqaj radius=zqaa reach=zqan result=zqab speed=zqad
 0x1007649e CollideWithBuildings mechcollision.c pad 7 rename bounce=zqao dist=zqap dx=zqal dy=zqam dz=zqan index=zqab obj=zqaa reach=zqaj root=zqai shape=zqak x=zqac y=zqad z=zqae
 0x10076927 ApplyCollisionDamage mechcollision.c rename angle=zqak attacker=zqai damage=zqaj
@@ -418,6 +422,7 @@
 0x1007f336 Hypot2D floatmath.c pad 3
 0x1007f550 SetUpStarMission missionsetup.c pad 8 rename count=zqak i=zqai j=zqaj kind=zqal
 0x1007fe7b FindEventList missionsetup.c rename i=zqam j=zqak lists=zqai state=zqaj unk0x04=zqal
+0x10080007 PostEventToList missionsetup.c rename count=zqai i=zqal j=zqak state=zqaj
 0x100801be FlushEventLists missionsetup.c rename i=zqaj j=zqai
 0x100803d1 RunAIRules ai.c rename arg=zqak i=zqaj posted=zqal rule=zqam target=zqai valid=zqan
 0x1008059c CollectAIRules ai.c rename count=zqal found=zqai i=zqam j=zqao pos=zqan rule=zqaa ruleCount=zqak script=zqap skip=zqaj
@@ -432,6 +437,7 @@
 0x10081ce3 AiMessageDist ai.c pad 4 rename farthest=zqam farthestTarget=zqak limit=zqal result=zqaj target=zqai
 0x10081f24 FindNearestTarget ai.c rename blocker=zqak closer=zqam count=zqaa i=zqap member=zqan members=zqac mission=zqab nearest=zqaj objective=zqao target=zqai type=zqal
 0x10082431 AiStateMove ai.c rename heading=zqai range=zqaj
+0x10082e40 EnterAIState ai.c rename goalName=zqao goalType=zqak gt=zqaj line=zqaa logged=zqal mech=zqan nav=zqai navName=zqap targetType=zqam
 0x100835ea IsTargetDone ai.c rename flags=zqai index=zqam mask=zqal result=zqaj type=zqak
 0x10083850 HasAIState ai.c rename i=zqai j=zqaj script=zqak
 0x10083ab7 PlacePatrolNavs ai.c rename found=zqaj index=zqan nav=zqaa owner=zqai player=zqap range=zqao x=zqak y=zqal z=zqam

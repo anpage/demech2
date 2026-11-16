@@ -32,24 +32,27 @@ for every target that builds it, with as many pads as its old records used.
 
 usage (from the repository root, with reccmp's environment):
   python tools/declorder.py --target MW2 --unit shots.c FUNCTION ... [--also MW2MATROX MW23DFX]
-                            [--pads N] [--rounds N] [--write] [--wine PATH] [-v]
+                            [--file FRAGMENT] [--pads N] [--rounds N] [--write] [--wine PATH] [-v]
 """
 
 import argparse
+import difflib
 import os
 import re
 import sys
+from collections import Counter
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
-from audit import Lifted, classify, exit_reads  # noqa: E402
+from audit import Lifted, classify, exit_reads, show  # noqa: E402
 from certify import pads_text, rename  # noqa: E402
 from funccmp import symbol_name  # noqa: E402
 from unitbuild import ROOT, Object, Request  # noqa: E402
-from witness import Search, ladder, majority, optimized, slot_plan  # noqa: E402
+from witness import Search, bucket_plans, ladder, majority, optimized, slot_plan  # noqa: E402
 
 DECL = re.compile(r"^\t(?!return\b)[A-Za-z_][\w ]*?[\s*]+(\w+)(\[[^\]]*\])*;$")
 EXACT, SLOTS = 2, 1
+UNEXPLAINED = 1000  # the rewrites charged for code the audit can't classify, plus its distance()
 
 
 class Target:
@@ -64,6 +67,7 @@ class Target:
         if not units:
             raise SystemExit("%s doesn't build %s" % (name, args.unit))
         self.unit = units[0]
+        self.file = args.file or self.unit.name  # the file of the unit's that defines the functions
         self.optimized = bool(optimized(self.unit))
         self.later = sorted(self.search.annotations.addresses)
 
@@ -71,7 +75,7 @@ class Target:
         """[(text of the unit's own file, pads)] -> the requests, compiled (discard them after)."""
         requests = []
         for k, (text, pads) in enumerate(texts_and_pads):
-            request = Request(self.unit, ROOT, "%s%d" % (tag, k), {self.unit.name: text}, prefix=pads_text(pads), listing=True)
+            request = Request(self.unit, ROOT, "%s%d" % (tag, k), {self.file: text}, prefix=pads_text(pads), listing=True)
             request.k = k
             requests.append(request)
         self.search.compiler.run(self.search.target, requests)
@@ -80,7 +84,7 @@ class Target:
     def state(self, request, function):
         """(rank, -rewrites) of the function in a compile: EXACT, SLOTS (only slots differ, and they
         give an allocation order; unoptimized units only), or 0 with the rewrites the audit needs
-        (1000 when it can't classify). Slots the majority vote reconciles (tools/witness.py) still
+        (UNEXPLAINED plus its distance() when it can't classify). Slots the majority vote reconciles (tools/witness.py) still
         count their rewrites here: the vote can't undo a swapped operand."""
         compared = self.search.compare(request)
         if isinstance(compared, str):
@@ -99,7 +103,9 @@ class Target:
                             later[0] if later else None)
             lifted.exit_reads = exit_reads(annotation)
             kinds, difference = classify(lifted, local_list, self.optimized)
-            return (0, -1000 if difference is not None else -sum(n for kind, n in kinds.items() if kind != "slots"))
+            if difference is not None:
+                return (0, -UNEXPLAINED - distance(lifted))
+            return (0, -sum(n for kind, n in kinds.items() if kind != "slots"))
         return (-1, 0)
 
     def best_over_pads(self, text, function, pads):
@@ -113,27 +119,65 @@ class Target:
 
 
 class Block:
-    """A function's declaration lines: the ones that may move (outside #if groups), by name."""
+    """A function's declaration lines: the ones that may move (outside #if groups, or the lines of
+    the #if group the target compiles where the function has none outside), by name."""
 
-    def __init__(self, lines, function):
-        start = next((k for k, line in enumerate(lines) if re.match(r"^[A-Za-z].*[ *]%s\(" % re.escape(function), line)), None)
-        if start is None:
+    def __init__(self, lines, function, target):
+        self.lines = lines
+        # The definition the target's annotation marks (an edition may define the function apart).
+        starts = [k for k, line in enumerate(lines) if re.match(r"^[A-Za-z].*[ *]%s\(" % re.escape(function), line)]
+        if not starts:
             raise SystemExit("no definition of %s" % function)
+
+        def marked(k):
+            while k > 0 and lines[k - 1].startswith("//"):
+                k -= 1
+                if re.match(r"// (FUNCTION|STUB): %s 0x" % re.escape(target), lines[k]):
+                    return True
+            return False
+
+        start = next((k for k in starts if marked(k)), starts[0])
         while lines[start].strip() != "{":
             start += 1
         self.first = start  # the line of `{`
-        self.movable, self.fixed, depth, k = [], {}, 0, start + 1
-        while DECL.match(lines[k]) or lines[k].startswith("#"):
-            if re.match(r"#\s*if", lines[k]):
-                depth += 1
-            elif re.match(r"#\s*endif", lines[k]):
-                depth -= 1
-            elif DECL.match(lines[k]):
-                if depth:
-                    self.fixed[DECL.match(lines[k]).group(1)] = k
-                else:
-                    self.movable.append(k)
-            k += 1
+        end = next(k for k in range(start, len(lines)) if lines[k] == "}")
+        # The declaration lines by #if group: those right after `{`, and those after an #else or
+        # #elif of the function's own (an edition's whole body). Group 0 is outside any group.
+        self.groups, count = {}, 0
+        for k in [start] + [k for k in range(start + 1, end) if re.match(r"#\s*(else|elif)", lines[k])]:
+            stack, k = [0 if k == start else -1], k + 1
+            if stack[0]:
+                count += 1
+                stack = [count]
+            while k < end and (DECL.match(lines[k]) or lines[k].startswith("#")):
+                if re.match(r"#\s*if", lines[k]):
+                    count += 1
+                    stack.append(count)
+                elif re.match(r"#\s*endif", lines[k]):
+                    if len(stack) == 1:
+                        break
+                    stack.pop()
+                elif re.match(r"#\s*(else|elif)", lines[k]):
+                    count += 1
+                    stack[-1] = count
+                elif DECL.match(lines[k]):
+                    self.groups.setdefault(stack[-1], []).append(k)
+                k += 1
+        self.choose(0)
+
+    def choose(self, group):
+        """Move the lines of one group; the others stay."""
+        self.movable = self.groups.get(group, [])
+        self.fixed = {}
+        for other, ks in self.groups.items():
+            if other != group:
+                for k in ks:
+                    self.fixed[DECL.match(self.lines[k]).group(1)] = k
+
+    def choose_listed(self, names):
+        """Move the group whose names the target's listing has most of (the one it compiles)."""
+        best = max(self.groups, key=lambda g: sum(1 for k in self.groups[g] if DECL.match(self.lines[k]).group(1) in names))
+        self.choose(best)
 
     def order(self, lines):
         return [lines[k] for k in self.movable]
@@ -167,6 +211,8 @@ def search_order(target, lines, block, function, args):
         if state[0] >= SLOTS:
             break
         candidates = moves(order)
+        if not candidates:
+            break
         requests = target.compile([(block.text(lines, m), pads) for m in candidates], "m")
         scored = [(target.state(r, function), r.k) for r in requests]
         target.search.compiler.discard(requests)
@@ -180,29 +226,6 @@ def search_order(target, lines, block, function, args):
         if args.verbose:
             print("  %s step %d: %s at pad %d" % (function, step + 1, state, pads))
     return order, pads, state
-
-
-def bucket_plans(order, buckets, limit=20000):
-    """Ways to put the locals, in their allocation order, into the buckets in order (a bucket
-    holding up to its names' count), fewest locals per bucket first: [[(bucket index, [locals])]]."""
-    out = []
-
-    def go(pos, b, acc):
-        if len(out) >= limit:
-            return
-        if pos == len(order):
-            out.append(list(acc))
-            return
-        if b >= len(buckets) or len(order) - pos > sum(len(e[1]) for e in buckets[b:]):
-            return
-        for take in range(1, min(len(buckets[b][1]), len(order) - pos) + 1):
-            acc.append((b, order[pos : pos + take]))
-            go(pos + take, b + 1, acc)
-            acc.pop()
-        go(pos, b + 1, acc)
-
-    go(0, 0, [])
-    return out
 
 
 def search_buckets(target, lines, block, function, pads, args):
@@ -270,19 +293,40 @@ def search_buckets(target, lines, block, function, pads, args):
     return found
 
 
+def distance(lifted):
+    """How far an unexplained function is from the original, below UNEXPLAINED: the instructions
+    outside the longest matching runs, once each of our stack slots is renamed to the original's
+    slot most of the aligned instructions pair it with (so that a mirrored comparison between two
+    locals counts, where masking the slots would hide it). The order stage climbs this until the
+    audit can classify what is left."""
+    slot = re.compile(r"\[ebp\+(-?\d+)\]")
+    ours, theirs = [show(i) for i in lifted.ours], [show(i) for i in lifted.theirs]
+    votes = {}
+    for a, b in zip(ours, theirs):
+        x, y = slot.findall(a), slot.findall(b)
+        if len(x) == len(y) and slot.sub("", a) == slot.sub("", b):
+            for u, v in zip(x, y):
+                votes.setdefault(u, Counter())[v] += 1
+    mapping = {u: c.most_common(1)[0][0] for u, c in votes.items()}
+    ours = [slot.sub(lambda m: "[ebp+%s]" % mapping.get(m.group(1), "?" + m.group(1)), a) for a in ours]
+    matched = sum(b.size for b in difflib.SequenceMatcher(None, ours, theirs, autojunk=False).get_matching_blocks())
+    return min(UNEXPLAINED - 1, len(ours) + len(theirs) - 2 * matched)
+
+
 def worse_on(before, after):
     """Whether another target loses what it had (each a best_over_pads result): byte-identical or
     only slots at some padding (what a witness needs), or a classification at padding 0 (what
     tools/audit.py explains)."""
     if before[0][0] >= SLOTS:
         return after[0][0] < before[0][0]
-    return before[2][1] > -1000 and after[0][0] < SLOTS and after[2][0] < SLOTS and after[2][1] == -1000
+    return before[2][1] > -UNEXPLAINED and after[0][0] < SLOTS and after[2][0] < SLOTS and after[2][1] <= -UNEXPLAINED
 
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     parser.add_argument("--target", required=True)
     parser.add_argument("--unit", required=True)
+    parser.add_argument("--file", help="The file the unit includes that defines the functions (a fragment: shapebounds.c)")
     parser.add_argument("functions", nargs="+")
     parser.add_argument("--also", nargs="*", default=[], help="Other targets that annotate the functions: none may get worse")
     parser.add_argument("--build", default="build-wine" if (ROOT / "build-wine").exists() else "build")
@@ -298,11 +342,18 @@ def main():
 
     main_target = Target(args, args.target)
     others = [Target(args, name) for name in args.also]
-    path = ROOT / main_target.unit.source
+    path = (ROOT / main_target.unit.source).parent / main_target.file
     lines = path.read_text(encoding="utf-8").split("\n")
     changed = False
     for function in args.functions:
-        block = Block(lines, function)
+        block = Block(lines, function, args.target)
+        if len(block.movable) < 2 and len(block.groups) > 1:
+            requests = main_target.compile([("\n".join(lines), 0)], "g")
+            compared = main_target.search.compare(requests[0])
+            main_target.search.compiler.discard(requests)
+            if not isinstance(compared, str):
+                listed = {name for s, (_, local_list, _) in compared.items() if symbol_name(s) == function for name, _, _ in local_list}
+                block.choose_listed(listed)
         old_text = "\n".join(lines)
         before = {t.name: t.best_over_pads(old_text, function, args.also_pads) for t in others}
         start = main_target.best_over_pads(old_text, function, args.pads)[:2]

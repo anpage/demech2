@@ -1122,11 +1122,7 @@ void FUN_1001cdd1(void)
 // FUNCTION: MW2 0x1001cde1
 // FUNCTION: MW2MATROX 0x10021096
 // FUNCTION: MW23DFX 0x1000ad50
-#ifdef MW2_TARGET_ID_U16
 MechS32 FUN_1001cde1(MechU16 p_unk0x00)
-#else
-MechS32 FUN_1001cde1(undefined4 p_unk0x00)
-#endif
 {
 	return 1;
 }

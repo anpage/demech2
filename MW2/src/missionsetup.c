@@ -142,10 +142,10 @@ MechU32 FindEventList(MechChar* p_name)
 // FUNCTION: MW23DFX 0x1003ff60
 void PostEventToList(MechChar* p_name, MechS32 p_types, MechU16 p_target)
 {
+	MechS32 i;
 	MechS32 count;
 	MechS32 j;
 	MechU8 state;
-	MechS32 i;
 
 	for (i = 0; i < g_objectiveCount; i++) {
 		if (g_missionTables[i]) {

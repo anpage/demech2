@@ -19,11 +19,11 @@ void ComputeShapeBounds(Shape* p_shape)
 	Model* model;
 	MechDouble max;
 	MechScalar minX;
+	MechScalar maxX;
 	MechS32 i;
 	MechScalar minY;
 	MechScalar minZ;
 	MechDouble d;
-	MechScalar maxX;
 	MechScalar maxY;
 	MechDouble dx;
 	MechScalar maxZ;

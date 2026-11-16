@@ -1308,7 +1308,7 @@ MechS32 BwdExecuteStream(BwdStream* p_stream)
 			}
 
 			events = WidenEventFlags(gpSpec->m_events);
-			if (RunIncludedStream(gpSpec, BwdExecuteStream)) {
+			if (RunIncludedStream((IncludeRecord2*) node, BwdExecuteStream)) {
 				if (g_lastPlayer) {
 					index = g_lastPlayer->m_index;
 					for (i = 0; i < 8; i++) {

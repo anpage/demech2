@@ -26,8 +26,8 @@ MechS32 g_lanceOrders[8] = {7, 7, 7, 7, 7, 0, 0, 0};
 MechS32 PrepareCommandComputerPage(MenuDefinition* p_menu, MenuPage* p_page)
 {
 	MechS32 marked;
-	MechS32 slot;
 	MechS32 count;
+	MechS32 slot;
 	MechS32 i;
 	MechS32 index;
 	MechS32 src;
