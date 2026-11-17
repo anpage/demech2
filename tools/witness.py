@@ -140,11 +140,43 @@ def majority(local_list, slots):
     return kept
 
 
-def slot_plan(local_list, slots, unlisted=()):
+SCALAR_SIZES = {
+    "char": 1, "MechChar": 1, "MechS8": 1, "MechU8": 1, "BYTE": 1, "undefined": 1,
+    "short": 2, "MechS16": 2, "MechU16": 2, "WORD": 2, "undefined2": 2,
+    "int": 4, "long": 4, "MechS32": 4, "MechU32": 4, "DWORD": 4, "UINT": 4, "BOOL": 4, "LONG": 4, "undefined4": 4,
+    "float": 4, "MechFloat": 4, "double": 8, "MechDouble": 8,
+}
+
+
+def declared_sizes(body):
+    """{local: the room its declaration takes in the frame} for the declarations whose size the text
+    gives: base types and their arrays of constant extent, and pointers."""
+    sizes = {}
+    for line in body:
+        m = re.match(r"^\t+(?:const )?(?:unsigned |signed )?(\w+)\s*(\**)\s*(\w+)((?:\[\w+\])*);$", line)
+        if not m:
+            continue
+        base, stars, name, extents = m.groups()
+        size = 4 if stars else SCALAR_SIZES.get(base)
+        try:
+            for extent in re.findall(r"\[(\w+)\]", extents):
+                size = size and size * int(extent, 0)
+        except ValueError:
+            size = None
+        if name in sizes:  # declared again in a nested scope or another #if group
+            sizes[name] = None
+        elif size:
+            sizes[name] = (size + 3) & ~3
+    return {name: size for name, size in sizes.items() if size}
+
+
+def slot_plan(local_list, slots, unlisted=(), declared_sizes=None):
     """The named locals in the order the original allocates them, or a reason there is none.
     local_list: (name, offset, renameable) from the listing; slots: (ours, the original's);
     unlisted: (name, size) of locals the listing leaves out (2.2 omits the unreferenced ones),
-    placed into the frame's free room."""
+    placed into the frame's free room; declared_sizes: {name: size} of the listed locals whose
+    declarations say it, which shows the room an unlisted local has next to one of them (the
+    listing gives only where each listed local starts)."""
     # The C++ EH record ends the locals' area: the slots inside it stay where they are.
     top = min([offset for name, offset, _ in local_list if name == "$EHRec"] or [0])
     named = sorted((offset, name, renameable) for name, offset, renameable in local_list if offset < 0 and name != "$EHRec")
@@ -166,6 +198,9 @@ def slot_plan(local_list, slots, unlisted=()):
         if bases.setdefault(index, base) != base:
             return None, "%s is at two places in the original" % named[index][1]
     sizes = [(starts[k + 1] if k + 1 < len(starts) else top) - starts[k] for k in range(len(starts))]
+    if unlisted and declared_sizes:
+        # An unlisted local allocated just before a listed one sits in what looks like its room.
+        sizes = [min(size, declared_sizes.get(named[k][1], size)) for k, size in enumerate(sizes)]
     taken = sorted((base, base + sizes[k], k) for k, base in bases.items())
     for (base, end, k), (start, _, n) in zip(taken, taken[1:]):
         if end > start:
@@ -586,9 +621,10 @@ class Search:
                 m = re.match(r"^\t(?:const )?\w+\s*\**\s*(\w+);$", line)
                 if m and m.group(1) not in listed:
                     unlisted.append((m.group(1), 4))
-            order, reason = slot_plan(local_list, comparison.slots, unlisted)
+            sizes = declared_sizes(body)
+            order, reason = slot_plan(local_list, comparison.slots, unlisted, sizes)
             if order is None and reason.endswith("at two places in the original"):
-                order, voted = slot_plan(local_list, majority(local_list, comparison.slots), unlisted)
+                order, voted = slot_plan(local_list, majority(local_list, comparison.slots), unlisted, sizes)
                 if order is None:
                     reason = voted
             if order is None:

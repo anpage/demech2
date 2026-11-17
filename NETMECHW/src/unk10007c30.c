@@ -196,7 +196,9 @@ void FUN_100080e1(HWND p_hWnd, MechChar* p_code)
 		strcat(path, ".MEK");
 		handle = LoadFile(path, &size, (void**) &data, 0);
 		if (handle != -1) {
-			label = (MechChar*) data + size - sizeof(MechTrailer);
+			// The original adds the address and the size as integers (a pointer sum loads its
+			// index first).
+			label = (MechChar*) ((MechS32) data + size - sizeof(MechTrailer));
 			index = SendMessage(p_hWnd, LB_ADDSTRING, 0, (LPARAM) label);
 			SendMessage(p_hWnd, LB_SETITEMDATA, index, i + g_unk0x1001fe74);
 			_close(handle);

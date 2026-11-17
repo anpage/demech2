@@ -371,7 +371,8 @@ void ChatLog::SendToTeam(HWND p_dialog)
 			while (i < 8) {
 				if (FUN_1000afa8(i, &player)) {
 					team = player.m_team;
-					if (team == myTeam && player.m_id != g_unk0x1001ca90.m_playerId) {
+					// The original compares the teams with an exclusive or (cmp eax, [myTeam]).
+					if (!(team ^ myTeam) && player.m_id != g_unk0x1001ca90.m_playerId) {
 						send = TRUE;
 					}
 					else {
