@@ -446,10 +446,27 @@ jobs:
       # serves release assets with a content type browsers refuse for SVG in
       # <img> tags). A deployment replaces the whole site, so the one
       # deployment publishes the public and the retail targets together.
+      - name: Checkout the page's tool
+        uses: actions/checkout@v6
+        with:
+          ref: ${{ github.event.workflow_run.head_sha }}
+          path: src
+          sparse-checkout: |
+            tools/states_page.py
+            reccmp-project.yml
+          sparse-checkout-cone-mode: false
+
+      # STATES.HTML is every target's proof states on one page (the README
+      # links to it), written from the audits downloaded above; it is the
+      # site's index too.
       - name: Prepare Pages
+        env:
+          HEAD_SHA: ${{ github.event.workflow_run.head_sha }}
         run: |
           mkdir -p progress
           cp ./*PROGRESS.SVG ./*PROGRESS.HTML ./*STATES.md ./*AUDIT.md progress/
+          python3 src/tools/states_page.py . -o progress/STATES.HTML --commit "$HEAD_SHA" --repository "$GITHUB_REPOSITORY"
+          cp progress/STATES.HTML progress/index.html
           ls progress
 
       - uses: actions/upload-pages-artifact@v3

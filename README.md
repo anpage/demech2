@@ -20,16 +20,7 @@ What counts is proof, not similarity. `tools/certify.py` gives every annotated f
 - **proven**: it does once its stack locals are renamed and/or a number of symbols are declared ahead of its unit, as a committed record (`tools/witnesses/`) says. Neither is recoverable from the original: its locals' names are lost, and its headers declared another number of things, both of which only move stack slots, operand order and (in optimized code) registers. The source keeps its readable names; the record is the proof;
 - **unproven**: neither. `tools/audit.py` says which of these still differ only by compiler entropy (classified, by rewrites that reproduce the original exactly), and `tools/known_diffs.txt` lists the rest, with the reason where it is known. reccmp's percentage still shows how close each is.
 
-| Binary | Functions | Byte-identical | Proven | Unproven |
-|---|---|---|---|---|
-| `MW2SHELL.DLL` (1.1) | 798 | 639 | 126 | 33 |
-| `MW2.DLL` (1.1) | 1557 | 995 | 482 | 80 |
-| `NETMECHW.DLL` (retail) | 228 | 128 | 87 | 13 |
-| `MECH2.EXE` (retail) | 21 | 15 | 6 | 0 |
-| `MW2_MATROX.DLL` (Matrox Mystique) | 1608 | 996 | 483 | 129 |
-| `MW2_3DFX.DLL` (3Dfx) | 1548 | 1141 | 205 | 202 |
-
-These are the annotated functions as of November 2026; each target's current list (`<TARGET>STATES.md` and `.json`) is published with the progress reports in the [continuous release](https://github.com/anpage/demech2/releases/tag/continuous). A match proves the code, the types, the data layout and the constants; it proves nothing about names, comments and descriptions, which are readings of the code. The original's hand-written assembly is reproduced as MASM source (its own objects) or inline assembly, and every function with inline assembly is listed in `tools/asm_allowlist.txt` with what in the original shows it was hand-written: everything else matches as C or C++.
+The current counts for every binary, and each function that isn't byte-identical with its record or its reason, are on the [proof states page](https://anpage.github.io/demech2/STATES.HTML), which CI rewrites on every push to `main`. Each target's list (`<TARGET>STATES.md` and `.json`) is also published with the progress reports in the [continuous release](https://github.com/anpage/demech2/releases/tag/continuous). A match proves the code, the types, the data layout and the constants; it proves nothing about names, comments and descriptions, which are readings of the code. The original's hand-written assembly is reproduced as MASM source (its own objects) or inline assembly, and every function with inline assembly is listed in `tools/asm_allowlist.txt` with what in the original shows it was hand-written: everything else matches as C or C++.
 
 Every game-code function of the four binaries of the 1.1 patch and the retail release is decompiled. Two more targets, the simulators of the Matrox Mystique edition (`MW2_MATROX.DLL`) and the 3Dfx edition (`MW2_3DFX.DLL`), are built from the same simulator source, where their differences (they keep the simulation's values as floats, and draw through Matrox's API and 3Dfx's Glide; the 3Dfx edition is optimized code) are being worked in. Beyond those editions, two kinds of work remain. One is raising the match: the unproven functions above, whose differences are real until shown otherwise. The other is understanding the code: much of it still carries placeholder names (`FUN_10003580`, `m_unk0x04`, `g_unk0x100a00dc`) that need to be studied and replaced with meaningful names and types. Contributions are welcome.
 
