@@ -1,6 +1,8 @@
 # NETMECHW: witnesses that a function differs from the original only by compiler entropy.
-# address, function, unit, then the recipe: `pad N` symbols declared ahead of the unit, and/or
-# `rename old=new ...` of the function's locals. Found by tools/witness.py, checked by tools/certify.py.
+# address, function, unit, then the recipe: `pad N` symbols declared ahead of the unit, `early DECL M`
+# one global redeclared after them (spaces as ~) and M more symbols, and/or `rename old=new ...` of
+# the function's locals (`old@K`: inside the function's K-th brace block). Found by
+# tools/witness.py, checked by tools/certify.py.
 
 0x1000111a CenterWindow unk10001070.cpp rename desktop=zqak desktopRect=zqaj rect=zqai
 0x1000120a FUN_1000120a unk10001070.cpp pad 1 rename desktop=zqan desktopRect=zqaj height=zqao placement=zqab rect=zqai screenHeight=zqaa screenWidth=zqam unk0x24=zqak unk0x28=zqal width=zqap
@@ -37,6 +39,7 @@
 0x10006f81 JoinSession unk10006ce0.cpp rename desc=zqam event=zqaa index=zqaj listBox=zqal name=zqai result=zqan session=zqap sessionName=zqak unused=zqao
 0x100072a2 FUN_100072a2 unk10006ce0.cpp rename command=zqak hosted=zqal notify=zqaj selection=zqai
 0x10007c5a FUN_10007c5a unk10007c30.c pad 7 rename ammo=zqcg ammoCount=zqac fromFile=zqb7 handle=zqai i=zqao id=zqan j=zqap line=zqaj location=zqab mech=zqam path=zqcw section=zqa0 sections=zqbw size=zqal slot=zqaa text=zqak trailer=zqbk weapons=zqbg
+0x100080e1 FUN_100080e1 unk10007c30.c pad 2 rename data=zqan failures=zqam handle=zqai i=zqaa id=zqap index=zqac label=zqaj name=zqak path=zqab size=zqao text=zqal
 0x1000834d FUN_1000834d unk10007c30.c rename count=zqak id=zqaj size=zqal table=zqai
 0x100083e3 FUN_100083e3 unk10007c30.c pad 2 rename ammo=zqao i=zqal j=zqam mech=zqak sections=zqaj trailer=zqan weapons=zqai
 0x100086b1 FUN_100086b1 unk10007c30.c rename ammo=zqao i=zqal j=zqam mech=zqak sections=zqaj trailer=zqan weapons=zqai
@@ -57,6 +60,7 @@
 0x1000c142 FUN_1000c142 unk1000b400.cpp rename buffer=zqaj copy=zqam message=zqai name=zqal player=zqak
 0x1000c273 ChatLog::AddLine chatlog.cpp pad 6 rename body=zqam dc=zqan end=zqai first=zqbf i=zqcg index=zqad infoDc=zqac line=zqap metrics=zqas player=zqaz rect=zqaq removed=zqa1 rest=zqao saved=zqbk scrollInfo=zqak tabStop=zqbh text=zqab topIndex=zqaj width=zqaa wrap=zqal
 0x1000cb99 ChatLog::Attach chatlog.cpp rename scrollInfo=zqai tabStop=zqaj
+0x1000cec1 ChatLog::SendToTeam chatlog.cpp pad 9 rename i=zqap myTeam=zqan player=zqam self=zqal send=zqaa team=zqak teamMask=zqaj text=zqai to=zqao
 0x1000d092 ChatLog::Send chatlog.cpp rename chat=zqal message=zqaj packet=zqak self=zqai
 0x1000d250 FUN_1000d250 unk1000d250.cpp rename count=zqal i=zqak id=zqaj player=zqai unused=zqam
 0x1000d31f FUN_1000d31f unk1000d250.cpp rename command=zqao dc=zqal info=zqak memoryDC=zqaj notify=zqam paint=zqai rect=zqan
@@ -79,6 +83,7 @@
 0x10010e50 WatchPlayersThread unk10010e50.cpp rename i=zqao msg=zqak ping=zqal player=zqam result=zqaj running=zqai status=zqan
 0x10010fab AddMissingPlayer unk10010e50.cpp rename index=zqaj name=zqai
 0x10011030 BroadcastSettingsThread unk10011030.cpp rename buffer=zqak message=zqai msg=zqam running=zqal settings=zqaj
+0x10011120 FUN_10011120 unk10011120.cpp rename code=zqan flags=zqai text=zqaj unused0=zqal unused1=zqak unused2=zqam
 0x100113ec FUN_100113ec unk10011120.cpp rename command=zqao dc=zqal info=zqak memoryDC=zqaj notify=zqam paint=zqai rect=zqan
 0x10011d60 ArchiveWrite prjfile.c rename buffer=zqaj chunk=zqak remaining=zqai
 0x10011dde ArchiveRead prjfile.c rename buffer=zqaj chunk=zqak remaining=zqai

@@ -54,7 +54,6 @@ MechS32 g_unk0x1001fe70;
 MechS32 g_unk0x1001fe74;
 
 // Appends the node p_node of p_size bytes to the stream, padded to four bytes, if it fits.
-// The original computes the padded size times one (mov ecx, eax; add eax, eax; sub eax, ecx).
 // FUNCTION: NETMECHW 0x1000f720
 void AppendBwdNode(void* p_node, MechS32 p_size)
 {
@@ -66,7 +65,7 @@ void AppendBwdNode(void* p_node, MechS32 p_size)
 	}
 
 	memcpy(end, p_node, p_size);
-	p_size = (p_size + 3) & ~3;
+	p_size = (p_size + 3) / sizeof(MechU32) * sizeof(MechU32);
 	g_unk0x100237f4 += p_size;
 	if (p_size > g_unk0x100237f8) {
 		g_unk0x1001f670.m_header.m_maxNodeSize = g_unk0x100237f8 = p_size;
