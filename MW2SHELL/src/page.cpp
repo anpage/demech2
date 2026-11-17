@@ -35,6 +35,8 @@ MechChar g_pageWord[0x400];
 // GLOBAL: MW2SHELL 0x10093e78
 MechChar g_pageLine[0x400];
 
+// 0x400 bytes: the Matrox edition's shell has g_pageWord right after them (1.1 has 0x58 more
+// bytes before the next object's data).
 // GLOBAL: MW2SHELL 0x10094278
 MechChar g_pageTemp[0x400];
 

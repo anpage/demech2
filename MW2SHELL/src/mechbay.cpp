@@ -457,8 +457,10 @@ MechS32 g_mechBayMessage;
 // GLOBAL: MW2SHELL 0x1007a800
 MechChar g_variantFileName[0x20];
 
+// 0x2000 bytes, in 1.1 and in the Matrox edition's shell, each with another global after them;
+// LoadMekImage reads 0x800.
 // GLOBAL: MW2SHELL 0x1007a820
-undefined g_mekFileBuffer[0x800];
+undefined g_mekFileBuffer[0x2000];
 
 // GLOBAL: MW2SHELL 0x1007c820
 MekLocation g_mekLocations[8];
@@ -2588,7 +2590,7 @@ void* LoadMekImage(MechChar* p_name)
 			return NULL;
 		}
 
-		fread(g_mekFileBuffer, 1, sizeof(g_mekFileBuffer), file);
+		fread(g_mekFileBuffer, 1, 0x800, file);
 		fclose(file);
 		return g_mekFileBuffer;
 	}

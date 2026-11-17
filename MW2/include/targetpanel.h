@@ -12,7 +12,7 @@ extern "C"
 #endif
 
 	extern MechS32 g_targetPanelMode;
-	extern MechChar g_anonymousInstallationName[8];
+	extern MechChar g_anonymousInstallationName[16];
 
 	void DrawTargetPanelText(struct CockpitPanel* p_panel);
 	void DrawTargetPanel(struct CockpitPanel* p_panel);

@@ -17,9 +17,10 @@
 // GLOBAL: NETMECHW 0x10024bc8
 MechChar g_resourceDir[0x100] = {0};
 
-// Shared scratch buffer returned by the path helpers (overwritten on each call).
+// Shared scratch buffer returned by the path helpers (overwritten on each call): 0x100 bytes, as
+// the simulator's g_gamePath (the original has more room than that); the helpers clear the first 0x50.
 // GLOBAL: NETMECHW 0x1001f2c0
-static MechChar g_resourcePath[0x50];
+static MechChar g_resourcePath[0x100];
 
 // Read a whole file into memory, allocated here unless p_preallocated; returns the open handle,
 // or -1 on failure.

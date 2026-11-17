@@ -87,11 +87,12 @@ MechS32 g_lastPanelTarget = 0;
 // GLOBAL: MW23DFX 0x1024d05c
 MechS32 g_targetPanelStatic = 0;
 
-// The name the target panel shows for an unknown installation.
+// The name the target panel shows for an unknown installation: 16 bytes in every edition, each
+// with other globals after it.
 // GLOBAL: MW2 0x100c26a0
 // GLOBAL: MW2MATROX 0x10212d40
 // GLOBAL: MW23DFX 0x101de7a0
-MechChar g_anonymousInstallationName[8];
+MechChar g_anonymousInstallationName[16];
 
 // Writes the target panel's text: the locked target's name (its short name when it changes, its
 // name after a while), coloured by its side, and its distance.

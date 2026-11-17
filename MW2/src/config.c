@@ -81,11 +81,12 @@ MechChar g_gameDir[256] = {0};
 // GLOBAL: MW23DFX 0x10259d90
 MechS32 g_screenshotCount = 0;
 
-// The path BuildGamePath returns.
+// The path BuildGamePath returns: 0x100 bytes in every edition, each with other globals after it
+// (the functions clear the first 0x50).
 // GLOBAL: MW2 0x100bef58
 // GLOBAL: MW2MATROX 0x100c1d20
 // GLOBAL: MW23DFX 0x1007db30
-MechChar g_gamePath[0x50];
+MechChar g_gamePath[0x100];
 
 // The three values of the HUD layout (LoadHudFile).
 // GLOBAL: MW2 0x10109c30

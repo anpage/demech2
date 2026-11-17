@@ -63,9 +63,10 @@ void* g_sliderImages;
 // GLOBAL: MW2SHELL 0x10092c20
 MechChar* g_dialogLines[3];
 
-// ...and the text they point into.
+// ...and the text they point into, which ShowDialog copies without a limit. 0xa40 bytes, in 1.1
+// and in the Matrox edition's shell, each with another global after them (there, g_dialogLines).
 // GLOBAL: MW2SHELL 0x10092f38
-MechChar g_dialogText[0x200];
+MechChar g_dialogText[0xa40];
 
 // GLOBAL: MW2SHELL 0x10070d98
 MechChar* g_skillNames[] = {"~EASY", "~MEDIUM", "~HARD"};
