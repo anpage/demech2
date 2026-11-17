@@ -56,7 +56,9 @@ Shape* g_aimedShape = NULL;
 MechS32 g_singleWeaponFire = 1;
 
 // The weapons each remote player's weapons message fired, and those the local player fired since
-// the last one (network.c).
+// the last one (network.c), one per weapon slot: every loop stops at 10. The 3Dfx edition leaves 4
+// bytes after g_localWeaponsFired, as it does after other globals (g_atanTable); the other rooms
+// are 16-byte alignment.
 
 // GLOBAL: MW2 0x101099c0
 // GLOBAL: MW2MATROX 0x101d4bd0

@@ -69,7 +69,8 @@ HBITMAP g_unk0x1001f158;
 // GLOBAL: NETMECHW 0x1001f160
 MechS32 g_unk0x1001f160;
 
-// The lines of the results, best score first.
+// The lines of the results, best score first: one per control of g_unk0x10023858. The 4 bytes after
+// it in the original aren't a whole record.
 // GLOBAL: NETMECHW 0x1001f168
 AmberRecord0x26 g_unk0x1001f168[8];
 

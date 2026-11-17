@@ -45,9 +45,10 @@ typedef struct CockpitLayout {
 	MechS32 (*m_icons)[3];         // 0x70 — SHP ids by row and side: 0 the center, 1 players
 	MechS32* m_colors;             // 0x74
 	MechS32* m_anims;              // 0x78 — 2D animations; [2] plays over a damaged map view
-	CockpitGaugeFn m_gauges[4];    // 0x7c — indices in g_cockpitGauges until loaded; in the
-								   // map view, 1 tests a point, 2 clamps it to the view
-								   // and 3 projects a bearing to its edge
+	CockpitGaugeFn m_gauges[4];    // 0x7c — indices in g_cockpitGauges until loaded (the 3Dfx
+								   // edition's are the functions); in the map view, 1 tests
+								   // a point, 2 clamps it to the view and 3 projects a
+								   // bearing to its edge
 } CockpitLayout;
 
 // The functions and globals of cockpit.c that other units use.
