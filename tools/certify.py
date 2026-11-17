@@ -2,7 +2,8 @@
 """Certify every annotated function of a target: byte-identical, proven by a witness, or unproven.
 
 A witness record (`tools/witnesses/<TARGET>.txt`, found by `tools/witness.py`) says that a
-function compiles to the original's bytes once its locals are renamed and/or N typedefs are
+function compiles to the original's bytes once its locals are renamed (a name several scopes
+declare, inside one brace block: `id@12`) and/or N typedefs are
 declared ahead of its unit, one of its globals redeclared among them (`early`): all change only what
 the original can't tell us (the locals' names are lost; its headers declared another number of
 things, in another order). This script trusts none of that: it
@@ -50,61 +51,90 @@ COST = {"exact": 0, "pad": 1, "rename": 2, "early": 3, "unproven": 1000}
 EARLY = re.compile(r"^(?:(?:unsigned|signed|char|short|int|long|float|double|struct~\w+)~?)+\**~?\w+(?:\[\d*\])*$")
 
 
-def pads_text(count, early=None, after=0):
-    """The text declared ahead of a unit: `count` typedefs, then (a record's `early`) one global's
-    redeclaration and `after` more typedefs."""
+def pads_text(count, early=()):
+    """The text declared ahead of a unit: `count` typedefs, then (a record's `early` elements) each
+    global's redeclaration and the typedefs after it."""
     text = "".join(PAD % i for i in range(count))
-    if early:
-        if not EARLY.match(early):
-            raise SystemExit("not a redeclaration of one global: %s" % early)
-        text += "extern %s;\n" % early.replace("~", " ") + "".join(PAD % i for i in range(count, count + after))
+    for declaration, after in early:
+        if not EARLY.match(declaration):
+            raise SystemExit("not a redeclaration of one global: %s" % declaration)
+        text += "extern %s;\n" % declaration.replace("~", " ") + "".join(PAD % i for i in range(count, count + after))
+        count += after
     return text
 
 
-def prefix(record):
-    return pads_text(record["pads"], record["early"], record["after"])
+def read_recipe(words):
+    """{pads, early: ((declaration, typedefs after), ...), renames} from a record's recipe (its words,
+    or the text)."""
+    record = {"pads": 0, "early": (), "renames": {}}
+    mode = None
+    for word in words.split() if isinstance(words, str) else words:
+        if word in ("pad", "early", "rename"):
+            mode, declaration = word, None
+        elif mode == "pad":
+            record["pads"] = int(word)
+        elif mode == "early" and declaration is None:
+            declaration = word
+        elif mode == "early":
+            if record["early"]:
+                raise SystemExit("a record redeclares one global, not two: %s and %s" % (record["early"][0][0], declaration))
+            record["early"] = ((declaration, int(word)),)
+        else:
+            old, new = word.split("=")
+            record["renames"][old] = new
+    return record
 
 
 def read_records(path):
-    """[{address, name, unit, pads, early, after, renames}] from a witness file."""
+    """[{address, name, unit, pads, early: ((declaration, typedefs after), ...), renames}] from a witness file."""
     records = []
     if not path.exists():
         return records
     for line in path.read_text().split("\n"):
         if not line.strip() or line.startswith("#"):
             continue
-        address, name, unit, *recipe = line.split()
-        record = {"address": int(address, 16), "name": name, "unit": unit, "pads": 0, "early": None, "after": 0, "renames": {}}
-        mode = None
-        for word in recipe:
-            if word in ("pad", "early", "rename"):
-                mode = word
-            elif mode == "pad":
-                record["pads"] = int(word)
-            elif mode == "early" and record["early"] is None:
-                record["early"] = word
-            elif mode == "early":
-                record["after"] = int(word)
-            else:
-                old, new = word.split("=")
-                record["renames"][old] = new
-        records.append(record)
+        address, name, unit, *words = line.split()
+        records.append(dict(read_recipe(words), address=int(address, 16), name=name, unit=unit))
     return records
 
 
 TOKEN = re.compile(r"""//[^\n]*|/\*.*?\*/|"(?:\\.|[^"\\\n])*"|'(?:\\.|[^'\\\n])*'|[A-Za-z_$][\w$]*|\d[\w.]*|->|::|\S""", re.S)
 
 
+def block_tokens(body):
+    """The tokens of `body`, each with the stack of the brace blocks it is in: [(match, (K, ...))],
+    blocks numbered from 1 in the order they open. A `{` belongs to the block it opens, a `}` to
+    the one it closes."""
+    out, stack, count = [], [], 0
+    for m in TOKEN.finditer(body):
+        token = m.group(0)
+        if token == "{":
+            count += 1
+            stack.append(count)
+        out.append((m, tuple(stack)))
+        if token == "}" and stack:
+            stack.pop()
+    return out
+
+
 def rename_tokens(body, names, directives=False):
     """`body` with the identifiers in `names` renamed, members (after `.`, `->` or `::`) left alone,
-    and preprocessor lines too unless `directives`."""
+    and preprocessor lines too unless `directives`. A key `name@K` renames the identifier inside
+    the K-th brace block of the body only (block_tokens' numbering; the innermost such block of a
+    token decides), for a name that several scopes declare."""
+    scoped = defaultdict(dict)
+    for key, new in names.items():
+        if "@" in key:
+            old, block = key.split("@")
+            scoped[old][int(block)] = new
     out, at, previous = [], 0, ""
-    for m in TOKEN.finditer(body):
+    for m, stack in block_tokens(body):
         token = m.group(0)
         line_start = body.rfind("\n", 0, m.start()) + 1
         directive = body[line_start : m.start()].lstrip().startswith("#")
-        if token in names and previous not in (".", "->", "::") and (directives or not directive):
-            out.append(body[at : m.start()] + names[token])
+        new = next((scoped[token][k] for k in reversed(stack) if k in scoped[token]), names.get(token)) if token in scoped else names.get(token)
+        if new is not None and previous not in (".", "->", "::") and (directives or not directive):
+            out.append(body[at : m.start()] + new)
             at = m.end()
         if not token.startswith(("//", "/*")):
             previous = token
@@ -148,7 +178,7 @@ def rename(text, first, last, names):
         if params:
             head += params.end()
         shadowed = set(re.findall(r"\w+", params.group(1))) if params else set()
-        macro_names = {k: v for k, v in names.items() if k not in shadowed}
+        macro_names = {k: v for k, v in names.items() if k not in shadowed and "@" not in k}
         lines[start : end + 1] = (original[:head] + rename_tokens(original[head:], macro_names, directives=True)).split("\n")
     body = "\n".join(lines[first - 1 : last])
     return "\n".join(lines[: first - 1] + rename_tokens(body, names).split("\n") + lines[last:])
@@ -189,9 +219,9 @@ class Certify:
         requests = [Request(u, self.tree, "plain", listing=listings and u.language != "ASM_MASM") for u in units]
         groups = defaultdict(list)
         for record in self.records:
-            groups[(record["unit"], record["pads"], record["early"] or "", record["after"])].append(record)
+            groups[(record["unit"], record["pads"], record["early"])].append(record)
         variants = []
-        for (unit_name, pads, early, after), group in sorted(groups.items()):
+        for (unit_name, pads, early), group in sorted(groups.items()):
             unit = by_name.get(unit_name)
             if unit is None:
                 self.failures += ["%s: no such unit (%s)" % (r["name"], unit_name) for r in group]
@@ -206,9 +236,9 @@ class Certify:
                     path = Path(found[0].filename)
                     text = texts.get(path.name) or path.read_text(encoding="utf-8")
                     texts[path.name] = rename(text, found[0].line_number, found[0].end_line, record["renames"])
-            request = Request(unit, self.tree, "pad%d" % pads, texts, prefix=pads_text(pads, early, after))
+            request = Request(unit, self.tree, "pad%d" % pads, texts, prefix=pads_text(pads, early))
             requests.append(request)
-            variants.append((unit_name, pads, early, after, request))
+            variants.append((unit_name, pads, early, request))
         self.compiler.run(self.target, requests)
         out = Path(out)
         shutil.rmtree(out, ignore_errors=True)
@@ -227,11 +257,11 @@ class Certify:
                     entry["asm"] = "%d.asm" % k
                     shutil.copy(request.asm, out / entry["asm"])
                 manifest["units"][request.unit.name] = entry
-        for unit_name, pads, early, after, request in variants:
+        for unit_name, pads, early, request in variants:
             if not request.error:
                 variant = {"unit": unit_name, "pads": pads, "obj": "%d.obj" % requests.index(request)}
                 if early:
-                    variant.update(early=early, after=after)
+                    variant.update(early=early[0][0], after=early[0][1])
                 manifest["variants"].append(variant)
         (out / "manifest.json").write_text(json.dumps(manifest, indent=1) + "\n")
         self.compiler.discard(requests)
@@ -241,7 +271,10 @@ class Certify:
         objects = Path(objects)
         manifest = json.loads((objects / "manifest.json").read_text())
         units = {u.name: u for u in (self.target.units if self.target else [])}
-        variants = {(v["unit"], v["pads"], v.get("early", ""), v.get("after", 0)): Object(objects / v["obj"]) for v in manifest["variants"]}
+        variants = {}
+        for v in manifest["variants"]:
+            early = ((v["early"], v.get("after", 0)),) if v.get("early") else ()
+            variants[(v["unit"], v["pads"], early)] = Object(objects / v["obj"])
         records = {(r["unit"], r["address"]): r for r in self.records}
         used = set()
         states = []
@@ -258,7 +291,7 @@ class Certify:
                         self.failures.append("%s (%s): exact without its witness: remove the record" % (record["name"], unit_name))
                 elif record:
                     used.add((unit_name, annotation.offset))
-                    variant = variants.get((unit_name, record["pads"], record["early"] or "", record["after"]))
+                    variant = variants.get((unit_name, record["pads"], record["early"]))
                     witnessed = None
                     if variant is not None and symbol in variant.functions:
                         witnessed = Comparison(variant.functions[symbol], variant, image, annotation.offset, self.annotations)
@@ -303,8 +336,8 @@ def recipe(record):
     parts = []
     if record["pads"]:
         parts.append("pad %d" % record["pads"])
-    if record.get("early"):
-        parts.append("early %s %d" % (record["early"], record.get("after", 0)))
+    for declaration, after in record.get("early", ()):
+        parts.append("early %s %d" % (declaration, after))
     if record["renames"]:
         parts.append("rename " + " ".join("%s=%s" % item for item in sorted(record["renames"].items())))
     return " ".join(parts)

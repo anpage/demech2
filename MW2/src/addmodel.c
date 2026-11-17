@@ -27,11 +27,11 @@ Model* AddModel(
 )
 {
 	Model* model;
+	MechS32 faceBytes;
 	MechS32 vertexBytes;
 	Model* cursor;
 	void* memory;
 	MechU32 size;
-	MechS32 faceBytes;
 
 	size = 0;
 	faceBytes = 0;

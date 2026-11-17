@@ -152,6 +152,7 @@ void DrawHeatBar(PANE* p_target)
 {
 	MechS32 heat;
 	MechS32 width;
+	MechS32 edge;
 	MechS32 middle;
 	MechS32 level;
 	MechS32 middleX;
@@ -159,7 +160,6 @@ void DrawHeatBar(PANE* p_target)
 	MechS32 rightX;
 	MechS32 x;
 	MechS32 y;
-	MechS32 edge;
 	MechS32 height;
 	MechS32 target;
 	MechS32 color;
