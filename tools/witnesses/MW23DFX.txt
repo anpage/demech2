@@ -97,6 +97,7 @@
 0x1001c350 DrawHeatBar bargauges.c pad 15
 0x1001c750 DrawJumpFuelBar bargauges.c pad 1
 0x1001c960 DrawHorizontalBar bargauges.c pad 2
+0x1001cca0 CycleTarget targeting.c pad 134
 0x1001cea0 TargetNavPoint targeting.c pad 9
 0x1001d050 TargetGamePiece targeting.c pad 5
 0x1001d2d0 TargetGameThing targeting.c pad 4

@@ -117,7 +117,6 @@ MW23DFX 0x1001b620 DrawDamageOutline 029e45202b81 register allocation and schedu
 MW23DFX 0x1001c4a0 DrawHeatRateBar fb18b94957e0 register allocation and scheduling the audit's webs and search don't reach; to investigate
 MW23DFX 0x1001c810 DrawVerticalBar d4198d7f7336 register allocation and scheduling the audit's webs and search don't reach; to investigate
 MW23DFX 0x1001cb40 RemoveNavPoint 874ca31e13c2 register allocation (the nav table copy in ebp/esi where the rebuild has edi/ebp) and scheduling: the original sets up the rep movsd after the lea of the source; to investigate
-MW23DFX 0x1001cca0 CycleTarget 58135fef9daa register allocation: esi and ebp swapped throughout, and the original ors 0x1000 into the player's flags in memory (or dword ptr [edi+0xdc]) where the rebuild loads, ors and stores; a witness by padding (44) until targeting.c declared the map layouts' gauge functions for the 3Dfx edition; to investigate
 MW23DFX 0x1001dcc0 LayoutWeaponPanels 44b83f35491b register allocation and scheduling the audit's webs and search don't reach; to investigate; the rebuild's .bss order differs (g_cockpitPanels)
 MW23DFX 0x1001f030 ChooseManeuver 962f0903267b to investigate: the prologue is scheduled otherwise (mov ebx, [ecx+32] against push edi at #3)
 MW23DFX 0x1001f6b0 GetOffsetPoint ccfcab137e0d to investigate: the original has a nop at #46 and 2 more instructions
