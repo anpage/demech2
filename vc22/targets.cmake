@@ -77,8 +77,11 @@ function(demech2_add_mech2)
 endfunction()
 
 # NETMECHW.DLL: C and C++ at /Od /Oi (no /G5, no /GX), the multithreaded CRT (2.2's LIBCMT,
-# /MT). The original is a plain /DLL link; the comparison build adds /DEBUG for the PDB and
-# /INCREMENTAL:no for the direct exports. SOURCES follow the original link order: object
+# /MT). The original is a plain /DLL link; the comparison build adds /DEBUG for the PDB,
+# /OPT:REF, which /DEBUG would otherwise turn off (the plain link drops the CRT's unreferenced
+# functions: with _fpreset kept, the build links signal and _XcptFilter and imports four
+# functions the original doesn't; tools/check_imports.py), and /INCREMENTAL:no for the direct
+# exports. SOURCES follow the original link order: object
 # order determines function addresses. LIBRARIES are in the order of the original's .idata
 # descriptors.
 function(demech2_add_netmechw)
@@ -138,7 +141,7 @@ function(demech2_add_netmechw)
     target_link_options(netmechw PRIVATE "/MAP:${CMAKE_CURRENT_BINARY_DIR}/NETMECHW.map")
   endif()
   if (DEMECH2_VC22)
-    target_link_options(netmechw PRIVATE /DEBUG /INCREMENTAL:no)
+    target_link_options(netmechw PRIVATE /DEBUG /OPT:REF /INCREMENTAL:no)
   endif()
   if (DEMECH2_VC22 OR MSVC_FOR_DECOMP)
     # The objects, in link order, for cmake/link_objects.cmake: it copies them to

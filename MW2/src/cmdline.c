@@ -19,7 +19,6 @@
 #include "videodriverchoice.h"
 
 #include <ctype.h>
-#include <direct.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -63,11 +62,7 @@ MechS32 ProcessCmdLineArgs(MechChar* p_cmdLine, undefined4* p_flags, MechChar* p
 				g_missionTimerStopped = 1;
 				break;
 			case 'E':
-#ifdef MW2_REMOVE_DEBUG_LOG
 				remove("mw2debug.txt");
-#else
-				_rmdir("mw2debug.txt");
-#endif
 				g_logStreams = 1;
 				break;
 			case 'F':
