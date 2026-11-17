@@ -1,3 +1,4 @@
 # A fork of isledecomp/reccmp: it finds the thunk table of an incremental link in an image without
-# a debug directory (MECH2.EXE).
-reccmp @ git+https://github.com/anpage/reccmp@2b85e50d9828bc1088b3dc577055afa9181f1c8f
+# a debug directory (MECH2.EXE), and datacmp compares integers held in pointer members by value
+# (the shell's field tables, the simulator's map layouts).
+reccmp @ git+https://github.com/anpage/reccmp@ce49a4def53dc1f8eed0c6742b2c8a867c2ab1cd
