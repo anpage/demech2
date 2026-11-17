@@ -1,7 +1,8 @@
 # MW23DFX: witnesses that a function differs from the original only by compiler entropy.
 # address, function, unit, then the recipe: `pad N` symbols declared ahead of the unit, `early DECL M`
 # one global redeclared after them (spaces as ~) and M more symbols, and/or `rename old=new ...` of
-# the function's locals. Found by tools/witness.py, checked by tools/certify.py.
+# the function's locals (`old@K`: inside the function's K-th brace block). Found by
+# tools/witness.py, checked by tools/certify.py.
 
 0x10001630 LerpPaneRect recttransition.c pad 2
 0x10002080 LoadFramePrj anim2d.c pad 17

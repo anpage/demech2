@@ -173,8 +173,6 @@ typedef char MechChar;
 #define MW2_NO_DORCS_CHEAT
 /* Debug output both accelerated editions add */
 #define MW2_EXTRA_DEBUG_PRINTS
-/* The debug switch deletes mw2debug.txt with remove, not _rmdir */
-#define MW2_REMOVE_DEBUG_LOG
 #endif
 
 #ifdef MW2_MATROX
