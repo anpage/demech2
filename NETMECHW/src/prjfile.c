@@ -44,7 +44,8 @@ typedef struct ArchiveSlot {
 DECOMP_SIZE_ASSERT(ArchiveEntry, 0x18)
 DECOMP_SIZE_ASSERT(ArchiveSlot, 0x14a)
 
-// One slot: the dispdib globals follow in the original.
+// One slot (the open loop stops at `slot < 1`); the 6 bytes after it in the original align the
+// BWD buffer that follows (bwdwriter.c) to 16.
 // GLOBAL: NETMECHW 0x1001f520
 ArchiveSlot g_archiveSlots[1];
 

@@ -19,7 +19,8 @@ HBITMAP g_unk0x1001f0f0;
 HBITMAP g_unk0x1001f0f4;
 
 // The controls of the player slots in the lobby's dialogs: eight for a free-for-all or team 0,
-// then eight for team 1.
+// then eight for team 1. The 16 zero bytes after it in the original are this object's three ""
+// literals and the next object's alignment.
 // GLOBAL: NETMECHW 0x10023708
 MechS32 g_unk0x10023708[16] =
 	{0x3f9, 0x3fc, 0x3fd, 0x40d, 0x3ff, 0x401, 0x403, 0x40e, 0x405, 0x407, 0x409, 0x410, 0x40a, 0x40b, 0x40c, 0x412};
