@@ -4,7 +4,8 @@ This is a work-in-progress decompilation of the Windows 95 release of MechWarrio
 
 This project is modeled after the [LEGO Island](https://github.com/isledecomp/isle) and [LEGO Racers](https://github.com/isledecomp/racers) decompilations.
 
-> **Note:** This repository is for decompilation only and its code is true to the original release. It will not compile for targets other than 32-bit Windows. A modern, portable adaptation of the MechWarrior 2 codebase is in progress as [ReMech2](https://github.com/anpage/remech2-rs).
+> [!NOTE]
+> This repository is for decompilation only and its code is true to the original release. It will not compile for targets other than 32-bit Windows. A modern, portable adaptation of the MechWarrior 2 codebase is in progress as [ReMech2](https://github.com/anpage/remech2-rs).
 
 ## Status
 
