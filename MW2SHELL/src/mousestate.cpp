@@ -14,8 +14,10 @@
 
 DECOMP_SIZE_ASSERT(MouseState, 0x43)
 
+// "(x,y)". 0x80 bytes, in 1.1 and in the Matrox edition's shell, each with another global after
+// them.
 // GLOBAL: MW2SHELL 0x100904a8
-MechChar g_cursorPositionText[0x20];
+MechChar g_cursorPositionText[0x80];
 
 // ReadMouseState's bounds test keeps a jmp per return: an /Ob1-expanded inline function.
 inline MechS32 IsInsideWindow(POINT& p_point)

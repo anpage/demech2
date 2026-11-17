@@ -15,9 +15,11 @@
 // GLOBAL: MW2SHELL 0x10067708
 MechChar g_resourceDir[0x100] = {0};
 
-// Shared scratch buffer returned by the path helpers (overwritten on each call).
+// Shared scratch buffer returned by the path helpers (overwritten on each call): 0x100 bytes, as
+// the simulator's g_gamePath (1.1 and the Matrox edition's shell each have another global after
+// them); the helpers clear the first 0x50.
 // GLOBAL: MW2SHELL 0x1008ff58
-static MechChar g_resourcePath[0x50];
+static MechChar g_resourcePath[0x100];
 
 // Read a whole file into memory, allocated here unless p_preallocated; returns the open handle,
 // or -1 on failure.

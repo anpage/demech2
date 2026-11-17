@@ -14,7 +14,8 @@ enum {
 	c_lzWindowSize = 0x1000
 };
 
-// The ring buffer of GetDBItemLZ's LZSS decoder.
+// The ring buffer of GetDBItemLZ's LZSS decoder, which wraps at its size. 1.1 has 0x230 more
+// bytes before the next object's data, the Matrox edition's shell 0x80: other data.
 // GLOBAL: MW2SHELL 0x10094c90
 MechU8 g_lzWindow[c_lzWindowSize];
 

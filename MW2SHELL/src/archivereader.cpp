@@ -59,8 +59,10 @@ MainMenuButton g_prevPageLinkButton;
 // GLOBAL: MW2SHELL 0x1008d230
 MainMenuButton g_nextPageLinkButton;
 
+// The line ReadDBItemLine reads, which has no limit. 0x400 bytes: the Matrox edition's shell has
+// another global right after them (1.1 has eight more bytes before the next object's data).
 // GLOBAL: MW2SHELL 0x1008d250
-MechChar g_archiveLine[0x100];
+MechChar g_archiveLine[0x400];
 
 void ArchiveCallback(TMPackDataBase*, MechS32*, MechU8*, char**, MechS32 p_msg);
 

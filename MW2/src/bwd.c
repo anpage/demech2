@@ -34,10 +34,11 @@ MechS32 g_streamsFromFiles = 0;
 // GLOBAL: MW23DFX 0x10259eac
 MechS32 g_logStreams = 0;
 
-// Only LogKeywordName's dead first store takes its address.
+// Only LogKeywordName's dead first store takes its address. 28 bytes in 1.1 and in the Matrox
+// edition, each with other globals after it.
 // GLOBAL: MW2 0x10109c40
 // GLOBAL: MW2MATROX 0x101d6830
-MechChar g_unk0x10109c40[1];
+MechChar g_unk0x10109c40[28];
 
 // Opens the BWD stream p_key names into p_stream: from a file when the key has no resource id
 // (a name without an extension gets ".BWD"), or always with g_streamsFromFiles, and otherwise, or
