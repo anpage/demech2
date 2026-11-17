@@ -410,6 +410,19 @@ jobs:
             python tools/check_units.py --target "${entry%%:*}"
           done
 
+      - name: Check Imports
+        if: ${{ steps.detection.conclusion == 'success' && always() }}
+        shell: bash
+        run: |
+          # The build's import table must be the original's, and every function,
+          # game code or library, must use the imports the original's does: no
+          # annotation names an import slot, and a library function is whatever
+          # its annotation calls it; known exceptions are listed in
+          # tools/check_imports_expected.txt (tools/check_imports.py).
+          for entry in $TARGET_ENTRIES; do
+            python tools/check_imports.py --target "${entry%%:*}"
+          done
+
       - name: Certify
         if: ${{ steps.detection.conclusion == 'success' && always() }}
         shell: bash

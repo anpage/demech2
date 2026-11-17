@@ -230,6 +230,20 @@ jobs:
             python ../tools/check_units.py --target "$target" --expected tools/check_units_expected.txt
           done
 
+      - name: Check Imports
+        if: ${{ steps.detection.conclusion == 'success' && always() }}
+        shell: bash
+        working-directory: pr
+        run: |
+          # The build's import table must be the original's, and every function,
+          # game code or library, must use the imports the original's does
+          # (tools/check_imports.py). The known findings are data: they come
+          # from the PR's checkout, like the sources.
+          for entry in $RETAIL_ENTRIES; do
+            target="${entry%%:*}"
+            python ../tools/check_imports.py --target "$target" --expected tools/check_imports_expected.txt
+          done
+
       - name: Certify
         if: ${{ steps.detection.conclusion == 'success' && always() }}
         shell: bash

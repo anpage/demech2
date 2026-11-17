@@ -215,7 +215,10 @@ function(demech2_add_mw2matrox)
     # ML gets the edition's features from util/types.h's table (cmake/editions.cmake): VFX's
     # assembly tests them too.
     COMPILE_OPTIONS "$<$<COMPILE_LANGUAGE:C,CXX>:/G5;/DMW2_ACCEL;/DMW2_MATROX>" "$<$<COMPILE_LANGUAGE:ASM_MASM>:${matrox_masm_defines}>"
-    LINK_OPTIONS /DEBUG /INCREMENTAL:no
+    # The original is a plain link (it has no debug directory), which drops the CRT's unreferenced
+    # functions: /OPT:REF, which /DEBUG would otherwise turn off, keeps that shape (with _fpreset
+    # kept, the build imports four functions the original doesn't; tools/check_imports.py).
+    LINK_OPTIONS /DEBUG /OPT:REF /INCREMENTAL:no
     LIBRARIES winmm.lib wail32 ddraw dplay msi95 kernel32.lib user32.lib gdi32.lib advapi32.lib
   )
   # The Matrox edition expands mouse.c's __inline IsInsideWindow into MousePoll, where 1.1 calls it, and
