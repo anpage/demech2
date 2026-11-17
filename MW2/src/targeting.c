@@ -15,6 +15,9 @@
 #include "players.h"
 #include "playersteering.h"
 #include "recttransition.h"
+#ifdef MW2_LAYOUT_GAUGE_FUNCTIONS
+#include "screenscale.h"
+#endif
 #include "shape.h"
 #include "simmain.h"
 #include "soundfx.h"
@@ -373,7 +376,14 @@ CockpitLayout g_smallMapLayout = {
 	g_smallMapColors,
 	g_mapColors,
 	g_smallMapAnims,
+#ifdef MW2_LAYOUT_GAUGE_FUNCTIONS
+	{(CockpitGaugeFn) DrawGaugeEllipse,
+	 (CockpitGaugeFn) IsInsideGaugeEllipse,
+	 (CockpitGaugeFn) GetEllipseNeedleToward,
+	 (CockpitGaugeFn) GetEllipseNeedleAt}
+#else
 	{(CockpitGaugeFn) 2, (CockpitGaugeFn) 4, (CockpitGaugeFn) 6, (CockpitGaugeFn) 8}
+#endif
 };
 
 // GLOBAL: MW2 0x100aaf98
@@ -411,7 +421,14 @@ CockpitLayout g_largeMapLayout = {
 	g_largeMapColors,
 	g_mapColors,
 	g_largeMapAnims,
+#ifdef MW2_LAYOUT_GAUGE_FUNCTIONS
+	{(CockpitGaugeFn) DrawGaugeEllipse,
+	 (CockpitGaugeFn) IsInsideGaugeEllipse,
+	 (CockpitGaugeFn) GetEllipseNeedleToward,
+	 (CockpitGaugeFn) GetEllipseNeedleAt}
+#else
 	{(CockpitGaugeFn) 2, (CockpitGaugeFn) 4, (CockpitGaugeFn) 6, (CockpitGaugeFn) 8}
+#endif
 };
 
 // GLOBAL: MW2 0x100ab040
@@ -449,7 +466,11 @@ CockpitLayout g_satelliteLayout = {
 	g_satelliteColors,
 	g_mapColors,
 	g_satelliteAnims,
+#ifdef MW2_LAYOUT_GAUGE_FUNCTIONS
+	{NULL, NULL, (CockpitGaugeFn) GetRectNeedleToward, (CockpitGaugeFn) GetRectNeedleAt}
+#else
 	{(CockpitGaugeFn) 0, (CockpitGaugeFn) 3, (CockpitGaugeFn) 5, (CockpitGaugeFn) 7}
+#endif
 };
 
 // The layout of each cockpit view, NULL where it has none.

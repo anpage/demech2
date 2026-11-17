@@ -241,6 +241,8 @@ typedef char MechChar;
 #define MW2_NO_NET_DEBUG_PRINTS
 /* Key 0x3e asks for power down in power state 7 too, where 1.1 ignores it */
 #define MW2_NO_STATE_7_POWER_TEST
+/* The map layouts hold their gauge functions from the start, not indices in g_cockpitGauges */
+#define MW2_LAYOUT_GAUGE_FUNCTIONS
 /* Not a difference of the game: the edition's headers define FixedMul16, FixedDiv16, MulDiv64, HashName and
    DebugBreakpoint __inline (its /Ox expands them in every caller), and MemCopy and MemSet are C */
 #define MW2_INLINE_HELPERS
