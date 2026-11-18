@@ -77,8 +77,9 @@
 0x10014880 GetObjectiveTarget ai.c pad 1
 0x10015090 CanSeeTarget lineofsight.c pad 1
 0x10015410 BlowOffChunk debris.c pad 6
-0x10015aa0 FindDebrisPiece debris.c pad 7
-0x10015ad0 DamageChunksInRadius debris.c pad 6
+0x100156f0 UpdateDebrisPiece debris.c pad 1
+0x10015aa0 FindDebrisPiece debris.c pad 3
+0x10015ad0 DamageChunksInRadius debris.c pad 2
 0x10016280 KillMech mechdamage.c pad 1
 0x100171d0 ApplyDamageToMech mechdamage.c pad 1
 0x10017b80 DrawObjectivesPanel statuspanels.c pad 3
@@ -141,6 +142,7 @@
 0x100269f0 ForgetObjShape classtable.c pad 3
 0x10027750 ReadTextLine polydraw.c pad 2
 0x10028ee0 IsAboveHorizon horizon.c pad 2
+0x10029060 ComputeShapeBounds shape.c pad 1
 0x10029210 ComputeFaceNormal shape.c pad 6
 0x10029460 AddModel shape.c pad 2
 0x10029760 RemoveSelectedModel shape.c pad 13
@@ -163,7 +165,7 @@
 0x1002d410 FUN_10051ba1 animation.c pad 11
 0x1002d920 StartCameraShakeKey camerashake.c pad 5
 0x1002e280 UpdateTrackView eyepoint.c pad 2
-0x1002e8a0 UpdateFreeEyeView eyepoint.c pad 4
+0x1002e8a0 UpdateFreeEyeView eyepoint.c pad 1
 0x1002ebc0 RotatePoint transform.c pad 2
 0x1002f4a0 ScaleVectorToLength transform.c pad 1
 0x1002f560 SelectEyepoint view.c pad 15
@@ -239,12 +241,12 @@
 0x10045840 SwayShot shots.c rename p_shot=zqal p_x=zqam sideX=zqai sideY=zqaj sideZ=zqak
 0x10045910 GuideMissileToTarget shots.c rename distance=zqap dx=zqal dy=zqan dz=zqao p_shot=zqae player=zqad targetX=zqaa targetY=zqab targetZ=zqac thing=zqai vx=zqaj vy=zqak vz=zqam
 0x10045b90 DetonateShot shots.c rename impact=zqai p_explode=zqal p_index=zqak shot=zqaj
-0x10045d00 SpawnEffectEx shots.c pad 4 rename cameraX=zqaj cameraZ=zqal chain=zqan chainType=zqci closer=zqam count=zqac current=zqab distance=zqby dx=zqak dy=zqbw dz=zqbi effect=zqaa flags=zqbg i=zqap info=zqbm p_owner=zqad p_type=zqat pieces=zqai quiet=zqao slot=zqa1 take=zqaq volume=zqas
+0x10045d00 SpawnEffectEx shots.c rename cameraX=zqaj cameraZ=zqal chain=zqan chainType=zqci closer=zqam count=zqac current=zqab distance=zqby dx=zqak dy=zqbw dz=zqbi effect=zqaa flags=zqbg i=zqap info=zqbm p_owner=zqad p_type=zqat pieces=zqai quiet=zqao slot=zqa1 take=zqaq volume=zqas
 0x10046490 UpdateEffects shots.c pad 1 rename effect=zqak i=zqaj radius=zqam release=zqai restore=zqal x=zqan y=zqao z=zqap
-0x10046700 DamageMechsInRadius shots.c pad 4 rename damage=zqap dx=zqai dy=zqaj dz=zqal i=zqam mech=zqak p_owner=zqaa player=zqao reach=zqan
-0x100468b0 DamageThingsInRadius shots.c pad 4 rename distance=zqan dx=zqaj dy=zqak dz=zqal i=zqam p_owner=zqae radius=zqac reach=zqaa shape=zqad thing=zqai x=zqao y=zqap z=zqab
+0x10046700 DamageMechsInRadius shots.c rename damage=zqap dx=zqai dy=zqaj dz=zqal i=zqam mech=zqak p_owner=zqaa player=zqao reach=zqan
+0x100468b0 DamageThingsInRadius shots.c pad 13 rename distance=zqan dx=zqaj dy=zqak dz=zqal i=zqam p_owner=zqae radius=zqac reach=zqaa shape=zqad thing=zqai x=zqao y=zqap z=zqab
 0x10046a90 KillGameThing shots.c pad 1
-0x10046e70 HeatMechsNearFires shots.c pad 48 rename distance=zqaf dx=zqam dy=zqan dz=zqab heat=zqad i=zqae mech=zqap player=zqag radius=zqao reach=zqaa root=zqak shape=zqac x=zqai y=zqaj z=zqal
+0x10046e70 HeatMechsNearFires shots.c pad 11 early int~g_localPlayerId 11 rename distance=zqaf dx=zqam dy=zqan dz=zqab heat=zqad i=zqae mech=zqap player=zqag radius=zqao reach=zqaa root=zqak shape=zqac x=zqai y=zqaj z=zqal
 0x10047020 StartNuke shots.c rename duration=zqai effect=zqak i=zqaj p_player=zqam shape=zqal
 0x100613c0 InitPaletteFade palfade.c pad 5
 0x100641d0 PreviewBrightnessFraction brightnessmenu.c pad 6

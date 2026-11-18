@@ -249,32 +249,31 @@ void FirstMech(struct Player* p_player)
 // FUNCTION: MW23DFX 0x10019310
 void UpdateMech(Mech* p_mech)
 {
+	MechScalar velY;
 	MechScalar height;
-	MechScalar accelY;
 	MechScalar velZ;
 	MechScalar posZ;
 	MechScalar dy;
 	MechS32 isLocal;
 	Player* hitPlayer;
 	MechScalar speed;
-	MechScalar length;
 	MechScalar dragX;
 	MechScalar accelZ;
 	MechScalar dz;
 	struct Shape* hitShape;
+	MechScalar length;
 	MechScalar dragZ;
 	MechScalar targetX;
 	MechScalar topSpeed;
 	MechScalar drag;
 	Mech* mech;
 	MechScalar heading;
+	MechScalar velX;
 	MechScalar targetZ;
 	MechScalar pitch;
 	MechScalar impact;
-	MechScalar velX;
 	MechScalar posX;
 	MechScalar accelX;
-	MechScalar velY;
 	MechScalar posY;
 	MechScalar dx;
 	MechScalar a;
@@ -285,6 +284,7 @@ void UpdateMech(Mech* p_mech)
 	MechScalar posY2;
 	MechScalar posZ2;
 	struct Shape* hitShape2;
+	MechScalar accelY;
 	MechS32 savedUnk0xa4;
 	MechS32 sound;
 	MechScalar volume;
@@ -1517,14 +1517,9 @@ void LateUpdateMech(Mech* p_mech)
 		}
 #endif
 
-#ifdef MW2_FLOAT_SCALARS
-		// isLocal holds here: the accelerated editions don't test it again.
-		g_recenterLastHeading = mech->m_player->m_heading;
-#else
 		if (isLocal) {
 			g_recenterLastHeading = mech->m_player->m_heading;
 		}
-#endif
 	}
 
 	if (active) {

@@ -242,11 +242,11 @@ MechS32 GetFaceShade(Face* p_face, Vertex* p_vertices)
 {
 	MechFloat normalX;
 	MechFloat normalY;
-	MechFloat normalZ;
 	MechFloat dot;
 	MechS16 shade;
 	Vertex* vertex;
 	MechFloat dx;
+	MechFloat normalZ;
 	MechFloat dy;
 	MechFloat dz;
 

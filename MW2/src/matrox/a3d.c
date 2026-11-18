@@ -249,12 +249,15 @@ MechS32 g_unk0x100acb58 = 0;
 // GLOBAL: MW2MATROX 0x100acb5c
 MechU32 g_unk0x100acb5c = 1;
 
-// The cached items by ID.
-// GLOBAL: MW2MATROX 0x100c2680
-static A3DTexture* g_unk0x100c2680[0x4000];
+// The cached items by ID: the texture cache's, then the heap cache's.
+// SIZE 0x20000
+typedef struct A3DCacheTables {
+	A3DTexture* m_textureItems[0x4000]; // 0x00000
+	A3DTexture* m_heapItems[0x4000];    // 0x10000
+} A3DCacheTables;
 
-// GLOBAL: MW2MATROX 0x100d2680
-static A3DTexture* g_unk0x100d2680[0x4000];
+// GLOBAL: MW2MATROX 0x100c2680
+static A3DCacheTables g_unk0x100c2680;
 
 // The buffer FUN_10066c40 fills rectangles from.
 // GLOBAL: MW2MATROX 0x100e2680
@@ -324,18 +327,6 @@ MechFloat g_unk0x101246ec;
 		}                                                                                                              \
 		(p_item)->p_next = NULL;                                                                                       \
 		(p_item)->p_prev = NULL;                                                                                       \
-	}
-
-// Takes the heap block p_block off its used or free list, whose head is p_head.
-#define A3D_UNLIST_BLOCK(p_block, p_head)                                                                              \
-	if ((p_block)->m_unk0x0c) {                                                                                        \
-		(p_block)->m_unk0x0c->m_unk0x08 = (p_block)->m_unk0x08;                                                        \
-	}                                                                                                                  \
-	else {                                                                                                             \
-		p_head = (p_block)->m_unk0x08;                                                                                 \
-	}                                                                                                                  \
-	if ((p_block)->m_unk0x08) {                                                                                        \
-		(p_block)->m_unk0x08->m_unk0x0c = (p_block)->m_unk0x0c;                                                        \
 	}
 
 // Takes the heap block p_block off the list of all blocks, whose head is p_head (p_prevBlock holds
@@ -446,12 +437,7 @@ MechFloat g_unk0x101246ec;
 
 // A3D_LERP for doubles.
 #define A3D_LERP_DOUBLE(p_out, p_a, p_b, p_t)                                                                          \
-	if ((MechFloat) fabs((p_a) - (p_b)) < 1e-7f) {                                                                     \
-		p_out = p_a;                                                                                                   \
-	}                                                                                                                  \
-	else {                                                                                                             \
-		p_out = ((p_b) - (p_a)) * (p_t) + (p_a);                                                                       \
-	}
+	p_out = 1e-7f > (MechFloat) fabs((p_a) - (p_b)) ? (p_a) : ((p_b) - (p_a)) * (p_t) + (p_a);
 
 // The point where the edge from the clipper's vertex a to b (inside and outside, or the reverse)
 // crosses the clip edge p_edge, on x or y: its coordinates (p_lerp: A3D_LERP or A3D_LERP_DOUBLE)
@@ -592,6 +578,20 @@ void FUN_10067260(void);
 void FUN_10067300(void);
 void FUN_100673c0(void);
 
+// Takes the heap block p_block off its used or free list, whose head is p_head.
+__inline static void UnlistBlock(A3DHeapBlock** p_head, A3DHeapBlock* p_block)
+{
+	if (p_block->m_unk0x0c) {
+		p_block->m_unk0x0c->m_unk0x08 = p_block->m_unk0x08;
+	}
+	else {
+		*p_head = p_block->m_unk0x08;
+	}
+	if (p_block->m_unk0x08) {
+		p_block->m_unk0x08->m_unk0x0c = p_block->m_unk0x0c;
+	}
+}
+
 // Puts the block p_block on the used list p_head, in address order.
 __inline static void InsertUsedBlock(A3DHeapBlock** p_head, A3DHeapBlock* p_block)
 {
@@ -708,7 +708,7 @@ __inline static A3DTexture* TEXTURECACHE_finditem(MechS32 p_id)
 		return NULL;
 	}
 
-	item = g_unk0x100c2680[p_id];
+	item = g_unk0x100c2680.m_textureItems[p_id];
 	if (item && !item->m_vramBlock) {
 #if defined(_MSC_VER) && defined(_M_IX86)
 		__asm int 3
@@ -726,7 +726,7 @@ __inline static A3DTexture* HEAPCACHE_finditem(MechS32 p_id)
 		return NULL;
 	}
 
-	return g_unk0x100d2680[p_id];
+	return g_unk0x100c2680.m_heapItems[p_id];
 }
 
 // A vertex of the polygon FUN_1005a5f0 clips, in doubles: the view-space position, the texture
@@ -776,8 +776,10 @@ MechS32 FUN_1005a5f0(ProjectedVertex* p_out, ProjectedVertex* p_in, MechS32 p_co
 	A3DClipVertex* src;
 	MechDouble minZ;
 	MechDouble maxZ;
-	MechDouble curEdge;
-	MechDouble nextEdge;
+	MechDouble curEdgeY;
+	MechDouble nextEdgeY;
+	MechDouble curEdgeX;
+	MechDouble nextEdgeX;
 	MechS32 i;
 	MechS32 n;
 	MechS32 outCount;
@@ -831,11 +833,16 @@ MechS32 FUN_1005a5f0(ProjectedVertex* p_out, ProjectedVertex* p_in, MechS32 p_co
 				next = src;
 			}
 			if (cur->m_z >= g_viewNearPlane) {
-				*out = *cur;
-				outCount++;
-				out++;
 				if (next->m_z < g_viewNearPlane) {
+					*out = *cur;
+					outCount++;
+					out++;
 					A3DClipEdge(out, cur, next, c_clipPlaneNear);
+					outCount++;
+					out++;
+				}
+				else {
+					*out = *cur;
 					outCount++;
 					out++;
 				}
@@ -865,11 +872,16 @@ MechS32 FUN_1005a5f0(ProjectedVertex* p_out, ProjectedVertex* p_in, MechS32 p_co
 				next = src;
 			}
 			if (cur->m_z <= g_viewFarPlane) {
-				*out = *cur;
-				outCount++;
-				out++;
 				if (next->m_z > g_viewFarPlane) {
+					*out = *cur;
+					outCount++;
+					out++;
 					A3DClipEdge(out, cur, next, c_clipPlaneFar);
+					outCount++;
+					out++;
+				}
+				else {
+					*out = *cur;
 					outCount++;
 					out++;
 				}
@@ -898,19 +910,24 @@ MechS32 FUN_1005a5f0(ProjectedVertex* p_out, ProjectedVertex* p_in, MechS32 p_co
 			if (n - i == 1) {
 				next = src;
 			}
-			curEdge = cur->m_y * g_unk0x100e2698;
-			nextEdge = next->m_y * g_unk0x100e2698;
-			if (cur->m_z >= curEdge) {
-				*out = *cur;
-				outCount++;
-				out++;
-				if (next->m_z < nextEdge) {
+			curEdgeY = cur->m_y * g_unk0x100e2698;
+			nextEdgeY = next->m_y * g_unk0x100e2698;
+			if (cur->m_z >= curEdgeY) {
+				if (next->m_z < nextEdgeY) {
+					*out = *cur;
+					outCount++;
+					out++;
 					A3DClipEdge(out, cur, next, c_clipPlaneTop);
 					outCount++;
 					out++;
 				}
+				else {
+					*out = *cur;
+					outCount++;
+					out++;
+				}
 			}
-			else if (next->m_z >= nextEdge) {
+			else if (next->m_z >= nextEdgeY) {
 				A3DClipEdge(out, cur, next, c_clipPlaneTop);
 				outCount++;
 				out++;
@@ -934,19 +951,24 @@ MechS32 FUN_1005a5f0(ProjectedVertex* p_out, ProjectedVertex* p_in, MechS32 p_co
 			if (n - i == 1) {
 				next = src;
 			}
-			curEdge = cur->m_y * g_unk0x100e2698;
-			nextEdge = next->m_y * g_unk0x100e2698;
-			if (curEdge >= -cur->m_z) {
-				*out = *cur;
-				outCount++;
-				out++;
-				if (nextEdge < -next->m_z) {
+			curEdgeY = cur->m_y * g_unk0x100e2698;
+			nextEdgeY = next->m_y * g_unk0x100e2698;
+			if (curEdgeY >= -cur->m_z) {
+				if (nextEdgeY < -next->m_z) {
+					*out = *cur;
+					outCount++;
+					out++;
 					A3DClipEdge(out, cur, next, c_clipPlaneBottom);
 					outCount++;
 					out++;
 				}
+				else {
+					*out = *cur;
+					outCount++;
+					out++;
+				}
 			}
-			else if (nextEdge >= -next->m_z) {
+			else if (nextEdgeY >= -next->m_z) {
 				A3DClipEdge(out, cur, next, c_clipPlaneBottom);
 				outCount++;
 				out++;
@@ -970,19 +992,24 @@ MechS32 FUN_1005a5f0(ProjectedVertex* p_out, ProjectedVertex* p_in, MechS32 p_co
 			if (n - i == 1) {
 				next = src;
 			}
-			curEdge = cur->m_x * g_unk0x100e2690;
-			nextEdge = next->m_x * g_unk0x100e2690;
-			if (curEdge >= -cur->m_z) {
-				*out = *cur;
-				outCount++;
-				out++;
-				if (nextEdge < -next->m_z) {
+			curEdgeX = cur->m_x * g_unk0x100e2690;
+			nextEdgeX = next->m_x * g_unk0x100e2690;
+			if (curEdgeX >= -cur->m_z) {
+				if (nextEdgeX < -next->m_z) {
+					*out = *cur;
+					outCount++;
+					out++;
 					A3DClipEdge(out, cur, next, c_clipPlaneLeft);
 					outCount++;
 					out++;
 				}
+				else {
+					*out = *cur;
+					outCount++;
+					out++;
+				}
 			}
-			else if (nextEdge >= -next->m_z) {
+			else if (nextEdgeX >= -next->m_z) {
 				A3DClipEdge(out, cur, next, c_clipPlaneLeft);
 				outCount++;
 				out++;
@@ -1006,19 +1033,24 @@ MechS32 FUN_1005a5f0(ProjectedVertex* p_out, ProjectedVertex* p_in, MechS32 p_co
 			if (n - i == 1) {
 				next = src;
 			}
-			curEdge = cur->m_x * g_unk0x100e2690;
-			nextEdge = next->m_x * g_unk0x100e2690;
-			if (cur->m_z >= curEdge) {
-				*out = *cur;
-				outCount++;
-				out++;
-				if (next->m_z < nextEdge) {
+			curEdgeX = cur->m_x * g_unk0x100e2690;
+			nextEdgeX = next->m_x * g_unk0x100e2690;
+			if (cur->m_z >= curEdgeX) {
+				if (next->m_z < nextEdgeX) {
+					*out = *cur;
+					outCount++;
+					out++;
 					A3DClipEdge(out, cur, next, c_clipPlaneRight);
 					outCount++;
 					out++;
 				}
+				else {
+					*out = *cur;
+					outCount++;
+					out++;
+				}
 			}
-			else if (next->m_z >= nextEdge) {
+			else if (next->m_z >= nextEdgeX) {
 				A3DClipEdge(out, cur, next, c_clipPlaneRight);
 				outCount++;
 				out++;
@@ -1239,9 +1271,10 @@ void FUN_1005d0a0(void)
 	A3DTexture* item;
 	A3DTexture* next;
 
-	while ((item = g_unk0x100acb30) != NULL) {
+	while (g_unk0x100acb30) {
+		item = g_unk0x100acb30;
 		A3D_UNLINK(item, next, m_vramNext, m_vramPrev, g_unk0x100acb30, g_unk0x100acb34);
-		g_unk0x100c2680[item->m_id] = NULL;
+		g_unk0x100c2680.m_textureItems[item->m_id] = NULL;
 		FUN_1005d140(item->m_vramBlock);
 		item->m_vramBlock = NULL;
 	}
@@ -1260,12 +1293,12 @@ void FUN_1005d140(A3DHeapBlock* p_block)
 
 	if (p_block) {
 		g_unk0x100acb04--;
-		A3D_UNLIST_BLOCK(p_block, g_unk0x100acaf0);
+		UnlistBlock(&g_unk0x100acaf0, p_block);
 		size = p_block->m_size;
+		g_unk0x100acafc += size;
 		p_block->m_free = TRUE;
 		p_block->m_owner->m_vramBlock = NULL;
 		p_block->m_owner = NULL;
-		g_unk0x100acafc += size;
 
 		if (g_unk0x100acaf4) {
 			for (cur = g_unk0x100acaf4; cur && cur->m_address <= p_block->m_address; cur = cur->m_unk0x08) {
@@ -1273,7 +1306,8 @@ void FUN_1005d140(A3DHeapBlock* p_block)
 			}
 			if (cur) {
 				if (cur->m_unk0x0c && cur->m_unk0x0c->m_address + cur->m_unk0x0c->m_size == p_block->m_address) {
-					cur->m_unk0x0c->m_size += size;
+					size += cur->m_unk0x0c->m_size;
+					cur->m_unk0x0c->m_size = size;
 					A3D_UNCHAIN_BLOCK(p_block, prev, g_unk0x100acaf8);
 					HeapFree(g_primaryHeap, HEAP_NO_SERIALIZE, p_block);
 				}
@@ -1322,6 +1356,7 @@ void FUN_1005d140(A3DHeapBlock* p_block)
 }
 #pragma optimize("", on)
 
+#pragma optimize("w", on)
 // Empties both caches: the texture cache (FUN_1005d0a0), then every item of the heap cache, with
 // its blocks. Nothing in the edition calls it.
 // FUNCTION: MW2MATROX 0x1005d300
@@ -1331,20 +1366,24 @@ void FUN_1005d300(void)
 	A3DTexture* next;
 
 	FUN_1005d0a0();
-	while ((item = g_unk0x100acb40) != NULL) {
-		A3D_UNLINK(item, next, m_vramNext, m_vramPrev, g_unk0x100acb30, g_unk0x100acb34);
-		g_unk0x100c2680[item->m_id] = NULL;
-		FUN_1005d140(item->m_vramBlock);
-		FUN_1005d440(item->m_heapBlock);
-		A3D_UNLINK(item, next, m_heapNext, m_heapPrev, g_unk0x100acb40, g_unk0x100acb44);
-		g_unk0x100d2680[item->m_id] = NULL;
-		HeapFree(g_primaryHeap, HEAP_NO_SERIALIZE, item);
-		g_unk0x100acb50--;
+	while (g_unk0x100acb40) {
+		item = g_unk0x100acb40;
+		if (item) {
+			A3D_UNLINK(item, next, m_vramNext, m_vramPrev, g_unk0x100acb30, g_unk0x100acb34);
+			g_unk0x100c2680.m_textureItems[item->m_id] = NULL;
+			FUN_1005d140(item->m_vramBlock);
+			FUN_1005d440(item->m_heapBlock);
+			A3D_UNLINK(item, next, m_heapNext, m_heapPrev, g_unk0x100acb40, g_unk0x100acb44);
+			g_unk0x100c2680.m_heapItems[item->m_id] = NULL;
+			HeapFree(g_primaryHeap, HEAP_NO_SERIALIZE, item);
+			g_unk0x100acb50--;
+		}
 	}
 	g_unk0x100acb48 = 0;
 	g_unk0x100acb4c = 0;
 	g_unk0x100acb50 = 0;
 }
+#pragma optimize("", on)
 
 #pragma optimize("w", on)
 // Frees the heap block p_block, as FUN_1005d140 frees VRAM blocks.
@@ -1358,12 +1397,12 @@ void FUN_1005d440(A3DHeapBlock* p_block)
 
 	if (p_block) {
 		g_unk0x100acb28--;
-		A3D_UNLIST_BLOCK(p_block, g_unk0x100acb0c);
+		UnlistBlock(&g_unk0x100acb0c, p_block);
 		size = p_block->m_size;
+		g_unk0x100acb18 += size;
 		p_block->m_free = TRUE;
 		p_block->m_owner->m_heapBlock = NULL;
 		p_block->m_owner = NULL;
-		g_unk0x100acb18 += size;
 
 		if (g_unk0x100acb10) {
 			for (cur = g_unk0x100acb10; cur && cur->m_address <= p_block->m_address; cur = cur->m_unk0x08) {
@@ -1371,7 +1410,8 @@ void FUN_1005d440(A3DHeapBlock* p_block)
 			}
 			if (cur) {
 				if (cur->m_unk0x0c && cur->m_unk0x0c->m_address + cur->m_unk0x0c->m_size == p_block->m_address) {
-					cur->m_unk0x0c->m_size += size;
+					size += cur->m_unk0x0c->m_size;
+					cur->m_unk0x0c->m_size = size;
 					A3D_UNCHAIN_BLOCK(p_block, prev, g_unk0x100acb14);
 					HeapFree(g_primaryHeap, HEAP_NO_SERIALIZE, p_block);
 				}
@@ -1440,9 +1480,9 @@ A3DTexture* A3D_LoadTexture(MechS32 p_id, MechS32 p_paletted, MechU32 p_levels)
 		g_unk0x100acb38++;
 		g_unk0x100acb48++;
 		A3D_UNLINK(item, next, m_heapNext, m_heapPrev, g_unk0x100acb40, g_unk0x100acb44);
-		g_unk0x100d2680[item->m_id] = NULL;
+		g_unk0x100c2680.m_heapItems[item->m_id] = NULL;
 		A3D_UNLINK(item, next, m_vramNext, m_vramPrev, g_unk0x100acb30, g_unk0x100acb34);
-		g_unk0x100c2680[item->m_id] = NULL;
+		g_unk0x100c2680.m_textureItems[item->m_id] = NULL;
 	}
 	else {
 		g_unk0x100acb3c++;
@@ -1450,7 +1490,7 @@ A3DTexture* A3D_LoadTexture(MechS32 p_id, MechS32 p_paletted, MechU32 p_levels)
 		if (item) {
 			g_unk0x100acb48++;
 			A3D_UNLINK(item, next, m_heapNext, m_heapPrev, g_unk0x100acb40, g_unk0x100acb44);
-			g_unk0x100d2680[item->m_id] = NULL;
+			g_unk0x100c2680.m_heapItems[item->m_id] = NULL;
 		}
 		else {
 			g_unk0x100acb4c++;
@@ -1480,7 +1520,7 @@ A3DTexture* A3D_LoadTexture(MechS32 p_id, MechS32 p_paletted, MechU32 p_levels)
 	else {
 		g_unk0x100acb40 = item;
 	}
-	g_unk0x100d2680[item->m_id] = item;
+	g_unk0x100c2680.m_heapItems[item->m_id] = item;
 
 	last = g_unk0x100acb34;
 	g_unk0x100acb34 = item;
@@ -1492,7 +1532,7 @@ A3DTexture* A3D_LoadTexture(MechS32 p_id, MechS32 p_paletted, MechU32 p_levels)
 	else {
 		g_unk0x100acb30 = item;
 	}
-	g_unk0x100c2680[item->m_id] = item;
+	g_unk0x100c2680.m_textureItems[item->m_id] = item;
 
 	return item;
 }
@@ -1545,7 +1585,7 @@ A3DHeapBlock* FUN_1005d990(A3DTexture* p_item, MechS32 p_defrag)
 	block->m_address = found->m_address;
 	found->m_address = block->m_address + size;
 	if (!remaining) {
-		A3D_UNLIST_BLOCK(found, g_unk0x100acaf4);
+		UnlistBlock(&g_unk0x100acaf4, found);
 		A3D_UNCHAIN_BLOCK(found, prev, g_unk0x100acaf8);
 		HeapFree(g_primaryHeap, HEAP_NO_SERIALIZE, found);
 	}
@@ -1594,7 +1634,7 @@ A3DHeapBlock* VRAM_defrag(MechU32 p_size)
 					VRAM_copyfromheap(block->m_owner, block);
 				}
 				largest->m_size += cur->m_size;
-				A3D_UNLIST_BLOCK(cur, g_unk0x100acaf4);
+				UnlistBlock(&g_unk0x100acaf4, cur);
 				A3D_UNCHAIN_BLOCK(cur, prev, g_unk0x100acaf8);
 				HeapFree(g_primaryHeap, HEAP_NO_SERIALIZE, cur);
 			}
@@ -1609,7 +1649,7 @@ A3DHeapBlock* VRAM_defrag(MechU32 p_size)
 				}
 				largest->m_size += cur->m_size;
 				largest->m_address -= cur->m_size;
-				A3D_UNLIST_BLOCK(cur, g_unk0x100acaf4);
+				UnlistBlock(&g_unk0x100acaf4, cur);
 				A3D_UNCHAIN_BLOCK(cur, prev, g_unk0x100acaf8);
 				HeapFree(g_primaryHeap, HEAP_NO_SERIALIZE, cur);
 			}
@@ -1639,7 +1679,7 @@ void FUN_1005e220(A3DTexture* p_item)
 		if (g_unk0x100acb34 == p_item) {
 			g_unk0x100acb34 = NULL;
 		}
-		g_unk0x100c2680[p_item->m_id] = NULL;
+		g_unk0x100c2680.m_textureItems[p_item->m_id] = NULL;
 		return;
 	}
 
@@ -1657,7 +1697,7 @@ void FUN_1005e220(A3DTexture* p_item)
 		g_unk0x100acb30 = next;
 	}
 	p_item->m_vramNext = NULL;
-	g_unk0x100c2680[p_item->m_id] = NULL;
+	g_unk0x100c2680.m_textureItems[p_item->m_id] = NULL;
 	p_item->m_vramPrev = NULL;
 }
 #pragma optimize("", on)
@@ -1765,7 +1805,7 @@ A3DTexture* HEAPCACHE_loaditem(MechS32 p_id, MechS32 p_paletted, MechU32 p_level
 		DebugPrint("HEAPCACHE_loaditem(): RetrieveByIndex() failed on ID #%i\n", p_id);
 		if (item) {
 			A3D_UNLINK(item, next, m_vramNext, m_vramPrev, g_unk0x100acb30, g_unk0x100acb34);
-			g_unk0x100c2680[item->m_id] = NULL;
+			g_unk0x100c2680.m_textureItems[item->m_id] = NULL;
 			FUN_1005d140(item->m_vramBlock);
 			FUN_1005d440(item->m_heapBlock);
 			FUN_1005ebb0(item);
@@ -1795,7 +1835,7 @@ A3DTexture* HEAPCACHE_loaditem(MechS32 p_id, MechS32 p_paletted, MechU32 p_level
 	DebugPrint("HEAPCACHE_loaditem(): RetrieveByIndex() failed on ID #%i\n", p_id);
 	if (item) {
 		A3D_UNLINK(item, next, m_vramNext, m_vramPrev, g_unk0x100acb30, g_unk0x100acb34);
-		g_unk0x100c2680[item->m_id] = NULL;
+		g_unk0x100c2680.m_textureItems[item->m_id] = NULL;
 		FUN_1005d140(item->m_vramBlock);
 		FUN_1005d440(item->m_heapBlock);
 		FUN_1005ebb0(item);
@@ -1858,7 +1898,7 @@ A3DHeapBlock* FUN_1005e770(A3DTexture* p_item, MechU32 p_size, MechS32 p_defrag,
 	found->m_size = remaining;
 	found->m_address = block->m_address + size;
 	if (!remaining) {
-		A3D_UNLIST_BLOCK(found, g_unk0x100acb10);
+		UnlistBlock(&g_unk0x100acb10, found);
 		A3D_UNCHAIN_BLOCK(found, prev, g_unk0x100acb14);
 		HeapFree(g_primaryHeap, HEAP_NO_SERIALIZE, found);
 	}
@@ -1910,7 +1950,7 @@ A3DHeapBlock* HEAP_defrag(MechU32 p_size)
 					block->m_unk0x20 += cur->m_size;
 				}
 				largest->m_size += cur->m_size;
-				A3D_UNLIST_BLOCK(cur, g_unk0x100acb10);
+				UnlistBlock(&g_unk0x100acb10, cur);
 				A3D_UNCHAIN_BLOCK(cur, prev, g_unk0x100acb14);
 				HeapFree(g_primaryHeap, HEAP_NO_SERIALIZE, cur);
 			}
@@ -1930,7 +1970,7 @@ A3DHeapBlock* HEAP_defrag(MechU32 p_size)
 				}
 				largest->m_size += cur->m_size;
 				largest->m_address -= cur->m_size;
-				A3D_UNLIST_BLOCK(cur, g_unk0x100acb10);
+				UnlistBlock(&g_unk0x100acb10, cur);
 				A3D_UNCHAIN_BLOCK(cur, prev, g_unk0x100acb14);
 				HeapFree(g_primaryHeap, HEAP_NO_SERIALIZE, cur);
 			}
@@ -1960,7 +2000,7 @@ void FUN_1005ebb0(A3DTexture* p_item)
 		if (g_unk0x100acb44 == p_item) {
 			g_unk0x100acb44 = NULL;
 		}
-		g_unk0x100d2680[p_item->m_id] = NULL;
+		g_unk0x100c2680.m_heapItems[p_item->m_id] = NULL;
 		return;
 	}
 
@@ -1978,7 +2018,7 @@ void FUN_1005ebb0(A3DTexture* p_item)
 		g_unk0x100acb40 = next;
 	}
 	p_item->m_heapNext = NULL;
-	g_unk0x100d2680[p_item->m_id] = NULL;
+	g_unk0x100c2680.m_heapItems[p_item->m_id] = NULL;
 	p_item->m_heapPrev = NULL;
 }
 #pragma optimize("", on)
@@ -2382,10 +2422,14 @@ __inline MechS32 A3DClipPolygon(
 )
 {
 	A3DVertex* vertex;
+	A3DVertex* out;
 
+	out = p_out;
 	vertex = p_vertices;
-	g_unk0x101246e0 = g_unk0x101246e8 = vertex->m_x;
-	g_unk0x101246e4 = g_unk0x101246ec = vertex->m_y;
+	g_unk0x101246e8 = vertex->m_x;
+	g_unk0x101246e0 = vertex->m_x;
+	g_unk0x101246ec = vertex->m_y;
+	g_unk0x101246e4 = vertex->m_y;
 	vertex++;
 	A3D_COMPUTE_BOUNDS(vertex, p_count);
 
@@ -2398,7 +2442,7 @@ __inline MechS32 A3DClipPolygon(
 		return FUN_1005fd70(p_vertices, p_out, p_count, p_clip, p_flags);
 	}
 
-	A3D_COPY_VERTICES(p_vertices, p_out, p_count);
+	A3D_COPY_VERTICES(p_vertices, out, p_count);
 	return p_count;
 }
 
@@ -2650,7 +2694,6 @@ void A3D_DrawPolygon(PANE* p_pane, MechU32 p_count, A3DVertex* p_vertices)
 	MechS32 top;
 	MechS32 right;
 	MechS32 bottom;
-	MechS32 i;
 	MechFloat clip[4];
 	A3DVertex polygon[0x40];
 
@@ -2694,7 +2737,7 @@ void A3D_DrawPolygon(PANE* p_pane, MechU32 p_count, A3DVertex* p_vertices)
 		p_count = A3DClipPolygon(p_vertices, polygon, p_count, clip, 0);
 		if (p_count >= 3) {
 			vertex = &polygon[1];
-			for (i = p_count - 2; i; i--) {
+			for (p_count -= 2; p_count; p_count--) {
 				msiRenderTriangle(polygon, vertex, vertex + 1, 100);
 				vertex++;
 			}
@@ -3851,7 +3894,6 @@ void FUN_10066cf0(undefined* p_heap, undefined* p_buffer, MechS32 p_color)
 MechS32 A3D_Init(WNDPROC p_windowProc, MechS32 p_width, MechS32 p_height)
 {
 	FILE* file;
-	MechDouble* thresholds;
 	MechU32 i;
 	MechFloat threshold;
 	MechFloat maxZ;
@@ -3866,13 +3908,13 @@ MechS32 A3D_Init(WNDPROC p_windowProc, MechS32 p_width, MechS32 p_height)
 	if (file) {
 		MechChar line[0x100];
 
-		thresholds = g_unk0x100e26a0;
+		i = 0;
 		while (fgets(line, sizeof(line), file)) {
 			if (line[0] != '/' && !sscanf(line, "groundMIPlevels = %i", &g_unk0x100ac924) &&
 				!sscanf(line, "skyMIPlevels = %i", &g_unk0x100ac928) &&
 				!sscanf(line, "NoMIPThresholds = %i", &g_unk0x100ac920)) {
 				if (sscanf(line, "MIPThreshold = %f", &threshold)) {
-					*thresholds++ = threshold;
+					g_unk0x100e26a0[i++] = threshold;
 				}
 				else if (
 					!sscanf(line, "MIPmaxZ = %f", &maxZ) && !sscanf(line, "MIPtessheight = %i", &g_unk0x100ac92c)
@@ -3973,7 +4015,7 @@ void FUN_10067170(void)
 {
 	g_unk0x100acb30 = NULL;
 	g_unk0x100acb34 = NULL;
-	memset(g_unk0x100c2680, 0, sizeof(g_unk0x100c2680));
+	memset(g_unk0x100c2680.m_textureItems, 0, sizeof(g_unk0x100c2680.m_textureItems));
 	g_unk0x100acb38 = 0;
 	g_unk0x100acb3c = 0;
 }
@@ -3983,7 +4025,7 @@ void FUN_100671a0(void)
 {
 	g_unk0x100acb40 = NULL;
 	g_unk0x100acb44 = NULL;
-	memset(g_unk0x100d2680, 0, sizeof(g_unk0x100d2680));
+	memset(g_unk0x100c2680.m_heapItems, 0, sizeof(g_unk0x100c2680.m_heapItems));
 	g_unk0x100acb48 = 0;
 	g_unk0x100acb4c = 0;
 	g_unk0x100acb50 = 0;
@@ -4011,11 +4053,10 @@ void A3D_shutdown(void)
 	}
 }
 
-// The original reloads g_primaryHeap at the end of the loop, ahead of the next iteration.
+#pragma optimize("w", on)
 // FUNCTION: MW2MATROX 0x10067260
 void FUN_10067260(void)
 {
-	HANDLE heap;
 	A3DHeapBlock* block;
 	A3DHeapBlock* prev;
 
@@ -4023,32 +4064,27 @@ void FUN_10067260(void)
 		FUN_1005d140(g_unk0x100acaf0);
 	}
 	while (g_unk0x100acaf4) {
-		heap = g_primaryHeap;
 		block = g_unk0x100acaf4;
-		A3D_UNLIST_BLOCK(block, g_unk0x100acaf4);
+		UnlistBlock(&g_unk0x100acaf4, block);
 		A3D_UNCHAIN_BLOCK(block, prev, g_unk0x100acaf8);
-		HeapFree(heap, HEAP_NO_SERIALIZE, block);
+		HeapFree(g_primaryHeap, HEAP_NO_SERIALIZE, block);
 	}
 }
 
-// The original stores g_unk0x100acb0c's NULL elsewhere and calls HeapFree through esi.
 // FUNCTION: MW2MATROX 0x10067300
 void FUN_10067300(void)
 {
-	HANDLE heap;
 	A3DHeapBlock* block;
 	A3DHeapBlock* prev;
 
 	while (g_unk0x100acb0c) {
 		FUN_1005d440(g_unk0x100acb0c);
 	}
-	g_unk0x100acb0c = NULL;
 	while (g_unk0x100acb10) {
-		heap = g_primaryHeap;
 		block = g_unk0x100acb10;
-		A3D_UNLIST_BLOCK(block, g_unk0x100acb10);
+		UnlistBlock(&g_unk0x100acb10, block);
 		A3D_UNCHAIN_BLOCK(block, prev, g_unk0x100acb14);
-		HeapFree(heap, HEAP_NO_SERIALIZE, block);
+		HeapFree(g_primaryHeap, HEAP_NO_SERIALIZE, block);
 	}
 	msiFreeTextureHeap(g_unk0x100acb20);
 	g_unk0x100acb20 = NULL;
@@ -4059,24 +4095,22 @@ void FUN_100673c0(void)
 {
 	A3DTexture* item;
 	A3DTexture* next;
-	HANDLE heap;
 
-	item = g_unk0x100acb40;
-	if (item) {
-		while (item) {
+	while (g_unk0x100acb40) {
+		item = g_unk0x100acb40;
+		if (item) {
 			A3D_UNLINK(item, next, m_vramNext, m_vramPrev, g_unk0x100acb30, g_unk0x100acb34);
-			g_unk0x100c2680[item->m_id] = NULL;
+			g_unk0x100c2680.m_textureItems[item->m_id] = NULL;
 			FUN_1005d140(item->m_vramBlock);
 			FUN_1005d440(item->m_heapBlock);
-			heap = g_primaryHeap;
 			A3D_UNLINK(item, next, m_heapNext, m_heapPrev, g_unk0x100acb40, g_unk0x100acb44);
-			g_unk0x100d2680[item->m_id] = NULL;
-			HeapFree(heap, HEAP_NO_SERIALIZE, item);
+			g_unk0x100c2680.m_heapItems[item->m_id] = NULL;
+			HeapFree(g_primaryHeap, HEAP_NO_SERIALIZE, item);
 			g_unk0x100acb50--;
-			item = g_unk0x100acb40;
 		}
 	}
 	g_unk0x100acb48 = 0;
 	g_unk0x100acb4c = 0;
 	g_unk0x100acb50 = 0;
 }
+#pragma optimize("", on)

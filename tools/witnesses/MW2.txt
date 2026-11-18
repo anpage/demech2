@@ -24,9 +24,9 @@
 0x10004356 BlowOffChunk debris.c rename chunk=zqaf destroy=zqae i=zqag piece=zqad
 0x100044f3 BlowOffObjTree debris.c rename child=zqad sibling=zqae
 0x100047c2 UpdateDebrisPiece debris.c pad 5 rename dx=zqae dy=zqad dz=zqag ground=zqao landed=zqaa newY=zqaf piece=zqap radius=zqan rising=zqab spinX=zqah spinY=zqaj spinZ=zqal velocityY=zqac x=zqai y=zqak z=zqam
-0x10004a45 PushDebrisPiece debris.c pad 2 rename length=zqad piece=zqaf speed=zqae
+0x10004a45 PushDebrisPiece debris.c pad 1 rename length=zqad piece=zqaf speed=zqae
 0x10004c86 FindDebrisPiece debris.c rename i=zqae index=zqad
-0x10004ce5 DamageChunksInRadius debris.c pad 3 rename chunk=zqam dx=zqai dy=zqak dz=zqal i=zqaf radius=zqae reach=zqad x=zqag y=zqah z=zqaj
+0x10004ce5 DamageChunksInRadius debris.c pad 2 rename chunk=zqam dx=zqai dy=zqak dz=zqal i=zqaf radius=zqae reach=zqad x=zqag y=zqah z=zqaj
 0x1000507d GetTextWidth statuspanels.c rename c=zqad width=zqae
 0x100050d1 DrawObjectiveList statuspanels.c rename count=zqan height=zqah i=zqai label=zqad mission=zqak objective=zqae primary=zqal secondary=zqam target=zqaj text=zqag twoLines=zqaf x=zqao y=zqap
 0x100056f0 DrawObjectivesPanel statuspanels.c pad 2 rename cursor=zqaj font=zqak gap=zqad height=zqaf mission=zqai pos=zqah text=zqae ticks=zqag
@@ -191,7 +191,7 @@
 0x1003a5f3 AddModel shape.c pad 10 rename cursor=zqaf faceBytes=zqai memory=zqag model=zqad size=zqah vertexBytes=zqae
 0x1003aab5 AddShapeFace shape.c rename face=zqad model=zqae
 0x1003aba5 RemoveSelectedModel shape.c rename cursor=zqad model=zqae
-0x1003ae96 ComputeShapeBounds shape.c pad 5 rename d=zqak dx=zqan dy=zqaa dz=zqad i=zqah max=zqaf maxX=zqal maxY=zqam maxZ=zqao minX=zqag minY=zqai minZ=zqaj model=zqae v=zqap
+0x1003ae96 ComputeShapeBounds shape.c pad 6 rename d=zqak dx=zqan dy=zqaa dz=zqad i=zqah max=zqaf maxX=zqal maxY=zqam maxZ=zqao minX=zqag minY=zqai minZ=zqaj model=zqae v=zqap
 0x1003b0e4 ComputeFaceNormal shape.c pad 12 rename a=zqaj area=zqam b=zqan best=zqak bestArea=zqao i=zqal length=zqad nx=zqae ny=zqag nz=zqah prev=zqai v0=zqap v1=zqaa v2=zqab vertex=zqaf
 0x1003b7cc GetShapeMemorySize shape.c rename face=zqah i=zqag model=zqad size=zqaf vertex=zqae
 0x1003bad1 FormatErrorMessage error.c rename args=zqae code=zqad

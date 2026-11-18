@@ -586,13 +586,13 @@ MechS32 ObjectiveConditionsHold(MechS32 p_star, MechS32 p_objective)
 void UpdateObjective(MechS32 p_star, MechS32 p_objective)
 {
 	MechS32 done;
-	MissionObjective* objective;
 	MechS32 expired;
 	MechS32 i;
 	MechS32 untouched;
 	MechU8 state;
 	MechS32 alive;
 	StarMission* won;
+	MissionObjective* objective;
 	StarMission* lost;
 	MissionObjective* failTarget;
 	MissionObjective* reset;
