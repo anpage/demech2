@@ -17,13 +17,13 @@ void ComputeShapeBounds(Shape* p_shape)
 {
 	MechDouble dz;
 	Model* model;
-	MechDouble max;
 	MechScalar minX;
 	MechScalar maxX;
 	MechS32 i;
 	MechScalar minY;
 	MechScalar minZ;
 	MechDouble d;
+	MechDouble max;
 	MechScalar maxY;
 	MechDouble dx;
 	MechScalar maxZ;

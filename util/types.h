@@ -225,8 +225,6 @@ typedef char MechChar;
 #define MW2_NARROW_TORSO_PAN
 /* The throttle's range is 0 to 1024 */
 #define MW2_NO_REVERSE_THROTTLE
-/* The AI's torso raises for firing convert from 16.16 degrees */
-#define MW2_AI_TILT_DEGREES
 /* No hit feedback for the local player while its flag 2 is set */
 #define MW2_HIT_FEEDBACK_FLAG_CHECK
 /* FindSession and StopExternalIO return 0 where the others fall off the end */

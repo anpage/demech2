@@ -325,34 +325,37 @@ void UpdateDebrisPiece(MechS32 p_index)
 	IntegrateMidpoint(&newY, &velocityY, piece->m_acceleration, g_deltaTime);
 
 #ifdef MW2_FLOAT_SCALARS
-	if (velocityY < 1e-07f && newY <= (ground = GetTerrainHeight(x, y, z))) {
+	if (velocityY < 1e-07f) {
 #else
-	if (velocityY <= 0 && newY <= (ground = GetTerrainHeight(x, y, z))) {
+	if (velocityY <= 0) {
 #endif
-		if (rising) {
-			HideDebrisObj(piece->m_obj);
-			landed = TRUE;
-		}
+		ground = GetTerrainHeight(x, y, z);
+		if (newY <= ground) {
+			if (rising) {
+				HideDebrisObj(piece->m_obj);
+				landed = TRUE;
+			}
 
-		if (velocityY > FIXED_LITERAL(-0x8d6f, -0.5524862f)) {
-			landed = TRUE;
-		}
+			if (velocityY > FIXED_LITERAL(-0x8d6f, -0.5524862f)) {
+				landed = TRUE;
+			}
 
-		newY = ground;
-		velocityY = -FIXED_SHR(velocityY, 2);
-		if (RandomIntBelow(2)) {
+			newY = ground;
+			velocityY = -FIXED_SHR(velocityY, 2);
+			if (RandomIntBelow(2)) {
 #ifdef MW2_FLOAT_SCALARS
-			velocityY /= 2;
+				velocityY /= 2;
 #else
-			velocityY >>= 1;
+				velocityY >>= 1;
 #endif
-			piece->m_velocityX = -FIXED_SHR(piece->m_velocityX, 1);
-			piece->m_velocityZ = -FIXED_SHR(piece->m_velocityZ, 1);
-		}
+				piece->m_velocityX = -FIXED_SHR(piece->m_velocityX, 1);
+				piece->m_velocityZ = -FIXED_SHR(piece->m_velocityZ, 1);
+			}
 
-		piece->m_spinX = -FIXED_SHR(piece->m_spinX, 1);
-		piece->m_spinY = -FIXED_SHR(piece->m_spinY, 1);
-		piece->m_spinZ = -FIXED_SHR(piece->m_spinZ, 1);
+			piece->m_spinX = -FIXED_SHR(piece->m_spinX, 1);
+			piece->m_spinY = -FIXED_SHR(piece->m_spinY, 1);
+			piece->m_spinZ = -FIXED_SHR(piece->m_spinZ, 1);
+		}
 	}
 
 	piece->m_velocityY = velocityY;

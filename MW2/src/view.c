@@ -801,7 +801,7 @@ MechS32 CullSceneShape(Shape* p_shape)
 		limit = (side * fov + -depth) / g_eyepoint->m_frustumScaleX;
 	}
 	else {
-		limit = (-side * fov + -depth) / g_eyepoint->m_frustumScaleX;
+		limit = ((-side) * fov + -depth) / g_eyepoint->m_frustumScaleX;
 	}
 #else
 	if (side > 0) {
@@ -827,7 +827,7 @@ MechS32 CullSceneShape(Shape* p_shape)
 		limit = (height * fov + -depth) / g_eyepoint->m_frustumScaleY;
 	}
 	else {
-		limit = (-height * fov + -depth) / g_eyepoint->m_frustumScaleY;
+		limit = ((-height) * fov + -depth) / g_eyepoint->m_frustumScaleY;
 	}
 #else
 	if (height > 0) {
@@ -897,7 +897,7 @@ MechS32 CullShapeToFrustum(Shape* p_shape)
 		limit = (side * fov + -depth) / g_eyepoint->m_frustumScaleX;
 	}
 	else {
-		limit = (-side * fov + -depth) / g_eyepoint->m_frustumScaleX;
+		limit = ((-side) * fov + -depth) / g_eyepoint->m_frustumScaleX;
 	}
 #else
 	if (side > 0) {
@@ -925,7 +925,7 @@ MechS32 CullShapeToFrustum(Shape* p_shape)
 		limit = (height * fov + -depth) / g_eyepoint->m_frustumScaleY;
 	}
 	else {
-		limit = (-height * fov + -depth) / g_eyepoint->m_frustumScaleY;
+		limit = ((-height) * fov + -depth) / g_eyepoint->m_frustumScaleY;
 	}
 #endif
 #else

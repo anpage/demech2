@@ -233,11 +233,11 @@ MechS32 FUN_10067b90(MechU32 p_count, MechU32 p_edges, MechS32 p_unk0x08)
 	A3DVertex* cur;
 	A3DVertex** out;
 	MechU32 added;
-	A3DVertex* listB[256];
+	A3DVertex* listB[255];
 	MechU32 i;
 	MechU32 outCount;
 	A3DVertex** in;
-	A3DVertex* listA[256];
+	A3DVertex* listA[255];
 
 	passes = 0;
 	added = p_count;
@@ -861,8 +861,9 @@ MechU32 ReadTextLine(FILE* p_file, MechChar* p_buffer, MechS32 p_size)
 	MechU32 i;
 	size_t read;
 
-	for (i = 0; i < p_size - 1U && (read = fread(&p_buffer[i], 1, 1, p_file)) != 0; i++) {
-		if (p_buffer[i] == '\n') {
+	for (i = 0; i < p_size - 1U; i++) {
+		read = fread(&p_buffer[i], 1, 1, p_file);
+		if (!read || p_buffer[i] == '\n') {
 			break;
 		}
 	}

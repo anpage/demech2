@@ -45,8 +45,8 @@
 0x10009431 GetPlayerEyeView eyepoint.c rename player=zqal x=zqai y=zqaj z=zqak
 0x10009653 UpdateTrackView eyepoint.c pad 11 rename angle=zqct cosine=zqbx distance=zqan dx=zqbz dy=zqbk dz=zqap floor=zqb8 heading=zqaj height=zqbh mech=zqaq offsetX=zqay offsetY=zqaz offsetZ=zqal pitch=zqai roll=zqak sine=zqao tilt=zqbi turn=zqcd unused=zqaa x=zqam y=zqby z=zqbj
 0x10009c7c GetCockpitEyeView eyepoint.c rename pan=zqai tilt=zqaj
-0x10009d1d UpdateDropView eyepoint.c pad 3 rename midpointStep=zqao unk0x0c=zqaj unk0x10=zqai unk0x14=zqak x=zqal y=zqam z=zqan
-0x10009e0a UpdateFreeEyeView eyepoint.c pad 13 rename cosHeading=zqaj cosPitch=zqak floor=zqai sinHeading=zqal sinPitch=zqam speed=zqan
+0x10009d1d UpdateDropView eyepoint.c rename midpointStep=zqao unk0x0c=zqaj unk0x10=zqai unk0x14=zqak x=zqal y=zqam z=zqan
+0x10009e0a UpdateFreeEyeView eyepoint.c pad 10 rename cosHeading=zqaj cosPitch=zqak floor=zqai sinHeading=zqal sinPitch=zqam speed=zqan
 0x1000a065 TurnBillboards eyepoint.c rename heading=zqaj obj=zqao pitch=zqai shape=zqak x=zqal y=zqam z=zqan
 0x1000a170 FindIniSection inifile.c rename buffer=zqal end=zqak file=zqaj line=zqai
 0x1000a2a0 GetIniValue inifile.c rename file=zqal length=zqak line=zqaj value=zqai
@@ -71,6 +71,7 @@
 0x1000ca45 SeekPrjResource prjfile.c rename entries=zqai offset=zqal type=zqak types=zqaj
 0x1000cbee ReadPrjResource prjfile.c rename entries=zqak id=zqai offset=zqaj size=zqam type=zqan types=zqal
 0x1000cd74 GetPrjResourceOffset prjfile.c rename entries=zqak id=zqai offset=zqaj type=zqam types=zqal
+0x1000e721 LateUpdateMech mechclass.c rename active=zqal cosine=zqao degrees=zqaq delta=zqaa dx=zqak dy=zqam dz=zqan heading=zqap isLocal=zqbj jumping=zqbh mech=zqay previousDegrees=zqa1 speed=zqaj text=zqab throttle=zqbz turn=zqa9 turnRate=zqai x=zqar y=zqa2 z=zqbn
 0x1000fb2d UpdateLocalMech mechclass.c rename dx=zqaj dy=zqak dz=zqal mech=zqai text=zqam
 0x1000ff8c CreateMech mechclass.c rename buffer=zqal i=zqaj mech=zqak size=zqai
 0x10010043 InitMechArrays mechclass.c rename bin=zqaj bins=zqan i=zqak sections=zqai slot=zqam weapons=zqal
@@ -134,6 +135,7 @@
 0x1001f751 AnnounceMissionResult objective.c rename line=zqai text=zqaj
 0x1001f8dd TestObjectiveCondition objective.c pad 1 rename kind=zqaj objective=zqak other=zqam star=zqal state=zqai
 0x1001f9c9 ObjectiveConditionsHold objective.c rename all=zqam holds=zqai i=zqak objective=zqal result=zqaj
+0x1001faf7 UpdateObjective objective.c pad 5 rename alive=zqao done=zqal expired=zqai failTarget=zqab i=zqam j=zqad lost=zqaa objective=zqan reset=zqac restartTarget=zqaf restarted=zqae state=zqak succeedTarget=zqag untouched=zqaj won=zqap
 0x10020a02 UpdateObjectives objective.c pad 2 rename current=zqak failed=zqam i=zqaj mission=zqal star=zqai success=zqan
 0x10020d5b EndTheMission2 objective.c rename count=zqai file=zqal i=zqam mission=zqaj result=zqak
 0x10020fde RestartStarMission objective.c rename i=zqaj mission=zqai objective=zqak
@@ -165,6 +167,7 @@
 0x10026b7e JoystickPoll joystick.c rename i=zqaj info=zqak result=zqai
 0x10026fa3 ReadJoystickOemName joystick.c rename key=zqaj result=zqai size=zqal type=zqak
 0x100275e0 SetGridObject gridobject.c rename count=zqan depth=zqao maxX=zqaa maxZ=zqap minX=zqak minZ=zqaj model=zqam span=zqai vertex=zqal
+0x10027a60 ComputeShapeBounds shape.c rename d=zqai dx=zqao dy=zqaa dz=zqad i=zqac max=zqam maxX=zqab maxY=zqae maxZ=zqaf minX=zqaj minY=zqak minZ=zqal model=zqap v=zqan
 0x10027cb8 AddModel shape.c pad 9 rename cursor=zqaj faceBytes=zqam memory=zqan model=zqai size=zqal vertexBytes=zqak
 0x100280e6 AddShapeFace shape.c rename face=zqai model=zqaj
 0x1002844f ComputeNormalsAndBounds shape.c rename i=zqaj model=zqai
@@ -179,6 +182,7 @@
 0x1002a3bf LogKeywordName bwd.c rename line=zqai name=zqaj
 0x1002a703 BlowOffChunk debris.c rename chunk=zqal destroy=zqak i=zqaj piece=zqai
 0x1002aa5f ExplodeChunk debris.c rename chunk=zqai obj=zqan piece=zqam x=zqaj y=zqak z=zqal
+0x1002ab7a UpdateDebrisPiece debris.c pad 2 rename dx=zqam dy=zqan dz=zqbj ground=zqbf landed=zqai midpointStep=zqa1 newY=zqal piece=zqao radius=zqaz rising=zqbz spinX=zqaj spinY=zqak spinZ=zqbi velocityY=zqa0 x=zqap y=zqaa z=zqaq
 0x1002affe ZeroChunx debris.c rename i=zqai obj=zqaj
 0x1002b4e0 ReleaseWeaponTriggers weapons.c rename i=zqai slot=zqaj
 0x1002b581 UpdateWeaponFireState weapons.c pad 5 rename def=zqao dx=zqaj dy=zqak dz=zqal fired=zqan first=zqaa i=zqap pan=zqam slot=zqab time=zqai
@@ -297,10 +301,16 @@
 0x10059940 InitDamagePanel damagepanel.c rename color=zqaa height1=zqal height2=zqai i=zqao max=zqac mech=zqak min=zqab panel=zqan section=zqad shape=zqap width1=zqam width2=zqaj
 0x10059e60 DrawDamageOutline damagepanel.c rename color=zqan front=zqaj i=zqap index=zqao level=zqal rear=zqam remap=zqai scale=zqak section=zqaa shape=zqab
 0x1005a18b DrawArmorBars damagepanel.c rename armor=zqam color=zqai font=zqak full=zqaj i=zqal section=zqan width=zqao
+0x10065710 FUN_10065710 a3d.c pad 6
+0x10066d30 A3D_Init a3d.c pad 1
+0x10067260 FUN_10067260 a3d.c pad 2
+0x10067300 FUN_10067300 a3d.c pad 2
 0x10067b1f KeyboardPollKeyCode keyboard.c rename keyCode=zqai msg=zqaj
+0x10067b90 FUN_10067b90 polydraw.c pad 1 rename added=zqan cur=zqal i=zqap in=zqab listA=zqac listB=zqao next=zqai out=zqam outCount=zqaa passes=zqaj prev=zqak
 0x100683ba DrawScenePolygon polydraw.c rename blue=zqai green=zqal index=zqak luma=zqam mode=zqao red=zqaj saved=zqan
 0x100689f5 FUN_100689f5 polydraw.c pad 4 rename i=zqaj light=zqai point=zqal vertex=zqak
 0x10068b57 FUN_10068b57 polydraw.c pad 2
+0x10068c7b ReadTextLine polydraw.c rename i=zqaj read=zqai
 0x10068d0f LoadSkyGroundSettings polydraw.c pad 4 rename file=zqai line=zqaj mission=zqal rate=zqak
 0x10068e33 FUN_10068e33 polydraw.c rename corner=zqak count=zqal i=zqaj vertices=zqai
 0x10069172 FUN_10069172 polydraw.c pad 1 rename count=zqaj vertices=zqai
@@ -313,13 +323,13 @@
 0x1006b93e SwayShot shots.c rename sideX=zqai sideY=zqaj sideZ=zqak
 0x1006ba0e GuideMissileToTarget shots.c rename distance=zqap dx=zqal dy=zqan dz=zqao player=zqad targetX=zqaa targetY=zqab targetZ=zqac thing=zqai vx=zqaj vy=zqak vz=zqam
 0x1006bc89 DetonateShot shots.c rename impact=zqai shot=zqaj
-0x1006bdd0 SpawnEffectEx shots.c pad 13 rename cameraX=zqaj cameraZ=zqal chain=zqan chainType=zqci closer=zqam count=zqac current=zqab distance=zqby dx=zqak dy=zqbw dz=zqbi effect=zqaa flags=zqbg i=zqap info=zqbm pieces=zqai quiet=zqao slot=zqa1 take=zqaq volume=zqas
+0x1006bdd0 SpawnEffectEx shots.c pad 4 rename cameraX=zqaj cameraZ=zqal chain=zqan chainType=zqci closer=zqam count=zqac current=zqab distance=zqby dx=zqak dy=zqbw dz=zqbi effect=zqaa flags=zqbg i=zqap info=zqbm pieces=zqai quiet=zqao slot=zqa1 take=zqaq volume=zqas
 0x1006c584 UpdateEffects shots.c rename effect=zqak i=zqaj radius=zqam release=zqai restore=zqal x=zqan y=zqao z=zqap
-0x1006c803 DamageMechsInRadius shots.c pad 14 rename damage=zqap dx=zqai dy=zqaj dz=zqal i=zqam mech=zqak player=zqao reach=zqan
-0x1006c9d5 DamageThingsInRadius shots.c rename distance=zqan dx=zqaj dy=zqak dz=zqal i=zqam radius=zqac reach=zqaa shape=zqad thing=zqai x=zqao y=zqap z=zqab
+0x1006c803 DamageMechsInRadius shots.c pad 5 rename damage=zqap dx=zqai dy=zqaj dz=zqal i=zqam mech=zqak player=zqao reach=zqan
+0x1006c9d5 DamageThingsInRadius shots.c pad 6 rename distance=zqan dx=zqaj dy=zqak dz=zqal i=zqam radius=zqac reach=zqaa shape=zqad thing=zqai x=zqao y=zqap z=zqab
 0x1006cbb0 KillGameThing shots.c pad 9
-0x1006ce62 ScatterDebris shots.c pad 15
-0x1006cf8d HeatMechsNearFires shots.c pad 15 rename distance=zqaf dx=zqam dy=zqan dz=zqab heat=zqad i=zqae mech=zqap player=zqag radius=zqao reach=zqaa root=zqak shape=zqac x=zqai y=zqaj z=zqal
+0x1006ce62 ScatterDebris shots.c pad 6
+0x1006cf8d HeatMechsNearFires shots.c pad 3 early int~g_localPlayerId 3 rename distance=zqaf dx=zqam dy=zqan dz=zqab heat=zqad i=zqae mech=zqap player=zqag radius=zqao reach=zqaa root=zqak shape=zqac x=zqai y=zqaj z=zqal
 0x1006d136 StartNuke shots.c rename duration=zqai effect=zqak i=zqaj shape=zqal
 0x1006d239 UpdateNuke shots.c pad 5
 0x1006d320 CanSeeTarget lineofsight.c rename bearing=zqam hit=zqal ray=zqai surface=zqaj target=zqak
@@ -393,6 +403,7 @@
 0x10076927 ApplyCollisionDamage mechcollision.c rename angle=zqak attacker=zqai damage=zqaj
 0x10076f41 ClipEdgeToNearPlane queueface.c pad 4 rename a=zqap b=zqaa bluea=zqcg blueb=zqa0 greena=zqai greenb=zqaj normalXa=zqbf normalXb=zqak normalYa=zqbx normalYb=zqam normalZa=zqcf normalZb=zqbk reda=zqcw redb=zqbl result=zqab span=zqao toPlane=zqan u0=zqbg u1=zqal v0=zqbi v1=zqbj x0=zqay x1=zqaz y0=zqbw y1=zqbh z0=zqby z1=zqbz
 0x100773f0 ProjectVertex queueface.c pad 7 rename depth=zqam outcode=zqaj screenX=zqai screenY=zqak unused=zqal
+0x10077579 GetFaceShade queueface.c pad 3 rename dot=zqal dx=zqao dy=zqap dz=zqaa normalX=zqai normalY=zqaj normalZ=zqak shade=zqam vertex=zqan
 0x10077fa7 ClipProjectedEdge queueface.c pad 7 rename bluea=zqcg blueb=zqap greena=zqai greenb=zqaj normalXa=zqbf normalXb=zqak normalYa=zqbx normalYb=zqam normalZa=zqcf normalZb=zqbk reda=zqcw redb=zqa0 result=zqaa span=zqao toPlane=zqan u0=zqbg u1=zqal v0=zqbi v1=zqbj x0=zqay x1=zqaz y0=zqbw y1=zqbh z0=zqby z1=zqbz
 0x10078690 LayoutMessageBoxes timedoverlays.c rename dx=zqan dy=zqam font=zqao fontHeight=zqai height=zqak i=zqal overlay=zqaj shape=zqaa sign=zqab target=zqap
 0x10078804 ShowInGameMessage timedoverlays.c rename done=zqan i=zqam latest=zqal lowestPriority=zqao overlay=zqak result=zqaj slot=zqai
@@ -405,6 +416,7 @@
 0x1007954a LayoutWeaponPanels staticmem.c pad 1 rename alternate=zqap bin=zqak dst=zqai i=zqaa index=zqac j=zqab left=zqal panel=zqao right=zqaj rightStart=zqam slot=zqad weapons=zqan
 0x1007a0b2 UpdateCockpit staticmem.c rename bearing=zqaj distance=zqai i=zqak pitch=zqal twistBearing=zqam
 0x1007a850 RunAIWeapons aiweapons.c rename delta=zqak fired=zqai roll=zqaj
+0x1007a9d9 DecideAIFire aiweapons.c rename def=zqaj fire=zqai i=zqan mech=zqal slot=zqak type=zqam
 0x1007b31f SelectFastestRefreshMode refreshmode.c rename best=zqai i=zqaj
 0x1007b8d0 IsAboveHorizon horizon.c rename a=zqai b=zqal c=zqaj d=zqan e=zqak offsetX=zqam offsetY=zqao
 0x1007b99e HorizonYAtX horizon.c rename a=zqai b=zqam c=zqaj d=zqan e=zqal y=zqak
@@ -416,6 +428,7 @@
 0x1007caca CheckInputConditions inputmap.c pad 2
 0x1007cb6b ParseInputMap inputmap.c rename channel=zqai channelName=zqaj deviceName=zqaa index=zqao line=zqan name=zqam sign=zqal sink=zqak suffix=zqap
 0x1007d0ba LoadInputMap inputmap.c pad 15
+0x1007d2c1 LoadGamekeyMap inputmap.c early struct~GameKeyName~g_gameKeyNames[] 12 rename action=zqam code=zqap file=zqak i=zqal keyCode=zqai keys=zqan line=zqao token=zqaj
 0x1007d57b UpdateAxisFromKeys inputmap.c rename axis=zqai channel=zqal device=zqak driven=zqaj position=zqam
 0x1007e020 RunMenuSlider menucontrols.c pad 4 rename apply=zqam bar=zqao font=zqaq height=zqai knob=zqaj knobX=zqal left=zqaa pressed=zqbk right=zqab selected=zqby shapes=zqbj size=zqa1 state=zqbi step=zqap target=zqar value=zqak width=zqbg x=zqan
 0x1007e58b RunMenuStatus menucontrols.c rename apply=zqak pressed=zqap room=zqai selected=zqam state=zqal step=zqab suffix=zqaj target=zqaa text=zqao value=zqan
@@ -455,6 +468,7 @@
 0x10084999 GetTeamMembers ai.c rename count=zqak i=zqai mask=zqaj player=zqal team=zqam
 0x10084aac AssignStarTarget ai.c rename chosen=zqal count=zqan diff=zqai i=zqam leader=zqao member=zqap members=zqaa mission=zqae nearest=zqak objective=zqad required=zqac result=zqab slot=zqaj team=zqaf
 0x10084e52 LeadStar ai.c pad 1 rename count=zqab flags=zqak i=zqao j=zqaa leader=zqad members=zqah mission=zqac objective=zqaj objectiveIndex=zqan player=zqae remaining=zqai state=zqap target=zqag targets=zqal team=zqaf type=zqam
+0x1008554f SweepTorso ai.c pad 11 early int~g_currentClock 5
 0x100856ce ReadStaticMemoryTable poolsizes.c rename buffer=zqak key=zqal keyData=zqam result=zqai stream=zqaj
 0x10085d3b UpdateTimeOfDay environment.c rename i=zqak phase=zqai seconds=zqaj time=zqal
 0x10085fbe QuadrupleMechCooling environment.c pad 16 rename i=zqai mech=zqaj
@@ -507,6 +521,7 @@
 0x1008e963 GetSlotAiState lancemenu.c rename ai=zqal index=zqaj player=zqak state=zqai
 0x1008ea05 InstallGoalSuffix lancemenu.c rename choices=zqaj old=zqai
 0x1008ebbc GetSlotGoalName lancemenu.c rename goal=zqai index=zqaj player=zqak target=zqal
+0x1008fb5a SimMain simmain.c early int~g_realClock 0 rename cmdLine=zqap hasPalette=zqab i=zqam missionName=zqak msg=zqac palette=zqaa quitLatched=zqan result=zqal seed=zqao unk0x24=zqai unk0x28=zqaj
 0x10090fd0 ReloadPlayerMech mechreload.c pad 10 rename flags=zqaj mech=zqai
 0x1009138b RememberMechSegments mechreload.c rename id=zqai obj=zqaj
 0x10091772 LayoutMenu menu.c rename background=zqai dx=zqak origin=zqal scale=zqaj shape=zqam size=zqan target=zqao
