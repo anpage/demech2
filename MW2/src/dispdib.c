@@ -100,7 +100,7 @@ RefreshMode g_dispDibRefreshMode =
 // GLOBAL: MW2 0x100ea7dc
 // GLOBAL: MW2MATROX 0x10125960
 // GLOBAL: MW23DFX 0x102456f0
-MechS32 g_dispDibResult;
+MechU32 g_dispDibResult;
 
 // MW2MATROX: the window's empty title (DisplayDibWindowCreateEx) pairs with another "" of the
 // original's: reccmp pairs identical strings in address order.
