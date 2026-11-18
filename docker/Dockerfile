@@ -3,7 +3,7 @@ FROM docker.io/library/debian:stable-slim
 # Gather Unix dependencies
 RUN dpkg --add-architecture i386
 RUN apt-get update -y
-RUN apt-get install git unzip wget wine wine32 wine64 -y
+RUN apt-get install git unzip wget wine wine32 wine64 python3 python3-venv -y
 
 # Set up the wineprefix
 RUN wine wineboot
@@ -23,7 +23,15 @@ RUN unzip cmake-3.26.6-windows-i386.zip -d ~/.wine/drive_c
 RUN mv ~/.wine/drive_c/cmake-3.26.6-windows-i386 ~/.wine/drive_c/cmake
 RUN rm cmake-3.26.6-windows-i386.zip
 
+# Python and reccmp at the commit tools/requirements.txt pins, for the verification the entrypoint
+# runs when originals are mounted (tools/verify.py). The copy kept in the image tells the
+# entrypoint whether the mounted source still pins the same one. The build context is the
+# repository root (.dockerignore keeps everything else out of it).
+COPY tools/requirements.txt /opt/requirements.txt
+RUN python3 -m venv /opt/venv \
+ && /opt/venv/bin/pip install --no-cache-dir -r /opt/requirements.txt
+
 # Set up entrypoint script to perform the build
-COPY entrypoint.sh entrypoint.sh
+COPY docker/entrypoint.sh entrypoint.sh
 RUN chmod +x entrypoint.sh
 ENTRYPOINT [ "/bin/bash", "./entrypoint.sh" ]

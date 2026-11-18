@@ -1,0 +1,4 @@
+# The build image's context (docker/Dockerfile) is the repository root, for these files only.
+*
+!docker/entrypoint.sh
+!tools/requirements.txt

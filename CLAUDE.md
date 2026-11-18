@@ -119,6 +119,7 @@ python tools/declorder.py --target MW2 --unit shots.c FUNCTION ... [--file FRAGM
 # record, or unproven; the records checked; the cost; and the per-function gate against another run
 python tools/certify.py --target MW2 [--json STATES.json] [--markdown STATES.md] [--wine <wine>] [-v]
 python tools/certify.py --gate BASE.json CURRENT.json [--exceptions FILE]
+python tools/verify.py [--originals DIR] [--build DIR] [--wine <wine>]   # certify every target whose original is at hand, one table (the Docker image runs it when /originals is mounted)
 
 # The residue (from the repository root): what certify leaves unproven, classified constructively, and
 # tools/known_diffs.txt checked (--write rewrites the target's lines, keeping the reasons that still apply)
@@ -638,6 +639,6 @@ cmake/        # reccmp CMake integration, shared CMake helpers
 tools/        # ncc, lint scripts, requirements
 tests/        # asmequiv: the portable C against the hand-written assembly (ctest; also a standalone project)
 reccmp/       # reccmp data sources (CSVs, added as needed)
-docker/       # VC++ 4.1 + VC++ 2.2 + VC++ 4.0 + CMake under Wine build image
+docker/       # the build-and-verify image: VC++ 4.1, 2.2 and 4.0, MASM and CMake under Wine, Python and reccmp
 assets/       # progress report icons
 ```
