@@ -12,6 +12,8 @@ and writes one comment in Markdown:
 - one table: per target, how many functions are identical to the original, proven, explained,
   and not understood yet, with the change from main;
 - the functions whose state changed, worst first;
+- one line on the editions' conditional sites no proven function covers (EDITIONSITES.json, from
+  tools/edition_sites.py, and main's EDITIONSITES-main.json), where a payload has them;
 - the lines of the tools' output that need attention (a witness record that fails, a function no
   longer proven, a known_diffs.txt line to add or remove);
 - what the columns mean, and every tool's full output, folded.
@@ -131,6 +133,27 @@ class Target:
         return [line.rstrip() for line in self.text(self.certify).splitlines() if not SUMMARY.match(line)]
 
 
+def edition_sites(now, then):
+    """One line from tools/edition_sites.py's report: the conditional sites of the simulators'
+    editions that no proven function covers, per target, with the change from main."""
+    try:
+        names = list(now["summary"]["unverified"])
+        count = {t: int(now["summary"]["unverified"][t]) for t in names}
+        total = int(now["summary"]["sites"])
+        before = {t: int(then["summary"]["unverified"][t]) for t in names} if then else None
+    except (KeyError, TypeError, ValueError):
+        return None
+    parts = []
+    for t in names:
+        if not count[t] and not (before and before.get(t)):
+            continue
+        delta = " (%+d)" % (count[t] - before[t]) if before and count[t] != before.get(t, count[t]) else ""
+        parts.append("%d for %s%s" % (count[t], code(t), delta))
+    if not parts:
+        return "Edition sites: a proven function covers each of the %d." % total
+    return "Edition sites: of %d, no proven function covers %s." % (total, ", ".join(parts))
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__.split("\n\n")[0])
     parser.add_argument("payloads", nargs="+", type=Path)
@@ -203,6 +226,11 @@ def main():
     for note in args.note:
         out.append("")
         out.append(note)
+    for payload in args.payloads:
+        line = edition_sites(load(payload / "EDITIONSITES.json"), load(payload / "EDITIONSITES-main.json"))
+        if line:
+            out.append("")
+            out.append(line)
     out.append("")
     if rows:
         out.append("| Target | Functions | Identical | Proven | Explained | Not understood | Change from main |")

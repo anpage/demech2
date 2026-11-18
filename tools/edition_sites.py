@@ -48,9 +48,26 @@ not proven by a function" when none does.
 It also lists every file outside the game sources that names an edition macro (tools, workflows,
 docker, cmake, vc22, vc40, CMakeLists.txt, tests), output names like MW2_3DFX.DLL left out.
 
+docs/EDITIONS.md's second half is written from the same sites and util/types.h's feature table
+(--doc): each feature with its comment, the editions that have it and the files and functions
+that test it, the functions with a definition per edition, and the sites that test an edition
+macro itself, sorted by what they hold. It carries no line numbers and no proof states, so it
+changes only when the editions' source does. --check is what CI fails on: a feature without a
+comment above its #define, a feature nothing tests, a tested MW2_ macro the table doesn't define,
+a branch no target compiles, and a stale document. Neither needs states.
+
+The proofs need the three simulators' states, which CI only has where it has the retail
+originals, without the compilers' trees. So the work splits: --no-states --json writes the sites
+with what decides each one's proof (the enclosing function's address, or the functions a
+file-scope branch defines and those that use it), and --sites FILE --states ... makes the report
+from that file alone.
+
 usage (from the repository root, with reccmp's venv):
   python tools/edition_sites.py [--build build-wine] [--states MW2=f.json --states ...]
                                 [--json sites.json] [--markdown sites.md] [--wine PATH]
+  python tools/edition_sites.py --doc [FILE]            # rewrite docs/EDITIONS.md's generated part
+  python tools/edition_sites.py --check [--no-states --json sites.json]
+  python tools/edition_sites.py --sites sites.json --states MW2=f.json ... [--json F] [--markdown F]
 
 The build tree only needs to be configured (and the nested builds' configure steps run). Without
 --states for a target, the tool runs tools/certify.py --json for it (minutes: it needs the
@@ -905,11 +922,11 @@ def unit_files(path, target, reach, suffixes):
     return {f for f in files if f.suffix.lower() in suffixes}
 
 
-def file_scope_proof(site, compiled, target, reach, functions, by_name, sources, states, body_tokens):
+def file_scope_plan(site, compiled, target, reach, functions, by_name, sources, body_tokens):
     """For a file-scope site: the target's annotated functions the branches it compiles define, and
     those that use what the branches declare, by name: anywhere in the target for a .c (its
     definitions reach the other units through headers), in the units that include it for a header
-    or a MASM include."""
+    or a MASM include. Each as [name, address]: their states decide the proof (apply_states)."""
     path = (ROOT / site["file"]).resolve()
     names, inside = set(), []
     for b in compiled:
@@ -935,56 +952,24 @@ def file_scope_proof(site, compiled, target, reach, functions, by_name, sources,
     else:
         rows = functions[target]  # a unit's globals and functions reach the others through headers
     for f, first, last, name, address in rows:
-        state = states[target].get(address)
         if f == path and any(lo <= first and last <= hi for lo, hi in inside):
-            defined.append((name, state))
+            defined.append([name, address])
         elif names and body_tokens(target, f, first, last) & names:
-            users.append((name, state))
+            users.append([name, address])
     out = {}
     if defined:
-        out["defined"] = {"functions": len(defined), "proven": sum(s in PROVEN for _, s in defined),
-                          "unproven": sorted(n for n, s in defined if s not in PROVEN)[:20]}
+        out["defined"] = defined
     if users:
-        out["users"] = {"functions": len(users), "proven": sum(s in PROVEN for _, s in users),
-                        "unproven": sorted(n for n, s in users if s not in PROVEN)[:20]}
+        out["users"] = users
     if out:
         out["names"] = sorted(names)[:20]
     return out
 
 
-def main():
-    parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
-    parser.add_argument("--build", default="build-wine" if (ROOT / "build-wine").exists() else "build", help="The build tree")
-    parser.add_argument("--states", action="append", default=[], metavar="TARGET=FILE", help="certify.py --json output")
-    parser.add_argument("--wine", default=os.environ.get("WINE", "wine"), help="Wine, for certify (off Windows)")
-    parser.add_argument("--json", help="Write every site to this file")
-    parser.add_argument("--markdown", help="Write the worklist to this file")
-    args = parser.parse_args()
-
-    given = {}
-    for s in args.states:
-        t, _, f = s.partition("=")
-        given[t] = f
-    targets = SIMULATORS
-    build = str((ROOT / args.build) if not Path(args.build).is_absolute() else args.build)
-
-    sources = {}
-    reach = Reach()
-    unit_counts = {}
-    for t in targets:
-        units = Target(t, build).units
-        unit_counts[t] = len(units)
-        for unit in units:
-            preprocess(t, unit, sources, reach)
-
-    functions, by_name = load_annotations(targets)
-    states, state_files = {}, {}
-    for t in targets:
-        states[t], state_files[t] = load_states(t, given, build, args.wine)
-
-    files = scan_files()
-    sites = build_sites(sources, files, reach, functions, by_name, targets)
-
+def plan_proofs(sites, targets, reach, functions, by_name, sources):
+    """Each site's proof plan per target: what decides it, before any state is known. Final for a
+    target that doesn't build or reach the group; otherwise the enclosing function's address, or
+    for a file-scope site the functions its compiled branch defines and those that use it."""
     token_cache = {}
 
     def body_tokens(target, path, first, last):
@@ -1000,44 +985,402 @@ def main():
         return token_cache[key]
 
     for site in sites:
-        proof = {}
+        plan = {}
         for t in targets:
             compiled = [b for b, br in enumerate(site["branches"]) if br["targets"][t] != "no"]
             if not site["built_by"][t]:
-                proof[t] = {"state": "not built"}
-                continue
-            if site.get("unreached"):
-                proof[t] = {"state": site["unreached"]}  # no comparison build reaches the group
-                continue
-            if not site["reached_by"][t]:
-                proof[t] = {"state": "not reached"}  # an enclosing conditional leaves it out
-                continue
-            # A target that reaches the group but none of its branches compiles the implicit empty
-            # #else: the enclosing function proves that absence like any branch.
-            if site["scope"] == "function":
+                plan[t] = {"state": "not built"}
+            elif site.get("unreached"):
+                plan[t] = {"state": site["unreached"]}  # no comparison build reaches the group
+            elif not site["reached_by"][t]:
+                plan[t] = {"state": "not reached"}  # an enclosing conditional leaves it out
+            elif site["scope"] == "function":
+                # A target that reaches the group but none of its branches compiles the implicit
+                # empty #else: the enclosing function proves that absence like any branch.
                 address = site["annotations"].get(t)
-                if address is None:
-                    proof[t] = {"state": "no function", "branches": compiled}
-                    continue
-                st = states[t].get(int(address, 16), "no state")
-                proof[t] = {"state": "proven" if st in PROVEN else "not proven", "function_state": st, "branches": compiled}
+                plan[t] = {"state": "function" if address else "no function", "branches": compiled}
+                if address:
+                    plan[t]["address"] = address
             else:
-                found = file_scope_proof(site, compiled, t, reach, functions, by_name, sources, states, body_tokens)
-                proof[t] = {"state": "file scope", "branches": compiled, **found}
-                if not found:
-                    proof[t]["note"] = "file scope: not proven by a function"
+                found = file_scope_plan(site, compiled, t, reach, functions, by_name, sources, body_tokens)
+                plan[t] = {"state": "file scope", "branches": compiled, **found}
+        site["plan"] = plan
+
+
+def apply_states(sites, targets, states):
+    """Each site's proof per target, from its plan and the functions' certify states."""
+    for site in sites:
+        proof = {}
+        for t in targets:
+            plan = site["plan"][t]
+            if plan["state"] == "function":
+                st = states[t].get(int(plan["address"], 16), "no state")
+                proof[t] = {"state": "proven" if st in PROVEN else "not proven", "function_state": st, "branches": plan["branches"]}
+            elif plan["state"] == "file scope":
+                p = {"state": "file scope", "branches": plan["branches"]}
+                for key in ("defined", "users"):
+                    if key in plan:
+                        found = [(n, states[t].get(a)) for n, a in plan[key]]
+                        p[key] = {"functions": len(found), "proven": sum(s in PROVEN for _, s in found),
+                                  "unproven": sorted(n for n, s in found if s not in PROVEN)[:20]}
+                if "names" in plan:
+                    p["names"] = plan["names"]
+                else:
+                    p["note"] = "file scope: not proven by a function"
+                proof[t] = p
+            else:
+                proof[t] = dict(plan)
         site["proof"] = proof
 
-    tooling = tooling_references()
+
+# --- The feature table and the document -------------------------------------------------------
+
+DOC = "docs/EDITIONS.md"
+DOC_BEGIN = "<!-- generated by tools/edition_sites.py --doc: begin -->"
+DOC_END = "<!-- generated: end -->"
+EDITION_NAMES = {"MW2": "1.1", "MW2MATROX": "Matrox", "MW23DFX": "3Dfx"}
+KIND_PREFIXES = {"Artefact:": "artefact", "Representation:": "representation"}
+
+
+def feature_table(root=ROOT):
+    """util/types.h's table, in its order: {feature: {"kind", "line", "blocks": {identity macro:
+    {"value", "doc"}}}}. A feature's documentation is the comment right above its #define, inside
+    the #ifdef of the identity macro that has it; a comment that starts "Artefact:" or
+    "Representation:" says the feature is no difference of the game's behaviour."""
+    table, stack, doc, open_comment = {}, [], [], False
+    for n, line in enumerate((Path(root) / "util" / "types.h").read_text(encoding="utf-8").splitlines(), 1):
+        text = line.strip()
+        if open_comment or text.startswith("/*"):
+            if not open_comment:
+                doc = []
+            open_comment = "*/" not in text
+            doc.append(re.sub(r"^/\*|\*/$", "", text).strip())
+            continue
+        m = re.match(r"#\s*(\w+)\s*(\w*)\s*(.*)", text)
+        if m and m.group(1) == "define" and stack and stack[-1]:
+            words = " ".join(w for w in doc if w)
+            kind = "feature"
+            for prefix, k in KIND_PREFIXES.items():
+                if words.startswith(prefix):
+                    kind, words = k, words[len(prefix) :].strip()
+            words = words[:1].upper() + words[1:]
+            row = table.setdefault(m.group(2), {"kind": kind, "line": n, "blocks": {}})
+            row["blocks"][stack[-1]] = {"value": m.group(3).strip(), "doc": words}
+        elif m and m.group(1) in ("if", "ifdef", "ifndef"):
+            stack.append(m.group(2) if m.group(1) == "ifdef" and m.group(2) in EDITION_MACROS else None)
+        elif m and m.group(1) == "endif" and stack:
+            stack.pop()
+        doc = []
+    return table
+
+
+def tested_macros(sources, files):
+    """Every MW2_ macro a conditional of the scanned sources tests: {macro: "file:line"} (the first)."""
+    out = {}
+    for path in files:
+        src = sources.get(path)
+        if src is None:
+            continue
+        for group in src.groups:
+            for branch in group.branches:
+                for name in re.findall(r"\bMW2_\w+", branch.cond.split(";")[0] if src.asm else code_only(branch.cond)):
+                    out.setdefault(name, "%s:%d" % (rel(path), branch.start))
+    return out
+
+
+def has(row, identity):
+    """The block of the table that gives a target (by its identity macros) the feature, or None."""
+    return next((b for m, b in row["blocks"].items() if m in identity), None)
+
+
+def site_label(x):
+    if x["scope"] == "function" and x["function"]:
+        return "`%s`" % x["function"]
+    if x["container"]:
+        return "`%s`" % x["container"]
+    defined = sorted({f for br in x["branches"] for f in br["contents"].get("functions") or ()}, key=str.lower)
+    if defined:  # a file-scope group that holds whole functions
+        return "the definition%s of %s" % ("" if len(defined) == 1 else "s", ", ".join("`%s`" % f for f in defined))
+    return "file scope"
+
+
+def where(sites):
+    """Sites as text without line numbers: each file with its functions, a count where one has several."""
+    by_file = defaultdict(Counter)
+    for x in sites:
+        by_file[x["file"]][site_label(x)] += 1
+    parts = []
+    for f in sorted(by_file):
+        labels = sorted(by_file[f].items(), key=lambda kv: (not kv[0].startswith("`"), kv[0].lower()))
+        parts.append("`%s`: %s" % (f, ", ".join(k + (" (%d)" % v if v > 1 else "") for k, v in labels)))
+    return "; ".join(parts)
+
+
+IDENTITY_KINDS = (
+    ("code", "In a function: the edition's back end, what the shared code does for it, or the same computation written another way"),
+    ("definitions", "An edition's own definition of a function, or functions only some editions' objects have"),
+    ("fragment", "A fragment included at the position of the object that holds it"),
+    ("layout", "The same definition at another address or in another section"),
+    ("data", "Data and declarations that differ"),
+    ("include", "Includes"),
+    ("pragma", "Pragmas that reproduce a unit's flags"),
+)
+
+
+def identity_kind(x):
+    """What a site that tests an edition's identity is, as far as its content shows."""
+    branches = x["branches"]
+    includes = [i for br in branches for i in br["contents"].get("includes") or ()]
+    if x["hint"] == "include selection":
+        return "fragment" if any(i.lower().endswith(".c") for i in includes) else "include"
+    if x["hint"] == "pragma":
+        return "pragma"
+    if x["hint"] == "annotations only":
+        return "layout"
+    if x["scope"] == "function":
+        return "code"
+    if any(br["contents"].get("functions") for br in branches):
+        return "definitions"
+    return "data"
+
+
+def document(sites, table, identity, targets):
+    """The generated part of docs/EDITIONS.md: no line numbers and no proof states, so that it
+    changes only when a feature, its text or the place of a site does."""
+    names = [EDITION_NAMES[t] for t in targets]
+    using = defaultdict(list)
+    for x in sites:
+        for m in x["macros"]:
+            using[m].append(x)
+    out = [DOC_BEGIN, "", "## Features", "",
+           "From the table in `util/types.h` (%d features) and the %d conditional sites of the simulators' sources "
+           "(`MW2/`, `common/`, `3rdparty/vfx`). A feature's cell is its value where it has one." % (len(table), len(sites)), ""]
+    blocks = []
+    for name, row in table.items():
+        key = tuple(row["blocks"])
+        if key not in blocks:
+            blocks.append(key)
+    for key in blocks:
+        have = [EDITION_NAMES[t] for t in targets if any(m in identity[t] for m in key)]
+        rows = [(n, r) for n, r in table.items() if tuple(r["blocks"]) == key]
+        title = "The %s edition" % have[0] if len(have) == 1 else "The %s editions" % " and ".join(have)
+        if len(key) > 1:
+            title = "A value per edition: the %s editions" % " and ".join(have)
+        out += ["### %s (%s)" % (title, ", ".join("`%s`" % m for m in key)), ""]
+        if len(have) > 1 and len(key) == 1:
+            out += ["Every edition that has one of these has them all, so no binary separates one from another: which of them "
+                    "a site belongs to is a reading of what its code does.", ""]
+        out += ["| Feature | %s | Sites | What it does |" % " | ".join(names), "|---|%s--:|---|" % (":-:|" * len(names))]
+        for name, row in rows:
+            cells = []
+            for t in targets:
+                b = has(row, identity[t])
+                cells.append("" if b is None else (b["value"] or "yes"))
+            docs = list(dict.fromkeys(b["doc"] for b in row["blocks"].values()))
+            text = docs[0] if len(docs) == 1 else "; ".join(
+                "%s (%s)" % (b["doc"], ", ".join(EDITION_NAMES[t] for t in targets if m in identity[t])) for m, b in row["blocks"].items())
+            if row["kind"] != "feature":
+                text = "*%s.* %s" % (row["kind"].capitalize(), text)
+            out.append("| `%s` | %s | %d | %s |" % (name, " | ".join(cells), len(using[name]), text.replace("|", "\\|")))
+        out.append("")
+    out += ["## Where each feature is tested", ""]
+    for name in table:
+        out.append("- `%s`: %s" % (name, where(using[name]) or "nowhere"))
+    out.append("")
+    split = []
+    for x in sites:
+        if x["scope"] != "file":
+            continue
+        count = Counter(f for br in x["branches"] for f in set(br["contents"].get("functions") or ()))
+        for f in sorted(n for n, c in count.items() if c > 1):
+            split.append((f, x))
+    out += ["## Functions with a definition per edition", "",
+            "Where an edition's version of a function differs in its control flow or in more than a few statements, each "
+            "version is a definition of its own; the comment above each says what that edition's does.", "",
+            "| Function | File | Selected by | Definitions |", "|---|---|---|---|"]
+    for f, x in sorted(split, key=lambda fx: fx[0].lower()):
+        defs = []
+        for br in x["branches"]:
+            if f in (br["contents"].get("functions") or ()):
+                defs.append(" and ".join(EDITION_NAMES[t] for t in targets if br["targets"][t] != "no") or "no target")
+        out.append("| `%s` | `%s` | `%s` | %s |" % (f, x["file"], x["condition"].replace("|", "\\|"), "; ".join(defs)))
+    out.append("")
+    out += ["## Sites that test an edition", "",
+            "What tests `MW2_ACCEL`, `MW2_MATROX` or `MW2_3DFX` itself rather than a feature, sorted by what the site holds "
+            "(the tool's reading of its content).", ""]
+    for macro in EDITION_MACROS:
+        mine = using.get(macro, [])
+        out += ["### `%s` (%d sites)" % (macro, len(mine)), ""]
+        for kind, title in IDENTITY_KINDS:
+            group = [x for x in mine if identity_kind(x) == kind]
+            if group:
+                out.append("- %s (%d): %s" % (title, len(group), where(group)))
+        out.append("")
+    out.append(DOC_END)
+    return "\n".join(out)
+
+
+def split_document(path):
+    """The hand-written text before and after the generated part, and that part."""
+    text = Path(path).read_text(encoding="utf-8") if Path(path).exists() else ""
+    if DOC_BEGIN not in text or DOC_END not in text:
+        return None
+    a, b = text.index(DOC_BEGIN), text.index(DOC_END) + len(DOC_END)
+    return text[:a], text[a:b], text[b:]
+
+
+def write_document(path, generated):
+    parts = split_document(path)
+    if parts is None:
+        sys.exit("%s has no generated part (%s ... %s)" % (path, DOC_BEGIN, DOC_END))
+    Path(path).write_text(parts[0] + generated + parts[2], encoding="utf-8", newline="\n")
+
+
+def check(sites, table, base, targets, path, generated):
+    """What CI fails on: the table, the sources and the document must agree."""
+    problems = []
+    used = {m for x in sites for m in x["macros"]}
+    for name, row in table.items():
+        for macro, b in row["blocks"].items():
+            if not b["doc"]:
+                problems.append("util/types.h:%d: %s has no comment above its #define (under %s)" % (row["line"], name, macro))
+        if name not in used:
+            problems.append("util/types.h:%d: no conditional tests %s" % (row["line"], name))
+    for name, place in sorted(base.get("tested", {}).items()):
+        if name not in table and name not in EDITION_MACROS and not name.endswith("_H"):
+            problems.append("%s: %s is tested, but util/types.h's table doesn't define it" % (place, name))
+    for t in targets:
+        if t != targets[0] and not base["identity"][t]:
+            problems.append("%s's units define no edition macro" % t)
+    for x in sites:
+        for br in x["branches"]:
+            if br.get("unreached") == "dead":
+                problems.append("%s:%d: no target compiles this branch (%s)" % (x["file"], br["lines"][0], br["condition"]))
+    parts = split_document(path)
+    if parts is None:
+        problems.append("%s is missing or has no generated part" % rel(path))
+    elif parts[1].replace("\r\n", "\n") != generated:
+        problems.append("%s is out of date: run python tools/edition_sites.py --doc" % rel(path))
+    return problems
+
+
+SITE_CLASSES = ("proven", "partly", "unverified", "no function")
+
+
+def site_class(p):
+    """A site's proof for one target in one word: proven (its function, or every function that
+    defines or uses what a file-scope branch declares), partly (some of those), unverified (the
+    function isn't proven, or none of them is), no function (nothing here can prove it), or
+    None where the target doesn't compile the site."""
+    st = p["state"]
+    if st in ("proven",):
+        return "proven"
+    if st in ("not proven", "no function"):
+        return "unverified"
+    if st == "file scope":
+        kind = file_scope_kind(p)
+        return {"all proven": "proven", "some proven": "partly", "none proven": "unverified"}.get(kind, "no function")
+    return None
+
+
+def feature_proofs(sites, table, targets):
+    """Per feature and edition macro, per target: how many of its sites are in each class."""
+    out = {}
+    for x in sites:
+        for m in x["macros"]:
+            row = out.setdefault(m, {"sites": 0, **{t: dict.fromkeys(SITE_CLASSES, 0) for t in targets}})
+            row["sites"] += 1
+            for t in targets:
+                c = site_class(x["proof"][t])
+                if c:
+                    row[t][c] += 1
+    order = list(table) + list(EDITION_MACROS)
+    return {m: out[m] for m in order if m in out}
+
+
+def main():
+    parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
+    parser.add_argument("--build", default="build-wine" if (ROOT / "build-wine").exists() else "build", help="The build tree")
+    parser.add_argument("--states", action="append", default=[], metavar="TARGET=FILE", help="certify.py --json output")
+    parser.add_argument("--wine", default=os.environ.get("WINE", "wine"), help="Wine, for certify (off Windows)")
+    parser.add_argument("--json", help="Write every site to this file")
+    parser.add_argument("--markdown", help="Write the report (every site, with its lines and proofs) to this file")
+    parser.add_argument("--no-states", action="store_true",
+                        help="Stop before the proofs: the sites and what decides each one's proof (with --json, for --sites)")
+    parser.add_argument("--sites", metavar="FILE",
+                        help="Read the sites from a --no-states --json file instead of the build tree, and apply --states")
+    parser.add_argument("--doc", nargs="?", const=DOC, metavar="FILE",
+                        help="Rewrite the generated part of docs/EDITIONS.md (or FILE)")
+    parser.add_argument("--check", action="store_true",
+                        help="Fail unless the feature table, the sources and docs/EDITIONS.md agree (no states needed)")
+    args = parser.parse_args()
+
+    given = {}
+    for s in args.states:
+        t, _, f = s.partition("=")
+        given[t] = f
+    targets = SIMULATORS
+    build = str((ROOT / args.build) if not Path(args.build).is_absolute() else args.build)
+
+    if args.sites:
+        data = json.loads(Path(args.sites).read_text(encoding="utf-8"))
+        sites, tooling, base = data["sites"], data["tooling"], data["summary"]
+    else:
+        sources = {}
+        reach = Reach()
+        base = {"units": {}, "identity": {}}
+        for t in targets:
+            units = Target(t, build).units
+            base["units"][t] = len(units)
+            base["identity"][t] = sorted({m for unit in units for m in predefined(unit) if m in EDITION_MACROS},
+                                         key=EDITION_MACROS.index)
+            for unit in units:
+                preprocess(t, unit, sources, reach)
+        functions, by_name = load_annotations(targets)
+        files = scan_files()
+        sites = build_sites(sources, files, reach, functions, by_name, targets)
+        plan_proofs(sites, targets, reach, functions, by_name, sources)
+        tooling = tooling_references()
+        base["tested"] = tested_macros(sources, files)
+        base["table"] = feature_table()
+
+    status = 0
+    table = base["table"]  # with --sites, the table of the tree the sites came from
+    if (args.doc or args.check) and not args.sites:
+        text = document(sites, table, base["identity"], targets)
+        path = Path(args.doc or DOC)
+        path = path if path.is_absolute() else ROOT / path
+        if args.doc:
+            write_document(path, text)
+        if args.check:
+            problems = check(sites, table, base, targets, path, text)
+            for line in problems:
+                print("edition_sites: %s" % line)
+            print("edition_sites --check: %s" % ("%d problem%s" % (len(problems), "" if len(problems) == 1 else "s") if problems else "ok"))
+            status = 1 if problems else 0
+
+    if args.no_states or ((args.doc or args.check) and not (given or args.markdown)):
+        if args.json:
+            Path(args.json).write_text(json.dumps({"summary": base, "sites": sites, "tooling": tooling}, indent=1) + "\n", encoding="utf-8")
+        return status
+
+    states, state_files = {}, {}
+    for t in targets:
+        states[t], state_files[t] = load_states(t, given, build, args.wine)
+    apply_states(sites, targets, states)
+
     summary = summarize(sites, targets, tooling)
-    summary["units"] = unit_counts
+    summary.update(base)
     summary["states"] = state_files
+    summary["features"] = feature_proofs(sites, table, targets)
+    summary["unverified"] = {t: sum(site_class(x["proof"][t]) == "unverified" for x in sites) for t in targets}
 
     if args.json:
-        Path(args.json).write_text(json.dumps({"summary": summary, "sites": sites, "tooling": tooling}, indent=1) + "\n")
+        Path(args.json).write_text(json.dumps({"summary": summary, "sites": sites, "tooling": tooling}, indent=1) + "\n", encoding="utf-8")
     if args.markdown:
-        Path(args.markdown).write_text(markdown(sites, tooling, summary, targets))
+        Path(args.markdown).write_text(markdown(sites, tooling, summary, targets), encoding="utf-8", newline="\n")
     print_summary(summary, targets)
+    return status
 
 
 def summarize(sites, targets, tooling):
@@ -1120,6 +1463,14 @@ def markdown(sites, tooling, s, targets):
            ""]
     out.append("%d sites in %d files (%d nested)." % (s["sites"], s["files"], s["nested"]))
     out.append("")
+    out += ["## Features", "", "Each feature's sites, and each edition macro's, by what proves them per target: proven (the enclosing",
+            "function is byte-identical or witnessed; at file scope, every function that defines or uses what the branch",
+            "declares) / partly (some of those functions) / unverified (the function isn't proven, or none is) / no function",
+            "(a file-scope site no annotated function reaches: includes, data).", "",
+            "| feature | sites | %s |" % " | ".join(SHORT[t] for t in targets), "|---|--:|" + "---|" * len(targets)]
+    for name, row in s["features"].items():
+        out.append("| `%s` | %d | %s |" % (name, row["sites"], " | ".join(" / ".join(str(row[t][c]) for c in SITE_CLASSES) for t in targets)))
+    out.append("")
     by_file = defaultdict(list)
     for x in sites:
         by_file[x["file"]].append(x)
@@ -1169,4 +1520,4 @@ def markdown(sites, tooling, s, targets):
 
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())

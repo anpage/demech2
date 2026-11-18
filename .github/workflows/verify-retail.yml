@@ -286,6 +286,27 @@ jobs:
           done
           echo "$status" >../certify-status.txt
 
+      - name: Report the edition sites
+        if: ${{ steps.detection.conclusion == 'success' && always() }}
+        shell: bash
+        working-directory: pr
+        env:
+          RELEASE_URL: https://github.com/anpage/demech2/releases/download/continuous
+        run: |
+          # Every conditional site of the simulators' editions with the proof of each target that
+          # compiles it (tools/edition_sites.py): the Build run's certify job listed the sites and
+          # what decides each one's proof, and the states are the Certify step's and the Build
+          # run's (MW2). A report, published with the progress reports; it fails nothing.
+          if [ -f ../certify/edition-sites.json ] && [ -f ../public-report/MW2STATES.json ]; then
+            python ../tools/edition_sites.py --sites ../certify/edition-sites.json \
+              --states MW2=../public-report/MW2STATES.json --states MW2MATROX=MW2MATROXSTATES.json --states MW23DFX=MW23DFXSTATES.json \
+              --json EDITIONSITES.json --markdown EDITIONSITES.md || rm -f EDITIONSITES.json EDITIONSITES.md
+            # main's, for the PR comment's line
+            curl -fLSs -o EDITIONSITES-main.json "$RELEASE_URL/EDITIONSITES.json" || rm -f EDITIONSITES-main.json
+          else
+            echo "(no edition sites in the Build run's artifacts)"
+          fi
+
       - name: Check Assembly
         if: ${{ steps.detection.conclusion == 'success' && always() }}
         shell: bash
@@ -310,6 +331,9 @@ jobs:
               if [ -f "$f" ]; then cp "$f" ../comment-retail/; fi
             done
           done
+          for f in EDITIONSITES.json EDITIONSITES-main.json; do
+            if [ -f "$f" ]; then cp "$f" ../comment-retail/; fi
+          done
 
       - name: Upload Artifact
         uses: actions/upload-artifact@main
@@ -321,6 +345,8 @@ jobs:
             pr/*STATES.md
             pr/*AUDIT.json
             pr/*AUDIT.md
+            pr/EDITIONSITES.json
+            pr/EDITIONSITES.md
 
       - name: Upload PR comment payload
         if: ${{ github.event.workflow_run.event == 'pull_request' && always() }}
@@ -454,6 +480,11 @@ jobs:
             )
           done
 
+          # The editions' conditional sites with their proofs (docs/EDITIONS.md links to it)
+          for f in EDITIONSITES.json EDITIONSITES.md; do
+            if [ -f "$f" ]; then files+=("$f"); fi
+          done
+
           gh release upload continuous "${files[@]}" --clobber --repo "$GITHUB_REPOSITORY"
 
       # GitHub Pages serves the progress reports the README embeds (GitHub
@@ -479,6 +510,7 @@ jobs:
         run: |
           mkdir -p progress
           cp ./*PROGRESS.SVG ./*PROGRESS.HTML ./*STATES.md ./*AUDIT.md progress/
+          if [ -f EDITIONSITES.md ]; then cp EDITIONSITES.md progress/; fi
           python3 src/tools/states_page.py . -o progress/STATES.HTML --commit "$HEAD_SHA" --repository "$GITHUB_REPOSITORY"
           cp progress/STATES.HTML progress/index.html
           ls progress
