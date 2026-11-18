@@ -82,6 +82,155 @@ what follows was found in the Matrox edition and holds for both.
 - **The renderer and the display back end.** `MW2/src/3dfx/a3d.c` (`0x10066570`-`0x100680b2`, after `accel/graphicsmenu.c`) draws through Glide: its vertex is Glide's `GrVertex` (`A3DVertex` under `MW2_3DFX`, the Matrox vertex's members keeping their names), its textures VFX `WINDOW`s of 16-bit texels, converted through Texus and cached, or read converted from `MW2.MIP`, which the game writes on its first run; it writes the 2D panels straight into Glide's frame buffer. `MW2/src/3dfx/glidedraw.c` (`0x100059a0`-`0x10005b65`, after `gdi.c`) is the display back end and refresh modes, `directdraw.c`'s functions one for one, in DirectDraw's slot of `g_displayBackends`/`g_refreshModes`. The edition has no key color fills (nor the `0xfffe` key-colour wipes of the panels, `ClipRectToPane` and the visible-rectangle bounds of `DrawHudShape`: those are `MW2_KEY_COLOR`, the Matrox edition's), and wipes the 3D view's panes with VFX's 16-bit `VFX_pane_wipe`. Its pixels are RGB555 where the Matrox edition's are RGB565 (`PIXEL_RGB16`, the palette in `ApplyPaletteResource`), and it reads no `LOD.PAR`: the detail levels are 1.1's constants. The renderer's `.bss` variables are `static` (their order is the object's), and 2.2 lays statics out in an order of its own: a pointer just past an array names a different neighbour on either side.
 - **Data.** What the 3Dfx edition changed (found by datacmp): the map colors (`targeting.c`) are other palette entries in both accelerated editions; the torso pan and throttle ranges of `g_inputSinks` (`inputmap.c`) are the 3Dfx edition's own; its graphics page lists a fourth item, a "Resolution 800x600" setting in the texture filter's place (`accel/graphicsmenu.c`; the "Res800x600" registry value, which `SimMain`'s settings pass to the renderer for `grSstOpen`). At 800x600 the menus keep their 640x480 size, scaling their points by eight tenths of the frame (`ScaleMenuPointToFrame`), and `DrawAnim2d` tiles animation 0 across its pane (`TileShapeFrame`). The resource type tags and extensions are one `char*` global each where 1.1 has two arrays: 2.2 lays an array's strings out ahead of it, and the original alternates strings and pointers.
 
+## Adding an edition
+
+What a new 3D-card edition of the simulator needs (ATI, S3, PowerVR), in the order that worked
+for the Matrox and 3Dfx editions. Each step names the files that list the editions today: none of
+them finds a new one by itself. A later revision of the game (Ghost Bear's Legacy, 1.0) is another
+question, to settle before this list applies: if most of its functions pair with 1.1's it joins
+the tree the same way, with features named for what it changed; if not, it gets a tree of its own.
+
+### 1. The binary and its toolchain
+
+- **Identify the build before writing source.** The link date and linker version are in the PE
+  header; the compiler is the one whose C runtime the binary's matches as it is (4.0's `LIBCMT` for
+  the Matrox edition, 2.2's `LIBC` for the 3Dfx edition); the calling convention and the frames
+  show the rest (`/Gr`: arguments in `ecx`/`edx`; `/Gy`: `int3` between functions inside an
+  object; `/Ox`: no `/Od` frame). Don't assume one set of flags for every unit: both editions have
+  units compiled differently from the rest, and one function with a pragma of its own.
+- **The compiler.** VC++ 2.2 and 4.0 are set up (`vc22/`, `vc40/`: one nested build per compiler,
+  since a CMake project has one compiler per language). Another compiler takes another sub-project
+  like them: the `ExternalProject` and its environment file in the top-level `CMakeLists.txt`, a
+  `DEMECH2_MSVC<nn>_ROOT` option, the compiler's checkout in `docker/Dockerfile` and
+  `docker/entrypoint.sh` and in both workflows, and a line in the README's requirements. If
+  reccmp's cvdump can't read its linker's PDB, compile with `/Z7` and link with 4.1's LINK against
+  the compiler's own libraries, as the 2.2 targets do.
+- **Settle the flags by probing**, one unit against the original: the flags are right when
+  functions come out byte-identical from the shared source, not when they look close. Record what
+  decided each flag in the edition's section of this document (the 3Dfx edition's `/Ow` against
+  `/Oa`).
+
+### 2. The target and its identity
+
+- **Names.** A reccmp target (`MW2<EDITION>`), the original's file name (`MW2_<EDITION>.DLL`) and
+  an identity macro (`MW2_<EDITION>`), defined by the build together with `MW2_ACCEL`.
+- **The target:** `reccmp-project.yml` (hash, `source-root` `MW2` and `common`, its place in the
+  target order, which is also the order of annotations on a shared function), the target's
+  definition in its sub-project's `targets.cmake` (its own list of MW2's and `MW2/src/accel`'s sources,
+  in the closest edition's order to start with; the identity macros among its compile options and through
+  `demech2_edition_masm_defines` for ML), `reccmp_add_external_target` in the top-level
+  `CMakeLists.txt`, the original's name in `.gitignore`, and the README's `reccmp-user.yml` example.
+- **The identity in the table.** `util/types.h`: the two `#error` tests of impossible identities,
+  and an `#ifdef MW2_<EDITION>` block for the edition's own features, empty at first. The edition
+  starts with every feature of `MW2_ACCEL` and none of another edition's.
+- **The lists of identities and simulators in the tools:**
+  `tools/unitbuild.py` (`EDITION_MACROS`, and `TARGETS`: the target's CMake directory and
+  environment file), `cmake/editions.cmake` (the `#ifdef` it recognizes), `tools/funccmp.py`
+  (`EDITION_DEFINES`), `tools/compare_objects.py` and `tools/edition_sites.py` (`SIMULATORS`; the
+  latter's `EDITION_NAMES` and `SHORT` too), `tools/check_block_sizes.py` (`EDITION_DEFINES`, by
+  folder), `tools/coverage.py` (`COVERERS`: which `/Od` target's proofs cover an optimized one's
+  functions), `tools/states_page.py` (the target's title) and `tools/vfx_names.py` (where the VFX
+  objects' data starts).
+- **CI.** `.github/workflows/build.yml`: the `retail` list of the `targets` job, the nested
+  build's outputs in the two artifact lists, the certify job's loop, and the decomplint job's mapping of
+  the target to the `MW2` folder. `.github/workflows/verify-retail.yml`: `RETAIL_ENTRIES` (with
+  the `--total`, below), the original's hash, the coverage `case`, and the `--states` of the
+  "Report the edition sites" step. The original itself goes into the private repository the retail
+  workflow checks out.
+
+At this point the target builds from the Matrox edition's C without a renderer, and the byte gate
+(`python tools/compare_objects.py main .`) must show every object of the other targets unchanged.
+Keep it that way: an edition's code behind its `#ifdef` costs the others nothing, but a declaration
+added to a shared header can move every unit that includes it.
+
+### 3. The back end
+
+- **Its folder.** `MW2/src/<edition>/` and `MW2/include/<edition>/`: `a3d.c`, the A3D back end
+  over the card's library, and the display back end (the `directdraw.c` functions one for one, in
+  DirectDraw's slot of `g_displayBackends` and `g_refreshModes`). Code two editions share never
+  goes in one edition's folder: it belongs in `MW2/src/accel`.
+- **The card's library** in `3rdparty/`: a `.def` for the import library and our own declarations
+  of what the game uses, with `__cdecl` spelled out if the edition is built with `/Gr`. A library
+  linked in statically takes its own source, licence and `LIBRARY` annotations (`3rdparty/texus`,
+  `MW2/library_texus.h`).
+- **The interface.** `MW2/include/accel/a3d.h` declares what every renderer implements under
+  shared names, and each edition's own entry points under its identity. What the shared code
+  does for one back end tests that edition's identity, since a back end's name would only restate
+  the edition; when a second edition shares the behaviour, it becomes a feature.
+
+### 4. Pairing and annotations
+
+- **An edition built at `/Od`** pairs with 1.1's bytes: `tools/port_annotations.py --from MW2
+  MW2.DLL --to <TARGET> <FILE>` writes the annotations of the functions that match up to
+  relocations, slots and comparison order, maps the globals through their relocations and matches
+  the C runtime. `tools/edition.py` keeps the pairing for the rest (`report`, `cmp`, `auto`,
+  `audit`, `crt`); it is written for `MW2MATROX` (the binaries' names, the `vc40` build, the end
+  of the game code), so the new target is a parameter to add there.
+- **An optimized edition** can't be paired by bytes. Its annotations come from the rebuild, which
+  is byte-identical wherever the source is right (`port_annotations.py --rebuild`, with
+  `--located-differing` once the pointer tables are mapped), and from references:
+  `tools/edition_3dfx.py` pairs a source function with the original's function whose calls,
+  imports, globals and strings are most like its rebuilt version's (`state`, `report`, `auto`,
+  `names`, `unpaired`). It is the 3Dfx edition's (its binary, its build folder, the end of its
+  code): generalize it rather than copy it.
+- **The total.** The game-code function count is the `--total` in `verify-retail.yml`, the README
+  and `CLAUDE.md`: Ghidra's count below the C runtime for an `/Od` build; for a `/Gy` build
+  `tools/edition.py`'s `functions` command, which traces the code (Ghidra missed 261 of the 3Dfx
+  edition's 1574).
+- **The rest by name:** the C runtime in `MW2/library_msvc.h`, the VFX objects' static data in
+  `reccmp/<target>-vfx.csv` (`tools/vfx_names.py`; the three objects are laid out the same in
+  every edition so far), and by-name markers in the unit's header for a function the edition
+  places out of its file's order.
+- **Placement.** The object order goes into the target's source list, found from the functions
+  and data the edition shares with the others. Code it places in another object than 1.1 takes a
+  fragment, included at each edition's position under that edition's macro. Until the units are
+  placed, the target skips `tools/check_units.py` in `verify-retail.yml`, as `MW23DFX` does.
+
+### 5. Which features it has
+
+A new edition is the first evidence about every feature that has only been attributed. Go through
+the tables below in this order:
+
+1. **The features one edition has and the other doesn't** (the `MW2_MATROX` and `MW2_3DFX`
+   tables). The new edition has each one, lacks it, or does a third thing; a feature it shares
+   moves to a block both editions' identities select, and a feature can't stay true of an edition
+   that only partly has it: split it.
+2. **The features with a value per edition** (`MW2_PIXEL_FORMAT`): the new edition's value, read
+   from the code that uses it.
+3. **The features of `MW2_ACCEL`.** Each was both editions' because nothing showed otherwise. Once
+   the target has annotations and states, the published `EDITIONSITES.md` gives, per feature and
+   target, whether a byte-identical or witnessed function compiles each site: an unverified site
+   in a function that doesn't match is the first suspect, before the source's shape. A feature the
+   new edition lacks leaves `MW2_ACCEL`'s block for the blocks of the editions that have it, and
+   what that separates (the float conversion from A3D, say) is then evidence where it was a
+   reading: say so in "What a line of this document rests on".
+4. **The functions with a definition per edition** (the list below): which version the edition
+   compiles, or its own.
+5. **What isn't a feature:** the data it changed (datacmp finds it), globals in `.data` in one
+   edition and `.bss` in another, fragments, declaration orders, and, in an optimized build, the
+   helpers it expands inline (`MW2_INLINE_HELPERS`), the float expressions its folding
+   distinguishes and the declarations that need `__cdecl`. These test the identity, as artefacts
+   and source forms.
+
+A single difference seen in two editions may be one later revision of the source rather than two
+features: the third and fourth editions are what can tell. When a site's difference has no name
+yet, add the feature to the table with its comment before using it, and run `--doc`.
+
+### 6. Proofs and documents
+
+- **Proofs:** `tools/witness.py --write` on the target (and, after any change to a shared header,
+  on the other simulators' units that include it), `tools/certify.py`, `tools/audit.py --write`
+  for its lines in `tools/known_diffs.txt`, and the expected findings of `tools/check_imports.py`,
+  `tools/check_units.py` and `tools/check_block_layout.py`. No comment says how well a function
+  matches; the records and the known differences do.
+- **This document:** a column in the identity table, a section for the edition (how its flags
+  were found, its renderer and display back end, its library, the data it changed), the comments
+  above its features and above its own definitions of functions, then `python
+  tools/edition_sites.py --doc`.
+- **Elsewhere:** `CLAUDE.md` (the target list, the build table, the reccmp commands and totals,
+  and the working rules its compiler adds), the README (the progress badge, the requirements, the
+  build table) and the progress page's title in `tools/states_page.py`.
+
 ## Keeping this document
 
 Everything below the marker is written by `python tools/edition_sites.py --doc` (from the

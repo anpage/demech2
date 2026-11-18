@@ -75,7 +75,7 @@ The build configuration for each binary (comparison builds use Visual C++ 4.1's 
 | `NETMECHW.DLL`   | C and C++ (Visual C++ 2.2) | `/Od /Oi /Z7` (no `/GX`)                          | `/MT` (static)          | `/DLL`, `/DEBUG /INCREMENTAL:no` |
 | `MECH2.EXE`      | C (Visual C++ 2.2)         | `/Od /Oi /G5 /Z7`                                 | `/ML` (single-threaded) | incremental EXE, `/DEBUG`        |
 | `MW2_MATROX.DLL` | C (Visual C++ 4.0)         | `/Od /Oi /G5`                                     | `/MT` (static)          | `/DLL /DEBUG /INCREMENTAL:no`    |
-| `MW2_3DFX.DLL`   | C (Visual C++ 2.2)         | `/Ox /Oa /Oi /G5 /Gr /Gy /Z7` (three files `/Od`) | `/MT` (static)          | `/DLL /DEBUG /INCREMENTAL:no`    |
+| `MW2_3DFX.DLL`   | C (Visual C++ 2.2)         | `/Ox /Ow /Oi /G5 /Gr /Gy /Z7` (three files `/Od`) | `/ML` (single-threaded) | `/DLL /DEBUG /INCREMENTAL:no`    |
 
 ### Docker
 
