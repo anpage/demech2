@@ -283,7 +283,12 @@ void FUN_1008fad0(void)
 #endif
 
 #ifdef MW2_MATROX
-// The Matrox edition's SimMain.
+// The Matrox edition's SimMain. It logs its command line, runs at 640x400 without asking
+// SetGameResolution, reads the sky and ground settings, and hands the game window over to the
+// renderer's own (g_msiWindow) for the main loop, hiding the launcher's. Like the 3Dfx edition's,
+// it computes the bitmaps' average colours after loading the world, updates the players every
+// frame before a network launch, which starts when the go state is 7: each main-loop pass
+// sets bit 4 too. It syncs with the renderer each frame and has no refresh mode fallback loop.
 // FUNCTION: MW2MATROX 0x1008fb5a
 int __stdcall SimMain(
 	HINSTANCE p_module,
@@ -650,7 +655,12 @@ int __stdcall SimMain(
 	return result;
 }
 #elif defined(MW2_3DFX)
-// The 3Dfx edition's SimMain.
+// The 3Dfx edition's SimMain. It keeps 1.1's window, asks SetGameResolution (800x600 with the
+// registry's setting), reads the render settings before FirstClock where the Matrox edition reads
+// them before the main loop, and releases the DCs it tests the palette with. Like the Matrox
+// edition's, it computes the bitmaps' average colours after loading the world, updates the
+// players every frame before a network launch, which starts when the go state is 7.
+// It keeps 1.1's refresh mode fallback loop, filling through Glide.
 // FUNCTION: MW23DFX 0x10008850
 int __stdcall SimMain(
 	HINSTANCE p_module,
@@ -1024,7 +1034,8 @@ int __stdcall SimMain(
 	return result;
 }
 #else
-// 1.1's SimMain.
+// 1.1's SimMain. In a network game it doesn't update the players until the launch, which
+// starts when the go state is 3: the network's bit (1) and the bit each main-loop pass sets (2).
 // FUNCTION: MW2 0x10066a50
 int __stdcall SimMain(
 	HINSTANCE p_module,
@@ -1393,7 +1404,10 @@ int __stdcall SimMain(
 #endif
 
 #ifdef MW2_MATROX
-// The Matrox edition's window procedure, which the MSI95 back end's windows call too.
+// The Matrox edition's window procedure, which the MSI95 back end's windows call too. Once the
+// renderer has its window, that one takes the messages and the others only their activation: the
+// launcher's window restores or minimizes and resets the palette, the renderer's records the
+// activation, clears the keys and takes the game window back.
 // FUNCTION: MW2MATROX 0x100908a4
 LRESULT CALLBACK SimWindowProc(HWND p_hWnd, UINT p_msg, WPARAM p_wParam, LPARAM p_lParam)
 {
@@ -1511,7 +1525,9 @@ LRESULT CALLBACK SimWindowProc(HWND p_hWnd, UINT p_msg, WPARAM p_wParam, LPARAM 
 	return DefWindowProc(p_hWnd, p_msg, p_wParam, p_lParam);
 }
 #elif defined(MW2_3DFX)
-// The 3Dfx edition's window procedure.
+// The 3Dfx edition's window procedure. On WM_ACTIVATEAPP it has none of 1.1's switching between
+// full screen and the desktop: it only restores or minimizes a full-screen window and resets the
+// palette.
 // FUNCTION: MW23DFX 0x10009400
 LRESULT CALLBACK SimWindowProc(HWND p_hWnd, UINT p_msg, WPARAM p_wParam, LPARAM p_lParam)
 {
@@ -1602,7 +1618,8 @@ LRESULT CALLBACK SimWindowProc(HWND p_hWnd, UINT p_msg, WPARAM p_wParam, LPARAM 
 	return DefWindowProc(p_hWnd, p_msg, p_wParam, p_lParam);
 }
 #else
-// 1.1's window procedure.
+// 1.1's window procedure. On WM_ACTIVATEAPP, on a desktop of 640x480 or less, it leaves full
+// screen when the game is deactivated and returns to it when activated again.
 // FUNCTION: MW2 0x10067757
 LRESULT CALLBACK SimWindowProc(HWND p_hWnd, UINT p_msg, WPARAM p_wParam, LPARAM p_lParam)
 {

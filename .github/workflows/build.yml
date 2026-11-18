@@ -222,6 +222,22 @@ jobs:
           python tools/coverage.py --build build --out certify/coverage.json
           echo "coverage digests: $(( $(date +%s) - start )) s"
 
+      - name: List the edition sites and check the editions' document
+        shell: bash
+        run: |
+          # tools/edition_sites.py reads which target compiles which branch from the configured
+          # trees, so it runs here: it writes every conditional site of the simulators' editions
+          # with what decides its proof (the verify-retail workflow, which has the three
+          # simulators' states, makes the report from it), and checks that util/types.h's feature
+          # table, the sources and docs/EDITIONS.md agree. The verify job fails on the result,
+          # so that a stale document doesn't keep the other checks from running.
+          start=$(date +%s)
+          status=0
+          python tools/edition_sites.py --build build --check --no-states --json certify/edition-sites.json >certify/edition-sites.txt 2>&1 || status=$?
+          cat certify/edition-sites.txt
+          echo "$status" >certify/edition-sites-status.txt
+          echo "edition sites: $(( $(date +%s) - start )) s"
+
       - name: Upload the objects
         uses: actions/upload-artifact@main
         with:
@@ -506,6 +522,17 @@ jobs:
         run: |
           # The Certify step's result: a record failure or a function no longer proven.
           test "$(cat certify-status.txt 2>/dev/null || echo 1)" = 0
+
+      - name: Check the editions' document
+        if: ${{ always() }}
+        shell: bash
+        run: |
+          # The certify job's check of the feature table, the sources and docs/EDITIONS.md
+          # (tools/edition_sites.py --check): a feature without a comment, one nothing tests, a
+          # tested macro the table lacks, a branch no target compiles, a stale document
+          # (python tools/edition_sites.py --doc rewrites it).
+          cat certify/edition-sites.txt 2>/dev/null || echo "(the certify job left no result)"
+          test "$(cat certify/edition-sites-status.txt 2>/dev/null || echo 1)" = 0
 
   upload:
     name: Upload artifacts

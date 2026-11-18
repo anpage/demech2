@@ -59,7 +59,7 @@ typedef char MechChar;
 #endif
 
 #ifdef MW2_ACCEL
-/* The simulation's 16.16 fixed-point values are floats (MechScalar, FIXED_*) */
+/* Representation: the simulation's 16.16 fixed-point values are floats (MechScalar, FIXED_*) */
 #define MW2_FLOAT_SCALARS
 
 /* The A3D renderer interface and its records: queued polygons, projected vertices, depth lists */
@@ -119,8 +119,6 @@ typedef char MechChar;
 #define MW2_FADE_BACK_DURATION
 /* FadeToTimeOfDayPhase fades only while no phase is set */
 #define MW2_TIME_OF_DAY_FADE_ONCE
-/* SimMain computes the bitmaps' average colours after loading the world */
-#define MW2_AVERAGE_BITMAP_COLORS
 
 /* Bit 15 of a face's id is part of its kind, not a flag for MapFaceId's remap */
 #define MW2_FACE_KIND_BIT15
@@ -156,8 +154,6 @@ typedef char MechChar;
 #define MW2_NETWORK_STAR_PLAYERS
 /* Restarting a star mission keeps its objectives' targets' listed flags */
 #define MW2_RESTART_KEEPS_LISTED
-/* The players updated every frame before the network launch, and a frame bit in the go state */
-#define MW2_LAUNCH_SYNC
 
 /* JoystickOpenDevice probes with joyGetPosEx alone, on an uncleared JOYINFOEX */
 #define MW2_JOYSTICK_OPEN_POSEX
@@ -221,8 +217,6 @@ typedef char MechChar;
 #define MW2_SKY_TILE_DEFAULTS
 /* DrawSkyAndGround sets the sky and ground palette entries */
 #define MW2_SKY_GROUND_COLORS
-/* SimMain's start-up order, and a WM_ACTIVATEAPP that only restores or minimizes */
-#define MW2_SIMPLE_WINDOW_LIFECYCLE
 /* Message boxes' backgrounds are shape 0x4f, not 0x4c */
 #define MW2_MESSAGE_BACKGROUND_SHAPES
 /* The wireframe outline clears flag bits 12, 14 and 15 */
@@ -243,8 +237,8 @@ typedef char MechChar;
 #define MW2_NO_STATE_7_POWER_TEST
 /* The map layouts hold their gauge functions from the start, not indices in g_cockpitGauges */
 #define MW2_LAYOUT_GAUGE_FUNCTIONS
-/* Not a difference of the game: the edition's headers define FixedMul16, FixedDiv16, MulDiv64, HashName and
-   DebugBreakpoint __inline (its /Ox expands them in every caller), and MemCopy and MemSet are C */
+/* Artefact: the edition's headers define FixedMul16, FixedDiv16, MulDiv64, HashName and DebugBreakpoint
+   __inline (its /Ox expands them in every caller), and MemCopy and MemSet are C */
 #define MW2_INLINE_HELPERS
 /* The debug log's own formats (the sky's colours on one line, the armor as %f) */
 #define MW2_DEBUG_LOG_FORMATS
