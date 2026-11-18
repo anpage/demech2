@@ -79,22 +79,34 @@ The build configuration for each binary (comparison builds use Visual C++ 4.1's 
 
 ### Docker
 
-Alternatively, we support Docker as a method of compilation. This is ideal for users on Linux and macOS who do not wish to manually configure a Wine environment for compiling this project.
+Alternatively, we support Docker as a method of compilation. This is ideal for users on Linux and macOS who do not wish to manually configure a Wine environment for compiling this project: the image holds the three compilers, MASM and CMake under Wine, and the verification tools.
 
-Compilation should be as simple as configuring and running the following command:
+One command builds every binary and, given your own copies of the originals, checks every function against them:
 
 ```
-docker run -d \
-	-e CMAKE_FLAGS="-DCMAKE_BUILD_TYPE=RelWithDebInfo" \
+docker run --rm \
 	-v <path-to-source>:/demech2:rw \
 	-v <build-folder>:/build:rw \
+	-v <originals-folder>:/originals:ro \
 	ghcr.io/anpage/demech2:latest
 ```
 
 `<path-to-source>` should be replaced with the path to the source code directory (ie: the root of this repository).
 `<build-folder>` should be replaced with the path to the build folder you'd like CMake to use during compilation.
+`<originals-folder>` should be replaced with a folder holding the original binaries you have, under the names in the table above (`MW2.DLL`, `MW2SHELL.DLL`, `NETMECHW.DLL`, `MECH2.EXE`, `MW2_MATROX.DLL`, `MW2_3DFX.DLL`, in any case). Leave that line out to only build.
 
-You can pass as many CMake flags as you'd like in the `CMAKE_FLAGS` environment variable, but the default configuration provided in the command is already ideal for building highly-accurate binaries.
+After the build, each target whose original is there is certified (`tools/verify.py`, which runs `tools/certify.py` per target: see [Verification](#verification)): the file is checked to be the one this project targets, every unit is compiled again, the witness records are applied, and every function is compared with the original. It ends with the counts the [proof states page](https://anpage.github.io/demech2/STATES.HTML) shows:
+
+```
+Target     Original        Functions Byte-identical  Proven  Unproven
+MW2SHELL   MW2SHELL.DLL          798            644     154         0
+MW2        MW2.DLL              1558            999     559         0
+MW2MATROX  MW2_MATROX.DLL  no original: skipped
+```
+
+The list of every function with its state is written to `<build-folder>/states` (`<TARGET>STATES.json`, and `<TARGET>STATES.md` for the functions that aren't byte-identical, with the recipe that proves each or its first difference); `-e VERIFY_FLAGS=--functions` prints it too. The command fails if the build does, if a file isn't the original it is named for, or if a witness record doesn't give the original's bytes.
+
+The build is configured as `RelWithDebInfo`, which is what the originals are compared with. To configure it otherwise, pass CMake's flags in the `CMAKE_FLAGS` environment variable (`-e CMAKE_FLAGS="-DCMAKE_BUILD_TYPE=Release"`).
 
 ### Verification
 
@@ -142,6 +154,8 @@ python tools/certify.py --target MW2 [--build <build-folder>] [-v]
 ```
 
 `-v` lists the unproven functions with their first difference. Under Wine, pass `--wine <path-to-wine>`, with `WINEPREFIX` set.
+
+`python tools/verify.py [--originals <folder>]` does this for every target whose original it finds (in the folder, or through `reccmp-user.yml`) and prints one table of the counts; it is what the Docker image runs.
 
 #### Continuous integration
 

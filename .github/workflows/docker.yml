@@ -1,46 +1,108 @@
 name: Docker
 
-# Publishes the VC++ 4.1 + CMake-under-Wine build image (docker/) to the
-# GitHub Container Registry as ghcr.io/anpage/demech2, which the README's
-# Docker section documents. Rebuilds only when the image recipe changes;
-# workflow_dispatch allows refreshing it when the base image or the
-# upstream msvc410 toolchain moves on (MASM 6.11 is pinned in the Dockerfile).
+# Builds the build-and-verify image (docker/: VC++ 4.1, 2.2 and 4.0, MASM, CMake
+# under Wine, Python and reccmp), runs it as the README's Docker section
+# documents (the source built and certified against the 1.1 patch's public
+# originals), and on main publishes it to the GitHub Container Registry as
+# ghcr.io/anpage/demech2. Runs only when the image's recipe or what it bakes in
+# or runs changes; workflow_dispatch allows refreshing it when the base image
+# or the upstream msvc410 toolchain moves on (the others are pinned in the
+# Dockerfile).
 
 on:
   push:
     branches: [main]
     paths:
       - docker/**
+      - .dockerignore
       - .github/workflows/docker.yml
+      - tools/requirements.txt
+      - tools/verify.py
+  pull_request:
+    paths:
+      - docker/**
+      - .dockerignore
+      - .github/workflows/docker.yml
+      - tools/requirements.txt
+      - tools/verify.py
   workflow_dispatch:
 
 jobs:
-  publish:
-    name: Build and publish image
-    runs-on: ubuntu-latest
+  fetch-deps:
+    name: Download original binaries
     if: ${{ github.repository == 'anpage/demech2' }}
+    uses: ./.github/workflows/mw2bin.yml
+
+  publish:
+    name: Build, test and publish image
+    needs: [fetch-deps]
+    # Not ubuntu-latest: on the ubuntu-26.04 image, Wine fails inside the
+    # container ("wine: socket : Function not implemented", at the Dockerfile's
+    # wineboot).
+    runs-on: ubuntu-24.04
+    timeout-minutes: 90
     permissions:
       contents: read
       packages: write
+    env:
+      IMAGE: ghcr.io/${{ github.repository }}
     steps:
       - uses: actions/checkout@v6
 
+      - name: Build image
+        run: |
+          # GHCR requires lowercase image names.
+          image="$(printf '%s' "$IMAGE" | tr '[:upper:]' '[:lower:]')"
+          echo "image=$image" >> "$GITHUB_ENV"
+
+          # The context is the repository root: the image bakes in reccmp at the
+          # commit tools/requirements.txt pins (.dockerignore keeps the rest out).
+          docker build . --file docker/Dockerfile --tag "$image:latest"
+
+      - name: Restore cached original binaries
+        uses: actions/cache/restore@v5
+        with:
+          enableCrossOsArchive: true
+          fail-on-cache-miss: true
+          path: mw2bin
+          key: mw2bin
+
+      - name: Build and verify the source with the image
+        shell: bash
+        run: |
+          # The README's command: the source built, then every function of the
+          # targets whose originals are mounted certified against them.
+          mkdir -p build
+          docker run --rm \
+            -v "$PWD:/demech2:rw" -v "$PWD/build:/build:rw" -v "$PWD/mw2bin:/originals:ro" \
+            "$image:latest" 2>&1 | tee verify.txt
+          # Both public targets were checked (a skipped target has no counts).
+          grep -E '^MW2SHELL +MW2SHELL\.DLL +[0-9]+ +[0-9]+ +[0-9]+ +[0-9]+' verify.txt
+          grep -E '^MW2 +MW2\.DLL +[0-9]+ +[0-9]+ +[0-9]+ +[0-9]+' verify.txt
+
+      - name: Upload the states
+        if: ${{ always() }}
+        uses: actions/upload-artifact@main
+        with:
+          name: docker-states
+          path: |
+            verify.txt
+            build/states
+          if-no-files-found: ignore
+
       - name: Log in to the GitHub Container Registry
+        if: ${{ github.event_name != 'pull_request' }}
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: echo "$GH_TOKEN" | docker login ghcr.io -u "${{ github.actor }}" --password-stdin
 
-      - name: Build and push image
-        env:
-          IMAGE: ghcr.io/${{ github.repository }}
+      - name: Push image
+        if: ${{ github.event_name != 'pull_request' }}
         run: |
-          # GHCR requires lowercase image names.
-          image="$(printf '%s' "$IMAGE" | tr '[:upper:]' '[:lower:]')"
-          sha="${GITHUB_SHA::7}"
-
           # The image bakes in the msvc410 checkout and CMake download, so
           # tag it with the commit that built it for traceability; :latest
           # always points at the most recent build.
-          docker build docker --tag "$image:latest" --tag "$image:$sha"
+          sha="${GITHUB_SHA::7}"
+          docker tag "$image:latest" "$image:$sha"
           docker push "$image:latest"
           docker push "$image:$sha"
