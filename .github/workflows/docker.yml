@@ -36,7 +36,10 @@ jobs:
   publish:
     name: Build, test and publish image
     needs: [fetch-deps]
-    runs-on: ubuntu-latest
+    # Not ubuntu-latest: on the ubuntu-26.04 image, Wine fails inside the
+    # container ("wine: socket : Function not implemented", at the Dockerfile's
+    # wineboot).
+    runs-on: ubuntu-24.04
     timeout-minutes: 90
     permissions:
       contents: read
