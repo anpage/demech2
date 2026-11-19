@@ -227,6 +227,7 @@ void FUN_100692db(Eyepoint* p_eyepoint);
 // FUNCTION: MW23DFX 0x10026a30
 MechS32 FUN_10067b90(MechU32 p_count, MechU32 p_edges, MechS32 p_unk0x08)
 {
+	A3DVertex** in;
 	A3DVertex* next;
 	MechU32 passes;
 	A3DVertex** prev;
@@ -236,7 +237,6 @@ MechS32 FUN_10067b90(MechU32 p_count, MechU32 p_edges, MechS32 p_unk0x08)
 	A3DVertex* listB[255];
 	MechU32 i;
 	MechU32 outCount;
-	A3DVertex** in;
 	A3DVertex* listA[255];
 
 	passes = 0;
@@ -813,12 +813,16 @@ void FUN_10068b57(MechS32 p_count, ProjectedVertex** p_points, MechU32 p_color)
 		vertex->m_x = 0;
 		vertex->m_y = 0;
 		vertex->m_z = 1.0f;
+		// The 3Dfx edition clears the color blue first.
+#ifdef MW2_3DFX
+		vertex->m_blue = 0;
+		vertex->m_green = 0;
+		vertex->m_red = 0;
+		vertex->m_alpha = 255.0f;
+#else
 		vertex->m_red = 0;
 		vertex->m_green = 0;
 		vertex->m_blue = 0;
-#ifdef MW2_3DFX
-		vertex->m_alpha = 255.0f;
-#else
 		vertex->m_unk0x1c = 0;
 		vertex->m_unk0x20 = 0;
 		vertex->m_unk0x24 = 0;
@@ -877,7 +881,7 @@ MechU32 ReadTextLine(FILE* p_file, MechChar* p_buffer, MechS32 p_size)
 }
 
 // Reads the textured sky's and ground's settings for mission p_mission from skygnd.par, or sets the
-// defaults without the file (but not when the file has no line for the mission).
+// defaults without the file (but in the Matrox edition not when the file has no line for the mission).
 // FUNCTION: MW2MATROX 0x10068d0f
 void LoadSkyGroundSettings(const MechChar* p_mission)
 {
@@ -890,7 +894,11 @@ void LoadSkyGroundSettings(const MechChar* p_mission)
 	if (file) {
 		for (;;) {
 			if (!ReadTextLine(file, line, sizeof(line))) {
+#ifdef MW2_SKY_DEFAULTS_AT_END
+				break;
+#else
 				return;
+#endif
 			}
 
 			sscanf(
@@ -1206,15 +1214,27 @@ void DrawSkyAndGround(Eyepoint* p_eyepoint)
 	g_paletteRgb[g_groundColor][1] = g_groundGreen;
 	g_paletteRgb[g_groundColor][2] = g_groundBlue;
 	VFX_lookaside_write16(g_groundColor, PIXEL_RGB16(g_groundRed, g_groundGreen, g_groundBlue));
+	// The 3Dfx edition stores the color's components red first, as in FUN_100688fe.
+#ifdef MW2_3DFX
+	band[0].m_red = g_paletteRgb[g_skyColor][0];
+	band[0].m_green = g_paletteRgb[g_skyColor][1];
+	band[0].m_blue = g_paletteRgb[g_skyColor][2];
+	band[1].m_red = g_paletteRgb[g_skyColor][0];
+	band[1].m_green = g_paletteRgb[g_skyColor][1];
+	band[1].m_blue = g_paletteRgb[g_skyColor][2];
+#else
 	band[0].m_blue = g_paletteRgb[g_skyColor][2];
 	band[0].m_green = g_paletteRgb[g_skyColor][1];
 	band[0].m_red = g_paletteRgb[g_skyColor][0];
 	band[1].m_blue = g_paletteRgb[g_skyColor][2];
 	band[1].m_green = g_paletteRgb[g_skyColor][1];
 	band[1].m_red = g_paletteRgb[g_skyColor][0];
+#endif
+#ifndef MW2_SKY_GROUND_ALL_CASES
 	if (!g_renderSettings.m_drawGround && !g_renderSettings.m_drawSky) {
 		return;
 	}
+#endif
 
 	switch (corners) {
 	case 0:

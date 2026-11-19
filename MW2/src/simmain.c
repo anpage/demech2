@@ -677,11 +677,11 @@ int __stdcall SimMain(
 	int result;
 	MechS32 i;
 	char missionName[64];
-	undefined4 unk0x28;
-	MechS32 unk0x24;
+	undefined4 flags[2];
 	MechS32 seed;
 	MechS32 quitLatched;
-	HDC dc;
+	HDC supAnimDc;
+	HDC paletteDc;
 
 	quitLatched = 0;
 	seed = 0;
@@ -694,8 +694,8 @@ int __stdcall SimMain(
 		Error(9, "Insufficient memory available.");
 	}
 
-	unk0x24 = 1;
-	unk0x28 = 0;
+	flags[1] = 1;
+	flags[0] = 0;
 	if (getenv("MECHWARRIOR")) {
 		strcpy(g_gameDir, getenv("MECHWARRIOR"));
 	}
@@ -725,7 +725,7 @@ int __stdcall SimMain(
 		}
 	}
 
-	if (!ProcessCmdLineArgs(p_cmdLine, &unk0x28, missionName)) {
+	if (!ProcessCmdLineArgs(p_cmdLine, flags, missionName)) {
 		return 0;
 	}
 
@@ -771,9 +771,9 @@ int __stdcall SimMain(
 	__try {
 		FirstClock();
 		DebugPrint("StartSupAnim()\n");
-		dc = GetDC(g_gameWindow);
-		StartSupAnim(GetDeviceCaps(dc, NUMCOLORS) == -1 || g_windowMode == c_windowModeFullscreen);
-		ReleaseDC(g_gameWindow, dc);
+		supAnimDc = GetDC(g_gameWindow);
+		StartSupAnim(GetDeviceCaps(supAnimDc, NUMCOLORS) == -1 || g_windowMode == c_windowModeFullscreen);
+		ReleaseDC(g_gameWindow, supAnimDc);
 		DebugPrint("FirstResource()\n");
 		FirstResource();
 		DebugPrint("InitStaticMem()\n");
@@ -856,8 +856,8 @@ int __stdcall SimMain(
 
 		DebugPrint("StopSupAnim()\n");
 		StopSupAnim();
-		dc = GetDC(g_gameWindow);
-		if (GetDeviceCaps(dc, NUMCOLORS) == -1 || g_windowMode == c_windowModeFullscreen) {
+		paletteDc = GetDC(g_gameWindow);
+		if (GetDeviceCaps(paletteDc, NUMCOLORS) == -1 || g_windowMode == c_windowModeFullscreen) {
 			DebugPrint("StartPalettes()\n");
 			StartPalettes(0);
 		}
@@ -871,7 +871,7 @@ int __stdcall SimMain(
 			}
 		}
 
-		ReleaseDC(g_gameWindow, dc);
+		ReleaseDC(g_gameWindow, paletteDc);
 		g_drawModeReady = 1;
 		DebugPrint("InitDrawMode(%d,%d)\n", g_gameWindowWidth, g_gameWindowHeight);
 		if (!InitRefreshMode(
@@ -1052,8 +1052,7 @@ int __stdcall SimMain(
 	int result;
 	MechS32 i;
 	char missionName[64];
-	undefined4 unk0x28;
-	MechS32 unk0x24;
+	undefined4 flags[2];
 	MechS32 seed;
 	MechS32 quitLatched;
 
@@ -1068,8 +1067,8 @@ int __stdcall SimMain(
 		Error(9, "Insufficient memory available.");
 	}
 
-	unk0x24 = 1;
-	unk0x28 = 0;
+	flags[1] = 1;
+	flags[0] = 0;
 	if (getenv("MECHWARRIOR")) {
 		strcpy(g_gameDir, getenv("MECHWARRIOR"));
 	}
@@ -1099,7 +1098,7 @@ int __stdcall SimMain(
 		}
 	}
 
-	if (!ProcessCmdLineArgs(p_cmdLine, &unk0x28, missionName)) {
+	if (!ProcessCmdLineArgs(p_cmdLine, flags, missionName)) {
 		return 0;
 	}
 

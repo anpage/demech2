@@ -428,8 +428,8 @@ void InitializeManeuvers(Player* p_player)
 // FUNCTION: MW23DFX 0x1001f030
 MechS32 ChooseManeuver(Player* p_player)
 {
-	Mech* mech;
 	ManeuverTable* table;
+	Mech* mech;
 	MechS16 choice;
 	MechS16 index;
 
@@ -1014,6 +1014,9 @@ MechS32 ManeuverWchick(Player* p_player, MechS16 p_target)
 {
 	MechScalar heading;
 
+	// The 3Dfx edition keeps edx, where the parameter arrives, untouched until it is needed: the
+	// parameter is referenced.
+	(void) p_target;
 	SetTarget(p_player, p_player->m_ai.m_goal);
 	heading = GetTargetBearing(p_player);
 	RunAIWeapons(p_player, heading);
@@ -1223,6 +1226,9 @@ MechS32 ManeuverCircle(Player* p_player, MechS16 p_target)
 	MechScalar heading;
 	MechS32 result;
 
+	// The 3Dfx edition keeps edx, where the parameter arrives, untouched until it is needed: the
+	// parameter is referenced.
+	(void) p_target;
 	result = 0;
 	SetTarget(p_player, p_player->m_ai.m_goal);
 	if (p_player->m_maneuverTimer < g_currentClock) {
@@ -1289,7 +1295,6 @@ MechS32 IsBelowHiddenTarget(Player* p_player)
 // FUNCTION: MW23DFX 0x100200f0
 MechS32 BrakeFall(Player* p_player)
 {
-	MechChar line[80];
 	MechS16 value;
 	Mech* mech;
 
@@ -1310,6 +1315,8 @@ MechS32 BrakeFall(Player* p_player)
 
 	SetJumpJets(p_player, value);
 	if (mech->m_velocityY < FIXED_RAW(-0x102762)) {
+		MechChar line[80];
+
 		sprintf(
 			line,
 			"%6ld : %2d Mech %2d has exceded fall damage speed.\n",
@@ -1942,23 +1949,31 @@ void DodgeShot(WeaponSlot* p_slot, Mech* p_mech)
 {
 	MechScalar maxAngle;
 	MechS32 index;
+#ifndef MW2_3DFX
 	MechScalar pitch;
+#endif
 	MechS32 kind;
 	Player* target;
 	MechU32 id;
+#ifndef MW2_3DFX
 	MechScalar bearing;
+#endif
 	MechScalar x;
 	MechScalar y;
 	MechScalar range;
 	MechS32 sx;
 	MechScalar z;
 	MechS32 sy;
+#ifndef MW2_3DFX
 	Shape* hit;
+#endif
 	MechScalar heading;
 	MechS16 step;
 	MechS16 j;
 	MechS16 side;
+#ifndef MW2_3DFX
 	Ray ray;
+#endif
 
 	id = 0;
 	target = NULL;
@@ -1995,6 +2010,13 @@ void DodgeShot(WeaponSlot* p_slot, Mech* p_mech)
 		y = g_players[index]->m_position.m_y;
 		z = g_players[index]->m_position.m_z;
 		if (ProjectWorldPoint(&x, &y, &z)) {
+#ifdef MW2_3DFX
+			// The 3Dfx edition declares the angles here and the probe ray in the dodge's block, where
+			// its locals share their slots.
+			MechScalar pitch;
+			MechScalar bearing;
+
+#endif
 			range = FIXED_CONST(3);
 			maxAngle = 15;
 			pitch = p_mech->m_player->m_targetInfo.m_pitch / 0xf00;
@@ -2011,10 +2033,15 @@ void DodgeShot(WeaponSlot* p_slot, Mech* p_mech)
 
 	if (target && CanJump(target, 0x41)) {
 		if (RandomIntBelow(3)) {
+#ifdef MW2_3DFX
+			Shape* hit;
+			Ray ray;
+
+#endif
 			heading = GetHeadingTo(target, p_mech->m_player->m_index);
-#ifdef MW2_FLOAT_SCALARS
+#if defined(MW2_FLOAT_SCALARS) && !defined(MW2_3DFX)
 			step = heading / 90;
-#else
+#elif !defined(MW2_FLOAT_SCALARS)
 			step = FixedDiv16(heading, 0x5a0000) >> 16;
 #endif
 			if (RandomIntBelow(2)) {
@@ -2023,6 +2050,11 @@ void DodgeShot(WeaponSlot* p_slot, Mech* p_mech)
 			else {
 				side = 1;
 			}
+
+#ifdef MW2_3DFX
+			// The 3Dfx edition picks the side before it divides the heading.
+			step = heading / 90;
+#endif
 
 			step = ((step + 1) % 4) * 4;
 			for (j = 0; j < 2; j++) {

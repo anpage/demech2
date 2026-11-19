@@ -383,15 +383,20 @@ MechS32 LoadMechConfig(Mech* p_mech, MechChar* p_name, MechS32 p_id, MechChar* p
 		p_mech->m_jumpFuel = 0x712;
 		p_mech->m_jumpJets = header->m_jump;
 #ifdef MW2_FLOAT_SCALARS
+		// The accelerated editions' constant is 0.1184, where 1.1's 0x1e50 is 0.118408.
 		jumpRatio = (MechScalar) header->m_jump / header->m_speed;
-		p_mech->m_jumpThrust = jumpRatio * FIXED_RAW(0x1e50);
+		p_mech->m_jumpThrust = jumpRatio * 0.1184f;
 #else
 		jumpRatio = FixedDiv16(header->m_jump, header->m_speed);
 		p_mech->m_jumpThrust = FixedMul16(0x1e50, jumpRatio);
 #endif
 	}
 
+#ifdef MW2_DEBUG_LOG_FORMATS
+	sprintf(text, "\njet ddy: %f", p_mech->m_jumpThrust);
+#else
 	sprintf(text, "\njet ddy: %ld", p_mech->m_jumpThrust);
+#endif
 	WriteToMw2Log(text);
 	if (fromResource) {
 		UnlockCachedResource(p_id, g_resTagMek);

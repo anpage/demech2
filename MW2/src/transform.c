@@ -245,10 +245,10 @@ void OrthogonalizeMatrixColumn(Matrix* p_matrix, MechS32 p_column)
 {
 #if defined(MW2_FLOAT_SCALARS)
 	MechFloat a0;
-	MechFloat b0;
 	MechFloat a1;
-	MechFloat b1;
 	MechFloat a2;
+	MechFloat b1;
+	MechFloat b0;
 	MechFloat b2;
 	MechFloat x;
 	MechFloat y;

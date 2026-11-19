@@ -127,8 +127,8 @@ MechS32 DoFirstObjtv(StarMission* p_mission, MechS32 p_team)
 #endif
 	g_missionTime = g_currentClock / 181;
 	if (p_mission->m_objectives[0].m_targetCount > 0 &&
-		(MechU16) ((MechU8) (p_mission->m_objectives[0].m_targets[0] >> 8) << 8) == 0x100) {
-		nav = (MechU8) p_mission->m_objectives[0].m_targets[0];
+		OBJECTIVE_TARGET_KIND(p_mission->m_objectives[0].m_targets[0]) == 0x100) {
+		nav = OBJECTIVE_TARGET_INDEX(p_mission->m_objectives[0].m_targets[0]);
 		if (nav < g_navCount) {
 			x = g_navTable[nav].m_position[0];
 			y = g_navTable[nav].m_position[1];
@@ -227,9 +227,9 @@ MechS32 IsTeamNearTarget(MechU8* p_target, MechS32 p_team)
 	Player* target;
 	GameThing* thing;
 	MechScalar y;
-	MechScalar x;
 	MechScalar z;
 	MechScalar radius;
+	MechScalar x;
 	NavPoint* nav;
 #ifdef MW2_LEADER_NEAR_TARGET
 	Player* leader;

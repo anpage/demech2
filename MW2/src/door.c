@@ -148,12 +148,12 @@ void LateUpdateDoor(Mech* p_mech)
 	MechS32 nav;
 	MechScalar x;
 	MechScalar navX;
-	MechScalar step;
 	MechScalar y;
 	MechScalar navY;
 	MechScalar z;
 	MechScalar navZ;
 	MechScalar dx;
+	MechScalar step;
 	MechScalar dy;
 
 	mech = p_mech;
@@ -164,8 +164,8 @@ void LateUpdateDoor(Mech* p_mech)
 		mech->m_player->m_targetInfo.m_target = 0;
 		mech->m_player->m_steering->m_autopilot = 0;
 		if (objective->m_type == 0x100 && objective->m_targetCount > 0 &&
-			(MechU16) ((MechU8) (objective->m_targets[0] >> 8) << 8) == 0x100) {
-			nav = (MechU8) objective->m_targets[0];
+			OBJECTIVE_TARGET_KIND(objective->m_targets[0]) == 0x100) {
+			nav = OBJECTIVE_TARGET_INDEX(objective->m_targets[0]);
 			GetObjPosition(mech->m_player->m_obj, &x, &y, &z);
 			navX = g_navTable[nav].m_position[0];
 			navY = g_navTable[nav].m_position[1];

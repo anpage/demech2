@@ -26,10 +26,11 @@ extern "C"
 	extern MechS8 g_sinkPilotPanPlus;
 	extern MechS8 g_sinkPilotPanMinus;
 	extern MechS8 g_sinkPilotPanReset;
-	extern MechS8 g_sinkGlanceLeft;
-	extern MechS8 g_sinkGlanceRight;
-	extern MechS8 g_sinkGlanceUp;
-	extern MechS8 g_sinkGlanceDown;
+	// The glance keys are volatile: the optimized 3Dfx edition loads them again for every test.
+	extern volatile MechS8 g_sinkGlanceLeft;
+	extern volatile MechS8 g_sinkGlanceRight;
+	extern volatile MechS8 g_sinkGlanceUp;
+	extern volatile MechS8 g_sinkGlanceDown;
 	extern MechS8 g_sinkEyepointTiltPlus;
 	extern MechS8 g_sinkEyepointTiltMinus;
 	extern MechS8 g_sinkEyepointTiltReset;

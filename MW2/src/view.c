@@ -420,7 +420,13 @@ void UpdateProjection(Eyepoint* p_eyepoint)
 	}
 
 	a = (MechS32) (fov * 16.0f);
+#ifdef MW2_3DFX
+	// The 3Dfx edition multiplies the field of view by the aspect first, here and in scaleY (the
+	// Matrox edition's /Od code multiplies halfWidth by fov first).
+	eyepoint->m_fovY = fovY = (halfWidth * (fov * aspect)) / halfHeight;
+#else
 	eyepoint->m_fovY = fovY = halfWidth * fov * aspect / halfHeight;
+#endif
 	c = (MechS32) (fovY * 16.0f);
 	if (a > 799) {
 		a = 799;
@@ -432,7 +438,11 @@ void UpdateProjection(Eyepoint* p_eyepoint)
 	eyepoint->m_frustumScaleX = g_slopeSines[a] * fov + g_slopeCosines[a];
 	eyepoint->m_frustumScaleY = g_slopeSines[c] * fovY + g_slopeCosines[c];
 	scaleX = halfWidth * fov;
+#ifdef MW2_3DFX
+	scaleY = halfWidth * (fov * aspect);
+#else
 	scaleY = halfWidth * fov * aspect;
+#endif
 	eyepoint->m_nearPlane = scaleX * 0.5f + 1.0f;
 	eyepoint->m_projectScaleX = scaleX;
 	eyepoint->m_projectScaleY = scaleY;
@@ -733,7 +743,8 @@ MechS32 ProjectWorldPoint(MechScalar* p_x, MechScalar* p_y, MechScalar* p_z)
 // The scene's shape filter (RenderSettings::m_shapeFilter): culls a shape against the view frustum,
 // like CullMapViewShape the map view's. 1: a shape of kind 0xa0 with g_inCockpitView, 5: out of
 // range or past the far plane, 4: in front of the near plane, 6 and 7: outside the side planes.
-// The 3Dfx edition negates the depth once for both side tests (fchs, then fadd).
+// The 3Dfx edition negates the depth once for both side tests (fchs, then fadd): the source
+// parenthesizes the negation, which keeps VC++ 2.2 from folding it into an fsub.
 // FUNCTION: MW2 0x1004c2ef
 // FUNCTION: MW2MATROX 0x10029957
 // FUNCTION: MW23DFX 0x1002fba0
@@ -798,10 +809,10 @@ MechS32 CullSceneShape(Shape* p_shape)
 	fov = g_eyepoint->m_fovX;
 #ifdef MW2_FLOAT_SCALARS
 	if (!FIXED_IS_NEGATIVE(side)) {
-		limit = (side * fov + -depth) / g_eyepoint->m_frustumScaleX;
+		limit = (side * fov + (-depth)) / g_eyepoint->m_frustumScaleX;
 	}
 	else {
-		limit = ((-side) * fov + -depth) / g_eyepoint->m_frustumScaleX;
+		limit = ((-side) * fov + (-depth)) / g_eyepoint->m_frustumScaleX;
 	}
 #else
 	if (side > 0) {
@@ -824,10 +835,10 @@ MechS32 CullSceneShape(Shape* p_shape)
 	fov = g_eyepoint->m_fovY;
 #ifdef MW2_FLOAT_SCALARS
 	if (!FIXED_IS_NEGATIVE(height)) {
-		limit = (height * fov + -depth) / g_eyepoint->m_frustumScaleY;
+		limit = (height * fov + (-depth)) / g_eyepoint->m_frustumScaleY;
 	}
 	else {
-		limit = ((-height) * fov + -depth) / g_eyepoint->m_frustumScaleY;
+		limit = ((-height) * fov + (-depth)) / g_eyepoint->m_frustumScaleY;
 	}
 #else
 	if (height > 0) {
@@ -847,7 +858,8 @@ MechS32 CullSceneShape(Shape* p_shape)
 
 // Culls a shape against the view frustum like CullSceneShape, without its range test. 1 for a
 // hidden shape (bit 0x1000).
-// The 3Dfx edition negates the depth once for both side tests (fchs, then fadd).
+// The 3Dfx edition negates the depth once for both side tests (fchs, then fadd): the source
+// parenthesizes the negation, which keeps VC++ 2.2 from folding it into an fsub.
 // FUNCTION: MW2 0x1004c565
 // FUNCTION: MW2MATROX 0x10029c23
 // FUNCTION: MW23DFX 0x1002fdc0
@@ -894,10 +906,10 @@ MechS32 CullShapeToFrustum(Shape* p_shape)
 	fov = g_eyepoint->m_fovX;
 #ifdef MW2_FLOAT_SCALARS
 	if (!FIXED_IS_NEGATIVE(side)) {
-		limit = (side * fov + -depth) / g_eyepoint->m_frustumScaleX;
+		limit = (side * fov + (-depth)) / g_eyepoint->m_frustumScaleX;
 	}
 	else {
-		limit = ((-side) * fov + -depth) / g_eyepoint->m_frustumScaleX;
+		limit = ((-side) * fov + (-depth)) / g_eyepoint->m_frustumScaleX;
 	}
 #else
 	if (side > 0) {
@@ -922,10 +934,10 @@ MechS32 CullShapeToFrustum(Shape* p_shape)
 #ifdef MW2_FRUSTUM_HEIGHT_SIGN_FROM_SIDE
 	// The Matrox edition tests the sign of side here, not of height.
 	if (!FIXED_IS_NEGATIVE(side)) {
-		limit = (height * fov + -depth) / g_eyepoint->m_frustumScaleY;
+		limit = (height * fov + (-depth)) / g_eyepoint->m_frustumScaleY;
 	}
 	else {
-		limit = ((-height) * fov + -depth) / g_eyepoint->m_frustumScaleY;
+		limit = ((-height) * fov + (-depth)) / g_eyepoint->m_frustumScaleY;
 	}
 #endif
 #else

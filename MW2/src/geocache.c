@@ -1138,7 +1138,7 @@ void GetStaticObjectPosition(MechS32 p_index, MechScalar* p_x, MechScalar* p_y, 
 
 // Shows the static blocks' boxes (the "unitbox" model scaled to each), or frees them when they are
 // shown. Returns whether any is shown.
-// The 3Dfx edition stores SetShapeScale's arguments to locals and pushes those.
+// The scale is one vector: the 3Dfx edition keeps it in memory and pushes its members.
 // FUNCTION: MW2 0x10020d51
 // FUNCTION: MW2MATROX 0x1005449d
 // FUNCTION: MW23DFX 0x10025840
@@ -1150,9 +1150,7 @@ MechS32 ToggleBlockBoxes(void)
 	MechScalar dz;
 	MechScalar dy;
 	MechScalar dx;
-	MechScalar scaleZ;
-	MechScalar scaleY;
-	MechScalar scaleX;
+	Vector3 scale;
 	MechS32 offset;
 	Shape* shape;
 	StaticBlock* block;
@@ -1189,10 +1187,10 @@ MechS32 ToggleBlockBoxes(void)
 				dy = abs(dy);
 				dz = abs(dz);
 #endif
-				scaleX = (dx + 9) / 10;
-				scaleY = (dy + 9) / 10;
-				scaleZ = (dz + 9) / 10;
-				SetShapeScale(scaleX, scaleY, scaleZ);
+				scale.m_x = (dx + 9) / 10;
+				scale.m_y = (dy + 9) / 10;
+				scale.m_z = (dz + 9) / 10;
+				SetShapeScale(scale.m_x, scale.m_y, scale.m_z);
 				SetShapeFlags(0);
 				offset = 0;
 				g_blockBoxes[i] = LoadShapes(data, &offset, size, NULL);
@@ -1274,7 +1272,7 @@ void ShowQuadtreeBoxes(QuadtreeNode* p_root)
 }
 
 // Loads model p_data scaled to the box of p_node at its center, then to its children's.
-// The 3Dfx edition stores SetShapeScale's arguments to locals and pushes those.
+// The scale is one vector: the 3Dfx edition keeps it in memory and pushes its members.
 // FUNCTION: MW2 0x1002116a
 // FUNCTION: MW2MATROX 0x100548f9
 // FUNCTION: MW23DFX 0x10025b70
@@ -1284,9 +1282,7 @@ void LoadQuadtreeBoxes(QuadtreeNode* p_node, MechU8* p_data, MechS32 p_size)
 	MechScalar dz;
 	MechScalar dy;
 	MechScalar dx;
-	MechScalar scaleZ;
-	MechScalar scaleY;
-	MechScalar scaleX;
+	Vector3 scale;
 	MechS32 offset;
 	MechScalar x;
 	Shape* shape;
@@ -1312,10 +1308,10 @@ void LoadQuadtreeBoxes(QuadtreeNode* p_node, MechU8* p_data, MechS32 p_size)
 	dy = abs(dy);
 	dz = abs(dz);
 #endif
-	scaleX = (dx + 9) / 10;
-	scaleY = (dy + 9) * 2 / 10;
-	scaleZ = (dz + 9) / 10;
-	SetShapeScale(scaleX, scaleY, scaleZ);
+	scale.m_x = (dx + 9) / 10;
+	scale.m_y = (dy + 9) * 2 / 10;
+	scale.m_z = (dz + 9) / 10;
+	SetShapeScale(scale.m_x, scale.m_y, scale.m_z);
 	SetShapeFlags(4);
 	offset = 0;
 	shape = LoadShapes(p_data, &offset, p_size, NULL);

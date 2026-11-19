@@ -60,7 +60,6 @@ MechS32 MoveMechWithCollisions(
 	MechScalar length;
 	MechScalar z1;
 	Ray ray;
-	Ray normal;
 	MechScalar dot;
 	MechScalar lift;
 
@@ -120,6 +119,8 @@ MechS32 MoveMechWithCollisions(
 				p_mech->m_collisionTicks++;
 				*p_hit = shape;
 				if (!g_segmentNormalX && !g_segmentNormalY && !g_segmentNormalZ && shape) {
+					Ray normal;
+
 					BuildRayFromSegment(
 						&normal,
 						shape->m_centerX,
@@ -439,9 +440,6 @@ MechS32 CollideWithBuildings(Mech* p_mech, MechScalar* p_x, MechScalar* p_y, Mec
 	MechScalar dy;
 	SceneObject* obj;
 	MechS32 index;
-	MechScalar x;
-	MechScalar y;
-	MechScalar z;
 
 	root = g_sceneShapes;
 	if (!root) {
@@ -466,6 +464,10 @@ MechS32 CollideWithBuildings(Mech* p_mech, MechScalar* p_x, MechScalar* p_y, Mec
 				if (dist > 0) {
 					index = AddDebrisPiece(obj, 1);
 					if (index >= 0) {
+						MechScalar x;
+						MechScalar y;
+						MechScalar z;
+
 						PushDebrisPiece(
 							index,
 							p_mech->m_velocityX * 2,

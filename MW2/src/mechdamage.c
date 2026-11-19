@@ -189,9 +189,9 @@ void DestroyMech(MechS32 p_killer, Mech* p_mech)
 	WeaponSlot* weapon;
 	MechS32 i;
 	MechS32 j;
-	MechS32 k;
 	MechSection* section;
 	AmmoBin* bin;
+	MechS32 k;
 
 #ifdef MW2_EXTRA_DEBUG_PRINTS
 	DebugPrint("BlowAmmo\n");
