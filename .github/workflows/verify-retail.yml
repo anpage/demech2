@@ -251,13 +251,20 @@ jobs:
           RELEASE_URL: https://github.com/anpage/demech2/releases/download/continuous
           GH_TOKEN: ${{ github.token }}
           PR_NUMBER: ${{ github.event.workflow_run.pull_requests[0].number }}
+          EVENT: ${{ github.event.workflow_run.event }}
+          HEAD_SHA: ${{ github.event.workflow_run.head_sha }}
         run: |
           # As the Build workflow's Certify step: every function's state, and the per-function
           # gate against main's, with the exceptions the PR's description lists ("Gate
           # exception: <TARGET> <function> <reason>"). The base branch's certify.py reads the
-          # PR's annotations and records (--tree .) and the Build run's objects.
+          # PR's annotations and records (--tree .) and the Build run's objects. A push to main
+          # gates against the states published before it, so it takes the exceptions of the
+          # pull request it merged, which that pull request's own run accepted.
           if [ -n "$PR_NUMBER" ]; then
             gh pr view "$PR_NUMBER" --repo "$GITHUB_REPOSITORY" --json body --jq .body >gate-exceptions.txt || : >gate-exceptions.txt
+          elif [ "$EVENT" = push ]; then
+            gh api "repos/$GITHUB_REPOSITORY/commits/$HEAD_SHA/pulls" \
+              --jq '[.[] | select(.merged_at != null)][0].body // ""' >gate-exceptions.txt || : >gate-exceptions.txt
           else
             : >gate-exceptions.txt
           fi
