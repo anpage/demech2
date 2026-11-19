@@ -271,6 +271,9 @@ typedef char MechChar;
 #define MW2_NO_REVERSE_THROTTLE
 /* The map layouts hold their gauge functions from the start, not indices in g_cockpitGauges */
 #define MW2_LAYOUT_GAUGE_FUNCTIONS
+/* Artefact: the edition's headers define FixedMul16, FixedDiv16, MulDiv64, HashName and DebugBreakpoint
+   __inline (its /Ox expands them in every caller), and MemCopy and MemSet are C */
+#define MW2_INLINE_HELPERS
 #endif
 
 /* Boolean typedefs (MechBool / MechBool8 ...) are added when a match proves

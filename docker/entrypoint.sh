@@ -21,7 +21,7 @@ wine reg ADD 'HKCU\Environment' /v LIB /d 'C:\msvc\lib' /f
 wine reg ADD 'HKCU\Environment' /v TMP /d 'Z:\build' /f
 wine reg ADD 'HKCU\Environment' /v TEMP /d 'Z:\build' /f
 
-# Configure build with CMake. MSVC 2.2 builds MECH2.EXE, NETMECHW.DLL and MW2_3DFX.DLL in a nested
+# Configure build with CMake. MSVC 2.2 builds MECH2.EXE, NETMECHW.DLL, MW2_3DFX.DLL and MW2_ATI.DLL in a nested
 # build (build/vc22), MSVC 4.0 MW2_MATROX.DLL in another (build/vc40).
 # ML.EXE is passed explicitly: MASM's BIN also holds a 16-bit LINK, LIB and NMAKE
 # The default build type is the one the originals are compared with.

@@ -1163,9 +1163,10 @@ def document(sites, table, identity, targets):
     for key in blocks:
         have = [EDITION_NAMES[t] for t in targets if any(m in identity[t] for m in key)]
         rows = [(n, r) for n, r in table.items() if tuple(r["blocks"]) == key]
-        title = "The %s edition" % have[0] if len(have) == 1 else "The %s editions" % " and ".join(have)
-        if len(key) > 1:
-            title = "A value per edition: the %s editions" % " and ".join(have)
+        listed = have[0] if len(have) == 1 else "%s and %s" % (", ".join(have[:-1]), have[-1])
+        title = "The %s edition%s" % (listed, "s" if len(have) > 1 else "")
+        if len(key) > 1 and any(len({b["value"] for b in r["blocks"].values()}) > 1 for _, r in rows):
+            title = "A value per edition: the %s editions" % listed
         out += ["### %s (%s)" % (title, ", ".join("`%s`" % m for m in key)), ""]
         if len(have) > 1 and len(key) == 1:
             out += ["Every edition that has one of these has them all, so no binary separates one from another: which of them "

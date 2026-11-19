@@ -22,13 +22,13 @@ jobs:
           # --total is only a floor: reccmp uses whichever is larger, the
           # annotated function count or --total. Every per-target step below
           # is driven from this list. It holds the public targets only: the
-          # retail ones (NETMECHW, MECH2, MW2MATROX, MW23DFX), whose originals aren't
+          # retail ones (NETMECHW, MECH2, MW2MATROX, MW23DFX, MW2ATI), whose originals aren't
           # public, are listed in verify-retail.yml, the workflow that runs
           # after this one.
           entries="MW2SHELL:770 MW2:1537"
           # The retail targets, for the jobs that need no original binary
           # (decomplint), in reccmp-project.yml's order after the public ones.
-          retail="MW2MATROX MW23DFX NETMECHW MECH2"
+          retail="MW2MATROX MW23DFX MW2ATI NETMECHW MECH2"
 
           {
             echo "entries=$entries"
@@ -166,6 +166,9 @@ jobs:
             build/vc22/MW2_3DFX.dll
             build/vc22/MW2_3DFX.pdb
             build/vc22/MW2_3DFX.map
+            build/vc22/MW2_ATI.dll
+            build/vc22/MW2_ATI.pdb
+            build/vc22/MW2_ATI.map
             build/vc40/MW2_MATROX.dll
             build/vc40/MW2_MATROX.pdb
             build/vc40/MW2_MATROX.map
@@ -205,7 +208,7 @@ jobs:
       - name: Compile the units and the witnesses
         shell: bash
         run: |
-          for target in MW2SHELL MW2 MW2MATROX MW23DFX NETMECHW MECH2; do
+          for target in MW2SHELL MW2 MW2MATROX MW23DFX MW2ATI NETMECHW MECH2; do
             start=$(date +%s)
             python tools/certify.py --target "$target" --build build --compile-only --objects "certify/$target"
             echo "$target: $(( $(date +%s) - start )) s"
@@ -599,6 +602,9 @@ jobs:
             build/vc22/MW2_3DFX.dll
             build/vc22/MW2_3DFX.pdb
             build/vc22/MW2_3DFX.map
+            build/vc22/MW2_ATI.dll
+            build/vc22/MW2_ATI.pdb
+            build/vc22/MW2_ATI.map
             build/vc40/MW2_MATROX.dll
             build/vc40/MW2_MATROX.pdb
             build/vc40/MW2_MATROX.map
@@ -638,10 +644,10 @@ jobs:
       - name: Run decomplint
         if: ${{ steps.install.conclusion == 'success' && always() }}
         run: |
-          # A target's sources are the directory named after it, but the Matrox
-          # and 3Dfx editions' (MW2MATROX, MW23DFX) are MW2's.
+          # A target's sources are the directory named after it, but the Matrox,
+          # 3Dfx and ATI editions' (MW2MATROX, MW23DFX, MW2ATI) are MW2's.
           dir=${{ matrix.target }}
-          if [ "$dir" = MW2MATROX ] || [ "$dir" = MW23DFX ]; then dir=MW2; fi
+          if [ "$dir" = MW2MATROX ] || [ "$dir" = MW23DFX ] || [ "$dir" = MW2ATI ]; then dir=MW2; fi
           reccmp-decomplint "$dir" common --module ${{ matrix.target }} --warnfail
 
       - name: Check address padding
