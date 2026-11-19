@@ -722,6 +722,7 @@ MechS32 g_dorcsReverse = 1;
 // FUNCTION: MW2 0x10073af0
 // FUNCTION: MW2MATROX 0x100758c0
 // FUNCTION: MW23DFX 0x10064280
+// FUNCTION: MW2ATI 0x10061930
 void AbortMissionAction(MenuDefinition* p_menu, MenuControl* p_control, MechS32 p_index, Point p_pos, MenuPage* p_page)
 {
 	MechS32 saved;
@@ -748,6 +749,7 @@ void AbortMissionAction(MenuDefinition* p_menu, MenuControl* p_control, MechS32 
 // FUNCTION: MW2 0x10073ba6
 // FUNCTION: MW2MATROX 0x10075976
 // FUNCTION: MW23DFX 0x100642e0
+// FUNCTION: MW2ATI 0x10061990
 void FleeToWindowsAction(MenuDefinition* p_menu, MenuControl* p_control, MechS32 p_index, Point p_pos, MenuPage* p_page)
 {
 	MechS32 digit;

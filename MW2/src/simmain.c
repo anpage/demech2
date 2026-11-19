@@ -295,7 +295,7 @@ void FUN_1008fad0(void)
 		filter = 1;
 	}
 
-	FUN_1005f810(filter);
+	A3D_SET_TEXTURE_FILTER(filter);
 #endif
 }
 #endif

@@ -31,3 +31,9 @@ void A3D_EdgeCrossing(
 )
 {
 }
+
+// STUB: MW2ATI 0x100648a0
+void FUN_100648a0(MechS32 p_filter)
+{
+	STUB(0x100648a0);
+}

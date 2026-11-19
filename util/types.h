@@ -259,6 +259,18 @@ typedef char MechChar;
 /* The sky and ground drawers clip the polygon to the pane themselves: their callers draw it even
    when ProjectPolygon leaves no points */
 #define MW2_SKY_GROUND_CLIPPED_HELPERS
+/* The "Filter" registry setting, passed to the renderer */
+#define MW2_TEXTURE_FILTER
+/* The graphics page lists the texture filter, third */
+#define MW2_TEXTURE_FILTER_ITEM
+/* Message boxes' backgrounds are shape 0x4f, not 0x4c */
+#define MW2_MESSAGE_BACKGROUND_SHAPES
+/* The torso pan's range is -90 to 90 */
+#define MW2_NARROW_TORSO_PAN
+/* The throttle's range is 0 to 1024 */
+#define MW2_NO_REVERSE_THROTTLE
+/* The map layouts hold their gauge functions from the start, not indices in g_cockpitGauges */
+#define MW2_LAYOUT_GAUGE_FUNCTIONS
 #endif
 
 /* Boolean typedefs (MechBool / MechBool8 ...) are added when a match proves

@@ -33,7 +33,6 @@ MechS32 GlidePaletteFade(PaletteColor* p_palette, MechS32 p_steps);
 MechS32 GlideLockBuffer(void);
 
 // GLOBAL: MW23DFX 0x1024a778
-// GLOBAL: MW2ATI 0x1017e5e8
 DisplayBackend g_glideBackend = {
 	c_displayBackendDirectDraw,
 	c_windowModeFullscreen,
@@ -48,7 +47,6 @@ DisplayBackend g_glideBackend = {
 };
 
 // GLOBAL: MW23DFX 0x1024a7a0
-// GLOBAL: MW2ATI 0x1017e610
 RefreshMode g_glideFlipRefreshMode = {
 	0,
 	c_displayBackendDirectDraw,
@@ -62,7 +60,6 @@ RefreshMode g_glideFlipRefreshMode = {
 };
 
 // GLOBAL: MW23DFX 0x1024a7c8
-// GLOBAL: MW2ATI 0x1017e638
 RefreshMode g_glideBlitFlipRefreshMode = {
 	1,
 	c_displayBackendDirectDraw,
@@ -76,7 +73,6 @@ RefreshMode g_glideBlitFlipRefreshMode = {
 };
 
 // GLOBAL: MW23DFX 0x1024a7f0
-// GLOBAL: MW2ATI 0x1017e660
 RefreshMode g_glideVideoMemoryRefreshMode = {
 	2,
 	c_displayBackendDirectDraw,
@@ -90,7 +86,6 @@ RefreshMode g_glideVideoMemoryRefreshMode = {
 };
 
 // GLOBAL: MW23DFX 0x1024a818
-// GLOBAL: MW2ATI 0x1017e688
 RefreshMode g_glideSystemMemoryRefreshMode = {
 	3,
 	c_displayBackendDirectDraw,

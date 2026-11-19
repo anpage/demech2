@@ -134,7 +134,6 @@ MechS32 g_a3dLfbSuspended = TRUE;
 
 // The polygons are drawing (FUN_100669a0).
 // GLOBAL: MW23DFX 0x102665e8
-// GLOBAL: MW2ATI 0x101999f4
 MechS32 g_a3dDrawing = FALSE;
 
 // GLOBAL: MW23DFX 0x102665ec
@@ -298,7 +297,6 @@ void FUN_100667e0(MechS32 p_setting)
 }
 
 // FUNCTION: MW23DFX 0x100667f0
-// FUNCTION: MW2ATI 0x10064d19
 void FUN_100667f0(void)
 {
 	if (g_a3dDrawing) {

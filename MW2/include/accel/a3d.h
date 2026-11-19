@@ -130,6 +130,8 @@ extern "C"
 
 // The 3D view's pane wipe, with a 16-bit pixel: the Matrox edition's goes through the renderer.
 #define A3D_PANE_WIPE(p_pane, p_color) FUN_1005f8a0(p_pane, p_color)
+// The texture filter setting (MW2_TEXTURE_FILTER), passed to the renderer.
+#define A3D_SET_TEXTURE_FILTER(p_filter) FUN_1005f810(p_filter)
 #endif
 
 #ifdef MW2_3DFX
@@ -201,6 +203,12 @@ extern "C"
 
 #ifdef MW2_ATI
 	// The ATI edition's renderer, over ATI's 3D CIF (ati/a3d.c). Not decompiled yet.
+
+	// Takes the "Filter" registry setting (SimMain's settings and the graphics page).
+	void FUN_100648a0(MechS32 p_filter);
+
+// The texture filter setting (MW2_TEXTURE_FILTER), passed to the renderer.
+#define A3D_SET_TEXTURE_FILTER(p_filter) FUN_100648a0(p_filter)
 
 // The 3D view's pane wipe, with a 16-bit pixel: VFX's (the 16-bit port, accel/vfx16.h).
 #define A3D_PANE_WIPE(p_pane, p_color) VFX_pane_wipe(p_pane, p_color)

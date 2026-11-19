@@ -2739,6 +2739,7 @@
 // The release CRT names it by its public symbol.
 // GLOBAL: MW2MATROX 0x100bf2e8
 // GLOBAL: MW23DFX 0x10267658
+// GLOBAL: MW2ATI 0x10199e08
 // __ctype
 
 // nlsdata1.obj

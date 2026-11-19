@@ -4,7 +4,8 @@
    the texture filter, and a fourth, unused setting, aren't on the page. One object of its own,
    between geocache.c's and players.c's in the Matrox edition. The 3Dfx edition's page lists all
    four items, its third a "Resolution 800x600" setting in the texture filter's place (the
-   "Res800x600" registry value, off by default, which A3D_Init reads at the next start). */
+   "Res800x600" registry value, off by default, which A3D_Init reads at the next start); the ATI
+   edition's lists the texture filter there. */
 #include "accel/graphicsmenu.h"
 
 #include "accel/a3d.h"
@@ -64,11 +65,11 @@ MechChar g_texturedGroundItem[] = "Textured Ground";
 
 #ifdef MW2_RES_800X600
 // GLOBAL: MW23DFX 0x10265478
-// GLOBAL: MW2ATI 0x10199770
 MechChar g_res800x600Item[] = "Resolution 800x600";
 #endif
 #ifdef MW2_TEXTURE_FILTER
 // GLOBAL: MW2MATROX 0x100aa4c8
+// GLOBAL: MW2ATI 0x10199770
 MechChar g_filterTexturesItem[] = "Filter Textures";
 #endif
 
@@ -88,11 +89,11 @@ MechS32 g_texturedGround = 1;
 
 #ifdef MW2_RES_800X600
 // GLOBAL: MW23DFX 0x102654a0
-// GLOBAL: MW2ATI 0x10199790
 MechS32 g_res800x600 = 1;
 #endif
 #ifdef MW2_TEXTURE_FILTER
 // GLOBAL: MW2MATROX 0x100aa4e8
+// GLOBAL: MW2ATI 0x10199790
 MechS32 g_filterTextures = 1;
 #endif
 
@@ -128,11 +129,11 @@ MenuControl g_texturedGroundControl =
 
 #ifdef MW2_RES_800X600
 // GLOBAL: MW23DFX 0x10265520
-// GLOBAL: MW2ATI 0x10199810
 MenuControl g_res800x600Control = {2, 0, &g_noYesChoices, 0, NULL, GetRes800x600, NULL, SetRes800x600, NULL};
 #endif
 #ifdef MW2_TEXTURE_FILTER
 // GLOBAL: MW2MATROX 0x100aa568
+// GLOBAL: MW2ATI 0x10199810
 MenuControl g_filterTexturesControl =
 	{2, 0, &g_offOnChoices, 0, NULL, GetFilterTextures, NULL, SetFilterTextures, NULL};
 #endif
@@ -156,6 +157,9 @@ MenuPage g_graphicsPage = {
 	 {1, g_texturedGroundItem, RunMenuChoice, &g_texturedGroundControl, NULL},
 #ifdef MW2_RES_800X600
 	 {1, g_res800x600Item, RunMenuChoice, &g_res800x600Control, NULL},
+#endif
+#ifdef MW2_TEXTURE_FILTER_ITEM
+	 {1, g_filterTexturesItem, RunMenuChoice, &g_filterTexturesControl, NULL},
 #endif
 	 {2, g_acceptText, NULL, NULL, NULL}}
 };
@@ -230,7 +234,6 @@ MechS32 GetRes800x600(MechS32 p_arg)
 }
 
 // FUNCTION: MW23DFX 0x10066520
-// FUNCTION: MW2ATI 0x10063aa0
 void SetRes800x600(MechS32 p_arg, MechS32 p_res800x600)
 {
 	WriteRegistryDword("Res800x600", (DWORD*) &p_res800x600);
@@ -240,6 +243,7 @@ void SetRes800x600(MechS32 p_arg, MechS32 p_res800x600)
 #endif
 #ifdef MW2_TEXTURE_FILTER
 // FUNCTION: MW2MATROX 0x10054d7d
+// FUNCTION: MW2ATI 0x10063a70
 MechS32 GetFilterTextures(MechS32 p_arg)
 {
 	if (!ReadRegistryDword("Filter", (DWORD*) &g_filterTextures)) {
@@ -250,11 +254,12 @@ MechS32 GetFilterTextures(MechS32 p_arg)
 }
 
 // FUNCTION: MW2MATROX 0x10054db6
+// FUNCTION: MW2ATI 0x10063aa0
 void SetFilterTextures(MechS32 p_arg, MechS32 p_filterTextures)
 {
 	WriteRegistryDword("Filter", (DWORD*) &p_filterTextures);
 	g_filterTextures = p_filterTextures;
-	FUN_1005f810(p_filterTextures);
+	A3D_SET_TEXTURE_FILTER(p_filterTextures);
 }
 #endif
 

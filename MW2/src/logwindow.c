@@ -51,7 +51,7 @@ MechChar g_debugMessageTitle[0x50] = "DEBUG Message";
 // The digits MonoPrintHex writes.
 // GLOBAL: MW2MATROX 0x100ae298
 // GLOBAL: MW23DFX 0x1024ab28
-// GLOBAL: MW2ATI 0x1017ef78
+// GLOBAL: MW2ATI 0x1017ef80
 MechChar g_monoHexDigits[16] = "0123456789abcdef";
 #endif
 
