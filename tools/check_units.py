@@ -25,6 +25,10 @@ original's layout against that split:
   padding before it is ambiguous (the previous object may have ended flush)
   and is not reported; so is a 4-aligned start of a MASM unit (.asm), whose
   object ML aligns to 4 and which starts flush after the previous one.
+  Neither split nor start applies to a target built with /Gy, which the
+  expected-findings file declares (`<target> comdat`): every function is a
+  COMDAT of its own, 16-aligned with 0xCC padding before it, inside an object
+  as between objects, so only the order of the runs places its units.
 - section: a global in the original's .rdata that the build puts in writable
   data, or the reverse (a missing or extra `const`).
 - static: a C tentative definition (a communal variable, allocated after all
@@ -188,8 +192,12 @@ def check_order(what: str, symbols: list[Symbol], findings: list[tuple[str, int,
     return ordered
 
 
-def check_code(compare: Compare, functions: list[Symbol], findings, ambiguous: list[str], complete: bool):
+def check_code(
+    compare: Compare, functions: list[Symbol], findings, ambiguous: list[str], complete: bool, comdat: bool
+):
     check_order("code", functions, findings)
+    if comdat:
+        return
 
     for prev, cur in zip(functions, functions[1:]):
         # ML aligns an assembled object's .text to 4, VC++ to 16
@@ -255,10 +263,12 @@ def orig_section(orig_bin, addr: int) -> str | None:
     return None
 
 
-def load_expected(path: Path, target_id: str) -> tuple[dict[tuple[str, int], str], bool]:
-    """The known findings for the target, and whether the file declares the target complete."""
+def load_expected(path: Path, target_id: str) -> tuple[dict[tuple[str, int], str], bool, bool]:
+    """The known findings for the target, and whether the file declares the target complete and
+    built with /Gy."""
     expected: dict[tuple[str, int], str] = {}
     complete = False
+    comdat = False
     with open(path, encoding="utf-8") as file:
         for line in file:
             line, _, reason = line.partition("#")
@@ -268,9 +278,12 @@ def load_expected(path: Path, target_id: str) -> tuple[dict[tuple[str, int], str
             if fields[1:] == ["complete"]:
                 complete = True
                 continue
+            if fields[1:] == ["comdat"]:
+                comdat = True
+                continue
             _, kind, addr = fields
             expected[(kind, int(addr, 16))] = reason.strip()
-    return expected, complete
+    return expected, complete, comdat
 
 
 def main():
@@ -322,9 +335,9 @@ def main():
             variables.setdefault(group, []).append(symbol)
 
     ambiguous: list[str] = []
-    expected, complete = load_expected(args.expected, target.target_id)
+    expected, complete, comdat = load_expected(args.expected, target.target_id)
     functions.sort(key=lambda symbol: symbol.orig)
-    check_code(compare, functions, findings, ambiguous, complete)
+    check_code(compare, functions, findings, ambiguous, complete, comdat)
     for group in sorted(variables):
         check_data(group, sorted(variables[group], key=lambda symbol: symbol.orig), findings)
 

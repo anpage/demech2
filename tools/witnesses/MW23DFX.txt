@@ -110,7 +110,9 @@
 0x1001d810 GetLocalTargetObject targeting.c pad 6
 0x1001d870 TargetAtReticle targeting.c pad 22
 0x1001db60 TargetNearestEnemy targeting.c pad 1
-0x1001e670 DamageCockpitPanels staticmem.c pad 5
+0x1001e340 UpdateCockpit targeting.c pad 4
+0x1001e670 DamageCockpitPanels targeting.c pad 13
+0x1001e6c0 PlayCockpitWarnings targeting.c pad 4
 0x1001e820 DrawWeaponPanel weaponpanel.c pad 1
 0x1001ea40 RunManeuver maneuvers.c pad 12
 0x1001f030 ChooseManeuver maneuvers.c pad 1

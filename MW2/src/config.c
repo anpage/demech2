@@ -64,7 +64,8 @@ enum FilePermission {
 	c_permissionWrite = 0x80 // _S_IWRITE (sys/stat.h)
 };
 
-// The cockpit panels: 1.1 has them here, the Matrox edition at the end of staticmem.c's object.
+// The cockpit panels: 1.1 has them here, the Matrox edition at the end of staticmem.c's object
+// and the 3Dfx edition at the end of targeting.c's.
 #ifndef MW2_ACCEL
 #include "cockpitpanels.c"
 #endif

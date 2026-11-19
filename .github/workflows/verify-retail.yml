@@ -217,14 +217,13 @@ jobs:
           # tools/check_units_expected.txt (tools/check_units.py). Not for
           # MECH2: the nested build writes no map file for it (/MAP would turn
           # its incremental link off), and the tool doesn't know an incremental
-          # link's layout. Not for MW23DFX yet: its units are only roughly in the
-          # 3Dfx edition's order, and the Matrox edition's fragments (code moved
-          # between objects) don't match its layout. The known findings are
-          # data: they come from the PR's checkout, like the sources, so a PR
-          # can list the ones it adds.
+          # link's layout. MW23DFX is built with /Gy, which the known findings
+          # declare (`MW23DFX comdat`): only the order of its units is checked.
+          # The known findings are data: they come from the PR's checkout, like
+          # the sources, so a PR can list the ones it adds.
           for entry in $RETAIL_ENTRIES; do
             target="${entry%%:*}"
-            if [ "$target" = MECH2 ] || [ "$target" = MW23DFX ]; then
+            if [ "$target" = MECH2 ]; then
               continue
             fi
             python ../tools/check_units.py --target "$target" --expected tools/check_units_expected.txt

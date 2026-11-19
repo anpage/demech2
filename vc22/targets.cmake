@@ -219,13 +219,13 @@ endfunction()
 # default calling convention (/Gr). /Ow, not /Oa: the original reloads memory a call may have
 # changed (CycleTarget's target id, read again after each call), which /Oa keeps in registers.
 # network.c, shots.c and mechreload.c are /Od (still /Gr). Every function is a COMDAT of its own
-# (/Gy): the linker pads between them with int3, inside an object as between objects. Its CRT is 2.2's LIBCMT, and it links
-# 3dfx's Texus (not built yet). MW2_ACCEL and MW2_3DFX are defined: MW2_ACCEL selects the code
+# (/Gy): the linker pads between them with int3, inside an object as between objects. Its CRT is
+# 2.2's LIBC, and it links 3dfx's Texus. MW2_ACCEL and MW2_3DFX are defined: MW2_ACCEL selects the code
 # the accelerated editions share (MW2/src/accel), MW2_3DFX this edition's own.
 #
 # The sources are MW2's and the accelerated editions' (MW2/src/accel), in this edition's link
-# order as far as its functions place them, with its own Glide back ends (MW2/src/3dfx) in place
-# of the Matrox edition's. Only the VC++ 2.2 sub-project builds this target: it needs ML, and its
+# order (the order of its functions' and data's runs: /Gy leaves no object boundaries to read),
+# with its own Glide back ends (MW2/src/3dfx) in place of the Matrox edition's. Only the VC++ 2.2 sub-project builds this target: it needs ML, and its
 # sources' optimization flags would apply to MW2's targets in the top-level project.
 function(demech2_add_mw23dfx)
   # 3dfx's Texus, which the renderer (3dfx/a3d.c) converts its textures with.
@@ -238,6 +238,7 @@ function(demech2_add_mw23dfx)
   )
   set(sources
     "${DEMECH2_SOURCE_DIR}/MW2/src/mapview.c"
+    "${DEMECH2_SOURCE_DIR}/MW2/src/palidentity.c"
     "${DEMECH2_SOURCE_DIR}/MW2/src/recttransition.c"
     "${DEMECH2_SOURCE_DIR}/MW2/src/dispdib.c"
     "${DEMECH2_SOURCE_DIR}/MW2/src/anim2d.c"
@@ -289,6 +290,7 @@ function(demech2_add_mw23dfx)
     "${DEMECH2_SOURCE_DIR}/MW2/src/maneuvers.c"
     "${DEMECH2_SOURCE_DIR}/MW2/src/targetpanel.c"
     "${DEMECH2_SOURCE_DIR}/MW2/src/artillery.c"
+    "${DEMECH2_SOURCE_DIR}/MW2/src/door.c"
     "${DEMECH2_SOURCE_DIR}/MW2/src/hud.c"
     "${DEMECH2_SOURCE_DIR}/MW2/src/aiweapons.c"
     "${DEMECH2_SOURCE_DIR}/MW2/src/cockpitpanel.c"
@@ -349,46 +351,45 @@ function(demech2_add_mw23dfx)
     "${DEMECH2_SOURCE_DIR}/MW2/src/bwd.c"
     "${DEMECH2_SOURCE_DIR}/MW2/src/poolsizes.c"
     "${DEMECH2_SOURCE_DIR}/MW2/src/mekfile.c"
+    "${DEMECH2_SOURCE_DIR}/MW2/src/bwdkeywords.c"
     "${DEMECH2_SOURCE_DIR}/MW2/src/wtbshapes.c"
     "${DEMECH2_SOURCE_DIR}/MW2/src/resource.c"
     "${DEMECH2_SOURCE_DIR}/MW2/src/weapons.c"
     "${DEMECH2_SOURCE_DIR}/MW2/src/shots.c"
+    "${DEMECH2_SOURCE_DIR}/MW2/src/weapondata.c"
     ${vfx3d}
     ${vfxrend}
     ${vfxa}
     "${DEMECH2_SOURCE_DIR}/MW2/src/palfade.c"
     "${DEMECH2_SOURCE_DIR}/MW2/src/accel/vfx16.asm"
+    "${DEMECH2_SOURCE_DIR}/MW2/src/brightnessmenu.c"
+    "${DEMECH2_SOURCE_DIR}/MW2/src/commandpointmenu.c"
+    "${DEMECH2_SOURCE_DIR}/MW2/src/commandmenu.c"
     "${DEMECH2_SOURCE_DIR}/MW2/src/dorcs.c"
     "${DEMECH2_SOURCE_DIR}/MW2/src/lancemenu.c"
+    "${DEMECH2_SOURCE_DIR}/MW2/src/mainmenu.c"
     "${DEMECH2_SOURCE_DIR}/MW2/src/menucontrols.c"
     "${DEMECH2_SOURCE_DIR}/MW2/src/settings.c"
     "${DEMECH2_SOURCE_DIR}/MW2/src/perf.c"
+    "${DEMECH2_SOURCE_DIR}/MW2/src/audiomenu.c"
     "${DEMECH2_SOURCE_DIR}/MW2/src/menu.c"
     "${DEMECH2_SOURCE_DIR}/MW2/src/accel/graphicsmenu.c"
     "${DEMECH2_SOURCE_DIR}/MW2/src/3dfx/a3d.c"
-    # Not placed yet: units with nothing found in the 3Dfx edition (fixed-point helpers it
+    # Units the 3Dfx edition has nothing of (the fixed-point helpers it expands inline or
     # replaced), linked after the others in the Matrox edition's order. Its display back end and
     # renderer (3dfx/glidedraw.c, 3dfx/a3d.c) replace directdraw.c and the Matrox edition's.
     "${DEMECH2_SOURCE_DIR}/MW2/src/namehash.c"
-    "${DEMECH2_SOURCE_DIR}/MW2/src/mainmenu.c"
-    "${DEMECH2_SOURCE_DIR}/MW2/src/brightnessmenu.c"
     "${DEMECH2_SOURCE_DIR}/MW2/src/fixedmul.c"
-    "${DEMECH2_SOURCE_DIR}/MW2/src/bwdkeywords.c"
     "${DEMECH2_SOURCE_DIR}/MW2/src/fixeddiv.c"
-    "${DEMECH2_SOURCE_DIR}/MW2/src/palidentity.c"
-    "${DEMECH2_SOURCE_DIR}/MW2/src/door.c"
     "${DEMECH2_SOURCE_DIR}/MW2/src/muldiv.c"
-    "${DEMECH2_SOURCE_DIR}/MW2/src/weapondata.c"
     "${DEMECH2_SOURCE_DIR}/MW2/src/integrate.c"
     "${DEMECH2_SOURCE_DIR}/MW2/src/inradius.c"
     "${DEMECH2_SOURCE_DIR}/MW2/src/emptyfns.c"
-    "${DEMECH2_SOURCE_DIR}/MW2/src/commandpointmenu.c"
     "${DEMECH2_SOURCE_DIR}/MW2/src/muldiv14.c"
     "${DEMECH2_SOURCE_DIR}/MW2/src/fixedsqrt.c"
     "${DEMECH2_SOURCE_DIR}/MW2/src/sqrtguess.c"
     "${DEMECH2_SOURCE_DIR}/MW2/src/fixeddiv29.c"
     "${DEMECH2_SOURCE_DIR}/MW2/src/fixedmul29.c"
-    "${DEMECH2_SOURCE_DIR}/MW2/src/audiomenu.c"
     "${DEMECH2_SOURCE_DIR}/MW2/src/scaledelta.c"
     "${DEMECH2_SOURCE_DIR}/MW2/src/crossdiv.c"
     "${DEMECH2_SOURCE_DIR}/MW2/src/lerp.c"
@@ -397,7 +398,6 @@ function(demech2_add_mw23dfx)
     "${DEMECH2_SOURCE_DIR}/MW2/src/shiftdiv.c"
     "${DEMECH2_SOURCE_DIR}/MW2/src/fixeddivu.c"
     "${DEMECH2_SOURCE_DIR}/MW2/src/fixedmul30.c"
-    "${DEMECH2_SOURCE_DIR}/MW2/src/commandmenu.c"
     "${DEMECH2_SOURCE_DIR}/MW2/src/mulratio.c"
     "${DEMECH2_SOURCE_DIR}/MW2/src/mulnorm16.c"
     "${DEMECH2_SOURCE_DIR}/MW2/src/muladddiv.c"

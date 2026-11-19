@@ -1,6 +1,8 @@
 # Known findings of tools/check_units.py: <target> <kind> <address>  # reason
 # `<target> complete` declares every game function of the target annotated, so the
 # function before an object's first one is known to be the previous annotated one.
+# `<target> comdat` declares the target built with /Gy, whose padding marks no object boundary:
+# the split and start checks don't apply to it.
 # The check fails on a finding not listed here, and on a listed one that no longer occurs.
 
 MW2SHELL complete
@@ -36,3 +38,12 @@ MW2MATROX order 0x100a4960  # commandpointmenu.c's menu sits between faceshade.c
 MW2MATROX order 0x100a84a0  # commandmenu.c's menus sit between settings.c's and audio.c's data
 MW2MATROX order 0x100ba8b0  # commandmenu.c's pages sit between inputmap.c's and ai.c's data
 MW2MATROX order 0x100bcdd0  # targeting.c's readout labels sit between overlay.c's and lancemenu.c's data
+
+# MW23DFX is built with /Gy: every function is a COMDAT of its own, padded to 16 with 0xCC inside an
+# object as between objects, so only the order of the runs places its units. Its objects that hold
+# data of more than one of 1.1's units, not split yet, as in the Matrox edition:
+MW23DFX comdat
+MW23DFX order 0x1024a228  # targeting.c's map views (labels, transitions, layouts) sit between gdi.c's and glidedraw.c's data
+MW23DFX order 0x1024a9a8  # g_temperature, g_hostileAtmosphere (soundfx.c) sit with environment.c's data
+MW23DFX order 0x1024c540  # g_jumpJetDrag, g_slideSlope (maneuvers.c) sit with mechclass.c's data
+MW23DFX order 0x1024e410  # collision.c's colours sit between depthsort.c's and faceshade.c's data
