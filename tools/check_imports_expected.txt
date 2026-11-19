@@ -11,6 +11,5 @@ MW2MATROX extra ddraw.dll!DirectDrawCreate
 # Optimized code that isn't the original's yet: the original keeps an import's address in a
 # register where the build calls through the slot each time, or the two load theirs in another order.
 MW2MATROX order 0x1005e2c0  # HEAPCACHE_loaditem (a3d.c, /Ox): the original keeps HeapFree in esi
-MW23DFX order 0x10008850  # SimMain: the original keeps ReleaseDC in edi
 MW23DFX order 0x10032fa0  # StopMidiSequences: the original keeps AIL_stop_sequence in esi, the build AIL_release_sequence_handle (the witness's padding gives the original's)
 MW23DFX order 0x10033340  # SetMidiVolume: the two load AIL_set_sequence_volume and AIL_sequence_status into esi and edi the other way round

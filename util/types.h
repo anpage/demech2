@@ -215,8 +215,12 @@ typedef char MechChar;
 #define MW2_ART_RESOLUTION_NEAREST
 /* The sky and ground textures' tiling defaults: 4 x 0.8, and 20000 */
 #define MW2_SKY_TILE_DEFAULTS
+/* LoadSkyGroundSettings sets the defaults when skygnd.par has no line for the mission too */
+#define MW2_SKY_DEFAULTS_AT_END
 /* DrawSkyAndGround sets the sky and ground palette entries */
 #define MW2_SKY_GROUND_COLORS
+/* DrawSkyAndGround goes through the horizon's cases when it draws neither the sky nor the ground */
+#define MW2_SKY_GROUND_ALL_CASES
 /* Message boxes' backgrounds are shape 0x4f, not 0x4c */
 #define MW2_MESSAGE_BACKGROUND_SHAPES
 /* The wireframe outline clears flag bits 12, 14 and 15 */
@@ -238,7 +242,7 @@ typedef char MechChar;
 /* Artefact: the edition's headers define FixedMul16, FixedDiv16, MulDiv64, HashName and DebugBreakpoint
    __inline (its /Ox expands them in every caller), and MemCopy and MemSet are C */
 #define MW2_INLINE_HELPERS
-/* The debug log's own formats (the sky's colours on one line, the armor as %f) */
+/* The debug log's own formats (the sky's colours on one line, the armor and the jump thrust as %f) */
 #define MW2_DEBUG_LOG_FORMATS
 #endif
 

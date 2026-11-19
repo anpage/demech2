@@ -4,7 +4,7 @@
 #include "resourceref.h"
 #include "types.h"
 
-struct BwdTag;
+union BwdTag;
 
 // The functions of resourcename.c that other units use.
 #ifdef __cplusplus
@@ -19,7 +19,7 @@ extern "C"
 		const char* p_ext,
 		MechS32 p_table,
 		MechS32* p_size,
-		struct BwdTag* p_poolTag
+		union BwdTag* p_poolTag
 	);
 
 #ifdef __cplusplus

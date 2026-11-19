@@ -81,7 +81,6 @@ void DrawScenePolygon(MechS32 p_count, MechU32* p_points, MechU32 p_flags);
 // FUNCTION: MW23DFX 0x10027750
 // ReadTextLine
 
-// The 3Dfx edition's diff is register allocation, scheduling and block layout only.
 // FUNCTION: MW23DFX 0x100277b0
 // LoadSkyGroundSettings
 
@@ -95,7 +94,6 @@ void DrawScenePolygon(MechS32 p_count, MechU32* p_points, MechU32 p_flags);
 // FUNCTION: MW23DFX 0x10027bb0
 // FUN_100692db
 
-// The 3Dfx edition's diff is register allocation and instruction scheduling only.
 // FUNCTION: MW23DFX 0x10027c80
 // DrawSkyAndGround
 

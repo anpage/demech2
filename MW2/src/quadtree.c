@@ -289,13 +289,13 @@ MechS32 FaceOverlapsBox(
 	MechScalar minX;
 	Vertex* vertices;
 	Vertex* vertex;
-	MechS32 i;
 	MechScalar y;
 	MechScalar maxY;
 	MechScalar z;
 	MechScalar maxZ;
 	MechScalar minY;
 	MechScalar minZ;
+	MechS32 i;
 
 	count = p_face->m_indexCount;
 	vertices = (Vertex*) (p_model + 1);
@@ -417,12 +417,12 @@ MechS32 ClassifyQuadtreePoint(QuadtreeNode* p_node, Model* p_model, MechScalar p
 // FUNCTION: MW23DFX 0x1000ccf0
 MechS32 TestQuadtreeRay(QuadtreeNode* p_node, Model* p_model, Ray* p_ray)
 {
-	MechScalar tMax;
+	MechS32 i;
 	MechScalar tMin;
+	MechScalar tMax;
 	Vertex* vertices;
 	MechScalar t0;
 	Face** faces;
-	MechS32 i;
 	MechScalar t1;
 	Face* face;
 

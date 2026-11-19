@@ -2360,7 +2360,10 @@ jmp_1005771d:
 	ret
 DrawShapeUnclipped16 endp
 
-; VFXA's VFX_shape_visible_rectangle (no pixels: nearly unchanged).
+; VFXA's VFX_shape_visible_rectangle (no pixels: nearly unchanged). Only the editions with key colour
+; fills (MW2_KEY_COLOR) call it, and the 3Dfx edition's object doesn't have it: its VFX_pane_wipe16
+; follows DrawShapeUnclipped16.
+	IFDEF MW2_KEY_COLOR
 VFX_shape_visible_rectangle16 proc uses ebx esi edi, p_shapeTable:dword, p_shapeNumber:dword, p_hotX:dword, p_hotY:dword, p_mirror:dword, p_rectangle:dword
 	local l_unk0x04:dword, l_unk0x08:dword, l_unk0x0c:dword, l_unk0x10:dword, l_unk0x14:dword, l_unk0x18:dword
 	local l_unk0x1c:dword, l_unk0x20:dword, l_unk0x24:dword
@@ -2517,6 +2520,7 @@ jmp_10057882:
 	pop es
 	ret
 VFX_shape_visible_rectangle16 endp
+	ENDIF
 
 ; VFXA's VFX_pane_wipe, filling with a 16-bit pixel.
 VFX_pane_wipe16 proc uses ebx esi edi, p_pane:dword, p_color:dword

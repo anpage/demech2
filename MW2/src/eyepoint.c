@@ -842,7 +842,6 @@ void UpdateTrackView(MechScalar p_distance, MechScalar p_height, MechScalar p_ti
 // Updates the cockpit view each frame: resets the pilot's look ramps after an external view, turns
 // the view towards a held glance key (or back ahead once all are released), then places the
 // eyepoint unless the camera is shaking.
-// The 3Dfx edition reloads the glance flags after each store.
 // FUNCTION: MW2 0x10011cb0
 // FUNCTION: MW2MATROX 0x10009ae7
 // FUNCTION: MW23DFX 0x1002e640

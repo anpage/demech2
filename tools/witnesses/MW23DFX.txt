@@ -37,6 +37,7 @@
 0x100083d0 RunTimedCallbacks callbacks.c pad 8
 0x10009400 SimWindowProc simmain.c pad 11
 0x100098f0 CollapseWhitespace objective.c pad 21
+0x10009990 DoFirstObjtv objective.c pad 5
 0x1000a080 TestObjectiveCondition objective.c pad 7
 0x1000a110 ObjectiveConditionsHold objective.c pad 3
 0x1000acd0 RestartStarMission objective.c pad 12
@@ -46,6 +47,7 @@
 0x1000c1f0 ApplyCollisionDamage mechcollision.c pad 3
 0x1000c550 BuildShapeQuadtree quadtree.c pad 12
 0x1000c640 BuildQuadtreeChild quadtree.c pad 3
+0x1000c9a0 FaceOverlapsBox quadtree.c pad 6
 0x1000d170 GetQuadtreeSize quadtree.c pad 14
 0x1000d7b0 TestRayFaces shapecollision.c pad 12
 0x1000d920 ComputeModelBounds boundbox.c pad 13
@@ -72,6 +74,7 @@
 0x10014110 RecordAttack ai.c pad 6
 0x100141a0 LoadAIScripts ai.c pad 4
 0x10014220 FindStarSlotPlayer ai.c pad 8
+0x10014290 OrderPlayers ai.c pad 9
 0x10014390 OrderStarSlot ai.c pad 2
 0x10014520 AssignStarObjective ai.c pad 10
 0x10014880 GetObjectiveTarget ai.c pad 1
@@ -80,6 +83,7 @@
 0x100156f0 UpdateDebrisPiece debris.c pad 1
 0x10015aa0 FindDebrisPiece debris.c pad 3
 0x10015ad0 DamageChunksInRadius debris.c pad 2
+0x10015e10 DestroyMech mechdamage.c pad 1
 0x10016280 KillMech mechdamage.c pad 1
 0x100171d0 ApplyDamageToMech mechdamage.c pad 1
 0x10017b80 DrawObjectivesPanel statuspanels.c pad 3
@@ -109,16 +113,19 @@
 0x1001e670 DamageCockpitPanels staticmem.c pad 5
 0x1001e820 DrawWeaponPanel weaponpanel.c pad 1
 0x1001ea40 RunManeuver maneuvers.c pad 12
+0x1001f030 ChooseManeuver maneuvers.c pad 1
 0x1001f260 FindManeuver maneuvers.c pad 2
 0x1001faf0 ManeuverAchick maneuvers.c pad 7
 0x100204e0 BuildProbeRay maneuvers.c pad 4
 0x10020d00 ChooseFlankPlace maneuvers.c pad 6
 0x10020e40 DrawTargetPanelText targetpanel.c pad 29
 0x10021c90 CreateArtillery artillery.c pad 9
+0x10021f20 LateUpdateDoor door.c pad 12
 0x100221a0 CreateDoor door.c pad 16
 0x100222e0 DrawAltimeter hud.c pad 2
 0x10022960 DrawCompassMarkers hud.c pad 13
 0x10022b10 DrawCompass hud.c pad 13
+0x10022cc0 DrawPlayerBrackets hud.c pad 19
 0x100230c0 DrawHudShape hud.c pad 1
 0x10023120 DrawPaneShape hud.c pad 1
 0x100232b0 DecideAIFire aiweapons.c pad 27
@@ -126,6 +133,7 @@
 0x100239a0 RememberMechSegments mechreload.c rename id=zqai obj=zqaj p_mech=zqak
 0x10023bb0 InitStaticMem staticmem.c pad 2
 0x10023e40 FreeStaticMem staticmem.c pad 14
+0x10023f10 AddStaticPoolType staticmem.c pad 1
 0x10023fd0 LockCacheEntry loadres.c pad 1
 0x100242a0 DumpResourceCache loadres.c pad 24
 0x10024860 FindClassById geocache.c pad 12
@@ -134,13 +142,16 @@
 0x10025040 RunStaticObjectTasks geocache.c pad 13
 0x10025310 PropagateStaticObjectStates geocache.c pad 18
 0x10025410 AreStaticObjectsComplete geocache.c pad 30
+0x10025b70 LoadQuadtreeBoxes geocache.c pad 8
 0x10026430 LoadClassEntryShape classtable.c pad 2
 0x100266e0 ReleasePendingDetailLevel classtable.c pad 1
 0x10026730 ReleaseClassEntryShape classtable.c pad 1
 0x10026770 GetClassObject classtable.c pad 10
 0x100269a0 ReleaseObjShape classtable.c pad 14
 0x100269f0 ForgetObjShape classtable.c pad 3
+0x10026a30 FUN_10067b90 polydraw.c pad 2
 0x10027750 ReadTextLine polydraw.c pad 2
+0x100277b0 LoadSkyGroundSettings polydraw.c pad 15
 0x10028ee0 IsAboveHorizon horizon.c pad 2
 0x10029060 ComputeShapeBounds shape.c pad 1
 0x10029210 ComputeFaceNormal shape.c pad 6
@@ -155,11 +166,13 @@
 0x10029cb0 ApproximateShapeDistance shape.c pad 13
 0x1002a080 DrawShapeList depthsort.c pad 21
 0x1002a390 DrawQueuedPolygon depthsort.c pad 6
+0x1002a4b0 GetFaceColor faceshade.c pad 14
 0x1002a890 AreTextureMapsOn faceshade.c pad 1
 0x1002a8e0 DrawBand bandpoly.c pad 4
 0x1002ab50 SelectPane palette.c pad 3
 0x1002ac40 ApplyPaletteResource palette.c pad 4
 0x1002ad50 StartPaletteFade palette.c pad 5
+0x1002af80 StartPaletteCycle palette.c pad 2
 0x1002b730 ProjectVertex queueface.c pad 5
 0x1002c770 ProjectPolygon queueface.c pad 13
 0x1002d410 FUN_10051ba1 animation.c pad 11
@@ -224,6 +237,7 @@
 0x1003fe70 FindEventList missionsetup.c pad 7
 0x10040060 FlushEventLists missionsetup.c pad 10
 0x10040a10 SaveSndCfg config.c pad 21
+0x10040f60 GetKeywordName bwd.c pad 1
 0x10042de0 SetTeamFormations resource.c pad 15
 0x10043090 GetTriangleNormal resource.c pad 4
 0x10043130 GetTrianglePlane resource.c pad 48

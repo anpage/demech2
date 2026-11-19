@@ -46,4 +46,14 @@ typedef struct MissionObjective {
 
 #pragma pack(pop)
 
+// An AI target id's kind (the high byte, as kind << 8) and index (the low byte). The 3Dfx edition's
+// source reads the two bytes themselves, where 1.1's and the Matrox edition's shift the word.
+#ifdef MW2_3DFX
+#define OBJECTIVE_TARGET_KIND(p_target) ((MechU16) (((MechU8*) &(p_target))[1] << 8))
+#define OBJECTIVE_TARGET_INDEX(p_target) (((MechU8*) &(p_target))[0])
+#else
+#define OBJECTIVE_TARGET_KIND(p_target) ((MechU16) ((MechU8) ((p_target) >> 8) << 8))
+#define OBJECTIVE_TARGET_INDEX(p_target) ((MechU8) (p_target))
+#endif
+
 #endif // MISSIONOBJECTIVE_H

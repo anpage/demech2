@@ -313,6 +313,16 @@ MechU32 WidenEventFlags(MechU32 p_flags)
 	return p_flags;
 }
 
+// An AI target id, as the world stream posts one to an event list (PostEventToList): the low byte
+// an index, the high byte its kind (1 a nav point, 2 a player, 4 a game thing). A union: the 3Dfx
+// edition keeps each one in its own stack slot and passes it from there, as 2.2 does a union's
+// local and not a MechU16's.
+// SIZE 0x02
+typedef union BwdTargetId {
+	MechU16 m_id;      // 0x00
+	MechU8 m_bytes[2]; // 0x00
+} BwdTargetId;
+
 // Executes a BWD stream: the world's scripts, objects and things, record by record. Include,
 // gamepiece and cockpit file records execute their own streams. Events of the things and nav
 // points it creates are posted to the stream's event list (the mission table's, once one is
@@ -921,7 +931,7 @@ MechS32 BwdExecuteStream(BwdStream* p_stream)
 			BwdGameThingRecord* gameThing = (BwdGameThingRecord*) node;
 			MechS32 hitPoints;
 			MechS32 object;
-			MechU16 target;
+			BwdTargetId target;
 			MechS32 replacement;
 
 			i = 0;
@@ -965,8 +975,8 @@ MechS32 BwdExecuteStream(BwdStream* p_stream)
 
 				thing->m_staticObject = objectIndex;
 				if (eventList) {
-					target = (MechU8) index | 0x400;
-					PostEventToList(eventName, events, target);
+					target.m_id = (MechU8) index | 0x400;
+					PostEventToList(eventName, events, target.m_id);
 				}
 			}
 		}
@@ -1066,7 +1076,7 @@ MechS32 BwdExecuteStream(BwdStream* p_stream)
 			BwdNavPointRecord* navPoint = (BwdNavPointRecord*) node;
 			MechU32 events;
 			Vector3 position;
-			MechU16 target;
+			BwdTargetId target;
 			NavPoint* nav;
 #ifdef MW2_FLOAT_SCALARS
 			FileVector3 stored;
@@ -1100,10 +1110,10 @@ MechS32 BwdExecuteStream(BwdStream* p_stream)
 				strncpy(nav->m_name, navPoint->m_name, 0x15);
 				nav->m_name[0x15] = '\0';
 				events = WidenEventFlags(navPoint->m_events);
-				target = (MechU8) g_navCount | 0x100;
+				target.m_id = (MechU8) g_navCount | 0x100;
 				g_navCount++;
 				if (eventList) {
-					PostEventToList(eventName, events, target);
+					PostEventToList(eventName, events, target.m_id);
 				}
 			}
 		}
@@ -1118,7 +1128,7 @@ MechS32 BwdExecuteStream(BwdStream* p_stream)
 			MechScalar z;
 			Shape* shape;
 			MechS32 id;
-			MechU16 target;
+			BwdTargetId target;
 
 			found = FALSE;
 			if (g_navCount < 0x80 && g_navCount != -1) {
@@ -1151,10 +1161,10 @@ MechS32 BwdExecuteStream(BwdStream* p_stream)
 					g_navTable[g_navCount].m_flags = 0;
 					g_navTable[g_navCount].m_owner = 0;
 					events = WidenEventFlags(navObject->m_events);
-					target = (MechU8) g_navCount | 0x100;
+					target.m_id = (MechU8) g_navCount | 0x100;
 					g_navCount++;
 					if (eventList) {
-						PostEventToList(eventName, events, target);
+						PostEventToList(eventName, events, target.m_id);
 					}
 				}
 			}
@@ -1284,7 +1294,7 @@ MechS32 BwdExecuteStream(BwdStream* p_stream)
 			MechS32 id;
 			MechS32 mekId;
 			MechU16 team;
-			MechU16 target;
+			BwdTargetId target;
 			MechS32 ai;
 
 			index = 0;
@@ -1322,8 +1332,8 @@ MechS32 BwdExecuteStream(BwdStream* p_stream)
 					strncpy(g_lastPlayer->m_shortName, gpSpec->m_playerShortName, 0x16);
 					g_lastPlayer->m_shortName[0x15] = '\0';
 					if (eventList) {
-						target = (MechU8) index | 0x200;
-						PostEventToList(eventName, events, target);
+						target.m_id = (MechU8) index | 0x200;
+						PostEventToList(eventName, events, target.m_id);
 					}
 
 					g_lastPlayer->m_team = team;

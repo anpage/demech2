@@ -51,6 +51,11 @@ void SetBrightnessFraction(MechS32 p_arg, MechS32 p_value)
 // FUNCTION: MW23DFX 0x10064260
 void RestoreBrightness(MechS32 p_arg)
 {
+#ifdef MW2_3DFX
+	// The 3Dfx edition's loads g_displayBrightness once, for the store and the call.
+	PreviewBrightness(g_brightnessSetting = g_displayBrightness);
+#else
 	g_brightnessSetting = g_displayBrightness;
 	PreviewBrightness(g_displayBrightness);
+#endif
 }

@@ -783,6 +783,8 @@ MechS32 ProjectAimPoint(Mech* p_mech, MechS32* p_x, MechS32* p_y)
 
 // Marks player p_player on the screen: brackets at the corners of its mech, sized by its radius
 // and depth, in its side's shapes; off the screen, an arrow at the edge.
+// The 3Dfx edition declares point and size in the blocks that use them, where VC++ 2.2 gives
+// them one slot.
 // FUNCTION: MW2 0x10041a14
 // FUNCTION: MW2MATROX 0x1001d9cd
 // FUNCTION: MW23DFX 0x10022cc0
@@ -797,13 +799,19 @@ void DrawPlayerBrackets(Player* p_player, MechS32 p_side)
 	MechScalar x;
 	MechScalar y;
 	MechScalar z;
+#ifndef MW2_3DFX
 	MechScalar size;
 	Point point;
+#endif
 
 	x = p_player->m_position.m_x;
 	y = p_player->m_position.m_y;
 	z = p_player->m_position.m_z;
 	if (!ProjectWorldPoint(&x, &y, &z)) {
+#ifdef MW2_3DFX
+		Point point;
+
+#endif
 		point.m_x = x;
 		point.m_y = y;
 		GetRectNeedleToward(&g_currentPane, &point, &point);
@@ -822,6 +830,10 @@ void DrawPlayerBrackets(Player* p_player, MechS32 p_side)
 		DrawHudShape(point.m_x, point.m_y, topLeft);
 	}
 	else {
+#ifdef MW2_3DFX
+		MechScalar size;
+
+#endif
 		size = p_player->m_mech->m_radius;
 #ifdef MW2_FLOAT_SCALARS
 		size = g_eyepoint->m_projectScaleX * size / z;
@@ -866,12 +878,16 @@ void DrawPlayerBrackets(Player* p_player, MechS32 p_side)
 
 // Marks the object p_object on the screen like DrawPlayerBrackets a player: brackets around its shape,
 // at most half the screen apart, or an arrow at the edge.
+// The 3Dfx edition declares point and maxSize in the blocks that use them, where VC++ 2.2 gives
+// them one slot.
 // FUNCTION: MW2 0x10041c3c
 // FUNCTION: MW2MATROX 0x1001dc23
 // FUNCTION: MW23DFX 0x10022ea0
 void DrawObjectBrackets(struct SceneObject* p_object, MechS32 p_side)
 {
+#ifndef MW2_3DFX
 	MechScalar maxSize;
+#endif
 	MechS32 topLeft;
 	MechS32 topRight;
 	MechS32 bottomLeft;
@@ -882,7 +898,9 @@ void DrawObjectBrackets(struct SceneObject* p_object, MechS32 p_side)
 	MechScalar y;
 	MechScalar z;
 	MechScalar size;
+#ifndef MW2_3DFX
 	Point point;
+#endif
 
 	if (!p_object || !p_object->m_shape) {
 		return;
@@ -890,6 +908,10 @@ void DrawObjectBrackets(struct SceneObject* p_object, MechS32 p_side)
 
 	size = GetShapeBounds(p_object->m_shape, &x, &y, &z);
 	if (!ProjectWorldPoint(&x, &y, &z)) {
+#ifdef MW2_3DFX
+		Point point;
+
+#endif
 		point.m_x = x;
 		point.m_y = y;
 		GetRectNeedleToward(&g_currentPane, &point, &point);
@@ -908,6 +930,10 @@ void DrawObjectBrackets(struct SceneObject* p_object, MechS32 p_side)
 		DrawHudShape(point.m_x, point.m_y, topLeft);
 	}
 	else {
+#ifdef MW2_3DFX
+		MechScalar maxSize;
+
+#endif
 #ifdef MW2_FLOAT_SCALARS
 		size = ((size / 2) * g_eyepoint->m_projectScaleX) / z;
 		if (size > (maxSize = (MechScalar) g_eyepoint->m_halfWidth / 2)) {

@@ -174,37 +174,37 @@ MechS8 g_sinkPilotPanReset = 0;
 #ifdef MW2_ACCEL
 // GLOBAL: MW2MATROX 0x1012f4a6
 // GLOBAL: MW23DFX 0x10159e36
-MechS8 g_sinkGlanceLeft;
+volatile MechS8 g_sinkGlanceLeft;
 #else
 // GLOBAL: MW2 0x100b256e
-MechS8 g_sinkGlanceLeft = 0;
+volatile MechS8 g_sinkGlanceLeft = 0;
 #endif
 
 #ifdef MW2_ACCEL
 // GLOBAL: MW2MATROX 0x1012f4a7
 // GLOBAL: MW23DFX 0x10159e37
-MechS8 g_sinkGlanceRight;
+volatile MechS8 g_sinkGlanceRight;
 #else
 // GLOBAL: MW2 0x100b256f
-MechS8 g_sinkGlanceRight = 0;
+volatile MechS8 g_sinkGlanceRight = 0;
 #endif
 
 #ifdef MW2_ACCEL
 // GLOBAL: MW2MATROX 0x1012f4a8
 // GLOBAL: MW23DFX 0x10159e38
-MechS8 g_sinkGlanceUp;
+volatile MechS8 g_sinkGlanceUp;
 #else
 // GLOBAL: MW2 0x100b2570
-MechS8 g_sinkGlanceUp = 0;
+volatile MechS8 g_sinkGlanceUp = 0;
 #endif
 
 #ifdef MW2_ACCEL
 // GLOBAL: MW2MATROX 0x1012f4a9
 // GLOBAL: MW23DFX 0x10159e39
-MechS8 g_sinkGlanceDown;
+volatile MechS8 g_sinkGlanceDown;
 #else
 // GLOBAL: MW2 0x100b2571
-MechS8 g_sinkGlanceDown = 0;
+volatile MechS8 g_sinkGlanceDown = 0;
 #endif
 
 #ifdef MW2_ACCEL
@@ -523,10 +523,10 @@ InputSink g_inputSinks[] = {
 	{"pilot_pan_plus", &g_sinkPilotPanPlus, 1, 0, 0, 0, 0, 0},
 	{"pilot_pan_minus", &g_sinkPilotPanMinus, 1, 0, 0, 0, 0, 0},
 	{"pilot_pan_reset", &g_sinkPilotPanReset, 1, 0, 0, 0, 0, 0},
-	{"glance_left", &g_sinkGlanceLeft, 1, 0, 0, 0, 0, 0},
-	{"glance_right", &g_sinkGlanceRight, 1, 0, 0, 0, 0, 0},
-	{"glance_up", &g_sinkGlanceUp, 1, 0, 0, 0, 0, 0},
-	{"glance_down", &g_sinkGlanceDown, 1, 0, 0, 0, 0, 0},
+	{"glance_left", (void*) &g_sinkGlanceLeft, 1, 0, 0, 0, 0, 0},
+	{"glance_right", (void*) &g_sinkGlanceRight, 1, 0, 0, 0, 0, 0},
+	{"glance_up", (void*) &g_sinkGlanceUp, 1, 0, 0, 0, 0, 0},
+	{"glance_down", (void*) &g_sinkGlanceDown, 1, 0, 0, 0, 0, 0},
 	{"eyepoint_tilt", &g_sinkEyepointTilt, 0, 0, -16, 16, 4, 0},
 	{"eyepoint_tilt_plus", &g_sinkEyepointTiltPlus, 1, 0, 0, 0, 0, 0},
 	{"eyepoint_tilt_minus", &g_sinkEyepointTiltMinus, 1, 0, 0, 0, 0, 0},
@@ -1141,7 +1141,7 @@ MechS32 ParseInputConditions(FILE* p_file, MechS32* p_count, InputCondition* p_c
 	MechChar line[256];
 	MechChar buttonName[20];
 	MechChar deviceName[40];
-	MechChar sign[4];
+	MechChar sign[2];
 	MechS32 button;
 	MechChar name[40];
 
@@ -1216,7 +1216,7 @@ MechS32 ParseInputMap(FILE* p_file)
 	MechChar deviceName[40];
 	MechS32 channel;
 	MechChar name[40];
-	MechChar sign[4];
+	MechChar sign[2];
 	MechChar* suffix;
 
 	while (ReadInputMapLine(line, 0xff, p_file)) {

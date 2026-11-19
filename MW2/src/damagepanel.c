@@ -156,17 +156,17 @@ Point g_armorBarSize;
 // FUNCTION: MW23DFX 0x1001b230
 void InitDamagePanel(void)
 {
-	CockpitPanel* panel;
 	MechS32 color;
 	MechS32 height2;
 	MechS32 width2;
 	MechS32 height1;
 	MechS32 width1;
+	Point min;
 	void* shape;
 	Mech* mech;
 	MechS32 i;
+	CockpitPanel* panel;
 	Point max;
-	Point min;
 	MechSection* section;
 
 	panel = g_cockpitPanels[c_panelMechView];

@@ -209,11 +209,11 @@ void DrawHeatBar(PANE* p_target)
 // FUNCTION: MW23DFX 0x1001c4a0
 void DrawHeatRateBar(PANE* p_target)
 {
+	Mech* mech;
 	MechS32 level;
-	MechS32 backColor;
 	MechS32 fill;
 	MechS32 fillColor;
-	Mech* mech;
+	MechS32 backColor;
 
 	mech = g_players[g_localPlayerId]->m_mech;
 	fill = 0;

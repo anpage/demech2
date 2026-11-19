@@ -244,7 +244,9 @@ void FirstMech(struct Player* p_player)
 // driven at on the ground, or under gravity, drag and jump jet thrust in the air), resolves
 // collisions with shapes and other mechs, lands it on the terrain (with falling damage), slides
 // it down slopes, then poses its objects. Every player type's update (PlayerType::m_updateFn).
-// The accelerated editions' version, in floats.
+// The accelerated editions' version, in floats. The 3Dfx edition declares the second collision
+// test's results and the aim ray's locals in the blocks that use them, where VC++ 2.2 lets them
+// share the frame, and its jump jet terms are cast, which keeps 2.2 from regrouping the float sums.
 // FUNCTION: MW2MATROX 0x1000d29c
 // FUNCTION: MW23DFX 0x10019310
 void UpdateMech(Mech* p_mech)
@@ -280,10 +282,12 @@ void UpdateMech(Mech* p_mech)
 	MechScalar b;
 	MechScalar c;
 	MechScalar topSpeed2;
+#ifndef MW2_3DFX
 	MechScalar posX2;
 	MechScalar posY2;
 	MechScalar posZ2;
 	struct Shape* hitShape2;
+#endif
 	MechScalar accelY;
 	MechS32 savedUnk0xa4;
 	MechS32 sound;
@@ -292,12 +296,18 @@ void UpdateMech(Mech* p_mech)
 	MechScalar volume2;
 	MechScalar damage;
 	MechScalar slope;
+#ifndef MW2_3DFX
 	MechScalar objY;
+#endif
 	MechScalar angle;
+#ifndef MW2_3DFX
 	MechScalar objZ;
+#endif
 	MechScalar rayLength;
+#ifndef MW2_3DFX
 	Ray ray;
 	MechScalar objX;
+#endif
 
 	height = 0;
 	hitShape = NULL;
@@ -364,7 +374,8 @@ void UpdateMech(Mech* p_mech)
 				b = b / topSpeed;
 #ifdef MW2_3DFX
 				// The 3Dfx edition divides by the length once.
-				drag = -((b + a * length) * length) / length;
+				drag = -((b + a * length) * length);
+				drag /= length;
 				dragX = drag * velX;
 				dragZ = drag * velZ;
 #else
@@ -406,8 +417,8 @@ void UpdateMech(Mech* p_mech)
 					accelY = -g_gravity;
 				}
 
-				accelX += -(mech->m_player->m_headingCos * mech->m_jumpThrust) + dragX;
-				accelZ += dragZ + mech->m_player->m_headingSin * mech->m_jumpThrust;
+				accelX += (MechFloat) (-(mech->m_player->m_headingCos * mech->m_jumpThrust) + dragX);
+				accelZ += (MechFloat) (dragZ + mech->m_player->m_headingSin * mech->m_jumpThrust);
 			}
 			else if (mech->m_player->m_steering->m_jumpJetFireRight) {
 				if (velY < 1e-07f) {
@@ -417,8 +428,8 @@ void UpdateMech(Mech* p_mech)
 					accelY = -g_gravity;
 				}
 
-				accelX += dragX + mech->m_player->m_headingCos * mech->m_jumpThrust;
-				accelZ += -(mech->m_player->m_headingSin * mech->m_jumpThrust) + dragZ;
+				accelX += (MechFloat) (dragX + mech->m_player->m_headingCos * mech->m_jumpThrust);
+				accelZ += (MechFloat) (-(mech->m_player->m_headingSin * mech->m_jumpThrust) + dragZ);
 			}
 			else if (mech->m_player->m_steering->m_jumpJetFireForward) {
 				if (velY < 1e-07f) {
@@ -428,8 +439,8 @@ void UpdateMech(Mech* p_mech)
 					accelY = -g_gravity;
 				}
 
-				accelX += dragX + mech->m_player->m_headingSin * mech->m_jumpThrust;
-				accelZ += dragZ + mech->m_player->m_headingCos * mech->m_jumpThrust;
+				accelX += (MechFloat) (dragX + mech->m_player->m_headingSin * mech->m_jumpThrust);
+				accelZ += (MechFloat) (dragZ + mech->m_player->m_headingCos * mech->m_jumpThrust);
 			}
 			else if (mech->m_player->m_steering->m_jumpJetFireBackward) {
 				if (velY < 1e-07f) {
@@ -439,8 +450,8 @@ void UpdateMech(Mech* p_mech)
 					accelY = -g_gravity;
 				}
 
-				accelX += -(mech->m_player->m_headingSin * mech->m_jumpThrust) + dragX;
-				accelZ += -(mech->m_player->m_headingCos * mech->m_jumpThrust) + dragZ;
+				accelX += (MechFloat) (-(mech->m_player->m_headingSin * mech->m_jumpThrust) + dragX);
+				accelZ += (MechFloat) (-(mech->m_player->m_headingCos * mech->m_jumpThrust) + dragZ);
 			}
 		}
 		else if ((MechFloat) fabs(velY) < 1e-07f && mech->m_player->m_onGround) {
@@ -476,6 +487,13 @@ void UpdateMech(Mech* p_mech)
 		mech->m_player->m_collidedWith = -1;
 
 		if (MoveMechWithCollisions(mech, &hitShape, &hitPlayer, dx, dy, dz, &posX, &posY, &posZ)) {
+#ifdef MW2_3DFX
+			MechScalar posX2;
+			MechScalar posY2;
+			MechScalar posZ2;
+			struct Shape* hitShape2;
+
+#endif
 			dx = posX - mech->m_player->m_position.m_x;
 			dy = posY - mech->m_player->m_position.m_y;
 			dz = posZ - mech->m_player->m_position.m_z;
@@ -505,7 +523,7 @@ void UpdateMech(Mech* p_mech)
 
 			g_groundNormalX = g_groundNormalY = g_groundNormalZ = 0;
 			mech->m_player->m_groundHeight = GetTerrainHeight(posX, posY, posZ);
-			height = posY - mech->m_height - mech->m_player->m_groundHeight;
+			height = (MechFloat) (posY - mech->m_height) - mech->m_player->m_groundHeight;
 
 			if (g_isNetworkGame && g_segmentNormalY > FIXED_LITERAL(0xddb4, 0.866f) && hitPlayer) {
 				SendCollisionMsg(hitPlayer->m_index, g_segmentNormalX, g_segmentNormalY, g_segmentNormalZ);
@@ -581,7 +599,7 @@ void UpdateMech(Mech* p_mech)
 
 			g_groundNormalX = g_groundNormalY = g_groundNormalZ = 0;
 			mech->m_player->m_groundHeight = GetTerrainHeight(posX, posY, posZ);
-			height = posY - mech->m_height - mech->m_player->m_groundHeight;
+			height = (MechFloat) (posY - mech->m_height) - mech->m_player->m_groundHeight;
 		}
 
 		mech->m_player->m_onGround = 0;
@@ -629,7 +647,7 @@ void UpdateMech(Mech* p_mech)
 		mech->m_player->m_position.m_x = posX;
 		mech->m_player->m_position.m_y = posY;
 		mech->m_player->m_position.m_z = posZ;
-		mech->m_player->m_heading += g_deltaTime / 181.0f * mech->m_turnRate.m_value;
+		mech->m_player->m_heading += (g_deltaTime / 181.0f) * mech->m_turnRate.m_value;
 		mech->m_player->m_heading = fmod(mech->m_player->m_heading, 360.0);
 		mech->m_velocityX = velX;
 		mech->m_velocityY = velY;
@@ -654,6 +672,13 @@ void UpdateMech(Mech* p_mech)
 
 		pitch = FIXED_SHR(mech->m_torsoPitch.m_value, 1);
 		if (mech->m_pitchObj) {
+#ifdef MW2_3DFX
+			MechScalar objY;
+			MechScalar objZ;
+			Ray ray;
+			MechScalar objX;
+
+#endif
 			BuildAimRay(mech->m_player, &ray);
 			rayLength = GetAimRange(mech->m_player);
 			SetRayLength(&ray, rayLength);
@@ -1132,6 +1157,8 @@ void UpdateMech(Mech* p_mech)
 // recentering, the MASC (which can fail), the heat, and the power state machine: starting up,
 // running, shut down, destroyed (exploding until the timer runs out) and ejecting.
 // Every player type's late update (PlayerType::m_lateUpdateFn).
+// The 3Dfx edition declares the message text in the block that shows it, where VC++ 2.2 lets it
+// share the frame with a scalar local.
 // FUNCTION: MW2 0x100180cd
 // FUNCTION: MW2MATROX 0x1000e721
 // FUNCTION: MW23DFX 0x1001a180
@@ -1155,7 +1182,9 @@ void LateUpdateMech(Mech* p_mech)
 	MechScalar z;
 	MechScalar y;
 	MechScalar x;
+#ifndef MW2_3DFX
 	MechChar text[40];
+#endif
 	MechScalar delta;
 
 	jumping = 0;
@@ -1517,9 +1546,14 @@ void LateUpdateMech(Mech* p_mech)
 		}
 #endif
 
+#ifdef MW2_3DFX
+		// isLocal holds here: the 3Dfx edition doesn't test it again.
+		g_recenterLastHeading = mech->m_player->m_heading;
+#else
 		if (isLocal) {
 			g_recenterLastHeading = mech->m_player->m_heading;
 		}
+#endif
 	}
 
 	if (active) {
@@ -1553,6 +1587,10 @@ void LateUpdateMech(Mech* p_mech)
 			if (g_mascEngaged && isLocal && g_currentClock - g_lastMascRoll > 0xb5) {
 				g_lastMascRoll = g_currentClock;
 				if (RandomIntBelow(0x3c) == 12 && !g_difficulty->m_invulnerable && mech->m_powerState == 2) {
+#ifdef MW2_3DFX
+					MechChar text[40];
+
+#endif
 					sprintf(text, "MASC malfunction.");
 					ShowInGameMessage(text, 1, 0x16a, 0x32);
 					PlaySoundEffect(0xc9, 100, 0x40, 5, 0x50);

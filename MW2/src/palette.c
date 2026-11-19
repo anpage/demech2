@@ -375,7 +375,7 @@ MechS32 StartPaletteFlash(MechS32 p_offset, MechS32 p_duration, MechS32 p_mode)
 // FUNCTION: MW2 0x100028b7
 // FUNCTION: MW2MATROX 0x1002db75
 // FUNCTION: MW23DFX 0x1002af80
-void StartPaletteCycle(MechU8 p_first, MechS32 p_count)
+void StartPaletteCycle(undefined4 p_first, MechS32 p_count)
 {
 	MechU8* palette;
 

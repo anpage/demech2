@@ -841,9 +841,7 @@ void FUN_100674c0(
 	MechS32 k;
 	MechFloat w;
 	MechS32 span;
-	MechS32 subdivided;
 
-	subdivided = FALSE;
 	g_a3dOffsetX = p_pane->m_x0 + 524288.0f;
 	g_a3dOffsetY = p_pane->m_y0 + 524288.0f;
 	if (!g_a3dDrawing) {
@@ -897,6 +895,7 @@ void FUN_100674c0(
 		}
 
 		grDrawLine((GrVertex*) &p_vertices[p_count - 1], (GrVertex*) p_vertices);
+		grDrawPolygonVertexList(p_count, (GrVertex*) p_vertices);
 		break;
 
 	case 1:
@@ -917,6 +916,8 @@ void FUN_100674c0(
 			p_vertices[i].m_x += g_a3dOffsetX;
 			p_vertices[i].m_y += g_a3dOffsetY;
 		}
+
+		grDrawPolygonVertexList(p_count, (GrVertex*) p_vertices);
 		break;
 
 	default:
@@ -989,8 +990,6 @@ void FUN_100674c0(
 
 				FUN_10067d00(triangle, 0);
 			}
-
-			subdivided = TRUE;
 		}
 		else {
 			for (i = 0; i < p_count; i++) {
@@ -1001,13 +1000,9 @@ void FUN_100674c0(
 				polygon[i].m_y += g_a3dOffsetY;
 			}
 
-			p_vertices = polygon;
+			grDrawPolygonVertexList(p_count, (GrVertex*) polygon);
 		}
 		break;
-	}
-
-	if (!subdivided) {
-		grDrawPolygonVertexList(p_count, (GrVertex*) p_vertices);
 	}
 
 	if (g_a3dTranslucent) {

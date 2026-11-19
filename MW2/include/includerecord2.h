@@ -7,6 +7,8 @@
 
 // A world stream's gamepiece record (gpspec): the stream that creates the player (RunIncludedStream),
 // the player's team, AI parameters and names, and its mech's chassis and MEK configuration.
+// Its AI parameters are signed, Player's unsigned: the 3Dfx edition copies them word by word, where
+// 2.2 copies an array of the same type by dwords.
 // SIZE 0x62
 typedef struct IncludeRecord2 {
 	BwdRecord m_header;               // 0x00
@@ -16,7 +18,7 @@ typedef struct IncludeRecord2 {
 	MechU8 m_leader;                  // 0x0d — 1: the team's leader
 	MechU8 m_ai;                      // 0x0e — Player::m_aiMode; 0: the local player
 	undefined m_unk0x0f;              // 0x0f
-	MechU16 m_aiParams[8];            // 0x10 — Player::m_aiParams
+	MechS16 m_aiParams[8];            // 0x10 — Player::m_aiParams
 	MechU16 m_events;                 // 0x20 — event types (WidenEventFlags)
 	MechS16 m_flags;                  // 0x22 — Player::m_flags
 	MechChar m_name[9];               // 0x24 — the stream, and the chassis

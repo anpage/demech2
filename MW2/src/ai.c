@@ -1565,6 +1565,9 @@ MechS32 AiTransitionPush(Player* p_player, AiRule* p_rule)
 {
 	AiStackEntry entry;
 
+	// The 3Dfx edition keeps edx, where the parameter arrives, untouched until it is needed: the
+	// parameter is referenced.
+	(void) p_rule;
 	entry.m_state = p_player->m_ai.m_state;
 	entry.m_target = p_player->m_ai.m_goal;
 	if (p_player->m_stackCount == 0) {
@@ -2476,9 +2479,9 @@ void PostAIMessage(Player* p_player, MechS16 p_message, MechU16 p_target, MechS1
 // FUNCTION: MW23DFX 0x10014290
 MechS16 OrderPlayers(Player* p_player, MechS16 p_targets, MechS16 p_state, MechS16 p_target)
 {
-	MechS16 skipped;
 	Player* player;
 	MechS16 target;
+	MechS16 skipped;
 
 	target = -1;
 	skipped = 0;

@@ -38,7 +38,7 @@ extern "C"
 	void UpdatePaletteFade(void);
 	MechS32 StartPaletteFade(MechS32 p_palette, MechS32 p_duration, MechS32 p_mode);
 	MechS32 StartPaletteFlash(MechS32 p_offset, MechS32 p_duration, MechS32 p_mode);
-	void StartPaletteCycle(MechU8 p_first, MechS32 p_count);
+	void StartPaletteCycle(undefined4 p_first, MechS32 p_count);
 	void StopPaletteCycle(void);
 	MechS32 SetPaletteResourceId(MechS32 p_id, MechS32 p_slot);
 	void FadeToBasePalette(MechS32 p_palette, MechS32 p_duration);

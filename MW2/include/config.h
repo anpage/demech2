@@ -7,7 +7,7 @@
 #include "targeting.h"
 #include "types.h"
 
-struct BwdTag;
+union BwdTag;
 struct Mech;
 struct Point;
 struct ResourceRef;
@@ -50,7 +50,7 @@ extern "C"
 	extern MechChar g_gameDir[256];
 	extern MechS32 g_hitFadePending;
 
-	MechS32 LoadFile(MechChar* p_path, MechS32* p_size, void** p_data, struct BwdTag* p_poolTag);
+	MechS32 LoadFile(MechChar* p_path, MechS32* p_size, void** p_data, union BwdTag* p_poolTag);
 	void SaveScreenshot(void);
 	MechS32 LoadDifficultyCfg(MechChar* p_name, DifficultyCfg** p_cfg);
 	MechS32 WriteCareerRecordFile(MechChar* p_name, void* p_data);
