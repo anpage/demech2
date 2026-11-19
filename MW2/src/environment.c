@@ -79,6 +79,18 @@ MechS32 g_timeOfDay = 43200;
 // GLOBAL: MW23DFX 0x1024a9a4
 MechS32 g_startTimeOfDay = 43200;
 
+// GLOBAL: MW2 0x100ba620
+// GLOBAL: MW2MATROX 0x100bbbc8
+// GLOBAL: MW23DFX 0x1024a9a8
+MechS32 g_temperature = 25;
+
+// Set on a planet without a breathable atmosphere: the local player can't eject (the cockpit says
+// so), a life support hit kills, and a mech whose pilot ejects counts as lost.
+// GLOBAL: MW2 0x100ba624
+// GLOBAL: MW2MATROX 0x100bbbcc
+// GLOBAL: MW23DFX 0x1024a9ac
+MechS32 g_hostileAtmosphere = 0;
+
 // GLOBAL: MW2 0x100bfaa0
 // GLOBAL: MW2MATROX 0x101252d4
 // GLOBAL: MW23DFX 0x1007b064

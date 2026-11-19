@@ -1,5 +1,6 @@
 /* The menu of command point 3 (menu 8), the lance mate the third command key commands. A
-   data-only object: its data follows bandpoly.c's. */
+   data-only object: its data follows bandpoly.c's in 1.1 and faceshade.c's in the Matrox edition,
+   and commandmenu.c's follows it in the 3Dfx edition. */
 #include "commandpointmenu.h"
 
 #include "commandmenu.h"

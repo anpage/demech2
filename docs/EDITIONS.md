@@ -73,7 +73,7 @@ what follows was found in the Matrox edition and holds for both.
   `VFX_polygon_render` and `VFX_polygon_clip_XY_and_render` differ between the two: the Matrox
   edition doesn't set `ES` and reads `poly_vectors` through `CS` (`MW2_VFXREND_CS_SEGMENT`), the
   3Dfx edition keeps 1.1's code.
-- **Object order.** `vc40/targets.cmake` lists MW2's units in the Matrox edition's object order, found from the functions and data they share. The units with nothing found there (fixed-point helpers, and the units the renderer replaced: `directdraw.c`, `texpoly.c`, `horizon.c`…) are linked after the others until their callers' Matrox versions are written. `tools/check_units.py --target MW2MATROX` passes, with the Matrox edition's mixed objects not split yet listed in `tools/check_units_expected.txt`.
+- **Object order.** `vc40/targets.cmake` lists MW2's units in the Matrox edition's object order, found from the functions and data they share. The units with nothing found there (fixed-point helpers, and the units the renderer replaced: `directdraw.c`, `texpoly.c`, `horizon.c`…) are linked after the others until their callers' Matrox versions are written. `tools/check_units.py --target MW2MATROX` passes with no known findings.
 
 ## The 3Dfx edition
 
@@ -183,7 +183,10 @@ added to a shared header can move every unit that includes it.
   places out of its file's order.
 - **Placement.** The object order goes into the target's source list, found from the functions
   and data the edition shares with the others. Code it places in another object than 1.1 takes a
-  fragment, included at each edition's position under that edition's macro. Until the units are
+  fragment, included at each edition's position under that edition's macro. Data it places in
+  another object moves for every target: globals at the edge of a 1.1 unit that the edition puts
+  next to another unit belong to that neighbour, and a block whose neighbours differ between
+  editions is a data-only unit of its own (`cockpitlayouts.c`, `commandpoint2menu.c`). Until the units are
   placed, the target skips `tools/check_units.py` in `verify-retail.yml`. A `/Gy` build has no
   object boundaries to read (every function is padded to 16): `<TARGET> comdat` in
   `tools/check_units_expected.txt` makes the check place its units by the order of their runs of
@@ -246,7 +249,7 @@ tests an `MW2_` macro the table doesn't define, and when no target compiles a br
 
 ## Features
 
-From the table in `util/types.h` (84 features) and the 889 conditional sites of the simulators' sources (`MW2/`, `common/`, `3rdparty/vfx`). A feature's cell is its value where it has one.
+From the table in `util/types.h` (84 features) and the 890 conditional sites of the simulators' sources (`MW2/`, `common/`, `3rdparty/vfx`). A feature's cell is its value where it has one.
 
 ### The Matrox and 3Dfx editions (`MW2_ACCEL`)
 
@@ -350,7 +353,7 @@ Every edition that has one of these has them all, so no binary separates one fro
 | `MW2_NET_RETURN_ZERO` |  |  | yes | 2 | FindSession and StopExternalIO return 0 where the others fall off the end |
 | `MW2_NO_NET_DEBUG_PRINTS` |  |  | yes | 3 | NetSend and NetReceive log nothing |
 | `MW2_NO_STATE_7_POWER_TEST` |  |  | yes | 1 | Key 0x3e asks for power down in power state 7 too, where 1.1 ignores it |
-| `MW2_LAYOUT_GAUGE_FUNCTIONS` |  |  | yes | 4 | The map layouts hold their gauge functions from the start, not indices in g_cockpitGauges |
+| `MW2_LAYOUT_GAUGE_FUNCTIONS` |  |  | yes | 5 | The map layouts hold their gauge functions from the start, not indices in g_cockpitGauges |
 | `MW2_INLINE_HELPERS` |  |  | yes | 12 | *Artefact.* The edition's headers define FixedMul16, FixedDiv16, MulDiv64, HashName and DebugBreakpoint __inline (its /Ox expands them in every caller), and MemCopy and MemSet are C |
 | `MW2_DEBUG_LOG_FORMATS` |  |  | yes | 3 | The debug log's own formats (the sky's colours on one line, the armor and the jump thrust as %f) |
 
@@ -375,7 +378,7 @@ Every edition that has one of these has them all, so no binary separates one fro
 - `MW2_SLIDER_SHAPES`: `MW2/src/mainmenu.c`: `g_sliderShapes`
 - `MW2_MENU_BACKGROUND_0X118`: `MW2/src/mainmenu.c`: `g_mainMenu`
 - `MW2_PRJ_CEL_IDS`: `MW2/src/animation.c`: `g_preloadCels`
-- `MW2_BRIGHT_MAP_COLORS`: `MW2/src/targeting.c`: file scope (3)
+- `MW2_BRIGHT_MAP_COLORS`: `MW2/src/cockpitlayouts.c`: file scope (3)
 - `MW2_COCKPIT_POINT_ONLY`: `MW2/include/cockpit.h`: file scope; `MW2/src/cockpit.c`: file scope; `MW2/src/setres.c`: `SetRes`
 - `MW2_UNRESOLVED_GAUGE_INDICES`: `MW2/src/cockpit.c`: `LoadCockpitLayout` (2)
 - `MW2_DEBUG_OVERLAY_COLOR`: `MW2/src/overlay.c`: file scope
@@ -437,7 +440,7 @@ Every edition that has one of these has them all, so no binary separates one fro
 - `MW2_NET_RETURN_ZERO`: `MW2/src/network.c`: `FindSession`, `StopExternalIO`
 - `MW2_NO_NET_DEBUG_PRINTS`: `MW2/src/netio.c`: `NetReceive`, `NetSend` (2)
 - `MW2_NO_STATE_7_POWER_TEST`: `MW2/src/gamekeys.c`: `RunGameKey`
-- `MW2_LAYOUT_GAUGE_FUNCTIONS`: `MW2/src/targeting.c`: `g_largeMapLayout`, `g_satelliteLayout`, `g_smallMapLayout`, file scope
+- `MW2_LAYOUT_GAUGE_FUNCTIONS`: `MW2/src/cockpitlayouts.c`: `g_largeMapLayout`, `g_satelliteLayout`, `g_smallMapLayout`, file scope; `MW2/src/targeting.c`: file scope
 - `MW2_INLINE_HELPERS`: `MW2/include/debugbreak.h`: the definition of `DebugBreakpoint`; `MW2/include/fixeddiv.h`: the definition of `FixedDiv16`; `MW2/include/fixedmul.h`: the definition of `FixedMul16`; `MW2/include/muldiv.h`: the definition of `MulDiv64`; `MW2/include/namehash.h`: the definition of `HashName`; `MW2/src/debugbreak.c`: the definition of `DebugBreakpoint`; `MW2/src/fixeddiv.c`: the definition of `FixedDiv16`; `MW2/src/fixedmul.c`: the definition of `FixedMul16`; `MW2/src/loadres.c`: `MemCopy`, `MemSet`; `MW2/src/muldiv.c`: the definition of `MulDiv64`; `MW2/src/namehash.c`: the definition of `HashName`
 - `MW2_DEBUG_LOG_FORMATS`: `MW2/src/mekfile.c`: `LoadMechConfig` (2); `MW2/src/polydraw.c`: `DrawSkyAndGround`
 

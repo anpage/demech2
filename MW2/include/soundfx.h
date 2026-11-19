@@ -15,8 +15,12 @@ extern "C"
 {
 #endif
 
+	// Defined in environment.c (in every edition its data sits in that object). For now the
+	// declarations stay here, where they were before (to move later): moving them to another header
+	// would shift the code of every unit that includes either one.
 	extern MechS32 g_temperature;
 	extern MechS32 g_hostileAtmosphere;
+
 	extern MechS32 g_sampleRates[10];
 	extern AudioEngine* g_audioEngine;
 	extern SoundInfo g_soundInfo[1200];

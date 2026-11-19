@@ -88,6 +88,7 @@ set(mw2_sources
   "${DEMECH2_SOURCE_DIR}/MW2/src/gridobject.c"
   "${DEMECH2_SOURCE_DIR}/MW2/src/aiweapons.c"
   "${DEMECH2_SOURCE_DIR}/MW2/src/view.c"
+  "${DEMECH2_SOURCE_DIR}/MW2/src/commandpoint2menu.c"
   "${DEMECH2_SOURCE_DIR}/MW2/src/commandmenu.c"
   "${DEMECH2_SOURCE_DIR}/MW2/src/mulratio.c"
   "${DEMECH2_SOURCE_DIR}/MW2/src/mulnorm16.c"
@@ -114,6 +115,7 @@ set(mw2_sources
   "${DEMECH2_SOURCE_DIR}/MW2/src/mekfile.c"
   "${DEMECH2_SOURCE_DIR}/MW2/src/settings.c"
   "${DEMECH2_SOURCE_DIR}/MW2/src/targeting.c"
+  "${DEMECH2_SOURCE_DIR}/MW2/src/cockpitlayouts.c"
   ${vfxa}
   "${DEMECH2_SOURCE_DIR}/MW2/src/palidentity.c"
   "${DEMECH2_SOURCE_DIR}/MW2/src/lancemenu.c"

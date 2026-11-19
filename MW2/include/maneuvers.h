@@ -36,8 +36,12 @@ extern "C"
 {
 #endif
 
+	// Defined in mechclass.c (in every edition its data sits in that object). For now the
+	// declarations stay here, where they were before (to move later): moving them to another header
+	// would shift the code of every unit that includes either one.
 	extern MechScalar g_jumpJetDrag;
 	extern MechScalar g_slideSlope;
+
 	void RunManeuver(struct Player* p_player, MechU16 p_target);
 	void InitializeManeuvers(struct Player* p_player);
 	MechS32 ChooseManeuver(struct Player* p_player);

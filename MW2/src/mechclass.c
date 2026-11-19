@@ -56,6 +56,19 @@
 
 DECOMP_SIZE_ASSERT(Mech, 0x10e)
 
+// Set from the world stream's planet record when positive: the jump jets' drag divisor, and the
+// ground slope (16.16) past which a mech on it slides.
+
+// GLOBAL: MW2 0x100a2bdc
+// GLOBAL: MW2MATROX 0x100a4598
+// GLOBAL: MW23DFX 0x1024c540
+MechScalar g_jumpJetDrag = 100000;
+
+// GLOBAL: MW2 0x100a2be0
+// GLOBAL: MW2MATROX 0x100a459c
+// GLOBAL: MW23DFX 0x1024c544
+MechScalar g_slideSlope = FIXED_RAW(0x2000);
+
 // The "mightymouse" cheat: infinite jump jet fuel.
 // GLOBAL: MW2 0x100a2be4
 // GLOBAL: MW2MATROX 0x100a45a0

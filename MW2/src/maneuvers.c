@@ -125,19 +125,6 @@ ManeuverEntry g_altMechManeuvers[13] = {
 // GLOBAL: MW23DFX 0x1024d014
 MechS32 g_maneuverTablesReady = 0;
 
-// Set from the world stream's planet record when positive: the jump jets' drag divisor, and the
-// ground slope (16.16) past which a mech on it slides.
-
-// GLOBAL: MW2 0x100a2bdc
-// GLOBAL: MW2MATROX 0x100a4598
-// GLOBAL: MW23DFX 0x1024c540
-MechScalar g_jumpJetDrag = 100000;
-
-// GLOBAL: MW2 0x100a2be0
-// GLOBAL: MW2MATROX 0x100a459c
-// GLOBAL: MW23DFX 0x1024c544
-MechScalar g_slideSlope = FIXED_RAW(0x2000);
-
 // The maneuver table of each player type (m_type, 1 to 8), and in entry 8 the alternative to the
 // first.
 // GLOBAL: MW2 0x101748e0

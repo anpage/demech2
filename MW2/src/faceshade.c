@@ -15,6 +15,35 @@
 #include "types.h"
 #include "vertex.h"
 
+// The background color the 3D view is cleared to.
+// GLOBAL: MW2 0x100a5544
+// GLOBAL: MW2MATROX 0x100a4940
+// GLOBAL: MW23DFX 0x1024e410
+MechS32 g_backgroundColor = 0;
+
+// The sky's color (DrawSkyAndGround; the ground's is g_groundColor).
+// GLOBAL: MW2 0x100a5548
+// GLOBAL: MW2MATROX 0x100a4944
+// GLOBAL: MW23DFX 0x1024e414
+MechS32 g_skyColor = 0xe0;
+
+// The ground's color (DrawSkyAndGround; the sky's is g_skyColor).
+// GLOBAL: MW2 0x100a554c
+// GLOBAL: MW2MATROX 0x100a4948
+// GLOBAL: MW23DFX 0x1024e418
+MechS32 g_groundColor = 0xef;
+
+// The horizon map's (LoadMapBitmap, from the world stream's hrzm record).
+// GLOBAL: MW2 0x100a5550
+// GLOBAL: MW2MATROX 0x100a494c
+// GLOBAL: MW23DFX 0x1024e41c
+MechS32 g_horizonMapColor = 0xea;
+
+// GLOBAL: MW2 0x100a5558
+// GLOBAL: MW2MATROX 0x100a4954
+// GLOBAL: MW23DFX 0x1024e424
+MechS32 g_unk0x100a5558 = -1;
+
 // Set by the world stream (BwdExecuteStream): GetFaceColor brightens damaged shapes instead of
 // dimming them.
 // GLOBAL: MW2 0x100a555c
