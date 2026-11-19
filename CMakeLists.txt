@@ -258,15 +258,15 @@ demech2_add_dll(mw2
 
 # --- VC++ 2.2 targets ---
 #
-# MECH2.EXE, NETMECHW.DLL and the 3Dfx edition's MW2_3DFX.DLL were built with VC++ 2.2, which
+# MECH2.EXE, NETMECHW.DLL and the 3Dfx and ATI editions' MW2_3DFX.DLL and MW2_ATI.DLL were built with VC++ 2.2, which
 # one CMake project can't mix with 4.1: the vc22/ sub-project builds them, configured and built from here as a nested
 # build under <build>/vc22 with 2.2's cl (DEMECH2_MSVC22_ROOT, e.g. a clone of
 # archaic-msvc/msvc220) and 4.1's LINK (see vc22/CMakeLists.txt). The nested build gets its
 # PATH, INCLUDE and LIB from here, so it doesn't matter which VCVARS32.BAT ran. Without
 # VC++ 2.2, or with a modern compiler, this project builds the launcher and the lobby itself
 # (vc22/targets.cmake): a working launcher and NetMech lobby, which can't match the originals.
-# The 3Dfx edition is only built by the sub-project.
-set(DEMECH2_MSVC22_ROOT "" CACHE PATH "VC++ 2.2 root directory (bin, include, lib), for MECH2.EXE, NETMECHW.DLL and MW2_3DFX.DLL")
+# The 3Dfx and ATI editions are only built by the sub-project.
+set(DEMECH2_MSVC22_ROOT "" CACHE PATH "VC++ 2.2 root directory (bin, include, lib), for MECH2.EXE, NETMECHW.DLL, MW2_3DFX.DLL and MW2_ATI.DLL")
 if (MSVC_FOR_DECOMP AND DEMECH2_MSVC22_ROOT)
   message(STATUS "VC++ 2.2: ${DEMECH2_MSVC22_ROOT} (vc22/, built in ${PROJECT_BINARY_DIR}/vc22)")
   include(ExternalProject)
@@ -321,9 +321,13 @@ if (MSVC_FOR_DECOMP AND DEMECH2_MSVC22_ROOT)
     PATH "${PROJECT_BINARY_DIR}/vc22/MW2_3DFX.dll"
     PDB "${PROJECT_BINARY_DIR}/vc22/MW2_3DFX.pdb"
   )
+  reccmp_add_external_target(MW2ATI
+    PATH "${PROJECT_BINARY_DIR}/vc22/MW2_ATI.dll"
+    PDB "${PROJECT_BINARY_DIR}/vc22/MW2_ATI.pdb"
+  )
 else()
   if (MSVC_FOR_DECOMP)
-    message(STATUS "VC++ 2.2: none (DEMECH2_MSVC22_ROOT); building MECH2.EXE and NETMECHW.DLL with this compiler, which can't match the originals, and no MW2_3DFX.DLL")
+    message(STATUS "VC++ 2.2: none (DEMECH2_MSVC22_ROOT); building MECH2.EXE and NETMECHW.DLL with this compiler, which can't match the originals, and no MW2_3DFX.DLL or MW2_ATI.DLL")
   endif()
   set(DEMECH2_VC22 FALSE)
   include("${PROJECT_SOURCE_DIR}/vc22/targets.cmake")

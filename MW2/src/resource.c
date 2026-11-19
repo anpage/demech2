@@ -108,33 +108,39 @@ typedef struct FormationNames {
 // GLOBAL: MW2 0x100a8608
 // GLOBAL: MW2MATROX 0x100a85e0
 // GLOBAL: MW23DFX 0x1025a5f8
+// GLOBAL: MW2ATI 0x1018e8f0
 ScenarioTable* g_scenarios = NULL;
 
 // GLOBAL: MW2 0x100a860c
 // GLOBAL: MW2MATROX 0x100a85e4
 // GLOBAL: MW23DFX 0x1025a5fc
+// GLOBAL: MW2ATI 0x1018e8f4
 void* g_unk0x100a860c = NULL;
 
 // The next name of g_scenarios ExecuteInclude substitutes.
 // GLOBAL: MW2 0x100a8610
 // GLOBAL: MW2MATROX 0x100a85e8
 // GLOBAL: MW23DFX 0x1025a600
+// GLOBAL: MW2ATI 0x1018e8f8
 MechS32 g_nextScenario = 0;
 
 // The number of entries in g_thingRecordIndices, and the next one NextThingRecordObject returns.
 // GLOBAL: MW2 0x100a8620
 // GLOBAL: MW2MATROX 0x100a85f8
 // GLOBAL: MW23DFX 0x1025a610
+// GLOBAL: MW2ATI 0x1018e908
 MechS32 g_thingRecordCount = 0;
 
 // GLOBAL: MW2 0x100a8624
 // GLOBAL: MW2MATROX 0x100a85fc
 // GLOBAL: MW23DFX 0x1025a614
+// GLOBAL: MW2ATI 0x1018e90c
 MechS32 g_nextThingRecord = 0;
 
 // GLOBAL: MW2 0x100a8628
 // GLOBAL: MW2MATROX 0x100a8600
 // GLOBAL: MW23DFX 0x1025a618
+// GLOBAL: MW2ATI 0x1018e910
 MechS32 g_mangleBase = 0;
 
 // The mangle base of the world stream's next mangle_on section (BwdExecuteStream).
@@ -147,12 +153,14 @@ MechS32 g_nextMangleBase = 0;
 // GLOBAL: MW2 0x100a8630
 // GLOBAL: MW2MATROX 0x100a8608
 // GLOBAL: MW23DFX 0x1025a620
+// GLOBAL: MW2ATI 0x1018e918
 MechChar* g_playerTeamFormation = NULL;
 
 // The formation LoadStarTable gives the other teams, or NULL to use the record's.
 // GLOBAL: MW2 0x100a8634
 // GLOBAL: MW2MATROX 0x100a860c
 // GLOBAL: MW23DFX 0x1025a624
+// GLOBAL: MW2ATI 0x1018e91c
 MechChar* g_otherTeamFormation = NULL;
 
 // The player the world stream (BwdExecuteStream) created last, for ReelMotionTask.
@@ -167,34 +175,40 @@ struct Player* g_lastPlayer = NULL;
 // GLOBAL: MW2 0x100a8640
 // GLOBAL: MW2MATROX 0x100a8618
 // GLOBAL: MW23DFX 0x1025a630
+// GLOBAL: MW2ATI 0x1018e928
 TimedCallbackFn g_taskFns[6] = {SpinTask, ColorCycleTask, OrbitTask, ReelMotionTask, AmbientSoundTask, PathTask};
 
 // GLOBAL: MW2 0x100ea500
 // GLOBAL: MW2MATROX 0x101d4770
 // GLOBAL: MW23DFX 0x10159510
+// GLOBAL: MW2ATI 0x1008d520
 MissionTable* g_missionTables[16];
 
 // The number of entries of each of g_missionTables.
 // GLOBAL: MW2 0x100ea540
 // GLOBAL: MW2MATROX 0x101d4730
 // GLOBAL: MW23DFX 0x101594d0
+// GLOBAL: MW2ATI 0x1008d4e0
 MechS32 g_missionTableCounts[16];
 
 // GLOBAL: MW2 0x100ea580
 // GLOBAL: MW2MATROX 0x101d47b0
 // GLOBAL: MW23DFX 0x10159550
+// GLOBAL: MW2ATI 0x1008d560
 MechS32 g_thingRecordIndices[0x96];
 
 // The number of names in g_scenarios.
 // GLOBAL: MW2 0x100ea7d8
 // GLOBAL: MW2MATROX 0x101d4720
 // GLOBAL: MW23DFX 0x101594cc
+// GLOBAL: MW2ATI 0x1008d4d8
 MechS32 g_scenarioCount;
 
 // Copies a bitmap record's size to p_width and p_height and its data to p_data, each if not NULL.
 // FUNCTION: MW2 0x1004f3f0
 // FUNCTION: MW2MATROX 0x10048fb0
 // FUNCTION: MW23DFX 0x10042970
+// FUNCTION: MW2ATI 0x10040510
 void LoadMapBitmap(BwdRecord* p_record, MechS32* p_width, MechS32* p_height, MechS32* p_data)
 {
 	BitmapRecord* record;
@@ -222,6 +236,7 @@ void LoadMapBitmap(BwdRecord* p_record, MechS32* p_width, MechS32* p_height, Mec
 // FUNCTION: MW2 0x1004f47a
 // FUNCTION: MW2MATROX 0x1004903a
 // FUNCTION: MW23DFX 0x100429b0
+// FUNCTION: MW2ATI 0x10040550
 MechS32 LoadScenarioTable(ScenarioTable* p_table)
 {
 	MechS32 result;
@@ -251,6 +266,7 @@ MechS32 LoadScenarioTable(ScenarioTable* p_table)
 // FUNCTION: MW2 0x1004f545
 // FUNCTION: MW2MATROX 0x10049105
 // FUNCTION: MW23DFX 0x10042a50
+// FUNCTION: MW2ATI 0x100405f0
 MechS32 LoadMissionTable(MissionTable* p_table)
 {
 	MechS32 result;
@@ -283,6 +299,7 @@ MechS32 LoadMissionTable(MissionTable* p_table)
 // FUNCTION: MW2 0x1004f64a
 // FUNCTION: MW2MATROX 0x1004920a
 // FUNCTION: MW23DFX 0x10042b00
+// FUNCTION: MW2ATI 0x100406a0
 MechS32 LoadPathTable(PathRecord* p_record)
 {
 	MechS32 index;
@@ -319,6 +336,7 @@ MechS32 LoadPathTable(PathRecord* p_record)
 // FUNCTION: MW2 0x1004f891
 // FUNCTION: MW2MATROX 0x1004946c
 // FUNCTION: MW23DFX 0x10042bc0
+// FUNCTION: MW2ATI 0x10040760
 MechS32 LoadFormationTable(FormationRecord* p_record)
 {
 	MechS32 count;
@@ -403,6 +421,7 @@ MechS32 ExecuteInclude(IncludeRecord* p_record, BwdStreamFn p_fn)
 // FUNCTION: MW2 0x1004fb0b
 // FUNCTION: MW2MATROX 0x100496fe
 // FUNCTION: MW23DFX 0x10042d40
+// FUNCTION: MW2ATI 0x100408e0
 void LoadStarTable(StarTable* p_table)
 {
 	MechS32 count;
@@ -456,6 +475,7 @@ void SetTeamFormations(FormationNames* p_record)
 // FUNCTION: MW2 0x1004fcac
 // FUNCTION: MW2MATROX 0x1004989d
 // FUNCTION: MW23DFX 0x10042e10
+// FUNCTION: MW2ATI 0x100409b0
 MechS32 RunIncludedStream(IncludeRecord2* p_record, BwdStreamFn p_fn)
 {
 	undefined buffer[0x20];
@@ -490,6 +510,7 @@ MechS32 RunIncludedStream(IncludeRecord2* p_record, BwdStreamFn p_fn)
 // FUNCTION: MW2 0x1004fd55
 // FUNCTION: MW2MATROX 0x10049946
 // FUNCTION: MW23DFX 0x10042e80
+// FUNCTION: MW2ATI 0x10040a20
 void FreeMissionTables(void)
 {
 	MechS32 i;
@@ -678,6 +699,7 @@ void GetPointNormalPlane(
 // FUNCTION: MW2 0x100500c3
 // FUNCTION: MW2MATROX 0x10049d71
 // FUNCTION: MW23DFX 0x10043250
+// FUNCTION: MW2ATI 0x10040aa0
 MechS32 MapResourceId(MechS32 p_id)
 {
 	return g_mangleBase + p_id;
@@ -686,6 +708,7 @@ MechS32 MapResourceId(MechS32 p_id)
 // FUNCTION: MW2 0x100500dc
 // FUNCTION: MW2MATROX 0x10049d8a
 // FUNCTION: MW23DFX 0x10043260
+// FUNCTION: MW2ATI 0x10040ab0
 void SetMangleBase(MechS32 p_base)
 {
 	g_mangleBase = p_base;
@@ -880,6 +903,7 @@ void CreateObjectNode(
 // FUNCTION: MW2 0x100506d8
 // FUNCTION: MW2MATROX 0x1004a45a
 // FUNCTION: MW23DFX 0x100436f0
+// FUNCTION: MW2ATI 0x10040f40
 struct SceneObject* NextThingRecordObject(void)
 {
 	MechS32 id;
@@ -901,6 +925,7 @@ struct SceneObject* NextThingRecordObject(void)
 // FUNCTION: MW2 0x1005072f
 // FUNCTION: MW2MATROX 0x1004a4b1
 // FUNCTION: MW23DFX 0x10043720
+// FUNCTION: MW2ATI 0x10040f70
 MechS32 FindFreeGameThing(void)
 {
 	MechS32 index;

@@ -11,17 +11,20 @@
 // GLOBAL: MW2 0x100ae6d4
 // GLOBAL: MW2MATROX 0x100b19ec
 // GLOBAL: MW23DFX 0x10259924
+// GLOBAL: MW2ATI 0x1018dc24
 MechS32 g_logFileEnabled = 0;
 
 // GLOBAL: MW2 0x100ae6d8
 // GLOBAL: MW2MATROX 0x100b19f0
 // GLOBAL: MW23DFX 0x10259928
+// GLOBAL: MW2ATI 0x1018dc28
 FILE* g_mw2Log = NULL;
 
 // Opens mw2.log and writes the build date and the time to it. Returns whether it could.
 // FUNCTION: MW2 0x100717e0
 // FUNCTION: MW2MATROX 0x1007ac80
 // FUNCTION: MW23DFX 0x1003d9f0
+// FUNCTION: MW2ATI 0x1003b750
 MechS32 OpenMw2Log(void)
 {
 	FILE* file = NULL;
@@ -44,6 +47,7 @@ MechS32 OpenMw2Log(void)
 // FUNCTION: MW2 0x10071869
 // FUNCTION: MW2MATROX 0x1007ad09
 // FUNCTION: MW23DFX 0x1003da60
+// FUNCTION: MW2ATI 0x1003b7c0
 MechS32 CloseMw2Log(void)
 {
 	MechChar line[80];
@@ -64,6 +68,7 @@ MechS32 CloseMw2Log(void)
 // FUNCTION: MW2 0x100718da
 // FUNCTION: MW2MATROX 0x1007ad7a
 // FUNCTION: MW23DFX 0x1003dac0
+// FUNCTION: MW2ATI 0x1003b820
 MechS32 WriteToMw2Log(MechChar* p_text)
 {
 	if (g_logFileEnabled && g_mw2Log) {

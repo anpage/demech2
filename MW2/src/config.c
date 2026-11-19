@@ -65,7 +65,7 @@ enum FilePermission {
 };
 
 // The cockpit panels: 1.1 has them here, the Matrox edition at the end of staticmem.c's object
-// and the 3Dfx edition at the end of targeting.c's.
+// and the 3Dfx and ATI editions at the end of targeting.c's.
 #ifndef MW2_ACCEL
 #include "cockpitpanels.c"
 #endif
@@ -74,12 +74,14 @@ enum FilePermission {
 // GLOBAL: MW2 0x100ae400
 // GLOBAL: MW2MATROX 0x100a3f00
 // GLOBAL: MW23DFX 0x10259c90
+// GLOBAL: MW2ATI 0x1018df90
 MechChar g_gameDir[256] = {0};
 
 // The number of the next screenshot SaveScreenshot saves.
 // GLOBAL: MW2 0x100ae500
 // GLOBAL: MW2MATROX 0x100a4000
 // GLOBAL: MW23DFX 0x10259d90
+// GLOBAL: MW2ATI 0x1018e090
 MechS32 g_screenshotCount = 0;
 
 // The path BuildGamePath returns: 0x100 bytes in every edition, each with other globals after it
@@ -87,18 +89,21 @@ MechS32 g_screenshotCount = 0;
 // GLOBAL: MW2 0x100bef58
 // GLOBAL: MW2MATROX 0x100c1d20
 // GLOBAL: MW23DFX 0x1007db30
+// GLOBAL: MW2ATI 0x10072b30
 MechChar g_gamePath[0x100];
 
 // The three values of the HUD layout (LoadHudFile).
 // GLOBAL: MW2 0x10109c30
 // GLOBAL: MW2MATROX 0x1015e8b0
 // GLOBAL: MW23DFX 0x101de8e0
+// GLOBAL: MW2ATI 0x101125a0
 MechS32 g_hudLayoutValues[3];
 
 // Loads seven values from resource p_ref.
 // FUNCTION: MW2 0x100707c0
 // FUNCTION: MW2MATROX 0x1000acd0
 // FUNCTION: MW23DFX 0x100400b0
+// FUNCTION: MW2ATI 0x1003de10
 MechS32 LoadMgdFile(
 	ResourceRef* p_ref,
 	MechScalar* p_height,
@@ -155,6 +160,7 @@ MechS32 LoadMgdFile(
 // FUNCTION: MW2 0x100708f4
 // FUNCTION: MW2MATROX 0x1000ae34
 // FUNCTION: MW23DFX 0x100401c0
+// FUNCTION: MW2ATI 0x1003df20
 MechS32 LoadReels(ResourceRef* p_ref)
 {
 	MechS32 ids[32];
@@ -251,6 +257,7 @@ MechS32 LoadReels(ResourceRef* p_ref)
 // FUNCTION: MW2 0x10070bda
 // FUNCTION: MW2MATROX 0x1000b1c6
 // FUNCTION: MW23DFX 0x100403a0
+// FUNCTION: MW2ATI 0x1003e100
 MechS32 LoadHudFile(ResourceRef* p_ref)
 {
 	MechS32 size;
@@ -323,6 +330,7 @@ MechS32 LoadHudFile(ResourceRef* p_ref)
 // FUNCTION: MW2 0x10070e22
 // FUNCTION: MW2MATROX 0x1000b40e
 // FUNCTION: MW23DFX 0x100404f0
+// FUNCTION: MW2ATI 0x1003e250
 MechS32 LoadCptFile(ResourceRef* p_ref, PANE* p_gauges, PANE* p_panels, Point* p_point)
 {
 	MechS32 size;
@@ -421,6 +429,7 @@ MechS32 WriteScreenPicture(MechChar* p_path, void* p_palette)
 // FUNCTION: MW2 0x10071108
 // FUNCTION: MW2MATROX 0x1000b6f4
 // FUNCTION: MW23DFX 0x10040700
+// FUNCTION: MW2ATI 0x1003e3c0
 MechS32 LoadFile(MechChar* p_path, MechS32* p_size, void** p_data, BwdTag* p_poolTag)
 {
 	FILE* log;
@@ -483,6 +492,7 @@ MechS32 ReadGameFile(MechChar* p_name, void** p_data)
 // FUNCTION: MW2 0x100712b0
 // FUNCTION: MW2MATROX 0x1000b89c
 // FUNCTION: MW23DFX 0x10040850
+// FUNCTION: MW2ATI 0x1003e4c0
 MechS32 WriteCareerRecordFile(MechChar* p_name, void* p_data)
 {
 	MechS32 file;
@@ -506,6 +516,7 @@ MechS32 WriteCareerRecordFile(MechChar* p_name, void* p_data)
 // FUNCTION: MW2 0x10071326
 // FUNCTION: MW2MATROX 0x1000b912
 // FUNCTION: MW23DFX 0x100408a0
+// FUNCTION: MW2ATI 0x1003e510
 MechS32 LoadDifficultyCfg(MechChar* p_name, DifficultyCfg** p_cfg)
 {
 	MechS32 size;
@@ -568,6 +579,7 @@ MechS32 SaveDifficultyCfg(MechChar* p_name, DifficultyCfg* p_cfg)
 // FUNCTION: MW2 0x100714b3
 // FUNCTION: MW2MATROX 0x1000ba9f
 // FUNCTION: MW23DFX 0x100409b0
+// FUNCTION: MW2ATI 0x1003e5d0
 MechS32 LoadSndCfg(MechChar* p_name, SoundConfig** p_cfg)
 {
 	MechS32 size;
@@ -590,6 +602,7 @@ MechS32 LoadSndCfg(MechChar* p_name, SoundConfig** p_cfg)
 // FUNCTION: MW2 0x1007152f
 // FUNCTION: MW2MATROX 0x1000bb1b
 // FUNCTION: MW23DFX 0x10040a10
+// FUNCTION: MW2ATI 0x1003e630
 MechS32 SaveSndCfg(MechChar* p_name, SoundConfig* p_cfg)
 {
 	MechS32 file;
@@ -612,6 +625,7 @@ MechS32 SaveSndCfg(MechChar* p_name, SoundConfig* p_cfg)
 // FUNCTION: MW2 0x100715a2
 // FUNCTION: MW2MATROX 0x1000bb8e
 // FUNCTION: MW23DFX 0x10040a60
+// FUNCTION: MW2ATI 0x1003e680
 void SaveScreenshot(void)
 {
 	MechS32 count;
@@ -668,6 +682,7 @@ void SaveScreenshot(void)
 // FUNCTION: MW2 0x1007162a
 // FUNCTION: MW2MATROX 0x1000bcd2
 // FUNCTION: MW23DFX 0x10040b60
+// FUNCTION: MW2ATI 0x1003e780
 MechChar* BuildGamePath(MechChar* p_name)
 {
 	MechS32 i;

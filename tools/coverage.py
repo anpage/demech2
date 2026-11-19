@@ -35,7 +35,7 @@ from pathlib import Path
 
 from unitbuild import WINDOWS, to_tool
 
-COVERERS = {"MW23DFX": ["MW2MATROX"], "MW2MATROX": ["MW2"]}
+COVERERS = {"MW23DFX": ["MW2MATROX"], "MW2ATI": ["MW2MATROX"], "MW2MATROX": ["MW2"]}
 
 TOKEN = re.compile(r""""(?:\\.|[^"\\\n])*"|'(?:\\.|[^'\\\n])*'|[A-Za-z_$][\w$]*|\d[\w.]*|->|::|\S""")
 IDENTIFIER = re.compile(r"[A-Za-z_$][\w$]*$")

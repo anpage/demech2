@@ -64,16 +64,19 @@ MechS32 g_effectCameraEffect = -1;
 // GLOBAL: MW2 0x100ad448
 // GLOBAL: MW2MATROX 0x100ae0ac
 // GLOBAL: MW23DFX 0x1025a69c
+// GLOBAL: MW2ATI 0x1018e994
 MechS32 g_lastLocalMissile = -1;
 
 // GLOBAL: MW2 0x100ad44c
 // GLOBAL: MW2MATROX 0x100ae0b0
 // GLOBAL: MW23DFX 0x1025a6a0
+// GLOBAL: MW2ATI 0x1018e998
 MechS32 g_trackedShot = -1;
 
 // GLOBAL: MW2 0x100ad450
 // GLOBAL: MW2MATROX 0x100ae0b4
 // GLOBAL: MW23DFX 0x1025a6a4
+// GLOBAL: MW2ATI 0x1018e99c
 Player* g_launchEffectPlayer = NULL;
 
 // GLOBAL: MW2 0x100ad454
@@ -85,32 +88,38 @@ MechS32 g_effectCameraEnabled = 1;
 // GLOBAL: MW2 0x100ad458
 // GLOBAL: MW2MATROX 0x100ae0bc
 // GLOBAL: MW23DFX 0x1025a6ac
+// GLOBAL: MW2ATI 0x1018e9a4
 MechS32 g_lastHitShooter = -1;
 
 // GLOBAL: MW2 0x100ad45c
 // GLOBAL: MW2MATROX 0x100ae0c0
 // GLOBAL: MW23DFX 0x1025a6b0
+// GLOBAL: MW2ATI 0x1018e9a8
 MechS32 g_nukeTimeLeft = 0;
 
 // GLOBAL: MW2 0x100bee50
 // GLOBAL: MW2MATROX 0x10124724
 // GLOBAL: MW23DFX 0x1007dc6c
+// GLOBAL: MW2ATI 0x10072c6c
 MechScalar g_nukeMaxRadius;
 
 // The view that follows a tracked shot: its position, heading and three more angles.
 // GLOBAL: MW2 0x100bee58
 // GLOBAL: MW2MATROX 0x10124708
 // GLOBAL: MW23DFX 0x1007dc50
+// GLOBAL: MW2ATI 0x10072c50
 MechScalar g_trackedShotView[7];
 
 // GLOBAL: MW2 0x100bee74
 // GLOBAL: MW2MATROX 0x10124728
 // GLOBAL: MW23DFX 0x1007dc70
+// GLOBAL: MW2ATI 0x10072c70
 MechScalar g_nukeRadius;
 
 // GLOBAL: MW2 0x100bee78
 // GLOBAL: MW2MATROX 0x101246f8
 // GLOBAL: MW23DFX 0x1007dc40
+// GLOBAL: MW2ATI 0x10072c40
 Vector3 g_nukePosition;
 
 // The eyepoint's settings while an effect has the camera.
@@ -147,21 +156,25 @@ MechS32 g_savedDistanceFade;
 // GLOBAL: MW2 0x100e9250
 // GLOBAL: MW2MATROX 0x10125880
 // GLOBAL: MW23DFX 0x102441c0
+// GLOBAL: MW2ATI 0x10177e80
 CareerRecord g_careerRecord;
 
 // GLOBAL: MW2 0x1017bac0
 // GLOBAL: MW2MATROX 0x10125970
 // GLOBAL: MW23DFX 0x101535a0
+// GLOBAL: MW2ATI 0x100875b0
 Shot g_shots[0xaf];
 
 // GLOBAL: MW2 0x1017f170
 // GLOBAL: MW2MATROX 0x10129020
 // GLOBAL: MW23DFX 0x10156c50
+// GLOBAL: MW2ATI 0x1008ac60
 Effect g_effects[0x100];
 
 // FUNCTION: MW2 0x1006a230
 // FUNCTION: MW2MATROX 0x1006ad30
 // FUNCTION: MW23DFX 0x10044c40
+// FUNCTION: MW2ATI 0x10042490
 void FirstShots(void)
 {
 	MechS32 i;
@@ -193,6 +206,7 @@ void FirstShots(void)
 // FUNCTION: MW2 0x1006a349
 // FUNCTION: MW2MATROX 0x1006ae49
 // FUNCTION: MW23DFX 0x10044d60
+// FUNCTION: MW2ATI 0x100425b0
 void ResetEffectSlot(MechS32 p_index)
 {
 	Effect* effect;
@@ -208,6 +222,7 @@ void ResetEffectSlot(MechS32 p_index)
 // FUNCTION: MW2 0x1006a3b1
 // FUNCTION: MW2MATROX 0x1006aeb1
 // FUNCTION: MW23DFX 0x10044dd0
+// FUNCTION: MW2ATI 0x10042620
 void ResetShotSlot(MechS32 p_index)
 {
 	Shot* shot;
@@ -230,6 +245,7 @@ void ResetShotSlot(MechS32 p_index)
 // FUNCTION: MW2 0x1006a486
 // FUNCTION: MW2MATROX 0x1006af86
 // FUNCTION: MW23DFX 0x10044eb0
+// FUNCTION: MW2ATI 0x10042700
 void UpdateAllShots(void)
 {
 	MechS32 i;
@@ -545,6 +561,7 @@ void SwayShot(Shot* p_shot, MechScalar* p_x, MechScalar* p_y, MechScalar* p_z)
 // FUNCTION: MW2 0x1006ae5a
 // FUNCTION: MW2MATROX 0x1006ba0e
 // FUNCTION: MW23DFX 0x10045910
+// FUNCTION: MW2ATI 0x10043090
 void GuideMissileToTarget(Shot* p_shot, MechScalar p_x, MechScalar p_y, MechScalar p_z)
 {
 	MechScalar targetY;
@@ -629,6 +646,7 @@ void GuideMissileToTarget(Shot* p_shot, MechScalar p_x, MechScalar p_y, MechScal
 // FUNCTION: MW2 0x1006b0b4
 // FUNCTION: MW2MATROX 0x1006bc89
 // FUNCTION: MW23DFX 0x10045b90
+// FUNCTION: MW2ATI 0x10043310
 void DetonateShot(
 	MechS32 p_index,
 	MechS32 p_explode,
@@ -660,6 +678,7 @@ void DetonateShot(
 // FUNCTION: MW2 0x1006b152
 // FUNCTION: MW2MATROX 0x1006bd27
 // FUNCTION: MW23DFX 0x10045c30
+// FUNCTION: MW2ATI 0x100433b0
 void SpawnEffect(
 	MechS32 p_owner,
 	MechS32 p_type,
@@ -693,6 +712,7 @@ void SpawnRotatedEffect(
 // FUNCTION: MW2 0x1006b1c8
 // FUNCTION: MW2MATROX 0x1006bd9d
 // FUNCTION: MW23DFX 0x10045cc0
+// FUNCTION: MW2ATI 0x100433f0
 void SpawnLaunchEffect(MechS32 p_type, Player* p_player)
 {
 	g_launchEffectPlayer = p_player;
@@ -1125,6 +1145,7 @@ void DamageMechsInRadius(
 // FUNCTION: MW2 0x1006bdb4
 // FUNCTION: MW2MATROX 0x1006c9d5
 // FUNCTION: MW23DFX 0x100468b0
+// FUNCTION: MW2ATI 0x10043fe0
 void DamageThingsInRadius(
 	MechS32 p_owner,
 	MechScalar p_x,
@@ -1182,6 +1203,7 @@ void DamageThingsInRadius(
 // FUNCTION: MW2 0x1006beb5
 // FUNCTION: MW2MATROX 0x1006cad9
 // FUNCTION: MW23DFX 0x100469b0
+// FUNCTION: MW2ATI 0x100440e0
 MechScalar* GetTrackedShotView(void)
 {
 	if (g_trackedShot != -1 && g_shots[g_trackedShot].m_tracked) {
@@ -1197,6 +1219,7 @@ MechScalar* GetTrackedShotView(void)
 // FUNCTION: MW2 0x1006bf05
 // FUNCTION: MW2MATROX 0x1006cb29
 // FUNCTION: MW23DFX 0x10046a00
+// FUNCTION: MW2ATI 0x10044130
 MechS32 TrackLastShot(void)
 {
 	if (g_lastLocalMissile > 0 && g_shots[g_lastLocalMissile].m_flags &&
@@ -1215,6 +1238,7 @@ MechS32 TrackLastShot(void)
 // FUNCTION: MW2 0x1006bf8c
 // FUNCTION: MW2MATROX 0x1006cbb0
 // FUNCTION: MW23DFX 0x10046a90
+// FUNCTION: MW2ATI 0x100441c0
 void KillGameThing(MechU32 p_index)
 {
 	GameThing* thing;
@@ -1270,6 +1294,7 @@ void KillGameThing(MechU32 p_index)
 // FUNCTION: MW2 0x1006c11c
 // FUNCTION: MW2MATROX 0x1006cd40
 // FUNCTION: MW23DFX 0x10046c20
+// FUNCTION: MW2ATI 0x10044350
 void DamageGameThing(
 	MechS32 p_owner,
 	Shape* p_shape,
@@ -1351,6 +1376,7 @@ void ScatterDebris(MechScalar p_x, MechScalar p_y, MechScalar p_z, MechS32 p_cou
 // FUNCTION: MW2 0x1006c345
 // FUNCTION: MW2MATROX 0x1006cf70
 // FUNCTION: MW23DFX 0x10046e50
+// FUNCTION: MW2ATI 0x10044580
 void SaveCareerRecord(void)
 {
 	WriteCareerRecordFile("MW2CAR.CFG", &g_careerRecord);
@@ -1427,6 +1453,7 @@ void HeatMechsNearFires(void)
 // FUNCTION: MW2 0x1006c4e2
 // FUNCTION: MW2MATROX 0x1006d136
 // FUNCTION: MW23DFX 0x10047020
+// FUNCTION: MW2ATI 0x10044750
 void StartNuke(Player* p_player)
 {
 	MechS32 i;

@@ -13,11 +13,13 @@
 // GLOBAL: MW2 0x100a0030
 // GLOBAL: MW2MATROX 0x100bbde0
 // GLOBAL: MW23DFX 0x102590b4
+// GLOBAL: MW2ATI 0x1018d3c4
 MechS32 g_sendRetries = 0;
 
 // GLOBAL: MW2 0x100a0034
 // GLOBAL: MW2MATROX 0x100bbde4
 // GLOBAL: MW23DFX 0x102590b8
+// GLOBAL: MW2ATI 0x1018d3c8
 MechS32 g_recvRetries = 0;
 
 // The result of the last broadcast, or 5 after a failed one: a send after a failure goes out
@@ -25,12 +27,14 @@ MechS32 g_recvRetries = 0;
 // GLOBAL: MW2 0x100bcd18
 // GLOBAL: MW2MATROX 0x101252e8
 // GLOBAL: MW23DFX 0x1007d410
+// GLOBAL: MW2ATI 0x10072410
 static HRESULT g_sendResult;
 
 // Sends a message to every player of the session. The 3Dfx edition logs nothing here.
 // FUNCTION: MW2 0x10001000
 // FUNCTION: MW2MATROX 0x10089b00
 // FUNCTION: MW23DFX 0x1003a4f0
+// FUNCTION: MW2ATI 0x100390b0
 void NetSend(MechU8* p_msg, MechU32 p_size)
 {
 	DWORD flags;
@@ -89,6 +93,7 @@ void NetSend(MechU8* p_msg, MechU32 p_size)
 // FUNCTION: MW2 0x1000119a
 // FUNCTION: MW2MATROX 0x10089c9a
 // FUNCTION: MW23DFX 0x1003a5c0
+// FUNCTION: MW2ATI 0x10039180
 void NetSendTo(DPID p_to, void* p_msg, MechU32 p_size)
 {
 	g_directPlay->lpVtbl->Send(g_directPlay, g_localDpid, p_to, DPSEND_TRYONCE, p_msg, p_size);
@@ -99,6 +104,7 @@ void NetSendTo(DPID p_to, void* p_msg, MechU32 p_size)
 // FUNCTION: MW2 0x100011c9
 // FUNCTION: MW2MATROX 0x10089cc9
 // FUNCTION: MW23DFX 0x1003a5e0
+// FUNCTION: MW2ATI 0x100391a0
 DPID NetReceive(void)
 {
 	DPID from;

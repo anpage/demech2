@@ -26,42 +26,50 @@
 // GLOBAL: MW2 0x100a1490
 // GLOBAL: MW2MATROX 0x100a8540
 // GLOBAL: MW23DFX 0x1024f6d0
+// GLOBAL: MW2ATI 0x101839e0
 MechS32 g_cdTrack = -1;
 
 // The MIDI sequence the mission plays, or -1.
 // GLOBAL: MW2 0x100a1494
 // GLOBAL: MW2MATROX 0x100a8544
 // GLOBAL: MW23DFX 0x1024f6d4
+// GLOBAL: MW2ATI 0x101839e4
 MechS32 g_midiSequence = -1;
 
 // GLOBAL: MW2 0x100a1498
 // GLOBAL: MW2MATROX 0x100a8548
 // GLOBAL: MW23DFX 0x1024f6d8
+// GLOBAL: MW2ATI 0x101839e8
 SoundConfig g_soundConfig = {0x10000, 0x10000, 0x10000, 0x10000, 11, 1, 1, 1, 1, 1, 9, "mcga.dll"};
 
 // GLOBAL: MW2 0x100a14d4
 // GLOBAL: MW2MATROX 0x100a8584
 // GLOBAL: MW23DFX 0x1024f714
+// GLOBAL: MW2ATI 0x10183a24
 SoundConfig* g_mw2SndCfgData = NULL;
 
 // GLOBAL: MW2 0x100a14d8
 // GLOBAL: MW2MATROX 0x100a8588
 // GLOBAL: MW23DFX 0x1024f718
+// GLOBAL: MW2ATI 0x10183a28
 MechS32 g_audioPaused = 0;
 
 // GLOBAL: MW2 0x100a14dc
 // GLOBAL: MW2MATROX 0x100a858c
 // GLOBAL: MW23DFX 0x1024f71c
+// GLOBAL: MW2ATI 0x10183a2c
 MechS32 g_musicStarted = 0;
 
 // GLOBAL: MW2 0x100bcda8
 // GLOBAL: MW2MATROX 0x100c2028
 // GLOBAL: MW23DFX 0x1007cb28
+// GLOBAL: MW2ATI 0x10071b28
 static PCMWAVEFORMAT g_waveFormat;
 
 // GLOBAL: MW2 0x10179e80
 // GLOBAL: MW2MATROX 0x101d4a08
 // GLOBAL: MW23DFX 0x1015a050
+// GLOBAL: MW2ATI 0x1008e040
 MechS32 g_nextEngageCheck;
 
 // The in-mission sound menu's settings: 0 the effects volume, 1 the voice volume, 2 the music
@@ -71,6 +79,7 @@ MechS32 g_nextEngageCheck;
 // FUNCTION: MW2 0x10006760
 // FUNCTION: MW2MATROX 0x100446d0
 // FUNCTION: MW23DFX 0x100318d0
+// FUNCTION: MW2ATI 0x100306c0
 MechS32 GetSoundSetting(MechS32 p_setting)
 {
 	MechS32 value;
@@ -110,6 +119,7 @@ MechS32 GetSoundSetting(MechS32 p_setting)
 // FUNCTION: MW2 0x10006845
 // FUNCTION: MW2MATROX 0x100447b5
 // FUNCTION: MW23DFX 0x10031960
+// FUNCTION: MW2ATI 0x10030750
 void PreviewSoundSetting(MechS32 p_setting, MechS32 p_value)
 {
 	MechS32 old;
@@ -185,6 +195,7 @@ void PreviewSoundSetting(MechS32 p_setting, MechS32 p_value)
 // FUNCTION: MW2 0x100069c9
 // FUNCTION: MW2MATROX 0x10044939
 // FUNCTION: MW23DFX 0x10031a40
+// FUNCTION: MW2ATI 0x10030830
 void SetSoundSetting(MechS32 p_setting, MechS32 p_value)
 {
 	if (p_setting >= 0 && p_setting < 5) {
@@ -241,6 +252,7 @@ void SetSoundSetting(MechS32 p_setting, MechS32 p_value)
 // FUNCTION: MW2 0x10006b3a
 // FUNCTION: MW2MATROX 0x10044aaa
 // FUNCTION: MW23DFX 0x10031b50
+// FUNCTION: MW2ATI 0x10030940
 void RestoreSoundSetting(MechS32 p_setting)
 {
 	if (p_setting >= 0 && p_setting < 5) {
@@ -288,6 +300,7 @@ void RestoreSoundSetting(MechS32 p_setting)
 // FUNCTION: MW2 0x10006c5c
 // FUNCTION: MW2MATROX 0x10044bcc
 // FUNCTION: MW23DFX 0x10031c30
+// FUNCTION: MW2ATI 0x10030a20
 void StartMissionMusic(void)
 {
 	MechChar* music;
@@ -321,6 +334,7 @@ void StartMissionMusic(void)
 // FUNCTION: MW2 0x10006d73
 // FUNCTION: MW2MATROX 0x10044ce3
 // FUNCTION: MW23DFX 0x10031d00
+// FUNCTION: MW2ATI 0x10030af0
 void PauseMusic(void)
 {
 	if (!g_audioPaused) {
@@ -339,6 +353,7 @@ void PauseMusic(void)
 // FUNCTION: MW2 0x10006dd3
 // FUNCTION: MW2MATROX 0x10044d43
 // FUNCTION: MW23DFX 0x10031d50
+// FUNCTION: MW2ATI 0x10030b40
 void ResumeMusic(void)
 {
 	if (g_audioPaused) {
@@ -357,6 +372,7 @@ void ResumeMusic(void)
 // FUNCTION: MW2 0x10006e33
 // FUNCTION: MW2MATROX 0x10044da3
 // FUNCTION: MW23DFX 0x10031da0
+// FUNCTION: MW2ATI 0x10030b90
 void StopMusic(void)
 {
 	if (g_cdTrack != -1) {
@@ -371,6 +387,7 @@ void StopMusic(void)
 // FUNCTION: MW2 0x10006e62
 // FUNCTION: MW2MATROX 0x10044dd2
 // FUNCTION: MW23DFX 0x10031dc0
+// FUNCTION: MW2ATI 0x10030bb0
 void LoopCdMusic(void)
 {
 	if (!g_audioPaused && (g_soundConfig.m_simFlags & 8)) {
@@ -384,6 +401,7 @@ void LoopCdMusic(void)
 // FUNCTION: MW2 0x10006eb4
 // FUNCTION: MW2MATROX 0x10044e24
 // FUNCTION: MW23DFX 0x10031e00
+// FUNCTION: MW2ATI 0x10030bf0
 MechS32 FirstAudio(void)
 {
 	InitializeDigitalAudio(8);
@@ -429,6 +447,7 @@ void DoAudio(void)
 // FUNCTION: MW2 0x10006ffa
 // FUNCTION: MW2MATROX 0x10044f70
 // FUNCTION: MW23DFX 0x10031ef0
+// FUNCTION: MW2ATI 0x10030ce0
 void ShutdownAudio(void)
 {
 	StopMusic();
@@ -442,6 +461,7 @@ void ShutdownAudio(void)
 // FUNCTION: MW2 0x10007040
 // FUNCTION: MW2MATROX 0x10044fb6
 // FUNCTION: MW23DFX 0x10031f30
+// FUNCTION: MW2ATI 0x10030d20
 void PauseAudio(void)
 {
 	StopSamples(0);
@@ -453,6 +473,7 @@ void PauseAudio(void)
 // FUNCTION: MW2 0x10007064
 // FUNCTION: MW2MATROX 0x10044fda
 // FUNCTION: MW23DFX 0x10031f50
+// FUNCTION: MW2ATI 0x10030d40
 void ResumeAudio(void)
 {
 	ResumeMusic();
@@ -463,6 +484,7 @@ void ResumeAudio(void)
 // FUNCTION: MW2 0x10007079
 // FUNCTION: MW2MATROX 0x10044fef
 // FUNCTION: MW23DFX 0x10031f60
+// FUNCTION: MW2ATI 0x10030d50
 HDIGDRIVER OpenDigitalDriver(void)
 {
 	HDIGDRIVER driver;
@@ -485,6 +507,7 @@ HDIGDRIVER OpenDigitalDriver(void)
 // FUNCTION: MW2 0x100070ee
 // FUNCTION: MW2MATROX 0x10045064
 // FUNCTION: MW23DFX 0x10031fc0
+// FUNCTION: MW2ATI 0x10030db0
 HMDIDRIVER OpenMidiDriver(void)
 {
 	HMDIDRIVER driver;

@@ -31,11 +31,13 @@
 // GLOBAL: MW2 0x100a88e8
 // GLOBAL: MW2MATROX 0x100bbe94
 // GLOBAL: MW23DFX 0x1024b444
+// GLOBAL: MW2ATI 0x1017f7c4
 MechS32 g_mechViewStatic = 0;
 
 // FUNCTION: MW2 0x100509a0
 // FUNCTION: MW2MATROX 0x1008ad50
 // FUNCTION: MW23DFX 0x10011700
+// FUNCTION: MW2ATI 0x10011c60
 void CycleMechViewMode(void)
 {
 	g_mechViewMode++;
@@ -60,6 +62,7 @@ void CycleMechViewMode(void)
 // FUNCTION: MW2 0x100509c8
 // FUNCTION: MW2MATROX 0x1008ad78
 // FUNCTION: MW23DFX 0x10011720
+// FUNCTION: MW2ATI 0x10011c80
 void DrawMechViewPanel(CockpitPanel* p_panel)
 {
 	MechScalar* camera;
@@ -188,6 +191,7 @@ void DrawMechViewPanel(CockpitPanel* p_panel)
 // FUNCTION: MW2 0x10050dc3
 // FUNCTION: MW2MATROX 0x1008b1da
 // FUNCTION: MW23DFX 0x100119f0
+// FUNCTION: MW2ATI 0x10011f50
 void SetMechViewRenderSettings(RenderSettings* p_saved)
 {
 	*p_saved = g_renderSettings;
@@ -203,6 +207,7 @@ void SetMechViewRenderSettings(RenderSettings* p_saved)
 // FUNCTION: MW2 0x10050e20
 // FUNCTION: MW2MATROX 0x1008b237
 // FUNCTION: MW23DFX 0x10011a40
+// FUNCTION: MW2ATI 0x10011fa0
 void DrawMechViewStatic(CockpitPanel* p_panel)
 {
 	if (!p_panel->m_enabled || !g_mechViewMode) {
@@ -216,6 +221,7 @@ void DrawMechViewStatic(CockpitPanel* p_panel)
 // FUNCTION: MW2 0x10050e6c
 // FUNCTION: MW2MATROX 0x1008b283
 // FUNCTION: MW23DFX 0x10011a70
+// FUNCTION: MW2ATI 0x10011fd0
 void DrawMechViewFrame(CockpitPanel* p_panel, MechS32 p_color, MechS32 p_shapeId)
 {
 	PANE* target;
@@ -232,6 +238,7 @@ void DrawMechViewFrame(CockpitPanel* p_panel, MechS32 p_color, MechS32 p_shapeId
 // FUNCTION: MW2 0x10050ebe
 // FUNCTION: MW2MATROX 0x1008b2d5
 // FUNCTION: MW23DFX 0x10011aa0
+// FUNCTION: MW2ATI 0x10012000
 void DrawMechViewStartup(CockpitPanel* p_panel)
 {
 	PANE savedTarget;
@@ -270,6 +277,7 @@ void DrawMechViewStartup(CockpitPanel* p_panel)
 // FUNCTION: MW2 0x10050fd6
 // FUNCTION: MW2MATROX 0x1008b3ed
 // FUNCTION: MW23DFX 0x10011b70
+// FUNCTION: MW2ATI 0x100120d0
 void DrawMechViewShutdown(CockpitPanel* p_panel)
 {
 	PANE savedTarget;

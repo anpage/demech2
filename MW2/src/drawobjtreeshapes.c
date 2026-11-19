@@ -10,6 +10,7 @@
 // FUNCTION: MW2 0x10033b9e
 // FUNCTION: MW2MATROX 0x10023860
 // FUNCTION: MW23DFX 0x1002a280
+// FUNCTION: MW2ATI 0x10029eb0
 void DrawObjTreeShapes(SceneObject* p_root)
 {
 	MechS32 i;

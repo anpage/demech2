@@ -132,6 +132,7 @@ void AddShapeVertex(Shape* p_shape, MechS32 p_x, MechS32 p_y, MechS32 p_z, undef
 
 // The 3Dfx edition's diff is register allocation, scheduling and stack layout only.
 // FUNCTION: MW23DFX 0x10029210
+// FUNCTION: MW2ATI 0x10028ed0
 // ComputeFaceNormal
 
 #endif // SHAPE_H

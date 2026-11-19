@@ -65,26 +65,31 @@ MechS16 AiMessageDestroy(Player* p_player, MechU16 p_target, MechS16 p_arg);
 // GLOBAL: MW2 0x100a88f0
 // GLOBAL: MW2MATROX 0x100bb008
 // GLOBAL: MW23DFX 0x1024b448
+// GLOBAL: MW2ATI 0x1017f7c8
 MechS32 g_debugStar = -1;
 
 // GLOBAL: MW2 0x100a88f4
 // GLOBAL: MW2MATROX 0x100bb00c
 // GLOBAL: MW23DFX 0x1024b44c
+// GLOBAL: MW2ATI 0x1017f7cc
 MechS32 g_debugObjective = 0;
 
 // GLOBAL: MW2 0x100a88f8
 // GLOBAL: MW2MATROX 0x100bb010
 // GLOBAL: MW23DFX 0x1024b450
+// GLOBAL: MW2ATI 0x1017f7d0
 MechS32 g_debugLastLine = -1;
 
 // GLOBAL: MW2 0x100a88fc
 // GLOBAL: MW2MATROX 0x100bb014
 // GLOBAL: MW23DFX 0x1024b454
+// GLOBAL: MW2ATI 0x1017f7d4
 MechS32 g_debugFirstLine = -1;
 
 // GLOBAL: MW2 0x100a8900
 // GLOBAL: MW2MATROX 0x100bb018
 // GLOBAL: MW23DFX 0x1024b458
+// GLOBAL: MW2ATI 0x1017f7d8
 MechS32 g_debugListedStar = -1;
 
 // GLOBAL: MW2 0x100a8908
@@ -115,6 +120,7 @@ AiName g_aiTransitionNames[7] = {
 // GLOBAL: MW2 0x100a8980
 // GLOBAL: MW2MATROX 0x100bb098
 // GLOBAL: MW23DFX 0x1024b5d0
+// GLOBAL: MW2ATI 0x1017f950
 AiName g_aiStateNames[13] = {
 	{"idle", c_aiStateIdle},
 	{"avoid", c_aiStateAvoid},
@@ -134,6 +140,7 @@ AiName g_aiStateNames[13] = {
 // GLOBAL: MW2 0x100a89e8
 // GLOBAL: MW2MATROX 0x100bb100
 // GLOBAL: MW23DFX 0x1024b670
+// GLOBAL: MW2ATI 0x1017f9f0
 AiName g_aiStateShortNames[14] = {
 	{"nil", -1},
 	{"idl", c_aiStateIdle},
@@ -154,6 +161,7 @@ AiName g_aiStateShortNames[14] = {
 // GLOBAL: MW2 0x100a8a58
 // GLOBAL: MW2MATROX 0x100bb170
 // GLOBAL: MW23DFX 0x1024b740
+// GLOBAL: MW2ATI 0x1017fac0
 AiName g_aiSymbolicTargetNames[7] = {
 	{"agp_user", c_aiTargetUser},
 	{"agp_myleader", c_aiTargetMyLeader},
@@ -175,6 +183,7 @@ AiName g_aiTargetTypeNames[3] = {
 // GLOBAL: MW2 0x100a8aa8
 // GLOBAL: MW2MATROX 0x100bb1c0
 // GLOBAL: MW23DFX 0x1024b7b0
+// GLOBAL: MW2ATI 0x1017fb30
 AiName g_aiTargetTypeLetters[3] = {
 	{"n", c_aiTargetNav},
 	{"p", c_aiTargetPlayer},
@@ -184,6 +193,7 @@ AiName g_aiTargetTypeLetters[3] = {
 // GLOBAL: MW2 0x100a8ac0
 // GLOBAL: MW2MATROX 0x100bb1d8
 // GLOBAL: MW23DFX 0x1024b7d8
+// GLOBAL: MW2ATI 0x1017fb58
 AiName g_shapeKindNames[3] = {
 	{"p", 0x100},
 	{"t", 0x200},
@@ -207,6 +217,7 @@ AiName g_playerTypeNames[9] = {
 // GLOBAL: MW2 0x100a8b20
 // GLOBAL: MW2MATROX 0x100bb238
 // GLOBAL: MW23DFX 0x1024b8c8
+// GLOBAL: MW2ATI 0x1017fc48
 AiName g_powerStateNames[8] = {
 	{"of", 0},
 	{"su", 1},
@@ -221,6 +232,7 @@ AiName g_powerStateNames[8] = {
 // GLOBAL: MW2 0x100a8b60
 // GLOBAL: MW2MATROX 0x100bb278
 // GLOBAL: MW23DFX 0x1024b948
+// GLOBAL: MW2ATI 0x1017fcc8
 AiName g_objectiveTypeNames[15] = {
 	{"non", 0},
 	{"ann", 1},
@@ -242,6 +254,7 @@ AiName g_objectiveTypeNames[15] = {
 // GLOBAL: MW2 0x100a8bd8
 // GLOBAL: MW2MATROX 0x100bb2f0
 // GLOBAL: MW23DFX 0x1024ba30
+// GLOBAL: MW2ATI 0x1017fdb0
 AiName g_aiBehaviorNames[14] = {
 	{"      ", -1},
 	{"stupid", 0},
@@ -266,6 +279,7 @@ MechS16 g_invalidTargetLogCount = 0;
 // GLOBAL: MW2 0x100a8f38
 // GLOBAL: MW2MATROX 0x100bb650
 // GLOBAL: MW23DFX 0x1024baa8
+// GLOBAL: MW2ATI 0x1017fe28
 AiScriptTable g_mechScripts = {
 	{1, 1},
 	{7, 3},
@@ -288,6 +302,7 @@ AiScriptTable g_mechScripts = {
 // GLOBAL: MW2 0x100a8f78
 // GLOBAL: MW2MATROX 0x100bb690
 // GLOBAL: MW23DFX 0x1024bae8
+// GLOBAL: MW2ATI 0x1017fe68
 AiScriptTable g_artilleryScripts = {
 	{1, 1},
 	{7, 3},
@@ -310,6 +325,7 @@ AiScriptTable g_artilleryScripts = {
 // GLOBAL: MW2 0x100a8fb8
 // GLOBAL: MW2MATROX 0x100bb6d0
 // GLOBAL: MW23DFX 0x1024bb28
+// GLOBAL: MW2ATI 0x1017fea8
 AiScriptTable g_wandererScripts = {
 	{1, 1},
 	{7, 3},
@@ -332,6 +348,7 @@ AiScriptTable g_wandererScripts = {
 // GLOBAL: MW2 0x100a8ff8
 // GLOBAL: MW2MATROX 0x100bb710
 // GLOBAL: MW23DFX 0x1024bb68
+// GLOBAL: MW2ATI 0x1017fee8
 AiScriptTable g_truckScripts = {
 	{1, 1},
 	{7, 3},
@@ -354,6 +371,7 @@ AiScriptTable g_truckScripts = {
 // GLOBAL: MW2 0x100a9038
 // GLOBAL: MW2MATROX 0x100bb750
 // GLOBAL: MW23DFX 0x1024bba8
+// GLOBAL: MW2ATI 0x1017ff28
 AiScriptTable g_tankScripts = {
 	{1, 1},
 	{7, 3},
@@ -376,6 +394,7 @@ AiScriptTable g_tankScripts = {
 // GLOBAL: MW2 0x100a9078
 // GLOBAL: MW2MATROX 0x100bb790
 // GLOBAL: MW23DFX 0x1024bbe8
+// GLOBAL: MW2ATI 0x1017ff68
 MechS16 g_helicopterScripts[15][2] = {
 	{1, 1},
 	{7, 3},
@@ -397,16 +416,19 @@ MechS16 g_helicopterScripts[15][2] = {
 // GLOBAL: MW2 0x100a90b4
 // GLOBAL: MW2MATROX 0x100bb7cc
 // GLOBAL: MW23DFX 0x1024bc24
+// GLOBAL: MW2ATI 0x1017ffa4
 MechS32 g_lairdoCheat = 0;
 
 // GLOBAL: MW2 0x100a90b8
 // GLOBAL: MW2MATROX 0x100bb7d0
 // GLOBAL: MW23DFX 0x1024bc28
+// GLOBAL: MW2ATI 0x1017ffa8
 MechS32 g_aiSpreadTargets = 1;
 
 // GLOBAL: MW2 0x100a90c0
 // GLOBAL: MW2MATROX 0x100bb7d8
 // GLOBAL: MW23DFX 0x1024bc30
+// GLOBAL: MW2ATI 0x1017ffb0
 MechS32 g_localStarAssigned = 0;
 
 // GLOBAL: MW2 0x100a90c8
@@ -431,6 +453,7 @@ AiStateFn g_aiStateFns[14] = {
 // GLOBAL: MW2 0x100a9100
 // GLOBAL: MW2MATROX 0x100bb818
 // GLOBAL: MW23DFX 0x1024bc70
+// GLOBAL: MW2ATI 0x1017fff0
 AiMessageFn g_aiMessageFns[8] = {
 	NULL,
 	AiMessageProx,
@@ -445,6 +468,7 @@ AiMessageFn g_aiMessageFns[8] = {
 // GLOBAL: MW2 0x100a9120
 // GLOBAL: MW2MATROX 0x100bb838
 // GLOBAL: MW23DFX 0x1024bc90
+// GLOBAL: MW2ATI 0x10180010
 AiTransitionFn g_aiTransitionFns[5] = {
 	AiTransitionNull,
 	AiTransitionClearStack,
@@ -456,21 +480,25 @@ AiTransitionFn g_aiTransitionFns[5] = {
 // GLOBAL: MW2 0x100e9e10
 // GLOBAL: MW2MATROX 0x1012c380
 // GLOBAL: MW23DFX 0x101e8840
+// GLOBAL: MW2ATI 0x1011c500
 void* g_aiScripts[10];
 
 // GLOBAL: MW2 0x100e9e38
 // GLOBAL: MW2MATROX 0x1012c374
 // GLOBAL: MW23DFX 0x101e8834
+// GLOBAL: MW2ATI 0x1011c4f4
 MechS16 g_hiddenTargetCount;
 
 // GLOBAL: MW2 0x100e9e40
 // GLOBAL: MW2MATROX 0x1012c3b0
 // GLOBAL: MW23DFX 0x101e8870
+// GLOBAL: MW2ATI 0x1011c530
 AiRule* g_aiRules[60][6];
 
 // GLOBAL: MW2 0x100ea3e0
 // GLOBAL: MW2MATROX 0x1012c370
 // GLOBAL: MW23DFX 0x101e8830
+// GLOBAL: MW2ATI 0x1011c4f0
 MechS32 g_aiStateTime;
 
 // Runs p_player's AI for a tick: the star leader leads its star (LeadStar); an AI player runs
@@ -481,6 +509,7 @@ MechS32 g_aiStateTime;
 // FUNCTION: MW2 0x10051100
 // FUNCTION: MW2MATROX 0x10080280
 // FUNCTION: MW23DFX 0x10011c50
+// FUNCTION: MW2ATI 0x100121b0
 void UpdateAI(Player* p_player)
 {
 	if (p_player->m_aiMode == 1) {
@@ -526,6 +555,7 @@ void UpdateAI(Player* p_player)
 // FUNCTION: MW2 0x10051251
 // FUNCTION: MW2MATROX 0x100803d1
 // FUNCTION: MW23DFX 0x10011d20
+// FUNCTION: MW2ATI 0x10012280
 MechS32 RunAIRules(Player* p_player)
 {
 	AiRule* rule;
@@ -571,6 +601,7 @@ MechS32 RunAIRules(Player* p_player)
 // FUNCTION: MW2 0x1005141c
 // FUNCTION: MW2MATROX 0x1008059c
 // FUNCTION: MW23DFX 0x10011e40
+// FUNCTION: MW2ATI 0x100123a0
 void CollectAIRules(Player* p_player)
 {
 	MechU16 count;
@@ -714,6 +745,7 @@ void InitializeAI(Player* p_player)
 // FUNCTION: MW2 0x10051ad8
 // FUNCTION: MW2MATROX 0x10080a4e
 // FUNCTION: MW23DFX 0x10011f80
+// FUNCTION: MW2ATI 0x100124e0
 const MechChar* FindAIName(MechS16 p_value, AiName* p_names, MechS16 p_count)
 {
 	MechS16 i;
@@ -749,6 +781,7 @@ void ClearAILog(void)
 // FUNCTION: MW2 0x10051b6e
 // FUNCTION: MW2MATROX 0x10080bca
 // FUNCTION: MW23DFX 0x10012150
+// FUNCTION: MW2ATI 0x100126b0
 void LogPlayerStatusLines(void)
 {
 	const MechChar* behavior;
@@ -904,6 +937,7 @@ MechU32 GetPointDistance(MechS32* p_a, MechS32* p_b)
 // FUNCTION: MW2 0x1005212a
 // FUNCTION: MW2MATROX 0x10081269
 // FUNCTION: MW23DFX 0x100125d0
+// FUNCTION: MW2ATI 0x10012b30
 MechS32 ChooseTeamLeader(MechS32 p_team)
 {
 	Player* member;
@@ -941,6 +975,7 @@ MechS32 ChooseTeamLeader(MechS32 p_team)
 // FUNCTION: MW2 0x100521e0
 // FUNCTION: MW2MATROX 0x1008131f
 // FUNCTION: MW23DFX 0x100126d0
+// FUNCTION: MW2ATI 0x10012c30
 void RetargetGoals(MechS32 p_team, MechS32 p_index, MechS32 p_target)
 {
 	MechS32 i;
@@ -959,6 +994,7 @@ void RetargetGoals(MechS32 p_team, MechS32 p_index, MechS32 p_target)
 // FUNCTION: MW2 0x10052284
 // FUNCTION: MW2MATROX 0x100813c2
 // FUNCTION: MW23DFX 0x10012a00
+// FUNCTION: MW2ATI 0x10012f60
 MechS16 ResolveTarget(Player* p_player, MechS16 p_target)
 {
 	MechS16 nearest;
@@ -989,6 +1025,7 @@ MechS16 ResolveTarget(Player* p_player, MechS16 p_target)
 // FUNCTION: MW2 0x10052311
 // FUNCTION: MW2MATROX 0x1008144f
 // FUNCTION: MW23DFX 0x10012a60
+// FUNCTION: MW2ATI 0x10012fc0
 MechS16 AiMessageTrue(Player* p_player, MechU16 p_target, MechS16 p_arg)
 {
 	return p_target;
@@ -998,6 +1035,7 @@ MechS16 AiMessageTrue(Player* p_player, MechU16 p_target, MechS16 p_arg)
 // FUNCTION: MW2 0x10052325
 // FUNCTION: MW2MATROX 0x10081463
 // FUNCTION: MW23DFX 0x10012a70
+// FUNCTION: MW2ATI 0x10012fd0
 MechS16 AiMessageFalse(Player* p_player, MechS16 p_target, MechS16 p_arg)
 {
 	return 0;
@@ -1008,6 +1046,7 @@ MechS16 AiMessageFalse(Player* p_player, MechS16 p_target, MechS16 p_arg)
 // FUNCTION: MW2 0x10052338
 // FUNCTION: MW2MATROX 0x10081476
 // FUNCTION: MW23DFX 0x10012a80
+// FUNCTION: MW2ATI 0x10012fe0
 MechS16 AiMessageReach(Player* p_player, MechS16 p_target, MechS16 p_arg)
 {
 	MechS16 result;
@@ -1362,6 +1401,7 @@ Player* FindNearestTarget(Player* p_player, MechS16 p_target, MechS16 p_arg, Mec
 // FUNCTION: MW2 0x10053072
 // FUNCTION: MW2MATROX 0x10082215
 // FUNCTION: MW23DFX 0x10012d80
+// FUNCTION: MW2ATI 0x10013230
 void LogAIStatus(void)
 {
 	if (g_debugListedStar != g_debugStar) {
@@ -1387,6 +1427,7 @@ void LogAIStatus(void)
 // FUNCTION: MW2 0x100530f7
 // FUNCTION: MW2MATROX 0x1008229a
 // FUNCTION: MW23DFX 0x10012fd0
+// FUNCTION: MW2ATI 0x10013480
 MechS16 AiMessageTargetable(Player* p_player, MechS16 p_target, MechS16 p_arg)
 {
 	MechS16 nearest;
@@ -1435,6 +1476,7 @@ MechS16 FUN_100531e4(Player* p_player, MechS16 p_target, MechS16 p_arg)
 // FUNCTION: MW2 0x100531f7
 // FUNCTION: MW2MATROX 0x100823b3
 // FUNCTION: MW23DFX 0x10013090
+// FUNCTION: MW2ATI 0x10013520
 MechS16 AiMessageDestroy(Player* p_player, MechU16 p_target, MechS16 p_arg)
 {
 	if (!IsTargetDone(p_target, 2)) {
@@ -1451,6 +1493,7 @@ MechS16 AiMessageDestroy(Player* p_player, MechU16 p_target, MechS16 p_arg)
 // FUNCTION: MW2 0x10053258
 // FUNCTION: MW2MATROX 0x10082414
 // FUNCTION: MW23DFX 0x100130e0
+// FUNCTION: MW2ATI 0x10013570
 void AiStateIdle(Player* p_player)
 {
 	p_player->m_targetInfo.m_distance = 0;
@@ -1461,6 +1504,7 @@ void AiStateIdle(Player* p_player)
 // FUNCTION: MW2 0x10053275
 // FUNCTION: MW2MATROX 0x10082431
 // FUNCTION: MW23DFX 0x100130f0
+// FUNCTION: MW2ATI 0x10013580
 void AiStateMove(Player* p_player, MechU16 p_target)
 {
 	MechScalar heading;
@@ -1534,6 +1578,7 @@ void AiStateMove(Player* p_player, MechU16 p_target)
 // FUNCTION: MW2 0x100534a0
 // FUNCTION: MW2MATROX 0x10082666
 // FUNCTION: MW23DFX 0x10013290
+// FUNCTION: MW2ATI 0x10013720
 void AiStateAttack(Player* p_player, MechU16 p_target)
 {
 	p_player->m_steering->m_weaponFire = 0;
@@ -1544,6 +1589,7 @@ void AiStateAttack(Player* p_player, MechU16 p_target)
 // FUNCTION: MW2 0x100534c5
 // FUNCTION: MW2MATROX 0x1008268b
 // FUNCTION: MW23DFX 0x100132a0
+// FUNCTION: MW2ATI 0x10013730
 MechS32 AiTransitionNull(Player* p_player, AiRule* p_rule)
 {
 	return TRUE;
@@ -1552,6 +1598,7 @@ MechS32 AiTransitionNull(Player* p_player, AiRule* p_rule)
 // FUNCTION: MW2 0x100534da
 // FUNCTION: MW2MATROX 0x100826a0
 // FUNCTION: MW23DFX 0x100132b0
+// FUNCTION: MW2ATI 0x10013740
 MechS32 AiTransitionClearStack(Player* p_player, AiRule* p_rule)
 {
 	p_player->m_stackCount = 0;
@@ -1561,6 +1608,7 @@ MechS32 AiTransitionClearStack(Player* p_player, AiRule* p_rule)
 // FUNCTION: MW2 0x100534fb
 // FUNCTION: MW2MATROX 0x100826c1
 // FUNCTION: MW23DFX 0x100132c0
+// FUNCTION: MW2ATI 0x10013750
 MechS32 AiTransitionPush(Player* p_player, AiRule* p_rule)
 {
 	AiStackEntry entry;
@@ -1584,6 +1632,7 @@ MechS32 AiTransitionPush(Player* p_player, AiRule* p_rule)
 // FUNCTION: MW2 0x10053577
 // FUNCTION: MW2MATROX 0x1008273d
 // FUNCTION: MW23DFX 0x10013320
+// FUNCTION: MW2ATI 0x100137b0
 MechS32 AiTransitionPop(Player* p_player, AiRule* p_rule)
 {
 	AiStackEntry entry;
@@ -1601,6 +1650,7 @@ MechS32 AiTransitionPop(Player* p_player, AiRule* p_rule)
 // FUNCTION: MW2 0x100535e3
 // FUNCTION: MW2MATROX 0x100827a9
 // FUNCTION: MW23DFX 0x10013370
+// FUNCTION: MW2ATI 0x10013800
 MechU16 FindAttacker(Player* p_player)
 {
 	Player** players;
@@ -1622,6 +1672,7 @@ MechU16 FindAttacker(Player* p_player)
 // FUNCTION: MW2 0x100536b8
 // FUNCTION: MW2MATROX 0x1008287e
 // FUNCTION: MW23DFX 0x10013400
+// FUNCTION: MW2ATI 0x10013890
 MechS16 ResolveRuleTarget(MechU16 p_value, MechS16 p_goal, MechS16 p_found, MechS16 p_target)
 {
 	MechS16 result;
@@ -1645,6 +1696,7 @@ MechS16 ResolveRuleTarget(MechU16 p_value, MechS16 p_goal, MechS16 p_found, Mech
 // FUNCTION: MW2 0x1005372c
 // FUNCTION: MW2MATROX 0x100828f2
 // FUNCTION: MW23DFX 0x10013430
+// FUNCTION: MW2ATI 0x100138c0
 MechS32 SetTarget(Player* p_player, MechS16 p_target)
 {
 	p_player->m_targetInfo.m_target = p_target;
@@ -1655,6 +1707,7 @@ MechS32 SetTarget(Player* p_player, MechS16 p_target)
 // FUNCTION: MW2 0x10053769
 // FUNCTION: MW2MATROX 0x1008292f
 // FUNCTION: MW23DFX 0x10013450
+// FUNCTION: MW2ATI 0x100138e0
 MechScalar GetTargetRange(MechS16 p_target)
 {
 	MechScalar range;
@@ -1685,6 +1738,7 @@ MechScalar GetTargetRange(MechS16 p_target)
 // FUNCTION: MW2 0x10053811
 // FUNCTION: MW2MATROX 0x100829e1
 // FUNCTION: MW23DFX 0x100134c0
+// FUNCTION: MW2ATI 0x10013950
 MechScalar GetApproachThrottle(Player* p_player, MechScalar p_range)
 {
 	MechScalar throttle;
@@ -1750,6 +1804,7 @@ MechScalar GetApproachThrottle(Player* p_player, MechScalar p_range)
 // FUNCTION: MW2 0x1005391f
 // FUNCTION: MW2MATROX 0x10082b46
 // FUNCTION: MW23DFX 0x100135a0
+// FUNCTION: MW2ATI 0x10013a30
 MechScalar AimTorsoPan(Player* p_player, MechScalar p_angle, MechS32 p_delta)
 {
 	MechScalar value;
@@ -1762,6 +1817,7 @@ MechScalar AimTorsoPan(Player* p_player, MechScalar p_angle, MechS32 p_delta)
 // FUNCTION: MW2 0x10053954
 // FUNCTION: MW2MATROX 0x10082b8f
 // FUNCTION: MW23DFX 0x100135d0
+// FUNCTION: MW2ATI 0x10013a60
 MechScalar AimTorsoTilt(Player* p_player, MechS32 p_delta)
 {
 	MechScalar value;
@@ -1774,6 +1830,7 @@ MechScalar AimTorsoTilt(Player* p_player, MechS32 p_delta)
 // FUNCTION: MW2 0x1005398f
 // FUNCTION: MW2MATROX 0x10082bde
 // FUNCTION: MW23DFX 0x10013600
+// FUNCTION: MW2ATI 0x10013a90
 MechScalar SteerToTarget(Player* p_player)
 {
 #ifdef MW2_FLOAT_SCALARS
@@ -1819,6 +1876,7 @@ MechScalar SteerToTarget(Player* p_player)
 // FUNCTION: MW2 0x10053a2e
 // FUNCTION: MW2MATROX 0x10082c85
 // FUNCTION: MW23DFX 0x10013680
+// FUNCTION: MW2ATI 0x10013b10
 void LeaveAIState(Player* p_player)
 {
 	MechS16 flags;
@@ -1864,6 +1922,7 @@ void LeaveAIState(Player* p_player)
 // FUNCTION: MW2 0x10053be9
 // FUNCTION: MW2MATROX 0x10082e40
 // FUNCTION: MW23DFX 0x10013790
+// FUNCTION: MW2ATI 0x10013c20
 void EnterAIState(Player* p_player, MechU16 p_state)
 {
 	MechU32 nav;
@@ -1992,6 +2051,7 @@ void EnterAIState(Player* p_player, MechU16 p_state)
 // FUNCTION: MW2 0x10054043
 // FUNCTION: MW2MATROX 0x10083294
 // FUNCTION: MW23DFX 0x10013a50
+// FUNCTION: MW2ATI 0x10013ee0
 MechS16 NextTarget(Player* p_player, MechS16 p_target, MechS16 p_previous)
 {
 	MechS16 result;
@@ -2086,6 +2146,7 @@ MechS16 NextTarget(Player* p_player, MechS16 p_target, MechS16 p_previous)
 // FUNCTION: MW2 0x1005432f
 // FUNCTION: MW2MATROX 0x10083580
 // FUNCTION: MW23DFX 0x10013be0
+// FUNCTION: MW2ATI 0x10014070
 MechScalar GetTargetBearing(Player* p_player)
 {
 	MechScalar delta;
@@ -2106,6 +2167,7 @@ MechScalar GetTargetBearing(Player* p_player)
 // FUNCTION: MW2 0x10054384
 // FUNCTION: MW2MATROX 0x100835ea
 // FUNCTION: MW23DFX 0x10013c40
+// FUNCTION: MW2ATI 0x100140d0
 MechS32 IsTargetDone(MechU16 p_target, MechS32 p_check)
 {
 	MechU32 index;
@@ -2182,6 +2244,7 @@ MechS32 IsTargetDone(MechU16 p_target, MechS32 p_check)
 // FUNCTION: MW2 0x10054584
 // FUNCTION: MW2MATROX 0x100837ea
 // FUNCTION: MW23DFX 0x10013d40
+// FUNCTION: MW2ATI 0x100141d0
 void QueueAIState(Player* p_player, MechS16 p_state, MechU16 p_target)
 {
 	AiStackEntry entry;
@@ -2200,6 +2263,7 @@ void QueueAIState(Player* p_player, MechS16 p_state, MechU16 p_target)
 // FUNCTION: MW2 0x100545ea
 // FUNCTION: MW2MATROX 0x10083850
 // FUNCTION: MW23DFX 0x10013d90
+// FUNCTION: MW2ATI 0x10014220
 MechS32 HasAIState(Player* p_player, MechS16 p_state)
 {
 	MechS32 i;
@@ -2227,6 +2291,7 @@ MechS32 HasAIState(Player* p_player, MechS16 p_state)
 // FUNCTION: MW2 0x10054684
 // FUNCTION: MW2MATROX 0x100838ea
 // FUNCTION: MW23DFX 0x10013e00
+// FUNCTION: MW2ATI 0x10014290
 void SetAIState(Player* p_player, MechS16 p_state, MechS16 p_target, MechS32 p_push)
 {
 	if (p_state != -1 && HasAIState(p_player, p_state)) {
@@ -2256,6 +2321,7 @@ void SetAIState(Player* p_player, MechS16 p_state, MechS16 p_target, MechS32 p_p
 // FUNCTION: MW2 0x10054778
 // FUNCTION: MW2MATROX 0x100839de
 // FUNCTION: MW23DFX 0x10013e90
+// FUNCTION: MW2ATI 0x10014320
 void ReleaseNavPoints(Player* p_player)
 {
 	MechU32 i;
@@ -2280,6 +2346,7 @@ void ReleaseNavPoints(Player* p_player)
 // FUNCTION: MW2 0x10054851
 // FUNCTION: MW2MATROX 0x10083ab7
 // FUNCTION: MW23DFX 0x10013f00
+// FUNCTION: MW2ATI 0x10014390
 void PlacePatrolNavs(Player* p_player)
 {
 	MechU32 index;
@@ -2343,6 +2410,7 @@ void PlacePatrolNavs(Player* p_player)
 // FUNCTION: MW2 0x10054a30
 // FUNCTION: MW2MATROX 0x10083caa
 // FUNCTION: MW23DFX 0x10014050
+// FUNCTION: MW2ATI 0x100144e0
 void AdvanceNavTarget(Player* p_player, MechS16 p_target)
 {
 	p_player->m_targetInfo.m_target = p_target;
@@ -2358,6 +2426,7 @@ void AdvanceNavTarget(Player* p_player, MechS16 p_target)
 // FUNCTION: MW2 0x10054a93
 // FUNCTION: MW2MATROX 0x10083d0d
 // FUNCTION: MW23DFX 0x100140a0
+// FUNCTION: MW2ATI 0x10014530
 void PlaceFormationNav(Player* p_player)
 {
 	MechScalar z;
@@ -2381,6 +2450,7 @@ void PlaceFormationNav(Player* p_player)
 // FUNCTION: MW2 0x10054b50
 // FUNCTION: MW2MATROX 0x10083dca
 // FUNCTION: MW23DFX 0x10014110
+// FUNCTION: MW2ATI 0x100145a0
 void RecordAttack(MechS32 p_index, MechU32 p_target)
 {
 	MechChar line[80];
@@ -2409,6 +2479,7 @@ void RecordAttack(MechS32 p_index, MechU32 p_target)
 // FUNCTION: MW2 0x10054c05
 // FUNCTION: MW2MATROX 0x10083e80
 // FUNCTION: MW23DFX 0x100141a0
+// FUNCTION: MW2ATI 0x10014630
 MechS32 LoadAIScripts(void)
 {
 	MechS32 i;
@@ -2424,6 +2495,7 @@ MechS32 LoadAIScripts(void)
 // FUNCTION: MW2 0x10054c6a
 // FUNCTION: MW2MATROX 0x10083ee5
 // FUNCTION: MW23DFX 0x100141e0
+// FUNCTION: MW2ATI 0x10014670
 MechS32 AiTransitionNotify(Player* p_player, AiRule* p_rule)
 {
 	MechS16 leader;
@@ -2440,6 +2512,7 @@ MechS32 AiTransitionNotify(Player* p_player, AiRule* p_rule)
 // FUNCTION: MW2 0x10054ccc
 // FUNCTION: MW2MATROX 0x10083f47
 // FUNCTION: MW23DFX 0x10014220
+// FUNCTION: MW2ATI 0x100146b0
 MechS32 FindStarSlotPlayer(MechS32 p_slot)
 {
 	Player* local;
@@ -2461,6 +2534,7 @@ MechS32 FindStarSlotPlayer(MechS32 p_slot)
 // FUNCTION: MW2 0x10054d4c
 // FUNCTION: MW2MATROX 0x10083fc6
 // FUNCTION: MW23DFX 0x10014270
+// FUNCTION: MW2ATI 0x10014700
 void PostAIMessage(Player* p_player, MechS16 p_message, MechU16 p_target, MechS16 p_arg)
 {
 	AiMessage* message;
@@ -2477,6 +2551,7 @@ void PostAIMessage(Player* p_player, MechS16 p_message, MechU16 p_target, MechS1
 // FUNCTION: MW2 0x10054d88
 // FUNCTION: MW2MATROX 0x10084002
 // FUNCTION: MW23DFX 0x10014290
+// FUNCTION: MW2ATI 0x10014720
 MechS16 OrderPlayers(Player* p_player, MechS16 p_targets, MechS16 p_state, MechS16 p_target)
 {
 	Player* player;
@@ -2537,6 +2612,7 @@ MechS16 OrderPlayers(Player* p_player, MechS16 p_targets, MechS16 p_state, MechS
 // FUNCTION: MW2 0x10054f50
 // FUNCTION: MW2MATROX 0x100841ca
 // FUNCTION: MW23DFX 0x10014390
+// FUNCTION: MW2ATI 0x10014820
 MechS32 OrderStarSlot(MechS32 p_slot, MechS16 p_command)
 {
 	MechS16 target;
@@ -2619,6 +2695,7 @@ MechS32 OrderStarSlot(MechS32 p_slot, MechS16 p_command)
 // FUNCTION: MW2 0x10055131
 // FUNCTION: MW2MATROX 0x100843ac
 // FUNCTION: MW23DFX 0x10014490
+// FUNCTION: MW2ATI 0x10014920
 MechScalar AddClamped(MechScalar p_value, MechS32 p_delta, MechS32 p_sameSign)
 {
 #ifdef MW2_FLOAT_SCALARS
@@ -2655,6 +2732,7 @@ MechScalar AddClamped(MechScalar p_value, MechS32 p_delta, MechS32 p_sameSign)
 // FUNCTION: MW2 0x100551ad
 // FUNCTION: MW2MATROX 0x10084448
 // FUNCTION: MW23DFX 0x10014510
+// FUNCTION: MW2ATI 0x100149a0
 void ResetStarOrders(MechS32 p_team)
 {
 	HandleStarOrder(p_team, NULL);
@@ -2665,6 +2743,7 @@ void ResetStarOrders(MechS32 p_team)
 // FUNCTION: MW2 0x100551c6
 // FUNCTION: MW2MATROX 0x10084461
 // FUNCTION: MW23DFX 0x10014520
+// FUNCTION: MW2ATI 0x100149b0
 void AssignStarObjective(MechS32 p_team)
 {
 	MechS16 target;
@@ -2751,6 +2830,7 @@ void AssignStarObjective(MechS32 p_team)
 // FUNCTION: MW2 0x10055485
 // FUNCTION: MW2MATROX 0x10084720
 // FUNCTION: MW23DFX 0x100146e0
+// FUNCTION: MW2ATI 0x10014b70
 MechS16 GetEngagementAIFlags(MechS32 p_value)
 {
 	if (p_value == 1) {
@@ -2769,6 +2849,7 @@ MechS16 GetEngagementAIFlags(MechS32 p_value)
 // FUNCTION: MW2 0x100554c8
 // FUNCTION: MW2MATROX 0x10084763
 // FUNCTION: MW23DFX 0x10014700
+// FUNCTION: MW2ATI 0x10014b90
 void SetAIScript(Player* p_player, MechS16 p_slot, MechS16 p_script, MechS16 p_leader)
 {
 	MechU16 follower;
@@ -2830,6 +2911,7 @@ MechU16 GetObjectiveTarget(MechS32 p_team, MechS16 p_objective, MechS32 p_index)
 // FUNCTION: MW2 0x100556fe
 // FUNCTION: MW2MATROX 0x10084999
 // FUNCTION: MW23DFX 0x100148c0
+// FUNCTION: MW2ATI 0x10014d10
 MechS32 GetTeamMembers(MechS32 p_team, Player** p_members, MechS32 p_aliveOnly)
 {
 	MechS32 mask;
@@ -2860,6 +2942,7 @@ MechS32 GetTeamMembers(MechS32 p_team, Player** p_members, MechS32 p_aliveOnly)
 // FUNCTION: MW2 0x1005579a
 // FUNCTION: MW2MATROX 0x10084a35
 // FUNCTION: MW23DFX 0x10014920
+// FUNCTION: MW2ATI 0x10014d70
 void HandleStarOrder(MechS32 p_team, AiMessage* p_order)
 {
 	if (p_order && p_order->m_message) {
@@ -2881,6 +2964,7 @@ void HandleStarOrder(MechS32 p_team, AiMessage* p_order)
 // FUNCTION: MW2 0x10055811
 // FUNCTION: MW2MATROX 0x10084aac
 // FUNCTION: MW23DFX 0x10014950
+// FUNCTION: MW2ATI 0x10014da0
 MechS32 AssignStarTarget(MechS32 p_team, MechU16 p_target)
 {
 	MechS32 required;
@@ -2982,6 +3066,7 @@ MechS32 AssignStarTarget(MechS32 p_team, MechU16 p_target)
 // FUNCTION: MW2 0x10055bb7
 // FUNCTION: MW2MATROX 0x10084e52
 // FUNCTION: MW23DFX 0x10014ba0
+// FUNCTION: MW2ATI 0x10014ff0
 void LeadStar(MechS32 p_team)
 {
 	MechU16* targets;
@@ -3168,6 +3253,7 @@ void LeadStar(MechS32 p_team)
 // FUNCTION: MW2 0x100561ea
 // FUNCTION: MW2MATROX 0x10085485
 // FUNCTION: MW23DFX 0x10014f60
+// FUNCTION: MW2ATI 0x100153b0
 void ReleaseAnchorNav(Player* p_player)
 {
 	if (p_player->m_nav != 0) {
@@ -3182,6 +3268,7 @@ void ReleaseAnchorNav(Player* p_player)
 // FUNCTION: MW2 0x10056230
 // FUNCTION: MW2MATROX 0x100854cb
 // FUNCTION: MW23DFX 0x10014f90
+// FUNCTION: MW2ATI 0x100153e0
 MechS32 GetLocalStarSize(void)
 {
 	return g_teams[g_players[g_localPlayerId]->m_team].m_memberCount;
@@ -3207,6 +3294,7 @@ void RunStarCommand(MechS32 p_command, MechS32 p_slot)
 // FUNCTION: MW2 0x100562b4
 // FUNCTION: MW2MATROX 0x1008554f
 // FUNCTION: MW23DFX 0x10014ff0
+// FUNCTION: MW2ATI 0x10015400
 void SweepTorso(Player* p_player)
 {
 	MechS32 period;

@@ -36,6 +36,7 @@
 #ifdef MW2_ACCEL
 // GLOBAL: MW2MATROX 0x1012f4c0
 // GLOBAL: MW23DFX 0x10159e50
+// GLOBAL: MW2ATI 0x1008de50
 PlayerSteering g_localSteering;
 #else
 // GLOBAL: MW2 0x100b2500
@@ -48,6 +49,7 @@ PlayerSteering g_localSteering = {0};
 #ifdef MW2_ACCEL
 // GLOBAL: MW2MATROX 0x1012f480
 // GLOBAL: MW23DFX 0x10159e10
+// GLOBAL: MW2ATI 0x1008de10
 MechScalar g_sinkPilotTilt;
 #else
 // GLOBAL: MW2 0x100b2548
@@ -57,6 +59,7 @@ MechS32 g_sinkPilotTilt = 0;
 #ifdef MW2_ACCEL
 // GLOBAL: MW2MATROX 0x1012f484
 // GLOBAL: MW23DFX 0x10159e14
+// GLOBAL: MW2ATI 0x1008de14
 MechScalar g_sinkPilotPan;
 #else
 // GLOBAL: MW2 0x100b254c
@@ -66,6 +69,7 @@ MechS32 g_sinkPilotPan = 0;
 #ifdef MW2_ACCEL
 // GLOBAL: MW2MATROX 0x1012f488
 // GLOBAL: MW23DFX 0x10159e18
+// GLOBAL: MW2ATI 0x1008de18
 MechScalar g_sinkEyepointTilt;
 #else
 // GLOBAL: MW2 0x100b2550
@@ -75,6 +79,7 @@ MechS32 g_sinkEyepointTilt = 0;
 #ifdef MW2_ACCEL
 // GLOBAL: MW2MATROX 0x1012f48c
 // GLOBAL: MW23DFX 0x10159e1c
+// GLOBAL: MW2ATI 0x1008de1c
 MechScalar g_sinkEyepointPanDelta;
 #else
 // GLOBAL: MW2 0x100b2554
@@ -84,6 +89,7 @@ MechS32 g_sinkEyepointPanDelta = 0;
 #ifdef MW2_ACCEL
 // GLOBAL: MW2MATROX 0x1012f490
 // GLOBAL: MW23DFX 0x10159e20
+// GLOBAL: MW2ATI 0x1008de20
 MechScalar g_sinkEyepointSlideDelta;
 #else
 // GLOBAL: MW2 0x100b2558
@@ -93,6 +99,7 @@ MechS32 g_sinkEyepointSlideDelta = 0;
 #ifdef MW2_ACCEL
 // GLOBAL: MW2MATROX 0x1012f494
 // GLOBAL: MW23DFX 0x10159e24
+// GLOBAL: MW2ATI 0x1008de24
 MechScalar g_sinkTrackDistanceDelta;
 #else
 // GLOBAL: MW2 0x100b255c
@@ -102,6 +109,7 @@ MechS32 g_sinkTrackDistanceDelta = 0;
 #ifdef MW2_ACCEL
 // GLOBAL: MW2MATROX 0x1012f498
 // GLOBAL: MW23DFX 0x10159e28
+// GLOBAL: MW2ATI 0x1008de28
 MechScalar g_sinkTrackHeightDelta;
 #else
 // GLOBAL: MW2 0x100b2560
@@ -111,6 +119,7 @@ MechS32 g_sinkTrackHeightDelta = 0;
 #ifdef MW2_ACCEL
 // GLOBAL: MW2MATROX 0x1012f49c
 // GLOBAL: MW23DFX 0x10159e2c
+// GLOBAL: MW2ATI 0x1008de2c
 MechScalar g_sinkZoomFactor;
 #else
 // GLOBAL: MW2 0x100b2564
@@ -120,6 +129,7 @@ MechS32 g_sinkZoomFactor = 0;
 #ifdef MW2_ACCEL
 // GLOBAL: MW2MATROX 0x1012f4a0
 // GLOBAL: MW23DFX 0x10159e30
+// GLOBAL: MW2ATI 0x1008de30
 MechS8 g_sinkPilotTiltPlus;
 #else
 // GLOBAL: MW2 0x100b2568
@@ -129,6 +139,7 @@ MechS8 g_sinkPilotTiltPlus = 0;
 #ifdef MW2_ACCEL
 // GLOBAL: MW2MATROX 0x1012f4a1
 // GLOBAL: MW23DFX 0x10159e31
+// GLOBAL: MW2ATI 0x1008de31
 MechS8 g_sinkPilotTiltMinus;
 #else
 // GLOBAL: MW2 0x100b2569
@@ -138,6 +149,7 @@ MechS8 g_sinkPilotTiltMinus = 0;
 #ifdef MW2_ACCEL
 // GLOBAL: MW2MATROX 0x1012f4a2
 // GLOBAL: MW23DFX 0x10159e32
+// GLOBAL: MW2ATI 0x1008de32
 MechS8 g_sinkPilotTiltReset;
 #else
 // GLOBAL: MW2 0x100b256a
@@ -147,6 +159,7 @@ MechS8 g_sinkPilotTiltReset = 0;
 #ifdef MW2_ACCEL
 // GLOBAL: MW2MATROX 0x1012f4a3
 // GLOBAL: MW23DFX 0x10159e33
+// GLOBAL: MW2ATI 0x1008de33
 MechS8 g_sinkPilotPanPlus;
 #else
 // GLOBAL: MW2 0x100b256b
@@ -156,6 +169,7 @@ MechS8 g_sinkPilotPanPlus = 0;
 #ifdef MW2_ACCEL
 // GLOBAL: MW2MATROX 0x1012f4a4
 // GLOBAL: MW23DFX 0x10159e34
+// GLOBAL: MW2ATI 0x1008de34
 MechS8 g_sinkPilotPanMinus;
 #else
 // GLOBAL: MW2 0x100b256c
@@ -165,6 +179,7 @@ MechS8 g_sinkPilotPanMinus = 0;
 #ifdef MW2_ACCEL
 // GLOBAL: MW2MATROX 0x1012f4a5
 // GLOBAL: MW23DFX 0x10159e35
+// GLOBAL: MW2ATI 0x1008de35
 MechS8 g_sinkPilotPanReset;
 #else
 // GLOBAL: MW2 0x100b256d
@@ -174,6 +189,7 @@ MechS8 g_sinkPilotPanReset = 0;
 #ifdef MW2_ACCEL
 // GLOBAL: MW2MATROX 0x1012f4a6
 // GLOBAL: MW23DFX 0x10159e36
+// GLOBAL: MW2ATI 0x1008de36
 volatile MechS8 g_sinkGlanceLeft;
 #else
 // GLOBAL: MW2 0x100b256e
@@ -183,6 +199,7 @@ volatile MechS8 g_sinkGlanceLeft = 0;
 #ifdef MW2_ACCEL
 // GLOBAL: MW2MATROX 0x1012f4a7
 // GLOBAL: MW23DFX 0x10159e37
+// GLOBAL: MW2ATI 0x1008de37
 volatile MechS8 g_sinkGlanceRight;
 #else
 // GLOBAL: MW2 0x100b256f
@@ -192,6 +209,7 @@ volatile MechS8 g_sinkGlanceRight = 0;
 #ifdef MW2_ACCEL
 // GLOBAL: MW2MATROX 0x1012f4a8
 // GLOBAL: MW23DFX 0x10159e38
+// GLOBAL: MW2ATI 0x1008de38
 volatile MechS8 g_sinkGlanceUp;
 #else
 // GLOBAL: MW2 0x100b2570
@@ -201,6 +219,7 @@ volatile MechS8 g_sinkGlanceUp = 0;
 #ifdef MW2_ACCEL
 // GLOBAL: MW2MATROX 0x1012f4a9
 // GLOBAL: MW23DFX 0x10159e39
+// GLOBAL: MW2ATI 0x1008de39
 volatile MechS8 g_sinkGlanceDown;
 #else
 // GLOBAL: MW2 0x100b2571
@@ -210,6 +229,7 @@ volatile MechS8 g_sinkGlanceDown = 0;
 #ifdef MW2_ACCEL
 // GLOBAL: MW2MATROX 0x1012f4aa
 // GLOBAL: MW23DFX 0x10159e3a
+// GLOBAL: MW2ATI 0x1008de3a
 MechS8 g_sinkEyepointTiltPlus;
 #else
 // GLOBAL: MW2 0x100b2572
@@ -219,6 +239,7 @@ MechS8 g_sinkEyepointTiltPlus = 0;
 #ifdef MW2_ACCEL
 // GLOBAL: MW2MATROX 0x1012f4ab
 // GLOBAL: MW23DFX 0x10159e3b
+// GLOBAL: MW2ATI 0x1008de3b
 MechS8 g_sinkEyepointTiltMinus;
 #else
 // GLOBAL: MW2 0x100b2573
@@ -228,6 +249,7 @@ MechS8 g_sinkEyepointTiltMinus = 0;
 #ifdef MW2_ACCEL
 // GLOBAL: MW2MATROX 0x1012f4ac
 // GLOBAL: MW23DFX 0x10159e3c
+// GLOBAL: MW2ATI 0x1008de3c
 MechS8 g_sinkEyepointTiltReset;
 #else
 // GLOBAL: MW2 0x100b2574
@@ -237,6 +259,7 @@ MechS8 g_sinkEyepointTiltReset = 0;
 #ifdef MW2_ACCEL
 // GLOBAL: MW2MATROX 0x1012f4ad
 // GLOBAL: MW23DFX 0x10159e3d
+// GLOBAL: MW2ATI 0x1008de3d
 MechS8 g_sinkEyepointPanPlus;
 #else
 // GLOBAL: MW2 0x100b2575
@@ -246,6 +269,7 @@ MechS8 g_sinkEyepointPanPlus = 0;
 #ifdef MW2_ACCEL
 // GLOBAL: MW2MATROX 0x1012f4ae
 // GLOBAL: MW23DFX 0x10159e3e
+// GLOBAL: MW2ATI 0x1008de3e
 MechS8 g_sinkEyepointPanMinus;
 #else
 // GLOBAL: MW2 0x100b2576
@@ -255,6 +279,7 @@ MechS8 g_sinkEyepointPanMinus = 0;
 #ifdef MW2_ACCEL
 // GLOBAL: MW2MATROX 0x1012f4af
 // GLOBAL: MW23DFX 0x10159e3f
+// GLOBAL: MW2ATI 0x1008de3f
 MechS8 g_sinkEyepointPanReset;
 #else
 // GLOBAL: MW2 0x100b2577
@@ -264,6 +289,7 @@ MechS8 g_sinkEyepointPanReset = 0;
 #ifdef MW2_ACCEL
 // GLOBAL: MW2MATROX 0x1012f4b0
 // GLOBAL: MW23DFX 0x10159e40
+// GLOBAL: MW2ATI 0x1008de40
 MechS8 g_sinkEyepointSlidePlus;
 #else
 // GLOBAL: MW2 0x100b2578
@@ -273,6 +299,7 @@ MechS8 g_sinkEyepointSlidePlus = 0;
 #ifdef MW2_ACCEL
 // GLOBAL: MW2MATROX 0x1012f4b1
 // GLOBAL: MW23DFX 0x10159e41
+// GLOBAL: MW2ATI 0x1008de41
 MechS8 g_sinkEyepointSlideMinus;
 #else
 // GLOBAL: MW2 0x100b2579
@@ -282,6 +309,7 @@ MechS8 g_sinkEyepointSlideMinus = 0;
 #ifdef MW2_ACCEL
 // GLOBAL: MW2MATROX 0x1012f4b2
 // GLOBAL: MW23DFX 0x10159e42
+// GLOBAL: MW2ATI 0x1008de42
 MechS8 g_sinkTrackDistancePlus;
 #else
 // GLOBAL: MW2 0x100b257a
@@ -291,6 +319,7 @@ MechS8 g_sinkTrackDistancePlus = 0;
 #ifdef MW2_ACCEL
 // GLOBAL: MW2MATROX 0x1012f4b3
 // GLOBAL: MW23DFX 0x10159e43
+// GLOBAL: MW2ATI 0x1008de43
 MechS8 g_sinkTrackDistanceMinus;
 #else
 // GLOBAL: MW2 0x100b257b
@@ -300,6 +329,7 @@ MechS8 g_sinkTrackDistanceMinus = 0;
 #ifdef MW2_ACCEL
 // GLOBAL: MW2MATROX 0x1012f4b4
 // GLOBAL: MW23DFX 0x10159e44
+// GLOBAL: MW2ATI 0x1008de44
 MechS8 g_sinkTrackHeightPlus;
 #else
 // GLOBAL: MW2 0x100b257c
@@ -309,6 +339,7 @@ MechS8 g_sinkTrackHeightPlus = 0;
 #ifdef MW2_ACCEL
 // GLOBAL: MW2MATROX 0x1012f4b5
 // GLOBAL: MW23DFX 0x10159e45
+// GLOBAL: MW2ATI 0x1008de45
 MechS8 g_sinkTrackHeightMinus;
 #else
 // GLOBAL: MW2 0x100b257d
@@ -318,6 +349,7 @@ MechS8 g_sinkTrackHeightMinus = 0;
 #ifdef MW2_ACCEL
 // GLOBAL: MW2MATROX 0x1012f4b6
 // GLOBAL: MW23DFX 0x10159e46
+// GLOBAL: MW2ATI 0x1008de46
 MechS8 g_sinkZoomFactorPlus;
 #else
 // GLOBAL: MW2 0x100b257e
@@ -327,6 +359,7 @@ MechS8 g_sinkZoomFactorPlus = 0;
 #ifdef MW2_ACCEL
 // GLOBAL: MW2MATROX 0x1012f4b7
 // GLOBAL: MW23DFX 0x10159e47
+// GLOBAL: MW2ATI 0x1008de47
 MechS8 g_sinkZoomFactorMinus;
 #else
 // GLOBAL: MW2 0x100b257f
@@ -336,6 +369,7 @@ MechS8 g_sinkZoomFactorMinus = 0;
 #ifdef MW2_ACCEL
 // GLOBAL: MW2MATROX 0x1012f4b8
 // GLOBAL: MW23DFX 0x10159e48
+// GLOBAL: MW2ATI 0x1008de48
 MechS8 g_sinkZoomFactorReset;
 #else
 // GLOBAL: MW2 0x100b2580
@@ -345,6 +379,7 @@ MechS8 g_sinkZoomFactorReset = 0;
 #ifdef MW2_ACCEL
 // GLOBAL: MW2MATROX 0x1012f470
 // GLOBAL: MW23DFX 0x10159e00
+// GLOBAL: MW2ATI 0x1008de00
 MechScalar g_sinkMenuItem;
 #else
 // GLOBAL: MW2 0x100b2588
@@ -354,6 +389,7 @@ MechScalar g_sinkMenuItem = 0;
 #ifdef MW2_ACCEL
 // GLOBAL: MW2MATROX 0x1012f474
 // GLOBAL: MW23DFX 0x10159e04
+// GLOBAL: MW2ATI 0x1008de04
 MechScalar g_sinkMenuValue;
 #else
 // GLOBAL: MW2 0x100b258c
@@ -363,6 +399,7 @@ MechScalar g_sinkMenuValue = 0;
 #ifdef MW2_ACCEL
 // GLOBAL: MW2MATROX 0x1012f47a
 // GLOBAL: MW23DFX 0x10159e0a
+// GLOBAL: MW2ATI 0x1008de0a
 MechS8 g_sinkMenuItemReset;
 #else
 // GLOBAL: MW2 0x100b2592
@@ -372,6 +409,7 @@ MechS8 g_sinkMenuItemReset = 0;
 #ifdef MW2_ACCEL
 // GLOBAL: MW2MATROX 0x1012f47d
 // GLOBAL: MW23DFX 0x10159e0d
+// GLOBAL: MW2ATI 0x1008de0d
 MechS8 g_sinkMenuValueReset;
 #else
 // GLOBAL: MW2 0x100b2595
@@ -381,6 +419,7 @@ MechS8 g_sinkMenuValueReset = 0;
 #ifdef MW2_ACCEL
 // GLOBAL: MW2MATROX 0x1012f47e
 // GLOBAL: MW23DFX 0x10159e0e
+// GLOBAL: MW2ATI 0x1008de0e
 MechS8 g_sinkMenuEnter;
 #else
 // GLOBAL: MW2 0x100b2596
@@ -390,6 +429,7 @@ MechS8 g_sinkMenuEnter = 0;
 #ifdef MW2_ACCEL
 // GLOBAL: MW2MATROX 0x1012f47f
 // GLOBAL: MW23DFX 0x10159e0f
+// GLOBAL: MW2ATI 0x1008de0f
 MechS8 g_sinkMenuAbort;
 #else
 // GLOBAL: MW2 0x100b2597
@@ -414,17 +454,20 @@ MechS32 g_discreteBindingCount = 0;
 // GLOBAL: MW2 0x100b25a4
 // GLOBAL: MW2MATROX 0x100b1fcc
 // GLOBAL: MW23DFX 0x1025117c
+// GLOBAL: MW2ATI 0x1018548c
 MechS32 g_gameplayInputEnabled = 1;
 
 // GLOBAL: MW2 0x100b25a8
 // GLOBAL: MW2MATROX 0x100b1fd0
 // GLOBAL: MW23DFX 0x10251180
+// GLOBAL: MW2ATI 0x10185490
 MechS32 g_keyboardDeviceIndex = 0;
 
 // The line of INPUT.MAP being parsed.
 // GLOBAL: MW2 0x100b25ac
 // GLOBAL: MW2MATROX 0x100b1fd4
 // GLOBAL: MW23DFX 0x10251184
+// GLOBAL: MW2ATI 0x10185494
 MechS32 g_inputMapLine = 0;
 
 // GLOBAL: MW2 0x100b25b0
@@ -445,18 +488,21 @@ DiscreteBinding g_discreteBindings[100] = {0};
 // GLOBAL: MW2 0x100b7370
 // GLOBAL: MW2MATROX 0x100b6d98
 // GLOBAL: MW23DFX 0x10255f48
+// GLOBAL: MW2ATI 0x1018a258
 MechS32 g_inputDeviceCount = 0;
 
 // The input driver classes, in the order RegisterInputDevice asks them for a device.
 // GLOBAL: MW2 0x100b7378
 // GLOBAL: MW2MATROX 0x100b6da0
 // GLOBAL: MW23DFX 0x10255f50
+// GLOBAL: MW2ATI 0x1018a260
 InputDriverModule* g_inputDriverClasses[3] = {&g_keyboardDriver, &g_mouseDriver, &g_joystickDriver};
 
 // The sinks INPUT.MAP can bind.
 // GLOBAL: MW2 0x100b7388
 // GLOBAL: MW2MATROX 0x100b6db0
 // GLOBAL: MW23DFX 0x10256540
+// GLOBAL: MW2ATI 0x1018a850
 InputSink g_inputSinks[] = {
 	{"torso_tilt", &g_localSteering.m_torsoTilt, 0, 0, -60, 60, 4, 0},
 	{"torso_tilt_plus", &g_localSteering.m_torsoTiltPlus, 1, 0, 0, 0, 0, 0},
@@ -728,12 +774,14 @@ GameKeyName g_gameKeyNames[] = {
 // GLOBAL: MW2 0x100b8190
 // GLOBAL: MW2MATROX 0x100b7bb8
 // GLOBAL: MW23DFX 0x10257ee8
+// GLOBAL: MW2ATI 0x1018c1f8
 MechU8 g_gameKeyByKeyCode[0x800] = {0};
 
 // The key names GAMEKEY.MAP can use in a key sequence, and their key codes (or modifier bits).
 // GLOBAL: MW2 0x100b8990
 // GLOBAL: MW2MATROX 0x100b83b8
 // GLOBAL: MW23DFX 0x10258798
+// GLOBAL: MW2ATI 0x1018caa8
 GameKeyModifier g_gameKeyModifiers[] = {
 	{"ALT", 0x400},       {"CTRL", 0x100},     {"SHIFT", 0x200}, {"F1", 0xb1},         {"F2", 0xb2},
 	{"F3", 0xb3},         {"F4", 0xb4},        {"F5", 0xb5},     {"F6", 0xb6},         {"F7", 0xb7},
@@ -752,11 +800,13 @@ MechChar g_inputErrorText[0x400];
 // GLOBAL: MW2 0x100bf5d0
 // GLOBAL: MW2MATROX 0x10124d28
 // GLOBAL: MW23DFX 0x1007ce68
+// GLOBAL: MW2ATI 0x10071e68
 MechS32 g_inputDevicePresent[5];
 
 // GLOBAL: MW2 0x100bf5e8
 // GLOBAL: MW2MATROX 0x10124a00
 // GLOBAL: MW23DFX 0x1007cb40
+// GLOBAL: MW2ATI 0x10071b40
 InputDeviceInfo g_inputDeviceInfos[5];
 
 // What each device's last poll reported.
@@ -769,11 +819,13 @@ InputDeviceState g_inputDeviceStates[5];
 // GLOBAL: MW2 0x100bf9c0
 // GLOBAL: MW2MATROX 0x10124c60
 // GLOBAL: MW23DFX 0x1007cda0
+// GLOBAL: MW2ATI 0x10071da0
 MechChar g_inputDeviceNames[5][0x28];
 
 // GLOBAL: MW2 0x100bfa88
 // GLOBAL: MW2MATROX 0x10124c48
 // GLOBAL: MW23DFX 0x1007cd88
+// GLOBAL: MW2ATI 0x10071d88
 InputDriverModule* g_inputDrivers[5];
 
 // Finds the device INPUT.MAP calls p_name among the drivers' devices and opens it. Returns its
@@ -781,6 +833,7 @@ InputDriverModule* g_inputDrivers[5];
 // FUNCTION: MW2 0x10079340
 // FUNCTION: MW2MATROX 0x1007bb00
 // FUNCTION: MW23DFX 0x10038c00
+// FUNCTION: MW2ATI 0x100377c0
 MechS32 RegisterInputDevice(MechChar* p_name)
 {
 	MechS32 index;
@@ -836,6 +889,7 @@ MechS32 RegisterInputDevice(MechChar* p_name)
 // FUNCTION: MW2 0x1007959c
 // FUNCTION: MW2MATROX 0x1007bd5c
 // FUNCTION: MW23DFX 0x10038de0
+// FUNCTION: MW2ATI 0x100379a0
 MechS32 FindInputDevice(MechChar* p_name)
 {
 	MechS32 index;
@@ -865,6 +919,7 @@ MechS32 FindInputDevice(MechChar* p_name)
 // FUNCTION: MW2 0x1007966a
 // FUNCTION: MW2MATROX 0x1007be29
 // FUNCTION: MW23DFX 0x10038e70
+// FUNCTION: MW2ATI 0x10037b20
 MechS32 FindInputAxis(MechS32 p_device, MechChar* p_name)
 {
 	MechS32 i;
@@ -930,6 +985,7 @@ MechS32 FindInputButton(MechS32 p_device, MechChar* p_name)
 // FUNCTION: MW2 0x10079952
 // FUNCTION: MW2MATROX 0x1007c111
 // FUNCTION: MW23DFX 0x10039050
+// FUNCTION: MW2ATI 0x10037c10
 InputSink* FindInputSink(MechChar* p_name)
 {
 	MechS32 i;
@@ -1180,6 +1236,7 @@ MechS32 ParseInputConditions(FILE* p_file, MechS32* p_count, InputCondition* p_c
 // FUNCTION: MW2 0x1007a330
 // FUNCTION: MW2MATROX 0x1007caca
 // FUNCTION: MW23DFX 0x100396e0
+// FUNCTION: MW2ATI 0x100382a0
 MechS32 CheckInputConditions(MechS32 p_count, InputCondition* p_conditions)
 {
 	MechS32 i;
@@ -1446,6 +1503,7 @@ MechS32 LoadGamekeyMap(void)
 // FUNCTION: MW2 0x1007aecc
 // FUNCTION: MW2MATROX 0x1007d57b
 // FUNCTION: MW23DFX 0x10039ee0
+// FUNCTION: MW2ATI 0x10038aa0
 MechS32 UpdateAxisFromKeys(AnalogBinding* p_binding)
 {
 	InputAxis* axis;
@@ -1532,6 +1590,7 @@ MechS32 UpdateAxisFromKeys(AnalogBinding* p_binding)
 // FUNCTION: MW2 0x1007b177
 // FUNCTION: MW2MATROX 0x1007d84b
 // FUNCTION: MW23DFX 0x1003a080
+// FUNCTION: MW2ATI 0x10038c40
 void FirstInputs(void)
 {
 	LoadInputMap();
@@ -1682,6 +1741,7 @@ void UpdateInputs(void)
 // FUNCTION: MW2 0x1007b704
 // FUNCTION: MW2MATROX 0x1007ddf3
 // FUNCTION: MW23DFX 0x1003a360
+// FUNCTION: MW2ATI 0x10038f20
 void CloseInputDevices(void)
 {
 	MechS32 i;
@@ -1697,6 +1757,7 @@ void CloseInputDevices(void)
 // FUNCTION: MW2 0x1007b768
 // FUNCTION: MW2MATROX 0x1007de57
 // FUNCTION: MW23DFX 0x1003a3c0
+// FUNCTION: MW2ATI 0x10038f80
 void DisableGameplayInput(void)
 {
 	g_gameplayInputEnabled = FALSE;
@@ -1705,6 +1766,7 @@ void DisableGameplayInput(void)
 // FUNCTION: MW2 0x1007b77d
 // FUNCTION: MW2MATROX 0x1007de6c
 // FUNCTION: MW23DFX 0x1003a3d0
+// FUNCTION: MW2ATI 0x10038f90
 void EnableGameplayInput(void)
 {
 	g_gameplayInputEnabled = TRUE;
@@ -1714,6 +1776,7 @@ void EnableGameplayInput(void)
 // FUNCTION: MW2 0x1007b792
 // FUNCTION: MW2MATROX 0x1007de81
 // FUNCTION: MW23DFX 0x1003a3e0
+// FUNCTION: MW2ATI 0x10038fa0
 MechS16 LookupGameKey(MechS16 p_keyCode)
 {
 	return g_gameKeyByKeyCode[p_keyCode];

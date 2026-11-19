@@ -24,6 +24,7 @@
 // GLOBAL: MW2 0x100a96c8
 // GLOBAL: MW2MATROX 0x100bbe98
 // GLOBAL: MW23DFX 0x1024eb40
+// GLOBAL: MW2ATI 0x10182e50
 SpeechLine g_slotSpeech[3] = {
 	{2, "All points", NULL},
 	{0x108, "Point 2", NULL},
@@ -37,6 +38,7 @@ MechS32 g_unk0x100a96ec = 0;
 // GLOBAL: MW2 0x100a96f0
 // GLOBAL: MW2MATROX 0x100bbec0
 // GLOBAL: MW23DFX 0x1024ec58
+// GLOBAL: MW2ATI 0x10182f68
 SpeechLine g_lancemateSpeech[11] = {
 	{0, "cannot do this", NULL},
 	{0xa, "attacking your target", NULL},
@@ -57,6 +59,7 @@ MechS32 g_unk0x100a9774 = 0;
 // GLOBAL: MW2 0x100a9778
 // GLOBAL: MW2MATROX 0x100bbf48
 // GLOBAL: MW23DFX 0x1024ed40
+// GLOBAL: MW2ATI 0x10183050
 SpeechLine g_formationSpeech[7] = {
 	{0xb, "Formation change to", NULL},
 	{0x4f, "echelon left", NULL},
@@ -73,6 +76,7 @@ MechS32 g_unk0x100a97cc = 0;
 // GLOBAL: MW2 0x100a97d0
 // GLOBAL: MW2MATROX 0x100bbfa0
 // GLOBAL: MW23DFX 0x1024edb8
+// GLOBAL: MW2ATI 0x101830c8
 SpeechLine g_engageSpeech[3] = {
 	{0x54, "disengaged", NULL},
 	{0x50, "engaged", NULL},
@@ -85,6 +89,7 @@ MechS32 g_unk0x100a97f4 = 0;
 // GLOBAL: MW2 0x100a97f8
 // GLOBAL: MW2MATROX 0x100bbfc8
 // GLOBAL: MW23DFX 0x1024f140
+// GLOBAL: MW2ATI 0x10183450
 SpeechLine g_cockpitSpeech[34] = {
 	{0x40, "Heat level critical", NULL},
 	{0x4b, "Thermal threshold has been exceeded. Shutdown sequence initiated", NULL},
@@ -126,6 +131,7 @@ SpeechLine g_cockpitSpeech[34] = {
 // GLOBAL: MW2 0x100a9990
 // GLOBAL: MW2MATROX 0x100bc160
 // GLOBAL: MW23DFX 0x1024f4e8
+// GLOBAL: MW2ATI 0x101837f8
 SpeechLine g_damageSpeech[39] = {
 	{0x14, "weapon destroyed", NULL},
 	{0x30, "internal ammo explosion detected", NULL},
@@ -171,21 +177,25 @@ SpeechLine g_damageSpeech[39] = {
 // GLOBAL: MW2 0x100a9b64
 // GLOBAL: MW2MATROX 0x100bc334
 // GLOBAL: MW23DFX 0x1024f6bc
+// GLOBAL: MW2ATI 0x101839cc
 SpeechEntry* g_speechQueue = NULL;
 
 // GLOBAL: MW2 0x100a9b68
 // GLOBAL: MW2MATROX 0x100bc338
 // GLOBAL: MW23DFX 0x1024f6c0
+// GLOBAL: MW2ATI 0x101839d0
 HSAMPLE g_speechSample = NULL;
 
 // GLOBAL: MW2 0x100a9b6c
 // GLOBAL: MW2MATROX 0x100bc33c
 // GLOBAL: MW23DFX 0x1024f6c4
+// GLOBAL: MW2ATI 0x101839d4
 MechS32 g_speechLocked = 0;
 
 // GLOBAL: MW2 0x100bea10
 // GLOBAL: MW2MATROX 0x10125430
 // GLOBAL: MW23DFX 0x1007c890
+// GLOBAL: MW2ATI 0x10071890
 SpeechEntry g_speechEntries[8];
 
 // Queues p_line, followed by p_suffix, by priority (-1: the sound's own). Returns whether it
@@ -193,6 +203,7 @@ SpeechEntry g_speechEntries[8];
 // FUNCTION: MW2 0x10059390
 // FUNCTION: MW2MATROX 0x1008b510
 // FUNCTION: MW23DFX 0x10031150
+// FUNCTION: MW2ATI 0x1002ff40
 MechS32 QueueSpeech(SpeechLine* p_line, SpeechLine* p_suffix, MechS32 p_priority)
 {
 	SpeechEntry* entry;
@@ -365,6 +376,7 @@ void AdvanceSpeechQueue(void)
 // FUNCTION: MW2 0x100598f6
 // FUNCTION: MW2MATROX 0x1008ba76
 // FUNCTION: MW23DFX 0x10031440
+// FUNCTION: MW2ATI 0x10030230
 MechS32 StartSpeech(SpeechEntry* p_entry)
 {
 	MechS32 id;
@@ -454,6 +466,7 @@ MechS32 StartSpeech(SpeechEntry* p_entry)
 // FUNCTION: MW2 0x10059b7b
 // FUNCTION: MW2MATROX 0x1008bcfb
 // FUNCTION: MW23DFX 0x100315f0
+// FUNCTION: MW2ATI 0x100303e0
 void PlayVoiceVolumeTest(void)
 {
 	if (g_soundConfig.m_simFlags & 2) {
@@ -469,6 +482,7 @@ void PlayVoiceVolumeTest(void)
 // FUNCTION: MW2 0x10059be3
 // FUNCTION: MW2MATROX 0x1008bd63
 // FUNCTION: MW23DFX 0x10031640
+// FUNCTION: MW2ATI 0x10030430
 void FlushSpeechQueue(MechS32 p_keep)
 {
 	SpeechEntry* prev;
@@ -540,6 +554,7 @@ SpeechEntry* FreeSpeechEntry(SpeechEntry* p_entry)
 // FUNCTION: MW2 0x10059d8b
 // FUNCTION: MW2MATROX 0x1008bf0b
 // FUNCTION: MW23DFX 0x10031760
+// FUNCTION: MW2ATI 0x10030550
 void StopSpeech(void)
 {
 	SpeechEntry* entry;
@@ -560,6 +575,7 @@ void StopSpeech(void)
 // FUNCTION: MW2 0x10059deb
 // FUNCTION: MW2MATROX 0x1008bf6b
 // FUNCTION: MW23DFX 0x10031790
+// FUNCTION: MW2ATI 0x10030580
 void ResumeSpeech(void)
 {
 	MechS32 slot;
@@ -581,6 +597,7 @@ void ResumeSpeech(void)
 // FUNCTION: MW2 0x10059e63
 // FUNCTION: MW2MATROX 0x1008bfe3
 // FUNCTION: MW23DFX 0x10031810
+// FUNCTION: MW2ATI 0x10030600
 void SayLancemateReport(MechS32 p_message, MechS32 p_slot)
 {
 	SpeechLine* slot;
@@ -604,6 +621,7 @@ void SayLancemateReport(MechS32 p_message, MechS32 p_slot)
 // FUNCTION: MW2 0x10059ed2
 // FUNCTION: MW2MATROX 0x1008c052
 // FUNCTION: MW23DFX 0x10031850
+// FUNCTION: MW2ATI 0x10030640
 void SayFormation(MechS32 p_formation)
 {
 	if (p_formation >= 0 && p_formation < 6) {
@@ -614,6 +632,7 @@ void SayFormation(MechS32 p_formation)
 // FUNCTION: MW2 0x10059f0f
 // FUNCTION: MW2MATROX 0x1008c08f
 // FUNCTION: MW23DFX 0x10031870
+// FUNCTION: MW2ATI 0x10030660
 void PlayCockpitSound(MechS32 p_message, MechS32 p_engage)
 {
 	SpeechLine* suffix;
@@ -636,6 +655,7 @@ void PlayCockpitSound(MechS32 p_message, MechS32 p_engage)
 // FUNCTION: MW2 0x10059f6e
 // FUNCTION: MW2MATROX 0x1008c0ee
 // FUNCTION: MW23DFX 0x100318a0
+// FUNCTION: MW2ATI 0x10030690
 void SayCriticalHit(MechS32 p_part)
 {
 	QueueSpeech(&g_cockpitSpeech[11], &g_damageSpeech[p_part], -1);
@@ -644,6 +664,7 @@ void SayCriticalHit(MechS32 p_part)
 // FUNCTION: MW2 0x10059f9c
 // FUNCTION: MW2MATROX 0x1008c11c
 // FUNCTION: MW23DFX 0x100318c0
+// FUNCTION: MW2ATI 0x100306b0
 MechS32 QueueSpeechLine(SpeechLine* p_line)
 {
 	return QueueSpeech(p_line, NULL, 0x50);

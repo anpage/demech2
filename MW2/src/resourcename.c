@@ -20,6 +20,7 @@
 // FUNCTION: MW2 0x100737e0
 // FUNCTION: MW2MATROX 0x100734f0
 // FUNCTION: MW23DFX 0x10025eb0
+// FUNCTION: MW2ATI 0x10025c20
 MechS32 FindResourceIdByName(MechS32 p_table, MechChar* p_name)
 {
 	MechS32 j;
@@ -69,6 +70,7 @@ MechS32 FindResourceIdByName(MechS32 p_table, MechChar* p_name)
 // FUNCTION: MW2 0x10073922
 // FUNCTION: MW2MATROX 0x10073632
 // FUNCTION: MW23DFX 0x10025f70
+// FUNCTION: MW2ATI 0x10025ce0
 void* LoadResourceByRef(
 	ResourceRef* p_ref,
 	const char* p_type,

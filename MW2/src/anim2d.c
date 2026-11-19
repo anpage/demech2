@@ -28,26 +28,31 @@ DECOMP_SIZE_ASSERT(Anim2d, 0x1c)
 // GLOBAL: MW2 0x100a156c
 // GLOBAL: MW2MATROX 0x100a20a8
 // GLOBAL: MW23DFX 0x10249270
+// GLOBAL: MW2ATI 0x1017d270
 MechS32 g_framePrjCount = -1;
 
 // GLOBAL: MW2 0x100a158c
 // GLOBAL: MW2MATROX 0x100a20c8
 // GLOBAL: MW23DFX 0x10249290
+// GLOBAL: MW2ATI 0x1017d290
 MechS32 g_anim2dCount = 0;
 
 // GLOBAL: MW2 0x10179b60
 // GLOBAL: MW2MATROX 0x102184d0
 // GLOBAL: MW23DFX 0x102453d0
+// GLOBAL: MW2ATI 0x101791f0
 Anim2d* g_anim2ds[7];
 
 // GLOBAL: MW2 0x10179b80
 // GLOBAL: MW2MATROX 0x102184f0
 // GLOBAL: MW23DFX 0x102453f0
+// GLOBAL: MW2ATI 0x10179210
 FramePrj g_framePrjs[0x60];
 
 // FUNCTION: MW2 0x10007510
 // FUNCTION: MW2MATROX 0x100013b0
 // FUNCTION: MW23DFX 0x10002080
+// FUNCTION: MW2ATI 0x10002070
 MechS32 LoadFramePrj(MechU16 p_id, MechS16 p_unk0x04, MechS16 p_unk0x06)
 {
 	FramePrj* prj;
@@ -70,6 +75,7 @@ MechS32 LoadFramePrj(MechU16 p_id, MechS16 p_unk0x04, MechS16 p_unk0x06)
 // FUNCTION: MW2 0x1000759c
 // FUNCTION: MW2MATROX 0x1000143c
 // FUNCTION: MW23DFX 0x100020e0
+// FUNCTION: MW2ATI 0x100020d0
 void ResetFramePrjs(void)
 {
 	MechS32 i;
@@ -86,6 +92,7 @@ void ResetFramePrjs(void)
 // FUNCTION: MW2 0x100075eb
 // FUNCTION: MW2MATROX 0x1000148b
 // FUNCTION: MW23DFX 0x10002110
+// FUNCTION: MW2ATI 0x10002100
 void ClearFramePrj(FramePrj* p_prj)
 {
 	p_prj->m_id = -1;
@@ -96,6 +103,7 @@ void ClearFramePrj(FramePrj* p_prj)
 // FUNCTION: MW2 0x10007611
 // FUNCTION: MW2MATROX 0x100014b1
 // FUNCTION: MW23DFX 0x10002130
+// FUNCTION: MW2ATI 0x10002120
 MechS16 LoadAnim2d(MechU32 p_flags, MechS32 p_frameTime, MechS32 p_type, MechS16* p_resourceId)
 {
 	Anim2d* anim;
@@ -133,6 +141,7 @@ MechS16 LoadAnim2d(MechU32 p_flags, MechS32 p_frameTime, MechS32 p_type, MechS16
 // FUNCTION: MW2 0x100076ea
 // FUNCTION: MW2MATROX 0x1000158a
 // FUNCTION: MW23DFX 0x100021e0
+// FUNCTION: MW2ATI 0x100021d0
 void FreeAnim2ds(MechS32 p_index)
 {
 	if (p_index >= 0) {
@@ -148,6 +157,7 @@ void FreeAnim2ds(MechS32 p_index)
 // FUNCTION: MW2 0x1000773a
 // FUNCTION: MW2MATROX 0x100015da
 // FUNCTION: MW23DFX 0x10002200
+// FUNCTION: MW2ATI 0x100021f0
 void FreeAnim2d(MechS32 p_index)
 {
 	if (g_anim2ds[p_index]) {

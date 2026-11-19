@@ -31,11 +31,13 @@
 // GLOBAL: MW2 0x100ba628
 // GLOBAL: MW2MATROX 0x100bbbd0
 // GLOBAL: MW23DFX 0x1024f738
+// GLOBAL: MW2ATI 0x10183a48
 MechS32 g_sampleRates[10] = {9922, 10143, 10364, 10584, 10804, 11025, 11246, 11466, 11686, 11907};
 
 // GLOBAL: MW2 0x100ba650
 // GLOBAL: MW2MATROX 0x100bbbf8
 // GLOBAL: MW23DFX 0x1024f760
+// GLOBAL: MW2ATI 0x10183a70
 AudioEngine* g_audioEngine = NULL;
 
 // GLOBAL: MW2 0x100ba654
@@ -45,6 +47,7 @@ MechChar g_sampleTag[] = "SFLX";
 // GLOBAL: MW2 0x10174930
 // GLOBAL: MW2MATROX 0x10215d20
 // GLOBAL: MW23DFX 0x1015a060
+// GLOBAL: MW2ATI 0x1008e050
 SoundInfo g_soundInfo[1200];
 
 // FUNCTION: MW2 0x1007d9d0
@@ -480,6 +483,7 @@ void AILCALLBACK SampleEosCallback(HSAMPLE p_sample)
 // FUNCTION: MW2 0x1007e9dc
 // FUNCTION: MW2MATROX 0x100870a8
 // FUNCTION: MW23DFX 0x10032a30
+// FUNCTION: MW2ATI 0x10031830
 void PlayEffectsVolumeTest(void)
 {
 	PlaySample(0, 0, 0xd2, NULL, 100, g_soundConfig.m_effectsVolume, 0x40, RandomSampleRate(), (MechS32*) -1, 0x250);
@@ -488,6 +492,7 @@ void PlayEffectsVolumeTest(void)
 // FUNCTION: MW2 0x1007ea11
 // FUNCTION: MW2MATROX 0x100870dd
 // FUNCTION: MW23DFX 0x10032a60
+// FUNCTION: MW2ATI 0x10031860
 MechS32 PlaySoundOnce(MechS32 p_id, MechU32 p_volume, MechS32 p_pan, MechS32 p_rate)
 {
 	return PlaySample(0, 0, p_id, NULL, p_volume, g_soundConfig.m_effectsVolume, p_pan, p_rate, (MechS32*) -1, 0x450);
@@ -496,6 +501,7 @@ MechS32 PlaySoundOnce(MechS32 p_id, MechU32 p_volume, MechS32 p_pan, MechS32 p_r
 // FUNCTION: MW2 0x1007ea4c
 // FUNCTION: MW2MATROX 0x10087118
 // FUNCTION: MW23DFX 0x10032a90
+// FUNCTION: MW2ATI 0x10031890
 MechS32 PlaySoundRandomRate(
 	MechS32 p_delay,
 	MechS32 p_bearing,
@@ -562,6 +568,7 @@ MechS32 PlayPositionalSound(MechScalar p_dx, MechScalar p_dy, MechScalar p_dz, M
 // FUNCTION: MW2 0x1007eb23
 // FUNCTION: MW2MATROX 0x100871f4
 // FUNCTION: MW23DFX 0x10032b60
+// FUNCTION: MW2ATI 0x10031960
 MechS32 PlaySoundEffect(MechS32 p_id, MechU32 p_volume, MechS32 p_pan, MechS32 p_rate, MechU16 p_flags)
 {
 	return PlaySample(
@@ -581,6 +588,7 @@ MechS32 PlaySoundEffect(MechS32 p_id, MechU32 p_volume, MechS32 p_pan, MechS32 p
 // FUNCTION: MW2 0x1007eb64
 // FUNCTION: MW2MATROX 0x10087235
 // FUNCTION: MW23DFX 0x10032ba0
+// FUNCTION: MW2ATI 0x100319a0
 MechS32 PlayDelayedSound(
 	MechS32 p_delay,
 	MechS32 p_bearing,
@@ -603,6 +611,7 @@ MechS32 PlayDelayedSound(
 // FUNCTION: MW2 0x1007ebd1
 // FUNCTION: MW2MATROX 0x100872a2
 // FUNCTION: MW23DFX 0x10032bf0
+// FUNCTION: MW2ATI 0x100319f0
 MechS32 PlaySoundAt(MechScalar p_x, MechScalar p_y, MechScalar p_z, MechS32 p_sound, MechS32 p_half)
 {
 	return PlayPositionalSound(p_x, p_y, p_z, p_sound, p_half);
@@ -612,6 +621,7 @@ MechS32 PlaySoundAt(MechScalar p_x, MechScalar p_y, MechScalar p_z, MechS32 p_so
 // FUNCTION: MW2 0x1007ebfd
 // FUNCTION: MW2MATROX 0x100872ce
 // FUNCTION: MW23DFX 0x10032c10
+// FUNCTION: MW2ATI 0x10031a10
 MechS32 CalculateSamplePan(MechScalar p_bearing)
 {
 	MechS32 pan;
@@ -637,6 +647,7 @@ MechS32 CalculateSamplePan(MechScalar p_bearing)
 // FUNCTION: MW2 0x1007ec5e
 // FUNCTION: MW2MATROX 0x10087337
 // FUNCTION: MW23DFX 0x10032c50
+// FUNCTION: MW2ATI 0x10031a50
 MechS32 RandomSampleRate(void)
 {
 	return g_sampleRates[RandomIntBelow(10)];
@@ -768,6 +779,7 @@ void UpdateAmbientSound(AmbientSound* p_sound)
 // FUNCTION: MW2 0x1007f01f
 // FUNCTION: MW2MATROX 0x10087708
 // FUNCTION: MW23DFX 0x10032f00
+// FUNCTION: MW2ATI 0x10031d00
 void StopAmbientSound(AmbientSound* p_sound)
 {
 	HSAMPLE sample;
@@ -791,6 +803,7 @@ void StopAmbientSound(AmbientSound* p_sound)
 // FUNCTION: MW2 0x1007f0d9
 // FUNCTION: MW2MATROX 0x100877c2
 // FUNCTION: MW23DFX 0x10032f60
+// FUNCTION: MW2ATI 0x10031d60
 MechS32 GetDistanceVolume(MechS32 p_distance)
 {
 	MechS32 volume;

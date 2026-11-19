@@ -39,6 +39,7 @@ DECOMP_SIZE_ASSERT(Animation, 0x0e)
 // GLOBAL: MW2 0x100ad288
 // GLOBAL: MW2MATROX 0x100aa1b8
 // GLOBAL: MW23DFX 0x1024e480
+// GLOBAL: MW2ATI 0x10182790
 MechS32 g_animInitialized = -2;
 
 // GLOBAL: MW2 0x100ad28c
@@ -49,16 +50,19 @@ MechS32 g_lumaResourceId = 0;
 // GLOBAL: MW2 0x100ad290
 // GLOBAL: MW2MATROX 0x100aa1c0
 // GLOBAL: MW23DFX 0x1024e488
+// GLOBAL: MW2ATI 0x10182798
 MechS32 g_currentAnimSet = 0;
 
 // GLOBAL: MW2 0x100ad294
 // GLOBAL: MW2MATROX 0x100aa1c4
 // GLOBAL: MW23DFX 0x1024e48c
+// GLOBAL: MW2ATI 0x1018279c
 MechS32 g_animSetUsed = 0;
 
 // GLOBAL: MW2 0x100ad298
 // GLOBAL: MW2MATROX 0x100aa1c8
 // GLOBAL: MW23DFX 0x1024e490
+// GLOBAL: MW2ATI 0x101827a0
 MechS32 g_animSetIsSequence = 0;
 
 #ifdef MW2_A3D
@@ -101,16 +105,19 @@ MechS32 g_unk0x1024e634 = 0;
 // GLOBAL: MW2 0x100c7610
 // GLOBAL: MW2MATROX 0x10184710
 // GLOBAL: MW23DFX 0x10160d20
+// GLOBAL: MW2ATI 0x10094d10
 AnimFrame g_animFrames[0x200][0x20];
 
 // GLOBAL: MW2 0x100e7610
 // GLOBAL: MW2MATROX 0x10182b00
 // GLOBAL: MW23DFX 0x1015f0f0
+// GLOBAL: MW2ATI 0x100930e0
 Animation g_animations[0x200];
 
 #ifdef MW2_A3D
 // GLOBAL: MW2MATROX 0x10184700
 // GLOBAL: MW23DFX 0x10160cf0
+// GLOBAL: MW2ATI 0x10094ce0
 MechFloat g_unk0x10184700[3];
 #endif
 
@@ -123,6 +130,7 @@ WINDOW g_animFrameBuffer;
 // sine are p_cos and p_sin.
 // FUNCTION: MW2MATROX 0x10050d60
 // FUNCTION: MW23DFX 0x1002c830
+// FUNCTION: MW2ATI 0x1002bcd0
 void RotateTexturePoint(MechFloat p_cos, MechFloat p_sin, MechFloat* p_u, MechFloat* p_v)
 {
 	MechFloat u;
@@ -137,10 +145,12 @@ void RotateTexturePoint(MechFloat p_cos, MechFloat p_sin, MechFloat* p_u, MechFl
 #endif
 // MW2MATROX's (0x10050dbc) is another function: it draws through the Matrox edition's renderer.
 // MW23DFX's (0x1002c880) draws through its own renderer, in Glide's texture coordinates, and
-// clips the polygon to the pane edges p_unk0x18 selects.
+// clips the polygon to the pane edges p_unk0x18 selects. MW2ATI's (0x1002bd20) draws through its own
+// renderer too: the 3Dfx edition's without MW2.MIP, in the ATI renderer's vertices.
 // FUNCTION: MW2 0x10068d10
 // FUNCTION: MW2MATROX 0x10050dbc
 // FUNCTION: MW23DFX 0x1002c880
+// STUB: MW2ATI 0x1002bd20
 #ifdef MW2_A3D
 MechS32 DrawAnimatedPolygon(
 	MechS32 p_index,
@@ -509,6 +519,9 @@ MechS32 DrawAnimatedPolygon(
 	}
 
 	return 1;
+#elif defined(MW2_ATI)
+	STUB(0x1002bd20);
+	return 0;
 #else
 	MechS16 height;
 	MechS32 i;
@@ -597,6 +610,7 @@ MechS32 DrawAnimatedPolygon(
 // FUNCTION: MW2 0x10068fb8
 // FUNCTION: MW2MATROX 0x10051278
 // FUNCTION: MW23DFX 0x1002ce50
+// FUNCTION: MW2ATI 0x1002c150
 void AdvanceAnimations(void)
 {
 	MechS32 remainder;
@@ -733,6 +747,7 @@ void PreloadAnimCels(void)
 // FUNCTION: MW2 0x10069288
 // FUNCTION: MW2MATROX 0x10051566
 // FUNCTION: MW23DFX 0x1002d060
+// FUNCTION: MW2ATI 0x1002c2d0
 MechS32 StartAnimation(MechS32 p_index, MechS32 p_set)
 {
 	if (p_set == -1) {
@@ -758,6 +773,7 @@ MechS32 StartAnimation(MechS32 p_index, MechS32 p_set)
 // FUNCTION: MW2 0x10069360
 // FUNCTION: MW2MATROX 0x1005163e
 // FUNCTION: MW23DFX 0x1002d0e0
+// FUNCTION: MW2ATI 0x1002c350
 void InitAnimations(void)
 {
 	MechS32 j;
@@ -793,6 +809,7 @@ void InitAnimations(void)
 // FUNCTION: MW2 0x1006946f
 // FUNCTION: MW2MATROX 0x10051755
 // FUNCTION: MW23DFX 0x1002d150
+// FUNCTION: MW2ATI 0x1002c3c0
 void SetAnimMode(MechS16 p_index, MechS16 p_mode)
 {
 	if (g_animations[p_index].m_flags != -2) {
@@ -807,6 +824,7 @@ void SetAnimMode(MechS16 p_index, MechS16 p_mode)
 // FUNCTION: MW2 0x100694df
 // FUNCTION: MW2MATROX 0x100517c5
 // FUNCTION: MW23DFX 0x1002d190
+// FUNCTION: MW2ATI 0x1002c400
 void SetAnimFrame(MechS16 p_index, MechU16 p_frame)
 {
 	Animation* anim;
@@ -829,6 +847,7 @@ void SetAnimFrame(MechS16 p_index, MechU16 p_frame)
 // FUNCTION: MW2 0x10069564
 // FUNCTION: MW2MATROX 0x10051853
 // FUNCTION: MW23DFX 0x1002d1e0
+// FUNCTION: MW2ATI 0x1002c450
 void SetAnimDelay(MechS16 p_index, MechU16 p_delay)
 {
 	g_animations[p_index].m_delay = p_delay;
@@ -922,6 +941,7 @@ MechU16* FUN_10051dfe(MechS32 p_index, MechS16* p_width, MechS16* p_height)
 // MW23DFX takes the texture from FUN_10051dfe (the resource cache) rather than reading it.
 // FUNCTION: MW2MATROX 0x100519b0
 // FUNCTION: MW23DFX 0x1002d330
+// FUNCTION: MW2ATI 0x1002c500
 MechS32 FUN_100519b0(MechS32 p_index, MechFloat* p_red, MechFloat* p_green, MechFloat* p_blue)
 {
 #ifdef MW2_3DFX
@@ -1283,10 +1303,27 @@ MechS32 FUN_10051ea2(MechS32 p_index, ProjectedVertex** p_points, MechS32 p_coun
 	return 0;
 }
 #endif
+#ifdef MW2_ATI
+// The ATI edition's: the 3Dfx edition's, in its renderer's vertices, drawn through it.
+// STUB: MW2ATI 0x1002c630
+MechS32 FUN_10051c07(MechS32 p_index, ProjectedVertex** p_points, MechS32 p_count)
+{
+	STUB(0x1002c630);
+	return 0;
+}
+
+// STUB: MW2ATI 0x1002c740
+MechS32 FUN_10051ea2(MechS32 p_index, ProjectedVertex** p_points, MechS32 p_count)
+{
+	STUB(0x1002c740);
+	return 0;
+}
+#endif
 
 // Computes the average color of every playing animation's current frame (FUN_100519b0).
 // FUNCTION: MW2MATROX 0x1005207d
 // FUNCTION: MW23DFX 0x1002d6e0
+// FUNCTION: MW2ATI 0x1002c880
 void CalcAverageBitmapColors(void)
 {
 	MechFloat blue;

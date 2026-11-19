@@ -15,6 +15,7 @@ DECOMP_SIZE_ASSERT(Ray, 0x38)
 // FUNCTION: MW2 0x10002e20
 // FUNCTION: MW2MATROX 0x10087830
 // FUNCTION: MW23DFX 0x1000ae00
+// FUNCTION: MW2ATI 0x1000b600
 void BuildRayFromSegment(
 	Ray* p_ray,
 	MechScalar p_x0,
@@ -41,6 +42,7 @@ void BuildRayFromSegment(
 // FUNCTION: MW2 0x10002ebc
 // FUNCTION: MW2MATROX 0x100878cc
 // FUNCTION: MW23DFX 0x1000ae70
+// FUNCTION: MW2ATI 0x1000b670
 void BuildRayFromDirection(
 	Ray* p_ray,
 	MechScalar p_x0,
@@ -77,6 +79,7 @@ void BuildRayFromDirection(
 // FUNCTION: MW2 0x10002f7e
 // FUNCTION: MW2MATROX 0x10087970
 // FUNCTION: MW23DFX 0x1000af00
+// FUNCTION: MW2ATI 0x1000b700
 MechScalar GetRayLength(Ray* p_ray)
 {
 	if (p_ray->m_state == c_rayNone) {
@@ -89,6 +92,7 @@ MechScalar GetRayLength(Ray* p_ray)
 // FUNCTION: MW2 0x10002fad
 // FUNCTION: MW2MATROX 0x1008799f
 // FUNCTION: MW23DFX 0x1000af20
+// FUNCTION: MW2ATI 0x1000b720
 void BuildRayFixed(Ray* p_ray)
 {
 	MechScalar length;
@@ -114,6 +118,7 @@ void BuildRayFixed(Ray* p_ray)
 // FUNCTION: MW2 0x10003053
 // FUNCTION: MW2MATROX 0x10087a6a
 // FUNCTION: MW23DFX 0x1000afd0
+// FUNCTION: MW2ATI 0x1000b7d0
 void BuildRayFloat(Ray* p_ray)
 {
 	MechDouble dx;
@@ -148,6 +153,7 @@ void BuildRayFloat(Ray* p_ray)
 // FUNCTION: MW2 0x1000313e
 // FUNCTION: MW2MATROX 0x10087b59
 // FUNCTION: MW23DFX 0x1000b060
+// FUNCTION: MW2ATI 0x1000b860
 void SetRayLength(Ray* p_ray, MechScalar p_length)
 {
 	if (p_ray->m_state == c_rayNone) {
@@ -209,6 +215,7 @@ void AdvanceRayStart(Ray* p_ray, MechScalar p_distance)
 // FUNCTION: MW2 0x100032f9
 // FUNCTION: MW2MATROX 0x10087ced
 // FUNCTION: MW23DFX 0x1000b160
+// FUNCTION: MW2ATI 0x1000b8d0
 void SetRayEnd(Ray* p_ray, MechScalar p_x1, MechScalar p_y1, MechScalar p_z1)
 {
 	MechS32 state;
@@ -237,6 +244,7 @@ void SetRayEnd(Ray* p_ray, MechScalar p_x1, MechScalar p_y1, MechScalar p_z1)
 // FUNCTION: MW2 0x100033df
 // FUNCTION: MW2MATROX 0x10087dd3
 // FUNCTION: MW23DFX 0x1000b1d0
+// FUNCTION: MW2ATI 0x1000b940
 void ClipRayToGround(Ray* p_ray, MechScalar p_y)
 {
 	MechScalar length;
@@ -257,6 +265,7 @@ void ClipRayToGround(Ray* p_ray, MechScalar p_y)
 // FUNCTION: MW2 0x1000342d
 // FUNCTION: MW2MATROX 0x10087e35
 // FUNCTION: MW23DFX 0x1000b220
+// FUNCTION: MW2ATI 0x1000b990
 void CopyRay(Ray* p_dst, Ray* p_src)
 {
 	*p_dst = *p_src;
@@ -265,6 +274,7 @@ void CopyRay(Ray* p_dst, Ray* p_src)
 // FUNCTION: MW2 0x10003445
 // FUNCTION: MW2MATROX 0x10087e4d
 // FUNCTION: MW23DFX 0x1000b230
+// FUNCTION: MW2ATI 0x1000b9a0
 MechS32 ClipRaySlab(
 	MechScalar p_origin,
 	MechScalar p_delta,

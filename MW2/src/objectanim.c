@@ -151,6 +151,7 @@ MechS32 g_reelMotionError = 0;
 // GLOBAL: MW2 0x100a6d68
 // GLOBAL: MW2MATROX 0x100ae2b8
 // GLOBAL: MW23DFX 0x1024b32c
+// GLOBAL: MW2ATI 0x1017f6ac
 MechS32 g_pathCount = 0;
 
 // GLOBAL: MW2 0x100a6d6c
@@ -168,34 +169,40 @@ MechS32 g_animBase = 0;
 // GLOBAL: MW2 0x100a6d74
 // GLOBAL: MW2MATROX 0x100ae2c4
 // GLOBAL: MW23DFX 0x1024b338
+// GLOBAL: MW2ATI 0x1017f6b8
 MechS32 g_animFileCount = 0;
 
 // Set to shade from the origin rather than the light (GetFaceShade).
 // GLOBAL: MW2 0x1010b530
 // GLOBAL: MW2MATROX 0x101d6908
 // GLOBAL: MW23DFX 0x101b0e58
+// GLOBAL: MW2ATI 0x100e4e48
 MechS32 g_directionalLight;
 
 // The outcodes of the polygon being built: any vertex's (or) and every vertex's (and).
 // GLOBAL: MW2 0x1010b53c
 // GLOBAL: MW2MATROX 0x101d6900
 // GLOBAL: MW23DFX 0x101b0e50
+// GLOBAL: MW2ATI 0x100e4e40
 MechU8 g_polygonOrCodes;
 
 // GLOBAL: MW2 0x1010b5b8
 // GLOBAL: MW2MATROX 0x101d6974
 // GLOBAL: MW23DFX 0x101b0ed4
+// GLOBAL: MW2ATI 0x100e4eb4
 MechU8 g_polygonAndCodes;
 
 // The projected vertices of the polygon being built, and their count.
 // GLOBAL: MW2 0x1010b550
 // GLOBAL: MW2MATROX 0x101d6910
 // GLOBAL: MW23DFX 0x101b0e70
+// GLOBAL: MW2ATI 0x100e4e50
 ProjectedVertex* g_polygonPoints[20];
 
 // GLOBAL: MW2 0x1010b5b0
 // GLOBAL: MW2MATROX 0x101d6978
 // GLOBAL: MW23DFX 0x101b0ed8
+// GLOBAL: MW2ATI 0x100e4eb8
 MechS32 g_polygonPointCount;
 
 // Where QueueFace copies the next polygon's vertex pointers in the draw buffer.
@@ -230,12 +237,14 @@ MechS32 g_polygonsQueued;
 // GLOBAL: MW2 0x100ea8e0
 // GLOBAL: MW2MATROX 0x101315a0
 // GLOBAL: MW23DFX 0x101e8e20
+// GLOBAL: MW2ATI 0x1011cae0
 Path g_paths[0x40];
 
 // The animations of the loaded animation files, by number.
 // GLOBAL: MW2 0x101079e0
 // GLOBAL: MW2MATROX 0x1014e880
 // GLOBAL: MW23DFX 0x10206100
+// GLOBAL: MW2ATI 0x10139dc0
 Reel* g_reels[0x780];
 
 // GLOBAL: MW2 0x101097e0
@@ -641,6 +650,7 @@ MechS32 ReelMotionTask(MechS32 p_event, MechChar* p_data, MechS32 p_clock, MechS
 // FUNCTION: MW2 0x100472fe
 // FUNCTION: MW2MATROX 0x1006f8d3
 // FUNCTION: MW23DFX 0x1000e600
+// FUNCTION: MW2ATI 0x1000ecf0
 MechS32 ScaleBySpeedLevel(MechS32 p_mode, MechS32 p_value)
 {
 	MechS32 result;
@@ -718,6 +728,7 @@ MechS32 GetReelMotionSize(void)
 // FUNCTION: MW2 0x1004748c
 // FUNCTION: MW2MATROX 0x1006fa61
 // FUNCTION: MW23DFX 0x1000e6e0
+// FUNCTION: MW2ATI 0x1000edc0
 MechS32 ColorCycleTask(MechS32 p_event, MechChar* p_data, MechS32 p_clock, MechS32 p_period)
 {
 	MechChar* token;
@@ -807,6 +818,7 @@ MechS32 ColorCycleTask(MechS32 p_event, MechChar* p_data, MechS32 p_clock, MechS
 // FUNCTION: MW2 0x1004771e
 // FUNCTION: MW2MATROX 0x1006fcf3
 // FUNCTION: MW23DFX 0x1000e880
+// FUNCTION: MW2ATI 0x1000ef60
 MechS32 SpinTask(MechS32 p_event, MechChar* p_data, MechS32 p_clock, MechS32 p_period)
 {
 	MechScalar dz;
@@ -1023,6 +1035,7 @@ MechS32 OrbitTask(MechS32 p_event, MechChar* p_data, MechS32 p_clock, MechS32 p_
 // FUNCTION: MW2 0x10047d10
 // FUNCTION: MW2MATROX 0x100702a2
 // FUNCTION: MW23DFX 0x1000ec90
+// FUNCTION: MW2ATI 0x1000f370
 MechS32 AmbientSoundTask(MechS32 p_event, MechChar* p_data, MechS32 p_clock, MechS32 p_period)
 {
 	MechChar* token;

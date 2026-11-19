@@ -14,37 +14,44 @@
 // GLOBAL: MW2 0x100a5730
 // GLOBAL: MW2MATROX 0x100ae138
 // GLOBAL: MW23DFX 0x1024a9c8
+// GLOBAL: MW2ATI 0x1017ee20
 MechS32 g_debugOutputMode = 0;
 
 // GLOBAL: MW2 0x100a5734
 // GLOBAL: MW2MATROX 0x100ae13c
 // GLOBAL: MW23DFX 0x1024a9cc
+// GLOBAL: MW2ATI 0x1017ee24
 HWND g_debugWindow = NULL;
 
 // GLOBAL: MW2 0x100a5738
 // GLOBAL: MW2MATROX 0x100ae140
 // GLOBAL: MW23DFX 0x1024a9d0
+// GLOBAL: MW2ATI 0x1017ee28
 UINT g_debugMessageBoxType = MB_ICONINFORMATION;
 
 // GLOBAL: MW2 0x100a573c
 // GLOBAL: MW2MATROX 0x100ae144
 // GLOBAL: MW23DFX 0x1024a9d4
+// GLOBAL: MW2ATI 0x1017ee2c
 FILE* g_debugLogFile = NULL;
 
 // GLOBAL: MW2 0x100a5740
 // GLOBAL: MW2MATROX 0x100ae148
 // GLOBAL: MW23DFX 0x1024a9d8
+// GLOBAL: MW2ATI 0x1017ee30
 MechChar g_debugLogName[0x100] = "debug.log";
 
 // GLOBAL: MW2 0x100a5840
 // GLOBAL: MW2MATROX 0x100ae248
 // GLOBAL: MW23DFX 0x1024aad8
+// GLOBAL: MW2ATI 0x1017ef30
 MechChar g_debugMessageTitle[0x50] = "DEBUG Message";
 
 #ifdef MW2_EXTRA_DEBUG_PRINTS
 // The digits MonoPrintHex writes.
 // GLOBAL: MW2MATROX 0x100ae298
 // GLOBAL: MW23DFX 0x1024ab28
+// GLOBAL: MW2ATI 0x1017ef78
 MechChar g_monoHexDigits[16] = "0123456789abcdef";
 #endif
 
@@ -52,6 +59,7 @@ MechChar g_monoHexDigits[16] = "0123456789abcdef";
 // FUNCTION: MW2 0x1003a1c0
 // FUNCTION: MW2MATROX 0x1006e750
 // FUNCTION: MW23DFX 0x10007c70
+// FUNCTION: MW2ATI 0x10008550
 void ScrollMonoDisplay(void)
 {
 	memmove((void*) 0xb0000, (void*) 0xb00a0, 0xf00);
@@ -61,6 +69,7 @@ void ScrollMonoDisplay(void)
 // FUNCTION: MW2 0x1003a1e2
 // FUNCTION: MW2MATROX 0x1006e772
 // FUNCTION: MW23DFX 0x10007c90
+// FUNCTION: MW2ATI 0x10008570
 void ClearMonoLastLine(void)
 {
 	MechS32* cell;
@@ -75,6 +84,7 @@ void ClearMonoLastLine(void)
 // FUNCTION: MW2 0x1003a21c
 // FUNCTION: MW2MATROX 0x1006e7ac
 // FUNCTION: MW23DFX 0x10007cb0
+// FUNCTION: MW2ATI 0x10008590
 void PrintMonoLine(MechChar* p_text)
 {
 	MechChar* cell;
@@ -100,6 +110,7 @@ void PrintMonoLine(MechChar* p_text)
 // FUNCTION: MW2 0x1003a299
 // FUNCTION: MW2MATROX 0x1006e829
 // FUNCTION: MW23DFX 0x10007d00
+// FUNCTION: MW2ATI 0x100085e0
 void PrintMono(MechChar* p_text)
 {
 	MechS32 i;
@@ -124,6 +135,7 @@ void CreateDebugLog(void)
 // FUNCTION: MW2 0x1003a308
 // FUNCTION: MW2MATROX 0x1006e898
 // FUNCTION: MW23DFX 0x10007d50
+// FUNCTION: MW2ATI 0x10008610
 void AppendDebugLog(MechChar* p_text)
 {
 	if (g_debugLogFile == NULL) {
@@ -141,6 +153,7 @@ void AppendDebugLog(MechChar* p_text)
 // FUNCTION: MW2 0x1003a37c
 // FUNCTION: MW2MATROX 0x1006e90c
 // FUNCTION: MW23DFX 0x10007db0
+// FUNCTION: MW2ATI 0x10008670
 MechS32 SetDebugOutputMode(MechS32 p_mode)
 {
 	if (p_mode >= 0 && p_mode <= 4) {
@@ -191,6 +204,7 @@ void SetDebugLogName(const MechChar* p_path)
 // FUNCTION: MW2 0x1003a432
 // FUNCTION: MW2MATROX 0x1006e9c2
 // FUNCTION: MW23DFX 0x10007e30
+// FUNCTION: MW2ATI 0x10008690
 void DebugPrintInternal(const MechChar* p_format, ...)
 {
 	MechChar message[0x100];

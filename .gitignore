@@ -29,6 +29,7 @@ MECH2.EXE
 NETMECHW.DLL
 MW2_MATROX.DLL
 MW2_3DFX.DLL
+MW2_ATI.DLL
 
 # Data / IDA database files
 /data/

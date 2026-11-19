@@ -28,6 +28,7 @@
 // FUNCTION: MW2 0x10059fc0
 // FUNCTION: MW2MATROX 0x1002e4b0
 // FUNCTION: MW23DFX 0x100218b0
+// FUNCTION: MW2ATI 0x10021b80
 void FirstArtillery(Player* p_player)
 {
 	Mech* mech;
@@ -84,6 +85,7 @@ void FirstArtillery(Player* p_player)
 // FUNCTION: MW2 0x1005a203
 // FUNCTION: MW2MATROX 0x1002e6f3
 // FUNCTION: MW23DFX 0x100219e0
+// FUNCTION: MW2ATI 0x10021cb0
 void UpdateArtillery(Mech* p_mech)
 {
 	Mech* mech;
@@ -124,6 +126,7 @@ void UpdateArtillery(Mech* p_mech)
 // FUNCTION: MW2 0x1005a2ea
 // FUNCTION: MW2MATROX 0x1002e7de
 // FUNCTION: MW23DFX 0x10021a50
+// FUNCTION: MW2ATI 0x10021d20
 void LateUpdateArtillery(Mech* p_mech)
 {
 	Mech* mech;
@@ -225,6 +228,7 @@ void ShutdownArtillery(Mech* p_mech)
 // FUNCTION: MW2 0x1005a637
 // FUNCTION: MW2MATROX 0x1002eb54
 // FUNCTION: MW23DFX 0x10021c90
+// FUNCTION: MW2ATI 0x10021f60
 MechS32 CreateArtillery(MechS32 p_index, Player* p_player)
 {
 	void* buffer = NULL;

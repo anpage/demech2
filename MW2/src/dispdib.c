@@ -38,46 +38,55 @@ enum DispDibDrawFlags {
 // GLOBAL: MW2 0x100a8380
 // GLOBAL: MW2MATROX 0x100be238
 // GLOBAL: MW23DFX 0x10249008
+// GLOBAL: MW2ATI 0x1017d008
 HWND g_dispDibWindow = NULL;
 
 // GLOBAL: MW2 0x100a8384
 // GLOBAL: MW2MATROX 0x100be23c
 // GLOBAL: MW23DFX 0x1024900c
+// GLOBAL: MW2ATI 0x1017d00c
 HDC g_dispDibWindowDc = NULL;
 
 // GLOBAL: MW2 0x100a8388
 // GLOBAL: MW2MATROX 0x100be240
 // GLOBAL: MW23DFX 0x10249010
+// GLOBAL: MW2ATI 0x1017d010
 HDC g_dispDibDc = NULL;
 
 // GLOBAL: MW2 0x100a838c
 // GLOBAL: MW2MATROX 0x100be244
 // GLOBAL: MW23DFX 0x10249014
+// GLOBAL: MW2ATI 0x1017d014
 HDC g_dispDibStretchDc = NULL;
 
 // GLOBAL: MW2 0x100a8390
 // GLOBAL: MW2MATROX 0x100be248
 // GLOBAL: MW23DFX 0x10249018
+// GLOBAL: MW2ATI 0x1017d018
 HBITMAP g_dispDibBitmap = NULL;
 
 // GLOBAL: MW2 0x100a8394
 // GLOBAL: MW2MATROX 0x100be24c
 // GLOBAL: MW23DFX 0x1024901c
+// GLOBAL: MW2ATI 0x1017d01c
 HBITMAP g_dispDibStretchBitmap = NULL;
 
 // GLOBAL: MW2 0x100a8398
 // GLOBAL: MW2MATROX 0x100be250
 // GLOBAL: MW23DFX 0x10249020
+// GLOBAL: MW2ATI 0x1017d020
 undefined* g_dispDibStretchBits = NULL;
 
 // GLOBAL: MW2 0x100a839c
 // GLOBAL: MW2MATROX 0x100be254
 // GLOBAL: MW23DFX 0x10249024
+// GLOBAL: MW2ATI 0x1017d024
 MechS32 g_dispDibInitialized = FALSE;
 
 // GLOBAL: MW2 0x100a83a0
 // GLOBAL: MW2MATROX 0x100be258
 // GLOBAL: MW23DFX 0x10249028
+// GLOBAL: MW2ATI 0x1017d028
 DisplayBackend g_dispDibBackend = {
 	c_displayBackendDisplayDib,
 	c_windowModeFullscreen,
@@ -94,12 +103,14 @@ DisplayBackend g_dispDibBackend = {
 // GLOBAL: MW2 0x100a83c8
 // GLOBAL: MW2MATROX 0x100be280
 // GLOBAL: MW23DFX 0x10249050
+// GLOBAL: MW2ATI 0x1017d050
 RefreshMode g_dispDibRefreshMode =
 	{4, c_displayBackendDisplayDib, 1, 0, DispDibBegin, DispDibEnd, DispDibFlip, DispDibBlitRect, DispDibStretchBlit};
 
 // GLOBAL: MW2 0x100ea7dc
 // GLOBAL: MW2MATROX 0x10125960
 // GLOBAL: MW23DFX 0x102456f0
+// GLOBAL: MW2ATI 0x10179510
 MechU32 g_dispDibResult;
 
 // MW2MATROX: the window's empty title (DisplayDibWindowCreateEx) pairs with another "" of the
@@ -107,6 +118,7 @@ MechU32 g_dispDibResult;
 // FUNCTION: MW2 0x1004e760
 // FUNCTION: MW2MATROX 0x1008ecd0
 // FUNCTION: MW23DFX 0x10001970
+// FUNCTION: MW2ATI 0x10001960
 MechS32 DispDibBegin(WINDOW* p_buffer, MechS32 p_width, MechS32 p_height)
 {
 #ifdef MW2_DISPLAYDIB_DISABLED
@@ -215,6 +227,7 @@ MechS32 DispDibBegin(WINDOW* p_buffer, MechS32 p_width, MechS32 p_height)
 // FUNCTION: MW2 0x1004ea78
 // FUNCTION: MW2MATROX 0x1008f08b
 // FUNCTION: MW23DFX 0x10001980
+// FUNCTION: MW2ATI 0x10001970
 MechS32 DispDibEnd(void)
 {
 	MechS32 result;
@@ -245,6 +258,7 @@ MechS32 DispDibEnd(void)
 // FUNCTION: MW2 0x1004eb72
 // FUNCTION: MW2MATROX 0x1008f185
 // FUNCTION: MW23DFX 0x10001a40
+// FUNCTION: MW2ATI 0x10001a30
 MechS32 DispDibFlip(void)
 {
 	g_dispDibResult = DisplayDibWindowDraw(g_dispDibWindow, c_dispDibDrawFlags, g_dibBits, g_refreshModePixelCount);
@@ -260,6 +274,7 @@ MechS32 DispDibFlip(void)
 // FUNCTION: MW2 0x1004ebdb
 // FUNCTION: MW2MATROX 0x1008f225
 // FUNCTION: MW23DFX 0x10001ac0
+// FUNCTION: MW2ATI 0x10001ab0
 MechS32 DispDibBlitRect(MechS32 p_left, MechS32 p_top, MechS32 p_right, MechS32 p_bottom)
 {
 	g_dispDibResult = DisplayDibWindowDraw(g_dispDibWindow, c_dispDibDrawFlags, g_dibBits, g_refreshModePixelCount);
@@ -274,6 +289,7 @@ MechS32 DispDibBlitRect(MechS32 p_left, MechS32 p_top, MechS32 p_right, MechS32 
 // FUNCTION: MW2 0x1004ec44
 // FUNCTION: MW2MATROX 0x1008f2c5
 // FUNCTION: MW23DFX 0x10001b40
+// FUNCTION: MW2ATI 0x10001b30
 MechS32 DispDibStretchBlit(MechS32 p_left, MechS32 p_top, MechS32 p_right, MechS32 p_bottom)
 {
 	g_dispDibResult = StretchBlt(
@@ -307,6 +323,7 @@ MechS32 DispDibStretchBlit(MechS32 p_left, MechS32 p_top, MechS32 p_right, MechS
 // FUNCTION: MW2 0x1004ed1c
 // FUNCTION: MW2MATROX 0x1008f3d4
 // FUNCTION: MW23DFX 0x10001c20
+// FUNCTION: MW2ATI 0x10001c10
 MechS32 DispDibAcquireFramebuffer(void)
 {
 	g_refreshModeBuffer->m_buffer = g_dibBits;
@@ -316,6 +333,7 @@ MechS32 DispDibAcquireFramebuffer(void)
 // FUNCTION: MW2 0x1004ed3b
 // FUNCTION: MW2MATROX 0x1008f3f3
 // FUNCTION: MW23DFX 0x10001c30
+// FUNCTION: MW2ATI 0x10001c20
 MechS32 DispDibSetPalette(MechS32 p_first, MechS32 p_count, PaletteColor* p_palette, MechS32 p_allColors)
 {
 	MechS32 i;
@@ -347,6 +365,7 @@ MechS32 DispDibSetPalette(MechS32 p_first, MechS32 p_count, PaletteColor* p_pale
 // FUNCTION: MW2 0x1004eea7
 // FUNCTION: MW2MATROX 0x1008f58d
 // FUNCTION: MW23DFX 0x10001d50
+// FUNCTION: MW2ATI 0x10001d40
 MechS32 DispDibSetPaletteWithBrightness(PaletteColor* p_palette)
 {
 	MechS32 i;
@@ -376,6 +395,7 @@ MechS32 DispDibSetPaletteWithBrightness(PaletteColor* p_palette)
 // FUNCTION: MW2 0x1004efd5
 // FUNCTION: MW2MATROX 0x1008f6e9
 // FUNCTION: MW23DFX 0x10001e40
+// FUNCTION: MW2ATI 0x10001e30
 MechS32 DispDibBlendPalettes(PaletteColor* p_palette, MechS32 p_steps)
 {
 	MechS32 i;

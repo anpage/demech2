@@ -34,23 +34,27 @@ Point g_artResolutionSizes[3] = {{319, 199}, {639, 479}, {1023, 767}};
 // GLOBAL: MW2 0x100e9610
 // GLOBAL: MW2MATROX 0x1012c1e0
 // GLOBAL: MW23DFX 0x102453c0
+// GLOBAL: MW2ATI 0x101791e0
 MechScalar g_pixelAspect;
 
 #ifdef MW2_HUD_ART
 // The Matrox edition's: the art resolution ChooseArtResolution picked before its 512x384 override.
 // GLOBAL: MW2MATROX 0x1012c1e4
 // GLOBAL: MW23DFX 0x102453c4
+// GLOBAL: MW2ATI 0x101791e4
 MechS32 g_unk0x1012c1e4;
 #endif
 
 // GLOBAL: MW2 0x100e9614
 // GLOBAL: MW2MATROX 0x1012c1e8
 // GLOBAL: MW23DFX 0x102453c8
+// GLOBAL: MW2ATI 0x101791e8
 MechS32 g_artResolution;
 
 // FUNCTION: MW2 0x1005d410
 // FUNCTION: MW2MATROX 0x1008c140
 // FUNCTION: MW23DFX 0x10002470
+// FUNCTION: MW2ATI 0x10002370
 void SetPixelAspect(GameWindowGeometry* p_geometry)
 {
 #ifdef MW2_FLOAT_SCALARS
@@ -124,6 +128,7 @@ void ChooseArtResolution(GameWindowGeometry* p_geometry)
 // FUNCTION: MW2 0x1005d4d3
 // FUNCTION: MW2MATROX 0x1008c280
 // FUNCTION: MW23DFX 0x10002520
+// FUNCTION: MW2ATI 0x10002430
 void SetRes(void)
 {
 	MechS32 i;

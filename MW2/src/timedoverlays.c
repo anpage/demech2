@@ -24,6 +24,7 @@ DECOMP_SIZE_ASSERT(TimedOverlay, 0x24)
 
 // GLOBAL: MW2 0x100adee0
 // GLOBAL: MW23DFX 0x10249820
+// GLOBAL: MW2ATI 0x1017d6c8
 PANE g_topMessagePane = {&g_mainPixelBuffer, 0, 0, 0x10000, 0x10000};
 
 // GLOBAL: MW2 0x100adef4
@@ -32,6 +33,7 @@ undefined4 g_unk0x100adef4 = 0;
 
 // GLOBAL: MW2 0x100adef8
 // GLOBAL: MW23DFX 0x10249838
+// GLOBAL: MW2ATI 0x1017d6e0
 PANE g_bottomMessagePane = {&g_mainPixelBuffer, 0, 0, 0x10000, 0x10000};
 
 // GLOBAL: MW2 0x100adf0c
@@ -40,10 +42,12 @@ undefined4 g_unk0x100adf0c = 0;
 
 // GLOBAL: MW2 0x100c3360
 // GLOBAL: MW23DFX 0x10244d50
+// GLOBAL: MW2ATI 0x10178b90
 static MechChar g_bottomMessageText[0x100];
 
 // GLOBAL: MW2 0x100c3460
 // GLOBAL: MW23DFX 0x10244e50
+// GLOBAL: MW2ATI 0x10178c90
 static MechChar g_topMessageText[0x100];
 
 // The 3Dfx edition's backgrounds are three shapes further on.
@@ -56,6 +60,7 @@ static MechChar g_topMessageText[0x100];
 // GLOBAL: MW2 0x100adf10
 // GLOBAL: MW2MATROX 0x100b10f8
 // GLOBAL: MW23DFX 0x10249850
+// GLOBAL: MW2ATI 0x1017d6f8
 TimedOverlay g_timedOverlays[2] = {
 	{g_topMessageText, {0x28f, 0}, 0, 0, 1, MESSAGE_BACKGROUND, 0, &g_topMessagePane},
 	{g_bottomMessageText, {0x28f, 0}, 0, 0, 1, MESSAGE_BACKGROUND, 0, &g_bottomMessagePane}
@@ -67,6 +72,7 @@ TimedOverlay g_timedOverlays[2] = {
 // FUNCTION: MW2 0x1006ee60
 // FUNCTION: MW2MATROX 0x10078690
 // FUNCTION: MW23DFX 0x10002e40
+// FUNCTION: MW2ATI 0x10002b20
 void LayoutMessageBoxes(void)
 {
 	MechS32 fontHeight;
@@ -118,6 +124,7 @@ void LayoutMessageBoxes(void)
 // FUNCTION: MW2 0x1006efd4
 // FUNCTION: MW2MATROX 0x10078804
 // FUNCTION: MW23DFX 0x10002f20
+// FUNCTION: MW2ATI 0x10002c00
 MechS32 ShowInGameMessage(MechChar* p_text, MechS32 p_font, MechS32 p_duration, MechS32 p_priority)
 {
 	MechS32 result;
@@ -180,6 +187,7 @@ MechS32 ShowInGameMessage(MechChar* p_text, MechS32 p_font, MechS32 p_duration, 
 // FUNCTION: MW2 0x1006f179
 // FUNCTION: MW2MATROX 0x100789a9
 // FUNCTION: MW23DFX 0x10003010
+// FUNCTION: MW2ATI 0x10002cf0
 void DrawTimedOverlays(void)
 {
 	MechS32 i;
@@ -223,6 +231,7 @@ void DrawTimedOverlays(void)
 // FUNCTION: MW2 0x1006f28f
 // FUNCTION: MW2MATROX 0x10078ace
 // FUNCTION: MW23DFX 0x100030c0
+// FUNCTION: MW2ATI 0x10002da0
 void DrawTextBox(MechS32 p_background, MechS32 p_font, MechChar* p_text, MechS32 p_x, MechS32 p_y)
 {
 	PANE centered;

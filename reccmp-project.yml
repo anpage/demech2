@@ -45,6 +45,15 @@ targets:
       - reccmp/mw23dfx-vfx.csv
     report:
       icon: assets/dll.png
+  MW2ATI:
+    filename: MW2_ATI.DLL
+    source-root:
+      - MW2
+      - common
+    hash:
+      sha256: c0509cefd31887301bd86ef8cca748211af224d9cce1a40cf87d2da6e942a739
+    report:
+      icon: assets/dll.png
   NETMECHW:
     filename: NETMECHW.DLL
     source-root:

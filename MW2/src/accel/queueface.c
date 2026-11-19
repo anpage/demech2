@@ -33,6 +33,7 @@ typedef MechS32 (*DrawFaceHook)(Face* p_face, Vertex* p_vertices, MechS32 p_flag
 // g_viewProjX0's rows, from the eyepoint g_viewEyeX) the first time.
 // FUNCTION: MW2MATROX 0x10076e20
 // FUNCTION: MW23DFX 0x1002b140
+// FUNCTION: MW2ATI 0x1002ac80
 ProjectedVertex* GetViewVertex(Vertex* p_vertex)
 {
 	MechFloat dx;
@@ -68,6 +69,7 @@ ProjectedVertex* GetViewVertex(Vertex* p_vertex)
 // (g_viewNearPlane), its values interpolated.
 // FUNCTION: MW2MATROX 0x10076f41
 // FUNCTION: MW23DFX 0x1002b200
+// FUNCTION: MW2ATI 0x1002ad40
 ProjectedVertex* ClipEdgeToNearPlane(Vertex* p_a, Vertex* p_b)
 {
 	MechFloat x0;
@@ -175,6 +177,7 @@ ProjectedVertex* ClipEdgeToNearPlane(Vertex* p_a, Vertex* p_b)
 // and adds the vertex to its list (up to 20).
 // FUNCTION: MW2MATROX 0x100773f0
 // FUNCTION: MW23DFX 0x1002b730
+// FUNCTION: MW2ATI 0x1002b270
 ProjectedVertex* ProjectVertex(ProjectedVertex* p_vertex)
 {
 	MechS32 screenX;
@@ -635,11 +638,12 @@ ProjectedVertex* ClipProjectedEdge(ProjectedVertex* p_a, ProjectedVertex* p_b, M
 // callers pass a third argument it doesn't read.
 // FUNCTION: MW2MATROX 0x10078432
 // FUNCTION: MW23DFX 0x1002c770
+// FUNCTION: MW2ATI 0x1002bc10
 MechS32 ProjectPolygon(Vertex* p_vertices, MechU32 p_count, MechS32 p_unk0x08)
 {
-#ifdef MW2_3DFX
-	// The 3Dfx edition's clips the polygon to the near plane the way 1.1's QueueFace does, and
-	// projects the vertices in front of it and the crossings.
+#ifdef MW2_PROJECT_NEAR_CLIP
+	// The 3Dfx and ATI editions' clips the polygon to the near plane the way 1.1's QueueFace does,
+	// and projects the vertices in front of it and the crossings.
 	MechU32 i;
 	Vertex* vertex;
 	Vertex* previous;

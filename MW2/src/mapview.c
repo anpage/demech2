@@ -33,51 +33,61 @@ __inline MechS32 ProjectMapCoordinate(MechFloat p_value, MechFloat p_scale, Mech
 // GLOBAL: MW2 0x10109ab0
 // GLOBAL: MW2MATROX 0x10212cc0
 // GLOBAL: MW23DFX 0x10245a20
+// GLOBAL: MW2ATI 0x10179840
 MechS32 g_savedPalettePending;
 
 // GLOBAL: MW2 0x10109ac0
 // GLOBAL: MW2MATROX 0x10212ba0
 // GLOBAL: MW23DFX 0x10245900
+// GLOBAL: MW2ATI 0x10179720
 Eyepoint g_savedEyepoint;
 
 // GLOBAL: MW2 0x10109ba0
 // GLOBAL: MW2MATROX 0x10212cd0
 // GLOBAL: MW23DFX 0x10245a30
+// GLOBAL: MW2ATI 0x10179850
 MechScalar g_mapViewMinX;
 
 // GLOBAL: MW2 0x10109ba4
 // GLOBAL: MW2MATROX 0x10212cd4
 // GLOBAL: MW23DFX 0x10245a34
+// GLOBAL: MW2ATI 0x10179854
 MechScalar g_mapViewMaxX;
 
 // GLOBAL: MW2 0x10109ba8
 // GLOBAL: MW2MATROX 0x10212cd8
 // GLOBAL: MW23DFX 0x10245a38
+// GLOBAL: MW2ATI 0x10179858
 MechScalar g_mapViewMaxY;
 
 // GLOBAL: MW2 0x10109bac
 // GLOBAL: MW2MATROX 0x10212cdc
 // GLOBAL: MW23DFX 0x10245a3c
+// GLOBAL: MW2ATI 0x1017985c
 MechScalar g_mapViewMinY;
 
 // GLOBAL: MW2 0x10109bb0
 // GLOBAL: MW2MATROX 0x10212ce0
 // GLOBAL: MW23DFX 0x10245a40
+// GLOBAL: MW2ATI 0x10179860
 MechScalar g_mapViewNear;
 
 // GLOBAL: MW2 0x10109bb4
 // GLOBAL: MW2MATROX 0x10212ce4
 // GLOBAL: MW23DFX 0x10245a44
+// GLOBAL: MW2ATI 0x10179864
 MechScalar g_mapViewFar;
 
 // GLOBAL: MW2 0x10109bb8
 // GLOBAL: MW2MATROX 0x10212cc4
 // GLOBAL: MW23DFX 0x10245a24
+// GLOBAL: MW2ATI 0x10179844
 MechScalar g_mapViewScale;
 
 // GLOBAL: MW2 0x10109bc0
 // GLOBAL: MW2MATROX 0x10212c50
 // GLOBAL: MW23DFX 0x102459b0
+// GLOBAL: MW2ATI 0x101797d0
 RenderSettings g_savedRenderSettings;
 
 // Saves the eyepoint and the rendering settings, and sets up a view from p_pose (position, then
@@ -85,6 +95,7 @@ RenderSettings g_savedRenderSettings;
 // FUNCTION: MW2 0x10041fa0
 // FUNCTION: MW2MATROX 0x1001e170
 // FUNCTION: MW23DFX 0x10001000
+// FUNCTION: MW2ATI 0x10001000
 void BeginMapView(MechScalar* p_pose, MechS32 p_slot, MechS32 p_worldSpan, MechS32 p_far)
 {
 #ifdef MW2_FLOAT_SCALARS
@@ -133,6 +144,7 @@ void BeginMapView(MechScalar* p_pose, MechS32 p_slot, MechS32 p_worldSpan, MechS
 // FUNCTION: MW2 0x1004215f
 // FUNCTION: MW2MATROX 0x1001e36d
 // FUNCTION: MW23DFX 0x10001180
+// FUNCTION: MW2ATI 0x10001180
 void DrawMapViewScene(MapViewFlags p_flags)
 {
 	if (p_flags.m_bits & 1) {
@@ -147,6 +159,7 @@ void DrawMapViewScene(MapViewFlags p_flags)
 // FUNCTION: MW2 0x10042195
 // FUNCTION: MW2MATROX 0x1001e3a3
 // FUNCTION: MW23DFX 0x100011b0
+// FUNCTION: MW2ATI 0x100011b0
 void EndMapView(void)
 {
 	g_renderSettings = g_savedRenderSettings;
@@ -244,6 +257,7 @@ MechS32 CullMapViewShape(Shape* p_shape)
 // FUNCTION: MW2 0x100423b3
 // FUNCTION: MW2MATROX 0x1001e5c0
 // FUNCTION: MW23DFX 0x100013a0
+// FUNCTION: MW2ATI 0x100013a0
 ProjectedVertex* ProjectMapViewVertex(ProjectedVertex* p_vertex)
 {
 	MechS32 x;
@@ -301,6 +315,7 @@ ProjectedVertex* ProjectMapViewVertex(ProjectedVertex* p_vertex)
 // FUNCTION: MW2 0x1004251e
 // FUNCTION: MW2MATROX 0x1001e743
 // FUNCTION: MW23DFX 0x100014b0
+// FUNCTION: MW2ATI 0x100014b0
 #ifdef MW2_FLOAT_SCALARS
 MechS32 ProjectMapPoint(Vector3* p_position, Point* p_screen)
 #else

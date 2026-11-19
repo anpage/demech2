@@ -40,17 +40,20 @@
 // GLOBAL: MW2 0x100a1590
 // GLOBAL: MW2MATROX 0x100a4618
 // GLOBAL: MW23DFX 0x1024bfbc
+// GLOBAL: MW2ATI 0x1018033c
 MechS32 g_autoEject = 0;
 
 // The armor per damage level of other players' sections (the local player's: g_localArmorPerLevel).
 // GLOBAL: MW2 0x100a1594
 // GLOBAL: MW2MATROX 0x100a461c
 // GLOBAL: MW23DFX 0x1024bfc0
+// GLOBAL: MW2ATI 0x10180340
 MechScalar g_otherArmorPerLevel = 4;
 
 // GLOBAL: MW2 0x100a1598
 // GLOBAL: MW2MATROX 0x100a4620
 // GLOBAL: MW23DFX 0x1024bfc4
+// GLOBAL: MW2ATI 0x10180344
 MechScalar g_localArmorPerLevel = 4;
 
 // GLOBAL: MW2 0x100a159c
@@ -62,6 +65,7 @@ MechS32 g_localMechHidden = 0;
 // GLOBAL: MW2 0x100a15a0
 // GLOBAL: MW2MATROX 0x100a4628
 // GLOBAL: MW23DFX 0x1024bfcc
+// GLOBAL: MW2ATI 0x1018034c
 MechS32 g_killCount = 0;
 
 // Set while the local player has been warned of critical heat (CalculateHeat).
@@ -162,6 +166,7 @@ void RunAutopilot(Mech* p_mech)
 // FUNCTION: MW2 0x10007cb5
 // FUNCTION: MW2MATROX 0x1001053c
 // FUNCTION: MW23DFX 0x10015dd0
+// FUNCTION: MW2ATI 0x100161e0
 void PunchInAutoHeading(Mech* p_mech)
 {
 	MechScalar heading;
@@ -538,6 +543,7 @@ void KillMech(MechS32 p_killer, Mech* p_mech)
 // FUNCTION: MW2 0x10008938
 // FUNCTION: MW2MATROX 0x100111e6
 // FUNCTION: MW23DFX 0x10016600
+// FUNCTION: MW2ATI 0x10016a10
 void DestroySectionSlots(MechS32 p_attacker, Mech* p_mech, MechU32 p_section)
 {
 	MechS32 i;
@@ -557,6 +563,7 @@ void DestroySectionSlots(MechS32 p_attacker, Mech* p_mech, MechU32 p_section)
 // FUNCTION: MW2 0x1000899d
 // FUNCTION: MW2MATROX 0x1001124b
 // FUNCTION: MW23DFX 0x10016640
+// FUNCTION: MW2ATI 0x10016a50
 void DestroySection(MechS32 p_attacker, Mech* p_mech, MechU32 p_section)
 {
 	MechSection* section;
@@ -998,6 +1005,7 @@ void DestroyCriticalSlot(MechS32 p_attacker, Mech* p_mech, MechU32 p_section, Me
 // FUNCTION: MW2 0x1000991b
 // FUNCTION: MW2MATROX 0x10012243
 // FUNCTION: MW23DFX 0x100171d0
+// FUNCTION: MW2ATI 0x100175d0
 void ApplyDamageToMech(MechS32 p_attacker, Mech* p_mech, MechScalar p_damage, MechS32 p_section)
 {
 	MechS32 side;
@@ -1138,6 +1146,7 @@ void ApplyDamageToMech(MechS32 p_attacker, Mech* p_mech, MechScalar p_damage, Me
 // FUNCTION: MW2 0x10009d2a
 // FUNCTION: MW2MATROX 0x100126e4
 // FUNCTION: MW23DFX 0x100174f0
+// FUNCTION: MW2ATI 0x100178f0
 void EjectPlayer(Mech* p_mech, MechS32 p_eject)
 {
 	if (p_mech->m_powerState == 4 || p_mech->m_powerState == 5) {

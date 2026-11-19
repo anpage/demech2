@@ -20,6 +20,7 @@
 // and on other globals in this build, which the two stores' diffs show.
 // FUNCTION: MW2MATROX 0x1007edd0
 // FUNCTION: MW23DFX 0x1002ffb0
+// FUNCTION: MW2ATI 0x1002f010
 MechS32 InitSinAtanTables(void)
 {
 	MechS32 i;
@@ -38,6 +39,7 @@ MechS32 InitSinAtanTables(void)
 // 512 / 90 of them to the degree, mirrored and negated by quadrant.
 // FUNCTION: MW2MATROX 0x1007ee7b
 // FUNCTION: MW23DFX 0x10030030
+// FUNCTION: MW2ATI 0x1002f090
 MechScalar FixedSin(MechScalar p_angle)
 {
 	MechScalar sine;
@@ -77,6 +79,7 @@ MechScalar FixedSin(MechScalar p_angle)
 // component from the table, folded into its quadrant.
 // FUNCTION: MW2MATROX 0x1007ef93
 // FUNCTION: MW23DFX 0x10030120
+// FUNCTION: MW2ATI 0x1002f180
 MechScalar FixedAtan2(MechScalar p_x, MechScalar p_z)
 {
 	MechS32 zNegative;
@@ -139,6 +142,7 @@ MechScalar FixedAtan2(MechScalar p_x, MechScalar p_z)
 // The cosines and sines of the angles whose tangents are 0 to 50 in steps of 1/16.
 // FUNCTION: MW2MATROX 0x1007f15b
 // FUNCTION: MW23DFX 0x100302c0
+// FUNCTION: MW2ATI 0x1002f320
 MechS32 InitSlopeTables(void)
 {
 	MechS32 i;
@@ -167,6 +171,7 @@ MechS32 InitSlopeTables(void)
 // The Matrox edition's is C, on floats, and takes the absolute values in the order x, z, y.
 // FUNCTION: MW2MATROX 0x1007f25b
 // FUNCTION: MW23DFX 0x10030330
+// FUNCTION: MW2ATI 0x1002f390
 MechScalar ApproximateVectorLength(MechScalar p_x, MechScalar p_y, MechScalar p_z)
 {
 	MechScalar z;
@@ -213,6 +218,7 @@ MechScalar ApproximateVectorLength(MechScalar p_x, MechScalar p_y, MechScalar p_
 
 // FUNCTION: MW2MATROX 0x1007f336
 // FUNCTION: MW23DFX 0x100303f0
+// FUNCTION: MW2ATI 0x1002f450
 MechScalar Hypot2D(MechScalar p_x, MechScalar p_y)
 {
 	MechDouble x;
@@ -227,6 +233,7 @@ MechScalar Hypot2D(MechScalar p_x, MechScalar p_y)
 // cross product of its edges over its length; returns the length.
 // FUNCTION: MW2MATROX 0x1007f368
 // FUNCTION: MW23DFX 0x10030410
+// FUNCTION: MW2ATI 0x1002f470
 MechS32 ComputeTriangleNormal(
 	MechScalar p_x0,
 	MechScalar p_y0,
@@ -260,6 +267,7 @@ MechS32 ComputeTriangleNormal(
 // Scales the vector to length 1.0; a zero vector stays as it is.
 // FUNCTION: MW2MATROX 0x1007f461
 // FUNCTION: MW23DFX 0x10030500
+// FUNCTION: MW2ATI 0x1002f560
 void NormalizeVectorGuarded(MechScalar* p_x, MechScalar* p_y, MechScalar* p_z)
 {
 	MechScalar length;

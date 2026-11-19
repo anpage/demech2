@@ -18,6 +18,7 @@ DECOMP_SIZE_ASSERT(BwdNameNode, 0xf)
 // GLOBAL: MW2 0x100a9470
 // GLOBAL: MW2MATROX 0x100a6224
 // GLOBAL: MW23DFX 0x10259c8c
+// GLOBAL: MW2ATI 0x1018df8c
 BwdNameNode* g_bwdNames = NULL;
 
 // GLOBAL: MW2 0x100a9474
@@ -26,12 +27,14 @@ undefined4 g_unk0x100a9474 = 0;
 // GLOBAL: MW2 0x100e9694
 // GLOBAL: MW2MATROX 0x101d4a90
 // GLOBAL: MW23DFX 0x1015984c
+// GLOBAL: MW2ATI 0x1008d840
 BwdNameNode* g_bwdNamesTail;
 
 // Appends a copy of a BWD name to the list.
 // FUNCTION: MW2 0x10058560
 // FUNCTION: MW2MATROX 0x1002ddf0
 // FUNCTION: MW23DFX 0x1003f7e0
+// FUNCTION: MW2ATI 0x1003d540
 MechS32 AddBwdName(BwdName* p_name)
 {
 	MechS32 result;
@@ -66,6 +69,7 @@ MechS32 AddBwdName(BwdName* p_name)
 // FUNCTION: MW2 0x1005860e
 // FUNCTION: MW2MATROX 0x1002de9e
 // FUNCTION: MW23DFX 0x1003f850
+// FUNCTION: MW2ATI 0x1003d5b0
 MechS16* FindBwdName(BwdName* p_name)
 {
 	BwdNameNode* node;
@@ -92,6 +96,7 @@ MechS16* FindBwdName(BwdName* p_name)
 // FUNCTION: MW2 0x100586ec
 // FUNCTION: MW2MATROX 0x1002df7c
 // FUNCTION: MW23DFX 0x1003f8c0
+// FUNCTION: MW2ATI 0x1003d620
 void FreeBwdNames(void)
 {
 	BwdNameNode* node;

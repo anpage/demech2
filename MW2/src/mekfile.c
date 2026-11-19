@@ -55,6 +55,7 @@ typedef struct MekAmmo {
 // The value each weapon type adds to a mech's (GetMechValue).
 // GLOBAL: MW2 0x100aa730
 // GLOBAL: MW23DFX 0x10259f60
+// GLOBAL: MW2ATI 0x1018e258
 MechU16 g_weaponValues[30] = {183, 137, 91,  46,  51,  34, 17,  74,  49, 25, 2,   228, 42, 82, 123,
 							  157, 74,  144, 247, 329, 4,  228, 166, 51, 21, 177, 74,  16, 50, 40};
 
@@ -66,6 +67,7 @@ MechU16 g_weaponValues[30] = {183, 137, 91,  46,  51,  34, 17,  74,  49, 25, 2, 
 // FUNCTION: MW2 0x1005d6d0
 // FUNCTION: MW2MATROX 0x1008c850
 // FUNCTION: MW23DFX 0x10041410
+// FUNCTION: MW2ATI 0x1003efc0
 MechS32 LoadMechConfig(Mech* p_mech, MechChar* p_name, MechS32 p_id, MechChar* p_config)
 {
 	MechScalar armorScale;
@@ -413,6 +415,7 @@ MechS32 LoadMechConfig(Mech* p_mech, MechChar* p_name, MechS32 p_id, MechChar* p
 // FUNCTION: MW2 0x1005e534
 // FUNCTION: MW2MATROX 0x1008d62b
 // FUNCTION: MW23DFX 0x10041c80
+// FUNCTION: MW2ATI 0x1003f830
 MechU16 GetMechValue(MekHeader* p_header, MechSection* p_sections, MekWeapon* p_weapons)
 {
 	MechS32 armor;

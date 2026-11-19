@@ -54,6 +54,7 @@ static MechS32 TransformRow(Matrix* p_matrix, MechS32 p_row, MechS32 p_x, MechS3
 // FUNCTION: MW2 0x1000d650
 // FUNCTION: MW2MATROX 0x10001870
 // FUNCTION: MW23DFX 0x1002eb50
+// FUNCTION: MW2ATI 0x1002dca0
 void TransformPoint(Matrix* p_matrix, MechScalar* p_x, MechScalar* p_y, MechScalar* p_z)
 {
 #if defined(MW2_FLOAT_SCALARS)
@@ -149,6 +150,7 @@ void TransformPoint(Matrix* p_matrix, MechScalar* p_x, MechScalar* p_y, MechScal
 // FUNCTION: MW2 0x1000d708
 // FUNCTION: MW2MATROX 0x10001913
 // FUNCTION: MW23DFX 0x1002ebc0
+// FUNCTION: MW2ATI 0x1002dd10
 void RotatePoint(Matrix* p_matrix, MechScalar* p_x, MechScalar* p_y, MechScalar* p_z)
 {
 #if defined(MW2_FLOAT_SCALARS)
@@ -241,6 +243,7 @@ void RotatePoint(Matrix* p_matrix, MechScalar* p_x, MechScalar* p_y, MechScalar*
 // FUNCTION: MW2 0x1000d7c0
 // FUNCTION: MW2MATROX 0x100019a4
 // FUNCTION: MW23DFX 0x1002ec20
+// FUNCTION: MW2ATI 0x1002dd70
 void OrthogonalizeMatrixColumn(Matrix* p_matrix, MechS32 p_column)
 {
 #if defined(MW2_FLOAT_SCALARS)
@@ -484,6 +487,7 @@ MechS32 MatrixDot29(MechS32 p_ax, MechS32 p_ay, MechS32 p_az, MechS32 p_bx, Mech
 // FUNCTION: MW2 0x1000da0c
 // FUNCTION: MW2MATROX 0x10001b59
 // FUNCTION: MW23DFX 0x1002ed60
+// FUNCTION: MW2ATI 0x1002deb0
 void MultiplyRotations(Matrix* p_a, Matrix* p_b, Matrix* p_dst)
 {
 #if defined(MW2_FLOAT_SCALARS)
@@ -731,6 +735,7 @@ void MultiplyRotations(Matrix* p_a, Matrix* p_b, Matrix* p_dst)
 // FUNCTION: MW2 0x1000dbba
 // FUNCTION: MW2MATROX 0x10001d1d
 // FUNCTION: MW23DFX 0x1002ef10
+// FUNCTION: MW2ATI 0x1002e060
 void MultiplyMatrix(Matrix* p_a, Matrix* p_b, Matrix* p_dst)
 {
 	MechScalar z;
@@ -753,6 +758,7 @@ void MultiplyMatrix(Matrix* p_a, Matrix* p_b, Matrix* p_dst)
 // FUNCTION: MW2 0x1000dc33
 // FUNCTION: MW2MATROX 0x10001d96
 // FUNCTION: MW23DFX 0x1002ef80
+// FUNCTION: MW2ATI 0x1002e0d0
 void TransposeRotation(Matrix* p_src, Matrix* p_dst)
 {
 	MechScalar temp;
@@ -797,6 +803,7 @@ void InvertMatrix(Matrix* p_src, Matrix* p_dst)
 // FUNCTION: MW2 0x1000dd4d
 // FUNCTION: MW2MATROX 0x10001eb0
 // FUNCTION: MW23DFX 0x1002f030
+// FUNCTION: MW2ATI 0x1002e110
 void SetIdentityMatrix(Matrix* p_matrix)
 {
 #ifdef MW2_FLOAT_SCALARS
@@ -812,6 +819,7 @@ void SetIdentityMatrix(Matrix* p_matrix)
 // FUNCTION: MW2 0x1000dddf
 // FUNCTION: MW2MATROX 0x10001f42
 // FUNCTION: MW23DFX 0x1002f060
+// FUNCTION: MW2ATI 0x1002e140
 void CopyMatrix(Matrix* p_src, Matrix* p_dst)
 {
 	MemCopy(p_dst, p_src, sizeof(Matrix));
@@ -830,6 +838,7 @@ void CopyRotation(Matrix* p_src, Matrix* p_dst)
 // FUNCTION: MW2 0x1000de3b
 // FUNCTION: MW2MATROX 0x10001f5f
 // FUNCTION: MW23DFX 0x1002f070
+// FUNCTION: MW2ATI 0x1002e150
 void BuildMatrixEx(
 	Matrix* p_matrix,
 	MechScalar p_angleX,
@@ -1270,6 +1279,7 @@ void BuildMatrixEx(
 // FUNCTION: MW2 0x1000e2b9
 // FUNCTION: MW2MATROX 0x1000230e
 // FUNCTION: MW23DFX 0x1002f380
+// FUNCTION: MW2ATI 0x1002e460
 void BuildMatrix(
 	Matrix* p_matrix,
 	MechScalar p_angleX,
@@ -1289,6 +1299,7 @@ void BuildMatrix(
 // FUNCTION: MW2 0x1000e2ea
 // FUNCTION: MW2MATROX 0x1000233f
 // FUNCTION: MW23DFX 0x1002f3b0
+// FUNCTION: MW2ATI 0x1002e490
 void GetMatrixAngles(Matrix* p_matrix, MechScalar* p_angleX, MechScalar* p_angleY, MechScalar* p_angleZ)
 {
 	MechScalar pitch;

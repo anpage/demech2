@@ -133,7 +133,8 @@ EDITION_FEATURES = edition_features()
 FEATURES = tuple(dict.fromkeys(f for m in EDITION_MACROS for f in EDITION_FEATURES[m]))
 EDITION_DEFINES = {
     target: set(macros) | {f for m in macros for f in EDITION_FEATURES[m]}
-    for target, macros in (("MW2MATROX", ("MW2_ACCEL", "MW2_MATROX")), ("MW23DFX", ("MW2_ACCEL", "MW2_3DFX")))
+    for target, macros in (("MW2MATROX", ("MW2_ACCEL", "MW2_MATROX")), ("MW23DFX", ("MW2_ACCEL", "MW2_3DFX")),
+                            ("MW2ATI", ("MW2_ACCEL", "MW2_ATI")))
 }
 DECIDED = set(EDITION_MACROS) | set(FEATURES)
 BLANKED = re.compile(r"//[^\n]*|/\*.*?\*/|\"(?:\\.|[^\"\\\n])*\"|'(?:\\.|[^'\\\n])*'", re.S)

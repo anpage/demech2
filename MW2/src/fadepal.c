@@ -33,6 +33,7 @@
 // FUNCTION: MW2 0x1004c890
 // FUNCTION: MW2MATROX 0x100450c0
 // FUNCTION: MW23DFX 0x1001bc30
+// FUNCTION: MW2ATI 0x1001bfc0
 void PlayWeaponLaunchSound(undefined4 p_shotType, MechS32 p_sound, undefined4 p_pan)
 {
 	if (p_sound > 0) {
@@ -46,6 +47,7 @@ void PlayWeaponLaunchSound(undefined4 p_shotType, MechS32 p_sound, undefined4 p_
 // FUNCTION: MW2 0x1004c8bd
 // FUNCTION: MW2MATROX 0x100450ed
 // FUNCTION: MW23DFX 0x1001bc50
+// FUNCTION: MW2ATI 0x1001bfe0
 void RenderViewToPane(MechU32 p_target, MechScalar p_fovX, MechS32* p_view, struct SceneObject* p_object)
 {
 	MechScalar fovX;
@@ -103,6 +105,7 @@ void RenderViewToPane(MechU32 p_target, MechScalar p_fovX, MechS32* p_view, stru
 // FUNCTION: MW2 0x1004ca0d
 // FUNCTION: MW2MATROX 0x1004526f
 // FUNCTION: MW23DFX 0x1001bd80
+// FUNCTION: MW2ATI 0x1001c110
 void FlashZappedPalette(void)
 {
 	StartPaletteFade(0x11, 0x16a, 1);
@@ -112,6 +115,7 @@ void FlashZappedPalette(void)
 // FUNCTION: MW2 0x1004ca29
 // FUNCTION: MW2MATROX 0x1004528b
 // FUNCTION: MW23DFX 0x1001bda0
+// FUNCTION: MW2ATI 0x1001c130
 void FlashZappedPaletteLevel(MechU32 p_level)
 {
 	MechS32 duration;
@@ -141,6 +145,7 @@ void FlashZappedPaletteLevel(MechU32 p_level)
 // FUNCTION: MW2 0x1004ca82
 // FUNCTION: MW2MATROX 0x100452f9
 // FUNCTION: MW23DFX 0x1001bde0
+// FUNCTION: MW2ATI 0x1001c170
 void FadeToEndPalette(MechS32 p_alternate)
 {
 	MechS32 slot;
@@ -165,6 +170,7 @@ void FadeToEndPalette(MechS32 p_alternate)
 // FUNCTION: MW2 0x1004cb11
 // FUNCTION: MW2MATROX 0x10045388
 // FUNCTION: MW23DFX 0x1001be40
+// FUNCTION: MW2ATI 0x1001c1d0
 void EmitWreckSmoke(Mech* p_mech)
 {
 	MechScalar x;
@@ -223,6 +229,7 @@ void BreakUpMech(Mech* p_mech)
 // FUNCTION: MW2 0x1004ccba
 // FUNCTION: MW2MATROX 0x10045571
 // FUNCTION: MW23DFX 0x1001bf90
+// FUNCTION: MW2ATI 0x1001c2c0
 void FireJumpJetEffects(Mech* p_mech)
 {
 	MechScalar z;
@@ -268,6 +275,7 @@ void FireJumpJetEffects(Mech* p_mech)
 // FUNCTION: MW2 0x1004ce3e
 // FUNCTION: MW2MATROX 0x100456ef
 // FUNCTION: MW23DFX 0x1001c0a0
+// FUNCTION: MW2ATI 0x1001c3d0
 void PlayMechLanding(Mech* p_mech, MechScalar p_speed)
 {
 	MechS32 sound;
@@ -292,6 +300,7 @@ void PlayMechLanding(Mech* p_mech, MechScalar p_speed)
 // FUNCTION: MW2 0x1004cee2
 // FUNCTION: MW2MATROX 0x100457ab
 // FUNCTION: MW23DFX 0x1001c120
+// FUNCTION: MW2ATI 0x1001c450
 void PlayPlayerHitFeedback(MechScalar p_x, MechScalar p_y, MechScalar p_z)
 {
 	MechScalar off10;

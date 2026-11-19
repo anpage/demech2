@@ -17,6 +17,7 @@
 // FUNCTION: MW2 0x1003a5f3
 // FUNCTION: MW2MATROX 0x10027cb8
 // FUNCTION: MW23DFX 0x10029460
+// FUNCTION: MW2ATI 0x10029120
 Model* AddModel(
 	Shape* p_shape,
 	MechScalar p_key,

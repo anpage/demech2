@@ -73,23 +73,27 @@ MechScalar g_slideSlope = FIXED_RAW(0x2000);
 // GLOBAL: MW2 0x100a2be4
 // GLOBAL: MW2MATROX 0x100a45a0
 // GLOBAL: MW23DFX 0x1024c548
+// GLOBAL: MW2ATI 0x101808c8
 MechS32 g_infiniteJumpFuel = 0;
 
 // Set by a game key: run JettisonAmmo on the local mech next tick.
 // GLOBAL: MW2 0x100a2be8
 // GLOBAL: MW2MATROX 0x100a45a4
 // GLOBAL: MW23DFX 0x1024c54c
+// GLOBAL: MW2ATI 0x101808cc
 MechS32 g_jettisonAmmoRequested = 0;
 
 // Set by the MASC game key: toggle the local mech's MASC next tick.
 // GLOBAL: MW2 0x100a2bec
 // GLOBAL: MW2MATROX 0x100a45a8
 // GLOBAL: MW23DFX 0x1024c550
+// GLOBAL: MW2ATI 0x101808d0
 MechS32 g_toggleMascRequested = 0;
 
 // GLOBAL: MW2 0x100a2bf0
 // GLOBAL: MW2MATROX 0x100a45ac
 // GLOBAL: MW23DFX 0x1024c554
+// GLOBAL: MW2ATI 0x101808d4
 MechS32 g_mascEngaged = 0;
 
 // GLOBAL: MW2 0x100a2bf4
@@ -115,12 +119,14 @@ MechS32 g_unk0x100a2c00 = 1;
 // GLOBAL: MW2 0x100a2c04
 // GLOBAL: MW2MATROX 0x100a45c0
 // GLOBAL: MW23DFX 0x1024c568
+// GLOBAL: MW2ATI 0x101808e8
 MechS32 g_localMechLost = 0;
 
 // A power request for the local mech: 1 powers it up, -1 shuts it down.
 // GLOBAL: MW2 0x100a2c08
 // GLOBAL: MW2MATROX 0x100a45c4
 // GLOBAL: MW23DFX 0x1024c56c
+// GLOBAL: MW2ATI 0x101808ec
 MechS32 g_powerRequest = 0;
 
 // The local player's heading at the last tick, while the torso recenters (LateUpdateMech).
@@ -132,6 +138,7 @@ MechScalar g_recenterLastHeading = 0;
 // GLOBAL: MW2 0x100a2c10
 // GLOBAL: MW2MATROX 0x100a45c8
 // GLOBAL: MW23DFX 0x1024c570
+// GLOBAL: MW2ATI 0x101808f0
 MechS32 g_mechPoweredUp = 0;
 
 // The clock at the last MASC malfunction roll (LateUpdateMech).
@@ -143,6 +150,7 @@ MechS32 g_lastMascRoll = 0;
 // GLOBAL: MW2 0x100a2c18
 // GLOBAL: MW2MATROX 0x100a45d4
 // GLOBAL: MW23DFX 0x1024c57c
+// GLOBAL: MW2ATI 0x101808fc
 MechS32 g_localMechDestroyed = 0;
 
 // GLOBAL: MW2 0x100a2c1c
@@ -162,6 +170,7 @@ MechS32 g_collisionSoundPlayed;
 // FUNCTION: MW2 0x10016ad0
 // FUNCTION: MW2MATROX 0x1000ce80
 // FUNCTION: MW23DFX 0x100190d0
+// FUNCTION: MW2ATI 0x10019460
 void FirstMech(struct Player* p_player)
 {
 	Mech* mech;
@@ -1877,6 +1886,7 @@ void UpdateLocalMech(Mech* p_mech)
 // FUNCTION: MW2 0x1001975a
 // FUNCTION: MW2MATROX 0x1000ff1c
 // FUNCTION: MW23DFX 0x1001b0f0
+// FUNCTION: MW2ATI 0x1001b4a0
 void DrawMechCockpit(Mech* p_mech)
 {
 	Mech* mech;
@@ -1895,6 +1905,7 @@ void DrawMechCockpit(Mech* p_mech)
 // FUNCTION: MW2 0x1001978e
 // FUNCTION: MW2MATROX 0x1000ff50
 // FUNCTION: MW23DFX 0x1001b100
+// FUNCTION: MW2ATI 0x1001b4b0
 void ShutdownMech(Mech* p_mech)
 {
 	Mech* mech;
@@ -1913,6 +1924,7 @@ void ShutdownMech(Mech* p_mech)
 // FUNCTION: MW2 0x100197ca
 // FUNCTION: MW2MATROX 0x1000ff8c
 // FUNCTION: MW23DFX 0x1001b120
+// FUNCTION: MW2ATI 0x1001b4d0
 MechS32 CreateMech(MechS32 p_index, Player* p_player)
 {
 	void* buffer = NULL;
@@ -1997,6 +2009,7 @@ void InitMechArrays(struct Mech* p_mech)
 // FUNCTION: MW2 0x10019a0a
 // FUNCTION: MW2MATROX 0x100101cd
 // FUNCTION: MW23DFX 0x1001b200
+// FUNCTION: MW2ATI 0x1001b5b0
 MechS32 GetMechAllocSize(void)
 {
 	MechS32 size;

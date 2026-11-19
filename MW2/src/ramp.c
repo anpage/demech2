@@ -18,6 +18,7 @@ DECOMP_SIZE_ASSERT(EasedValue, 0x0c)
 // FUNCTION: MW2 0x100495b0
 // FUNCTION: MW2MATROX 0x1002dfe0
 // FUNCTION: MW23DFX 0x1003b700
+// FUNCTION: MW2ATI 0x1003a1a0
 MechS32 StartRamp(Ramp* p_ramp, MechS32 p_target, MechS32 p_value, MechDouble p_seconds)
 {
 	MechS32 result = FALSE;
@@ -36,6 +37,7 @@ MechS32 StartRamp(Ramp* p_ramp, MechS32 p_target, MechS32 p_value, MechDouble p_
 // FUNCTION: MW2 0x10049611
 // FUNCTION: MW2MATROX 0x1002e041
 // FUNCTION: MW23DFX 0x1003b740
+// FUNCTION: MW2ATI 0x1003a1e0
 MechS32 UpdateRamp(Ramp* p_ramp)
 {
 	MechS32 delta;
@@ -60,6 +62,7 @@ MechS32 UpdateRamp(Ramp* p_ramp)
 // The Matrox edition's ramps of float values (Mech's, the camera's).
 // FUNCTION: MW2MATROX 0x1002e0db
 // FUNCTION: MW23DFX 0x1003b7a0
+// FUNCTION: MW2ATI 0x1003a240
 MechS32 StartFloatRamp(FloatRamp* p_ramp, MechFloat p_target, MechFloat p_value, MechDouble p_seconds)
 {
 	MechS32 result = FALSE;
@@ -78,6 +81,7 @@ MechS32 StartFloatRamp(FloatRamp* p_ramp, MechFloat p_target, MechFloat p_value,
 // Unlike UpdateRamp, a value within 1e-07 of the target lands on it.
 // FUNCTION: MW2MATROX 0x1002e141
 // FUNCTION: MW23DFX 0x1003b7e0
+// FUNCTION: MW2ATI 0x1003a280
 MechFloat UpdateFloatRamp(FloatRamp* p_ramp)
 {
 	MechFloat delta;
@@ -105,6 +109,7 @@ MechFloat UpdateFloatRamp(FloatRamp* p_ramp)
 // FUNCTION: MW2 0x100496ab
 // FUNCTION: MW2MATROX 0x1002e226
 // FUNCTION: MW23DFX 0x1003b8b0
+// FUNCTION: MW2ATI 0x1003a350
 MechS32 StartWrappedRamp(
 	WrappedRamp* p_ramp,
 	MechScalar p_target,
@@ -131,6 +136,7 @@ MechS32 StartWrappedRamp(
 // FUNCTION: MW2 0x10049715
 // FUNCTION: MW2MATROX 0x1002e295
 // FUNCTION: MW23DFX 0x1003b900
+// FUNCTION: MW2ATI 0x1003a3a0
 MechScalar UpdateWrappedRamp(WrappedRamp* p_ramp)
 {
 #ifdef MW2_ACCEL
@@ -184,6 +190,7 @@ MechScalar UpdateWrappedRamp(WrappedRamp* p_ramp)
 // FUNCTION: MW2 0x10049805
 // FUNCTION: MW2MATROX 0x1002e3de
 // FUNCTION: MW23DFX 0x1003b9f0
+// FUNCTION: MW2ATI 0x1003a490
 MechScalar SetWrappedRampTarget(WrappedRamp* p_ramp, MechScalar p_target)
 {
 #ifdef MW2_ACCEL
@@ -215,6 +222,7 @@ MechScalar SetWrappedRampTarget(WrappedRamp* p_ramp, MechScalar p_target)
 // FUNCTION: MW2 0x10049871
 // FUNCTION: MW2MATROX 0x1002e471
 // FUNCTION: MW23DFX 0x1003ba60
+// FUNCTION: MW2ATI 0x1003a500
 MechS32 UpdateEasedValue(EasedValue* p_value)
 {
 	MechS32 delta;

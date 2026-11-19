@@ -41,12 +41,15 @@
 // The 3Dfx edition's defaults are its own.
 #ifdef MW2_SKY_TILE_DEFAULTS
 // GLOBAL: MW23DFX 0x1024e118
+// GLOBAL: MW2ATI 0x10182428
 MechFloat g_skyTileU = 4.0f;
 
 // GLOBAL: MW23DFX 0x1024e11c
+// GLOBAL: MW2ATI 0x1018242c
 MechFloat g_skyTileV = 0.8f;
 
 // GLOBAL: MW23DFX 0x1024e120
+// GLOBAL: MW2ATI 0x10182430
 MechFloat g_groundTile = 20000.0f;
 #else
 // GLOBAL: MW2MATROX 0x100addc0
@@ -61,23 +64,27 @@ MechFloat g_groundTile = 50.0f;
 
 // GLOBAL: MW2MATROX 0x100addcc
 // GLOBAL: MW23DFX 0x1024e124
+// GLOBAL: MW2ATI 0x10182434
 MechFloat g_skyScroll = 0;
 #endif
 
 // GLOBAL: MW2 0x100a6be0
 // GLOBAL: MW2MATROX 0x100addd0
 // GLOBAL: MW23DFX 0x1024e128
+// GLOBAL: MW2ATI 0x10182438
 Eyepoint g_mainEyepoint = {0,       0, 0, 0, 0, 0,  FIXED_CONST(1), 1000, 10000, -1000, 1, 0x48, 0, 319, 0, 199, 0x40,
 						   0x249f0, 0, 0, 0, 0, {0}};
 
 // GLOBAL: MW2 0x100a6cc0
 // GLOBAL: MW2MATROX 0x100ade74
 // GLOBAL: MW23DFX 0x1024e1cc
+// GLOBAL: MW2ATI 0x101824dc
 Eyepoint* g_eyepoint = &g_mainEyepoint;
 
 // GLOBAL: MW2 0x100a6cc8
 // GLOBAL: MW2MATROX 0x100ade78
 // GLOBAL: MW23DFX 0x1024e1d0
+// GLOBAL: MW2ATI 0x101824e0
 RenderSettings g_renderSettings = {
 	0,
 	1,
@@ -113,6 +120,7 @@ RenderSettings g_renderSettings = {
 // GLOBAL: MW2 0x100a6d30
 // GLOBAL: MW2MATROX 0x100adee8
 // GLOBAL: MW23DFX 0x1024e240
+// GLOBAL: MW2ATI 0x10182550
 MechS32 g_horizonBandHeight = 0x24;
 
 #ifdef MW2_A3D
@@ -123,6 +131,7 @@ MechS32 g_unk0x100adeec = 0;
 // texture's far edge in u and in v.
 // GLOBAL: MW2MATROX 0x100adef0
 // GLOBAL: MW23DFX 0x1024e248
+// GLOBAL: MW2ATI 0x10182558
 SkyCorner g_skyCorners[16] = {
 	{-64000000.0f, 2200000.0f, -64000000.0f, 0, 0},
 	{64000000.0f, 2200000.0f, -64000000.0f, 1, 0},
@@ -162,6 +171,7 @@ MechFloat g_skyRed;
 
 // GLOBAL: MW2MATROX 0x1015d5e4
 // GLOBAL: MW23DFX 0x101b0efc
+// GLOBAL: MW2ATI 0x100e4edc
 MechFloat g_skyScrollEnd;
 
 // GLOBAL: MW2MATROX 0x1015d5e8
@@ -183,6 +193,7 @@ A3DVertex g_a3dClipped[16];
 
 // GLOBAL: MW2MATROX 0x1015d900
 // GLOBAL: MW23DFX 0x101b12d0
+// GLOBAL: MW2ATI 0x100e5170
 MechFloat g_skyScrollSpeed;
 
 // The polygon the Matrox edition hands its renderer.
@@ -437,6 +448,7 @@ MechS32 g_lineEndY;
 // FUNCTION: MW2 0x10042e00
 // FUNCTION: MW2MATROX 0x100683ba
 // FUNCTION: MW23DFX 0x10026e80
+// FUNCTION: MW2ATI 0x10026b30
 #ifdef MW2_A3D
 void DrawScenePolygon(MechS32 p_count, ProjectedVertex** p_points, MechU32 p_flags, MechS32 p_unk0x0c)
 #else
@@ -937,7 +949,7 @@ void LoadSkyGroundSettings(const MechChar* p_mission)
 }
 
 // Draws the textured sky's four quads (g_skyCorners).
-// The 3Dfx edition draws the polygon even when ProjectPolygon leaves no points.
+// The 3Dfx and ATI editions draw the polygon even when ProjectPolygon leaves no points.
 // FUNCTION: MW2MATROX 0x10068e33
 void FUN_10068e33(Eyepoint* p_eyepoint)
 {
@@ -1023,7 +1035,7 @@ void FUN_10068e33(Eyepoint* p_eyepoint)
 		vertices[0].m_projection = vertices[1].m_projection = vertices[2].m_projection = vertices[3].m_projection =
 			NULL;
 		count = ProjectPolygon(vertices, 4, 1);
-#ifdef MW2_3DFX
+#ifdef MW2_SKY_GROUND_CLIPPED_HELPERS
 		FUN_10051ea2(0x8c, g_polygonPoints, count);
 #else
 		if (!count) {
@@ -1036,7 +1048,7 @@ void FUN_10068e33(Eyepoint* p_eyepoint)
 }
 
 // Draws the sky as one quad, its texture scrolled by g_skyScrollSpeed.
-// The 3Dfx edition draws the polygon even when ProjectPolygon leaves no points.
+// The 3Dfx and ATI editions draw the polygon even when ProjectPolygon leaves no points.
 // FUNCTION: MW2MATROX 0x10069172
 void FUN_10069172(Eyepoint* p_eyepoint)
 {
@@ -1056,7 +1068,7 @@ void FUN_10069172(Eyepoint* p_eyepoint)
 	vertices[3].m_v = vertices[2].m_v = g_skyScrollEnd;
 	vertices[0].m_projection = vertices[1].m_projection = vertices[2].m_projection = vertices[3].m_projection = NULL;
 	count = ProjectPolygon(vertices, 4, 1);
-#ifdef MW2_3DFX
+#ifdef MW2_SKY_GROUND_CLIPPED_HELPERS
 	FUN_10051ea2(0x8c, g_polygonPoints, count);
 #else
 	if (!count) {
@@ -1068,7 +1080,7 @@ void FUN_10069172(Eyepoint* p_eyepoint)
 }
 
 // Draws the ground as one quad, its texture repeated every g_groundTile.
-// The 3Dfx edition draws the polygon even when ProjectPolygon leaves no points.
+// The 3Dfx and ATI editions draw the polygon even when ProjectPolygon leaves no points.
 // FUNCTION: MW2MATROX 0x100692db
 void FUN_100692db(Eyepoint* p_eyepoint)
 {
@@ -1086,7 +1098,7 @@ void FUN_100692db(Eyepoint* p_eyepoint)
 	vertices[3].m_v = vertices[2].m_v = g_groundTile;
 	vertices[0].m_projection = vertices[1].m_projection = vertices[2].m_projection = vertices[3].m_projection = NULL;
 	count = ProjectPolygon(vertices, 4, 1);
-#ifdef MW2_3DFX
+#ifdef MW2_SKY_GROUND_CLIPPED_HELPERS
 	FUN_10051c07(8, g_polygonPoints, count);
 #else
 	if (!count) {
@@ -1928,6 +1940,7 @@ void DrawSkyAndGround(Eyepoint* p_eyepoint)
 // FUNCTION: MW2 0x1004440d
 // FUNCTION: MW2MATROX 0x1006ab1d
 // FUNCTION: MW23DFX 0x10027570
+// FUNCTION: MW2ATI 0x10027220
 void DrawPentagon(
 	MechS32 p_x0,
 	MechS32 p_y0,
@@ -1982,6 +1995,7 @@ void DrawPentagon(
 // FUNCTION: MW2 0x100444a6
 // FUNCTION: MW2MATROX 0x1006abde
 // FUNCTION: MW23DFX 0x10027630
+// FUNCTION: MW2ATI 0x100272e0
 void DrawQuad(
 	MechS32 p_x0,
 	MechS32 p_y0,
@@ -2030,6 +2044,7 @@ void DrawQuad(
 // FUNCTION: MW2 0x10044527
 // FUNCTION: MW2MATROX 0x1006ac8d
 // FUNCTION: MW23DFX 0x100276d0
+// FUNCTION: MW2ATI 0x10027380
 void DrawTriangle(MechS32 p_x0, MechS32 p_y0, MechS32 p_x1, MechS32 p_y1, MechS32 p_x2, MechS32 p_y2, MechU32 p_flags)
 {
 #ifdef MW2_A3D
