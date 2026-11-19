@@ -23,6 +23,10 @@ extern "C"
 {
 #endif
 
+	// g_groundColor, g_horizonMapColor, g_unk0x100a5558, g_backgroundColor and g_skyColor are
+	// defined in faceshade.c (in every edition their data sits in that object). For now the
+	// declarations stay here, where they were before (to move later): moving them to another header
+	// would shift the code of every unit that includes either one.
 	extern MechS32 g_groundColor;
 	extern MechS32 g_horizonMapColor;
 	extern MechS32 g_unk0x100a5558;

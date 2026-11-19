@@ -180,7 +180,7 @@
 0x100357f8 IsPointInFaceXZ collision.c rename count=zqad i=zqah indices=zqag left=zqal offset=zqaj prev=zqae right=zqai sides=zqaf vertex=zqak
 0x10035b5b IsPointInFaceXY collision.c rename count=zqad i=zqah indices=zqag left=zqal offset=zqaj prev=zqae right=zqai sides=zqaf vertex=zqak
 0x10035ebe IsPointInFaceYZ collision.c rename count=zqad i=zqah indices=zqag left=zqal offset=zqaj prev=zqae right=zqai sides=zqaf vertex=zqak
-0x10036230 GetFaceColor faceshade.c pad 1 rename detail=zqal high=zqaf kind=zqae level=zqak low=zqag mode=zqah result=zqaj shade=zqad value=zqai
+0x10036230 GetFaceColor faceshade.c pad 13 rename detail=zqal high=zqaf kind=zqae level=zqak low=zqag mode=zqah result=zqaj shade=zqad value=zqai
 0x10039a30 TransformModel shapegeom.c rename faceCount=zqah faceSize=zqai faces=zqad vertexCount=zqae vertexSize=zqaf vertices=zqag
 0x10039ccc ApproximateShapeDistance shapegeom.c rename deltaX=zqaf deltaY=zqag deltaZ=zqah radius=zqae result=zqad
 0x10039dda ComputeTriangleNormal shapegeom.c rename nx=zqah nxAbs=zqae nxAbsHigh=zqan nxHigh=zqap ny=zqaj nyAbs=zqad nyAbsHigh=zqam nyHigh=zqag nz=zqal nzAbs=zqaf nzAbsHigh=zqao nzHigh=zqai shift=zqak
@@ -404,17 +404,17 @@
 0x1005e534 GetMechValue mekfile.c rename armor=zqad count=zqaf i=zqag j=zqai k=zqaj kinds=zqae value=zqah
 0x1005ec80 AddNavPoint targeting.c rename index=zqad nav=zqae
 0x1005ed4f RemoveNavPoint targeting.c rename i=zqae index=zqad player=zqaf
-0x1005ef5e CycleTarget targeting.c pad 1 early int~g_playerCount 8 rename found=zqaf index=zqag kind=zqaj limit=zqah result=zqae target=zqad tries=zqai
+0x1005ef5e CycleTarget targeting.c pad 4 early int~g_gameThingCount 0 rename found=zqaf index=zqag kind=zqaj limit=zqah result=zqae target=zqad tries=zqai
 0x1005f2ae TargetNavPoint targeting.c rename distance=zqai dx=zqam dy=zqao dz=zqae heading=zqaj nav=zqak pitch=zqag player=zqah range=zqal x=zqan y=zqad z=zqaf
-0x1005f4ac TargetGamePiece targeting.c pad 9 rename breakpoint=zqap distance=zqaj dx=zqam dy=zqao dz=zqae heading=zqak pitch=zqah player=zqai range=zqal target=zqag x=zqan y=zqad z=zqaf
+0x1005f4ac TargetGamePiece targeting.c rename breakpoint=zqap distance=zqaj dx=zqam dy=zqao dz=zqae heading=zqak pitch=zqah player=zqai range=zqal target=zqag x=zqan y=zqad z=zqaf
 0x1005f798 TargetGameThing targeting.c rename distance=zqaj dx=zqam dy=zqao dz=zqae heading=zqak pitch=zqag player=zqai range=zqal thing=zqah x=zqan y=zqad z=zqaf
 0x1005fa22 UpdateTarget targeting.c rename claim=zqae index=zqah isLocal=zqad kind=zqag lost=zqaf
 0x1005fe63 GetLocalTargetGamePiece targeting.c rename index=zqad kind=zqaf player=zqae
 0x1005febe GetLocalTargetGameThing targeting.c rename index=zqad kind=zqaf player=zqae
 0x1005ff56 GetLocalTargetObject targeting.c rename id=zqah index=zqad kind=zqag obj=zqaf player=zqae
 0x10060010 TargetAtReticle targeting.c rename autopilot=zqad player=zqae previous=zqag shape=zqah target=zqaf
-0x10060197 GetBearingAndRange targeting.c rename cosine=zqae ground=zqaf heading=zqag length=zqai pitch=zqad pitchCosine=zqaj sine=zqah
-0x100603ae TargetNearestEnemy targeting.c pad 8 rename autopilot=zqad best=zqag bestDistance=zqaj distance=zqai player=zqaf saved=zqah target=zqae
+0x10060197 GetBearingAndRange targeting.c pad 1 rename cosine=zqae ground=zqaf heading=zqag length=zqai pitch=zqad pitchCosine=zqaj sine=zqah
+0x100603ae TargetNearestEnemy targeting.c rename autopilot=zqad best=zqag bestDistance=zqaj distance=zqai player=zqaf saved=zqah target=zqae
 0x10065f50 PrepareCommandComputerPage lancemenu.c pad 6 rename count=zqaf i=zqag index=zqah marked=zqad slot=zqae src=zqai
 0x100660c2 PrepareCommandPointPage lancemenu.c pad 6 rename count=zqad index=zqaf slot=zqae src=zqag unk0x08=zqah valid=zqai
 0x10066272 GetSlotAiState lancemenu.c rename ai=zqae index=zqaf player=zqad state=zqag

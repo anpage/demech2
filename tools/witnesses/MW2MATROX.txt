@@ -25,16 +25,17 @@
 0x10005d30 ReceiveSuccessMsg network.c pad 3
 0x10005f38 StartExternalIO network.c rename desc=zqal guid=zqai result=zqak unk0x04=zqaj
 0x100064f0 AddNavPoint targeting.c rename index=zqaj nav=zqai
-0x100065bf RemoveNavPoint targeting.c rename i=zqai index=zqaj player=zqak
-0x100067cc CycleTarget targeting.c pad 14 rename found=zqam index=zqal kind=zqao limit=zqan result=zqai target=zqak tries=zqaj
-0x10006b1c TargetNavPoint targeting.c pad 9 rename distance=zqai dx=zqal dy=zqan dz=zqaa heading=zqaj nav=zqab pitch=zqao player=zqac range=zqad x=zqak y=zqam z=zqap
+0x100065bf RemoveNavPoint targeting.c pad 6 rename i=zqai index=zqaj player=zqak
+0x100067cc CycleTarget targeting.c rename found=zqam index=zqal kind=zqao limit=zqan result=zqai target=zqak tries=zqaj
+0x10006b1c TargetNavPoint targeting.c rename distance=zqai dx=zqal dy=zqan dz=zqaa heading=zqaj nav=zqab pitch=zqao player=zqac range=zqad x=zqak y=zqam z=zqap
+0x10006d1a TargetGamePiece targeting.c pad 10 early int~g_playerCount 1 rename breakpoint=zqae distance=zqai dx=zqam dy=zqao dz=zqab heading=zqaj pitch=zqap player=zqac range=zqad target=zqak x=zqal y=zqan z=zqaa
+0x10007012 TargetGameThing targeting.c pad 10 early int~g_gameThingCount 4 rename distance=zqai dx=zqal dy=zqan dz=zqaa heading=zqaj pitch=zqao player=zqac range=zqad thing=zqab x=zqak y=zqam z=zqap
 0x100072a6 UpdateTarget targeting.c rename claim=zqai index=zqaj isLocal=zqam kind=zqal lost=zqak
 0x100076fe GetLocalTargetGamePiece targeting.c rename index=zqaj kind=zqai player=zqak
 0x10007759 GetLocalTargetGameThing targeting.c rename index=zqaj kind=zqai player=zqak
 0x100077f1 GetLocalTargetObject targeting.c rename id=zqaj index=zqam kind=zqak obj=zqai player=zqal
 0x100078ab TargetAtReticle targeting.c rename autopilot=zqak player=zqam previous=zqal shape=zqaj target=zqai
 0x10007a32 GetBearingAndRange targeting.c rename cosine=zqak ground=zqai heading=zqaj length=zqao pitch=zqal pitchCosine=zqam sine=zqan
-0x10007c8f TargetNearestEnemy targeting.c pad 3 rename autopilot=zqak best=zqai bestDistance=zqao distance=zqan player=zqam saved=zqal target=zqaj
 0x100082f1 GdiBlitFlip gdi.c pad 11
 0x10008379 GdiBitBltRect gdi.c pad 11
 0x10008413 GdiBitBltRectWithMenu gdi.c pad 11

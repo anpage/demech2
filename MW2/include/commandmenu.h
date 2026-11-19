@@ -11,6 +11,9 @@ extern "C"
 {
 #endif
 
+	// g_commandPoint2Menu and g_commandPoint2MenuPageStack are commandpoint2menu.c's, declared here
+	// for now (to move later), where they were before it was split from commandmenu.c: moving them
+	// to a header of its own would shift the code of every unit that includes commandmenu.h.
 	extern MenuDefinition g_commandPoint2Menu;
 	extern MenuPage g_commandPoint2Page;
 	extern MenuPage g_commandPoint3Page;

@@ -29,21 +29,6 @@ NETMECHW split 0x1000d220  # ChatLog::Unlock (chatlog.cpp)
 NETMECHW split 0x1000f050  # IronLantern0x160::FUN_1000f050 (unk1000e410.cpp)
 NETMECHW split 0x1000f0a0  # IronLantern0x160::FUN_1000f0a0 (unk1000e410.cpp)
 
-# MW2MATROX: the Matrox edition's objects that hold code or data of more than one of 1.1's units,
-# not split yet. Matrox-only functions annotated in palette.c sit in the Matrox edition's own objects:
-# the A3D renderer after damagepanel.c, and one after ray.c.
-MW2MATROX order 0x100a4598  # g_jumpJetDrag, g_slideSlope (maneuvers.c) sit with mechclass.c's data
-MW2MATROX order 0x100a4940  # collision.c's colours sit with quadtree.c's and faceshade.c's data
-MW2MATROX order 0x100a4960  # commandpointmenu.c's menu sits between faceshade.c's and render.c's data
-MW2MATROX order 0x100a84a0  # commandmenu.c's menus sit between settings.c's and audio.c's data
-MW2MATROX order 0x100ba8b0  # commandmenu.c's pages sit between inputmap.c's and ai.c's data
-MW2MATROX order 0x100bcdd0  # targeting.c's readout labels sit between overlay.c's and lancemenu.c's data
-
 # MW23DFX is built with /Gy: every function is a COMDAT of its own, padded to 16 with 0xCC inside an
-# object as between objects, so only the order of the runs places its units. Its objects that hold
-# data of more than one of 1.1's units, not split yet, as in the Matrox edition:
+# object as between objects, so only the order of the runs places its units.
 MW23DFX comdat
-MW23DFX order 0x1024a228  # targeting.c's map views (labels, transitions, layouts) sit between gdi.c's and glidedraw.c's data
-MW23DFX order 0x1024a9a8  # g_temperature, g_hostileAtmosphere (soundfx.c) sit with environment.c's data
-MW23DFX order 0x1024c540  # g_jumpJetDrag, g_slideSlope (maneuvers.c) sit with mechclass.c's data
-MW23DFX order 0x1024e410  # collision.c's colours sit between depthsort.c's and faceshade.c's data
