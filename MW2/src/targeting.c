@@ -1408,3 +1408,8 @@ void TargetNearestEnemy(void)
 		}
 	}
 }
+
+// The 3Dfx edition ends this object with the cockpit panels, which 1.1 has in config.c's.
+#ifdef MW2_3DFX
+#include "cockpitpanels.c"
+#endif

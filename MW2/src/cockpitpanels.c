@@ -1,7 +1,8 @@
 /* The cockpit panels: their layout, set-up, per-frame update and warnings. Not a unit of its own:
-   1.1 has these in config.c's object, ahead of its other functions, and the Matrox edition at the
-   end of staticmem.c's, so config.c includes this file in 1.1's build and staticmem.c in the
-   Matrox edition's. */
+   1.1 has these in config.c's object, ahead of its other functions, the Matrox edition at the end
+   of staticmem.c's, and the 3Dfx edition at the end of targeting.c's, so config.c includes this
+   file in 1.1's build, staticmem.c in the Matrox edition's and targeting.c in the 3Dfx
+   edition's. */
 #include "ammobin.h"
 #include "anim2d.h"
 #include "approxlen.h"

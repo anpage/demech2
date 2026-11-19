@@ -256,6 +256,6 @@ MechS32 AddStaticPoolType(MechS32 p_size, BwdTag p_tag)
 }
 
 // The Matrox edition ends this object with the cockpit panels, which 1.1 has in config.c's.
-#ifdef MW2_ACCEL
+#ifdef MW2_MATROX
 #include "cockpitpanels.c"
 #endif

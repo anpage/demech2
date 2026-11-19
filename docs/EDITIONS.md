@@ -184,7 +184,10 @@ added to a shared header can move every unit that includes it.
 - **Placement.** The object order goes into the target's source list, found from the functions
   and data the edition shares with the others. Code it places in another object than 1.1 takes a
   fragment, included at each edition's position under that edition's macro. Until the units are
-  placed, the target skips `tools/check_units.py` in `verify-retail.yml`, as `MW23DFX` does.
+  placed, the target skips `tools/check_units.py` in `verify-retail.yml`. A `/Gy` build has no
+  object boundaries to read (every function is padded to 16): `<TARGET> comdat` in
+  `tools/check_units_expected.txt` makes the check place its units by the order of their runs of
+  code and data alone, as for `MW23DFX`.
 
 ### 5. Which features it has
 
@@ -243,7 +246,7 @@ tests an `MW2_` macro the table doesn't define, and when no target compiles a br
 
 ## Features
 
-From the table in `util/types.h` (84 features) and the 888 conditional sites of the simulators' sources (`MW2/`, `common/`, `3rdparty/vfx`). A feature's cell is its value where it has one.
+From the table in `util/types.h` (84 features) and the 889 conditional sites of the simulators' sources (`MW2/`, `common/`, `3rdparty/vfx`). A feature's cell is its value where it has one.
 
 ### The Matrox and 3Dfx editions (`MW2_ACCEL`)
 
@@ -456,26 +459,28 @@ Where an edition's version of a function differs in its control flow or in more 
 
 What tests `MW2_ACCEL`, `MW2_MATROX` or `MW2_3DFX` itself rather than a feature, sorted by what the site holds (the tool's reading of its content).
 
-### `MW2_ACCEL` (84 sites)
+### `MW2_ACCEL` (83 sites)
 
 - In a function: the edition's back end, what the shared code does for it, or the same computation written another way (7): `MW2/src/aiweapons.c`: `DecideAIFire`; `MW2/src/cockpit.c`: `SatelliteFaceColor`; `MW2/src/mekfile.c`: `LoadMechConfig`; `MW2/src/ramp.c`: `SetWrappedRampTarget`, `UpdateWrappedRamp`; `MW2/src/world.c`: `BwdExecuteStream`; `MW2/src/wtbshapes.c`: `LoadShapeRecord`
 - An edition's own definition of a function, or functions only some editions' objects have (7): `MW2/src/accel/queueface.c`: the definitions of `ClipEdgeToNearPlane`, `ClipProjectedEdge`, `GetFaceShade`, `GetViewVertex`, `ProjectPolygon`, `ProjectVertex`, `QueueFace`; `MW2/src/shape.c`: the definition of `GetShapeLoadFlags`, the definition of `SelectModelByKey`, the definition of `SelectNextModel`, the definitions of `FUN_1003a859`, `FUN_1003a889`, `GetModelKey`, the definitions of `GetNewShapeFlags`, `SelectFirstModel`, `SetNewShapeFlags`, the definitions of `GetShapeFace`, `GetTransformedVertex`, `GetVertexPosition`
-- A fragment included at the position of the object that holds it (22): `MW2/src/ai.c`: file scope (7); `MW2/src/clock.c`: file scope; `MW2/src/cockpit.c`: file scope (3); `MW2/src/config.c`: file scope; `MW2/src/depthsort.c`: file scope (2); `MW2/src/joystick.c`: file scope (2); `MW2/src/shape.c`: file scope (4); `MW2/src/staticmem.c`: file scope; `MW2/src/transform.c`: file scope
+- A fragment included at the position of the object that holds it (21): `MW2/src/ai.c`: file scope (7); `MW2/src/clock.c`: file scope; `MW2/src/cockpit.c`: file scope (3); `MW2/src/config.c`: file scope; `MW2/src/depthsort.c`: file scope (2); `MW2/src/joystick.c`: file scope (2); `MW2/src/shape.c`: file scope (4); `MW2/src/transform.c`: file scope
 - The same definition at another address or in another section (34): `MW2/src/cockpit.c`: file scope; `MW2/src/inputmap.c`: file scope (32); `MW2/src/recordstacks.c`: file scope
 - Data and declarations that differ (10): `MW2/include/simmain.h`: file scope; `MW2/src/gdi.c`: file scope; `MW2/src/inputmap.c`: file scope (8)
 - Includes (4): `MW2/include/depthsort.h`: file scope; `MW2/src/classtable.c`: file scope; `MW2/src/simmain.c`: file scope; `MW2/src/view.c`: file scope
 
-### `MW2_MATROX` (13 sites)
+### `MW2_MATROX` (14 sites)
 
 - In a function: the edition's back end, what the shared code does for it, or the same computation written another way (2): `MW2/src/animation.c`: `DrawAnimatedPolygon`; `MW2/src/shots.c`: `DamageThingsInRadius`
 - An edition's own definition of a function, or functions only some editions' objects have (3): `MW2/src/animation.c`: the definitions of `FUN_10051c07`, `FUN_10051dfe`, `FUN_10051ea2`; `MW2/src/simmain.c`: the definition of `SimMain`, the definition of `SimWindowProc`
+- A fragment included at the position of the object that holds it (1): `MW2/src/staticmem.c`: file scope
 - Data and declarations that differ (5): `MW2/include/accel/a3d.h`: file scope; `MW2/src/refreshmode.c`: `g_displayBackends`, `g_refreshModes`; `MW2/src/simmain.c`: file scope (2)
 - Includes (3): `MW2/src/refreshmode.c`: file scope; `MW2/src/simmain.c`: file scope (2)
 
-### `MW2_3DFX` (92 sites)
+### `MW2_3DFX` (93 sites)
 
 - In a function: the edition's back end, what the shared code does for it, or the same computation written another way (73): `MW2/src/accel/floatmath.c`: `InitSlopeTables` (2); `MW2/src/accel/queueface.c`: `ProjectPolygon`, `ProjectVertex` (2); `MW2/src/aiweapons.c`: `RunAIWeapons`; `MW2/src/animation.c`: `CalcAverageBitmapColors`, `DrawAnimatedPolygon`, `FUN_100519b0`, `FUN_10069591`; `MW2/src/brightnessmenu.c`: `RestoreBrightness`; `MW2/src/cockpit.c`: `FUN_100751a9`; `MW2/src/horizon.c`: `HorizonYAtX` (2); `MW2/src/hud.c`: `DrawObjectBrackets` (4), `DrawPlayerBrackets` (3); `MW2/src/loadres.c`: `LoadCachedResource` (2); `MW2/src/maneuvers.c`: `DodgeShot` (8), `InitializeManeuvers` (5); `MW2/src/mapview.c`: `BeginMapView`; `MW2/src/mechclass.c`: `LateUpdateMech` (3), `UpdateMech` (7); `MW2/src/mechcollision.c`: `MoveMechWithCollisions`; `MW2/src/mechdamage.c`: `ApplyDamageToMech`; `MW2/src/menucontrols.c`: `RunMenuStatus` (2); `MW2/src/mw2prj.c`: `CachePreloads`; `MW2/src/objectanim.c`: `ReelMotionTask`; `MW2/src/overlay.c`: `HideCacheInfo`; `MW2/src/pausebanner.c`: `HandleDebugKey`; `MW2/src/polydraw.c`: `DrawSkyAndGround`, `FUN_10068856`, `FUN_100688fe` (2), `FUN_100689f5`, `FUN_10068b57` (3), `FUN_10068e33`, `FUN_10069172`, `FUN_100692db`; `MW2/src/screenscale.c`: `GetEllipseNeedleAt` (2), `GetRectNeedleAt`; `MW2/src/shots.c`: `SpawnEffectEx`, `UpdateShot`; `MW2/src/view.c`: `UpdateProjection` (2)
 - An edition's own definition of a function, or functions only some editions' objects have (6): `MW2/src/animation.c`: the definition of `FUN_1002cfd0`, the definition of `FUN_1002d760`, the definition of `FUN_10051dfe`, the definitions of `FUN_10051c07`, `FUN_10051ea2`; `MW2/src/simmain.c`: the definition of `SimMain`, the definition of `SimWindowProc`
+- A fragment included at the position of the object that holds it (1): `MW2/src/targeting.c`: file scope
 - Data and declarations that differ (9): `MW2/include/accel/a3d.h`: file scope; `MW2/include/accel/a3dvertex.h`: file scope; `MW2/include/animation.h`: file scope; `MW2/include/missionobjective.h`: file scope; `MW2/src/animation.c`: file scope; `MW2/src/bwdkeywords.c`: file scope; `MW2/src/damagepanel.c`: file scope; `MW2/src/refreshmode.c`: `g_displayBackends`, `g_refreshModes`
 - Includes (2): `MW2/src/refreshmode.c`: file scope; `MW2/src/simmain.c`: file scope
 - Pragmas that reproduce a unit's flags (2): `MW2/src/accel/queueface.c`: file scope (2)
