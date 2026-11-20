@@ -204,7 +204,19 @@ Both DLLs come from the [freely downloadable 1.1 patch](https://archive.org/deta
 | `NETMECHW.DLL` | NetMech lobby | 433,152 bytes | `3f4d1508238d847213127e46623a85b249985686d6053a3d9e1c6deea87c0095` | December 8, 1995 |
 | `MECH2.EXE`    | Launcher      | 53,248 bytes  | `064a9f1f45cfd18f0bef1dea9711b7fd582755cfbb8a8e9694f8cef2e5c3690c` | December 5, 1995 |
 
-Both come from the retail release, not the patch. Comparing them requires the original retail files and a build with Visual C++ 2.2 (`-DDEMECH2_MSVC22_ROOT`). Without that compiler the project still builds both, but the results cannot be compared to the originals.
+Both come from the retail release, not the patch: the same files are on the [Windows 95 & MS-DOS + NetMech](http://redump.org/disc/25243/) disc, the [Pentium Processor Edition](http://redump.org/disc/12864/), the [Microsoft SideWinder OEM](http://redump.org/disc/24336/) disc and the [SoftKey](http://redump.org/disc/41925/) release (`MECH2.EXE` as `MECH2.EX_`). Comparing them requires the original retail files and a build with Visual C++ 2.2 (`-DDEMECH2_MSVC22_ROOT`). Without that compiler the project still builds both, but the results cannot be compared to the originals.
+
+The 3D-accelerated editions each shipped their own simulator, as `MW2.DLL` at the root of the edition's retail CD. The project names them after their edition:
+
+| Binary            | Edition                    | Size          | SHA256                                                             | Modified           | Disc                                                                                 |
+| ----------------- | -------------------------- | ------------- | ------------------------------------------------------------------ | ------------------ | ------------------------------------------------------------------------------------ |
+| `MW2_ATI.DLL`     | ATI 3D Rage                | 638,976 bytes | `c0509cefd31887301bd86ef8cca748211af224d9cce1a40cf87d2da6e942a739` | April 11, 1996     | [ATI 3D Rage Edition](http://redump.org/disc/46902/)                                 |
+| `MW2_S3.DLL`      | S3 ViRGE                   | 545,792 bytes | `97ea9f9d10425cc2a7991e0d6f0079ed2e15c2d0e5c863f1d9811ed44b16e590` | July 12, 1996      | [Enhanced for the S3 ViRGE](http://redump.org/disc/9708/)                            |
+| `MW2_MATROX.DLL`  | Matrox Mystique            | 845,824 bytes | `444e19ad054cbe852ec8a54ddb8a6ffa019de2ce7ab97571fea62f9666982220` | August 22, 1996    | [Enhanced for Matrox Mystique](http://redump.org/disc/43477/) (the Alt entry)        |
+| `MW2_POWERVR.DLL` | PowerVR                    | 634,368 bytes | `4de37c948ce563d5fd00f51ecb5b710ad0b1b198401a4a3b916bcf8dd6a2f754` | September 6, 1996  | [PowerVR OEM](http://redump.org/disc/25180/)                                         |
+| `MW2_3DFX.DLL`    | 3Dfx (Diamond Monster 3D)  | 724,480 bytes | `e15b8ca2013a365df11723aa97f9e7ea2914e1139090800f9b452fb7ea08282f` | October 21, 1996   | [3Dfx OEM](http://redump.org/disc/11391/)                                            |
+
+Like the retail files, they aren't freely downloadable, so CI compares them with originals kept in a private repository. Each needs the compiler it was built with: Visual C++ 2.2 for the ATI, PowerVR and 3Dfx editions, 4.0 for the Matrox edition (`-DDEMECH2_MSVC40_ROOT`), and 4.1 for the S3 edition. [docs/EDITIONS.md](docs/EDITIONS.md) describes each edition.
 
 ## Contributing
 
