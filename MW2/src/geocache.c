@@ -333,6 +333,7 @@ MechS32 AddClass(MechS32 p_id, Shape* p_class)
 // FUNCTION: MW23DFX 0x10024860
 // FUNCTION: MW2ATI 0x10024a90
 // FUNCTION: MW2S3 0x10034110
+// FUNCTION: MW2POWERVR 0x10023d10
 Shape* FindClassById(MechS32 p_id)
 {
 	Shape* result;
@@ -662,6 +663,7 @@ void BeginBlock(BwdBlockRecord* p_record)
 // FUNCTION: MW23DFX 0x10024e50
 // FUNCTION: MW2ATI 0x10025070
 // FUNCTION: MW2S3 0x100346e0
+// FUNCTION: MW2POWERVR 0x100242e0
 void HandleElseBlock(void)
 {
 }
@@ -805,6 +807,7 @@ void AttachTaskToObj(MechS32 p_index, TimedCallbackFn p_fn, MechS32 p_period, Me
 // FUNCTION: MW23DFX 0x10025040
 // FUNCTION: MW2ATI 0x10025260
 // FUNCTION: MW2S3 0x100348d0
+// FUNCTION: MW2POWERVR 0x100244d0
 void RunStaticObjectTasks(void)
 {
 	MechS32 i;
@@ -1059,6 +1062,7 @@ void PropagateStaticObjectStates(void)
 // FUNCTION: MW23DFX 0x10025410
 // FUNCTION: MW2ATI 0x100255e0
 // FUNCTION: MW2S3 0x10034c50
+// FUNCTION: MW2POWERVR 0x10024850
 MechS32 AreStaticObjectsComplete(void)
 {
 	MechS32 i;
@@ -1087,6 +1091,7 @@ MechS32 AreStaticObjectsComplete(void)
 // FUNCTION: MW23DFX 0x10025450
 // FUNCTION: MW2ATI 0x10025620
 // FUNCTION: MW2S3 0x10034c90
+// FUNCTION: MW2POWERVR 0x10024890
 MechS32 LoadStaticObject(MechS32 p_index, MechS32 p_block)
 {
 	MechS32 size;
@@ -1267,6 +1272,7 @@ Shape* GetStaticObjectShape(MechS32 p_index)
 // FUNCTION: MW23DFX 0x100257a0
 // FUNCTION: MW2ATI 0x10025970
 // FUNCTION: MW2S3 0x10034fe0
+// FUNCTION: MW2POWERVR 0x10024c00
 void GetStaticObjectPosition(MechS32 p_index, MechScalar* p_x, MechScalar* p_y, MechScalar* p_z)
 {
 	struct SceneObject* obj;

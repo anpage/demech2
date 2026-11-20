@@ -50,11 +50,13 @@ static ProjectFileEntry* g_soundFileTable[0x65];
 MechChar g_soundFileDir[0x100];
 
 // Returns the entry named p_name, or adds it if p_add; NULL when it is missing.
+// Matches but for the registers, which VC++ 2.2 allocates differently.
 // FUNCTION: MW2 0x10007140
 // FUNCTION: MW2MATROX 0x10001000
 // FUNCTION: MW23DFX 0x100084e0
 // FUNCTION: MW2ATI 0x10008cd0
 // FUNCTION: MW2S3 0x1003ba10
+// FUNCTION: MW2POWERVR 0x10007a40
 ProjectFileEntry* FindSoundFile(MechChar* p_name, MechS32 p_add)
 {
 	ProjectFileEntry* entry;

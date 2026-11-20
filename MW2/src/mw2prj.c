@@ -347,6 +347,7 @@ char* g_mw2PrjPath = NULL;
 // FUNCTION: MW23DFX 0x1003cf70
 // FUNCTION: MW2ATI 0x1003af40
 // FUNCTION: MW2S3 0x1000a4d0
+// FUNCTION: MW2POWERVR 0x10035d80
 MechS32 FirstResource(void)
 {
 	MechS32 result;

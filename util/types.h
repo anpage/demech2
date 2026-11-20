@@ -354,6 +354,8 @@ typedef char MechChar;
 /* The textures are the animations' frames as they are, 16-bit texels (FUN_10051dfe), and their
    average colors are computed from them */
 #define MW2_FRAME_TEXELS
+/* The game starts with no draw mode (-1, as in 1.1), though without 1.1's fallback to the others */
+#define MW2_NO_INITIAL_DRAW_MODE
 #endif
 
 /* Boolean typedefs (MechBool / MechBool8 ...) are added when a match proves

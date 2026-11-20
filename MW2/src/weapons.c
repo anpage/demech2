@@ -110,6 +110,7 @@ void ReleaseWeaponTriggers(Mech* p_mech)
 // FUNCTION: MW23DFX 0x100437a0
 // FUNCTION: MW2ATI 0x10040ff0
 // FUNCTION: MW2S3 0x10028b40
+// FUNCTION: MW2POWERVR 0x1003bd50
 void UpdateWeaponFireState(Mech* p_mech)
 {
 	MechScalar dy;
@@ -1102,6 +1103,7 @@ void PlaceAtFiringObj(Player* p_player, SceneObject* p_obj)
 // FUNCTION: MW23DFX 0x10044ac0
 // FUNCTION: MW2ATI 0x10042310
 // FUNCTION: MW2S3 0x10029e60
+// FUNCTION: MW2POWERVR 0x1003d040
 void SpawnLaunchFx(
 	Player* p_player,
 	SceneObject* p_obj,

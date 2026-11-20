@@ -185,4 +185,12 @@ extern "C"
 // FUNCTION: MW2S3 0x100164b0
 // FindNearestTarget
 
+// The PowerVR edition places these out of ai.c's order, so they are annotated here, by name.
+
+// FUNCTION: MW2POWERVR 0x10011af0
+// LogPlayerSkillLines
+
+// FUNCTION: MW2POWERVR 0x100121d0
+// FindNearestTarget
+
 #endif // AI_H

@@ -256,6 +256,7 @@ MechS32 TestRayNever(Shape* p_shape, Ray* p_ray)
 // FUNCTION: MW23DFX 0x1000d5a0
 // FUNCTION: MW2ATI 0x1000dd10
 // FUNCTION: MW2S3 0x1001ec60
+// FUNCTION: MW2POWERVR 0x1000c8d0
 MechS32 TestPointUnderFloor(Shape* p_shape, MechScalar p_x, MechScalar p_y, MechScalar p_z)
 {
 	MechS32 i;
@@ -334,6 +335,7 @@ MechS32 GetTerrainShapeTop(Shape* p_shape, MechScalar p_x, MechScalar p_y, MechS
 // FUNCTION: MW23DFX 0x1000d6b0
 // FUNCTION: MW2ATI 0x1000de20
 // FUNCTION: MW2S3 0x1001ed70
+// FUNCTION: MW2POWERVR 0x1000c9f0
 MechS32 TestPointAboveFaces(Shape* p_shape, MechScalar p_x, MechScalar p_y, MechScalar p_z)
 {
 	MechS32 i;
@@ -396,6 +398,7 @@ MechS32 TestPointAboveFaces(Shape* p_shape, MechScalar p_x, MechScalar p_y, Mech
 // FUNCTION: MW23DFX 0x1000d7b0
 // FUNCTION: MW2ATI 0x1000df20
 // FUNCTION: MW2S3 0x1001ee60
+// FUNCTION: MW2POWERVR 0x1000cb10
 MechS32 TestRayFaces(Shape* p_shape, Ray* p_ray)
 {
 	Model* model;

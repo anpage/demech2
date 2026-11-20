@@ -19,7 +19,7 @@ the ATI and 3Dfx editions. Ghost Bear's Legacy isn't a target yet.
 | C runtime | `LIBCMTD` (`/MTd`) | `LIBC` (`/ML`) | `LIBC` (`/ML`) | `LIBCMT` (`/MT`) | `LIBC` (`/ML`) | `LIBC` (`/ML`) |
 | Draws through | DirectDraw and VFX | ATI's 3D CIF (`ati3dcif.dll`), on DirectDraw | S3's toolkit (`S3DTKW.DLL`), on DirectDraw; no VFX3D or VFXREND | Matrox's `MSI95.DLL` | VideoLogic's SGL (`sgl.dll`), PowerVR's scene graph library | Glide 1.x (`GLIDE.DLL`), with 3dfx's Texus linked in |
 | Identity macros | none | `MW2_ACCEL`, `MW2_ATI` | `MW2_ACCEL`, `MW2_S3` | `MW2_ACCEL`, `MW2_MATROX` | `MW2_ACCEL`, `MW2_POWERVR` | `MW2_ACCEL`, `MW2_3DFX` |
-| Game-code functions | 1537 | 1427 | 1393 | 1597 | 1421 | 1574 |
+| Game-code functions | 1537 | 1427 | 1394 | 1597 | 1425 | 1574 |
 
 ## How the source tells them apart
 
@@ -265,7 +265,7 @@ tests an `MW2_` macro the table doesn't define, and when no target compiles a br
 
 ## Features
 
-From the table in `util/types.h` (91 features) and the 951 conditional sites of the simulators' sources (`MW2/`, `common/`, `3rdparty/vfx`). A feature's cell is its value where it has one.
+From the table in `util/types.h` (92 features) and the 1008 conditional sites of the simulators' sources (`MW2/`, `common/`, `3rdparty/vfx`). A feature's cell is its value where it has one.
 
 ### The ATI, S3, Matrox, PowerVR and 3Dfx editions (`MW2_ACCEL`)
 
@@ -405,6 +405,12 @@ Every edition that has one of these has them all, so no binary separates one fro
 |---|:-:|:-:|:-:|:-:|:-:|:-:|--:|---|
 | `MW2_NO_VFXREND` |  |  | yes |  |  |  | 1 | VFX3D and VFXREND, VFX's polygon fillers and renderer, aren't linked: the A3D renderer draws every polygon, and FirstRender has no code block to make writable |
 
+### The PowerVR edition (`MW2_POWERVR`)
+
+| Feature | 1.1 | ATI | S3 | Matrox | PowerVR | 3Dfx | Sites | What it does |
+|---|:-:|:-:|:-:|:-:|:-:|:-:|--:|---|
+| `MW2_NO_INITIAL_DRAW_MODE` |  |  |  |  | yes |  | 1 | The game starts with no draw mode (-1, as in 1.1), though without 1.1's fallback to the others |
+
 ## Where each feature is tested
 
 - `MW2_FLOAT_SCALARS`: `MW2/include/ammobin.h`: `AmmoBin`; `MW2/include/bandpoly.h`: file scope (2); `MW2/include/classentry.h`: file scope; `MW2/include/clock.h`: file scope (2); `MW2/include/cockpit.h`: file scope; `MW2/include/eyepoint.h`: `Eyepoint`; `MW2/include/filevector3.h`: file scope; `MW2/include/filexform.h`: file scope; `MW2/include/fixedfloat.h`: file scope; `MW2/include/fixedtrig.h`: file scope (2); `MW2/include/inradius.h`: the definition of `IsWithinRadius`; `MW2/include/integrate.h`: file scope; `MW2/include/maneuvers.h`: file scope; `MW2/include/mapview.h`: file scope; `MW2/include/projectedvertex.h`: file scope; `MW2/include/queuedpolygon.h`: `QueuedPolygon`; `MW2/include/ramp.h`: file scope (3); `MW2/include/screenscale.h`: file scope; `MW2/include/shape.h`: file scope; `MW2/include/targeting.h`: file scope; `MW2/include/vertex.h`: `Vertex` (2); `MW2/include/view.h`: file scope; `MW2/include/weaponslot.h`: `WeaponBin`, file scope (2); `MW2/src/ai.c`: `AddClamped`, `AiStateMove` (2), `FindNearestTarget`, `GetApproachThrottle`, `SteerToTarget`, `SweepTorso` (2); `MW2/src/aiweapons.c`: `DecideAIFire`; `MW2/src/bandpoly.c`: file scope; `MW2/src/bargauges.c`: `DrawHeatBar`, `DrawHeatRateBar`, `DrawThrottleGauge`; `MW2/src/brightnessmenu.c`: `GetBrightnessFraction`; `MW2/src/classtable.c`: `ChoosePlayerDetailLevels`; `MW2/src/clock.c`: the definition of `Hypot2D`, the definitions of `InitSinAtanTables`, `InitSlopeTables`; `MW2/src/cockpit.c`: `DrawMapContents` (3), `DrawMapFieldOfView` (3), `DrawMapNavPoints` (3), `DrawMapTarget` (3), `DrawMapUnits` (3), `DrawMapViewText` (5), `GetMapHeightShade`, `ZoomMapView` (3); `MW2/src/cockpitpanels.c`: `UpdateCockpit`; `MW2/src/collision.c`: `IntersectRayFace`, `IsBelowFacePlane`, `IsPointInFace`, `IsPointInFaceXY` (2), `IsPointInFaceXZ` (2), `IsPointInFaceYZ` (2), `TestSegmentCollision`; `MW2/src/config.c`: `LoadReels` (2); `MW2/src/damagepanel.c`: `DrawArmorBars` (4), `DrawDamageOutline` (2), file scope; `MW2/src/debris.c`: `BlowOffChunk`, `DamageChunksInRadius`, `PushDebrisPiece`, `ThrowDebrisPiece`, `UpdateDebrisPiece` (4); `MW2/src/depthsort.c`: `QueueShapeLod`; `MW2/src/door.c`: `LateUpdateDoor` (2), `UpdateDoor`; `MW2/src/environment.c`: `FirstEnvironment`, `QuadrupleMechCooling`, `QuarterMechCooling`; `MW2/src/eyepoint.c`: `GetCameraFloor`, `RestoreView`, `SaveView`, `UpdateEyepoint` (2), `UpdateFreeEyeView`, `UpdateTrackView`; `MW2/src/fadepal.c`: `EmitWreckSmoke`, `FlashZappedPaletteLevel`, `PlayPlayerHitFeedback`; `MW2/src/fixedsqrt.c`: the definition of `NormalizeVectorGuarded`; `MW2/src/gamekeys.c`: `RunGameKey`; `MW2/src/geocache.c`: `ApplyBlockXform`, `BeginBlock`, `LoadQuadtreeBoxes`, `ToggleBlockBoxes`; `MW2/src/gpanim.c`: `UpdateMotion`; `MW2/src/horizon.c`: `HorizonXAtY`, `HorizonYAtX`, `IsAboveHorizon`; `MW2/src/hud.c`: `DrawAltimeter` (6), `DrawCompass`, `DrawCompassMarkers`, `DrawObjectBrackets`, `DrawPlayerBrackets`, `InitHudGauges` (2); `MW2/src/inputmap.c`: `UpdateAxisFromKeys`, `UpdateInputs` (2); `MW2/src/inradius.c`: the definition of `IsWithinRadius`; `MW2/src/integrate.c`: the definition of `IntegrateMidpoint`; `MW2/src/maneuvers.c`: `AvoidObstacles`, `BuildProbeRay`, `CanJump`, `ChooseFlankPlace`, `DodgeShot` (2), `GetAvoidSide`, `GetHeadingTo`, `GetOffsetPoint` (4), `IsSharpTurn`, `IsStandableShape`, `JumpToTurn`, `ManeuverAchick` (2), `ManeuverAdfa` (2), `ManeuverBehind`, `ManeuverStupid` (2), `PlaceOffsetNav`, `RunManeuver`, `StartManeuver`, file scope; `MW2/src/mapicon.c`: `DrawMapIcon` (4); `MW2/src/mapview.c`: `BeginMapView` (2), `CullMapViewShape` (3), `ProjectMapPoint` (2), `ProjectMapViewVertex`, the definition of `ProjectMapCoordinate`; `MW2/src/mechclass.c`: `FirstMech`, `LateUpdateMech` (7), the definition of `UpdateMech`; `MW2/src/mechcollision.c`: `ApplyCollisionDamage`, `CollideWithBuildings` (2), `CollideWithMechs` (6), `DamageMechHittingShape`, `DamageMechsInCollision`, `MoveMechWithCollisions` (3); `MW2/src/mechdamage.c`: `ApplyDamageToMech` (3), `CalculateHeat` (2), `DestroyCriticalSlot`, `PunchInAutoHeading`, `RunAutopilot` (2); `MW2/src/mekfile.c`: `LoadMechConfig` (5); `MW2/src/network.c`: `ReceiveCollisionMsg`, `ReceiveStateMsg`, file scope (2); `MW2/src/normalizerotation.c`: `NormalizeRotation`, `ScaleVectorToLength`; `MW2/src/objectanim.c`: `OrbitTask` (4), `PathTask` (2), `SpinTask` (2); `MW2/src/objective.c`: `DoFirstObjtv`; `MW2/src/palette.c`: `StartPaletteFade`; `MW2/src/quadtree.c`: `TestQuadtreeRay`; `MW2/src/ramp.c`: `SetWrappedRampTarget`, `UpdateWrappedRamp` (3), file scope, the definitions of `StartFloatRamp`, `UpdateFloatRamp`; `MW2/src/ray.c`: `AdvanceRayStart`, `BuildRayFixed`, `BuildRayFloat`, `BuildRayFromDirection`, `ClipRaySlab`, `ClipRayToGround`, `SetRayLength`; `MW2/src/recordstacks.c`: `InitializeDrawBuffer`; `MW2/src/resource.c`: `CreateObjectNode`, `PathRecord`, file scope; `MW2/src/screenscale.c`: `DrawGaugeEllipse`, `GetEllipseEdgeAtAngle` (2), `GetEllipseNeedleAt` (2), `GetEllipseNeedleToward`, `GetLineSlope` (2), `GetRectEdgeAtSlope`, `GetRectNeedleAt` (2), `IsInsideGaugeEllipse` (3), `ScaleRectToLowRes`, file scope; `MW2/src/setres.c`: `SetPixelAspect`; `MW2/src/shape.c`: `AddShapeVertex`, `ComputeFaceNormal` (2); `MW2/src/shapebounds.c`: `ComputeShapeBounds` (2); `MW2/src/shapecollision.c`: `TestPointAboveFaces`; `MW2/src/shapegeom.c`: `ApproximateShapeDistance`, `RayShapeDistance`, `TransformModel`, `TransformShapeCenter`, the definition of `ComputeTriangleNormal`, the definition of `DivDifference17`, the definition of `SolvePlaneY`; `MW2/src/shots.c`: `DamageMechsInRadius`, `DamageThingsInRadius`, `GuideMissileToTarget` (2), `HeatMechsNearFires`, `SwayShot`, `UpdateShot` (3); `MW2/src/soundfx.c`: `CalculateSamplePan`, `PlayPositionalSound` (3), `UpdateAmbientSound` (2); `MW2/src/statuspanels.c`: `DrawSpeedPanel`; `MW2/src/targeting.c`: `UpdateTarget`, file scope; `MW2/src/targetpanel.c`: `DrawTargetPanel` (2), `DrawTargetPanelText`; `MW2/src/transform.c`: `BuildMatrixEx`, `GetMatrixAngles`, `MultiplyRotations`, `OrthogonalizeMatrixColumn`, `RotatePoint`, `SetIdentityMatrix`, `TransformPoint`; `MW2/src/view.c`: `CullSceneShape` (6), `CullShapeToFrustum` (5), `ProjectWorldPoint` (2), `SelectEyepoint`, `SetFarPlane`, `SetNearPlane`, `UpdateProjection`, file scope; `MW2/src/weapons.c`: `GetEyeAimDirection` (2), `SpawnLaunchFx` (3), `SpawnShot`, `UpdateAimDistance`, `UpdateWeaponLock`; `MW2/src/world.c`: `BwdExecuteStream` (6); `MW2/src/wtbshapes.c`: `LoadShapeRecord` (3), `SetShapeScale`
@@ -419,7 +425,7 @@ Every edition that has one of these has them all, so no binary separates one fro
 - `MW2_REFRESH_MODE_RETRY`: `MW2/src/refreshmode.c`: `InitRefreshMode` (2)
 - `MW2_RAW_SCREENSHOTS`: `MW2/src/config.c`: `SaveScreenshot` (2); `MW2/src/gamekeys.c`: `RunGameKey`
 - `MW2_GRAPHICS_MENU`: `MW2/src/mainmenu.c`: `g_mainMenuPage`, file scope (5)
-- `MW2_REGISTRY_SETTINGS`: `MW2/src/simmain.c`: file scope, the definition of `FUN_1008fad0`
+- `MW2_REGISTRY_SETTINGS`: `MW2/src/simmain.c`: file scope, the definitions of `FUN_10007db0`, `FUN_1008fad0`
 - `MW2_DEFAULT_DRAW_MODE`: `MW2/src/render.c`: file scope
 - `MW2_HUD_ART`: `MW2/include/setres.h`: file scope (2); `MW2/src/hud.c`: `DrawAltimeter`, file scope (2); `MW2/src/mechviewpanel.c`: file scope; `MW2/src/render.c`: `ShowBanner` (2); `MW2/src/setres.c`: `ChooseArtResolution`, file scope
 - `MW2_HUD_SHAPE_IDS`: `MW2/src/pausebanner.c`: `DrawPausedBanner`; `MW2/src/targetpanel.c`: `DrawTargetPanel` (5)
@@ -498,6 +504,7 @@ Every edition that has one of these has them all, so no binary separates one fro
 - `MW2_TEXTURE_FILTER_ITEM`: `MW2/src/accel/graphicsmenu.c`: `g_graphicsPage`
 - `MW2_RES_512X384`: `MW2/include/directdraw.h`: file scope; `MW2/src/directdraw.c`: file scope, the definitions of `FUN_10005950`, `FUN_100059b0`; `MW2/src/simmain.c`: `SetGameResolution`
 - `MW2_NO_VFXREND`: `MW2/src/render.c`: `FirstRender`
+- `MW2_NO_INITIAL_DRAW_MODE`: `MW2/src/render.c`: file scope
 
 ## Functions with a definition per edition
 
@@ -506,19 +513,24 @@ Where an edition's version of a function differs in its control flow or in more 
 | Function | File | Selected by | Definitions |
 |---|---|---|---|
 | `ChooseArtResolution` | `MW2/src/setres.c` | `defined(MW2_ART_RESOLUTION_NEAREST)` | 3Dfx; 1.1, ATI, S3, Matrox and PowerVR |
-| `DdrawCreateSurfaces` | `MW2/src/directdraw.c` | `defined(MW2_S3)` | S3; 1.1, ATI, Matrox and PowerVR |
+| `DdrawCreateSurfaces` | `MW2/src/directdraw.c` | `defined(MW2_S3)` | S3; 1.1, ATI and Matrox |
+| `DdrawInit` | `MW2/src/directdraw.c` | `defined(MW2_POWERVR)` | PowerVR; 1.1, ATI, S3 and Matrox |
 | `DdrawPaletteFade` | `MW2/src/directdraw.c` | `defined(MW2_S3)` | S3; 1.1, ATI, Matrox and PowerVR |
 | `DdrawWritePaletteEntries` | `MW2/src/directdraw.c` | `defined(MW2_S3)` | S3; 1.1, ATI, Matrox and PowerVR |
 | `DdrawWritePaletteGamma` | `MW2/src/directdraw.c` | `defined(MW2_S3)` | S3; 1.1, ATI, Matrox and PowerVR |
+| `DrawMapView` | `MW2/src/cockpit.c` | `defined(MW2_POWERVR)` | PowerVR; 1.1, ATI, S3, Matrox and 3Dfx |
+| `DrawScene` | `MW2/src/render.c` | `defined(MW2_POWERVR)` | PowerVR; 1.1, ATI, S3, Matrox and 3Dfx |
 | `DrawSkyAndGround` | `MW2/src/polydraw.c` | `defined(MW2_A3D)` | ATI, S3, Matrox, PowerVR and 3Dfx; 1.1 |
+| `FirstRender` | `MW2/src/render.c` | `defined(MW2_POWERVR)` | PowerVR; 1.1, ATI, S3, Matrox and 3Dfx |
 | `FUN_10068856` | `MW2/src/polydraw.c` | `defined(MW2_S3)` | S3; ATI, Matrox, PowerVR and 3Dfx |
 | `FUN_100688fe` | `MW2/src/polydraw.c` | `defined(MW2_S3)` | S3; ATI, Matrox, PowerVR and 3Dfx |
 | `FUN_100689f5` | `MW2/src/polydraw.c` | `defined(MW2_S3)` | S3; ATI, Matrox, PowerVR and 3Dfx |
 | `FUN_10068b57` | `MW2/src/polydraw.c` | `defined(MW2_S3)` | S3; ATI, Matrox, PowerVR and 3Dfx |
 | `FUN_100751a9` | `MW2/src/cockpit.c` | `defined(MW2_S3)` | S3; ATI, Matrox, PowerVR and 3Dfx |
+| `FUN_1008fad0` | `MW2/src/simmain.c` | `defined(MW2_POWERVR)` | PowerVR; ATI, S3, Matrox and 3Dfx |
 | `JoystickPoll` | `MW2/src/joystick.c` | `defined(MW2_JOYSTICK_AXIS_SUMS)` | Matrox; 1.1, ATI, S3, PowerVR and 3Dfx |
-| `SetGameResolution` | `MW2/src/simmain.c` | `defined(MW2_RES_800X600)` | 3Dfx; S3; 1.1, ATI, Matrox and PowerVR |
-| `SimMain` | `MW2/src/simmain.c` | `defined(MW2_MATROX)` | Matrox; ATI, S3, PowerVR and 3Dfx; 1.1 |
+| `SetGameResolution` | `MW2/src/simmain.c` | `defined(MW2_RES_800X600)` | 3Dfx; S3; PowerVR; 1.1, ATI and Matrox |
+| `SimMain` | `MW2/src/simmain.c` | `defined(MW2_MATROX)` | Matrox; PowerVR; ATI, S3 and 3Dfx; 1.1 |
 | `SimWindowProc` | `MW2/src/simmain.c` | `defined(MW2_MATROX)` | Matrox; ATI, S3, PowerVR and 3Dfx; 1.1 |
 | `UpdateMech` | `MW2/src/mechclass.c` | `defined(MW2_FLOAT_SCALARS)` | ATI, S3, Matrox, PowerVR and 3Dfx; 1.1 |
 
@@ -571,13 +583,14 @@ What tests `MW2_ACCEL`, `MW2_MATROX` or `MW2_3DFX` itself rather than a feature,
 - Includes (6): `MW2/include/bandpoly.h`: file scope; `MW2/include/directdraw.h`: file scope; `MW2/src/animation.c`: file scope; `MW2/src/bandpoly.c`: file scope; `MW2/src/directdraw.c`: file scope; `MW2/src/simmain.c`: file scope
 - Pragmas that reproduce a unit's flags (2): `MW2/src/accel/queueface.c`: file scope (2)
 
-### `MW2_POWERVR` (19 sites)
+### `MW2_POWERVR` (121 sites)
 
-- In a function: the edition's back end, what the shared code does for it, or the same computation written another way (5): `MW2/src/animation.c`: `DrawAnimatedPolygon`; `MW2/src/polydraw.c`: `DrawSkyAndGround`, `FUN_100688fe`, `FUN_10068b57` (2)
-- An edition's own definition of a function, or functions only some editions' objects have (3): `MW2/src/bandpoly.c`: the definition of `FUN_1002a480`; `MW2/src/simmain.c`: the definition of `SimMain`, the definition of `SimWindowProc`
+- In a function: the edition's back end, what the shared code does for it, or the same computation written another way (30): `MW2/src/animation.c`: `DrawAnimatedPolygon`; `MW2/src/directdraw.c`: `DdrawBlit`, `DdrawBlitFlip`, `DdrawBlitRect`, `DdrawFlip`, `DdrawLockBuffer`, `DdrawPaletteFade` (5), `DdrawStretchBlit`, `DdrawWritePaletteEntries` (4), `DdrawWritePaletteGamma` (4); `MW2/src/joystick.c`: `JoystickOpenDevice` (2), `JoystickPoll` (2); `MW2/src/mapview.c`: `DrawMapViewScene`; `MW2/src/polydraw.c`: `DrawSkyAndGround`, `FUN_100688fe`, `FUN_10068b57` (2); `MW2/src/render.c`: `ShutdownRender`
+- An edition's own definition of a function, or functions only some editions' objects have (14): `MW2/src/accel/graphicsmenu.c`: the definitions of `GetFilterTextures`, `GetFog`, `GetSmoothShading`, `GetTexturedGround`, `GetTexturedSky`, `SetFilterTextures`, `SetFog`, `SetSmoothShading`, `SetTexturedGround`, `SetTexturedSky`; `MW2/src/bandpoly.c`: the definition of `FUN_1002a480`; `MW2/src/cockpit.c`: the definition of `DrawMapView`, the definition of `FUN_10003310`; `MW2/src/directdraw.c`: the definition of `DdrawFill`, the definition of `DdrawStretchBlit320`, the definitions of `DdrawCreateSurfaces`, `DdrawInit`; `MW2/src/render.c`: the definition of `DrawScene`, the definition of `FirstRender`, the definitions of `FUN_10006f30`, `FUN_10028ac0`; `MW2/src/simmain.c`: the definition of `SetGameResolution`, the definition of `SimMain`, the definition of `SimWindowProc`, the definitions of `FUN_10007db0`, `FUN_1008fad0`
 - A fragment included at the position of the object that holds it (1): `MW2/src/targeting.c`: file scope
-- Data and declarations that differ (5): `MW2/include/accel/a3d.h`: file scope; `MW2/include/accel/a3dvertex.h`: file scope; `MW2/include/animation.h`: file scope; `MW2/include/bandpoly.h`: file scope; `MW2/src/bwdkeywords.c`: file scope
-- Includes (3): `MW2/include/bandpoly.h`: file scope; `MW2/src/animation.c`: file scope; `MW2/src/bandpoly.c`: file scope
+- The same definition at another address or in another section (35): `MW2/src/accel/graphicsmenu.c`: file scope; `MW2/src/inputmap.c`: file scope (32); `MW2/src/perf.c`: file scope; `MW2/src/settings.c`: file scope
+- Data and declarations that differ (33): `MW2/include/accel/a3d.h`: file scope; `MW2/include/accel/a3dvertex.h`: file scope; `MW2/include/animation.h`: `Animation`, file scope; `MW2/include/animframe.h`: `AnimFrame`; `MW2/include/bandpoly.h`: file scope; `MW2/include/cockpit.h`: file scope; `MW2/include/model.h`: `Model`; `MW2/include/object.h`: `SceneObject`; `MW2/include/shape.h`: `Shape`; `MW2/src/accel/graphicsmenu.c`: file scope (4); `MW2/src/animation.c`: file scope (2); `MW2/src/bwdkeywords.c`: file scope; `MW2/src/cockpitlayouts.c`: file scope; `MW2/src/cockpitpanels.c`: `g_cockpitPanelPanes`; `MW2/src/directdraw.c`: file scope (3); `MW2/src/inputmap.c`: file scope (8); `MW2/src/joystick.c`: file scope; `MW2/src/object.c`: file scope; `MW2/src/simmain.c`: file scope
+- Includes (6): `MW2/include/bandpoly.h`: file scope; `MW2/src/animation.c`: file scope; `MW2/src/bandpoly.c`: file scope; `MW2/src/directdraw.c`: file scope; `MW2/src/mapview.c`: file scope; `MW2/src/simmain.c`: file scope
 - Pragmas that reproduce a unit's flags (2): `MW2/src/accel/queueface.c`: file scope (2)
 
 <!-- generated: end -->

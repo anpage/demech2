@@ -113,6 +113,7 @@ void ResetCameraShake(void)
 // FUNCTION: MW23DFX 0x1002d7c0
 // FUNCTION: MW2ATI 0x1002c910
 // FUNCTION: MW2S3 0x1003b200
+// FUNCTION: MW2POWERVR 0x100276f0
 MechS32 UpdateCameraShake(void)
 {
 	MechScalar base10;
@@ -172,6 +173,7 @@ void StartCameraShake(void)
 // FUNCTION: MW23DFX 0x1002d920
 // FUNCTION: MW2ATI 0x1002ca70
 // FUNCTION: MW2S3 0x1003b360
+// FUNCTION: MW2POWERVR 0x10027850
 void StartCameraShakeKey(MechS32 p_key)
 {
 	MechScalar x;

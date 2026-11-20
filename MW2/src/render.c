@@ -44,10 +44,13 @@
 #endif
 
 // The draw mode the game starts in: none in 1.1, the first in the Matrox edition, which doesn't
-// fall back to the others (InitRefreshMode's p_allowFallback).
-#ifdef MW2_DEFAULT_DRAW_MODE
+// fall back to the others (InitRefreshMode's p_allowFallback). The S3 edition starts in the third;
+// the PowerVR edition starts with none and doesn't fall back either.
+#if defined(MW2_DEFAULT_DRAW_MODE) && defined(MW2_NO_INITIAL_DRAW_MODE)
+#define INITIAL_DRAW_MODE -1
+#define INITIAL_DRAW_MODE_FALLBACK 0
+#elif defined(MW2_DEFAULT_DRAW_MODE)
 #ifdef MW2_S3
-// The S3 edition's starts in the third.
 #define INITIAL_DRAW_MODE 2
 #else
 #define INITIAL_DRAW_MODE 0
@@ -70,6 +73,7 @@ MechS32 g_drawModeIndex = INITIAL_DRAW_MODE;
 // GLOBAL: MW2MATROX 0x100a4a00
 // GLOBAL: MW23DFX 0x102498e0
 // GLOBAL: MW2S3 0x10064068
+// GLOBAL: MW2POWERVR 0x101a87c8
 MechS32 g_initDrawModeParam2 = INITIAL_DRAW_MODE_FALLBACK;
 
 // GLOBAL: MW2 0x100a2454
@@ -90,6 +94,7 @@ MechChar* g_bannerName = NULL;
 // GLOBAL: MW23DFX 0x102498ec
 // GLOBAL: MW2ATI 0x1017d794
 // GLOBAL: MW2S3 0x10064074
+// GLOBAL: MW2POWERVR 0x101a87d4
 void* g_bannerBuffer = NULL;
 
 // GLOBAL: MW2 0x100a2460
@@ -116,6 +121,7 @@ MechS32 g_framePane = 0;
 // GLOBAL: MW2 0x100a246c
 // GLOBAL: MW2MATROX 0x100a4a1c
 // GLOBAL: MW23DFX 0x102498fc
+// GLOBAL: MW2POWERVR 0x101a87e4
 MechS32 g_hasLightObject = 0;
 
 // Cleared while an effect has the camera, set again when it gives it back.
@@ -129,6 +135,7 @@ MechS32 g_lightFollowsObject = 1;
 // GLOBAL: MW2 0x100a2474
 // GLOBAL: MW2MATROX 0x100a4a24
 // GLOBAL: MW23DFX 0x10249904
+// GLOBAL: MW2POWERVR 0x101a87ec
 MechS32 g_lightObject = -1;
 
 // The object of the scene's shape of kind 0x90, made by SecondRender.
@@ -316,6 +323,24 @@ MechS32 InitDisplayGeometry(void)
 	return result;
 }
 
+#ifdef MW2_POWERVR
+// The PowerVR edition's: sets up the vertex buffers and the scene, and installs only the frame draw
+// callback, since its renderer culls, projects and draws the shapes itself (FUN_10062b10).
+// FUNCTION: MW2POWERVR 0x100040d0
+void FirstRender(void)
+{
+	InitializeDrawBuffer(0x140, 0xbb8);
+	g_maxPolygons = 0xaf0;
+	InitShapeLists();
+	g_renderSettings.m_frameDrawCallback = DrawScene;
+	g_unk0x100a5558 = 0xff;
+	if (g_renderSettings.m_drawSky || g_renderSettings.m_drawGround) {
+		g_renderSettings.m_clearFrame = 0;
+	}
+
+	g_renderSettings.m_flags |= 8;
+}
+#else
 // Makes the code block writable (the drawing routines patch themselves), sets up the vertex
 // buffers and the scene, and installs the normal render hooks.
 // FUNCTION: MW2 0x100128b5
@@ -366,6 +391,7 @@ void FirstRender(void)
 
 	g_renderSettings.m_flags |= 8;
 }
+#endif
 
 // Makes the objects of the scene's shapes of kinds 0x90 and 0xa0, and sets up its shapes of kind
 // 0x70 and type 4.
@@ -421,6 +447,25 @@ void SecondRender(void)
 #define SCENE_PANE_WIPE(p_pane, p_color) VFX_pane_wipe(p_pane, p_color)
 #endif
 
+#ifdef MW2_POWERVR
+// The PowerVR edition's 3D view, the normal frame draw callback: updates the projection and the
+// light, and has the renderer draw the frame (FUN_10062b10), which SGL culls, sorts and clears
+// itself.
+// FUNCTION: MW2POWERVR 0x100041d0
+void DrawScene(void)
+{
+	if (g_projectionDirty) {
+		UpdateProjection(g_eyepoint);
+		g_projectionDirty = 0;
+	}
+
+	if (g_hasLightObject && g_lightFollowsObject && g_lightObject != -1) {
+		GetStaticObjectPosition(g_lightObject, &g_eyepoint->m_lightX, &g_eyepoint->m_lightY, &g_eyepoint->m_lightZ);
+	}
+
+	FUN_10062b10();
+}
+#else
 // Draws the 3D view, the normal frame draw callback: clears the frame first when drawing to
 // another pane, updates the eyepoint, draws the scene (without the extra pass on the
 // DirectDraw backend), then the objects of the shapes of kinds 0x90 and 0xa0 with their own clip
@@ -505,6 +550,7 @@ void DrawScene(void)
 	FUN_10069591();
 	SelectPane(0);
 }
+#endif
 
 // FUNCTION: MW2 0x10012dca
 // FUNCTION: MW2MATROX 0x10017a14
@@ -524,6 +570,7 @@ void SetFramePane(MechS32 p_value)
 // FUNCTION: MW23DFX 0x10004da0
 // FUNCTION: MW2ATI 0x10004a10
 // FUNCTION: MW2S3 0x10014770
+// FUNCTION: MW2POWERVR 0x10004230
 void ResetPane(void)
 {
 	SelectPane(0);
@@ -556,6 +603,7 @@ void Blit(void)
 // FUNCTION: MW23DFX 0x10004e20
 // FUNCTION: MW2ATI 0x10004a90
 // FUNCTION: MW2S3 0x100147f0
+// FUNCTION: MW2POWERVR 0x10004240
 void ShutdownRender(void)
 {
 	FreeSceneShapes();
@@ -572,6 +620,9 @@ void ShutdownRender(void)
 	}
 
 	g_displayReady = 0;
+#ifdef MW2_POWERVR
+	FUN_10062df0();
+#endif
 	ShutdownRefreshMode();
 }
 
@@ -688,3 +739,15 @@ void DrawBoundingSpheres(Shape* p_root)
 		}
 	}
 }
+
+#ifdef MW2_POWERVR
+// TEMPORARY: placeholders so that the PowerVR edition links until environment.c and eyepoint.c
+// define these (powervr/a3dclient.h); remove them then.
+MechS32 FUN_10006f30(void)
+{
+	return 0;
+}
+void FUN_10028ac0(void)
+{
+}
+#endif

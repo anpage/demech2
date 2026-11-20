@@ -234,6 +234,7 @@ void ApplyPendingPalette(void)
 // FUNCTION: MW23DFX 0x1002ac40
 // FUNCTION: MW2ATI 0x1002a860
 // FUNCTION: MW2S3 0x1003ec90
+// FUNCTION: MW2POWERVR 0x10026b40
 void ApplyPaletteResource(MechS32 p_slot)
 {
 	MechU8* palette;
@@ -302,6 +303,7 @@ void UpdatePaletteFade(void)
 // FUNCTION: MW23DFX 0x1002ad50
 // FUNCTION: MW2ATI 0x1002a970
 // FUNCTION: MW2S3 0x1003eda0
+// FUNCTION: MW2POWERVR 0x10026c40
 MechS32 StartPaletteFade(MechS32 p_palette, MechS32 p_duration, MechS32 p_mode)
 {
 	MechU8* to;

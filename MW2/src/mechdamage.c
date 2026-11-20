@@ -201,11 +201,13 @@ void PunchInAutoHeading(Mech* p_mech)
 
 // Destroys p_mech on behalf of player p_killer, unless g_mechPoweredUp is clear: an intact
 // section holding an ammunition bin with ammunition left blows up first (DestroyCriticalSlot) instead.
+// Matches but for the registers, which VC++ 2.2 allocates differently.
 // FUNCTION: MW2 0x10007d06
 // FUNCTION: MW2MATROX 0x1001059a
 // FUNCTION: MW23DFX 0x10015e10
 // FUNCTION: MW2ATI 0x10016220
 // FUNCTION: MW2S3 0x1000de20
+// FUNCTION: MW2POWERVR 0x10015160
 void DestroyMech(MechS32 p_killer, Mech* p_mech)
 {
 	WeaponSlot* weapon;
@@ -659,6 +661,7 @@ void DestroySection(MechS32 p_attacker, Mech* p_mech, MechU32 p_section)
 // FUNCTION: MW23DFX 0x100167b0
 // FUNCTION: MW2ATI 0x10016bc0
 // FUNCTION: MW2S3 0x1000e7c0
+// FUNCTION: MW2POWERVR 0x10015b00
 void DestroyCriticalSlot(MechS32 p_attacker, Mech* p_mech, MechU32 p_section, MechS32 p_slot, MechS32 p_recursing)
 {
 	MechS32 id;

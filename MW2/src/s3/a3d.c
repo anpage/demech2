@@ -199,7 +199,7 @@ MechS32 A3D_Init(void)
 	ULONG result;
 
 	DebugPrint("A3D: InitLib\n");
-	result = S3DTK_InitLib(0);
+	result = S3DTK_InitLib(NULL);
 	if (result != S3DTK_OK) {
 		DebugPrint("Error: InitLib returned %d\n", result);
 		return FALSE;
@@ -207,7 +207,7 @@ MechS32 A3D_Init(void)
 
 	init.initUserID = 0;
 	init.initAppID = 0;
-	init.initFlags = 2;
+	init.initFlags = S3DTK_VERIFY_UVRANGE;
 	DebugPrint("A3D: CreateRenderer\n");
 	result = S3DTK_CreateRenderer(&init, &g_a3dRenderer);
 	if (result != S3DTK_OK) {
@@ -223,7 +223,7 @@ MechS32 A3D_Init(void)
 		g_a3dRenderer->S3DTK_SetState(g_a3dRenderer, S3DTK_TEXFILTERINGMODE, g_a3dPendingFilter);
 	}
 
-	g_a3dRenderer->S3DTK_SetState(g_a3dRenderer, S3DTK_FOGCOLOR, 0xffffffff);
+	g_a3dRenderer->S3DTK_SetState(g_a3dRenderer, S3DTK_FOGCOLOR, S3DTK_FOGOFF);
 	if (g_a3dZBuffer != FALSE) {
 		g_a3dZBuffer = FALSE;
 		g_a3dRenderer->S3DTK_SetState(g_a3dRenderer, S3DTK_ZBUFFERENABLE, FALSE);
@@ -254,7 +254,7 @@ MechS32 FUN_1000f780(void)
 	g_a3dDrawSurface.sfWidth = (g_mainPixelBuffer.m_xMax + 1) >> 1;
 	g_a3dDrawSurface.sfHeight = g_mainPixelBuffer.m_yMax + 1;
 	if (g_currentRefreshMode->m_index != 0 && g_currentRefreshMode->m_index != 2) {
-		g_a3dDrawSurface.sfFormat = 0x80000000 | S3DTK_VIDEORGB15;
+		g_a3dDrawSurface.sfFormat = S3DTK_SYSTEM | S3DTK_VIDEORGB15;
 	}
 
 	g_a3dRenderer->S3DTK_SetState(g_a3dRenderer, S3DTK_DRAWSURFACE, (ULONG) &g_a3dDrawSurface);
@@ -331,7 +331,7 @@ MechS32 FUN_1000f8a0(MechU32 p_count)
 MechS32 FUN_1000f8f0(ULONG p_result)
 {
 	if (p_result != S3DTK_OK) {
-		DebugPrint("A3D: Error %d\n", g_a3dRenderer->m_unk0x1c(g_a3dRenderer));
+		DebugPrint("A3D: Error %d\n", g_a3dRenderer->S3DTK_GetLastError(g_a3dRenderer));
 		return FALSE;
 	}
 
@@ -484,11 +484,11 @@ MechS32 FUN_1000fb20(A3DCachedTexture* p_texture, MechU32 p_log, MechU32 p_flags
 {
 	memset(&p_texture->m_s3dSurface, 0, sizeof(S3DTK_SURFACE));
 	p_texture->m_s3dSurface.sfOffset = FUN_1000f620((MechU32) p_texture->m_desc.lpSurface);
-	p_texture->m_s3dSurface.sfFormat = S3DTK_TEXARGB1555;
+	p_texture->m_s3dSurface.sfFormat = S3DTK_TEXARGB4444;
 	p_texture->m_s3dSurface.sfWidth = 1 << p_log;
 	p_texture->m_s3dSurface.sfHeight = 1 << p_log;
 	if (!(p_flags & 2)) {
-		p_texture->m_s3dSurface.sfFormat = S3DTK_TEXRGB555;
+		p_texture->m_s3dSurface.sfFormat = S3DTK_TEXARGB1555;
 	}
 
 	g_a3dTexture = NULL;
@@ -845,9 +845,9 @@ S3DTK_SURFACE* FUN_10010170(MechU16* p_pixels, MechU32 p_width, MechU32 p_height
 
 		if (texture) {
 			A3D_TEXTURE_fill(texture, p_pixels, p_width, p_height, p_flags, log);
-			texture->m_s3dSurface.sfFormat = S3DTK_TEXARGB1555;
+			texture->m_s3dSurface.sfFormat = S3DTK_TEXARGB4444;
 			if (!(p_flags & 2)) {
-				texture->m_s3dSurface.sfFormat = S3DTK_TEXRGB555;
+				texture->m_s3dSurface.sfFormat = S3DTK_TEXARGB1555;
 			}
 
 			g_a3dTexture = NULL;
@@ -908,7 +908,7 @@ void FUN_100102b0(MechS32 p_filter)
 		case S3DTK_TEXM8TPP:
 			A3D_SET_FILTER(S3DTK_TEXM1TPP);
 			break;
-		case S3DTK_TEX2TPP:
+		case S3DTK_TEXV2TPP:
 			A3D_SET_FILTER(S3DTK_TEX1TPP);
 			break;
 		case S3DTK_TEX4TPP:
@@ -934,7 +934,7 @@ void FUN_10010480(MechS32 p_mip)
 		case S3DTK_TEX1TPP:
 			A3D_SET_FILTER(S3DTK_TEXM1TPP);
 			break;
-		case S3DTK_TEX2TPP:
+		case S3DTK_TEXV2TPP:
 			A3D_SET_FILTER(S3DTK_TEXM2TPP);
 			break;
 		case S3DTK_TEX4TPP:

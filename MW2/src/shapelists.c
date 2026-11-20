@@ -223,6 +223,7 @@ void DisableShapeCollision(Shape* p_shape)
 // FUNCTION: MW23DFX 0x1000dcf0
 // FUNCTION: MW2ATI 0x1000e3e0
 // FUNCTION: MW2S3 0x1002a6b0
+// FUNCTION: MW2POWERVR 0x1000cfe0
 void HideShape(Shape* p_shape)
 {
 	if (!p_shape) {
@@ -247,6 +248,7 @@ void HideShape(Shape* p_shape)
 // FUNCTION: MW23DFX 0x1000dd30
 // FUNCTION: MW2ATI 0x1000e420
 // FUNCTION: MW2S3 0x1002a6f0
+// FUNCTION: MW2POWERVR 0x1000d030
 void ShowShape(Shape* p_shape)
 {
 	if (!p_shape) {

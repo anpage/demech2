@@ -194,6 +194,7 @@ void FirstEnvironment(void)
 // FUNCTION: MW23DFX 0x10007900
 // FUNCTION: MW2ATI 0x10008260
 // FUNCTION: MW2S3 0x10035200
+// FUNCTION: MW2POWERVR 0x10006fe0
 void UpdateTimeOfDay(void)
 {
 	MechS32 phase;

@@ -315,8 +315,142 @@ extern "C"
 #endif
 
 #ifdef MW2_POWERVR
-	// The PowerVR edition's renderer, over VideoLogic's SGL (powervr/a3d.c). Not decompiled yet: the
-	// client code compiles the ATI edition's calls for it until its own are known.
+	// The PowerVR edition's renderer, over VideoLogic's SGL (powervr/a3d.c): the game's objects are
+	// SGL lists and meshes of a scene graph, which a view (a viewport, a camera and a list) renders.
+	// The client code compiles the ATI edition's calls for it where its own aren't known yet.
+
+	// A view of the scene: an SGL viewport and camera, the transform that places the camera, the
+	// lists it renders, its lights, and the rendering qualities A3D_SetQuality sets.
+	// SIZE 0x2c
+	typedef struct A3DView {
+		MechS32 m_viewport;      // 0x00
+		MechS32 m_camera;        // 0x04
+		MechS32 m_transform;     // 0x08 — the camera's
+		MechS32 m_root;          // 0x0c — the list of the scene
+		MechS32 m_list;          // 0x10 — the list the qualities are set in
+		MechS32 m_light;         // 0x14 — the parallel light
+		MechS32 m_ambientLight;  // 0x18
+		MechS32 m_fog;           // 0x1c
+		MechS32 m_texturing;     // 0x20
+		MechS32 m_smoothShading; // 0x24
+		MechS32 m_shadows;       // 0x28
+	} A3DView;
+
+	// The qualities of A3D_SetQuality.
+	enum {
+		c_a3dQualityFog = 1,
+		c_a3dQualityTexturing = 2,
+		c_a3dQualitySmoothShading = 3,
+		c_a3dQualityShadows = 4
+	};
+
+	// The 3D view.
+	extern A3DView g_a3dMainView;
+
+	// Sets one of the view p_view's rendering qualities (sgl_qual_fog, sgl_qual_texturing,
+	// sgl_qual_smooth_shading, sgl_qual_generate_shadows) to p_value; returns 0 for an unknown one.
+	MechS32 A3D_SetQuality(A3DView* p_view, MechS32 p_quality, MechS32 p_value);
+
+	// Opens SGL's display in the window p_window: DirectDraw mode, with the 2D drawing in the frame's
+	// callback, the screen device at the game window's size and the views. Nonzero on success.
+	MechS32 FUN_10060e60(HWND p_window, MechS32 p_width, MechS32 p_height);
+
+	// The 2D drawing into the locked frame (simmain.c), which the renderer's frame callback calls.
+	void FUN_10007db0(void* p_pixels, MechS32 p_pitch);
+
+	// The next sgl_render recomputes the lights: FUN_10062b10 sets it at the start of each frame and
+	// clears it after the first render, so FUN_10007db0 draws the 2D part once a frame.
+	extern MechS32 g_a3dLightsChanged;
+
+	// The renderer's entry points the other units call.
+
+	// Moves the sky's plane (its height, size and tile), its texture scrolled by p_scroll.
+	void FUN_1005efe0(MechFloat p_height, MechFloat p_size, MechFloat p_tile, MechFloat p_scroll);
+	// Moves the ground's plane to the height p_height, its texture repeating every p_tile of p_size.
+	void FUN_1005f0b0(MechFloat p_height, MechFloat p_size, MechFloat p_tile);
+	// Creates a list in p_parent (a separate one for none); -1 before the renderer is open.
+	MechS32 FUN_1005f200(MechS32 p_parent);
+	// Deletes, empties, or adds an instance of p_instance to, the list p_list.
+	void FUN_1005f280(MechS32 p_list);
+	void FUN_1005f2a0(MechS32 p_list);
+	void FUN_1005f2c0(MechS32 p_list, MechS32 p_instance);
+	// Attaches the list p_list to p_parent (the root for none), detaches it, hides it, shows it.
+	void FUN_1005f320(MechS32 p_list, MechS32 p_parent);
+	void FUN_1005f390(MechS32 p_list);
+	void FUN_1005f3f0(MechS32 p_list);
+	void FUN_1005f450(MechS32 p_list);
+	// Creates a cached texture of p_map  known to the texture callback by
+	// p_id (an animation set, and its frame in the high word); -1 on failure.
+	MechS32 FUN_1005f4b0(MechU32 p_id, struct sgl_intermediate_map* p_map);
+	// Creates a material.
+	MechS32 FUN_1005f570(void);
+	// Translates (p_x, p_y, p_z) and rotates (degrees, in the order p_order) a transform, cleared
+	// first when p_clear.
+	void FUN_1005fb60(MechS32 p_transform, MechS32 p_clear, MechFloat p_x, MechFloat p_y, MechFloat p_z);
+	void FUN_1005fbc0(
+		MechS32 p_transform,
+		MechS32 p_order,
+		MechFloat p_x,
+		MechFloat p_y,
+		MechFloat p_z,
+		MechS32 p_clear
+	);
+	// Sets a camera's zoom and its near and far distances (none for 0).
+	void FUN_1005ff50(MechS32 p_camera, MechFloat p_zoom, MechFloat p_near, MechFloat p_far);
+	// Turns the ground's material to its texture (p_textured) or its average color.
+	void FUN_100602c0(MechS32 p_textured);
+	// Colors the light (an effect's flash): materials, lights, fog and background.
+	void FUN_100607d0(MechFloat p_red, MechFloat p_green, MechFloat p_blue);
+	// Opens the renderer (the texture callback and the scene); nonzero on success.
+	MechS32 FUN_10060f00(void);
+	// Sets every animation's material to its texture, in the lighting mode p_mode (nonzero: dim
+	// grey); p_colour is unused.
+	void FUN_10061160(MechFloat* p_colour, MechS32 p_mode);
+	// Converts the mission's scene to SGL ("Load3DObjects").
+	void FUN_10061530(void);
+	// Frees a converted shape's models but the one collision keeps.
+	void FUN_10061750(struct Shape* p_shape);
+	// Moves a player's mech (struct Player*) into the list of the detail level p_level.
+	void FUN_100617f0(struct Player* p_player, MechS32 p_level);
+	// An animation's SGL material, its texture loaded, lit when p_lit; -1 for none.
+	MechS32 FUN_10061810(MechS32 p_index, MechS32* p_width, MechS32* p_height, MechS32 p_lit);
+	// The size of a texture (an sgl_intermediate_map) by its type.
+	MechS32 FUN_10061870(struct sgl_intermediate_map* p_map);
+	// Sets a material's texture.
+	void FUN_100618b0(MechS32 p_material, MechS32 p_texture);
+	// Makes the object tree's materials glow by kind and damage (p_flags bit 0), or not.
+	void FUN_10061c60(struct SceneObject* p_obj, MechU32 p_flags);
+	// Converts a shape (p_material is unused).
+	void FUN_10062160(struct Shape* p_shape, MechS32 p_material);
+	// The shape is converted already.
+	MechS32 FUN_10062960(struct Shape* p_shape);
+	// Converts the object tree of p_obj, from its root, into p_parent (-1: by the shapes' kinds).
+	void FUN_10062af0(struct SceneObject* p_obj, MechS32 p_parent);
+	// Renders a frame.
+	void FUN_10062b10(void);
+	// Closes the renderer.
+	void FUN_10062df0(void);
+
+	// The fog's density.
+	extern MechFloat g_a3dFogDensity;
+
+	// Stand-ins a3d.c defines until their units do: an animation's average color, a frame's texture
+	// bits (p_data gets its pixels), an animation's texture loaded (its
+	// size), and two of the players' level loaders; the flag that lets the sky and the ground be lit.
+	void FUN_10027620(MechS32 p_index, MechFloat* p_red, MechFloat* p_green, MechFloat* p_blue);
+	struct sgl_intermediate_map* FUN_10027350(MechS32 p_set, MechS32 p_number, MechU16** p_data, MechS32* p_unk0x0c);
+	MechS32 FUN_100273e0(MechS32 p_index, MechS32* p_width, MechS32* p_height);
+	void FUN_100259c0(void);
+	void FUN_100252a0(MechS32 p_player, MechS32 p_level);
+	extern MechS32 g_unk0x101ad7e4;
+
+	// polydraw.c's sky settings, which polydraw.h doesn't declare.
+	extern MechFloat g_skyTileU;
+	extern MechFloat g_groundTile;
+	extern MechFloat g_skyScroll;
+	extern MechFloat g_skyScrollSpeed;
+	// render.c's sky object.
+	extern struct SceneObject* g_skyObject;
 
 	// A texture as A3D_polygon_clip_XY_and_render takes it (the ATI edition's A3DTextureRows).
 	// SIZE 0xc

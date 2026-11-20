@@ -423,6 +423,7 @@ void DrawAltimeter(Mech* p_mech, MechS32 p_x, MechS32 p_y)
 // FUNCTION: MW23DFX 0x10022490
 // FUNCTION: MW2ATI 0x10022760
 // FUNCTION: MW2S3 0x10001260
+// FUNCTION: MW2POWERVR 0x10021790
 void InitHudGauges(void)
 {
 	void* shape;
@@ -659,6 +660,7 @@ void DrawTargetMarker(Mech* p_mech)
 // FUNCTION: MW23DFX 0x10022960
 // FUNCTION: MW2ATI 0x10022c20
 // FUNCTION: MW2S3 0x10001720
+// FUNCTION: MW2POWERVR 0x10021cc0
 void DrawCompassMarkers(
 	Mech* p_mech,
 	MechS32 p_x,
@@ -751,6 +753,7 @@ void DrawCompassMarkers(
 // FUNCTION: MW23DFX 0x10022b10
 // FUNCTION: MW2ATI 0x10022dd0
 // FUNCTION: MW2S3 0x100018d0
+// FUNCTION: MW2POWERVR 0x10021e70
 void DrawCompass(MechS32 p_x, MechS32 p_y, MechScalar p_heading, MechScalar p_twist)
 {
 	CockpitPanel* gauge;
@@ -1117,6 +1120,7 @@ void FUN_1001e01a(MechS32 p_x, MechS32 p_y, MechS32 p_id, PANE* p_target)
 // FUNCTION: MW23DFX 0x10023120
 // FUNCTION: MW2ATI 0x100233e0
 // FUNCTION: MW2S3 0x10001eb0
+// FUNCTION: MW2POWERVR 0x10022620
 void DrawPaneShape(MechS32 p_x, MechS32 p_y, MechS32 p_id, PANE* p_target)
 {
 	void* shape;

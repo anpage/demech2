@@ -69,19 +69,37 @@
 // GLOBAL: MW2S3 0x10076608
 // GLOBAL: MW2POWERVR 0x101abb68
 PANE g_cockpitPanelPanes[c_panelCount] = {
-	{&g_mainPixelBuffer, 13, 10, 80, 60},     {&g_mainPixelBuffer, 260, 145, 312, 197},
-	{&g_mainPixelBuffer, 258, 145, 309, 175}, {&g_mainPixelBuffer, 214, 15, 256, 23},
-	{&g_mainPixelBuffer, 214, 25, 256, 33},   {&g_mainPixelBuffer, 214, 35, 256, 43},
-	{&g_mainPixelBuffer, 214, 45, 256, 53},   {&g_mainPixelBuffer, 214, 55, 256, 63},
-	{&g_mainPixelBuffer, 268, 15, 319, 23},   {&g_mainPixelBuffer, 268, 25, 319, 33},
-	{&g_mainPixelBuffer, 268, 35, 319, 43},   {&g_mainPixelBuffer, 268, 45, 319, 53},
-	{&g_mainPixelBuffer, 268, 55, 319, 63},   {&g_mainPixelBuffer, 10, 145, 62, 179},
-	{&g_mainPixelBuffer, 10, 183, 70, 199},   {&g_mainPixelBuffer, 30, 70, 300, 170},
-	{&g_mainPixelBuffer, 30, 70, 300, 170},   {&g_mainPixelBuffer, 55, 190, 120, 199},
-	{&g_mainPixelBuffer, 275, 130, 317, 195}, {&g_mainPixelBuffer, 250, 188, 273, 199},
-	{&g_mainPixelBuffer, 110, 175, 169, 189}, {&g_mainPixelBuffer, 170, 175, 209, 189},
-	{&g_mainPixelBuffer, 210, 175, 249, 189}, {&g_mainPixelBuffer, 1, 74, 35, 111},
-	{&g_mainPixelBuffer, 115, 1, 205, 35},    {&g_mainPixelBuffer, 10, 136, 70, 145},
+	{&g_mainPixelBuffer, 13, 10, 80, 60},
+	{&g_mainPixelBuffer, 260, 145, 312, 197},
+	{&g_mainPixelBuffer, 258, 145, 309, 175},
+	{&g_mainPixelBuffer, 214, 15, 256, 23},
+	{&g_mainPixelBuffer, 214, 25, 256, 33},
+	{&g_mainPixelBuffer, 214, 35, 256, 43},
+	{&g_mainPixelBuffer, 214, 45, 256, 53},
+	{&g_mainPixelBuffer, 214, 55, 256, 63},
+	{&g_mainPixelBuffer, 268, 15, 319, 23},
+	{&g_mainPixelBuffer, 268, 25, 319, 33},
+	{&g_mainPixelBuffer, 268, 35, 319, 43},
+	{&g_mainPixelBuffer, 268, 45, 319, 53},
+	{&g_mainPixelBuffer, 268, 55, 319, 63},
+	{&g_mainPixelBuffer, 10, 145, 62, 179},
+	{&g_mainPixelBuffer, 10, 183, 70, 199},
+	{&g_mainPixelBuffer, 30, 70, 300, 170},
+	{&g_mainPixelBuffer, 30, 70, 300, 170},
+	{&g_mainPixelBuffer, 55, 190, 120, 199},
+	{&g_mainPixelBuffer, 275, 130, 317, 195},
+	{&g_mainPixelBuffer, 250, 188, 273, 199},
+	{&g_mainPixelBuffer, 110, 175, 169, 189},
+	{&g_mainPixelBuffer, 170, 175, 209, 189},
+	{&g_mainPixelBuffer, 210, 175, 249, 189},
+	{&g_mainPixelBuffer, 1, 74, 35, 111},
+	{&g_mainPixelBuffer, 115, 1, 205, 35},
+#ifdef MW2_POWERVR
+	// The PowerVR edition's last panel is 6 pixels higher.
+	{&g_mainPixelBuffer, 10, 130, 70, 139},
+#else
+	{&g_mainPixelBuffer, 10, 136, 70, 145},
+#endif
 };
 
 // The panels' text positions (16.16 fractions of their rectangles).
@@ -366,6 +384,7 @@ void PreloadCockpitSounds(void)
 // FUNCTION: MW23DFX 0x1001dcc0
 // FUNCTION: MW2ATI 0x1001df90
 // FUNCTION: MW2S3 0x100406e0
+// FUNCTION: MW2POWERVR 0x1001cd80
 void LayoutWeaponPanels(Mech* p_mech)
 {
 	MechS32 rightStart;
@@ -581,6 +600,7 @@ void ScaleCockpitLayout(void)
 // FUNCTION: MW23DFX 0x1001e0f0
 // FUNCTION: MW2ATI 0x1001e3c0
 // FUNCTION: MW2S3 0x10040b10
+// FUNCTION: MW2POWERVR 0x1001d1c0
 void InitCockpitPanels(void)
 {
 	Mech* mech;
@@ -646,6 +666,7 @@ void InitCockpitPanels(void)
 // FUNCTION: MW23DFX 0x1001e2d0
 // FUNCTION: MW2ATI 0x1001e5a0
 // FUNCTION: MW2S3 0x10040cf0
+// FUNCTION: MW2POWERVR 0x1001d3f0
 void ResetCockpitPanels(void)
 {
 	Mech* mech;
@@ -671,6 +692,7 @@ void ResetCockpitPanels(void)
 // FUNCTION: MW23DFX 0x1001e340
 // FUNCTION: MW2ATI 0x1001e610
 // FUNCTION: MW2S3 0x10040d60
+// FUNCTION: MW2POWERVR 0x1001d460
 void UpdateCockpit(Mech* p_mech)
 {
 	MechScalar pitch;
@@ -822,6 +844,7 @@ void UpdateCockpit(Mech* p_mech)
 // FUNCTION: MW23DFX 0x1001e630
 // FUNCTION: MW2ATI 0x1001e900
 // FUNCTION: MW2S3 0x10041050
+// FUNCTION: MW2POWERVR 0x1001d750
 void ShutdownCockpitPanels(void)
 {
 	MechS32 i;
@@ -846,6 +869,7 @@ void ShutdownCockpitPanels(void)
 // FUNCTION: MW23DFX 0x1001e670
 // FUNCTION: MW2ATI 0x1001e940
 // FUNCTION: MW2S3 0x10041090
+// FUNCTION: MW2POWERVR 0x1001d790
 void DamageCockpitPanels(Mech* p_mech, MechS32 p_heavy)
 {
 	MechS32 chance;
@@ -870,11 +894,13 @@ void DamageCockpitPanels(Mech* p_mech, MechS32 p_heavy)
 }
 
 // Plays the cockpit's warning sounds for the local mech as its state and flags change.
+// Matches but for the registers, which VC++ 2.2 allocates differently.
 // FUNCTION: MW2 0x100705dd
 // FUNCTION: MW2MATROX 0x1007a658
 // FUNCTION: MW23DFX 0x1001e6c0
 // FUNCTION: MW2ATI 0x1001e990
 // FUNCTION: MW2S3 0x100410e0
+// FUNCTION: MW2POWERVR 0x1001d7e0
 void PlayCockpitWarnings(Mech* p_mech)
 {
 	if (g_hitFadePending) {

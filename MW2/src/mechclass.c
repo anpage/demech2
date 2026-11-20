@@ -1212,6 +1212,7 @@ void UpdateMech(Mech* p_mech)
 // FUNCTION: MW23DFX 0x1001a180
 // FUNCTION: MW2ATI 0x1001a530
 // FUNCTION: MW2S3 0x10043250
+// FUNCTION: MW2POWERVR 0x10019450
 void LateUpdateMech(Mech* p_mech)
 {
 	MechScalar throttle;

@@ -18,7 +18,11 @@
 #include <string.h>
 #include <windows.h>
 
+#ifdef MW2_POWERVR
+DECOMP_SIZE_ASSERT(SceneObject, 0x8c)
+#else
 DECOMP_SIZE_ASSERT(SceneObject, 0x7c)
+#endif
 
 // The countdown the next object starts with, stepped through 64 to 191 so that objects
 // renormalize on different frames.
@@ -34,6 +38,7 @@ MechU32 g_nextRenormalizeCountdown = 100;
 // FUNCTION: MW23DFX 0x1000f5e0
 // FUNCTION: MW2ATI 0x1000fcb0
 // FUNCTION: MW2S3 0x10004a00
+// FUNCTION: MW2POWERVR 0x1000e8e0
 SceneObject* CreateObj(SceneObject* p_parent, MechU32 p_flags)
 {
 	SceneObject* obj;
@@ -101,6 +106,7 @@ SceneObject* CreateObj(SceneObject* p_parent, MechU32 p_flags)
 // FUNCTION: MW23DFX 0x1000f6d0
 // FUNCTION: MW2ATI 0x1000fda0
 // FUNCTION: MW2S3 0x10004af0
+// FUNCTION: MW2POWERVR 0x1000e9f0
 SceneObject* InitObj(SceneObject* p_parent, void* p_memory)
 {
 	SceneObject* obj = p_memory;
@@ -862,6 +868,7 @@ SceneObject* FindObjByPart(SceneObject* p_obj, MechU32 p_partId)
 // FUNCTION: MW23DFX 0x1000ff00
 // FUNCTION: MW2ATI 0x10010460
 // FUNCTION: MW2S3 0x100051b0
+// FUNCTION: MW2POWERVR 0x1000f2f0
 void RaisePartDamageLevel(SceneObject* p_obj, MechS32 p_level, MechU32 p_partId)
 {
 	MechS32 current;

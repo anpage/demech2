@@ -19,6 +19,10 @@
 #include "types.h"
 #include "view.h"
 
+#ifdef MW2_POWERVR
+#include "accel/a3d.h"
+#endif
+
 // The map (satellite) view's projection: a top-down view of p_worldSpan units across.
 
 #ifdef MW2_FLOAT_SCALARS
@@ -162,20 +166,26 @@ void BeginMapView(MechScalar* p_pose, MechS32 p_slot, MechS32 p_worldSpan, MechS
 	g_projectionDirty = 0;
 }
 
-// Draws the map view's scene: the terrain when bit 0 of p_flags is set, then the shapes.
+// Draws the map view's scene: the terrain when bit 0 of p_flags is set, then the shapes. The
+// PowerVR edition has its renderer draw the frame (FUN_10062b10) whatever the flags.
 // FUNCTION: MW2 0x1004215f
 // FUNCTION: MW2MATROX 0x1001e36d
 // FUNCTION: MW23DFX 0x10001180
 // FUNCTION: MW2ATI 0x10001180
 // FUNCTION: MW2S3 0x10002090
+// FUNCTION: MW2POWERVR 0x10001180
 void DrawMapViewScene(MapViewFlags p_flags)
 {
+#ifdef MW2_POWERVR
+	FUN_10062b10();
+#else
 	if (p_flags.m_bits & 1) {
 		DrawSkyAndGround(g_eyepoint);
 	}
 
 	DrawShapeList(g_sceneShapes);
 	FUN_10069591();
+#endif
 }
 
 // Restores the eyepoint and the rendering settings BeginMapView saved.
@@ -204,6 +214,7 @@ void EndMapView(void)
 // FUNCTION: MW23DFX 0x10001220
 // FUNCTION: MW2ATI 0x10001220
 // FUNCTION: MW2S3 0x10002130
+// FUNCTION: MW2POWERVR 0x10001200
 MechS32 CullMapViewShape(Shape* p_shape)
 {
 	MechScalar y;
@@ -346,6 +357,7 @@ ProjectedVertex* ProjectMapViewVertex(ProjectedVertex* p_vertex)
 // FUNCTION: MW23DFX 0x100014b0
 // FUNCTION: MW2ATI 0x100014b0
 // FUNCTION: MW2S3 0x10002390
+// FUNCTION: MW2POWERVR 0x10001490
 #ifdef MW2_FLOAT_SCALARS
 MechS32 ProjectMapPoint(Vector3* p_position, Point* p_screen)
 #else

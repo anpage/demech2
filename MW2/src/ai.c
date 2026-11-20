@@ -997,11 +997,13 @@ MechU32 GetPointDistance(MechS32* p_a, MechS32* p_b)
 }
 
 // Makes the first able member of star p_team other than its leader the leader. Returns it, or -1.
+// Matches but for the registers, which VC++ 2.2 allocates differently.
 // FUNCTION: MW2 0x1005212a
 // FUNCTION: MW2MATROX 0x10081269
 // FUNCTION: MW23DFX 0x100125d0
 // FUNCTION: MW2ATI 0x10012b30
 // FUNCTION: MW2S3 0x10015da0
+// FUNCTION: MW2POWERVR 0x10011a70
 MechS32 ChooseTeamLeader(MechS32 p_team)
 {
 	Player* member;
@@ -2476,6 +2478,7 @@ void ReleaseNavPoints(Player* p_player)
 // FUNCTION: MW23DFX 0x10013f00
 // FUNCTION: MW2ATI 0x10014390
 // FUNCTION: MW2S3 0x10017610
+// FUNCTION: MW2POWERVR 0x100132d0
 void PlacePatrolNavs(Player* p_player)
 {
 	MechU32 index;
@@ -3127,6 +3130,7 @@ void HandleStarOrder(MechS32 p_team, AiMessage* p_order)
 // FUNCTION: MW23DFX 0x10014950
 // FUNCTION: MW2ATI 0x10014da0
 // FUNCTION: MW2S3 0x10018020
+// FUNCTION: MW2POWERVR 0x10013ce0
 MechS32 AssignStarTarget(MechS32 p_team, MechU16 p_target)
 {
 	MechS32 required;

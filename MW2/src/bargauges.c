@@ -150,6 +150,7 @@ Point g_jumpFuelBarSize = {0xdf2e, 0x5555};
 // FUNCTION: MW23DFX 0x1001c250
 // FUNCTION: MW2ATI 0x1001c580
 // FUNCTION: MW2S3 0x10014bc0
+// FUNCTION: MW2POWERVR 0x1001b370
 void ScaleBarGauges(void)
 {
 	CockpitPanel* panel;

@@ -764,6 +764,7 @@ void UpdateOrdinanceView(void)
 // FUNCTION: MW23DFX 0x1002e280
 // FUNCTION: MW2ATI 0x1002d3d0
 // FUNCTION: MW2S3 0x1003fda0
+// FUNCTION: MW2POWERVR 0x100281f0
 void UpdateTrackView(MechScalar p_distance, MechScalar p_height, MechScalar p_tilt, MechScalar p_turn)
 {
 	MechScalar y;

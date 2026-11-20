@@ -315,6 +315,7 @@ void SetMidiVolume(MechS16 p_volume)
 // FUNCTION: MW23DFX 0x100333a0
 // FUNCTION: MW2ATI 0x10032040
 // FUNCTION: MW2S3 0x1001b0f0
+// FUNCTION: MW2POWERVR 0x1002cac0
 void ApplyMidiVolume(void)
 {
 }
@@ -326,6 +327,7 @@ void ApplyMidiVolume(void)
 // FUNCTION: MW23DFX 0x100333b0
 // FUNCTION: MW2ATI 0x10032050
 // FUNCTION: MW2S3 0x1001b100
+// FUNCTION: MW2POWERVR 0x1002cad0
 MechS32 FUN_100219f5(MechS32 p_delay, MechS32 p_bearing, MechS32 p_id, MechU32 p_volume, MechS32 p_pan, MechS32 p_flags)
 {
 	return 0;
@@ -338,6 +340,7 @@ MechS32 FUN_100219f5(MechS32 p_delay, MechS32 p_bearing, MechS32 p_id, MechU32 p
 // FUNCTION: MW23DFX 0x100333c0
 // FUNCTION: MW2ATI 0x10032060
 // FUNCTION: MW2S3 0x1001b110
+// FUNCTION: MW2POWERVR 0x1002cae0
 void StartEngineNote(void)
 {
 #ifdef MW2_NO_ENGINE_NOTE

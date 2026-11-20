@@ -8,7 +8,7 @@
 #pragma pack(push, 1)
 
 // An animated texture: which frame set it plays, where it is, and how fast.
-// SIZE 0x0e
+// SIZE 0x0e (0x16 in the PowerVR edition)
 typedef struct Animation {
 	MechS16 m_set;      // 0x00 — in g_animFrames
 	MechS16 m_frame;    // 0x02
@@ -16,6 +16,11 @@ typedef struct Animation {
 	MechU16 m_mode;     // 0x06 — 0 stopped, 1 looping, 2 playing once
 	MechS16 m_flags;    // 0x08 — -2 for a free slot
 	MechS32 m_lastTime; // 0x0a
+#ifdef MW2_POWERVR
+	// The PowerVR edition's animations are 0x16 bytes: the renderer keeps an SGL material for each.
+	MechS32 m_material; // 0x0e
+	MechS32 m_lit;      // 0x12 — lit by the scene's lights (0: the texture glows)
+#endif
 } Animation;
 
 #pragma pack(pop)

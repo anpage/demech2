@@ -55,18 +55,22 @@ MechFloat g_skyTileV = 0.8f;
 MechFloat g_groundTile = 20000.0f;
 #else
 // GLOBAL: MW2MATROX 0x100addc0
+// GLOBAL: MW2POWERVR 0x101ad544
 MechFloat g_skyTileU = 12.0f;
 
 // GLOBAL: MW2MATROX 0x100addc4
+// GLOBAL: MW2POWERVR 0x101ad548
 MechFloat g_skyTileV = 2.4f;
 
 // GLOBAL: MW2MATROX 0x100addc8
+// GLOBAL: MW2POWERVR 0x101ad54c
 MechFloat g_groundTile = 50.0f;
 #endif
 
 // GLOBAL: MW2MATROX 0x100addcc
 // GLOBAL: MW23DFX 0x1024e124
 // GLOBAL: MW2ATI 0x10182434
+// GLOBAL: MW2POWERVR 0x101ad550
 MechFloat g_skyScroll = 0;
 #endif
 
@@ -207,6 +211,7 @@ A3DVertex g_a3dClipped[16];
 // GLOBAL: MW2MATROX 0x1015d900
 // GLOBAL: MW23DFX 0x101b12d0
 // GLOBAL: MW2ATI 0x100e5170
+// GLOBAL: MW2POWERVR 0x1010c3d8
 MechFloat g_skyScrollSpeed;
 
 // The polygon the Matrox edition hands its renderer.

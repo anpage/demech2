@@ -14,7 +14,7 @@ typedef void (*ObjectCallback)(SceneObject* p_obj);
 
 /* A node of the scene tree: its transform relative to the parent, the world transform
    UpdateObjWorld derives from it, and an optional shape. CreateObj allocates it. */
-// SIZE 0x7c
+// SIZE 0x7c (0x8c in the PowerVR edition)
 struct SceneObject {
 	SceneObject* m_parent;          // 0x00
 	SceneObject* m_firstChild;      // 0x04
@@ -25,6 +25,14 @@ struct SceneObject {
 	MechChar* m_name;               // 0x70
 	MechU32 m_flags;                // 0x74
 	MechU32 m_renormalizeCountdown; // 0x78 — rotations left before NormalizeRotation (64 to 191, staggered)
+#ifdef MW2_POWERVR
+	// The PowerVR edition's objects are 0x8c bytes: the object's SGL list, its translation and
+	// rotation transforms, and its material.
+	MechS32 m_list;        // 0x7c
+	MechS32 m_translation; // 0x80
+	MechS32 m_rotation;    // 0x84
+	MechS32 m_material;    // 0x88
+#endif
 };
 
 enum {

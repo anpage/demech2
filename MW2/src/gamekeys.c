@@ -128,7 +128,7 @@ MechS32 g_missionResolved = 0;
 // GLOBAL: MW23DFX 0x1025053c
 // GLOBAL: MW2ATI 0x1018484c
 // GLOBAL: MW2S3 0x1006265c
-// GLOBAL: MW2POWERVR 0x101afa08
+// GLOBAL: MW2POWERVR 0x101af914
 MechS32 g_statusMessage = 0;
 
 // The last 15 characters typed, the newest last.
@@ -491,6 +491,7 @@ MechS32 HandleChatKey(MechU32 p_keyCode)
 // FUNCTION: MW23DFX 0x100374e0
 // FUNCTION: MW2ATI 0x100360a0
 // FUNCTION: MW2S3 0x10012330
+// FUNCTION: MW2POWERVR 0x10030e80
 void HandleGameKeys(MechS32 p_unk0x00, MechS32 p_unk0x04, MechU16 p_key)
 {
 	if (g_simPaused) {
@@ -622,6 +623,7 @@ void HandleGameKeys(MechS32 p_unk0x00, MechS32 p_unk0x04, MechU16 p_key)
 // FUNCTION: MW23DFX 0x10037880
 // FUNCTION: MW2ATI 0x10036440
 // FUNCTION: MW2S3 0x100126d0
+// FUNCTION: MW2POWERVR 0x10031220
 void RunGameKey(MechS32 p_key)
 {
 	Mech* mech;

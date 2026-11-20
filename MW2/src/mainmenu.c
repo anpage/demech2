@@ -109,11 +109,13 @@ MechChar g_confirmationRequestedText[] = "Confirmation requested";
 // GLOBAL: MW2 0x100a1b78
 // GLOBAL: MW2MATROX 0x100a2500
 // GLOBAL: MW23DFX 0x10264540
+// GLOBAL: MW2POWERVR 0x101c3bb0
 MechChar g_noText[] = "No";
 
 // GLOBAL: MW2 0x100a1b7c
 // GLOBAL: MW2MATROX 0x100a2504
 // GLOBAL: MW23DFX 0x10264544
+// GLOBAL: MW2POWERVR 0x101c3bb4
 MechChar g_yesText[] = "Yes";
 
 // GLOBAL: MW2 0x100a1b80
@@ -137,6 +139,7 @@ MechChar g_onText[] = "On";
 // GLOBAL: MW23DFX 0x10264550
 // GLOBAL: MW2ATI 0x10198848
 // GLOBAL: MW2S3 0x10075ee8
+// GLOBAL: MW2POWERVR 0x101c3bc0
 MechChar g_lowText[] = "Low";
 
 // GLOBAL: MW2 0x100a1b90
@@ -148,6 +151,7 @@ MechChar g_mediumText[] = "Medium";
 // GLOBAL: MW23DFX 0x10264560
 // GLOBAL: MW2ATI 0x10198858
 // GLOBAL: MW2S3 0x10075ef8
+// GLOBAL: MW2POWERVR 0x101c3bd0
 MechChar g_highText[] = "High";
 
 // GLOBAL: MW2 0x100a1ba0
@@ -161,6 +165,7 @@ MenuChoices g_offOnChoices = {NULL, 2, {g_offText, g_onText}};
 // GLOBAL: MW2 0x100a1be8
 // GLOBAL: MW2MATROX 0x100a2570
 // GLOBAL: MW23DFX 0x102645b0
+// GLOBAL: MW2POWERVR 0x101c3c20
 MenuChoices g_noYesChoices = {NULL, 2, {g_noText, g_yesText}};
 
 // GLOBAL: MW2 0x100a1c30
@@ -168,6 +173,7 @@ MenuChoices g_noYesChoices = {NULL, 2, {g_noText, g_yesText}};
 // GLOBAL: MW23DFX 0x102645f8
 // GLOBAL: MW2ATI 0x101988f0
 // GLOBAL: MW2S3 0x10075f90
+// GLOBAL: MW2POWERVR 0x101c3c68
 MenuChoices g_lowHighChoices = {NULL, 2, {g_lowText, g_highText}};
 
 // GLOBAL: MW2 0x100a1c78

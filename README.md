@@ -157,8 +157,8 @@ reccmp-reccmp --target MECH2 --nolib --total 21
 reccmp-reccmp --target MW2MATROX --nolib --total 1597
 reccmp-reccmp --target MW23DFX --nolib --total 1574
 reccmp-reccmp --target MW2ATI --nolib --total 1427
-reccmp-reccmp --target MW2S3 --nolib --total 1393
-reccmp-reccmp --target MW2POWERVR --nolib --total 1421
+reccmp-reccmp --target MW2S3 --nolib --total 1394
+reccmp-reccmp --target MW2POWERVR --nolib --total 1425
 ```
 
 To certify the build (from the repository root, after building; it compiles each unit again with the build's own commands, applies the witness records, and compares every function with the original):

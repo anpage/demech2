@@ -26,6 +26,13 @@ MechS32 ScaleJoystickAxis(MechS32 p_value, MechS32 p_deadZone, MechS32 p_center,
 BOOL ReadJoystickOemName(MechS32 p_index, MechChar* p_driverKey, MechChar* p_name, MechU32 p_size);
 void ChooseJoystickMapName(InputDeviceInfo* p_info, JOYCAPS* p_caps);
 
+#ifdef MW2_POWERVR
+// The PowerVR edition reads simple joysticks (three axes, four buttons and no POV hat) with
+// joyGetPos, the others with joyGetPosEx (JoystickOpenDevice decides).
+// GLOBAL: MW2POWERVR 0x101b8648
+MechS32 g_joystickUsesPosEx = 0;
+#endif
+
 // The names FillJoystickDeviceInfo gives the joystick's axes and POV directions, and their short
 // names in INPUT.MAP.
 
@@ -370,11 +377,12 @@ MechS32 FillJoystickDeviceInfo(MechS32 p_index, InputDeviceInfo* p_info)
 // FUNCTION: MW23DFX 0x1003a9c0
 // FUNCTION: MW2ATI 0x10039580
 // FUNCTION: MW2S3 0x100056c0
+// FUNCTION: MW2POWERVR 0x10034280
 MechS32 JoystickOpenDevice(InputDeviceInfo* p_info)
 {
 	JoystickData* data;
 	JOYCAPS caps;
-#ifndef MW2_JOYSTICK_OPEN_POSEX
+#if !defined(MW2_JOYSTICK_OPEN_POSEX) || defined(MW2_POWERVR)
 	JOYINFO info;
 #endif
 	MechDouble range;
@@ -382,7 +390,33 @@ MechS32 JoystickOpenDevice(InputDeviceInfo* p_info)
 	JOYINFOEX infoEx;
 
 	data = p_info->m_driverData;
-#ifdef MW2_JOYSTICK_OPEN_POSEX
+#if defined(MW2_POWERVR)
+	// The PowerVR edition's: 1.1's probe, which also takes a joystick with a POV hat to
+	// joyGetPosEx, on a JOYINFOEX with only its size set.
+	if (!data) {
+		return 1;
+	}
+
+	if (joyGetDevCaps(data->m_id, &caps, sizeof(caps))) {
+		return 1;
+	}
+
+	if (caps.wNumAxes <= 3 && caps.wMaxButtons <= 4 && !(caps.wCaps & JOYCAPS_HASPOV)) {
+		if (joyGetPos(data->m_id, &info) == JOYERR_UNPLUGGED) {
+			return 1;
+		}
+
+		g_joystickUsesPosEx = FALSE;
+	}
+	else {
+		infoEx.dwSize = sizeof(infoEx);
+		if (joyGetPosEx(data->m_id, &infoEx) == JOYERR_UNPLUGGED) {
+			return 1;
+		}
+
+		g_joystickUsesPosEx = TRUE;
+	}
+#elif defined(MW2_JOYSTICK_OPEN_POSEX)
 	if (!data || joyGetDevCaps(data->m_id, &caps, sizeof(caps)) ||
 		joyGetPosEx(data->m_id, &infoEx) == JOYERR_UNPLUGGED) {
 		return 1;
@@ -645,12 +679,13 @@ MechS32 JoystickPoll(JoystickData* p_data, MechS32* p_axes, MechU32* p_buttons)
 // FUNCTION: MW23DFX 0x1003ae80
 // FUNCTION: MW2ATI 0x10039a40
 // FUNCTION: MW2S3 0x10005b00
+// FUNCTION: MW2POWERVR 0x100347d0
 MechS32 JoystickPoll(JoystickData* p_data, MechS32* p_axes, MechU32* p_buttons)
 {
 	MechS32 i;
 	JOYINFOEX info;
 
-#ifndef MW2_JOYINFOEX_UNCLEARED
+#if !defined(MW2_JOYINFOEX_UNCLEARED) && !defined(MW2_POWERVR)
 	memset(&info, 0, sizeof(info));
 	info.dwSize = sizeof(info);
 #endif
@@ -667,6 +702,31 @@ MechS32 JoystickPoll(JoystickData* p_data, MechS32* p_axes, MechU32* p_buttons)
 		return 0;
 	}
 
+#ifdef MW2_POWERVR
+	// The PowerVR edition's reads a simple joystick with joyGetPos (g_joystickUsesPosEx), and
+	// clears the JOYINFOEX for the others.
+	if (!g_joystickUsesPosEx) {
+		JOYINFO simple;
+
+		memset(&simple, 0, sizeof(simple));
+		if (joyGetPos(p_data->m_id, &simple) == JOYERR_NOERROR) {
+			p_buttons[0] = simple.wButtons;
+			p_axes[0] =
+				ScaleJoystickAxis(simple.wYpos, p_data->m_deadZones[1], p_data->m_centers[1], p_data->m_scales[1]);
+			p_axes[1] =
+				ScaleJoystickAxis(simple.wXpos, p_data->m_deadZones[0], p_data->m_centers[0], p_data->m_scales[0]);
+			if (p_data->m_flags & JOY_RETURNZ) {
+				p_axes[2] =
+					ScaleJoystickAxis(simple.wZpos, p_data->m_deadZones[2], p_data->m_centers[2], p_data->m_scales[2]);
+			}
+		}
+
+		return 0;
+	}
+
+	memset(&info, 0, sizeof(info));
+	info.dwSize = sizeof(info);
+#endif
 	info.dwFlags = p_data->m_flags;
 	if (joyGetPosEx(p_data->m_id, &info) == JOYERR_NOERROR) {
 		p_buttons[0] = info.dwButtons;

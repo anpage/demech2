@@ -166,11 +166,13 @@ MechS32 LoadMgdFile(
 
 // Loads the animation file p_ref: up to 32 animations, numbered from the current base
 // (GetAnimBase), into g_reels.
+// Matches but for the registers, which VC++ 2.2 allocates differently.
 // FUNCTION: MW2 0x100708f4
 // FUNCTION: MW2MATROX 0x1000ae34
 // FUNCTION: MW23DFX 0x100401c0
 // FUNCTION: MW2ATI 0x1003df20
 // FUNCTION: MW2S3 0x1002de90
+// FUNCTION: MW2POWERVR 0x10038d80
 MechS32 LoadReels(ResourceRef* p_ref)
 {
 	MechS32 ids[32];
@@ -264,11 +266,13 @@ MechS32 LoadReels(ResourceRef* p_ref)
 // Loads the cockpit layout resource p_ref: the gauge positions (g_hudGaugePositions), three values
 // (g_hudLayoutValues) and fifteen rectangles in percent of the screen (g_outlinePartRects), any of
 // them out of range cleared.
+// Matches but for the registers, which VC++ 2.2 allocates differently.
 // FUNCTION: MW2 0x10070bda
 // FUNCTION: MW2MATROX 0x1000b1c6
 // FUNCTION: MW23DFX 0x100403a0
 // FUNCTION: MW2ATI 0x1003e100
 // FUNCTION: MW2S3 0x1002e070
+// FUNCTION: MW2POWERVR 0x10038f60
 MechS32 LoadHudFile(ResourceRef* p_ref)
 {
 	MechS32 size;
