@@ -25,12 +25,16 @@
 // GLOBAL: MW2MATROX 0x100ac62c
 // GLOBAL: MW23DFX 0x1025963c
 // GLOBAL: MW2ATI 0x1018d93c
+// GLOBAL: MW2S3 0x100612f0
+// GLOBAL: MW2POWERVR 0x101b8bac
 MechChar* g_fatalErrorTitle = "\nMW2.EXE - fatal error";
 
 // GLOBAL: MW2 0x100a58a0
 // GLOBAL: MW2MATROX 0x100ac630
 // GLOBAL: MW23DFX 0x10259654
 // GLOBAL: MW2ATI 0x1018d954
+// GLOBAL: MW2S3 0x100612f4
+// GLOBAL: MW2POWERVR 0x101b8bc4
 MechChar* g_warningTitle = "\nMW2.EXE - warning";
 
 // The code of the last error.
@@ -38,6 +42,8 @@ MechChar* g_warningTitle = "\nMW2.EXE - warning";
 // GLOBAL: MW2MATROX 0x100ac634
 // GLOBAL: MW23DFX 0x10259658
 // GLOBAL: MW2ATI 0x1018d958
+// GLOBAL: MW2S3 0x100612f8
+// GLOBAL: MW2POWERVR 0x101b8bc8
 MechS32 g_errorCode = 0;
 
 // The error message; the length is unknown.
@@ -45,6 +51,8 @@ MechS32 g_errorCode = 0;
 // GLOBAL: MW2MATROX 0x100c21f8
 // GLOBAL: MW23DFX 0x1007d730
 // GLOBAL: MW2ATI 0x10072730
+// GLOBAL: MW2S3 0x1007c678
+// GLOBAL: MW2POWERVR 0x10070778
 MechChar g_errorMessage[0x400];
 
 // Reports error p_code, with a printf-style message: codes that are warnings are logged, the
@@ -53,6 +61,8 @@ MechChar g_errorMessage[0x400];
 // FUNCTION: MW2MATROX 0x10059620
 // FUNCTION: MW23DFX 0x1003ccb0
 // FUNCTION: MW2ATI 0x1003ac80
+// FUNCTION: MW2S3 0x10006310
+// FUNCTION: MW2POWERVR 0x10035ac0
 void Error(MechS32 p_code, const char* p_format, ...)
 {
 	g_errorCode = p_code;
@@ -153,6 +163,8 @@ void Error(MechS32 p_code, const char* p_format, ...)
 // FUNCTION: MW2MATROX 0x10059767
 // FUNCTION: MW23DFX 0x1003cdc0
 // FUNCTION: MW2ATI 0x1003ad90
+// FUNCTION: MW2S3 0x10006420
+// FUNCTION: MW2POWERVR 0x10035bd0
 void ShutdownOnError(void)
 {
 	FreeBwdNames();
@@ -170,6 +182,8 @@ void ShutdownOnError(void)
 // FUNCTION: MW2MATROX 0x1005979a
 // FUNCTION: MW23DFX 0x1003cdf0
 // FUNCTION: MW2ATI 0x1003adc0
+// FUNCTION: MW2S3 0x10006450
+// FUNCTION: MW2POWERVR 0x10035c00
 void ShowFatalError(const char** p_args)
 {
 	ShutdownRender();
@@ -197,6 +211,8 @@ void ShowFatalError(const char** p_args)
 // FUNCTION: MW2MATROX 0x10059831
 // FUNCTION: MW23DFX 0x1003ce80
 // FUNCTION: MW2ATI 0x1003ae50
+// FUNCTION: MW2S3 0x100064e0
+// FUNCTION: MW2POWERVR 0x10035c90
 MechChar* __cdecl FormatErrorMessage(MechChar* p_title, MechS32 p_code, const char** p_args)
 {
 	MechChar code[4];
@@ -222,6 +238,8 @@ MechChar* __cdecl FormatErrorMessage(MechChar* p_title, MechS32 p_code, const ch
 // FUNCTION: MW2MATROX 0x10059911
 // FUNCTION: MW23DFX 0x1003cf40
 // FUNCTION: MW2ATI 0x1003af10
+// FUNCTION: MW2S3 0x100065a0
+// FUNCTION: MW2POWERVR 0x10035d50
 void LogWarning(const char** p_args)
 {
 	FormatErrorMessage(g_warningTitle, g_errorCode, p_args);

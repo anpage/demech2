@@ -16,7 +16,8 @@
 // (CLAUDE.md, "The A3D layer"): the game's interface to one back end per card. The Matrox edition's
 // is matrox/a3d.c (0x1005a5f0-0x10067500, between damagepanel.c's and keyboard.c's objects),
 // optimized code compiled with /Ox /G5 /Op; the 3Dfx edition's is 3dfx/a3d.c, over Glide; the ATI
-// edition's is ati/a3d.c, over ATI's 3D CIF.
+// edition's is ati/a3d.c, over ATI's 3D CIF; the S3 edition's is s3/a3d.c, over S3's toolkit; the
+// PowerVR edition's is powervr/a3d.c, over SGL.
 
 // A vertex of the textured polygons A3D_GroundSkyPolyPlot draws, in doubles: the screen position, the depth
 // and the projection scale over it, the color (0-255 per component) and the texture coordinates
@@ -240,6 +241,66 @@ extern "C"
 
 // The texture filter setting (MW2_TEXTURE_FILTER), passed to the renderer.
 #define A3D_SET_TEXTURE_FILTER(p_filter) FUN_100648a0(p_filter)
+
+// The 3D view's pane wipe, with a 16-bit pixel: VFX's (the 16-bit port, accel/vfx16.h).
+#define A3D_PANE_WIPE(p_pane, p_color) VFX_pane_wipe(p_pane, p_color)
+#endif
+
+#ifdef MW2_S3
+	// The S3 edition's renderer, over S3's toolkit (s3/a3d.c). Not decompiled yet: the
+	// client code compiles the ATI edition's calls for it until its own are known.
+
+	// A texture as A3D_polygon_clip_XY_and_render takes it (the ATI edition's A3DTextureRows).
+	// SIZE 0xc
+	typedef struct A3DTextureRows {
+		MechU16** m_rows; // 0x0
+		MechS32 m_width;  // 0x4
+		MechS32 m_height; // 0x8
+	} A3DTextureRows;
+
+	void A3D_map_polygon(PANE* p_pane, MechU32 p_count, A3DVertex* p_vertices, WINDOW* p_texture, MechU32 p_flags);
+	void A3D_polygon_clip_XY_and_render(
+		PANE* p_pane,
+		MechU32 p_count,
+		A3DVertex* p_vertices,
+		MechU32 p_flags,
+		MechS32 p_mip,
+		A3DTextureRows* p_texture,
+		undefined4 p_unk0x18,
+		undefined4 p_unk0x1c
+	);
+	// Closes the renderer.
+	void A3D_shutdown(void);
+
+// The 3D view's pane wipe, with a 16-bit pixel: VFX's (the 16-bit port, accel/vfx16.h).
+#define A3D_PANE_WIPE(p_pane, p_color) VFX_pane_wipe(p_pane, p_color)
+#endif
+
+#ifdef MW2_POWERVR
+	// The PowerVR edition's renderer, over VideoLogic's SGL (powervr/a3d.c). Not decompiled yet: the
+	// client code compiles the ATI edition's calls for it until its own are known.
+
+	// A texture as A3D_polygon_clip_XY_and_render takes it (the ATI edition's A3DTextureRows).
+	// SIZE 0xc
+	typedef struct A3DTextureRows {
+		MechU16** m_rows; // 0x0
+		MechS32 m_width;  // 0x4
+		MechS32 m_height; // 0x8
+	} A3DTextureRows;
+
+	void A3D_map_polygon(PANE* p_pane, MechU32 p_count, A3DVertex* p_vertices, WINDOW* p_texture, MechU32 p_flags);
+	void A3D_polygon_clip_XY_and_render(
+		PANE* p_pane,
+		MechU32 p_count,
+		A3DVertex* p_vertices,
+		MechU32 p_flags,
+		MechS32 p_mip,
+		A3DTextureRows* p_texture,
+		undefined4 p_unk0x18,
+		undefined4 p_unk0x1c
+	);
+	// Closes the renderer.
+	void A3D_shutdown(void);
 
 // The 3D view's pane wipe, with a 16-bit pixel: VFX's (the 16-bit port, accel/vfx16.h).
 #define A3D_PANE_WIPE(p_pane, p_color) VFX_pane_wipe(p_pane, p_color)

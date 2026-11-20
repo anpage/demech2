@@ -20,6 +20,7 @@
 // FUNCTION: MW2MATROX 0x1007b8d0
 // FUNCTION: MW23DFX 0x10028ee0
 // FUNCTION: MW2ATI 0x10028ba0
+// FUNCTION: MW2S3 0x10041350
 MechS32 IsAboveHorizon(MechS32 p_x, MechS32 p_y, Eyepoint* p_eyepoint)
 {
 #ifdef MW2_FLOAT_SCALARS
@@ -169,6 +170,7 @@ MechS32 HorizonYAtX(MechS32 p_x, Eyepoint* p_eyepoint)
 // FUNCTION: MW2MATROX 0x1007ba4c
 // FUNCTION: MW23DFX 0x10028ff0
 // FUNCTION: MW2ATI 0x10028cb0
+// FUNCTION: MW2S3 0x10041400
 MechS32 HorizonXAtY(MechS32 p_y, Eyepoint* p_eyepoint)
 {
 #ifdef MW2_FLOAT_SCALARS

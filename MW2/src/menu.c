@@ -38,6 +38,8 @@
 // GLOBAL: MW2MATROX 0x100bf0a0
 // GLOBAL: MW23DFX 0x102653e8
 // GLOBAL: MW2ATI 0x101996e0
+// GLOBAL: MW2S3 0x10065c60
+// GLOBAL: MW2POWERVR 0x101c4a58
 MechS32 g_menuRepeatTimer = -1;
 
 // The in-mission menus by ID (RegisterMenu): 4 the main menu, 5 the systems status, 1 the lance
@@ -46,6 +48,8 @@ MechS32 g_menuRepeatTimer = -1;
 // GLOBAL: MW2MATROX 0x100bf0a8
 // GLOBAL: MW23DFX 0x102653f0
 // GLOBAL: MW2ATI 0x101996e8
+// GLOBAL: MW2S3 0x10065c68
+// GLOBAL: MW2POWERVR 0x101c4a60
 MenuDefinition* g_menuDefinitions[11] = {
 	NULL,
 	&g_commandMenu,
@@ -64,6 +68,8 @@ MenuDefinition* g_menuDefinitions[11] = {
 // GLOBAL: MW2MATROX 0x1012c950
 // GLOBAL: MW23DFX 0x10245700
 // GLOBAL: MW2ATI 0x10179520
+// GLOBAL: MW2S3 0x1014da10
+// GLOBAL: MW2POWERVR 0x101a40a0
 undefined2 g_textColors[0x100];
 #else
 // GLOBAL: MW2 0x100e9350
@@ -74,18 +80,24 @@ undefined g_textColors[0x100];
 // GLOBAL: MW2MATROX 0x10125864
 // GLOBAL: MW23DFX 0x101534c8
 // GLOBAL: MW2ATI 0x100874e4
+// GLOBAL: MW2S3 0x100adb80
+// GLOBAL: MW2POWERVR 0x1007dac8
 MechS32 g_openMenuCount;
 
 // GLOBAL: MW2 0x10109c7c
 // GLOBAL: MW2MATROX 0x10125868
 // GLOBAL: MW23DFX 0x101534cc
 // GLOBAL: MW2ATI 0x100874e8
+// GLOBAL: MW2S3 0x10065c5c
+// GLOBAL: MW2POWERVR 0x1007dacc
 MenuSlot* g_menuSlotsTail;
 
 // GLOBAL: MW2 0x10109c80
 // GLOBAL: MW2MATROX 0x1012585c
 // GLOBAL: MW23DFX 0x101534c0
 // GLOBAL: MW2ATI 0x100874dc
+// GLOBAL: MW2S3 0x10065c58
+// GLOBAL: MW2POWERVR 0x1007dac0
 MenuSlot* g_menuSlots;
 
 // The key the open menu acts on this frame (0: none).
@@ -93,6 +105,8 @@ MenuSlot* g_menuSlots;
 // GLOBAL: MW2MATROX 0x10125860
 // GLOBAL: MW23DFX 0x101534c4
 // GLOBAL: MW2ATI 0x100874e0
+// GLOBAL: MW2S3 0x100adb84
+// GLOBAL: MW2POWERVR 0x1007dac4
 MechS32 g_menuKey;
 
 MechS32 ActivateMenu(MenuSlot* p_slot);
@@ -111,6 +125,8 @@ MechS32 IsMenuPageStackEmpty(MenuDefinition* p_menu);
 // FUNCTION: MW2MATROX 0x100915b0
 // FUNCTION: MW23DFX 0x100653e0
 // FUNCTION: MW2ATI 0x10062a50
+// FUNCTION: MW2S3 0x10023990
+// FUNCTION: MW2POWERVR 0x1005d7c0
 MechS32 RegisterMenu(MechS32 p_id)
 {
 	MechS32 result;
@@ -142,6 +158,8 @@ MechS32 RegisterMenu(MechS32 p_id)
 // FUNCTION: MW2MATROX 0x1009163b
 // FUNCTION: MW23DFX 0x10065440
 // FUNCTION: MW2ATI 0x10062ab0
+// FUNCTION: MW2S3 0x100239f0
+// FUNCTION: MW2POWERVR 0x1005d820
 MechS32 RequestMenu(MechS32 p_id)
 {
 	MenuSlot* slot;
@@ -164,6 +182,8 @@ MechS32 RequestMenu(MechS32 p_id)
 // FUNCTION: MW2MATROX 0x1009168f
 // FUNCTION: MW23DFX 0x10065470
 // FUNCTION: MW2ATI 0x10062ae0
+// FUNCTION: MW2S3 0x10023a20
+// FUNCTION: MW2POWERVR 0x1005d850
 MechS32 ToggleMenu(MechS32 p_id)
 {
 	MechS32 result;
@@ -188,6 +208,8 @@ MechS32 ToggleMenu(MechS32 p_id)
 // FUNCTION: MW2MATROX 0x1009170c
 // FUNCTION: MW23DFX 0x100654b0
 // FUNCTION: MW2ATI 0x10062b20
+// FUNCTION: MW2S3 0x10023a60
+// FUNCTION: MW2POWERVR 0x1005d890
 void FreeMenus(void)
 {
 	MenuSlot* slot;
@@ -234,6 +256,7 @@ Point* ScaleMenuPointToFrame(PANE* p_frame, Point* p_src, Point* p_dst)
 // FUNCTION: MW2MATROX 0x10091772
 // FUNCTION: MW23DFX 0x10065580
 // FUNCTION: MW2ATI 0x10062b60
+// FUNCTION: MW2POWERVR 0x1005d8d0
 void LayoutMenu(MenuDefinition* p_menu)
 {
 	Point scale;
@@ -319,6 +342,8 @@ void LayoutMenu(MenuDefinition* p_menu)
 // FUNCTION: MW2MATROX 0x10091a14
 // FUNCTION: MW23DFX 0x100657f0
 // FUNCTION: MW2ATI 0x10062da0
+// FUNCTION: MW2S3 0x10023cd0
+// FUNCTION: MW2POWERVR 0x1005db10
 void LoadMenuResources(MenuDefinition* p_menu)
 {
 	if (p_menu->m_backgroundId != -1) {
@@ -347,6 +372,8 @@ void LoadMenuResources(MenuDefinition* p_menu)
 // FUNCTION: MW2MATROX 0x10091ad2
 // FUNCTION: MW23DFX 0x10065880
 // FUNCTION: MW2ATI 0x10062e30
+// FUNCTION: MW2S3 0x10023d60
+// FUNCTION: MW2POWERVR 0x1005dba0
 MechS32 ActivateMenu(MenuSlot* p_slot)
 {
 	MechS32 result;
@@ -383,6 +410,8 @@ MechS32 ActivateMenu(MenuSlot* p_slot)
 // FUNCTION: MW2MATROX 0x10091ba2
 // FUNCTION: MW23DFX 0x10065910
 // FUNCTION: MW2ATI 0x10062ec0
+// FUNCTION: MW2S3 0x10023df0
+// FUNCTION: MW2POWERVR 0x1005dc30
 void DeactivateMenu(MenuSlot* p_slot)
 {
 	MenuDefinition* menu;
@@ -418,6 +447,8 @@ void DeactivateMenu(MenuSlot* p_slot)
 // FUNCTION: MW2MATROX 0x10091c7b
 // FUNCTION: MW23DFX 0x100659a0
 // FUNCTION: MW2ATI 0x10062f50
+// FUNCTION: MW2S3 0x10023e80
+// FUNCTION: MW2POWERVR 0x1005dcc0
 void RequestMenuClose(MechS32 p_id)
 {
 	MenuSlot* slot;
@@ -434,6 +465,8 @@ void RequestMenuClose(MechS32 p_id)
 // FUNCTION: MW2MATROX 0x10091cac
 // FUNCTION: MW23DFX 0x100659c0
 // FUNCTION: MW2ATI 0x10062f70
+// FUNCTION: MW2S3 0x10023ea0
+// FUNCTION: MW2POWERVR 0x1005dce0
 void FirstMenu(void)
 {
 	MechS32 ok;
@@ -482,6 +515,8 @@ void FirstMenu(void)
 // FUNCTION: MW2MATROX 0x10091df0
 // FUNCTION: MW23DFX 0x10065a70
 // FUNCTION: MW2ATI 0x10063020
+// FUNCTION: MW2S3 0x10023f50
+// FUNCTION: MW2POWERVR 0x1005dd90
 void UpdateMenuKey(void)
 {
 	MenuDefinition* menu;
@@ -561,6 +596,8 @@ void UpdateMenuKey(void)
 // FUNCTION: MW2MATROX 0x1009207d
 // FUNCTION: MW23DFX 0x10065c20
 // FUNCTION: MW2ATI 0x100631d0
+// FUNCTION: MW2S3 0x10024100
+// FUNCTION: MW2POWERVR 0x1005df40
 void UpdateMenus(void)
 {
 	MechS32 requested;
@@ -605,6 +642,8 @@ void UpdateMenus(void)
 // FUNCTION: MW2MATROX 0x10092182
 // FUNCTION: MW23DFX 0x10065cb0
 // FUNCTION: MW2ATI 0x10063260
+// FUNCTION: MW2S3 0x10024190
+// FUNCTION: MW2POWERVR 0x1005dfd0
 MechS32 DrawAndRunMenu(MenuDefinition* p_menu)
 {
 	MechS32 result;
@@ -659,6 +698,8 @@ MechS32 DrawAndRunMenu(MenuDefinition* p_menu)
 // FUNCTION: MW2MATROX 0x10092290
 // FUNCTION: MW23DFX 0x10065d40
 // FUNCTION: MW2ATI 0x100632f0
+// FUNCTION: MW2S3 0x10024220
+// FUNCTION: MW2POWERVR 0x1005e060
 void ApplyMenuKey(MechS32 p_key, MechS32 p_itemType, MechS32* p_action, MechS32* p_move)
 {
 	switch (p_key) {
@@ -702,6 +743,7 @@ void ApplyMenuKey(MechS32 p_key, MechS32 p_itemType, MechS32* p_action, MechS32*
 // FUNCTION: MW2MATROX 0x100923b4
 // FUNCTION: MW23DFX 0x10065df0
 // FUNCTION: MW2ATI 0x100633a0
+// FUNCTION: MW2POWERVR 0x1005e110
 void RunMenuItems(MenuDefinition* p_menu)
 {
 	MechS32 back;
@@ -919,6 +961,8 @@ void RunMenuItems(MenuDefinition* p_menu)
 // FUNCTION: MW2MATROX 0x10092a8f
 // FUNCTION: MW23DFX 0x100662e0
 // FUNCTION: MW2ATI 0x10063890
+// FUNCTION: MW2S3 0x100247c0
+// FUNCTION: MW2POWERVR 0x1005e600
 MenuSlot* FindMenuSlot(MechS32 p_id)
 {
 	MenuSlot* slot;
@@ -963,6 +1007,8 @@ MenuDefinition* FindMenuDefinition(MechS32 p_id)
 // FUNCTION: MW2MATROX 0x10092b3b
 // FUNCTION: MW23DFX 0x10066330
 // FUNCTION: MW2ATI 0x100638b0
+// FUNCTION: MW2S3 0x100247e0
+// FUNCTION: MW2POWERVR 0x1005e620
 MenuPage* PopMenuPage(MenuDefinition* p_menu)
 {
 	MenuPage* page;
@@ -980,6 +1026,8 @@ MenuPage* PopMenuPage(MenuDefinition* p_menu)
 // FUNCTION: MW2MATROX 0x10092b7d
 // FUNCTION: MW23DFX 0x10066350
 // FUNCTION: MW2ATI 0x100638d0
+// FUNCTION: MW2S3 0x10024800
+// FUNCTION: MW2POWERVR 0x1005e640
 MenuPage* PeekMenuPage(MenuDefinition* p_menu)
 {
 	MenuPage* page;
@@ -996,6 +1044,8 @@ MenuPage* PeekMenuPage(MenuDefinition* p_menu)
 // FUNCTION: MW2MATROX 0x10092bba
 // FUNCTION: MW23DFX 0x10066370
 // FUNCTION: MW2ATI 0x100638f0
+// FUNCTION: MW2S3 0x10024820
+// FUNCTION: MW2POWERVR 0x1005e660
 MechS32 PushMenuPage(MenuDefinition* p_menu, MenuPage* p_page)
 {
 	MechS32 result;
@@ -1014,6 +1064,8 @@ MechS32 PushMenuPage(MenuDefinition* p_menu, MenuPage* p_page)
 // FUNCTION: MW2MATROX 0x10092c03
 // FUNCTION: MW23DFX 0x10066390
 // FUNCTION: MW2ATI 0x10063910
+// FUNCTION: MW2S3 0x10024840
+// FUNCTION: MW2POWERVR 0x1005e680
 void ClearMenuPages(MenuDefinition* p_menu)
 {
 	p_menu->m_pageDepth = 0;
@@ -1023,6 +1075,8 @@ void ClearMenuPages(MenuDefinition* p_menu)
 // FUNCTION: MW2MATROX 0x10092c18
 // FUNCTION: MW23DFX 0x100663a0
 // FUNCTION: MW2ATI 0x10063920
+// FUNCTION: MW2S3 0x10024850
+// FUNCTION: MW2POWERVR 0x1005e690
 MechS32 IsMenuPageStackEmpty(MenuDefinition* p_menu)
 {
 	return p_menu->m_pageDepth == 0;
@@ -1033,6 +1087,8 @@ MechS32 IsMenuPageStackEmpty(MenuDefinition* p_menu)
 // FUNCTION: MW2MATROX 0x10092c41
 // FUNCTION: MW23DFX 0x100663b0
 // FUNCTION: MW2ATI 0x10063930
+// FUNCTION: MW2S3 0x10024860
+// FUNCTION: MW2POWERVR 0x1005e6a0
 MenuDefinition* GetOpenMenu(void)
 {
 	MenuSlot* slot;
@@ -1056,6 +1112,8 @@ MenuDefinition* GetOpenMenu(void)
 // FUNCTION: MW2MATROX 0x10092c99
 // FUNCTION: MW23DFX 0x100663e0
 // FUNCTION: MW2ATI 0x10063960
+// FUNCTION: MW2S3 0x10024890
+// FUNCTION: MW2POWERVR 0x1005e6d0
 MechS32 GetMenuSlotState(MechS32 p_id)
 {
 	MenuSlot* slot;

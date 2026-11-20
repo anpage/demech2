@@ -44,6 +44,8 @@ extern "C"
 
 // FUNCTION: MW23DFX 0x10042000
 // FUNCTION: MW2ATI 0x1003fbb0
+// FUNCTION: MW2S3 0x10048520
+// FUNCTION: MW2POWERVR 0x1003a910
 // MapFaceId
 
 // The 3Dfx edition's diff is register allocation, scheduling and stack layout only.

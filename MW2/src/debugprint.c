@@ -12,6 +12,8 @@
 // GLOBAL: MW2MATROX 0x1012c200
 // GLOBAL: MW23DFX 0x102442a0
 // GLOBAL: MW2ATI 0x10177f60
+// GLOBAL: MW2S3 0x1008ac30
+// GLOBAL: MW2POWERVR 0x101a2c20
 MechChar g_debugPrintBuffer[0x100];
 
 // FUNCTION: MW2 0x10050900
@@ -32,6 +34,8 @@ void ShowMessage(const MechChar* p_format, ...)
 // FUNCTION: MW2MATROX 0x10085c38
 // FUNCTION: MW23DFX 0x100084b0
 // FUNCTION: MW2ATI 0x10008ca0
+// FUNCTION: MW2S3 0x10035140
+// FUNCTION: MW2POWERVR 0x10007a10
 void DebugPrint(const MechChar* p_format, ...)
 {
 	va_list args;

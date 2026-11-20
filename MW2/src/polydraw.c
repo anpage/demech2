@@ -42,10 +42,12 @@
 #ifdef MW2_SKY_TILE_DEFAULTS
 // GLOBAL: MW23DFX 0x1024e118
 // GLOBAL: MW2ATI 0x10182428
+// GLOBAL: MW2S3 0x10061ea0
 MechFloat g_skyTileU = 4.0f;
 
 // GLOBAL: MW23DFX 0x1024e11c
 // GLOBAL: MW2ATI 0x1018242c
+// GLOBAL: MW2S3 0x10061ea4
 MechFloat g_skyTileV = 0.8f;
 
 // GLOBAL: MW23DFX 0x1024e120
@@ -72,6 +74,8 @@ MechFloat g_skyScroll = 0;
 // GLOBAL: MW2MATROX 0x100addd0
 // GLOBAL: MW23DFX 0x1024e128
 // GLOBAL: MW2ATI 0x10182438
+// GLOBAL: MW2S3 0x10061ec8
+// GLOBAL: MW2POWERVR 0x101ad558
 Eyepoint g_mainEyepoint = {0,       0, 0, 0, 0, 0,  FIXED_CONST(1), 1000, 10000, -1000, 1, 0x48, 0, 319, 0, 199, 0x40,
 						   0x249f0, 0, 0, 0, 0, {0}};
 
@@ -79,12 +83,16 @@ Eyepoint g_mainEyepoint = {0,       0, 0, 0, 0, 0,  FIXED_CONST(1), 1000, 10000,
 // GLOBAL: MW2MATROX 0x100ade74
 // GLOBAL: MW23DFX 0x1024e1cc
 // GLOBAL: MW2ATI 0x101824dc
+// GLOBAL: MW2S3 0x10061f6c
+// GLOBAL: MW2POWERVR 0x101ad5fc
 Eyepoint* g_eyepoint = &g_mainEyepoint;
 
 // GLOBAL: MW2 0x100a6cc8
 // GLOBAL: MW2MATROX 0x100ade78
 // GLOBAL: MW23DFX 0x1024e1d0
 // GLOBAL: MW2ATI 0x101824e0
+// GLOBAL: MW2S3 0x10061f70
+// GLOBAL: MW2POWERVR 0x101ad600
 RenderSettings g_renderSettings = {
 	0,
 	1,
@@ -121,6 +129,8 @@ RenderSettings g_renderSettings = {
 // GLOBAL: MW2MATROX 0x100adee8
 // GLOBAL: MW23DFX 0x1024e240
 // GLOBAL: MW2ATI 0x10182550
+// GLOBAL: MW2S3 0x10061fe0
+// GLOBAL: MW2POWERVR 0x101ad670
 MechS32 g_horizonBandHeight = 0x24;
 
 #ifdef MW2_A3D
@@ -132,6 +142,7 @@ MechS32 g_unk0x100adeec = 0;
 // GLOBAL: MW2MATROX 0x100adef0
 // GLOBAL: MW23DFX 0x1024e248
 // GLOBAL: MW2ATI 0x10182558
+// GLOBAL: MW2S3 0x10061fe8
 SkyCorner g_skyCorners[16] = {
 	{-64000000.0f, 2200000.0f, -64000000.0f, 0, 0},
 	{64000000.0f, 2200000.0f, -64000000.0f, 1, 0},
@@ -729,7 +740,7 @@ void FUN_100688fe(MechS32 p_count, ProjectedVertex** p_points, MechU32 p_color, 
 		vertex->m_x = point->m_screenX;
 		vertex->m_y = point->m_screenY;
 		// The ATI and 3Dfx editions store the color's components red first, the Matrox edition blue first.
-#if defined(MW2_3DFX) || defined(MW2_ATI)
+#if defined(MW2_3DFX) || defined(MW2_ATI) || defined(MW2_S3) || defined(MW2_POWERVR)
 		vertex->m_red = g_paletteRgb[p_color][0];
 		vertex->m_green = g_paletteRgb[p_color][1];
 		vertex->m_blue = g_paletteRgb[p_color][2];
@@ -834,7 +845,7 @@ void FUN_10068b57(MechS32 p_count, ProjectedVertex** p_points, MechU32 p_color)
 		vertex->m_y = 0;
 		vertex->m_z = 1.0f;
 		// The ATI and 3Dfx editions clear the color blue first.
-#if defined(MW2_3DFX) || defined(MW2_ATI)
+#if defined(MW2_3DFX) || defined(MW2_ATI) || defined(MW2_S3) || defined(MW2_POWERVR)
 		vertex->m_blue = 0;
 		vertex->m_green = 0;
 		vertex->m_red = 0;
@@ -851,7 +862,7 @@ void FUN_10068b57(MechS32 p_count, ProjectedVertex** p_points, MechU32 p_color)
 		vertex->m_x = point->m_screenX;
 		vertex->m_y = point->m_screenY;
 		// The ATI and 3Dfx editions store the color's components red first, as in FUN_100688fe.
-#if defined(MW2_3DFX) || defined(MW2_ATI)
+#if defined(MW2_3DFX) || defined(MW2_ATI) || defined(MW2_S3) || defined(MW2_POWERVR)
 		vertex->m_red = g_paletteRgb[p_color][0];
 		vertex->m_green = g_paletteRgb[p_color][1];
 		vertex->m_blue = g_paletteRgb[p_color][2];
@@ -1235,7 +1246,7 @@ void DrawSkyAndGround(Eyepoint* p_eyepoint)
 	g_paletteRgb[g_groundColor][2] = g_groundBlue;
 	VFX_lookaside_write16(g_groundColor, PIXEL_RGB16(g_groundRed, g_groundGreen, g_groundBlue));
 	// The ATI and 3Dfx editions store the color's components red first, as in FUN_100688fe.
-#if defined(MW2_3DFX) || defined(MW2_ATI)
+#if defined(MW2_3DFX) || defined(MW2_ATI) || defined(MW2_S3) || defined(MW2_POWERVR)
 	band[0].m_red = g_paletteRgb[g_skyColor][0];
 	band[0].m_green = g_paletteRgb[g_skyColor][1];
 	band[0].m_blue = g_paletteRgb[g_skyColor][2];

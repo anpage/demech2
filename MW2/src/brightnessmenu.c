@@ -14,6 +14,8 @@
 // FUNCTION: MW2MATROX 0x100171a0
 // FUNCTION: MW23DFX 0x100641a0
 // FUNCTION: MW2ATI 0x10061850
+// FUNCTION: MW2S3 0x100365b0
+// FUNCTION: MW2POWERVR 0x1005c5c0
 MechS32 GetBrightnessFraction(MechS32 p_arg)
 {
 #ifdef MW2_FLOAT_SCALARS
@@ -27,6 +29,7 @@ MechS32 GetBrightnessFraction(MechS32 p_arg)
 // FUNCTION: MW2MATROX 0x100171eb
 // FUNCTION: MW23DFX 0x100641d0
 // FUNCTION: MW2ATI 0x10061880
+// FUNCTION: MW2POWERVR 0x1005c5f0
 void PreviewBrightnessFraction(MechS32 p_arg, MechS32 p_value)
 {
 	MechS32 brightness;
@@ -42,6 +45,8 @@ void PreviewBrightnessFraction(MechS32 p_arg, MechS32 p_value)
 // FUNCTION: MW2MATROX 0x1001722c
 // FUNCTION: MW23DFX 0x10064210
 // FUNCTION: MW2ATI 0x100618c0
+// FUNCTION: MW2S3 0x10036620
+// FUNCTION: MW2POWERVR 0x1005c630
 void SetBrightnessFraction(MechS32 p_arg, MechS32 p_value)
 {
 	g_displayBrightness = g_brightnessSetting = FixedMul16(p_value, 15);
@@ -53,6 +58,8 @@ void SetBrightnessFraction(MechS32 p_arg, MechS32 p_value)
 // FUNCTION: MW2MATROX 0x10017270
 // FUNCTION: MW23DFX 0x10064260
 // FUNCTION: MW2ATI 0x10061910
+// FUNCTION: MW2S3 0x10036670
+// FUNCTION: MW2POWERVR 0x1005c680
 void RestoreBrightness(MechS32 p_arg)
 {
 #ifdef MW2_3DFX

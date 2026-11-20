@@ -78,6 +78,7 @@ demech2_add_import_library(glide DEF "${DEMECH2_SOURCE_DIR}/3rdparty/glide/glide
   SOURCES "${DEMECH2_SOURCE_DIR}/3rdparty/glide/glide.c")
 demech2_add_import_library(ati3dcif DEF "${DEMECH2_SOURCE_DIR}/3rdparty/ati3dcif/ati3dcif.def"
   SOURCES "${DEMECH2_SOURCE_DIR}/3rdparty/ati3dcif/ati3dcif.c")
+demech2_add_import_library(sgl DEF "${DEMECH2_SOURCE_DIR}/3rdparty/sgl/sgl.def")
 
 option(DEMECH2_DECOMP_ASSERT "Assert struct size" TRUE)
 
@@ -87,3 +88,4 @@ demech2_add_mech2()
 demech2_add_netmechw()
 demech2_add_mw23dfx()
 demech2_add_mw2ati()
+demech2_add_mw2powervr()

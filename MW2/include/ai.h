@@ -158,15 +158,20 @@ extern "C"
 // The 3Dfx edition's diff is register allocation, scheduling and comparison operand order only.
 // FUNCTION: MW23DFX 0x10011fc0
 // FUNCTION: MW2ATI 0x10012520
+// FUNCTION: MW2S3 0x10015750
+// FUNCTION: MW2POWERVR 0x10011460
 // FirstAI
 
 // FUNCTION: MW23DFX 0x10012000
 // FUNCTION: MW2ATI 0x10012560
+// FUNCTION: MW2S3 0x10015780
+// FUNCTION: MW2POWERVR 0x100114a0
 // InitializeAI
 
 // The 3Dfx edition's diff is register allocation and instruction scheduling only.
 // FUNCTION: MW23DFX 0x10012650
 // FUNCTION: MW2ATI 0x10012bb0
+// FUNCTION: MW2S3 0x10015fd0
 // LogPlayerSkillLines
 
 // The 3Dfx edition's diff is register allocation, scheduling and comparison operand order only.
@@ -177,6 +182,7 @@ extern "C"
 // The 3Dfx edition's diff is register allocation, scheduling and comparison operand order only.
 // FUNCTION: MW23DFX 0x10012de0
 // FUNCTION: MW2ATI 0x10013290
+// FUNCTION: MW2S3 0x100164b0
 // FindNearestTarget
 
 #endif // AI_H

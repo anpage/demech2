@@ -16,6 +16,8 @@
 // GLOBAL: MW2MATROX 0x100bd320
 // GLOBAL: MW23DFX 0x10264468
 // GLOBAL: MW2ATI 0x10198760
+// GLOBAL: MW2S3 0x10065cb8
+// GLOBAL: MW2POWERVR 0x101c3ad8
 MechS32 g_lanceOrders[8] = {7, 7, 7, 7, 7, 0, 0, 0};
 
 // Fills the page with an item per AI slot (from template 5) and a last one (template 6), marking
@@ -25,6 +27,7 @@ MechS32 g_lanceOrders[8] = {7, 7, 7, 7, 7, 0, 0, 0};
 // FUNCTION: MW2MATROX 0x1008e640
 // FUNCTION: MW23DFX 0x10064390
 // FUNCTION: MW2ATI 0x10061a00
+// FUNCTION: MW2POWERVR 0x1005c770
 MechS32 PrepareCommandComputerPage(MenuDefinition* p_menu, MenuPage* p_page)
 {
 	MechS32 marked;
@@ -72,6 +75,8 @@ MechS32 PrepareCommandComputerPage(MenuDefinition* p_menu, MenuPage* p_page)
 // FUNCTION: MW2MATROX 0x1008e7b2
 // FUNCTION: MW23DFX 0x10064480
 // FUNCTION: MW2ATI 0x10061af0
+// FUNCTION: MW2S3 0x10025590
+// FUNCTION: MW2POWERVR 0x1005c860
 MechS32 PrepareCommandPointPage(MenuDefinition* p_menu, MenuPage* p_page)
 {
 	MechS32 count;
@@ -110,6 +115,8 @@ MechS32 PrepareCommandPointPage(MenuDefinition* p_menu, MenuPage* p_page)
 // FUNCTION: MW2MATROX 0x1008e8e0
 // FUNCTION: MW23DFX 0x10064510
 // FUNCTION: MW2ATI 0x10061b80
+// FUNCTION: MW2S3 0x10025620
+// FUNCTION: MW2POWERVR 0x1005c8f0
 MechS32 GetLanceOrder(MechS32 p_index)
 {
 	MechS32 state;
@@ -126,6 +133,8 @@ MechS32 GetLanceOrder(MechS32 p_index)
 // FUNCTION: MW2MATROX 0x1008e914
 // FUNCTION: MW23DFX 0x10064530
 // FUNCTION: MW2ATI 0x10061ba0
+// FUNCTION: MW2S3 0x10025640
+// FUNCTION: MW2POWERVR 0x1005c910
 MechS32 GetFormation(MechS32 p_arg)
 {
 	return GetTeamFormation(g_localStar);
@@ -135,6 +144,8 @@ MechS32 GetFormation(MechS32 p_arg)
 // FUNCTION: MW2MATROX 0x1008e932
 // FUNCTION: MW23DFX 0x10064540
 // FUNCTION: MW2ATI 0x10061bb0
+// FUNCTION: MW2S3 0x10025650
+// FUNCTION: MW2POWERVR 0x1005c920
 void SelectFormation(MechS32 p_formation, MechS32 p_value)
 {
 	g_lanceOrders[0] = 0;
@@ -147,6 +158,8 @@ void SelectFormation(MechS32 p_formation, MechS32 p_value)
 // FUNCTION: MW2MATROX 0x1008e963
 // FUNCTION: MW23DFX 0x10064570
 // FUNCTION: MW2ATI 0x10061be0
+// FUNCTION: MW2S3 0x10025680
+// FUNCTION: MW2POWERVR 0x1005c950
 MechS32 GetSlotAiState(MechS32 p_index)
 {
 	Player* player;
@@ -174,6 +187,8 @@ MechS32 GetSlotAiState(MechS32 p_index)
 // FUNCTION: MW2MATROX 0x1008e9d0
 // FUNCTION: MW23DFX 0x100645a0
 // FUNCTION: MW2ATI 0x10061c10
+// FUNCTION: MW2S3 0x100256b0
+// FUNCTION: MW2POWERVR 0x1005c980
 void SetControlSlot(MenuPage* p_page, MenuControl* p_control)
 {
 	if (!p_page) {
@@ -192,6 +207,8 @@ void SetControlSlot(MenuPage* p_page, MenuControl* p_control)
 // FUNCTION: MW2MATROX 0x1008ea05
 // FUNCTION: MW23DFX 0x100645b0
 // FUNCTION: MW2ATI 0x10061c20
+// FUNCTION: MW2S3 0x100256c0
+// FUNCTION: MW2POWERVR 0x1005c990
 void InstallGoalSuffix(MenuPage* p_page, MenuControl* p_control)
 {
 	MenuChoicesSuffixFn old;
@@ -220,6 +237,8 @@ void InstallGoalSuffix(MenuPage* p_page, MenuControl* p_control)
 // FUNCTION: MW2MATROX 0x1008ea5a
 // FUNCTION: MW23DFX 0x100645d0
 // FUNCTION: MW2ATI 0x10061c40
+// FUNCTION: MW2S3 0x100256e0
+// FUNCTION: MW2POWERVR 0x1005c9b0
 void OrderAttack(MechS32 p_index, MechS32 p_value)
 {
 	if (p_index < 8) {
@@ -234,6 +253,8 @@ void OrderAttack(MechS32 p_index, MechS32 p_value)
 // FUNCTION: MW2MATROX 0x1008ea95
 // FUNCTION: MW23DFX 0x10064600
 // FUNCTION: MW2ATI 0x10061c70
+// FUNCTION: MW2S3 0x10025710
+// FUNCTION: MW2POWERVR 0x1005c9e0
 void OrderEngageAtWill(MechS32 p_index, MechS32 p_value)
 {
 	if (p_index < 8) {
@@ -248,6 +269,8 @@ void OrderEngageAtWill(MechS32 p_index, MechS32 p_value)
 // FUNCTION: MW2MATROX 0x1008ead0
 // FUNCTION: MW23DFX 0x10064630
 // FUNCTION: MW2ATI 0x10061ca0
+// FUNCTION: MW2S3 0x10025740
+// FUNCTION: MW2POWERVR 0x1005ca10
 void OrderJoinFormation(MechS32 p_index, MechS32 p_value)
 {
 	if (p_index < 8) {
@@ -262,6 +285,8 @@ void OrderJoinFormation(MechS32 p_index, MechS32 p_value)
 // FUNCTION: MW2MATROX 0x1008eb0b
 // FUNCTION: MW23DFX 0x10064660
 // FUNCTION: MW2ATI 0x10061cd0
+// FUNCTION: MW2S3 0x10025770
+// FUNCTION: MW2POWERVR 0x1005ca40
 void OrderDefend(MechS32 p_index, MechS32 p_value)
 {
 	if (p_index < 8) {
@@ -276,6 +301,8 @@ void OrderDefend(MechS32 p_index, MechS32 p_value)
 // FUNCTION: MW2MATROX 0x1008eb46
 // FUNCTION: MW23DFX 0x10064690
 // FUNCTION: MW2ATI 0x10061d00
+// FUNCTION: MW2S3 0x100257a0
+// FUNCTION: MW2POWERVR 0x1005ca70
 void OrderDisengage(MechS32 p_index, MechS32 p_value)
 {
 	if (p_index < 8) {
@@ -290,6 +317,8 @@ void OrderDisengage(MechS32 p_index, MechS32 p_value)
 // FUNCTION: MW2MATROX 0x1008eb81
 // FUNCTION: MW23DFX 0x100646c0
 // FUNCTION: MW2ATI 0x10061d30
+// FUNCTION: MW2S3 0x100257d0
+// FUNCTION: MW2POWERVR 0x1005caa0
 void OrderShutdown(MechS32 p_index, MechS32 p_value)
 {
 	if (p_index < 8) {
@@ -305,6 +334,8 @@ void OrderShutdown(MechS32 p_index, MechS32 p_value)
 // FUNCTION: MW2MATROX 0x1008ebbc
 // FUNCTION: MW23DFX 0x100646f0
 // FUNCTION: MW2ATI 0x10061d60
+// FUNCTION: MW2S3 0x10025800
+// FUNCTION: MW2POWERVR 0x1005cad0
 MechChar* GetSlotGoalName(
 	MenuDefinition* p_menu,
 	MenuControl* p_control,

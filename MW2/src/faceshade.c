@@ -59,6 +59,8 @@ MechS32 g_brightenDamage = 0;
 // GLOBAL: MW2MATROX 0x101d6960
 // GLOBAL: MW23DFX 0x101b0ec0
 // GLOBAL: MW2ATI 0x100e4ea0
+// GLOBAL: MW2S3 0x100b1d00
+// GLOBAL: MW2POWERVR 0x1010c3c0
 MechS32 g_ambientLight;
 
 MechS32 ComputeShade(MechS32 p_light, MechS32 p_value, MechScalar p_distance);
@@ -432,6 +434,8 @@ MechS32 ComputeShade(MechS32 p_light, MechS32 p_value, MechScalar p_distance)
 // FUNCTION: MW2MATROX 0x100170d8
 // FUNCTION: MW23DFX 0x1002a880
 // FUNCTION: MW2ATI 0x1002a420
+// FUNCTION: MW2S3 0x10047660
+// FUNCTION: MW2POWERVR 0x100269f0
 void ToggleTextureMaps(MechU32 p_flags)
 {
 	g_renderSettings.m_untexturedKinds ^= p_flags;
@@ -441,6 +445,7 @@ void ToggleTextureMaps(MechU32 p_flags)
 // FUNCTION: MW2MATROX 0x100170ec
 // FUNCTION: MW23DFX 0x1002a890
 // FUNCTION: MW2ATI 0x1002a430
+// FUNCTION: MW2POWERVR 0x10026a00
 MechS32 AreTextureMapsOn(MechU32 p_flags)
 {
 	return !(p_flags & g_renderSettings.m_untexturedKinds);
@@ -450,6 +455,8 @@ MechS32 AreTextureMapsOn(MechU32 p_flags)
 // FUNCTION: MW2MATROX 0x10017116
 // FUNCTION: MW23DFX 0x1002a8a0
 // FUNCTION: MW2ATI 0x1002a440
+// FUNCTION: MW2S3 0x10047680
+// FUNCTION: MW2POWERVR 0x10026a10
 void EnableTextureMaps(MechU32 p_flags, MechS32 p_enable)
 {
 	if (p_enable) {
@@ -465,6 +472,8 @@ void EnableTextureMaps(MechU32 p_flags, MechS32 p_enable)
 // FUNCTION: MW2MATROX 0x10017144
 // FUNCTION: MW23DFX 0x1002a8c0
 // FUNCTION: MW2ATI 0x1002a460
+// FUNCTION: MW2S3 0x100476a0
+// FUNCTION: MW2POWERVR 0x10026a30
 MechS32 ArePerspectiveTexturesOn(undefined4 p_unk0x00)
 {
 	return !g_renderSettings.m_affineTextures;
@@ -474,6 +483,8 @@ MechS32 ArePerspectiveTexturesOn(undefined4 p_unk0x00)
 // FUNCTION: MW2MATROX 0x1001716d
 // FUNCTION: MW23DFX 0x1002a8d0
 // FUNCTION: MW2ATI 0x1002a470
+// FUNCTION: MW2S3 0x100476b0
+// FUNCTION: MW2POWERVR 0x10026a40
 void EnablePerspectiveTextures(undefined4 p_unk0x00, MechS32 p_enable)
 {
 	g_renderSettings.m_affineTextures = !p_enable;

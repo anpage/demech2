@@ -32,12 +32,16 @@
 // GLOBAL: MW2MATROX 0x100bbbd0
 // GLOBAL: MW23DFX 0x1024f738
 // GLOBAL: MW2ATI 0x10183a48
+// GLOBAL: MW2S3 0x10073278
+// GLOBAL: MW2POWERVR 0x101aeab0
 MechS32 g_sampleRates[10] = {9922, 10143, 10364, 10584, 10804, 11025, 11246, 11466, 11686, 11907};
 
 // GLOBAL: MW2 0x100ba650
 // GLOBAL: MW2MATROX 0x100bbbf8
 // GLOBAL: MW23DFX 0x1024f760
 // GLOBAL: MW2ATI 0x10183a70
+// GLOBAL: MW2S3 0x100732a0
+// GLOBAL: MW2POWERVR 0x101aead8
 AudioEngine* g_audioEngine = NULL;
 
 // GLOBAL: MW2 0x100ba654
@@ -48,12 +52,15 @@ MechChar g_sampleTag[] = "SFLX";
 // GLOBAL: MW2MATROX 0x10215d20
 // GLOBAL: MW23DFX 0x1015a060
 // GLOBAL: MW2ATI 0x1008e050
+// GLOBAL: MW2S3 0x10081d10
+// GLOBAL: MW2POWERVR 0x10084590
 SoundInfo g_soundInfo[1200];
 
 // FUNCTION: MW2 0x1007d9d0
 // FUNCTION: MW2MATROX 0x10086090
 // FUNCTION: MW23DFX 0x10032530
 // FUNCTION: MW2ATI 0x10031330
+// FUNCTION: MW2POWERVR 0x1002bdb0
 MechS32 InitializeDigitalAudio(MechU32 p_numSamples)
 {
 	MechU32 i;
@@ -111,6 +118,8 @@ MechS32 InitializeDigitalAudio(MechU32 p_numSamples)
 // FUNCTION: MW2MATROX 0x1008628e
 // FUNCTION: MW23DFX 0x10032670
 // FUNCTION: MW2ATI 0x10031470
+// FUNCTION: MW2S3 0x10035530
+// FUNCTION: MW2POWERVR 0x1002bef0
 void ShutdownDigitalAudio(void)
 {
 	MechU32 i;
@@ -138,6 +147,8 @@ void ShutdownDigitalAudio(void)
 // FUNCTION: MW2MATROX 0x10086349
 // FUNCTION: MW23DFX 0x10032700
 // FUNCTION: MW2ATI 0x10031500
+// FUNCTION: MW2S3 0x100355c0
+// FUNCTION: MW2POWERVR 0x1002bf80
 void ServeSamples(void)
 {
 	MechU32 i;
@@ -209,6 +220,7 @@ void ServeSamples(void)
 // FUNCTION: MW2MATROX 0x100866b2
 // FUNCTION: MW23DFX 0x100328e0
 // FUNCTION: MW2ATI 0x100316e0
+// FUNCTION: MW2POWERVR 0x1002c160
 MechS32 PlaySample(
 	MechS32 p_delay,
 	MechS32 p_bearing,
@@ -488,6 +500,8 @@ void AILCALLBACK SampleEosCallback(HSAMPLE p_sample)
 // FUNCTION: MW2MATROX 0x100870a8
 // FUNCTION: MW23DFX 0x10032a30
 // FUNCTION: MW2ATI 0x10031830
+// FUNCTION: MW2S3 0x10035e20
+// FUNCTION: MW2POWERVR 0x1002c2b0
 void PlayEffectsVolumeTest(void)
 {
 	PlaySample(0, 0, 0xd2, NULL, 100, g_soundConfig.m_effectsVolume, 0x40, RandomSampleRate(), (MechS32*) -1, 0x250);
@@ -497,6 +511,8 @@ void PlayEffectsVolumeTest(void)
 // FUNCTION: MW2MATROX 0x100870dd
 // FUNCTION: MW23DFX 0x10032a60
 // FUNCTION: MW2ATI 0x10031860
+// FUNCTION: MW2S3 0x10035e50
+// FUNCTION: MW2POWERVR 0x1002c2e0
 MechS32 PlaySoundOnce(MechS32 p_id, MechU32 p_volume, MechS32 p_pan, MechS32 p_rate)
 {
 	return PlaySample(0, 0, p_id, NULL, p_volume, g_soundConfig.m_effectsVolume, p_pan, p_rate, (MechS32*) -1, 0x450);
@@ -506,6 +522,8 @@ MechS32 PlaySoundOnce(MechS32 p_id, MechU32 p_volume, MechS32 p_pan, MechS32 p_r
 // FUNCTION: MW2MATROX 0x10087118
 // FUNCTION: MW23DFX 0x10032a90
 // FUNCTION: MW2ATI 0x10031890
+// FUNCTION: MW2S3 0x10035e80
+// FUNCTION: MW2POWERVR 0x1002c310
 MechS32 PlaySoundRandomRate(
 	MechS32 p_delay,
 	MechS32 p_bearing,
@@ -535,6 +553,7 @@ MechS32 PlaySoundRandomRate(
 // FUNCTION: MW2MATROX 0x10087158
 // FUNCTION: MW23DFX 0x10032ad0
 // FUNCTION: MW2ATI 0x100318d0
+// FUNCTION: MW2POWERVR 0x1002c350
 MechS32 PlayPositionalSound(MechScalar p_dx, MechScalar p_dy, MechScalar p_dz, MechS32 p_sound, MechS32 p_half)
 {
 	MechScalar horizontal;
@@ -574,6 +593,8 @@ MechS32 PlayPositionalSound(MechScalar p_dx, MechScalar p_dy, MechScalar p_dz, M
 // FUNCTION: MW2MATROX 0x100871f4
 // FUNCTION: MW23DFX 0x10032b60
 // FUNCTION: MW2ATI 0x10031960
+// FUNCTION: MW2S3 0x10035f50
+// FUNCTION: MW2POWERVR 0x1002c3e0
 MechS32 PlaySoundEffect(MechS32 p_id, MechU32 p_volume, MechS32 p_pan, MechS32 p_rate, MechU16 p_flags)
 {
 	return PlaySample(
@@ -594,6 +615,8 @@ MechS32 PlaySoundEffect(MechS32 p_id, MechU32 p_volume, MechS32 p_pan, MechS32 p
 // FUNCTION: MW2MATROX 0x10087235
 // FUNCTION: MW23DFX 0x10032ba0
 // FUNCTION: MW2ATI 0x100319a0
+// FUNCTION: MW2S3 0x10035f90
+// FUNCTION: MW2POWERVR 0x1002c420
 MechS32 PlayDelayedSound(
 	MechS32 p_delay,
 	MechS32 p_bearing,
@@ -617,6 +640,8 @@ MechS32 PlayDelayedSound(
 // FUNCTION: MW2MATROX 0x100872a2
 // FUNCTION: MW23DFX 0x10032bf0
 // FUNCTION: MW2ATI 0x100319f0
+// FUNCTION: MW2S3 0x10035fe0
+// FUNCTION: MW2POWERVR 0x1002c470
 MechS32 PlaySoundAt(MechScalar p_x, MechScalar p_y, MechScalar p_z, MechS32 p_sound, MechS32 p_half)
 {
 	return PlayPositionalSound(p_x, p_y, p_z, p_sound, p_half);
@@ -627,6 +652,8 @@ MechS32 PlaySoundAt(MechScalar p_x, MechScalar p_y, MechScalar p_z, MechS32 p_so
 // FUNCTION: MW2MATROX 0x100872ce
 // FUNCTION: MW23DFX 0x10032c10
 // FUNCTION: MW2ATI 0x10031a10
+// FUNCTION: MW2S3 0x10036000
+// FUNCTION: MW2POWERVR 0x1002c490
 MechS32 CalculateSamplePan(MechScalar p_bearing)
 {
 	MechS32 pan;
@@ -653,6 +680,8 @@ MechS32 CalculateSamplePan(MechScalar p_bearing)
 // FUNCTION: MW2MATROX 0x10087337
 // FUNCTION: MW23DFX 0x10032c50
 // FUNCTION: MW2ATI 0x10031a50
+// FUNCTION: MW2S3 0x10036040
+// FUNCTION: MW2POWERVR 0x1002c4d0
 MechS32 RandomSampleRate(void)
 {
 	return g_sampleRates[RandomIntBelow(10)];
@@ -687,6 +716,7 @@ void StopSamples(MechS32 p_all)
 // FUNCTION: MW2MATROX 0x100873f7
 // FUNCTION: MW23DFX 0x10032cc0
 // FUNCTION: MW2ATI 0x10031ac0
+// FUNCTION: MW2S3 0x100360b0
 void UpdateAmbientSound(AmbientSound* p_sound)
 {
 	HSAMPLE sample;
@@ -787,6 +817,8 @@ void UpdateAmbientSound(AmbientSound* p_sound)
 // FUNCTION: MW2MATROX 0x10087708
 // FUNCTION: MW23DFX 0x10032f00
 // FUNCTION: MW2ATI 0x10031d00
+// FUNCTION: MW2S3 0x100362f0
+// FUNCTION: MW2POWERVR 0x1002c780
 void StopAmbientSound(AmbientSound* p_sound)
 {
 	HSAMPLE sample;
@@ -811,6 +843,8 @@ void StopAmbientSound(AmbientSound* p_sound)
 // FUNCTION: MW2MATROX 0x100877c2
 // FUNCTION: MW23DFX 0x10032f60
 // FUNCTION: MW2ATI 0x10031d60
+// FUNCTION: MW2S3 0x10036350
+// FUNCTION: MW2POWERVR 0x1002c7e0
 MechS32 GetDistanceVolume(MechS32 p_distance)
 {
 	MechS32 volume;

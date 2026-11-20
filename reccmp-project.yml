@@ -54,6 +54,28 @@ targets:
       sha256: c0509cefd31887301bd86ef8cca748211af224d9cce1a40cf87d2da6e942a739
     report:
       icon: assets/dll.png
+  MW2S3:
+    filename: MW2_S3.DLL
+    source-root:
+      - MW2
+      - common
+    hash:
+      sha256: 97ea9f9d10425cc2a7991e0d6f0079ed2e15c2d0e5c863f1d9811ed44b16e590
+    data-sources:
+      - reccmp/mw2s3-vfx.csv
+    report:
+      icon: assets/dll.png
+  MW2POWERVR:
+    filename: MW2_POWERVR.DLL
+    source-root:
+      - MW2
+      - common
+    hash:
+      sha256: 4de37c948ce563d5fd00f51ecb5b710ad0b1b198401a4a3b916bcf8dd6a2f754
+    data-sources:
+      - reccmp/mw2powervr-vfx.csv
+    report:
+      icon: assets/dll.png
   NETMECHW:
     filename: NETMECHW.DLL
     source-root:

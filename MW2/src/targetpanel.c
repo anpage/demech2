@@ -52,6 +52,7 @@ MechS32 IsPlayerInView(Player* p_player);
 // GLOBAL: MW2MATROX 0x100a4a4c
 // GLOBAL: MW23DFX 0x1024d04c
 // GLOBAL: MW2ATI 0x101813cc
+// GLOBAL: MW2S3 0x10062ae4
 MechS32 g_targetPanelMode = 1;
 
 // Set to announce the target's side with the next name the target panel shows.
@@ -94,6 +95,7 @@ MechS32 g_targetPanelStatic = 0;
 // GLOBAL: MW2MATROX 0x10212d40
 // GLOBAL: MW23DFX 0x101de7a0
 // GLOBAL: MW2ATI 0x10112460
+// GLOBAL: MW2POWERVR 0x1013d120
 MechChar g_anonymousInstallationName[16];
 
 // Writes the target panel's text: the locked target's name (its short name when it changes, its
@@ -686,6 +688,7 @@ MechS32 IsPlayerInView(Player* p_player)
 // FUNCTION: MW2MATROX 0x10018db0
 // FUNCTION: MW23DFX 0x10021710
 // FUNCTION: MW2ATI 0x100219e0
+// FUNCTION: MW2S3 0x10013a30
 void DrawTargetStatic(CockpitPanel* p_panel)
 {
 	if (!p_panel->m_enabled) {
@@ -702,6 +705,7 @@ void DrawTargetStatic(CockpitPanel* p_panel)
 // FUNCTION: MW2MATROX 0x10018def
 // FUNCTION: MW23DFX 0x10021730
 // FUNCTION: MW2ATI 0x10021a00
+// FUNCTION: MW2S3 0x10013a50
 void DrawTargetPanelStartup(CockpitPanel* p_panel)
 {
 	PANE* rect;
@@ -743,6 +747,7 @@ void DrawTargetPanelStartup(CockpitPanel* p_panel)
 // FUNCTION: MW2MATROX 0x10018eed
 // FUNCTION: MW23DFX 0x100217f0
 // FUNCTION: MW2ATI 0x10021ac0
+// FUNCTION: MW2S3 0x10013b10
 void DrawTargetPanelShutdown(CockpitPanel* p_panel)
 {
 	PANE* rect;

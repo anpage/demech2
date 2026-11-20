@@ -107,12 +107,16 @@ DECOMP_SIZE_ASSERT(MissionObjective, 0x13f)
 // GLOBAL: MW2MATROX 0x100be4c0
 // GLOBAL: MW23DFX 0x1024ac60
 // GLOBAL: MW2ATI 0x1017f098
+// GLOBAL: MW2S3 0x10065ce0
+// GLOBAL: MW2POWERVR 0x101a9e14
 MechS32 g_shouldQuit = 0;
 
 // GLOBAL: MW2 0x100acb1c
 // GLOBAL: MW2MATROX 0x100be4c4
 // GLOBAL: MW23DFX 0x1024ac64
 // GLOBAL: MW2ATI 0x1017f09c
+// GLOBAL: MW2S3 0x10065ce4
+// GLOBAL: MW2POWERVR 0x101a9e18
 MechS32 g_quitStage = 0;
 
 // GLOBAL: MW2 0x100acb20
@@ -124,12 +128,16 @@ TimedCallback* g_detachedTasks = NULL;
 // GLOBAL: MW2MATROX 0x100be4cc
 // GLOBAL: MW23DFX 0x1024ac6c
 // GLOBAL: MW2ATI 0x1017f0a4
+// GLOBAL: MW2S3 0x10065cec
+// GLOBAL: MW2POWERVR 0x101a9e20
 DifficultyCfg* g_difficulty = NULL;
 
 // GLOBAL: MW2 0x100acb28
 // GLOBAL: MW2MATROX 0x100be4d0
 // GLOBAL: MW23DFX 0x1024ac70
 // GLOBAL: MW2ATI 0x1017f0a8
+// GLOBAL: MW2S3 0x10065cf0
+// GLOBAL: MW2POWERVR 0x101a9e24
 MechS32 g_localPlayerId = 0;
 
 // GLOBAL: MW2 0x100acb2c
@@ -142,6 +150,8 @@ MechS32 g_remoteWaitTime = 0;
 // GLOBAL: MW2MATROX 0x100be4dc
 // GLOBAL: MW23DFX 0x1024ac7c
 // GLOBAL: MW2ATI 0x1017f0b4
+// GLOBAL: MW2S3 0x10065cfc
+// GLOBAL: MW2POWERVR 0x101a9e30
 MechS32 g_startOnAutopilot = 0;
 
 #ifdef MW2_MATROX
@@ -154,6 +164,8 @@ HWND g_unk0x100be508 = NULL;
 // GLOBAL: MW2MATROX 0x100be50c
 // GLOBAL: MW23DFX 0x1024aca8
 // GLOBAL: MW2ATI 0x1017f0e0
+// GLOBAL: MW2S3 0x10065d28
+// GLOBAL: MW2POWERVR 0x101a9e58
 HWND g_gameWindow = NULL;
 
 // GLOBAL: MW2 0x100acb64
@@ -165,29 +177,38 @@ HINSTANCE g_simModule = NULL;
 // GLOBAL: MW2MATROX 0x100be514
 // GLOBAL: MW23DFX 0x1024acb0
 // GLOBAL: MW2ATI 0x1017f0e8
+// GLOBAL: MW2S3 0x10065d30
+// GLOBAL: MW2POWERVR 0x101a9e60
 HANDLE g_primaryHeap = NULL;
 
 // GLOBAL: MW2 0x100acb6c
 // GLOBAL: MW2MATROX 0x100be518
 // GLOBAL: MW23DFX 0x1024acb4
 // GLOBAL: MW2ATI 0x1017f0ec
+// GLOBAL: MW2S3 0x10065d34
+// GLOBAL: MW2POWERVR 0x101a9e64
 MechS32 g_gameWindowWidth = 0;
 
 // GLOBAL: MW2 0x100acb70
 // GLOBAL: MW2MATROX 0x100be51c
 // GLOBAL: MW23DFX 0x1024acb8
 // GLOBAL: MW2ATI 0x1017f0f0
+// GLOBAL: MW2S3 0x10065d38
+// GLOBAL: MW2POWERVR 0x101a9e68
 MechS32 g_gameWindowHeight = 0;
 
 // GLOBAL: MW2 0x100acb74
 // GLOBAL: MW2MATROX 0x100be520
 // GLOBAL: MW23DFX 0x1024acbc
 // GLOBAL: MW2ATI 0x1017f0f4
+// GLOBAL: MW2S3 0x10065d3c
+// GLOBAL: MW2POWERVR 0x101a9e6c
 MechS32 g_windowActive = 0;
 
 // GLOBAL: MW2 0x100acb78
 // GLOBAL: MW2MATROX 0x100be524
 // GLOBAL: MW23DFX 0x1024acc0
+// GLOBAL: MW2S3 0x10065d40
 MechS32 g_drawModeReady = 0;
 
 // GLOBAL: MW2 0x100acb7c
@@ -209,24 +230,32 @@ MechS32 g_desktopHeight = 0;
 // GLOBAL: MW2MATROX 0x100be534
 // GLOBAL: MW23DFX 0x1024acd0
 // GLOBAL: MW2ATI 0x1017f108
+// GLOBAL: MW2S3 0x10065d50
+// GLOBAL: MW2POWERVR 0x101a9e80
 MechS32 g_simPaused = 0;
 
 // GLOBAL: MW2 0x100acb8c
 // GLOBAL: MW2MATROX 0x100be538
 // GLOBAL: MW23DFX 0x1024acd4
 // GLOBAL: MW2ATI 0x1017f10c
+// GLOBAL: MW2S3 0x10065d54
+// GLOBAL: MW2POWERVR 0x101a9e84
 MechS32 g_pauseRequested = 0;
 
 // GLOBAL: MW2 0x100acb90
 // GLOBAL: MW2MATROX 0x100be53c
 // GLOBAL: MW23DFX 0x1024acd8
 // GLOBAL: MW2ATI 0x1017f110
+// GLOBAL: MW2S3 0x10065d58
+// GLOBAL: MW2POWERVR 0x101a9e88
 undefined4 g_windowedSwitchPending = 0;
 
 // GLOBAL: MW2 0x100acb94
 // GLOBAL: MW2MATROX 0x100be540
 // GLOBAL: MW23DFX 0x1024acdc
 // GLOBAL: MW2ATI 0x1017f114
+// GLOBAL: MW2S3 0x10065d5c
+// GLOBAL: MW2POWERVR 0x101a9e8c
 MechS32 g_mouseOutsideClientWindow = 0;
 
 #ifdef MW2_MATROX
@@ -240,24 +269,32 @@ MechS32 g_unk0x100be544 = 0;
 // GLOBAL: MW2MATROX 0x100be548
 // GLOBAL: MW23DFX 0x1024ace0
 // GLOBAL: MW2ATI 0x1017f118
+// GLOBAL: MW2S3 0x10065d60
+// GLOBAL: MW2POWERVR 0x101a9e90
 MechS32 g_goLaunch = 0;
 
 // GLOBAL: MW2 0x100e9240
 // GLOBAL: MW2MATROX 0x1012595c
 // GLOBAL: MW23DFX 0x1024429c
 // GLOBAL: MW2ATI 0x10177f5c
+// GLOBAL: MW2S3 0x100abe7c
+// GLOBAL: MW2POWERVR 0x101a2c1c
 MechU32 g_windowedSwitchTime;
 
 // GLOBAL: MW2 0x100e933c
 // GLOBAL: MW2MATROX 0x10125958
 // GLOBAL: MW23DFX 0x10244298
 // GLOBAL: MW2ATI 0x10177f58
+// GLOBAL: MW2S3 0x100abf6c
+// GLOBAL: MW2POWERVR 0x101a2c18
 MechU32 g_windowedSwitchDeadline;
 
 // GLOBAL: MW2 0x1012b7c0
 // GLOBAL: MW2MATROX 0x101d69c0
 // GLOBAL: MW23DFX 0x10159ea0
 // GLOBAL: MW2ATI 0x1008dea0
+// GLOBAL: MW2S3 0x100b1d90
+// GLOBAL: MW2POWERVR 0x100843e0
 VideoDriverChoice g_videoDriverChoice;
 
 #ifdef MW2_REGISTRY_SETTINGS
@@ -267,6 +304,7 @@ VideoDriverChoice g_videoDriverChoice;
 // FUNCTION: MW2MATROX 0x1008fad0
 // FUNCTION: MW23DFX 0x100087e0
 // FUNCTION: MW2ATI 0x10008fd0
+// FUNCTION: MW2S3 0x10026680
 void FUN_1008fad0(void)
 {
 #ifdef MW2_RES_800X600
@@ -673,7 +711,7 @@ int __stdcall SimMain(
 	result = g_fledToWindows ? 0xff : 0;
 	return result;
 }
-#elif defined(MW2_3DFX) || defined(MW2_ATI)
+#elif defined(MW2_3DFX) || defined(MW2_ATI) || defined(MW2_S3) || defined(MW2_POWERVR)
 // The fill of the refresh mode fallback, the edition's display back end's.
 #ifdef MW2_3DFX
 #define SIM_BACKEND_FILL GlideFill
@@ -1575,12 +1613,13 @@ LRESULT CALLBACK SimWindowProc(HWND p_hWnd, UINT p_msg, WPARAM p_wParam, LPARAM 
 
 	return DefWindowProc(p_hWnd, p_msg, p_wParam, p_lParam);
 }
-#elif defined(MW2_3DFX) || defined(MW2_ATI)
+#elif defined(MW2_3DFX) || defined(MW2_ATI) || defined(MW2_S3) || defined(MW2_POWERVR)
 // The ATI and 3Dfx editions' window procedure. On WM_ACTIVATEAPP it has none of 1.1's switching
 // between full screen and the desktop: it only restores or minimizes a full-screen window and
 // resets the palette.
 // FUNCTION: MW23DFX 0x10009400
 // FUNCTION: MW2ATI 0x10009bd0
+// FUNCTION: MW2S3 0x100272f0
 LRESULT CALLBACK SimWindowProc(HWND p_hWnd, UINT p_msg, WPARAM p_wParam, LPARAM p_lParam)
 {
 	WINDOWPOS* windowPos;
@@ -1803,6 +1842,7 @@ LRESULT CALLBACK SimWindowProc(HWND p_hWnd, UINT p_msg, WPARAM p_wParam, LPARAM 
 // FUNCTION: MW2MATROX 0x10090ca7
 // FUNCTION: MW23DFX 0x10009680
 // FUNCTION: MW2ATI 0x10009e50
+// FUNCTION: MW2S3 0x10027570
 void HandleMessages(void)
 {
 	MSG msg;
@@ -1836,6 +1876,8 @@ void HandleMessages(void)
 // FUNCTION: MW2MATROX 0x10090d71
 // FUNCTION: MW23DFX 0x10009740
 // FUNCTION: MW2ATI 0x10009f10
+// FUNCTION: MW2S3 0x10027630
+// FUNCTION: MW2POWERVR 0x10008b70
 void UpdatePauseState(void)
 {
 	if (g_pauseRequested) {

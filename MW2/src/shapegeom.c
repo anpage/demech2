@@ -373,6 +373,8 @@ void TransformShapeCenter(struct Shape* p_shape, Matrix* p_matrix)
 // FUNCTION: MW2MATROX 0x10028db4
 // FUNCTION: MW23DFX 0x10029c80
 // FUNCTION: MW2ATI 0x100298b0
+// FUNCTION: MW2S3 0x10026420
+// FUNCTION: MW2POWERVR 0x10026770
 void TransformShape(struct Shape* p_shape, Matrix* p_matrix)
 {
 	Model* model;
@@ -924,6 +926,8 @@ done:
 // FUNCTION: MW2MATROX 0x10028f0e
 // FUNCTION: MW23DFX 0x10029db0
 // FUNCTION: MW2ATI 0x100299e0
+// FUNCTION: MW2S3 0x10026550
+// FUNCTION: MW2POWERVR 0x100268a0
 MechScalar RayShapeDistance(struct Shape* p_shape, Ray* p_ray)
 {
 #if defined(MW2_FLOAT_SCALARS)

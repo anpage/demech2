@@ -11,6 +11,8 @@
 // FUNCTION: MW2MATROX 0x10026ac1
 // FUNCTION: MW23DFX 0x1003b050
 // FUNCTION: MW2ATI 0x10039c10
+// FUNCTION: MW2S3 0x10005cd0
+// FUNCTION: MW2POWERVR 0x10034a50
 MechS32 ScaleJoystickAxis(MechS32 p_value, MechS32 p_deadZone, MechS32 p_center, MechDouble p_scale)
 {
 	if ((p_value -= p_center) < 0) {

@@ -33,6 +33,8 @@
 // FUNCTION: MW2MATROX 0x100887e0
 // FUNCTION: MW23DFX 0x10021d20
 // FUNCTION: MW2ATI 0x10021ff0
+// FUNCTION: MW2S3 0x10013de0
+// FUNCTION: MW2POWERVR 0x10021020
 void FirstDoor(Player* p_player)
 {
 	Mech* mech;
@@ -91,6 +93,8 @@ void FirstDoor(Player* p_player)
 // FUNCTION: MW2MATROX 0x10088a5a
 // FUNCTION: MW23DFX 0x10021e60
 // FUNCTION: MW2ATI 0x10022130
+// FUNCTION: MW2S3 0x10013f20
+// FUNCTION: MW2POWERVR 0x10021160
 void UpdateDoor(Mech* p_mech)
 {
 	MechScalar heading;
@@ -251,6 +255,7 @@ void ShutdownDoor(Mech* p_mech)
 // FUNCTION: MW2MATROX 0x10088ed4
 // FUNCTION: MW23DFX 0x100221a0
 // FUNCTION: MW2ATI 0x10022470
+// FUNCTION: MW2POWERVR 0x100214a0
 MechS32 CreateDoor(MechS32 p_index, Player* p_player)
 {
 	void* buffer = NULL;

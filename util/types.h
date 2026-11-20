@@ -45,16 +45,21 @@ typedef char MechChar;
 /* The simulator's editions and their features. The build defines an edition's identity: nothing
    for 1.1, MW2_ACCEL for the accelerated (3D-card) editions, which share the Matrox edition's
    changes to 1.1, and with it MW2_MATROX (the Matrox Mystique edition), MW2_3DFX (the 3Dfx
-   edition) or MW2_ATI (the ATI 3D Rage edition). The code tests the features, named for what they do; an edition's own
+   edition), MW2_ATI (the ATI 3D Rage edition), MW2_S3 (the S3 ViRGE edition) or MW2_POWERVR (the
+   PowerVR edition). The code tests the features, named for what they do; an edition's own
    back end, and a computation one edition's source writes another way with the same behaviour, test the identity.
    Macros cost no unit anything here (types.h is already included), where a header of their own would move code: its
    first inclusion counts as a symbol on 4.0 and 4.1. Features no binary separates (the ones both accelerated editions
    have) are attributed by what the code does. */
 #if (defined(MW2_MATROX) && defined(MW2_3DFX)) || (defined(MW2_MATROX) && defined(MW2_ATI)) ||                         \
-	(defined(MW2_3DFX) && defined(MW2_ATI))
-#error "MW2_MATROX, MW2_3DFX and MW2_ATI are different editions"
+	(defined(MW2_MATROX) && defined(MW2_S3)) || (defined(MW2_MATROX) && defined(MW2_POWERVR)) ||                       \
+	(defined(MW2_3DFX) && defined(MW2_ATI)) || (defined(MW2_3DFX) && defined(MW2_S3)) ||                               \
+	(defined(MW2_3DFX) && defined(MW2_POWERVR)) || (defined(MW2_ATI) && defined(MW2_S3)) ||                            \
+	(defined(MW2_ATI) && defined(MW2_POWERVR)) || (defined(MW2_S3) && defined(MW2_POWERVR))
+#error "MW2_MATROX, MW2_3DFX, MW2_ATI, MW2_S3 and MW2_POWERVR are different editions"
 #endif
-#if (defined(MW2_MATROX) || defined(MW2_3DFX) || defined(MW2_ATI)) && !defined(MW2_ACCEL)
+#if (defined(MW2_MATROX) || defined(MW2_3DFX) || defined(MW2_ATI) || defined(MW2_S3) || defined(MW2_POWERVR)) &&       \
+	!defined(MW2_ACCEL)
 #error "an accelerated edition defines MW2_ACCEL"
 #endif
 
@@ -286,6 +291,65 @@ typedef char MechChar;
 #define MW2_FRAME_TEXELS
 /* VESA480.DLL is 512x384 when DirectDraw has the mode in 16 bits (FUN_100059b0), 640x480 otherwise */
 #define MW2_RES_512X384
+#endif
+
+#ifdef MW2_S3
+/* The S3 edition starts with the ATI edition's features but its back end's, until its binary
+   settles each one. */
+/* The 16-bit pixels and the palette: RGB555 */
+#define MW2_PIXEL_FORMAT 555
+/* ProjectPolygon clips to the near plane itself, as 1.1's QueueFace does, not through the renderer */
+#define MW2_PROJECT_NEAR_CLIP
+/* The sky and ground drawers clip the polygon to the pane themselves: their callers draw it even
+   when ProjectPolygon leaves no points */
+#define MW2_SKY_GROUND_CLIPPED_HELPERS
+/* Message boxes' backgrounds are shape 0x4f, not 0x4c */
+#define MW2_MESSAGE_BACKGROUND_SHAPES
+/* The torso pan's range is -90 to 90 */
+#define MW2_NARROW_TORSO_PAN
+/* The throttle's range is 0 to 1024 */
+#define MW2_NO_REVERSE_THROTTLE
+/* The map layouts hold their gauge functions from the start, not indices in g_cockpitGauges */
+#define MW2_LAYOUT_GAUGE_FUNCTIONS
+/* Artefact: the edition's headers define FixedMul16, FixedDiv16, MulDiv64, HashName and DebugBreakpoint
+   __inline (its /Ox expands them in every caller), and MemCopy and MemSet are C */
+#define MW2_INLINE_HELPERS
+/* The polygon drawers clip to the pane's edges themselves (FUN_10067b90), and the outline is closed */
+#define MW2_CLIP_TO_PANE_EDGES
+/* The textures are the animations' frames as they are, 16-bit texels (FUN_10051dfe), and their
+   average colors are computed from them */
+#define MW2_FRAME_TEXELS
+/* VFX3D and VFXREND, VFX's polygon fillers and renderer, aren't linked: the A3D renderer draws every
+   polygon, and FirstRender has no code block to make writable */
+#define MW2_NO_VFXREND
+#endif
+
+#ifdef MW2_POWERVR
+/* The PowerVR edition starts with the ATI edition's features but its back end's, until its binary
+   settles each one. */
+/* The 16-bit pixels and the palette: RGB555 */
+#define MW2_PIXEL_FORMAT 555
+/* ProjectPolygon clips to the near plane itself, as 1.1's QueueFace does, not through the renderer */
+#define MW2_PROJECT_NEAR_CLIP
+/* The sky and ground drawers clip the polygon to the pane themselves: their callers draw it even
+   when ProjectPolygon leaves no points */
+#define MW2_SKY_GROUND_CLIPPED_HELPERS
+/* Message boxes' backgrounds are shape 0x4f, not 0x4c */
+#define MW2_MESSAGE_BACKGROUND_SHAPES
+/* The torso pan's range is -90 to 90 */
+#define MW2_NARROW_TORSO_PAN
+/* The throttle's range is 0 to 1024 */
+#define MW2_NO_REVERSE_THROTTLE
+/* The map layouts hold their gauge functions from the start, not indices in g_cockpitGauges */
+#define MW2_LAYOUT_GAUGE_FUNCTIONS
+/* Artefact: the edition's headers define FixedMul16, FixedDiv16, MulDiv64, HashName and DebugBreakpoint
+   __inline (its /Ox expands them in every caller), and MemCopy and MemSet are C */
+#define MW2_INLINE_HELPERS
+/* The polygon drawers clip to the pane's edges themselves (FUN_10067b90), and the outline is closed */
+#define MW2_CLIP_TO_PANE_EDGES
+/* The textures are the animations' frames as they are, 16-bit texels (FUN_10051dfe), and their
+   average colors are computed from them */
+#define MW2_FRAME_TEXELS
 #endif
 
 /* Boolean typedefs (MechBool / MechBool8 ...) are added when a match proves

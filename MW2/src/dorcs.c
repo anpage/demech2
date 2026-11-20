@@ -35,81 +35,113 @@
 // GLOBAL: MW2 0x100ae760
 // GLOBAL: MW23DFX 0x10261878
 // GLOBAL: MW2ATI 0x10195b70
+// GLOBAL: MW2S3 0x10066a40
+// GLOBAL: MW2POWERVR 0x101c0ee8
 MechChar g_dorcsPageTitle[] = "MW2 Programmer Dorcs Page";
 
 // GLOBAL: MW2 0x100ae780
 // GLOBAL: MW23DFX 0x10261898
 // GLOBAL: MW2ATI 0x10195b90
+// GLOBAL: MW2S3 0x10066a60
+// GLOBAL: MW2POWERVR 0x101c0f08
 MechChar g_dorcsAboutItem[] = "About Dorcs";
 
 // GLOBAL: MW2 0x100ae790
 // GLOBAL: MW23DFX 0x102618a8
 // GLOBAL: MW2ATI 0x10195ba0
+// GLOBAL: MW2S3 0x10066a70
+// GLOBAL: MW2POWERVR 0x101c0f18
 MechChar g_dorcsClarkeName[] = "John A. Clarke";
 
 // GLOBAL: MW2 0x100ae7a0
 // GLOBAL: MW23DFX 0x102618b8
 // GLOBAL: MW2ATI 0x10195bb0
+// GLOBAL: MW2S3 0x10066a80
+// GLOBAL: MW2POWERVR 0x101c0f28
 MechChar g_dorcsDouglasName[] = "Michael H. Douglas";
 
 // GLOBAL: MW2 0x100ae7b8
 // GLOBAL: MW23DFX 0x102618d0
 // GLOBAL: MW2ATI 0x10195bc8
+// GLOBAL: MW2S3 0x10066a98
+// GLOBAL: MW2POWERVR 0x101c0f40
 MechChar g_dorcsEthertonName[] = "Scott T. Etherton";
 
 // GLOBAL: MW2 0x100ae7d0
 // GLOBAL: MW23DFX 0x102618e8
 // GLOBAL: MW2ATI 0x10195be0
+// GLOBAL: MW2S3 0x10066ab0
+// GLOBAL: MW2POWERVR 0x101c0f58
 MechChar g_dorcsHusebyName[] = "Sverre H. Huseby";
 
 // GLOBAL: MW2 0x100ae7e8
 // GLOBAL: MW23DFX 0x10261900
 // GLOBAL: MW2ATI 0x10195bf8
+// GLOBAL: MW2S3 0x10066ac8
+// GLOBAL: MW2POWERVR 0x101c0f70
 MechChar g_dorcsKaminsName[] = "Dan Kamins";
 
 // GLOBAL: MW2 0x100ae7f8
 // GLOBAL: MW23DFX 0x10261910
 // GLOBAL: MW2ATI 0x10195c08
+// GLOBAL: MW2S3 0x10066ad8
+// GLOBAL: MW2POWERVR 0x101c0f80
 MechChar g_dorcsKeatingName[] = "John Keating";
 
 // GLOBAL: MW2 0x100ae808
 // GLOBAL: MW23DFX 0x10261920
 // GLOBAL: MW2ATI 0x10195c18
+// GLOBAL: MW2S3 0x10066ae8
+// GLOBAL: MW2POWERVR 0x101c0f90
 MechChar g_dorcsMilesName[] = "John Miles";
 
 // GLOBAL: MW2 0x100ae818
 // GLOBAL: MW23DFX 0x10261930
 // GLOBAL: MW2ATI 0x10195c28
+// GLOBAL: MW2S3 0x10066af8
+// GLOBAL: MW2POWERVR 0x101c0fa0
 MechChar g_dorcsMortenName[] = "Tim Morten";
 
 // GLOBAL: MW2 0x100ae828
 // GLOBAL: MW23DFX 0x10261940
 // GLOBAL: MW2ATI 0x10195c38
+// GLOBAL: MW2S3 0x10066b08
+// GLOBAL: MW2POWERVR 0x101c0fb0
 MechChar g_dorcsMortensenName[] = "Bob Mortensen";
 
 // GLOBAL: MW2 0x100ae838
 // GLOBAL: MW23DFX 0x10261950
 // GLOBAL: MW2ATI 0x10195c48
+// GLOBAL: MW2S3 0x10066b18
+// GLOBAL: MW2POWERVR 0x101c0fc0
 MechChar g_dorcsPetersonName[] = "Eric Peterson";
 
 // GLOBAL: MW2 0x100ae848
 // GLOBAL: MW23DFX 0x10261960
 // GLOBAL: MW2ATI 0x10195c58
+// GLOBAL: MW2S3 0x10066b28
+// GLOBAL: MW2POWERVR 0x101c0fd0
 MechChar g_dorcsStanfillName[] = "Dan Stanfill";
 
 // GLOBAL: MW2 0x100ae858
 // GLOBAL: MW23DFX 0x10261970
 // GLOBAL: MW2ATI 0x10195c68
+// GLOBAL: MW2S3 0x10066b38
+// GLOBAL: MW2POWERVR 0x101c0fe0
 MechChar g_dorcsWhiteName[] = "David White";
 
 // GLOBAL: MW2 0x100ae868
 // GLOBAL: MW23DFX 0x10261980
 // GLOBAL: MW2ATI 0x10195c78
+// GLOBAL: MW2S3 0x10066b48
+// GLOBAL: MW2POWERVR 0x101c0ff0
 MechChar g_dorcsZobelName[] = "Dave Zobel";
 
 // GLOBAL: MW2 0x100ae878
 // GLOBAL: MW23DFX 0x10261990
 // GLOBAL: MW2ATI 0x10195c88
+// GLOBAL: MW2S3 0x10066b58
+// GLOBAL: MW2POWERVR 0x101c1000
 MechChar g_dorcsAboutText[] =
 	"Hi MW2 Fans,\n"
 	"\n"
@@ -126,6 +158,8 @@ MechChar g_dorcsAboutText[] =
 // GLOBAL: MW2 0x100aeab8
 // GLOBAL: MW23DFX 0x10261bd0
 // GLOBAL: MW2ATI 0x10195ec8
+// GLOBAL: MW2S3 0x10066d98
+// GLOBAL: MW2POWERVR 0x101c1240
 MechChar g_dorcsClarkeText[] =
 	"Hi MW2 fans,\n"
 	"\n"
@@ -142,6 +176,8 @@ MechChar g_dorcsClarkeText[] =
 // GLOBAL: MW2 0x100aed58
 // GLOBAL: MW23DFX 0x10261e70
 // GLOBAL: MW2ATI 0x10196168
+// GLOBAL: MW2S3 0x10067038
+// GLOBAL: MW2POWERVR 0x101c14e0
 MechChar g_dorcsDouglasText[] =
 	"    If I had known six months ago how crazy working on MWII was going to be, I'm not sure I would have done it. "
 	"But, after countless late nights and thousands of ornery bugs, we've finally got a killer game.\n"
@@ -158,11 +194,15 @@ MechChar g_dorcsDouglasText[] =
 // GLOBAL: MW2 0x100aefe0
 // GLOBAL: MW23DFX 0x102620f8
 // GLOBAL: MW2ATI 0x101963f0
+// GLOBAL: MW2S3 0x100672c0
+// GLOBAL: MW2POWERVR 0x101c1768
 MechChar g_dorcsEthertonText[] = "I just love to code.  That's all there is to it.";
 
 // GLOBAL: MW2 0x100af018
 // GLOBAL: MW23DFX 0x10262130
 // GLOBAL: MW2ATI 0x10196428
+// GLOBAL: MW2S3 0x100672f8
+// GLOBAL: MW2POWERVR 0x101c17a0
 MechChar g_dorcsHusebyText[] =
 	"We don't know much about this guy except that he lives in Norway and probably has a thick Norwegian accent.  He "
 	"wrote some handy freeware called GifSave and was kind enough to post it on the net.  You can thank him personally "
@@ -171,6 +211,8 @@ MechChar g_dorcsHusebyText[] =
 // GLOBAL: MW2 0x100af138
 // GLOBAL: MW23DFX 0x10262250
 // GLOBAL: MW2ATI 0x10196548
+// GLOBAL: MW2S3 0x10067418
+// GLOBAL: MW2POWERVR 0x101c18c0
 MechChar g_dorcsKaminsText[] =
 	"  Thanks to all!\n"
 	"  I'd take better advantage of my DORCSOpportunity (TM) here, except for the fact that I have 34 bugs to fix.\n"
@@ -182,6 +224,8 @@ MechChar g_dorcsKaminsText[] =
 // GLOBAL: MW2 0x100af238
 // GLOBAL: MW23DFX 0x10262350
 // GLOBAL: MW2ATI 0x10196648
+// GLOBAL: MW2S3 0x10067518
+// GLOBAL: MW2POWERVR 0x101c19c0
 MechChar g_dorcsKeatingText[] =
 	"John drew on his experience defending his turf and scrapping in the gutters as a kid in San Antonio's roughest "
 	"neighborhood, \"Alamo Heights\", to create the battle AI for MechWarrior.  A Mac guy living in a hostile PC "
@@ -192,6 +236,8 @@ MechChar g_dorcsKeatingText[] =
 // GLOBAL: MW2 0x100af438
 // GLOBAL: MW23DFX 0x10262550
 // GLOBAL: MW2ATI 0x10196848
+// GLOBAL: MW2S3 0x10067718
+// GLOBAL: MW2POWERVR 0x101c1bc0
 MechChar g_dorcsMilesText[] =
 	"This guy wrote all the graphics and sound packages (along with John Lemberger) We could dorcs co his API with "
 	"confidence because we knew we were getting high quality, efficient and reliable code.  Once we converted to the "
@@ -202,6 +248,8 @@ MechChar g_dorcsMilesText[] =
 // GLOBAL: MW2 0x100af5a8
 // GLOBAL: MW23DFX 0x102626c0
 // GLOBAL: MW2ATI 0x101969b8
+// GLOBAL: MW2S3 0x10067888
+// GLOBAL: MW2POWERVR 0x101c1d30
 MechChar g_dorcsMortenText[] =
 	"Tim's Liner Notes\n"
 	"\n"
@@ -217,6 +265,8 @@ MechChar g_dorcsMortenText[] =
 // GLOBAL: MW2 0x100af6d8
 // GLOBAL: MW23DFX 0x102627f0
 // GLOBAL: MW2ATI 0x10196ae8
+// GLOBAL: MW2S3 0x100679b8
+// GLOBAL: MW2POWERVR 0x101c1e60
 MechChar g_dorcsMortensenText[] =
 	"I'm so HONORED!  Only three months on the project and I'm an official DORCS.\n"
 	"\n"
@@ -230,6 +280,8 @@ MechChar g_dorcsMortensenText[] =
 // GLOBAL: MW2 0x100af858
 // GLOBAL: MW23DFX 0x10262970
 // GLOBAL: MW2ATI 0x10196c68
+// GLOBAL: MW2S3 0x10067b38
+// GLOBAL: MW2POWERVR 0x101c1fe0
 MechChar g_dorcsPetersonText[] =
 	"Eric no longer works here but he is really the grand-pappy of the Sim engine.  The original concept was his and "
 	"he single-handedly wrote the first real mode version (including all tools and much of the art).  Without Eric's "
@@ -240,6 +292,8 @@ MechChar g_dorcsPetersonText[] =
 // GLOBAL: MW2 0x100af9e8
 // GLOBAL: MW23DFX 0x10262b00
 // GLOBAL: MW2ATI 0x10196df8
+// GLOBAL: MW2S3 0x10067cc8
+// GLOBAL: MW2POWERVR 0x101c2170
 MechChar g_dorcsStanfillText[] =
 	"We made it!\n"
 	"\n"
@@ -252,166 +306,232 @@ MechChar g_dorcsStanfillText[] =
 // GLOBAL: MW2 0x100afb30
 // GLOBAL: MW23DFX 0x10262c48
 // GLOBAL: MW2ATI 0x10196f40
+// GLOBAL: MW2S3 0x10067e10
+// GLOBAL: MW2POWERVR 0x101c22b8
 MechChar g_dorcsWhiteText[] = "I just love to code.  That's all there is to it.";
 
 // GLOBAL: MW2 0x100afb68
 // GLOBAL: MW23DFX 0x10262c80
 // GLOBAL: MW2ATI 0x10196f78
+// GLOBAL: MW2S3 0x10067e48
+// GLOBAL: MW2POWERVR 0x101c22f0
 MechChar g_dorcsZobelText[] = "Dave Zobel was last seen plunging into the darkness beyond the Wall of Testosterone.";
 
 // GLOBAL: MW2 0x100afbc0
 // GLOBAL: MW23DFX 0x10262cd8
 // GLOBAL: MW2ATI 0x10196fd0
+// GLOBAL: MW2S3 0x10067ea0
+// GLOBAL: MW2POWERVR 0x101c2348
 MechChar g_dorcsExitItem[] = "This is boring!";
 
 // GLOBAL: MW2 0x100afbd0
 // GLOBAL: MW23DFX 0x10262ce8
 // GLOBAL: MW2ATI 0x10196fe0
+// GLOBAL: MW2S3 0x10067eb0
+// GLOBAL: MW2POWERVR 0x101c2358
 PANE g_dorcsTextRect = {NULL, 0, 0x2666, 0x10000, 0x10000};
 
 // GLOBAL: MW2 0x100afbe8
 // GLOBAL: MW23DFX 0x10262d00
 // GLOBAL: MW2ATI 0x10196ff8
+// GLOBAL: MW2S3 0x10067ec8
+// GLOBAL: MW2POWERVR 0x101c2370
 MenuTextBox g_dorcsAboutTextBox = {&g_dorcsTextRect, g_dorcsAboutText};
 
 // GLOBAL: MW2 0x100afbf0
 // GLOBAL: MW23DFX 0x10262d08
 // GLOBAL: MW2ATI 0x10197000
+// GLOBAL: MW2S3 0x10067ed0
+// GLOBAL: MW2POWERVR 0x101c2378
 MenuTextBox g_dorcsClarkeTextBox = {&g_dorcsTextRect, g_dorcsClarkeText};
 
 // GLOBAL: MW2 0x100afbf8
 // GLOBAL: MW23DFX 0x10262d10
 // GLOBAL: MW2ATI 0x10197008
+// GLOBAL: MW2S3 0x10067ed8
+// GLOBAL: MW2POWERVR 0x101c2380
 MenuTextBox g_dorcsDouglasTextBox = {&g_dorcsTextRect, g_dorcsDouglasText};
 
 // GLOBAL: MW2 0x100afc00
 // GLOBAL: MW23DFX 0x10262d18
 // GLOBAL: MW2ATI 0x10197010
+// GLOBAL: MW2S3 0x10067ee0
+// GLOBAL: MW2POWERVR 0x101c2388
 MenuTextBox g_dorcsEthertonTextBox = {&g_dorcsTextRect, g_dorcsEthertonText};
 
 // GLOBAL: MW2 0x100afc08
 // GLOBAL: MW23DFX 0x10262d20
 // GLOBAL: MW2ATI 0x10197018
+// GLOBAL: MW2S3 0x10067ee8
+// GLOBAL: MW2POWERVR 0x101c2390
 MenuTextBox g_dorcsHusebyTextBox = {&g_dorcsTextRect, g_dorcsHusebyText};
 
 // GLOBAL: MW2 0x100afc10
 // GLOBAL: MW23DFX 0x10262d28
 // GLOBAL: MW2ATI 0x10197020
+// GLOBAL: MW2S3 0x10067ef0
+// GLOBAL: MW2POWERVR 0x101c2398
 MenuTextBox g_dorcsKaminsTextBox = {&g_dorcsTextRect, g_dorcsKaminsText};
 
 // GLOBAL: MW2 0x100afc18
 // GLOBAL: MW23DFX 0x10262d30
 // GLOBAL: MW2ATI 0x10197028
+// GLOBAL: MW2S3 0x10067ef8
+// GLOBAL: MW2POWERVR 0x101c23a0
 MenuTextBox g_dorcsKeatingTextBox = {&g_dorcsTextRect, g_dorcsKeatingText};
 
 // GLOBAL: MW2 0x100afc20
 // GLOBAL: MW23DFX 0x10262d38
 // GLOBAL: MW2ATI 0x10197030
+// GLOBAL: MW2S3 0x10067f00
+// GLOBAL: MW2POWERVR 0x101c23a8
 MenuTextBox g_dorcsMilesTextBox = {&g_dorcsTextRect, g_dorcsMilesText};
 
 // GLOBAL: MW2 0x100afc28
 // GLOBAL: MW23DFX 0x10262d40
 // GLOBAL: MW2ATI 0x10197038
+// GLOBAL: MW2S3 0x10067f08
+// GLOBAL: MW2POWERVR 0x101c23b0
 MenuTextBox g_dorcsMortenTextBox = {&g_dorcsTextRect, g_dorcsMortenText};
 
 // GLOBAL: MW2 0x100afc30
 // GLOBAL: MW23DFX 0x10262d48
 // GLOBAL: MW2ATI 0x10197040
+// GLOBAL: MW2S3 0x10067f10
+// GLOBAL: MW2POWERVR 0x101c23b8
 MenuTextBox g_dorcsMortensenTextBox = {&g_dorcsTextRect, g_dorcsMortensenText};
 
 // GLOBAL: MW2 0x100afc38
 // GLOBAL: MW23DFX 0x10262d50
 // GLOBAL: MW2ATI 0x10197048
+// GLOBAL: MW2S3 0x10067f18
+// GLOBAL: MW2POWERVR 0x101c23c0
 MenuTextBox g_dorcsPetersonTextBox = {&g_dorcsTextRect, g_dorcsPetersonText};
 
 // GLOBAL: MW2 0x100afc40
 // GLOBAL: MW23DFX 0x10262d58
 // GLOBAL: MW2ATI 0x10197050
+// GLOBAL: MW2S3 0x10067f20
+// GLOBAL: MW2POWERVR 0x101c23c8
 MenuTextBox g_dorcsStanfillTextBox = {&g_dorcsTextRect, g_dorcsStanfillText};
 
 // GLOBAL: MW2 0x100afc48
 // GLOBAL: MW23DFX 0x10262d60
 // GLOBAL: MW2ATI 0x10197058
+// GLOBAL: MW2S3 0x10067f28
+// GLOBAL: MW2POWERVR 0x101c23d0
 MenuTextBox g_dorcsWhiteTextBox = {&g_dorcsTextRect, g_dorcsWhiteText};
 
 // GLOBAL: MW2 0x100afc50
 // GLOBAL: MW23DFX 0x10262d68
 // GLOBAL: MW2ATI 0x10197060
+// GLOBAL: MW2S3 0x10067f30
+// GLOBAL: MW2POWERVR 0x101c23d8
 MenuTextBox g_dorcsZobelTextBox = {&g_dorcsTextRect, g_dorcsZobelText};
 
 // GLOBAL: MW2 0x100afc58
 // GLOBAL: MW23DFX 0x10262d70
 // GLOBAL: MW2ATI 0x10197068
+// GLOBAL: MW2S3 0x10067f38
+// GLOBAL: MW2POWERVR 0x101c23e0
 MenuControl g_dorcsAboutControl = {2, 0, &g_dorcsAboutTextBox, 0, NULL, NULL, NULL, NULL, NULL};
 
 // GLOBAL: MW2 0x100afc80
 // GLOBAL: MW23DFX 0x10262d98
 // GLOBAL: MW2ATI 0x10197090
+// GLOBAL: MW2S3 0x10067f60
+// GLOBAL: MW2POWERVR 0x101c2408
 MenuControl g_dorcsClarkeControl = {2, 0, &g_dorcsClarkeTextBox, 0, NULL, NULL, NULL, NULL, NULL};
 
 // GLOBAL: MW2 0x100afca8
 // GLOBAL: MW23DFX 0x10262dc0
 // GLOBAL: MW2ATI 0x101970b8
+// GLOBAL: MW2S3 0x10067f88
+// GLOBAL: MW2POWERVR 0x101c2430
 MenuControl g_dorcsDouglasControl = {2, 0, &g_dorcsDouglasTextBox, 0, NULL, NULL, NULL, NULL, NULL};
 
 // GLOBAL: MW2 0x100afcd0
 // GLOBAL: MW23DFX 0x10262de8
 // GLOBAL: MW2ATI 0x101970e0
+// GLOBAL: MW2S3 0x10067fb0
+// GLOBAL: MW2POWERVR 0x101c2458
 MenuControl g_dorcsEthertonControl = {2, 0, &g_dorcsEthertonTextBox, 0, NULL, NULL, NULL, NULL, NULL};
 
 // GLOBAL: MW2 0x100afcf8
 // GLOBAL: MW23DFX 0x10262e10
 // GLOBAL: MW2ATI 0x10197108
+// GLOBAL: MW2S3 0x10067fd8
+// GLOBAL: MW2POWERVR 0x101c2480
 MenuControl g_dorcsHusebyControl = {2, 0, &g_dorcsHusebyTextBox, 0, NULL, NULL, NULL, NULL, NULL};
 
 // GLOBAL: MW2 0x100afd20
 // GLOBAL: MW23DFX 0x10262e38
 // GLOBAL: MW2ATI 0x10197130
+// GLOBAL: MW2S3 0x10068000
+// GLOBAL: MW2POWERVR 0x101c24a8
 MenuControl g_dorcsKaminsControl = {2, 0, &g_dorcsKaminsTextBox, 0, NULL, NULL, NULL, NULL, NULL};
 
 // GLOBAL: MW2 0x100afd48
 // GLOBAL: MW23DFX 0x10262e60
 // GLOBAL: MW2ATI 0x10197158
+// GLOBAL: MW2S3 0x10068028
+// GLOBAL: MW2POWERVR 0x101c24d0
 MenuControl g_dorcsKeatingControl = {2, 0, &g_dorcsKeatingTextBox, 0, NULL, NULL, NULL, NULL, NULL};
 
 // GLOBAL: MW2 0x100afd70
 // GLOBAL: MW23DFX 0x10262e88
 // GLOBAL: MW2ATI 0x10197180
+// GLOBAL: MW2S3 0x10068050
+// GLOBAL: MW2POWERVR 0x101c24f8
 MenuControl g_dorcsMilesControl = {2, 0, &g_dorcsMilesTextBox, 0, NULL, NULL, NULL, NULL, NULL};
 
 // GLOBAL: MW2 0x100afd98
 // GLOBAL: MW23DFX 0x10262eb0
 // GLOBAL: MW2ATI 0x101971a8
+// GLOBAL: MW2S3 0x10068078
+// GLOBAL: MW2POWERVR 0x101c2520
 MenuControl g_dorcsMortenControl = {2, 0, &g_dorcsMortenTextBox, 0, NULL, NULL, NULL, NULL, NULL};
 
 // GLOBAL: MW2 0x100afdc0
 // GLOBAL: MW23DFX 0x10262ed8
 // GLOBAL: MW2ATI 0x101971d0
+// GLOBAL: MW2S3 0x100680a0
+// GLOBAL: MW2POWERVR 0x101c2548
 MenuControl g_dorcsMortensenControl = {2, 0, &g_dorcsMortensenTextBox, 0, NULL, NULL, NULL, NULL, NULL};
 
 // GLOBAL: MW2 0x100afde8
 // GLOBAL: MW23DFX 0x10262f00
 // GLOBAL: MW2ATI 0x101971f8
+// GLOBAL: MW2S3 0x100680c8
+// GLOBAL: MW2POWERVR 0x101c2570
 MenuControl g_dorcsPetersonControl = {2, 0, &g_dorcsPetersonTextBox, 0, NULL, NULL, NULL, NULL, NULL};
 
 // GLOBAL: MW2 0x100afe10
 // GLOBAL: MW23DFX 0x10262f28
 // GLOBAL: MW2ATI 0x10197220
+// GLOBAL: MW2S3 0x100680f0
+// GLOBAL: MW2POWERVR 0x101c2598
 MenuControl g_dorcsStanfillControl = {2, 0, &g_dorcsStanfillTextBox, 0, NULL, NULL, NULL, NULL, NULL};
 
 // GLOBAL: MW2 0x100afe38
 // GLOBAL: MW23DFX 0x10262f50
 // GLOBAL: MW2ATI 0x10197248
+// GLOBAL: MW2S3 0x10068118
+// GLOBAL: MW2POWERVR 0x101c25c0
 MenuControl g_dorcsWhiteControl = {2, 0, &g_dorcsWhiteTextBox, 0, NULL, NULL, NULL, NULL, NULL};
 
 // GLOBAL: MW2 0x100afe60
 // GLOBAL: MW23DFX 0x10262f78
 // GLOBAL: MW2ATI 0x10197270
+// GLOBAL: MW2S3 0x10068140
+// GLOBAL: MW2POWERVR 0x101c25e8
 MenuControl g_dorcsZobelControl = {2, 0, &g_dorcsZobelTextBox, 0, NULL, NULL, NULL, NULL, NULL};
 
 // GLOBAL: MW2 0x100afe88
 // GLOBAL: MW23DFX 0x10262fa0
 // GLOBAL: MW2ATI 0x10197298
+// GLOBAL: MW2S3 0x10068168
+// GLOBAL: MW2POWERVR 0x101c2610
 MenuPage g_dorcsAboutPage = {
 	0,
 	g_dorcsAboutItem,
@@ -425,6 +545,8 @@ MenuPage g_dorcsAboutPage = {
 // GLOBAL: MW2 0x100affe0
 // GLOBAL: MW23DFX 0x102630f8
 // GLOBAL: MW2ATI 0x101973f0
+// GLOBAL: MW2S3 0x100682c0
+// GLOBAL: MW2POWERVR 0x101c2768
 MenuPage g_dorcsClarkePage = {
 	0,
 	g_dorcsClarkeName,
@@ -438,6 +560,8 @@ MenuPage g_dorcsClarkePage = {
 // GLOBAL: MW2 0x100b0138
 // GLOBAL: MW23DFX 0x10263250
 // GLOBAL: MW2ATI 0x10197548
+// GLOBAL: MW2S3 0x10068418
+// GLOBAL: MW2POWERVR 0x101c28c0
 MenuPage g_dorcsDouglasPage = {
 	0,
 	g_dorcsDouglasName,
@@ -451,6 +575,8 @@ MenuPage g_dorcsDouglasPage = {
 // GLOBAL: MW2 0x100b0290
 // GLOBAL: MW23DFX 0x102633a8
 // GLOBAL: MW2ATI 0x101976a0
+// GLOBAL: MW2S3 0x10068570
+// GLOBAL: MW2POWERVR 0x101c2a18
 MenuPage g_dorcsEthertonPage = {
 	0,
 	g_dorcsEthertonName,
@@ -464,6 +590,8 @@ MenuPage g_dorcsEthertonPage = {
 // GLOBAL: MW2 0x100b03e8
 // GLOBAL: MW23DFX 0x10263500
 // GLOBAL: MW2ATI 0x101977f8
+// GLOBAL: MW2S3 0x100686c8
+// GLOBAL: MW2POWERVR 0x101c2b70
 MenuPage g_dorcsHusebyPage = {
 	0,
 	g_dorcsHusebyName,
@@ -477,6 +605,8 @@ MenuPage g_dorcsHusebyPage = {
 // GLOBAL: MW2 0x100b0540
 // GLOBAL: MW23DFX 0x10263658
 // GLOBAL: MW2ATI 0x10197950
+// GLOBAL: MW2S3 0x10068820
+// GLOBAL: MW2POWERVR 0x101c2cc8
 MenuPage g_dorcsKaminsPage = {
 	0,
 	g_dorcsKaminsName,
@@ -490,6 +620,8 @@ MenuPage g_dorcsKaminsPage = {
 // GLOBAL: MW2 0x100b0698
 // GLOBAL: MW23DFX 0x102637b0
 // GLOBAL: MW2ATI 0x10197aa8
+// GLOBAL: MW2S3 0x10068978
+// GLOBAL: MW2POWERVR 0x101c2e20
 MenuPage g_dorcsKeatingPage = {
 	0,
 	g_dorcsKeatingName,
@@ -503,6 +635,8 @@ MenuPage g_dorcsKeatingPage = {
 // GLOBAL: MW2 0x100b07f0
 // GLOBAL: MW23DFX 0x10263908
 // GLOBAL: MW2ATI 0x10197c00
+// GLOBAL: MW2S3 0x10068ad0
+// GLOBAL: MW2POWERVR 0x101c2f78
 MenuPage g_dorcsMilesPage = {
 	0,
 	g_dorcsMilesName,
@@ -516,6 +650,8 @@ MenuPage g_dorcsMilesPage = {
 // GLOBAL: MW2 0x100b0948
 // GLOBAL: MW23DFX 0x10263a60
 // GLOBAL: MW2ATI 0x10197d58
+// GLOBAL: MW2S3 0x10068c28
+// GLOBAL: MW2POWERVR 0x101c30d0
 MenuPage g_dorcsMortenPage = {
 	0,
 	g_dorcsMortenName,
@@ -529,6 +665,8 @@ MenuPage g_dorcsMortenPage = {
 // GLOBAL: MW2 0x100b0aa0
 // GLOBAL: MW23DFX 0x10263bb8
 // GLOBAL: MW2ATI 0x10197eb0
+// GLOBAL: MW2S3 0x10068d80
+// GLOBAL: MW2POWERVR 0x101c3228
 MenuPage g_dorcsMortensenPage = {
 	0,
 	g_dorcsMortensenName,
@@ -542,6 +680,8 @@ MenuPage g_dorcsMortensenPage = {
 // GLOBAL: MW2 0x100b0bf8
 // GLOBAL: MW23DFX 0x10263d10
 // GLOBAL: MW2ATI 0x10198008
+// GLOBAL: MW2S3 0x10068ed8
+// GLOBAL: MW2POWERVR 0x101c3380
 MenuPage g_dorcsPetersonPage = {
 	0,
 	g_dorcsPetersonName,
@@ -555,6 +695,8 @@ MenuPage g_dorcsPetersonPage = {
 // GLOBAL: MW2 0x100b0d50
 // GLOBAL: MW23DFX 0x10263e68
 // GLOBAL: MW2ATI 0x10198160
+// GLOBAL: MW2S3 0x10069030
+// GLOBAL: MW2POWERVR 0x101c34d8
 MenuPage g_dorcsStanfillPage = {
 	0,
 	g_dorcsStanfillName,
@@ -568,6 +710,8 @@ MenuPage g_dorcsStanfillPage = {
 // GLOBAL: MW2 0x100b0ea8
 // GLOBAL: MW23DFX 0x10263fc0
 // GLOBAL: MW2ATI 0x101982b8
+// GLOBAL: MW2S3 0x10069188
+// GLOBAL: MW2POWERVR 0x101c3630
 MenuPage g_dorcsWhitePage = {
 	0,
 	g_dorcsWhiteName,
@@ -581,6 +725,8 @@ MenuPage g_dorcsWhitePage = {
 // GLOBAL: MW2 0x100b1000
 // GLOBAL: MW23DFX 0x10264118
 // GLOBAL: MW2ATI 0x10198410
+// GLOBAL: MW2S3 0x100692e0
+// GLOBAL: MW2POWERVR 0x101c3788
 MenuPage g_dorcsZobelPage = {
 	0,
 	g_dorcsZobelName,
@@ -595,6 +741,8 @@ MenuPage g_dorcsZobelPage = {
 // GLOBAL: MW2MATROX 0x100b0e40
 // GLOBAL: MW23DFX 0x10264270
 // GLOBAL: MW2ATI 0x10198568
+// GLOBAL: MW2S3 0x10069438
+// GLOBAL: MW2POWERVR 0x101c38e0
 MenuPage g_dorcsPage = {
 	0,
 	g_dorcsPageTitle,
@@ -623,18 +771,24 @@ MenuPage g_dorcsPage = {
 // GLOBAL: MW2MATROX 0x100b0f98
 // GLOBAL: MW23DFX 0x102643c8
 // GLOBAL: MW2ATI 0x101986c0
+// GLOBAL: MW2S3 0x10069590
+// GLOBAL: MW2POWERVR 0x101c3a38
 PANE g_dorcsMenuTarget = {NULL, 0x199a, 0x199a, 0xe666, 0xe666};
 
 // GLOBAL: MW2 0x100b12c8
 // GLOBAL: MW2MATROX 0x100b0fb0
 // GLOBAL: MW23DFX 0x102643e0
 // GLOBAL: MW2ATI 0x101986d8
+// GLOBAL: MW2S3 0x100695a8
+// GLOBAL: MW2POWERVR 0x101c3a50
 PANE g_dorcsMenuBackgroundTarget = {NULL, 0x199a, 0x199a, 0xe666, 0xe666};
 
 // GLOBAL: MW2 0x100b12e0
 // GLOBAL: MW2MATROX 0x100b0fc8
 // GLOBAL: MW23DFX 0x102643f8
 // GLOBAL: MW2ATI 0x101986f0
+// GLOBAL: MW2S3 0x100695c0
+// GLOBAL: MW2POWERVR 0x101c3a68
 MenuDefinition g_dorcsMenu = {
 	&g_dorcsMenuTarget,
 	37,
@@ -664,6 +818,8 @@ MenuDefinition g_dorcsMenu = {
 // GLOBAL: MW2MATROX 0x100b1038
 // GLOBAL: MW23DFX 0x102617e8
 // GLOBAL: MW2ATI 0x10195ae0
+// GLOBAL: MW2S3 0x10069630
+// GLOBAL: MW2POWERVR 0x101c0e54
 MechS32 g_fledToWindows = 0;
 
 // The frame draw callback ShowDorcs replaces.
@@ -674,6 +830,8 @@ void (*g_dorcsPreviousDrawCallback)(void) = DrawScene;
 // GLOBAL: MW2MATROX 0x1012fc50
 // GLOBAL: MW23DFX 0x10153510
 // GLOBAL: MW2ATI 0x10087530
+// GLOBAL: MW2S3 0x100abc20
+// GLOBAL: MW2POWERVR 0x1007db10
 MenuPage* g_dorcsMenuPageStack[8];
 
 // The dorcs sequence (ShowDorcs): the view shrinks to a point (g_dorcsTransition), a picture
@@ -723,6 +881,8 @@ MechS32 g_dorcsReverse = 1;
 // FUNCTION: MW2MATROX 0x100758c0
 // FUNCTION: MW23DFX 0x10064280
 // FUNCTION: MW2ATI 0x10061930
+// FUNCTION: MW2S3 0x1002b1a0
+// FUNCTION: MW2POWERVR 0x1005c6a0
 void AbortMissionAction(MenuDefinition* p_menu, MenuControl* p_control, MechS32 p_index, Point p_pos, MenuPage* p_page)
 {
 	MechS32 saved;
@@ -750,6 +910,8 @@ void AbortMissionAction(MenuDefinition* p_menu, MenuControl* p_control, MechS32 
 // FUNCTION: MW2MATROX 0x10075976
 // FUNCTION: MW23DFX 0x100642e0
 // FUNCTION: MW2ATI 0x10061990
+// FUNCTION: MW2S3 0x1002b200
+// FUNCTION: MW2POWERVR 0x1005c700
 void FleeToWindowsAction(MenuDefinition* p_menu, MenuControl* p_control, MechS32 p_index, Point p_pos, MenuPage* p_page)
 {
 	MechS32 digit;

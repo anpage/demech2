@@ -25,6 +25,8 @@ DECOMP_SIZE_ASSERT(Team, 0x38)
 // GLOBAL: MW2MATROX 0x100ae338
 // GLOBAL: MW23DFX 0x1024c478
 // GLOBAL: MW2ATI 0x101807f8
+// GLOBAL: MW2S3 0x10061600
+// GLOBAL: MW2POWERVR 0x101ab640
 MechS32 g_localStar =
 #ifdef MW2_LOCAL_STAR_FROM_ZERO
 	0;
@@ -36,36 +38,48 @@ MechS32 g_localStar =
 // GLOBAL: MW2MATROX 0x100ae33c
 // GLOBAL: MW23DFX 0x1024c47c
 // GLOBAL: MW2ATI 0x101807fc
+// GLOBAL: MW2S3 0x10061604
+// GLOBAL: MW2POWERVR 0x101ab644
 MechS32 g_formationTemplateCount = 0;
 
 // GLOBAL: MW2 0x10109c90
 // GLOBAL: MW2MATROX 0x10130400
 // GLOBAL: MW23DFX 0x101deff0
 // GLOBAL: MW2ATI 0x10112cb0
+// GLOBAL: MW2S3 0x101616a0
+// GLOBAL: MW2POWERVR 0x1013d970
 TeamFormation g_formationTemplates[32];
 
 // GLOBAL: MW2 0x1010aa90
 // GLOBAL: MW2MATROX 0x10131200
 // GLOBAL: MW23DFX 0x101dfdf0
 // GLOBAL: MW2ATI 0x10113ab0
+// GLOBAL: MW2S3 0x101624a0
+// GLOBAL: MW2POWERVR 0x1013e770
 Team g_teams[16];
 
 // GLOBAL: MW2 0x1010ae10
 // GLOBAL: MW2MATROX 0x10131580
 // GLOBAL: MW23DFX 0x101e0170
 // GLOBAL: MW2ATI 0x10113e30
+// GLOBAL: MW2S3 0x10162820
+// GLOBAL: MW2POWERVR 0x1013eaf0
 MechS32 g_starSides[8];
 
 // GLOBAL: MW2 0x1010ae30
 // GLOBAL: MW2MATROX 0x1012fd00
 // GLOBAL: MW23DFX 0x101de8f0
 // GLOBAL: MW2ATI 0x101125b0
+// GLOBAL: MW2S3 0x10162840
+// GLOBAL: MW2POWERVR 0x1013d270
 TeamFormation g_teamFormations[16];
 
 // FUNCTION: MW2 0x1003bbe0
 // FUNCTION: MW2MATROX 0x10072cc0
 // FUNCTION: MW23DFX 0x10018b70
 // FUNCTION: MW2ATI 0x10018f30
+// FUNCTION: MW2S3 0x10008990
+// FUNCTION: MW2POWERVR 0x10017e70
 void ResetTeams(void)
 {
 	MechU32 i;
@@ -81,6 +95,8 @@ void ResetTeams(void)
 // FUNCTION: MW2MATROX 0x10072d35
 // FUNCTION: MW23DFX 0x10018bb0
 // FUNCTION: MW2ATI 0x10018f70
+// FUNCTION: MW2S3 0x100089d0
+// FUNCTION: MW2POWERVR 0x10017eb0
 MechS32 SetTeamFormationByName(MechS32 p_team, const MechChar* p_name)
 {
 	MechS32 result = FALSE;
@@ -106,6 +122,8 @@ MechS32 SetTeamFormationByName(MechS32 p_team, const MechChar* p_name)
 // FUNCTION: MW2MATROX 0x10072df9
 // FUNCTION: MW23DFX 0x10018c50
 // FUNCTION: MW2ATI 0x10019010
+// FUNCTION: MW2S3 0x10008a70
+// FUNCTION: MW2POWERVR 0x10017f50
 MechS32 GetTeamFormation(MechS32 p_team)
 {
 	if (p_team >= 16) {
@@ -119,6 +137,8 @@ MechS32 GetTeamFormation(MechS32 p_team)
 // FUNCTION: MW2MATROX 0x10072e2b
 // FUNCTION: MW23DFX 0x10018c70
 // FUNCTION: MW2ATI 0x10019030
+// FUNCTION: MW2S3 0x10008a90
+// FUNCTION: MW2POWERVR 0x10017f70
 void SetTeamFormation(MechS32 p_team, MechS32 p_formation)
 {
 	if (p_team >= 16 || p_formation >= 32) {
@@ -137,6 +157,8 @@ void SetTeamFormation(MechS32 p_team, MechS32 p_formation)
 // FUNCTION: MW2MATROX 0x10072eaa
 // FUNCTION: MW23DFX 0x10018cd0
 // FUNCTION: MW2ATI 0x10019090
+// FUNCTION: MW2S3 0x10008af0
+// FUNCTION: MW2POWERVR 0x10017fd0
 MechS32 SetPlayerSlot(MechU32 p_player, MechU32 p_slot)
 {
 	MechS32 result = FALSE;
@@ -154,6 +176,8 @@ MechS32 SetPlayerSlot(MechU32 p_player, MechU32 p_slot)
 // FUNCTION: MW2MATROX 0x10072ef7
 // FUNCTION: MW23DFX 0x10018d00
 // FUNCTION: MW2ATI 0x100190c0
+// FUNCTION: MW2S3 0x10008b20
+// FUNCTION: MW2POWERVR 0x10018000
 MechS32 SetTeamLeader(MechS32 p_team, MechS32 p_player)
 {
 	MechS32 result;
@@ -188,6 +212,8 @@ MechS32 SetTeamLeader(MechS32 p_team, MechS32 p_player)
 // FUNCTION: MW2MATROX 0x1007304d
 // FUNCTION: MW23DFX 0x10018dd0
 // FUNCTION: MW2ATI 0x10019190
+// FUNCTION: MW2S3 0x10008bf0
+// FUNCTION: MW2POWERVR 0x100180d0
 MechS32 PlaceTeam(MechS32 p_team, MechScalar p_x, MechScalar p_y, MechScalar p_z, MechScalar p_heading)
 {
 	MechS32 result;
@@ -232,6 +258,8 @@ MechS32 PlaceTeam(MechS32 p_team, MechScalar p_x, MechScalar p_y, MechScalar p_z
 // FUNCTION: MW2MATROX 0x1007318d
 // FUNCTION: MW23DFX 0x10018ec0
 // FUNCTION: MW2ATI 0x10019280
+// FUNCTION: MW2S3 0x10008ce0
+// FUNCTION: MW2POWERVR 0x100181c0
 MechS32 GetTeamSlotPosition(MechU32 p_player, MechScalar* p_x, MechScalar* p_z, MechScalar* p_heading)
 {
 	MechS32 slot;
@@ -270,6 +298,8 @@ MechS32 GetTeamSlotPosition(MechU32 p_player, MechScalar* p_x, MechScalar* p_z, 
 // FUNCTION: MW2MATROX 0x100732c3
 // FUNCTION: MW23DFX 0x10018f90
 // FUNCTION: MW2ATI 0x10019350
+// FUNCTION: MW2S3 0x10008db0
+// FUNCTION: MW2POWERVR 0x10018290
 MechS32 GetTeamLeader(MechS32 p_team)
 {
 	MechS32 result = 0;
@@ -286,6 +316,8 @@ MechS32 GetTeamLeader(MechS32 p_team)
 // FUNCTION: MW2MATROX 0x100732fe
 // FUNCTION: MW23DFX 0x10018fb0
 // FUNCTION: MW2ATI 0x10019370
+// FUNCTION: MW2S3 0x10008dd0
+// FUNCTION: MW2POWERVR 0x100182b0
 MechS32 AssignTeamSlots(MechS32 p_team, MechS32 p_unk0x04)
 {
 	Team* team;
@@ -323,6 +355,8 @@ MechS32 AssignTeamSlots(MechS32 p_team, MechS32 p_unk0x04)
 // FUNCTION: MW2MATROX 0x100733f2
 // FUNCTION: MW23DFX 0x10019040
 // FUNCTION: MW2ATI 0x10019400
+// FUNCTION: MW2S3 0x10008e60
+// FUNCTION: MW2POWERVR 0x10018340
 MechS32 GetPlayerSide(MechS32 p_player)
 {
 	return g_teams[g_players[p_player]->m_team].m_side;
@@ -332,6 +366,8 @@ MechS32 GetPlayerSide(MechS32 p_player)
 // FUNCTION: MW2MATROX 0x1007341d
 // FUNCTION: MW23DFX 0x10019060
 // FUNCTION: MW2ATI 0x10019420
+// FUNCTION: MW2S3 0x10008e80
+// FUNCTION: MW2POWERVR 0x10018360
 MechS32 GetThingSide(MechS32 p_thing)
 {
 	MechS32 index;
@@ -365,6 +401,8 @@ MechS32 GetNavSide(MechU32 p_nav)
 // FUNCTION: MW2MATROX 0x100734ac
 // FUNCTION: MW23DFX 0x100190b0
 // FUNCTION: MW2ATI 0x10019440
+// FUNCTION: MW2S3 0x10008ea0
+// FUNCTION: MW2POWERVR 0x10018380
 MechS32 OnSameSide(MechS32 p_playerA, MechS32 p_playerB)
 {
 	return GetPlayerSide(p_playerB) == GetPlayerSide(p_playerA);

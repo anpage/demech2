@@ -280,7 +280,7 @@ MechS32 GetFaceShade(Face* p_face, Vertex* p_vertices)
 	return shade;
 }
 
-#if defined(MW2_ATI) || defined(MW2_3DFX)
+#if defined(MW2_ATI) || defined(MW2_S3) || defined(MW2_POWERVR) || defined(MW2_3DFX)
 // The ATI and 3Dfx editions compiled QueueFace without optimization (/Od, with /Gr's convention).
 #pragma optimize("", off)
 #endif
@@ -527,7 +527,7 @@ void QueueFace(Face* p_face, Vertex* p_vertices)
 		g_queueHasRoom = 0;
 	}
 }
-#if defined(MW2_ATI) || defined(MW2_3DFX)
+#if defined(MW2_ATI) || defined(MW2_S3) || defined(MW2_POWERVR) || defined(MW2_3DFX)
 #pragma optimize("", on)
 #endif
 

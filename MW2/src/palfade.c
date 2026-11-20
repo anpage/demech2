@@ -40,6 +40,8 @@ MechS32 InitPaletteCycle(PaletteCycle* p_cycle, MechU8* p_palette, MechU8 p_firs
 // FUNCTION: MW2MATROX 0x100505de
 // FUNCTION: MW23DFX 0x10061320
 // FUNCTION: MW2ATI 0x1005ea00
+// FUNCTION: MW2S3 0x10047a10
+// FUNCTION: MW2POWERVR 0x10059770
 void RotatePaletteCycle(PaletteCycle* p_cycle)
 {
 	MechU8* p;
@@ -83,6 +85,7 @@ void FreePaletteCycle(PaletteCycle* p_cycle)
 // FUNCTION: MW2MATROX 0x100506f5
 // FUNCTION: MW23DFX 0x100613c0
 // FUNCTION: MW2ATI 0x1005ea70
+// FUNCTION: MW2POWERVR 0x100597e0
 MechS32 InitPaletteFade(
 	PaletteFade* p_fade,
 	MechU8* p_from,
@@ -126,6 +129,8 @@ MechS32 InitPaletteFade(
 // FUNCTION: MW2MATROX 0x10050809
 // FUNCTION: MW23DFX 0x10061480
 // FUNCTION: MW2ATI 0x1005eb30
+// FUNCTION: MW2S3 0x10047b40
+// FUNCTION: MW2POWERVR 0x100598a0
 void StepPaletteFade(PaletteFade* p_fade)
 {
 	MechU8* palette;

@@ -35,3 +35,6 @@ MW23DFX comdat
 
 # MW2ATI is built with /Gy too.
 MW2ATI comdat
+# MW2S3 and MW2POWERVR are built with /Gy too.
+MW2S3 comdat
+MW2POWERVR comdat

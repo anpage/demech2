@@ -74,6 +74,8 @@ extern "C"
 // The ATI edition places these out of inputmap.c's order, so they are annotated here, by name.
 
 // FUNCTION: MW2ATI 0x10037a30
+// FUNCTION: MW2S3 0x10030fe0
+// FUNCTION: MW2POWERVR 0x10032730
 // FindInputButton
 
 #endif // INPUTMAP_H

@@ -15,11 +15,15 @@
 // GLOBAL: MW2 0x100a5288
 // GLOBAL: MW23DFX 0x102651c0
 // GLOBAL: MW2ATI 0x101994b8
+// GLOBAL: MW2S3 0x10065540
+// GLOBAL: MW2POWERVR 0x101c4830
 MechChar g_audioItem[] = "Audio Ctrl";
 
 // GLOBAL: MW2 0x100a5298
 // GLOBAL: MW23DFX 0x102651d0
 // GLOBAL: MW2ATI 0x101994c8
+// GLOBAL: MW2S3 0x10065550
+// GLOBAL: MW2POWERVR 0x101c4840
 MechChar g_audioTitle[] = "SET AUDIO VOLUME";
 
 // GLOBAL: MW2 0x100a52b0
@@ -28,39 +32,53 @@ MechChar g_bettyMessageItem[] = "Betty Message";
 // GLOBAL: MW2 0x100a52c0
 // GLOBAL: MW23DFX 0x102651f8
 // GLOBAL: MW2ATI 0x101994f0
+// GLOBAL: MW2S3 0x10065578
+// GLOBAL: MW2POWERVR 0x101c4868
 MechChar g_soundEffectsItem[] = "Sound Effects";
 
 // GLOBAL: MW2 0x100a52d0
 // GLOBAL: MW23DFX 0x10265208
 // GLOBAL: MW2ATI 0x10199500
+// GLOBAL: MW2S3 0x10065588
+// GLOBAL: MW2POWERVR 0x101c4878
 MechChar g_voiceItem[] = "Voice";
 
 // GLOBAL: MW2 0x100a52d8
 // GLOBAL: MW23DFX 0x10265210
 // GLOBAL: MW2ATI 0x10199508
+// GLOBAL: MW2S3 0x10065590
+// GLOBAL: MW2POWERVR 0x101c4880
 MechChar g_musicItem[] = "Music";
 
 // GLOBAL: MW2 0x100a52e0
 // GLOBAL: MW23DFX 0x10265218
 // GLOBAL: MW2ATI 0x10199510
+// GLOBAL: MW2S3 0x10065598
+// GLOBAL: MW2POWERVR 0x101c4888
 MenuControl g_soundEffectsControl =
 	{2, 0, g_sliderShapes, 0, NULL, GetSoundSetting, PreviewSoundSetting, SetSoundSetting, RestoreSoundSetting};
 
 // GLOBAL: MW2 0x100a5308
 // GLOBAL: MW23DFX 0x10265240
 // GLOBAL: MW2ATI 0x10199538
+// GLOBAL: MW2S3 0x100655c0
+// GLOBAL: MW2POWERVR 0x101c48b0
 MenuControl g_voiceControl =
 	{2, 0, g_sliderShapes, 1, NULL, GetSoundSetting, PreviewSoundSetting, SetSoundSetting, RestoreSoundSetting};
 
 // GLOBAL: MW2 0x100a5330
 // GLOBAL: MW23DFX 0x10265268
 // GLOBAL: MW2ATI 0x10199560
+// GLOBAL: MW2S3 0x100655e8
+// GLOBAL: MW2POWERVR 0x101c48d8
 MenuControl g_musicControl =
 	{2, 0, g_sliderShapes, 2, NULL, GetSoundSetting, PreviewSoundSetting, SetSoundSetting, RestoreSoundSetting};
 
 // GLOBAL: MW2 0x100a5358
 // GLOBAL: MW23DFX 0x10265290
 // GLOBAL: MW2ATI 0x10199588
+// GLOBAL: MW2S3 0x10065610
+// GLOBAL: MW2POWERVR 0x101c4900
 MenuPage g_audioPage = {
 	0,
 	g_audioTitle,

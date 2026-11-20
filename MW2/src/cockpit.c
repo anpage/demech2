@@ -60,6 +60,8 @@
 // GLOBAL: MW2MATROX 0x100ae400
 // GLOBAL: MW23DFX 0x10249898
 // GLOBAL: MW2ATI 0x1017d740
+// GLOBAL: MW2S3 0x100765a8
+// GLOBAL: MW2POWERVR 0x101a8710
 MechS32 g_satelliteStaticState = 0;
 
 // The frame callback the satellite view replaces (SwitchCockpitView).
@@ -80,12 +82,15 @@ MechS32 g_savedShowCrosshair = 1;
 // GLOBAL: MW2MATROX 0x100ae40c
 // GLOBAL: MW23DFX 0x102498a4
 // GLOBAL: MW2ATI 0x1017d74c
+// GLOBAL: MW2S3 0x100616d4
 undefined4 g_savedShowHud = 1;
 
 // GLOBAL: MW2 0x100a5a28
 // GLOBAL: MW2MATROX 0x100ae410
 // GLOBAL: MW23DFX 0x102498a8
 // GLOBAL: MW2ATI 0x1017d750
+// GLOBAL: MW2S3 0x100616d8
+// GLOBAL: MW2POWERVR 0x101a8720
 MechS32 g_savedShowTargetMarker = 1;
 
 // GLOBAL: MW2 0x100a5a2c
@@ -98,12 +103,16 @@ MechS32 g_hudSettingsSaved = 0;
 // GLOBAL: MW2MATROX 0x100ae418
 // GLOBAL: MW23DFX 0x102498b0
 // GLOBAL: MW2ATI 0x1017d758
+// GLOBAL: MW2S3 0x100616e0
+// GLOBAL: MW2POWERVR 0x101a8754
 MechS32 g_mapShadeBase = 0;
 
 // GLOBAL: MW2 0x100a5a34
 // GLOBAL: MW2MATROX 0x100ae41c
 // GLOBAL: MW23DFX 0x102498b4
 // GLOBAL: MW2ATI 0x1017d75c
+// GLOBAL: MW2S3 0x100616e4
+// GLOBAL: MW2POWERVR 0x101a8758
 MechS32 g_mapShadeTop = 0x1900;
 
 // The height range the map view's shading spans (GetMapHeightShade).
@@ -111,6 +120,8 @@ MechS32 g_mapShadeTop = 0x1900;
 // GLOBAL: MW2MATROX 0x100ae420
 // GLOBAL: MW23DFX 0x102498b8
 // GLOBAL: MW2ATI 0x1017d760
+// GLOBAL: MW2S3 0x100616e8
+// GLOBAL: MW2POWERVR 0x101a875c
 MechS32 g_mapShadeRange = 0x1900;
 
 // The gauge functions of the cockpit layouts, by index.
@@ -185,6 +196,8 @@ void* g_unk0x100a5bb8[4] = {g_unk0x100a5b90, g_unk0x100a5b70, g_unk0x100a5ad0, &
 // GLOBAL: MW2MATROX 0x100ae428
 // GLOBAL: MW23DFX 0x102498c0
 // GLOBAL: MW2ATI 0x1017d768
+// GLOBAL: MW2S3 0x100616f0
+// GLOBAL: MW2POWERVR 0x101a876c
 MechS32 g_mapDamageAnimShown = 0;
 
 // The clock times the satellite view's static starts and stops at (DrawSatelliteStatic).
@@ -204,6 +217,8 @@ static MechS32 g_staticNoiseUntil;
 // GLOBAL: MW2MATROX 0x1012fc78
 // GLOBAL: MW23DFX 0x10244cc8
 // GLOBAL: MW2ATI 0x10178b04
+// GLOBAL: MW2S3 0x10161610
+// GLOBAL: MW2POWERVR 0x101a3684
 MechS32 g_previousCockpitView;
 
 // The map view's power mode, and the one before: 1 sliding in while the mech starts up
@@ -213,18 +228,24 @@ MechS32 g_previousCockpitView;
 // GLOBAL: MW2MATROX 0x1012fce4
 // GLOBAL: MW23DFX 0x10244d34
 // GLOBAL: MW2ATI 0x10178b74
+// GLOBAL: MW2S3 0x10161614
+// GLOBAL: MW2POWERVR 0x101a36f4
 MechS32 g_previousMapViewMode;
 
 // GLOBAL: MW2 0x10109c64
 // GLOBAL: MW2MATROX 0x1012fcec
 // GLOBAL: MW23DFX 0x10244d3c
 // GLOBAL: MW2ATI 0x10178b7c
+// GLOBAL: MW2S3 0x10161618
+// GLOBAL: MW2POWERVR 0x101a36fc
 MechS32 g_cockpitLayoutIndex;
 
 // GLOBAL: MW2 0x10109c68
 // GLOBAL: MW2MATROX 0x1012fc70
 // GLOBAL: MW23DFX 0x10244cc0
 // GLOBAL: MW2ATI 0x10178afc
+// GLOBAL: MW2S3 0x1016161c
+// GLOBAL: MW2POWERVR 0x101a367c
 MechS32 g_mapViewMode;
 
 // The view g_cockpitLayoutIndex switches to; 3 and 5 enter and leave the satellite view (4).
@@ -232,6 +253,8 @@ MechS32 g_mapViewMode;
 // GLOBAL: MW2MATROX 0x1012fcf8
 // GLOBAL: MW23DFX 0x10244d48
 // GLOBAL: MW2ATI 0x10178b88
+// GLOBAL: MW2S3 0x10161620
+// GLOBAL: MW2POWERVR 0x101a3708
 MechS32 g_requestedCockpitView;
 
 // Set while the map views follow the free eyepoint instead of the player (the free-eye cheat).
@@ -254,6 +277,8 @@ MechS32 g_satelliteClean;
 // FUNCTION: MW2MATROX 0x10073800
 // FUNCTION: MW23DFX 0x10003250
 // FUNCTION: MW2ATI 0x10002ee0
+// FUNCTION: MW2S3 0x10008ec0
+// FUNCTION: MW2POWERVR 0x10002c90
 void LoadCockpitLayout(MechS32 p_cockpit, CockpitLayout* p_layout)
 {
 #ifndef MW2_UNRESOLVED_GAUGE_INDICES
@@ -324,6 +349,8 @@ void LoadCockpitLayout(MechS32 p_cockpit, CockpitLayout* p_layout)
 // FUNCTION: MW2MATROX 0x100739c2
 // FUNCTION: MW23DFX 0x10003380
 // FUNCTION: MW2ATI 0x10003010
+// FUNCTION: MW2S3 0x10008ff0
+// FUNCTION: MW2POWERVR 0x10002dc0
 void InitCockpitViews(void)
 {
 	MechS32 i;
@@ -346,6 +373,8 @@ void InitCockpitViews(void)
 // FUNCTION: MW2MATROX 0x10073a5c
 // FUNCTION: MW23DFX 0x100033e0
 // FUNCTION: MW2ATI 0x10003070
+// FUNCTION: MW2S3 0x10009050
+// FUNCTION: MW2POWERVR 0x10002e20
 void RunMapView(void)
 {
 	g_previousMapViewMode = g_mapViewMode;
@@ -366,6 +395,7 @@ void RunMapView(void)
 // FUNCTION: MW2MATROX 0x10073ab1
 // FUNCTION: MW23DFX 0x10003420
 // FUNCTION: MW2ATI 0x100030b0
+// FUNCTION: MW2S3 0x10009090
 MechS32 SwitchCockpitView(void)
 {
 	MechS32 changed;
@@ -449,6 +479,8 @@ MechS32 SwitchCockpitView(void)
 // FUNCTION: MW2MATROX 0x10073d16
 // FUNCTION: MW23DFX 0x10003600
 // FUNCTION: MW2ATI 0x10003290
+// FUNCTION: MW2S3 0x10009270
+// FUNCTION: MW2POWERVR 0x10003110
 void DrawCockpitView(void)
 {
 	SwitchCockpitView();
@@ -591,6 +623,7 @@ void DrawMapView(void)
 // FUNCTION: MW2MATROX 0x10074024
 // FUNCTION: MW23DFX 0x10003830
 // FUNCTION: MW2ATI 0x100034c0
+// FUNCTION: MW2POWERVR 0x10003380
 void DrawMapContents(CockpitLayout* p_layout)
 {
 	MechS32 id;
@@ -702,6 +735,7 @@ void DrawMapUnits(CockpitLayout* p_layout)
 // FUNCTION: MW2MATROX 0x1007432d
 // FUNCTION: MW23DFX 0x10003a60
 // FUNCTION: MW2ATI 0x100036f0
+// FUNCTION: MW2POWERVR 0x100035b0
 void DrawMapTarget(CockpitLayout* p_layout)
 {
 	MechS32 row;
@@ -908,6 +942,7 @@ void DrawMapNavPoints(CockpitLayout* p_layout)
 // FUNCTION: MW2MATROX 0x1007480f
 // FUNCTION: MW23DFX 0x10003d40
 // FUNCTION: MW2ATI 0x100039d0
+// FUNCTION: MW2POWERVR 0x10003890
 void DrawMapFieldOfView(CockpitLayout* p_layout, MechScalar p_heading)
 {
 	MechScalar halfFov;
@@ -955,6 +990,8 @@ void DrawMapFieldOfView(CockpitLayout* p_layout, MechScalar p_heading)
 // FUNCTION: MW2MATROX 0x10074945
 // FUNCTION: MW23DFX 0x10003e50
 // FUNCTION: MW2ATI 0x10003ae0
+// FUNCTION: MW2S3 0x10009ab0
+// FUNCTION: MW2POWERVR 0x100039a0
 void DrawMapViewText(CockpitLayout* p_layout)
 {
 #ifdef MW2_FLOAT_SCALARS
@@ -1048,6 +1085,8 @@ void DrawMapViewText(CockpitLayout* p_layout)
 // FUNCTION: MW2MATROX 0x10074b45
 // FUNCTION: MW23DFX 0x10003fb0
 // FUNCTION: MW2ATI 0x10003c40
+// FUNCTION: MW2S3 0x10009c10
+// FUNCTION: MW2POWERVR 0x10003b00
 void CycleCockpitView(void)
 {
 	if (g_cockpitLayoutIndex <= 2 && g_requestedCockpitView <= 2) {
@@ -1060,6 +1099,8 @@ void CycleCockpitView(void)
 // FUNCTION: MW2MATROX 0x10074b88
 // FUNCTION: MW23DFX 0x10003fe0
 // FUNCTION: MW2ATI 0x10003c70
+// FUNCTION: MW2S3 0x10009c40
+// FUNCTION: MW2POWERVR 0x10003b30
 MechS32 IsSatelliteView(void)
 {
 	return g_cockpitLayoutIndex == 4;
@@ -1069,6 +1110,8 @@ MechS32 IsSatelliteView(void)
 // FUNCTION: MW2MATROX 0x10074bb1
 // FUNCTION: MW23DFX 0x10003ff0
 // FUNCTION: MW2ATI 0x10003c80
+// FUNCTION: MW2S3 0x10009c50
+// FUNCTION: MW2POWERVR 0x10003b40
 void LeaveSatelliteView(void)
 {
 	if (g_cockpitLayoutIndex == 4) {
@@ -1081,6 +1124,8 @@ void LeaveSatelliteView(void)
 // FUNCTION: MW2MATROX 0x10074bce
 // FUNCTION: MW23DFX 0x10004000
 // FUNCTION: MW2ATI 0x10003c90
+// FUNCTION: MW2S3 0x10009c60
+// FUNCTION: MW2POWERVR 0x10003b5d
 void ToggleSatelliteView(void)
 {
 	if (g_cockpitLayoutIndex == 4 && g_requestedCockpitView == 4) {
@@ -1097,6 +1142,8 @@ void ToggleSatelliteView(void)
 // FUNCTION: MW2MATROX 0x10074c26
 // FUNCTION: MW23DFX 0x10004040
 // FUNCTION: MW2ATI 0x10003cd0
+// FUNCTION: MW2S3 0x10009ca0
+// FUNCTION: MW2POWERVR 0x10003ba0
 void ZoomMapView(MechS32 p_zoom)
 {
 	CockpitLayout* layout;
@@ -1145,6 +1192,7 @@ void ZoomMapView(MechS32 p_zoom)
 // FUNCTION: MW2MATROX 0x10074d0c
 // FUNCTION: MW23DFX 0x100040b0
 // FUNCTION: MW2ATI 0x10003d40
+// FUNCTION: MW2S3 0x10009d10
 MechS32 MapShapeFilter(Shape* p_shape)
 {
 	MechS32 type;
@@ -1198,6 +1246,7 @@ MechS32 MapShapeFilter(Shape* p_shape)
 // FUNCTION: MW2MATROX 0x10074de6
 // FUNCTION: MW23DFX 0x10004100
 // FUNCTION: MW2ATI 0x10003d90
+// FUNCTION: MW2S3 0x10009d60
 MechU32 SatelliteFaceColor(Face* p_face, undefined4 p_unk0x04, MechU32 p_flags, MechS32 p_depth)
 {
 	MechU32 color;
@@ -1419,6 +1468,7 @@ void FUN_100751a9(CockpitLayout* p_layout, MechS32 p_count, ProjectedVertex** p_
 // FUNCTION: MW2MATROX 0x100752b7
 // FUNCTION: MW23DFX 0x10004440
 // FUNCTION: MW2ATI 0x100040d0
+// FUNCTION: MW2S3 0x1000a0b0
 MechS32 GetMapHeightShade(CockpitLayout* p_layout, MechScalar p_height)
 {
 	MechS32 shade;
@@ -1453,6 +1503,8 @@ MechS32 GetMapHeightShade(CockpitLayout* p_layout, MechScalar p_height)
 // FUNCTION: MW2MATROX 0x1007534f
 // FUNCTION: MW23DFX 0x100044b0
 // FUNCTION: MW2ATI 0x10004140
+// FUNCTION: MW2S3 0x1000a110
+// FUNCTION: MW2POWERVR 0x10003c10
 MechS32 DrawMapViewTransition(MechS32 p_reverse, CockpitLayout* p_layout, RectTransition* p_transition, MechS32 p_final)
 {
 	MechS32 result;
@@ -1494,6 +1546,8 @@ MechS32 DrawMapViewTransition(MechS32 p_reverse, CockpitLayout* p_layout, RectTr
 // FUNCTION: MW2MATROX 0x10075428
 // FUNCTION: MW23DFX 0x10004560
 // FUNCTION: MW2ATI 0x100041f0
+// FUNCTION: MW2S3 0x1000a1c0
+// FUNCTION: MW2POWERVR 0x10003cc0
 void PowerUpMapView(void)
 {
 	RectTransition* transition;
@@ -1585,6 +1639,7 @@ void DrawSatelliteStatic(void)
 // FUNCTION: MW2MATROX 0x1007568c
 // FUNCTION: MW23DFX 0x10004710
 // FUNCTION: MW2ATI 0x100043a0
+// FUNCTION: MW2S3 0x1000a370
 void DrawDamagedMapView(void)
 {
 	MechS32 threshold;
@@ -1637,6 +1692,8 @@ void DrawDamagedMapView(void)
 // FUNCTION: MW2MATROX 0x100757c0
 // FUNCTION: MW23DFX 0x100047d0
 // FUNCTION: MW2ATI 0x10004460
+// FUNCTION: MW2S3 0x1000a430
+// FUNCTION: MW2POWERVR 0x10003f10
 void PowerDownMapView(void)
 {
 	RectTransition* transition;
@@ -1675,6 +1732,8 @@ void PowerDownMapView(void)
 // FUNCTION: MW2MATROX 0x10075894
 // FUNCTION: MW23DFX 0x10004860
 // FUNCTION: MW2ATI 0x100044f0
+// FUNCTION: MW2S3 0x1000a4c0
+// FUNCTION: MW2POWERVR 0x10003fa0
 void ResetMapView(void)
 {
 	g_previousMapViewMode = 0;

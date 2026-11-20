@@ -283,6 +283,8 @@ MechS32 g_nextShotRecord = 0;
 // GLOBAL: MW2MATROX 0x100a85d0
 // GLOBAL: MW23DFX 0x10259c7c
 // GLOBAL: MW2ATI 0x1018df7c
+// GLOBAL: MW2S3 0x100770a8
+// GLOBAL: MW2POWERVR 0x101b9244
 MechS32 g_nextEffectRecord = 0;
 
 // The name of the mission's music (the world stream's music record).
@@ -296,6 +298,8 @@ MechChar g_musicName[12];
 // GLOBAL: MW2MATROX 0x1012587c
 // GLOBAL: MW23DFX 0x102441bc
 // GLOBAL: MW2ATI 0x10177e7c
+// GLOBAL: MW2S3 0x100abf70
+// GLOBAL: MW2POWERVR 0x101a2b3c
 MechS32 g_musicResource;
 
 // Widens p_flags: any of the bits 0x730 sets them all, as does either of the bits 3.
@@ -303,6 +307,8 @@ MechS32 g_musicResource;
 // FUNCTION: MW2MATROX 0x100461c0
 // FUNCTION: MW23DFX 0x1003ddf0
 // FUNCTION: MW2ATI 0x1003bb50
+// FUNCTION: MW2S3 0x100457c0
+// FUNCTION: MW2POWERVR 0x100369b0
 MechU32 WidenEventFlags(MechU32 p_flags)
 {
 	if (p_flags & 0x730) {
@@ -1402,6 +1408,8 @@ MechS32 BwdExecuteStream(BwdStream* p_stream)
 // FUNCTION: MW2MATROX 0x10048c6d
 // FUNCTION: MW23DFX 0x1003f5e0
 // FUNCTION: MW2ATI 0x1003d340
+// FUNCTION: MW2S3 0x10046fc0
+// FUNCTION: MW2POWERVR 0x100381a0
 MechS32 LoadWorld(MechChar* p_name)
 {
 	BwdStream* stream;

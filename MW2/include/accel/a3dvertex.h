@@ -27,7 +27,7 @@ typedef struct A3DVertex {
 	MechFloat m_unk0x34; // 0x34
 	MechFloat m_unk0x38; // 0x38
 } A3DVertex;
-#elif defined(MW2_ATI)
+#elif defined(MW2_ATI) || defined(MW2_S3) || defined(MW2_POWERVR)
 // A vertex as the ATI edition's renderer takes it: the 3D CIF's C3D_VTCF, which it hands to the CIF
 // as it is: the screen position, the depth, the texture coordinates over w, 1 / w, the color (0-255
 // per component) and the alpha. The members the Matrox edition's vertex has too keep its names.

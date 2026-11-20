@@ -32,12 +32,15 @@
 // GLOBAL: MW2MATROX 0x100bbe94
 // GLOBAL: MW23DFX 0x1024b444
 // GLOBAL: MW2ATI 0x1017f7c4
+// GLOBAL: MW2S3 0x1006a4b0
 MechS32 g_mechViewStatic = 0;
 
 // FUNCTION: MW2 0x100509a0
 // FUNCTION: MW2MATROX 0x1008ad50
 // FUNCTION: MW23DFX 0x10011700
 // FUNCTION: MW2ATI 0x10011c60
+// FUNCTION: MW2S3 0x1002e780
+// FUNCTION: MW2POWERVR 0x10010af0
 void CycleMechViewMode(void)
 {
 	g_mechViewMode++;
@@ -63,6 +66,7 @@ void CycleMechViewMode(void)
 // FUNCTION: MW2MATROX 0x1008ad78
 // FUNCTION: MW23DFX 0x10011720
 // FUNCTION: MW2ATI 0x10011c80
+// FUNCTION: MW2S3 0x1002e7a0
 void DrawMechViewPanel(CockpitPanel* p_panel)
 {
 	MechScalar* camera;
@@ -192,6 +196,7 @@ void DrawMechViewPanel(CockpitPanel* p_panel)
 // FUNCTION: MW2MATROX 0x1008b1da
 // FUNCTION: MW23DFX 0x100119f0
 // FUNCTION: MW2ATI 0x10011f50
+// FUNCTION: MW2S3 0x1002ea70
 void SetMechViewRenderSettings(RenderSettings* p_saved)
 {
 	*p_saved = g_renderSettings;
@@ -208,6 +213,7 @@ void SetMechViewRenderSettings(RenderSettings* p_saved)
 // FUNCTION: MW2MATROX 0x1008b237
 // FUNCTION: MW23DFX 0x10011a40
 // FUNCTION: MW2ATI 0x10011fa0
+// FUNCTION: MW2S3 0x1002eac0
 void DrawMechViewStatic(CockpitPanel* p_panel)
 {
 	if (!p_panel->m_enabled || !g_mechViewMode) {
@@ -222,6 +228,7 @@ void DrawMechViewStatic(CockpitPanel* p_panel)
 // FUNCTION: MW2MATROX 0x1008b283
 // FUNCTION: MW23DFX 0x10011a70
 // FUNCTION: MW2ATI 0x10011fd0
+// FUNCTION: MW2S3 0x1002eaf0
 void DrawMechViewFrame(CockpitPanel* p_panel, MechS32 p_color, MechS32 p_shapeId)
 {
 	PANE* target;
@@ -239,6 +246,7 @@ void DrawMechViewFrame(CockpitPanel* p_panel, MechS32 p_color, MechS32 p_shapeId
 // FUNCTION: MW2MATROX 0x1008b2d5
 // FUNCTION: MW23DFX 0x10011aa0
 // FUNCTION: MW2ATI 0x10012000
+// FUNCTION: MW2S3 0x1002eb20
 void DrawMechViewStartup(CockpitPanel* p_panel)
 {
 	PANE savedTarget;
@@ -278,6 +286,7 @@ void DrawMechViewStartup(CockpitPanel* p_panel)
 // FUNCTION: MW2MATROX 0x1008b3ed
 // FUNCTION: MW23DFX 0x10011b70
 // FUNCTION: MW2ATI 0x100120d0
+// FUNCTION: MW2S3 0x1002ebf0
 void DrawMechViewShutdown(CockpitPanel* p_panel)
 {
 	PANE savedTarget;

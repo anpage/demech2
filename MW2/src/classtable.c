@@ -60,18 +60,21 @@ MechFloat g_lodLevel4 = 40000.0f;
 // GLOBAL: MW2MATROX 0x100ae0e4
 // GLOBAL: MW23DFX 0x1024dbd8
 // GLOBAL: MW2ATI 0x10181ee8
+// GLOBAL: MW2S3 0x100652f0
 MechS32 g_classEntryCount = 0;
 
 // GLOBAL: MW2 0x100a37d8
 // GLOBAL: MW2MATROX 0x100ae0e8
 // GLOBAL: MW23DFX 0x1024dbdc
 // GLOBAL: MW2ATI 0x10181eec
+// GLOBAL: MW2S3 0x100652f4
 MechS32 g_classTableReady = 0;
 
 // GLOBAL: MW2 0x1012b7e0
 // GLOBAL: MW2MATROX 0x10150690
 // GLOBAL: MW23DFX 0x101b16b0
 // GLOBAL: MW2ATI 0x100e5410
+// GLOBAL: MW2S3 0x100b2520
 ClassEntry g_classTable[0x30c];
 
 // Loads the shapes of p_player's entries for its base level (m_baseLevel) into one pool block.
@@ -115,6 +118,7 @@ MechS32 LoadBaseLevelShapes(Player* p_player)
 // FUNCTION: MW2MATROX 0x1006d653
 // FUNCTION: MW23DFX 0x10026180
 // FUNCTION: MW2ATI 0x10025ef0
+// FUNCTION: MW2S3 0x10020450
 MechS32 AddClassEntryLevel(
 	MechS32 p_unk0x00,
 	ClassEntryCoord p_unk0x04,
@@ -185,6 +189,7 @@ MechS32 AddClassEntryLevel(
 // FUNCTION: MW2MATROX 0x1006d7ea
 // FUNCTION: MW23DFX 0x10026280
 // FUNCTION: MW2ATI 0x10025ff0
+// FUNCTION: MW2S3 0x10020550
 void ResetClassTable(void)
 {
 	ClassEntry* entry;
@@ -216,6 +221,7 @@ void ResetClassTable(void)
 // FUNCTION: MW2MATROX 0x1006d8e0
 // FUNCTION: MW23DFX 0x100262f0
 // FUNCTION: MW2ATI 0x10026060
+// FUNCTION: MW2S3 0x100205c0
 void ClaimNewClassEntries(Player* p_player)
 {
 	MechS32 i;
@@ -452,6 +458,7 @@ void ReleasePendingDetailLevel(void)
 // FUNCTION: MW2MATROX 0x1006e00e
 // FUNCTION: MW23DFX 0x10026730
 // FUNCTION: MW2ATI 0x10026410
+// FUNCTION: MW2S3 0x10020980
 void ReleaseClassEntryShape(MechS32 p_index, MechS32 p_level)
 {
 	ClassEntry* entry;
@@ -468,6 +475,7 @@ void ReleaseClassEntryShape(MechS32 p_index, MechS32 p_level)
 // FUNCTION: MW2MATROX 0x1006e07c
 // FUNCTION: MW23DFX 0x10026770
 // FUNCTION: MW2ATI 0x10026450
+// FUNCTION: MW2S3 0x100209c0
 struct SceneObject* GetClassObject(MechS32 p_index)
 {
 	struct SceneObject* obj;
@@ -499,6 +507,7 @@ Shape* GetClassShape(MechS32 p_index)
 // FUNCTION: MW2MATROX 0x1006e10f
 // FUNCTION: MW23DFX 0x100267b0
 // FUNCTION: MW2ATI 0x10026470
+// FUNCTION: MW2S3 0x100209e0
 void SetClassEntryPartId(MechS32 p_index, MechU16 p_value)
 {
 	ClassEntry* entry;
@@ -792,6 +801,7 @@ void ReleaseObjShape(struct SceneObject* p_obj)
 // FUNCTION: MW2MATROX 0x1006e6ce
 // FUNCTION: MW23DFX 0x100269f0
 // FUNCTION: MW2ATI 0x100266b0
+// FUNCTION: MW2S3 0x10020c20
 void ForgetObjShape(struct SceneObject* p_obj)
 {
 	ClassEntry* entry;

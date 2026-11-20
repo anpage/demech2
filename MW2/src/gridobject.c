@@ -20,36 +20,43 @@
 // GLOBAL: MW2MATROX 0x100a594c
 // GLOBAL: MW23DFX 0x1024b42c
 // GLOBAL: MW2ATI 0x1017f7ac
+// GLOBAL: MW2POWERVR 0x101aa54c
 MechS32 g_gridCellSize = 0;
 
 // GLOBAL: MW2 0x100a7118
 // GLOBAL: MW2MATROX 0x100a5950
 // GLOBAL: MW23DFX 0x1024b430
 // GLOBAL: MW2ATI 0x1017f7b0
+// GLOBAL: MW2POWERVR 0x101aa550
 MechS32 g_gridObjectSet = 0;
 
 // GLOBAL: MW2 0x100a711c
 // GLOBAL: MW2MATROX 0x100a5954
 // GLOBAL: MW23DFX 0x1024b434
 // GLOBAL: MW2ATI 0x1017f7b4
+// GLOBAL: MW2POWERVR 0x101aa554
 MechS32 g_gridObjectPlaced = 0;
 
 // GLOBAL: MW2 0x100a7120
 // GLOBAL: MW2MATROX 0x100a5958
 // GLOBAL: MW23DFX 0x1024b438
 // GLOBAL: MW2ATI 0x1017f7b8
+// GLOBAL: MW2S3 0x100612e4
+// GLOBAL: MW2POWERVR 0x101aa558
 MechS32 g_gridObjectShown = 0;
 
 // GLOBAL: MW2 0x100a7124
 // GLOBAL: MW2MATROX 0x100a595c
 // GLOBAL: MW23DFX 0x1024b43c
 // GLOBAL: MW2ATI 0x1017f7bc
+// GLOBAL: MW2POWERVR 0x101aa55c
 MechS32 g_gridObjectSnaps = 0;
 
 // GLOBAL: MW2 0x100a7128
 // GLOBAL: MW2MATROX 0x100a5960
 // GLOBAL: MW23DFX 0x1024b440
 // GLOBAL: MW2ATI 0x1017f7c0
+// GLOBAL: MW2POWERVR 0x101aa560
 SceneObject* g_gridObject = NULL;
 
 // The eyepoint's cell and the object's position.
@@ -68,12 +75,14 @@ typedef struct GridCell {
 // GLOBAL: MW2MATROX 0x100c1fe8
 // GLOBAL: MW23DFX 0x1007c300
 // GLOBAL: MW2ATI 0x10071300
+// GLOBAL: MW2POWERVR 0x1006f300
 static GridCell g_gridCell;
 
 // GLOBAL: MW2 0x100be9f0
 // GLOBAL: MW2MATROX 0x100c1ff0
 // GLOBAL: MW23DFX 0x1007c308
 // GLOBAL: MW2ATI 0x10071308
+// GLOBAL: MW2POWERVR 0x1006f308
 static GridCell g_gridAnchor;
 
 // How far the eyepoint may stray from the object before it snaps to another cell.
@@ -81,6 +90,7 @@ static GridCell g_gridAnchor;
 // GLOBAL: MW2MATROX 0x100c1fe0
 // GLOBAL: MW23DFX 0x1007c2f8
 // GLOBAL: MW2ATI 0x100712f8
+// GLOBAL: MW2POWERVR 0x1006f2f8
 static MechS32 g_gridSnapDistance;
 
 // Makes p_obj the object that follows the eyepoint on a grid, a cell at a time: the cells are its
@@ -177,6 +187,7 @@ void SetGridObject(SceneObject* p_obj)
 // FUNCTION: MW2MATROX 0x100277fe
 // FUNCTION: MW23DFX 0x10011570
 // FUNCTION: MW2ATI 0x10011ad0
+// FUNCTION: MW2POWERVR 0x10010960
 void UpdateGridObject(void)
 {
 	MechS32 dz;
@@ -256,6 +267,7 @@ void UpdateGridObject(void)
 // FUNCTION: MW2MATROX 0x100279f9
 // FUNCTION: MW23DFX 0x100116d0
 // FUNCTION: MW2ATI 0x10011c30
+// FUNCTION: MW2POWERVR 0x10010ac0
 void ShowGridObject(MechS32 p_enable)
 {
 	if (g_gridObject) {

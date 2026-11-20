@@ -1,4 +1,4 @@
-"""The optimized editions' side of tools/edition.py (--target MW23DFX, --target MW2ATI).
+"""The optimized editions' side of tools/edition.py (--target MW23DFX, MW2ATI, MW2S3, MW2POWERVR).
 
 The 3Dfx edition is the Matrox edition's C built by VC++ 2.2 with optimization, so its functions
 can't be paired with another binary's byte by byte, as the Matrox edition's are with 1.1's.
@@ -36,7 +36,8 @@ from port_annotations import (  # noqa: E402
     read_map,
 )
 
-# Each optimized edition: its original, the rebuild's base name in the vc22 build, where the
+# Each optimized edition: its original, the rebuild's base name and its build directory (vc22, the
+# nested VC++ 2.2 build, unless "dir" says otherwise), where the
 # function search stops (CODE_END) and where the game code ends (THUNKS), and its name in messages.
 EDITIONS = {
     # Texus starts at 0x10068270; the import thunks before it end the game code.
@@ -45,16 +46,23 @@ EDITIONS = {
     # No Texus: the import thunks follow the renderer, then the C runtime.
     "MW2ATI": {"binary": "MW2_ATI.DLL", "output": "MW2_ATI", "code_end": 0x10065066, "thunks": 0x10065066,
                "name": "the ATI edition"},
+    # The import thunks follow the 16-bit VFXA port, then the C runtime (VC++ 4.1's LIBC).
+    "MW2S3": {"binary": "MW2_S3.DLL", "output": "MW2_S3", "dir": "vc41", "code_end": 0x10051068, "thunks": 0x10051068,
+              "name": "the S3 edition"},
+    # SGL's import thunks follow the renderer, then the C runtime.
+    "MW2POWERVR": {"binary": "MW2_POWERVR.DLL", "output": "MW2_POWERVR", "code_end": 0x10062E80, "thunks": 0x10062E80,
+                   "name": "the PowerVR edition"},
 }
-MODULES = ["MW2SHELL", "MW2", "MW2MATROX", "MW23DFX", "MW2ATI", "NETMECHW", "MECH2"]  # reccmp-project.yml's order
+MODULES = ["MW2SHELL", "MW2", "MW2MATROX", "MW23DFX", "MW2ATI", "MW2S3", "MW2POWERVR", "NETMECHW", "MECH2"]  # reccmp-project.yml's order
 DIRS = ["MW2", "common"]
 
 
 def configure(target):
     """Select the edition the commands work on."""
-    global TARGET, BINARY, OUTPUT, CODE_END, THUNKS, EDITION_NAME
+    global TARGET, BINARY, OUTPUT, OUTPUT_DIR, CODE_END, THUNKS, EDITION_NAME
     edition = EDITIONS[target]
     TARGET, BINARY, OUTPUT = target, edition["binary"], edition["output"]
+    OUTPUT_DIR = edition.get("dir", "vc22")
     CODE_END, THUNKS, EDITION_NAME = edition["code_end"], edition["thunks"], edition["name"]
 
 
@@ -237,7 +245,7 @@ def similarity(a, b):
 
 class Rebuild:
     def __init__(self, build):
-        base = os.path.join(build, "vc22", OUTPUT)
+        base = os.path.join(build, OUTPUT_DIR, OUTPUT)
         if not os.path.exists(base + ".dll"):
             sys.exit("no rebuilt edition at %s.dll" % base)
         self.image = Image(base + ".dll")

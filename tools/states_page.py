@@ -37,7 +37,7 @@ WORDS = {"witness": "proven", "classified": "explained: compiler entropy", "know
 RANK = {"unexplained": 0, "known": 1, "classified": 2, "witness": 3}
 EDITIONS = {"MW2SHELL": "1.1", "MW2": "1.1", "NETMECHW": "retail", "MECH2": "retail",
             "MW2MATROX": "Matrox Mystique", "MW23DFX": "3Dfx",
-            "MW2ATI": "ATI 3D Rage"}
+            "MW2ATI": "ATI 3D Rage", "MW2S3": "S3 ViRGE", "MW2POWERVR": "PowerVR"}
 
 STYLE = """
 :root { color-scheme: light dark; --line: #8884; --dim: #8889; }

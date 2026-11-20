@@ -35,6 +35,7 @@
 // FUNCTION: MW2MATROX 0x10081ce3
 // FUNCTION: MW23DFX 0x10012bf0
 // FUNCTION: MW2ATI 0x10013150
+// FUNCTION: MW2POWERVR 0x10012090
 MechS16 AiMessageDist(Player* p_player, MechS16 p_target, MechS16 p_arg)
 {
 	MechS16 farthestTarget;

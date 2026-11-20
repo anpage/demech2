@@ -10,12 +10,15 @@
 // GLOBAL: MW2MATROX 0x100a20f0
 // GLOBAL: MW23DFX 0x1024a9b0
 // GLOBAL: MW2ATI 0x1017ee08
+// GLOBAL: MW2POWERVR 0x101a9b58
 MechChar g_gameCdDrive = 0;
 
 // GLOBAL: MW2 0x100a00fc
 // GLOBAL: MW2MATROX 0x100a20f4
 // GLOBAL: MW23DFX 0x1024a9b4
 // GLOBAL: MW2ATI 0x1017ee0c
+// GLOBAL: MW2S3 0x10060fb4
+// GLOBAL: MW2POWERVR 0x101a9b5c
 MechS32 g_gameCdNumber = 0;
 
 // Finds the CD-ROM drive holding the game disc (the one with \OLD_HERC.DRV) and caches its
@@ -24,6 +27,7 @@ MechS32 g_gameCdNumber = 0;
 // FUNCTION: MW2MATROX 0x10003ca0
 // FUNCTION: MW23DFX 0x10007b70
 // FUNCTION: MW2ATI 0x10008450
+// FUNCTION: MW2POWERVR 0x100071c0
 MechChar FindGameCdDrive(void)
 {
 	LPSTR drive;
@@ -70,6 +74,8 @@ MechChar FindGameCdDrive(void)
 // FUNCTION: MW2MATROX 0x10003dc7
 // FUNCTION: MW23DFX 0x10007c50
 // FUNCTION: MW2ATI 0x10008530
+// FUNCTION: MW2S3 0x10005360
+// FUNCTION: MW2POWERVR 0x100072a0
 MechS32 GetGameCdNumber(void)
 {
 	if (g_gameCdNumber == 0) {

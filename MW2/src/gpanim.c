@@ -15,6 +15,8 @@
 // GLOBAL: MW2MATROX 0x100bca68
 // GLOBAL: MW23DFX 0x1024b2b8
 // GLOBAL: MW2ATI 0x1017f638
+// GLOBAL: MW2S3 0x10065c18
+// GLOBAL: MW2POWERVR 0x101aa380
 MechS32 g_motionSounds[4][4] =
 	{{-1, 0x12e, 0x12e, -1}, {0x14f, -1, -1, 0x14f}, {0x11a, 0x11a, 0x148, 0x11a}, {0x119, 0x119, 0x119, 0x12d}};
 
@@ -22,12 +24,16 @@ MechS32 g_motionSounds[4][4] =
 // GLOBAL: MW2MATROX 0x1012c0f0
 // GLOBAL: MW23DFX 0x10207f00
 // GLOBAL: MW2ATI 0x1013bbc0
+// GLOBAL: MW2S3 0x100adb90
+// GLOBAL: MW2POWERVR 0x10166880
 MechS32 g_lastMotionSound[60];
 
 // FUNCTION: MW2 0x10003620
 // FUNCTION: MW2MATROX 0x1008c3e0
 // FUNCTION: MW23DFX 0x1000b300
 // FUNCTION: MW2ATI 0x1000ba70
+// FUNCTION: MW2S3 0x100236b0
+// FUNCTION: MW2POWERVR 0x1000a630
 void FirstGPAnim(void)
 {
 	MechS32 i;
@@ -41,6 +47,8 @@ void FirstGPAnim(void)
 // FUNCTION: MW2MATROX 0x1008c41a
 // FUNCTION: MW23DFX 0x1000b320
 // FUNCTION: MW2ATI 0x1000ba90
+// FUNCTION: MW2S3 0x100236d0
+// FUNCTION: MW2POWERVR 0x1000a650
 void StartMotion(Player* p_player)
 {
 	if (p_player->m_index != g_localPlayerId) {
@@ -55,6 +63,8 @@ void StartMotion(Player* p_player)
 // FUNCTION: MW2MATROX 0x1008c45e
 // FUNCTION: MW23DFX 0x1000b350
 // FUNCTION: MW2ATI 0x1000bac0
+// FUNCTION: MW2S3 0x10023700
+// FUNCTION: MW2POWERVR 0x1000a680
 void StopMotion(Player* p_player)
 {
 	p_player->m_speedLevel = 0;
@@ -65,6 +75,8 @@ void StopMotion(Player* p_player)
 // FUNCTION: MW2MATROX 0x1008c483
 // FUNCTION: MW23DFX 0x1000b370
 // FUNCTION: MW2ATI 0x1000bae0
+// FUNCTION: MW2S3 0x10023720
+// FUNCTION: MW2POWERVR 0x1000a6a0
 MechScalar* GetEyepointOffset(Player* p_player, MechScalar* p_offset)
 {
 	p_offset[0] = g_eyepoint->m_x - p_player->m_position.m_x;
@@ -80,6 +92,8 @@ MechScalar* GetEyepointOffset(Player* p_player, MechScalar* p_offset)
 // FUNCTION: MW2MATROX 0x1008c4d0
 // FUNCTION: MW23DFX 0x1000b3a0
 // FUNCTION: MW2ATI 0x1000bb10
+// FUNCTION: MW2S3 0x10023750
+// FUNCTION: MW2POWERVR 0x1000a6d0
 void UpdateMotion(Player* p_player)
 {
 	MechScalar* offset;
@@ -140,6 +154,8 @@ void UpdateMotion(Player* p_player)
 // FUNCTION: MW2MATROX 0x1008c69f
 // FUNCTION: MW23DFX 0x1000b4e0
 // FUNCTION: MW2ATI 0x1000bc50
+// FUNCTION: MW2S3 0x10023890
+// FUNCTION: MW2POWERVR 0x1000a810
 void UpdateMotionSounds(Player* p_player, MechS32 (*p_sounds)[4], MechScalar* p_offset)
 {
 	MechScalar offset[3];
@@ -177,6 +193,8 @@ void UpdateMotionSounds(Player* p_player, MechS32 (*p_sounds)[4], MechScalar* p_
 // FUNCTION: MW2MATROX 0x1008c7ed
 // FUNCTION: MW23DFX 0x1000b5a0
 // FUNCTION: MW2ATI 0x1000bd10
+// FUNCTION: MW2S3 0x10023950
+// FUNCTION: MW2POWERVR 0x1000a8d0
 void ResetMotion(Player* p_player)
 {
 	MechS32 id;

@@ -27,6 +27,8 @@
 // GLOBAL: MW2MATROX 0x100bea18
 // GLOBAL: MW23DFX 0x1024d140
 // GLOBAL: MW2ATI 0x101814c0
+// GLOBAL: MW2S3 0x10060868
+// GLOBAL: MW2POWERVR 0x101ac554
 MechS32 g_reloadingPlayer = -1;
 
 // GLOBAL: MW2 0x100ba694
@@ -37,12 +39,16 @@ MechS32 g_unk0x100ba694 = 0;
 // GLOBAL: MW2MATROX 0x100bea20
 // GLOBAL: MW23DFX 0x1024d148
 // GLOBAL: MW2ATI 0x101814c8
+// GLOBAL: MW2S3 0x10060870
+// GLOBAL: MW2POWERVR 0x101ac558
 RememberedMech g_rememberedMechs[60] = {0};
 
 // GLOBAL: MW2 0x100babc0
 // GLOBAL: MW2MATROX 0x100bef48
 // GLOBAL: MW23DFX 0x1024d670
 // GLOBAL: MW2ATI 0x101819f0
+// GLOBAL: MW2S3 0x10060d98
+// GLOBAL: MW2POWERVR 0x101aca80
 MechSegment* g_mechSegments[60] = {NULL};
 
 // Reloads player p_player's mech as it was remembered. Without p_force, only a player with
@@ -52,6 +58,8 @@ MechSegment* g_mechSegments[60] = {NULL};
 // FUNCTION: MW2MATROX 0x10090fd0
 // FUNCTION: MW23DFX 0x100235e0
 // FUNCTION: MW2ATI 0x100238a0
+// FUNCTION: MW2S3 0x10002c40
+// FUNCTION: MW2POWERVR 0x10022b00
 MechS32 ReloadPlayerMech(MechS32 p_player, MechS32 p_force, undefined4 p_unk0x08, undefined4 p_unk0x0c)
 {
 	Mech* mech;
@@ -132,6 +140,8 @@ MechS32 ReloadPlayerMech(MechS32 p_player, MechS32 p_force, undefined4 p_unk0x08
 // FUNCTION: MW2MATROX 0x100912be
 // FUNCTION: MW23DFX 0x100238c0
 // FUNCTION: MW2ATI 0x10023b80
+// FUNCTION: MW2S3 0x10002f20
+// FUNCTION: MW2POWERVR 0x10022de0
 void RememberLoadMech(Mech* p_mech, MechChar* p_name, MechS32 p_id, MechChar* p_config)
 {
 	MechS32 id;
@@ -155,6 +165,8 @@ void RememberLoadMech(Mech* p_mech, MechChar* p_name, MechS32 p_id, MechChar* p_
 // FUNCTION: MW2MATROX 0x1009138b
 // FUNCTION: MW23DFX 0x100239a0
 // FUNCTION: MW2ATI 0x10023c60
+// FUNCTION: MW2S3 0x10003000
+// FUNCTION: MW2POWERVR 0x10022ec0
 void RememberMechSegments(Mech* p_mech)
 {
 	SceneObject* obj;
@@ -179,6 +191,7 @@ void RememberMechSegments(Mech* p_mech)
 // FUNCTION: MW2MATROX 0x10091403
 // FUNCTION: MW23DFX 0x10023a20
 // FUNCTION: MW2ATI 0x10023ce0
+// FUNCTION: MW2S3 0x10003080
 SceneObject* RestoreMechSegments(MechSegment* p_segment)
 {
 	SceneObject* obj;
@@ -205,6 +218,8 @@ SceneObject* RestoreMechSegments(MechSegment* p_segment)
 // FUNCTION: MW2MATROX 0x100914d2
 // FUNCTION: MW23DFX 0x10023ae0
 // FUNCTION: MW2ATI 0x10023da0
+// FUNCTION: MW2S3 0x10003140
+// FUNCTION: MW2POWERVR 0x10023020
 MechSegment* SaveMechSegments(SceneObject* p_obj)
 {
 	MechSegment* segment;

@@ -26,14 +26,18 @@ DECOMP_SIZE_ASSERT(ProjectFileEntry, 0x14)
 // GLOBAL: MW2MATROX 0x100a2030
 // GLOBAL: MW23DFX 0x1024abe4
 // GLOBAL: MW2ATI 0x1017f01c
+// GLOBAL: MW2S3 0x100759ec
+// GLOBAL: MW2POWERVR 0x101a9d6c
 MechS32 g_soundFileCount = 0;
 
 // GLOBAL: MW2 0x100bcdb8
 // GLOBAL: MW2MATROX 0x100c0af8
+// GLOBAL: MW2S3 0x1007dd98
 static ProjectFileEntry g_soundFileEntries[200];
 
 // GLOBAL: MW2 0x100bdd58
 // GLOBAL: MW2MATROX 0x100c1a98
+// GLOBAL: MW2S3 0x1007ed38
 static ProjectFileEntry* g_soundFileTable[0x65];
 
 // The directory of the mission's sound files.
@@ -41,6 +45,8 @@ static ProjectFileEntry* g_soundFileTable[0x65];
 // GLOBAL: MW2MATROX 0x100c09f8
 // GLOBAL: MW23DFX 0x1007b078
 // GLOBAL: MW2ATI 0x10070078
+// GLOBAL: MW2S3 0x1007eed0
+// GLOBAL: MW2POWERVR 0x1006e078
 MechChar g_soundFileDir[0x100];
 
 // Returns the entry named p_name, or adds it if p_add; NULL when it is missing.
@@ -48,6 +54,7 @@ MechChar g_soundFileDir[0x100];
 // FUNCTION: MW2MATROX 0x10001000
 // FUNCTION: MW23DFX 0x100084e0
 // FUNCTION: MW2ATI 0x10008cd0
+// FUNCTION: MW2S3 0x1003ba10
 ProjectFileEntry* FindSoundFile(MechChar* p_name, MechS32 p_add)
 {
 	ProjectFileEntry* entry;
@@ -83,6 +90,8 @@ ProjectFileEntry* FindSoundFile(MechChar* p_name, MechS32 p_add)
 // FUNCTION: MW2MATROX 0x10001112
 // FUNCTION: MW23DFX 0x100085d0
 // FUNCTION: MW2ATI 0x10008dc0
+// FUNCTION: MW2S3 0x1003bb00
+// FUNCTION: MW2POWERVR 0x10007b30
 void CollectMissionAudio(void)
 {
 	MechChar drive;
@@ -133,6 +142,8 @@ void CollectMissionAudio(void)
 // FUNCTION: MW2MATROX 0x10001257
 // FUNCTION: MW23DFX 0x100086d0
 // FUNCTION: MW2ATI 0x10008ec0
+// FUNCTION: MW2S3 0x1003bc00
+// FUNCTION: MW2POWERVR 0x10007c30
 void* ReadSoundFile(MechChar* p_name)
 {
 	MechChar path[0x100];

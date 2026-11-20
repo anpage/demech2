@@ -10,7 +10,7 @@
 #include "types.h"
 #include "vfx3d.h"
 #include "window.h"
-#ifdef MW2_ATI
+#if defined(MW2_ATI) || defined(MW2_S3) || defined(MW2_POWERVR)
 #include "bandpoly.h"
 #endif
 #ifdef MW2_A3D
@@ -43,6 +43,7 @@ DECOMP_SIZE_ASSERT(Animation, 0x0e)
 // GLOBAL: MW2MATROX 0x100aa1b8
 // GLOBAL: MW23DFX 0x1024e480
 // GLOBAL: MW2ATI 0x10182790
+// GLOBAL: MW2S3 0x100650a8
 MechS32 g_animInitialized = -2;
 
 // GLOBAL: MW2 0x100ad28c
@@ -54,18 +55,21 @@ MechS32 g_lumaResourceId = 0;
 // GLOBAL: MW2MATROX 0x100aa1c0
 // GLOBAL: MW23DFX 0x1024e488
 // GLOBAL: MW2ATI 0x10182798
+// GLOBAL: MW2S3 0x100650b0
 MechS32 g_currentAnimSet = 0;
 
 // GLOBAL: MW2 0x100ad294
 // GLOBAL: MW2MATROX 0x100aa1c4
 // GLOBAL: MW23DFX 0x1024e48c
 // GLOBAL: MW2ATI 0x1018279c
+// GLOBAL: MW2S3 0x100650b4
 MechS32 g_animSetUsed = 0;
 
 // GLOBAL: MW2 0x100ad298
 // GLOBAL: MW2MATROX 0x100aa1c8
 // GLOBAL: MW23DFX 0x1024e490
 // GLOBAL: MW2ATI 0x101827a0
+// GLOBAL: MW2S3 0x100650b8
 MechS32 g_animSetIsSequence = 0;
 
 #ifdef MW2_A3D
@@ -110,18 +114,22 @@ MechS32 g_unk0x1024e634 = 0;
 // GLOBAL: MW2MATROX 0x10184710
 // GLOBAL: MW23DFX 0x10160d20
 // GLOBAL: MW2ATI 0x10094d10
+// GLOBAL: MW2S3 0x100fb610
 AnimFrame g_animFrames[0x200][0x20];
 
 // GLOBAL: MW2 0x100e7610
 // GLOBAL: MW2MATROX 0x10182b00
 // GLOBAL: MW23DFX 0x1015f0f0
 // GLOBAL: MW2ATI 0x100930e0
+// GLOBAL: MW2S3 0x1014b610
+// GLOBAL: MW2POWERVR 0x10089620
 Animation g_animations[0x200];
 
 #ifdef MW2_A3D
 // GLOBAL: MW2MATROX 0x10184700
 // GLOBAL: MW23DFX 0x10160cf0
 // GLOBAL: MW2ATI 0x10094ce0
+// GLOBAL: MW2S3 0x1014d210
 MechFloat g_unk0x10184700[3];
 #endif
 
@@ -526,7 +534,7 @@ MechS32 DrawAnimatedPolygon(
 	}
 
 	return 1;
-#elif defined(MW2_ATI)
+#elif defined(MW2_ATI) || defined(MW2_S3) || defined(MW2_POWERVR)
 	Animation* anim;
 	AnimFrame* frame;
 	MechU16* data;
@@ -767,6 +775,7 @@ MechS32 DrawAnimatedPolygon(
 // FUNCTION: MW2MATROX 0x10051278
 // FUNCTION: MW23DFX 0x1002ce50
 // FUNCTION: MW2ATI 0x1002c150
+// FUNCTION: MW2S3 0x1001df50
 void AdvanceAnimations(void)
 {
 	MechS32 remainder;
@@ -815,6 +824,7 @@ void AdvanceAnimations(void)
 // FUNCTION: MW2MATROX 0x100513ed
 // FUNCTION: MW23DFX 0x1002cf10
 // FUNCTION: MW2ATI 0x1002c210
+// FUNCTION: MW2S3 0x1001e010
 MechS32 AddAnimFrame(MechS32 p_resourceId, MechS32 p_set)
 {
 	MechS32 found;
@@ -905,6 +915,7 @@ void PreloadAnimCels(void)
 // FUNCTION: MW2MATROX 0x10051566
 // FUNCTION: MW23DFX 0x1002d060
 // FUNCTION: MW2ATI 0x1002c2d0
+// FUNCTION: MW2S3 0x1001e0d0
 MechS32 StartAnimation(MechS32 p_index, MechS32 p_set)
 {
 	if (p_set == -1) {
@@ -931,6 +942,7 @@ MechS32 StartAnimation(MechS32 p_index, MechS32 p_set)
 // FUNCTION: MW2MATROX 0x1005163e
 // FUNCTION: MW23DFX 0x1002d0e0
 // FUNCTION: MW2ATI 0x1002c350
+// FUNCTION: MW2S3 0x1001e150
 void InitAnimations(void)
 {
 	MechS32 j;
@@ -967,6 +979,7 @@ void InitAnimations(void)
 // FUNCTION: MW2MATROX 0x10051755
 // FUNCTION: MW23DFX 0x1002d150
 // FUNCTION: MW2ATI 0x1002c3c0
+// FUNCTION: MW2S3 0x1001e1c0
 void SetAnimMode(MechS16 p_index, MechS16 p_mode)
 {
 	if (g_animations[p_index].m_flags != -2) {
@@ -982,6 +995,7 @@ void SetAnimMode(MechS16 p_index, MechS16 p_mode)
 // FUNCTION: MW2MATROX 0x100517c5
 // FUNCTION: MW23DFX 0x1002d190
 // FUNCTION: MW2ATI 0x1002c400
+// FUNCTION: MW2S3 0x1001e200
 void SetAnimFrame(MechS16 p_index, MechU16 p_frame)
 {
 	Animation* anim;
@@ -1005,6 +1019,7 @@ void SetAnimFrame(MechS16 p_index, MechU16 p_frame)
 // FUNCTION: MW2MATROX 0x10051853
 // FUNCTION: MW23DFX 0x1002d1e0
 // FUNCTION: MW2ATI 0x1002c450
+// FUNCTION: MW2S3 0x1001e250
 void SetAnimDelay(MechS16 p_index, MechU16 p_delay)
 {
 	g_animations[p_index].m_delay = p_delay;
@@ -1071,6 +1086,7 @@ void FreeAnimations(void)
 // its size; NULL if it has none.
 // FUNCTION: MW23DFX 0x1002d2b0
 // FUNCTION: MW2ATI 0x1002c480
+// FUNCTION: MW2S3 0x1001e280
 MechU16* FUN_10051dfe(MechS32 p_index, MechS16* p_width, MechS16* p_height)
 {
 	MechU16* data;
@@ -1210,6 +1226,7 @@ MechS32 FUN_100519b0(MechS32 p_index, MechFloat* p_red, MechFloat* p_green, Mech
 // FUNCTION: MW2MATROX 0x10051ba1
 // FUNCTION: MW23DFX 0x1002d410
 // FUNCTION: MW2ATI 0x1002c5e0
+// FUNCTION: MW2S3 0x1001e4f0
 void FUN_10051ba1(MechS32 p_index, MechFloat* p_red, MechFloat* p_green, MechFloat* p_blue)
 {
 	AnimFrame* frame;

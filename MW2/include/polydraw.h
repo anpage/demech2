@@ -79,6 +79,7 @@ void DrawScenePolygon(MechS32 p_count, MechU32* p_points, MechU32 p_flags);
 
 // The 3Dfx edition's diff is register allocation and instruction scheduling only.
 // FUNCTION: MW23DFX 0x10027750
+// FUNCTION: MW2S3 0x1000b3e0
 // ReadTextLine
 
 // FUNCTION: MW23DFX 0x100277b0
@@ -87,6 +88,7 @@ void DrawScenePolygon(MechS32 p_count, MechU32* p_points, MechU32 p_flags);
 // The 3Dfx edition's diff is register allocation and instruction scheduling only.
 // FUNCTION: MW23DFX 0x100278b0
 // FUNCTION: MW2ATI 0x10027560
+// FUNCTION: MW2S3 0x1000b590
 // FUN_10068e33
 
 // FUNCTION: MW23DFX 0x10027ab0

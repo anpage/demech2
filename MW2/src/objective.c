@@ -35,6 +35,7 @@
 // GLOBAL: MW2MATROX 0x100a4ed4
 // GLOBAL: MW23DFX 0x1024b15c
 // GLOBAL: MW2ATI 0x1017f5ac
+// GLOBAL: MW2POWERVR 0x101aa2f0
 MechS32 g_forceMissionSuccess = 0;
 
 // Set once the local team's mission result has been announced (AnnounceMissionResult).
@@ -42,6 +43,7 @@ MechS32 g_forceMissionSuccess = 0;
 // GLOBAL: MW2MATROX 0x100a4ed8
 // GLOBAL: MW23DFX 0x1024b160
 // GLOBAL: MW2ATI 0x1017f5b0
+// GLOBAL: MW2POWERVR 0x101aa2f4
 MechS32 g_missionResultAnnounced = 0;
 
 // The tag of the mission result EndTheMission2 writes.
@@ -49,18 +51,24 @@ MechS32 g_missionResultAnnounced = 0;
 // GLOBAL: MW2MATROX 0x100a4f48
 // GLOBAL: MW23DFX 0x1024b1d0
 // GLOBAL: MW2ATI 0x1017f620
+// GLOBAL: MW2S3 0x100652d8
+// GLOBAL: MW2POWERVR 0x101aa364
 MechU32 g_missionResultTag = 0x4d32574d;
 
 // GLOBAL: MW2 0x10138710
 // GLOBAL: MW2MATROX 0x101d69e0
 // GLOBAL: MW23DFX 0x10207ff0
 // GLOBAL: MW2ATI 0x1013bcb0
+// GLOBAL: MW2S3 0x100bf450
+// GLOBAL: MW2POWERVR 0x10166970
 MechS32 g_missionTime;
 
 // GLOBAL: MW2 0x10138720
 // GLOBAL: MW2MATROX 0x101d69f0
 // GLOBAL: MW23DFX 0x10208000
 // GLOBAL: MW2ATI 0x1013bcc0
+// GLOBAL: MW2S3 0x100bf460
+// GLOBAL: MW2POWERVR 0x10166980
 MechS32 g_currentObjective[16]; // by team
 
 // Whether each objective of the local team has been announced (AnnounceObjective).
@@ -68,18 +76,23 @@ MechS32 g_currentObjective[16]; // by team
 // GLOBAL: MW2MATROX 0x101d6a30
 // GLOBAL: MW23DFX 0x10208040
 // GLOBAL: MW2ATI 0x1013bd00
+// GLOBAL: MW2POWERVR 0x101669c0
 MechS32 g_objectiveAnnounced[48];
 
 // GLOBAL: MW2 0x10138820
 // GLOBAL: MW2MATROX 0x101d6af0
 // GLOBAL: MW23DFX 0x10208100
 // GLOBAL: MW2ATI 0x1013bdc0
+// GLOBAL: MW2S3 0x100bf560
+// GLOBAL: MW2POWERVR 0x10166a80
 MechS32 g_objectiveCount;
 
 // GLOBAL: MW2 0x10138830
 // GLOBAL: MW2MATROX 0x101d6b00
 // GLOBAL: MW23DFX 0x10208110
 // GLOBAL: MW2ATI 0x1013bdd0
+// GLOBAL: MW2S3 0x100bf570
+// GLOBAL: MW2POWERVR 0x10166a90
 StarMission g_objectiveTable[16];
 
 // Collapses each run of whitespace after a character of p_text into one space.
@@ -87,6 +100,8 @@ StarMission g_objectiveTable[16];
 // FUNCTION: MW2MATROX 0x1001ecb0
 // FUNCTION: MW23DFX 0x100098f0
 // FUNCTION: MW2ATI 0x1000a120
+// FUNCTION: MW2S3 0x1001eed0
+// FUNCTION: MW2POWERVR 0x10008ce0
 void CollapseWhitespace(MechChar* p_text)
 {
 	MechChar* src;
@@ -116,6 +131,7 @@ void CollapseWhitespace(MechChar* p_text)
 // FUNCTION: MW2MATROX 0x1001eda2
 // FUNCTION: MW23DFX 0x10009990
 // FUNCTION: MW2ATI 0x1000a1c0
+// FUNCTION: MW2POWERVR 0x10008d80
 MechS32 DoFirstObjtv(StarMission* p_mission, MechS32 p_team)
 {
 	MechScalar x;
@@ -160,6 +176,8 @@ MechS32 DoFirstObjtv(StarMission* p_mission, MechS32 p_team)
 // FUNCTION: MW2MATROX 0x1001eee7
 // FUNCTION: MW23DFX 0x10009a50
 // FUNCTION: MW2ATI 0x1000a280
+// FUNCTION: MW2S3 0x1001f030
+// FUNCTION: MW2POWERVR 0x10008e40
 MechS32 GetObjectiveTargetState(MechU8* p_target)
 {
 	MechU16 index;
@@ -188,6 +206,8 @@ MechS32 GetObjectiveTargetState(MechU8* p_target)
 // FUNCTION: MW2MATROX 0x1001efa3
 // FUNCTION: MW23DFX 0x10009ab0
 // FUNCTION: MW2ATI 0x1000a2e0
+// FUNCTION: MW2S3 0x1001f090
+// FUNCTION: MW2POWERVR 0x10008ea0
 MechS32 HasTeamReachedTarget(MechU8* p_target, MechS32 p_team)
 {
 	MechU16 index;
@@ -230,6 +250,7 @@ MechS32 HasTeamReachedTarget(MechU8* p_target, MechS32 p_team)
 // FUNCTION: MW2MATROX 0x1001f0f8
 // FUNCTION: MW23DFX 0x10009b80
 // FUNCTION: MW2ATI 0x1000a3b0
+// FUNCTION: MW2POWERVR 0x10008f70
 MechS32 IsTeamNearTarget(MechU8* p_target, MechS32 p_team)
 {
 	MechU16 index;
@@ -370,6 +391,7 @@ MechS32 IsTeamNearTarget(MechU8* p_target, MechS32 p_team)
 // FUNCTION: MW2MATROX 0x1001f428
 // FUNCTION: MW23DFX 0x10009d60
 // FUNCTION: MW2ATI 0x1000a590
+// FUNCTION: MW2POWERVR 0x10009150
 MechS32 AnnounceObjective(MechS32 p_star, MechS32 p_objective, MechS32 p_state)
 {
 	MechChar text[100];
@@ -411,6 +433,8 @@ MechS32 AnnounceObjective(MechS32 p_star, MechS32 p_objective, MechS32 p_state)
 // FUNCTION: MW2MATROX 0x1001f577
 // FUNCTION: MW23DFX 0x10009e70
 // FUNCTION: MW2ATI 0x1000a6a0
+// FUNCTION: MW2S3 0x1001f450
+// FUNCTION: MW2POWERVR 0x10009260
 void ChooseNetworkWinner(void)
 {
 	MissionObjective* objective;
@@ -478,6 +502,7 @@ void ChooseNetworkWinner(void)
 // FUNCTION: MW2MATROX 0x1001f751
 // FUNCTION: MW23DFX 0x10009f50
 // FUNCTION: MW2ATI 0x1000a780
+// FUNCTION: MW2POWERVR 0x10009340
 MechS32 AnnounceMissionResult(MechS32 p_star, MechS32 p_status)
 {
 	MechChar text[100];
@@ -524,6 +549,8 @@ MechS32 AnnounceMissionResult(MechS32 p_star, MechS32 p_status)
 // FUNCTION: MW2MATROX 0x1001f8dd
 // FUNCTION: MW23DFX 0x1000a080
 // FUNCTION: MW2ATI 0x1000a8b0
+// FUNCTION: MW2S3 0x1001f660
+// FUNCTION: MW2POWERVR 0x10009470
 MechS32 TestObjectiveCondition(MechS32 p_star, MechS32 p_objective, MechS32 p_condition)
 {
 	MissionObjective* objective;
@@ -550,6 +577,8 @@ MechS32 TestObjectiveCondition(MechS32 p_star, MechS32 p_objective, MechS32 p_co
 // FUNCTION: MW2MATROX 0x1001f9c9
 // FUNCTION: MW23DFX 0x1000a110
 // FUNCTION: MW2ATI 0x1000a940
+// FUNCTION: MW2S3 0x1001f6f0
+// FUNCTION: MW2POWERVR 0x10009500
 MechS32 ObjectiveConditionsHold(MechS32 p_star, MechS32 p_objective)
 {
 	MechS32 all;
@@ -602,6 +631,7 @@ MechS32 ObjectiveConditionsHold(MechS32 p_star, MechS32 p_objective)
 // FUNCTION: MW2MATROX 0x1001faf7
 // FUNCTION: MW23DFX 0x1000a1d0
 // FUNCTION: MW2ATI 0x1000aa00
+// FUNCTION: MW2POWERVR 0x100095c0
 void UpdateObjective(MechS32 p_star, MechS32 p_objective)
 {
 	MechS32 done;
@@ -963,6 +993,7 @@ void UpdateObjective(MechS32 p_star, MechS32 p_objective)
 // FUNCTION: MW2MATROX 0x10020a02
 // FUNCTION: MW23DFX 0x1000a9b0
 // FUNCTION: MW2ATI 0x1000b1e0
+// FUNCTION: MW2POWERVR 0x10009da0
 void UpdateObjectives(void)
 {
 	MechS32 i;
@@ -1047,6 +1078,8 @@ void UpdateObjectives(void)
 // FUNCTION: MW2MATROX 0x10020d39
 // FUNCTION: MW23DFX 0x1000ab80
 // FUNCTION: MW2ATI 0x1000b3b0
+// FUNCTION: MW2S3 0x10020170
+// FUNCTION: MW2POWERVR 0x10009f70
 void EndTheMission1(void)
 {
 	g_missionTime = g_currentClock / 181;
@@ -1059,6 +1092,8 @@ void EndTheMission1(void)
 // FUNCTION: MW2MATROX 0x10020d5b
 // FUNCTION: MW23DFX 0x1000aba0
 // FUNCTION: MW2ATI 0x1000b3d0
+// FUNCTION: MW2S3 0x10020190
+// FUNCTION: MW2POWERVR 0x10009f90
 MechS32 EndTheMission2(void)
 {
 	FILE* file;
@@ -1107,6 +1142,8 @@ MechS32 EndTheMission2(void)
 // FUNCTION: MW2MATROX 0x10020fde
 // FUNCTION: MW23DFX 0x1000acd0
 // FUNCTION: MW2ATI 0x1000b500
+// FUNCTION: MW2S3 0x100202c0
+// FUNCTION: MW2POWERVR 0x1000a0c0
 void RestartStarMission(MechS32 p_star)
 {
 	MissionObjective* objective;
@@ -1147,6 +1184,7 @@ void FUN_1001cdd1(void)
 // FUNCTION: MW2MATROX 0x10021096
 // FUNCTION: MW23DFX 0x1000ad50
 // FUNCTION: MW2ATI 0x1000b580
+// FUNCTION: MW2POWERVR 0x1000a140
 MechS32 FUN_1001cde1(MechU16 p_unk0x00)
 {
 	return 1;
@@ -1158,6 +1196,7 @@ MechS32 FUN_1001cde1(MechU16 p_unk0x00)
 // FUNCTION: MW2MATROX 0x100210ab
 // FUNCTION: MW23DFX 0x1000ad60
 // FUNCTION: MW2ATI 0x1000b590
+// FUNCTION: MW2POWERVR 0x1000a150
 MechU16 GetTeamHomeTarget(MechS32 p_team)
 {
 	StarMission* mission;

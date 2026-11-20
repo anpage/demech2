@@ -18,12 +18,16 @@ DECOMP_SIZE_ASSERT(TimedCallback, 0x18)
 // GLOBAL: MW2MATROX 0x100a5948
 // GLOBAL: MW23DFX 0x1024abc8
 // GLOBAL: MW2ATI 0x1017f018
+// GLOBAL: MW2S3 0x100759e8
+// GLOBAL: MW2POWERVR 0x101a9d68
 TimedCallback* g_currentCallback = NULL;
 
 // FUNCTION: MW2 0x1007d2e0
 // FUNCTION: MW2MATROX 0x100272b0
 // FUNCTION: MW23DFX 0x10008270
 // FUNCTION: MW2ATI 0x10008ab0
+// FUNCTION: MW2S3 0x1003b820
+// FUNCTION: MW2POWERVR 0x10007820
 TimedCallback* GetCurrentCallback(void)
 {
 	return g_currentCallback;
@@ -33,6 +37,8 @@ TimedCallback* GetCurrentCallback(void)
 // FUNCTION: MW2MATROX 0x100272c5
 // FUNCTION: MW23DFX 0x10008280
 // FUNCTION: MW2ATI 0x10008ac0
+// FUNCTION: MW2S3 0x1003b830
+// FUNCTION: MW2POWERVR 0x10007830
 TimedCallback* CreateDetachedTask(TimedCallback** p_list, TimedCallbackFn p_fn, MechS32 p_period, MechChar* p_data)
 {
 	TimedCallback* callback;
@@ -62,6 +68,7 @@ TimedCallback* CreateDetachedTask(TimedCallback** p_list, TimedCallbackFn p_fn, 
 // FUNCTION: MW2MATROX 0x1002738f
 // FUNCTION: MW23DFX 0x10008300
 // FUNCTION: MW2ATI 0x10008b40
+// FUNCTION: MW2POWERVR 0x100078b0
 void RemoveTask(TimedCallback** p_list, TimedCallback* p_callback)
 {
 	TimedCallback* callback;
@@ -91,6 +98,8 @@ void RemoveTask(TimedCallback** p_list, TimedCallback* p_callback)
 // FUNCTION: MW2MATROX 0x10027445
 // FUNCTION: MW23DFX 0x10008360
 // FUNCTION: MW2ATI 0x10008ba0
+// FUNCTION: MW2S3 0x1003b910
+// FUNCTION: MW2POWERVR 0x10007910
 void RemoveAllTasks(TimedCallback** p_list)
 {
 	TimedCallback* callback;
@@ -104,6 +113,8 @@ void RemoveAllTasks(TimedCallback** p_list)
 // FUNCTION: MW2MATROX 0x10027488
 // FUNCTION: MW23DFX 0x10008380
 // FUNCTION: MW2ATI 0x10008bc0
+// FUNCTION: MW2S3 0x1003b930
+// FUNCTION: MW2POWERVR 0x10007930
 void SignalTask(TimedCallback** p_list, TimedCallback* p_callback)
 {
 	p_callback->m_fn(-1, NULL, g_currentClock, p_callback->m_period);
@@ -113,6 +124,8 @@ void SignalTask(TimedCallback** p_list, TimedCallback* p_callback)
 // FUNCTION: MW2MATROX 0x100274ac
 // FUNCTION: MW23DFX 0x100083a0
 // FUNCTION: MW2ATI 0x10008be0
+// FUNCTION: MW2S3 0x1003b950
+// FUNCTION: MW2POWERVR 0x10007950
 void SignalAllTasks(TimedCallback** p_list)
 {
 	TimedCallback* callback;
@@ -126,6 +139,8 @@ void SignalAllTasks(TimedCallback** p_list)
 // FUNCTION: MW2MATROX 0x100274ef
 // FUNCTION: MW23DFX 0x100083c0
 // FUNCTION: MW2ATI 0x10008c00
+// FUNCTION: MW2S3 0x1003b970
+// FUNCTION: MW2POWERVR 0x10007970
 void** GetCallbackData(TimedCallback* p_callback)
 {
 	return &p_callback->m_data;
@@ -135,6 +150,8 @@ void** GetCallbackData(TimedCallback* p_callback)
 // FUNCTION: MW2MATROX 0x10027505
 // FUNCTION: MW23DFX 0x100083d0
 // FUNCTION: MW2ATI 0x10008c10
+// FUNCTION: MW2S3 0x1003b980
+// FUNCTION: MW2POWERVR 0x10007980
 void RunTimedCallbacks(TimedCallback** p_list)
 {
 	for (g_currentCallback = *p_list; g_currentCallback != NULL; g_currentCallback = g_currentCallback->m_next) {
@@ -154,6 +171,8 @@ void RunTimedCallbacks(TimedCallback** p_list)
 // FUNCTION: MW2MATROX 0x100275c1
 // FUNCTION: MW23DFX 0x10008450
 // FUNCTION: MW2ATI 0x10008c90
+// FUNCTION: MW2S3 0x1003ba00
+// FUNCTION: MW2POWERVR 0x10007a00
 MechS32 GetTimedCallbackSize(void)
 {
 	return sizeof(TimedCallback);
