@@ -73,6 +73,7 @@
 0x10016a10 DestroySectionSlots mechdamage.c pad 16
 0x10017a60 GetTextWidth statuspanels.c pad 18
 0x10017f40 DrawObjectivesPanel statuspanels.c pad 4
+0x100181d0 DrawNetworkPanel statuspanels.c pad 26
 0x10018ca0 ShutdownAllPlayers players.c pad 5
 0x10018d30 CreateSimPlayer players.c pad 11
 0x10018da0 AllocPlayer players.c pad 1
@@ -105,8 +106,10 @@
 0x10024240 LockCacheEntry loadres.c pad 1
 0x10024500 DumpResourceCache loadres.c pad 24
 0x10025460 DestroyThingObject geocache.c pad 7
+0x10026160 LoadClassEntryShape classtable.c pad 25
 0x10026410 ReleaseClassEntryShape classtable.c pad 2
 0x10026450 GetClassObject classtable.c pad 10
+0x10026660 ReleaseObjShape classtable.c pad 67
 0x10028ba0 IsAboveHorizon horizon.c pad 2
 0x10028d20 ComputeShapeBounds shape.c pad 1
 0x10028ed0 ComputeFaceNormal shape.c pad 6
@@ -117,6 +120,7 @@
 0x10029840 TransformShapeCenter shape.c pad 13
 0x100298e0 ApproximateShapeDistance shape.c pad 13
 0x10029cb0 DrawShapeList depthsort.c pad 21
+0x10029eb0 DrawObjTreeShapes depthsort.c pad 26
 0x1002a0c0 GetFaceColor faceshade.c pad 10
 0x1002a430 AreTextureMapsOn faceshade.c pad 2
 0x1002a860 ApplyPaletteResource palette.c pad 2
@@ -149,6 +153,7 @@
 0x10039980 JoystickCloseDevice joystick.c pad 10
 0x1003a1e0 UpdateRamp ramp.c pad 14
 0x1003a3a0 UpdateWrappedRamp ramp.c pad 1
+0x1003a520 DrawDebugOverlays overlay.c pad 184
 0x1003afe0 PreloadResource mw2prj.c pad 3
 0x1003b4f0 GetPrjResourceSize prjfile.c pad 11
 0x1003d620 FreeBwdNames bwdnames.c pad 12

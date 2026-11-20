@@ -180,7 +180,6 @@ MW2ATI 0x10011ad0 UpdateGridObject a47da880d035 undiagnosed
 MW2ATI 0x10012c90 LogStarMissionLines 7175270abcb1 undiagnosed
 MW2ATI 0x10014ff0 LeadStar 9c90deb11311 undiagnosed
 MW2ATI 0x100175d0 ApplyDamageToMech be9a1aa7499d undiagnosed
-MW2ATI 0x100181d0 DrawNetworkPanel 66c84aab757e undiagnosed
 MW2ATI 0x1001b4d0 CreateMech 90d37a86d979 undiagnosed
 MW2ATI 0x1001b5c0 InitDamagePanel 344db3d929d6 undiagnosed
 MW2ATI 0x1001b9b0 DrawDamageOutline 4b44b3a22657 undiagnosed
@@ -201,7 +200,6 @@ MW2ATI 0x10024ac0 FreeGeoTables fb06293857ae undiagnosed
 MW2ATI 0x100252e0 LinkStaticObjectThing 404325af9fed undiagnosed
 MW2ATI 0x10025620 LoadStaticObject 948bc1b97fe1 undiagnosed
 MW2ATI 0x10025af0 InitializeDrawBuffer 933f8107a5f1 undiagnosed
-MW2ATI 0x10026160 LoadClassEntryShape 719e654c7e05 undiagnosed
 MW2ATI 0x10026490 ChoosePlayerDetailLevels b0ed5c745322 undiagnosed
 MW2ATI 0x10026f90 FUN_100688fe d9787ac6c342 undiagnosed
 MW2ATI 0x10027140 FUN_10068b57 b02d34dd5c15 undiagnosed
@@ -240,7 +238,6 @@ MW2ATI 0x10036f90 KeyboardPoll 5c48fae37e9c undiagnosed
 MW2ATI 0x10037b20 FindInputAxis 8a4aa19baf2b undiagnosed
 MW2ATI 0x100390b0 NetSend fc9307392d7e undiagnosed
 MW2ATI 0x100391a0 NetReceive db37b6a9066e undiagnosed
-MW2ATI 0x1003a520 DrawDebugOverlays 02ef88ac605e undiagnosed
 MW2ATI 0x1003a600 DrawPaletteGrid c036fd62ea39 undiagnosed
 MW2ATI 0x1003a9e0 HideCacheInfo e258c18171f6 undiagnosed
 MW2ATI 0x1003b0d0 OpenPrjFile ccd69765630c undiagnosed
