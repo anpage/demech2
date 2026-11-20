@@ -788,6 +788,7 @@ void GetEyepointTransform(Eyepoint* p_eyepoint, Matrix* p_matrix)
 // FUNCTION: MW2MATROX 0x1002975e
 // FUNCTION: MW23DFX 0x1002f9f0
 // FUNCTION: MW2ATI 0x1002ea50
+// FUNCTION: MW2POWERVR 0x100298b0
 MechS32 ProjectWorldPoint(MechScalar* p_x, MechScalar* p_y, MechScalar* p_z)
 {
 	MechScalar x;

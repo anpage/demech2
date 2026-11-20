@@ -322,6 +322,7 @@ void DrawTargetPanelText(CockpitPanel* p_panel)
 // FUNCTION: MW2MATROX 0x10018683
 // FUNCTION: MW23DFX 0x10021300
 // FUNCTION: MW2ATI 0x100215d0
+// FUNCTION: MW2POWERVR 0x10020760
 void DrawTargetPanel(CockpitPanel* p_panel)
 {
 	MechS32 index;

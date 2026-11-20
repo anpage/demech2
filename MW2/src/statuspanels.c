@@ -355,6 +355,7 @@ void DrawObjectivesPanel(CockpitPanel* p_panel)
 // FUNCTION: MW2MATROX 0x100224b9
 // FUNCTION: MW23DFX 0x10017e10
 // FUNCTION: MW2ATI 0x100181d0
+// FUNCTION: MW2POWERVR 0x10017110
 void DrawNetworkPanel(CockpitPanel* p_panel)
 {
 	MechChar* state;
@@ -554,6 +555,7 @@ void DrawNetworkPanel(CockpitPanel* p_panel)
 // FUNCTION: MW23DFX 0x10018330
 // FUNCTION: MW2ATI 0x100186f0
 // FUNCTION: MW2S3 0x1003ad60
+// FUNCTION: MW2POWERVR 0x10017630
 void DrawKillsPanel(CockpitPanel* p_panel)
 {
 	void* font;
@@ -592,6 +594,7 @@ void DrawKillsPanel(CockpitPanel* p_panel)
 // FUNCTION: MW23DFX 0x100183d0
 // FUNCTION: MW2ATI 0x10018790
 // FUNCTION: MW2S3 0x1003ae00
+// FUNCTION: MW2POWERVR 0x100176d0
 void DrawAutopilotPanel(CockpitPanel* p_panel)
 {
 	MechChar* text;
@@ -643,6 +646,7 @@ void DrawAutopilotPanel(CockpitPanel* p_panel)
 // FUNCTION: MW23DFX 0x10018470
 // FUNCTION: MW2ATI 0x10018830
 // FUNCTION: MW2S3 0x1003aea0
+// FUNCTION: MW2POWERVR 0x10017770
 void DrawSpeedPanel(CockpitPanel* p_panel)
 {
 	MechS32 speed;
@@ -696,6 +700,7 @@ void DrawSpeedPanel(CockpitPanel* p_panel)
 // FUNCTION: MW23DFX 0x10018570
 // FUNCTION: MW2ATI 0x10018930
 // FUNCTION: MW2S3 0x1003afa0
+// FUNCTION: MW2POWERVR 0x10017870
 void DrawMascPanel(CockpitPanel* p_panel)
 {
 	void* font;
@@ -730,6 +735,7 @@ void DrawMascPanel(CockpitPanel* p_panel)
 // FUNCTION: MW23DFX 0x100185e0
 // FUNCTION: MW2ATI 0x100189a0
 // FUNCTION: MW2S3 0x1003b010
+// FUNCTION: MW2POWERVR 0x100178e0
 void DrawHeatPanel(CockpitPanel* p_panel)
 {
 	Mech* mech;
@@ -782,6 +788,7 @@ void DrawHeatPanel(CockpitPanel* p_panel)
 // FUNCTION: MW23DFX 0x100186c0
 // FUNCTION: MW2ATI 0x10018a80
 // FUNCTION: MW2S3 0x1003b0f0
+// FUNCTION: MW2POWERVR 0x100179c0
 void DrawHeatRatePanel(CockpitPanel* p_panel)
 {
 	void* font;

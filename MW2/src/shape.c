@@ -168,6 +168,7 @@ MechU32 FUN_1003a889(Shape* p_shape)
 // FUNCTION: MW23DFX 0x10029590
 // FUNCTION: MW2ATI 0x10029250
 // FUNCTION: MW2S3 0x10025b80
+// FUNCTION: MW2POWERVR 0x100260b0
 Shape* CreateShape(MechS32 p_vertexCount, MechS32 p_faceCount, MechS32 p_extra, void** p_extraData)
 {
 	Shape* shape;
@@ -351,6 +352,7 @@ void RemoveSelectedModel(Shape* p_shape)
 // FUNCTION: MW23DFX 0x100297c0
 // FUNCTION: MW2ATI 0x10029420
 // FUNCTION: MW2S3 0x10025d50
+// FUNCTION: MW2POWERVR 0x100262c0
 void FreeShape(Shape* p_shape)
 {
 	Model* model;

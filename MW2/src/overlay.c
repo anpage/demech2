@@ -770,11 +770,13 @@ void HideMemInfo(void)
 }
 
 // Steps the activity spinner.
+// Matches but for the registers, which VC++ 2.2 allocates differently.
 // FUNCTION: MW2 0x10059085
 // FUNCTION: MW2MATROX 0x1008e340
 // FUNCTION: MW23DFX 0x1003cae0
 // FUNCTION: MW2ATI 0x1003aab0
 // FUNCTION: MW2S3 0x100212d0
+// FUNCTION: MW2POWERVR 0x100358f0
 void StepSpinner(void)
 {
 	MechChar text[2];

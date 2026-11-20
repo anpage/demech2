@@ -53,4 +53,9 @@ extern "C"
 // FUNCTION: MW2ATI 0x1003fce0
 // LoadShapeRecord
 
+// The PowerVR edition places these out of wtbshapes.c's order, so they are annotated here, by name.
+
+// FUNCTION: MW2POWERVR 0x1003aa40
+// LoadShapeRecord
+
 #endif // WTBSHAPES_H

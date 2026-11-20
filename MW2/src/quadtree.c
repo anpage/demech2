@@ -29,6 +29,7 @@ MechS32 g_quadtreesDisabled = 0;
 // FUNCTION: MW2MATROX 0x100158f0
 // FUNCTION: MW23DFX 0x1000c550
 // FUNCTION: MW2ATI 0x1000ccc0
+// FUNCTION: MW2POWERVR 0x1000b880
 void BuildShapeQuadtree(Shape* p_shape)
 {
 	Model* model;
@@ -285,6 +286,7 @@ void FreeQuadtree(QuadtreeNode* p_node)
 // FUNCTION: MW2MATROX 0x10016037
 // FUNCTION: MW23DFX 0x1000c9a0
 // FUNCTION: MW2ATI 0x1000d110
+// FUNCTION: MW2POWERVR 0x1000bcd0
 MechS32 FaceOverlapsBox(
 	Face* p_face,
 	Model* p_model,
@@ -359,6 +361,7 @@ MechS32 FaceOverlapsBox(
 // FUNCTION: MW2MATROX 0x100161c7
 // FUNCTION: MW23DFX 0x1000cb10
 // FUNCTION: MW2ATI 0x1000d280
+// FUNCTION: MW2POWERVR 0x1000be40
 MechS32 ClassifyQuadtreePoint(QuadtreeNode* p_node, Model* p_model, MechScalar p_x, MechScalar p_y, MechScalar p_z)
 {
 	MechS32 result;
@@ -431,6 +434,7 @@ MechS32 ClassifyQuadtreePoint(QuadtreeNode* p_node, Model* p_model, MechScalar p
 // FUNCTION: MW23DFX 0x1000ccf0
 // FUNCTION: MW2ATI 0x1000d460
 // FUNCTION: MW2S3 0x10045300
+// FUNCTION: MW2POWERVR 0x1000c020
 MechS32 TestQuadtreeRay(QuadtreeNode* p_node, Model* p_model, Ray* p_ray)
 {
 	MechS32 i;
@@ -561,6 +565,7 @@ MechS32 TestQuadtreeChildrenRay(QuadtreeNode* p_node, Model* p_model, Ray* p_ray
 // FUNCTION: MW23DFX 0x1000cf80
 // FUNCTION: MW2ATI 0x1000d6f0
 // FUNCTION: MW2S3 0x10045590
+// FUNCTION: MW2POWERVR 0x1000c2b0
 MechS32 GetQuadtreeTop(
 	QuadtreeNode* p_node,
 	Model* p_model,

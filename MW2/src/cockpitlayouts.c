@@ -94,13 +94,18 @@ MechChar g_largeMapExtraText[0x20];
 // The cockpit views' layouts (g_cockpitLayouts): the map view of cockpit views 1 and 2 and the
 // satellite view (4), with their labels, icons, colors, rectangles and transitions.
 
+// The PowerVR edition's label has 4 bytes, the others' 8.
+#ifdef MW2_POWERVR
+// GLOBAL: MW2POWERVR 0x101a90dc
+MechChar g_readoutLabel[4] = "x";
+#else
 // GLOBAL: MW2 0x100aabb0
 // GLOBAL: MW2MATROX 0x100bcdd0
 // GLOBAL: MW23DFX 0x1024a228
 // GLOBAL: MW2ATI 0x1017e070
 // GLOBAL: MW2S3 0x10074570
-// GLOBAL: MW2POWERVR 0x101a90dc
 MechChar g_readoutLabel[8] = "x";
+#endif
 
 // GLOBAL: MW2 0x100aabb8
 // GLOBAL: MW2MATROX 0x100bcdd8

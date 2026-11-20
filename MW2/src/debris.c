@@ -328,6 +328,7 @@ void DamageChunk(MechS32 p_index, MechScalar p_damage)
 // FUNCTION: MW23DFX 0x100156f0
 // FUNCTION: MW2ATI 0x10015b00
 // FUNCTION: MW2S3 0x10024d60
+// FUNCTION: MW2POWERVR 0x10014a40
 void UpdateDebrisPiece(MechS32 p_index)
 {
 	MechScalar velocityY;
@@ -538,6 +539,7 @@ MechS32 FindDebrisPiece(SceneObject* p_obj)
 // FUNCTION: MW2MATROX 0x1002b194
 // FUNCTION: MW23DFX 0x10015ad0
 // FUNCTION: MW2ATI 0x10015ee0
+// FUNCTION: MW2POWERVR 0x10014e20
 void DamageChunksInRadius(MechScalar p_x, MechScalar p_y, MechScalar p_z, MechScalar p_radius, MechScalar p_damage)
 {
 	DebrisChunk* chunk;

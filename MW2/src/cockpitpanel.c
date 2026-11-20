@@ -14,6 +14,7 @@ DECOMP_SIZE_ASSERT(CockpitPanel, 0x88)
 // FUNCTION: MW23DFX 0x10023440
 // FUNCTION: MW2ATI 0x10023700
 // FUNCTION: MW2S3 0x10037870
+// FUNCTION: MW2POWERVR 0x10022940
 void InitCockpitPanel(CockpitPanel* p_panel)
 {
 	p_panel->m_self = p_panel;
@@ -47,6 +48,7 @@ void InitCockpitPanel(CockpitPanel* p_panel)
 // FUNCTION: MW2MATROX 0x1001c8d9
 // FUNCTION: MW23DFX 0x100234e0
 // FUNCTION: MW2ATI 0x100237a0
+// FUNCTION: MW2POWERVR 0x10022a00
 void ShutdownCockpitPanel(CockpitPanel* p_panel)
 {
 }

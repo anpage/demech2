@@ -64,10 +64,12 @@ MechU16 g_weaponValues[30] = {183, 137, 91,  46,  51,  34, 17,  74,  49, 25, 2, 
 // scales (the local player's by g_localArmorPerLevel, its side's by armorScale, the others' by
 // g_otherArmorPerLevel), the weapons and their ammunition bins, the heat sinks (scaled by the difficulty
 // and the temperature, g_temperature) and the jump jets. Returns TRUE.
+// Matches but for the registers, which VC++ 2.2 allocates differently.
 // FUNCTION: MW2 0x1005d6d0
 // FUNCTION: MW2MATROX 0x1008c850
 // FUNCTION: MW23DFX 0x10041410
 // FUNCTION: MW2ATI 0x1003efc0
+// FUNCTION: MW2POWERVR 0x10039d20
 MechS32 LoadMechConfig(Mech* p_mech, MechChar* p_name, MechS32 p_id, MechChar* p_config)
 {
 	MechScalar armorScale;

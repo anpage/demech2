@@ -49,7 +49,7 @@ MechChar g_combatVariablesTitle[] = "COMBAT VARIABLES";
 // GLOBAL: MW23DFX 0x10264ee0
 // GLOBAL: MW2ATI 0x101991d8
 // GLOBAL: MW2S3 0x10069fa0
-// GLOBAL: MW2POWERVR 0x101c4560
+// GLOBAL: MW2POWERVR 0x101c4550
 MechChar g_objectTextmapsItem[] = "Object textmaps";
 
 // GLOBAL: MW2 0x100b1478
@@ -57,7 +57,7 @@ MechChar g_objectTextmapsItem[] = "Object textmaps";
 // GLOBAL: MW23DFX 0x10264ef0
 // GLOBAL: MW2ATI 0x101991e8
 // GLOBAL: MW2S3 0x10069fb0
-// GLOBAL: MW2POWERVR 0x101c4588
+// GLOBAL: MW2POWERVR 0x101c4560
 MechChar g_terrainTextmapsItem[] = "Terrain textmaps";
 
 // GLOBAL: MW2 0x100b1490
@@ -65,7 +65,7 @@ MechChar g_terrainTextmapsItem[] = "Terrain textmaps";
 // GLOBAL: MW23DFX 0x10264f08
 // GLOBAL: MW2ATI 0x10199200
 // GLOBAL: MW2S3 0x10069fc8
-// GLOBAL: MW2POWERVR 0x101c4598
+// GLOBAL: MW2POWERVR 0x101c4578
 MechChar g_displayDetailItem[] = "Display detail";
 
 // GLOBAL: MW2 0x100b14a0
@@ -73,6 +73,7 @@ MechChar g_displayDetailItem[] = "Display detail";
 // GLOBAL: MW23DFX 0x10264f18
 // GLOBAL: MW2ATI 0x10199210
 // GLOBAL: MW2S3 0x10069fd8
+// GLOBAL: MW2POWERVR 0x101c4588
 MechChar g_objectDensityItem[] = "Object density";
 
 // GLOBAL: MW2 0x100b14b0
@@ -80,18 +81,22 @@ MechChar g_objectDensityItem[] = "Object density";
 // GLOBAL: MW23DFX 0x10264f28
 // GLOBAL: MW2ATI 0x10199220
 // GLOBAL: MW2S3 0x10069fe8
+// GLOBAL: MW2POWERVR 0x101c4598
 MechChar g_explosionChunksItem[] = "Explosion chunks";
 
 // GLOBAL: MW2 0x100b14c8
 // GLOBAL: MW2MATROX 0x100b11d0
+// GLOBAL: MW2POWERVR 0x101c45b0
 MechChar g_affineText[] = "Affine";
 
 // GLOBAL: MW2 0x100b14d0
 // GLOBAL: MW2MATROX 0x100b11d8
+// GLOBAL: MW2POWERVR 0x101c45b8
 MechChar g_perspectiveText[] = "Perspective";
 
 // GLOBAL: MW2 0x100b14e0
 // GLOBAL: MW2MATROX 0x100b11e8
+// GLOBAL: MW2POWERVR 0x101c45c8
 MenuChoices g_affinePerspectiveChoices = {NULL, 2, {g_affineText, g_perspectiveText}};
 
 // GLOBAL: MW2 0x100b1528
@@ -99,7 +104,7 @@ MenuChoices g_affinePerspectiveChoices = {NULL, 2, {g_affineText, g_perspectiveT
 // GLOBAL: MW23DFX 0x10264fa0
 // GLOBAL: MW2ATI 0x10199298
 // GLOBAL: MW2S3 0x1006a060
-// GLOBAL: MW2POWERVR 0x101c4638
+// GLOBAL: MW2POWERVR 0x101c4610
 MenuControl g_objectTextmapsControl =
 	{2, 0, &g_offOnChoices, 0, NULL, GetObjectTextmaps, NULL, SetObjectTextmaps, NULL};
 
@@ -108,7 +113,7 @@ MenuControl g_objectTextmapsControl =
 // GLOBAL: MW23DFX 0x10264fc8
 // GLOBAL: MW2ATI 0x101992c0
 // GLOBAL: MW2S3 0x1006a088
-// GLOBAL: MW2POWERVR 0x101c4688
+// GLOBAL: MW2POWERVR 0x101c4638
 MenuControl g_terrainTextmapsControl =
 	{2, 0, &g_offOnChoices, 0, NULL, GetTerrainTextmaps, NULL, SetTerrainTextmaps, NULL};
 
@@ -117,7 +122,7 @@ MenuControl g_terrainTextmapsControl =
 // GLOBAL: MW23DFX 0x10264ff0
 // GLOBAL: MW2ATI 0x101992e8
 // GLOBAL: MW2S3 0x1006a0b0
-// GLOBAL: MW2POWERVR 0x101c46b0
+// GLOBAL: MW2POWERVR 0x101c4660
 MenuControl g_displayDetailControl = {2, 0, &g_lowHighChoices, 0, NULL, GetDisplayDetail, NULL, SetDisplayDetail, NULL};
 
 // GLOBAL: MW2 0x100b15a0
@@ -125,6 +130,7 @@ MenuControl g_displayDetailControl = {2, 0, &g_lowHighChoices, 0, NULL, GetDispl
 // GLOBAL: MW23DFX 0x10265018
 // GLOBAL: MW2ATI 0x10199310
 // GLOBAL: MW2S3 0x1006a0d8
+// GLOBAL: MW2POWERVR 0x101c4688
 MenuControl g_objectDensityControl = {2, 0, &g_lowHighChoices, 0, NULL, GetObjectDensity, NULL, SetObjectDensity, NULL};
 
 // GLOBAL: MW2 0x100b15c8
@@ -132,15 +138,32 @@ MenuControl g_objectDensityControl = {2, 0, &g_lowHighChoices, 0, NULL, GetObjec
 // GLOBAL: MW23DFX 0x10265040
 // GLOBAL: MW2ATI 0x10199338
 // GLOBAL: MW2S3 0x1006a100
+// GLOBAL: MW2POWERVR 0x101c46b0
 MenuControl g_explosionChunksControl =
 	{2, 0, &g_offOnChoices, 0, NULL, GetExplosionChunks, NULL, SetExplosionChunks, NULL};
 
+// The PowerVR edition's page lists neither the object textmaps nor the display detail (its count
+// is still 6).
+#ifdef MW2_POWERVR
+// GLOBAL: MW2POWERVR 0x101c46d8
+MenuPage g_combatVariablesPage = {
+	0,
+	g_combatVariablesTitle,
+	0,
+	6,
+	0,
+	ApplyPerfSettings,
+	{{1, g_terrainTextmapsItem, RunMenuChoice, &g_terrainTextmapsControl, NULL},
+	 {1, g_objectDensityItem, RunMenuChoice, &g_objectDensityControl, NULL},
+	 {1, g_explosionChunksItem, RunMenuChoice, &g_explosionChunksControl, NULL},
+	 {2, g_acceptText, NULL, NULL, NULL}}
+};
+#else
 // GLOBAL: MW2 0x100b15f0
 // GLOBAL: MW2MATROX 0x100b12f8
 // GLOBAL: MW23DFX 0x10265068
 // GLOBAL: MW2ATI 0x10199360
 // GLOBAL: MW2S3 0x1006a128
-// GLOBAL: MW2POWERVR 0x101c46d8
 MenuPage g_combatVariablesPage = {
 	0,
 	g_combatVariablesTitle,
@@ -155,6 +178,7 @@ MenuPage g_combatVariablesPage = {
 	 {1, g_explosionChunksItem, RunMenuChoice, &g_explosionChunksControl, NULL},
 	 {2, g_acceptText, NULL, NULL, NULL}}
 };
+#endif
 
 // FUNCTION: MW2 0x10076af0
 // FUNCTION: MW2MATROX 0x10078cc0

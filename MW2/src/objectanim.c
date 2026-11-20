@@ -277,6 +277,7 @@ AnimFile g_animFiles[60];
 // FUNCTION: MW2MATROX 0x1006ece0
 // FUNCTION: MW23DFX 0x1000dec0
 // FUNCTION: MW2ATI 0x1000e5b0
+// FUNCTION: MW2POWERVR 0x1000d1e0
 MechS32 ReelMotionTask(MechS32 p_event, MechChar* p_data, MechS32 p_clock, MechS32 p_period)
 {
 	MechS32 next;
@@ -699,6 +700,7 @@ MechS32 ScaleBySpeedLevel(MechS32 p_mode, MechS32 p_value)
 // FUNCTION: MW2MATROX 0x1006f955
 // FUNCTION: MW23DFX 0x1000e630
 // FUNCTION: MW2ATI 0x1000ed20
+// FUNCTION: MW2POWERVR 0x1000d950
 MechS32 LoadAnimFile(ResourceRef* p_ref)
 {
 	MechS32 result;
@@ -1149,6 +1151,7 @@ MechS32 AmbientSoundTask(MechS32 p_event, MechChar* p_data, MechS32 p_clock, Mec
 // FUNCTION: MW2MATROX 0x100704f2
 // FUNCTION: MW23DFX 0x1000ee10
 // FUNCTION: MW2ATI 0x1000f4f0
+// FUNCTION: MW2POWERVR 0x1000e120
 MechS32 PathTask(MechS32 p_event, MechChar* p_data, MechS32 p_clock, MechS32 p_period)
 {
 	MechChar rotate[64];

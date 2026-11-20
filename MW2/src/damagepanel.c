@@ -184,6 +184,7 @@ Point g_armorBarSize;
 // FUNCTION: MW2MATROX 0x10059940
 // FUNCTION: MW23DFX 0x1001b230
 // FUNCTION: MW2ATI 0x1001b5c0
+// FUNCTION: MW2POWERVR 0x1001a4e0
 void InitDamagePanel(void)
 {
 	MechS32 color;

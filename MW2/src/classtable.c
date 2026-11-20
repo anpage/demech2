@@ -82,6 +82,7 @@ ClassEntry g_classTable[0x30c];
 // FUNCTION: MW2MATROX 0x1006d550
 // FUNCTION: MW23DFX 0x100260e0
 // FUNCTION: MW2ATI 0x10025e50
+// FUNCTION: MW2POWERVR 0x10025050
 MechS32 LoadBaseLevelShapes(Player* p_player)
 {
 	MechS32 i;
@@ -305,6 +306,7 @@ void ReleaseClassLevel(MechS32 p_owner, MechS32 p_level)
 // FUNCTION: MW2MATROX 0x1006dad9
 // FUNCTION: MW23DFX 0x10026430
 // FUNCTION: MW2ATI 0x10026160
+// FUNCTION: MW2POWERVR 0x10025360
 MechS32 LoadClassEntryShape(MechS32 p_index, MechS32 p_level, void* p_buffer)
 {
 	MechS32 kind;

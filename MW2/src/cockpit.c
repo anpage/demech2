@@ -61,13 +61,14 @@
 // GLOBAL: MW23DFX 0x10249898
 // GLOBAL: MW2ATI 0x1017d740
 // GLOBAL: MW2S3 0x100765a8
-// GLOBAL: MW2POWERVR 0x101a8710
+// GLOBAL: MW2POWERVR 0x101a873c
 MechS32 g_satelliteStaticState = 0;
 
 // The frame callback the satellite view replaces (SwitchCockpitView).
 // GLOBAL: MW2 0x100a5a1c
 // GLOBAL: MW2MATROX 0x100ae404
 // GLOBAL: MW23DFX 0x1024989c
+// GLOBAL: MW2POWERVR 0x101a8740
 void (*g_savedFrameDrawCallback)(void) = DrawScene;
 
 // The overlay settings the satellite view keeps while a cockpit view shows (SwitchCockpitView):
@@ -76,6 +77,7 @@ void (*g_savedFrameDrawCallback)(void) = DrawScene;
 // GLOBAL: MW2 0x100a5a20
 // GLOBAL: MW2MATROX 0x100ae408
 // GLOBAL: MW23DFX 0x102498a0
+// GLOBAL: MW2POWERVR 0x101a8744
 MechS32 g_savedShowCrosshair = 1;
 
 // GLOBAL: MW2 0x100a5a24
@@ -83,6 +85,7 @@ MechS32 g_savedShowCrosshair = 1;
 // GLOBAL: MW23DFX 0x102498a4
 // GLOBAL: MW2ATI 0x1017d74c
 // GLOBAL: MW2S3 0x100616d4
+// GLOBAL: MW2POWERVR 0x101a8748
 undefined4 g_savedShowHud = 1;
 
 // GLOBAL: MW2 0x100a5a28
@@ -90,12 +93,13 @@ undefined4 g_savedShowHud = 1;
 // GLOBAL: MW23DFX 0x102498a8
 // GLOBAL: MW2ATI 0x1017d750
 // GLOBAL: MW2S3 0x100616d8
-// GLOBAL: MW2POWERVR 0x101a8720
+// GLOBAL: MW2POWERVR 0x101a874c
 MechS32 g_savedShowTargetMarker = 1;
 
 // GLOBAL: MW2 0x100a5a2c
 // GLOBAL: MW2MATROX 0x100ae414
 // GLOBAL: MW23DFX 0x102498ac
+// GLOBAL: MW2POWERVR 0x101a8750
 MechS32 g_hudSettingsSaved = 0;
 
 // The height the map view's shading starts at (GetMapHeightShade).
@@ -492,6 +496,115 @@ void DrawCockpitView(void)
 	}
 }
 
+#ifdef MW2_POWERVR
+// The PowerVR edition's map: as the others' below, but its satellite view (4) leaves the terrain to
+// the renderer, installing none of the game's shape filter and hooks and wiping nothing, and draws
+// its 2D part apart (FUN_10003310), so the view returns right after drawing the scene, without
+// EndMapView. So does a map view while the previous cockpit view was the satellite view.
+// FUNCTION: MW2POWERVR 0x10003130
+void DrawMapView(void)
+{
+	MechS32 farPlane;
+	MechScalar heading;
+	MechScalar angle;
+	struct SceneObject* obj;
+	MechS32 zoom;
+	MechScalar pose[7];
+	PANE* viewport;
+	CockpitLayout* layout;
+	MechS32 range;
+	MechScalar z;
+	MechScalar y;
+	MechScalar x;
+	MechS32 slot;
+	Player* player;
+	MapViewFlags flags;
+
+	if (g_cockpitLayoutIndex == 0) {
+		return;
+	}
+
+	layout = g_cockpitLayouts[g_cockpitLayoutIndex];
+	if (!layout) {
+		return;
+	}
+
+	player = g_players[g_localPlayerId];
+	viewport = layout->m_viewport;
+	slot = layout->m_paneSlot;
+	g_panes[slot] = *viewport;
+	angle = player->m_mech->m_torsoTwist.m_value;
+	heading = player->m_heading;
+	pose[4] = FIXED_CONST(90);
+	pose[5] = 0;
+	switch (g_cockpitLayoutIndex) {
+	case 1:
+	case 2:
+		pose[3] = heading;
+		break;
+	case 4:
+		pose[3] = 0;
+		angle += heading;
+		break;
+	default:
+		pose[3] = 0;
+		angle = 0;
+		break;
+	}
+
+	if (!g_mapFollowsFreeEye) {
+		x = y = z = 0;
+		obj = player->m_eyeObj;
+		if (obj) {
+			GetObjPosition(obj, &x, &y, &z);
+		}
+
+		pose[0] = x;
+		pose[2] = z;
+	}
+	else {
+		pose[0] = g_eyepoint->m_x;
+		pose[2] = g_eyepoint->m_z;
+	}
+
+	range = layout->m_range;
+	pose[1] = range;
+	if (g_mapShadeBase < 0) {
+		farPlane = range - g_mapShadeBase;
+	}
+	else {
+		farPlane = range;
+	}
+
+	BeginMapView(pose, slot, range, farPlane);
+	if (g_cockpitLayoutIndex == 4) {
+		zoom = GetViewMode();
+		SetViewMode(c_viewSatellite);
+		ChoosePlayerDetailLevels();
+		SetViewMode(zoom);
+		flags.m_bits = 0;
+		DrawMapViewScene(flags);
+	}
+
+	if (g_cockpitLayoutIndex == 4 || g_previousCockpitView == 4) {
+		return;
+	}
+
+	if (g_cockpitLayoutIndex != 4 || !(player->m_flags & 0x16)) {
+		DrawMapFieldOfView(layout, angle);
+	}
+
+	DrawMapContents(layout);
+	EndMapView();
+	if (layout->m_gauges[0]) {
+		layout->m_gauges[0](viewport, layout->m_colors[12]);
+	}
+
+	if (g_mapViewMode == 4 && (g_cockpitLayoutIndex != 4 || g_satelliteStaticState <= 1)) {
+		DrawMapViewText(layout);
+	}
+}
+#else
 // Draws the current cockpit view's map: sets its pane up from the view, looking down on
 // the player's weapon object (or the free eyepoint) from the view's range. The satellite view (4)
 // draws the terrain with its own shape filter, face and polygon hooks, over a cleared view. Then
@@ -613,6 +726,34 @@ void DrawMapView(void)
 	FUN_10088280(viewport);
 #endif
 }
+#endif
+
+#ifdef MW2_POWERVR
+// The PowerVR edition's satellite view draws its 2D part apart, into the frame SGL hands over
+// (FUN_10007db0): the field of view, the map's contents and the readouts.
+// FUNCTION: MW2POWERVR 0x10003310
+void FUN_10003310(void)
+{
+	CockpitLayout* layout;
+	Player* player;
+	MechScalar angle;
+
+	layout = g_cockpitLayouts[g_cockpitLayoutIndex];
+	if (layout) {
+		player = g_players[g_localPlayerId];
+		angle = player->m_mech->m_torsoTwist.m_value + player->m_heading;
+		if (!(player->m_flags & 0x16)) {
+			DrawMapFieldOfView(layout, angle);
+		}
+
+		DrawMapContents(layout);
+		EndMapView();
+		if (g_mapViewMode == 4 && g_satelliteStaticState <= 1) {
+			DrawMapViewText(layout);
+		}
+	}
+}
+#endif
 
 // Draws the map view's contents: the nav points, the center icon and the other players and
 // things, and the target.
@@ -673,6 +814,7 @@ void DrawMapContents(CockpitLayout* p_layout)
 // FUNCTION: MW2MATROX 0x10074102
 // FUNCTION: MW23DFX 0x10003960
 // FUNCTION: MW2ATI 0x100035f0
+// FUNCTION: MW2POWERVR 0x100034b0
 void DrawMapUnits(CockpitLayout* p_layout)
 {
 	MechS32 i;
@@ -864,6 +1006,7 @@ void DrawMapTarget(CockpitLayout* p_layout)
 // FUNCTION: MW2MATROX 0x1007465e
 // FUNCTION: MW23DFX 0x10003c10
 // FUNCTION: MW2ATI 0x100038a0
+// FUNCTION: MW2POWERVR 0x10003760
 void DrawMapNavPoints(CockpitLayout* p_layout)
 {
 #ifdef MW2_FLOAT_SCALARS
@@ -1590,6 +1733,7 @@ void PowerUpMapView(void)
 // FUNCTION: MW2MATROX 0x10075509
 // FUNCTION: MW23DFX 0x100045f0
 // FUNCTION: MW2ATI 0x10004280
+// FUNCTION: MW2POWERVR 0x10003d50
 void DrawSatelliteStatic(void)
 {
 	RectTransition* transition;
@@ -1640,6 +1784,7 @@ void DrawSatelliteStatic(void)
 // FUNCTION: MW23DFX 0x10004710
 // FUNCTION: MW2ATI 0x100043a0
 // FUNCTION: MW2S3 0x1000a370
+// FUNCTION: MW2POWERVR 0x10003e70
 void DrawDamagedMapView(void)
 {
 	MechS32 threshold;

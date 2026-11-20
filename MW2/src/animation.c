@@ -32,12 +32,18 @@
 // Animated textures: up to 0x200 animations, each playing one of 0x200 sets of up to 0x20 CEL
 // frames. The frames load on first use; each animation advances with the clock.
 
-#ifdef MW2_A3D
+#if defined(MW2_POWERVR)
+DECOMP_SIZE_ASSERT(AnimFrame, 0x20)
+#elif defined(MW2_A3D)
 DECOMP_SIZE_ASSERT(AnimFrame, 0x14)
 #else
 DECOMP_SIZE_ASSERT(AnimFrame, 0x08)
 #endif
+#ifdef MW2_POWERVR
+DECOMP_SIZE_ASSERT(Animation, 0x16)
+#else
 DECOMP_SIZE_ASSERT(Animation, 0x0e)
+#endif
 
 // GLOBAL: MW2 0x100ad288
 // GLOBAL: MW2MATROX 0x100aa1b8

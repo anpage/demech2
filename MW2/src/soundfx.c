@@ -692,6 +692,7 @@ MechS32 RandomSampleRate(void)
 // FUNCTION: MW2MATROX 0x10087358
 // FUNCTION: MW23DFX 0x10032c70
 // FUNCTION: MW2ATI 0x10031a70
+// FUNCTION: MW2POWERVR 0x1002c4f0
 void StopSamples(MechS32 p_all)
 {
 	MechS32 i;
@@ -717,6 +718,7 @@ void StopSamples(MechS32 p_all)
 // FUNCTION: MW23DFX 0x10032cc0
 // FUNCTION: MW2ATI 0x10031ac0
 // FUNCTION: MW2S3 0x100360b0
+// FUNCTION: MW2POWERVR 0x1002c540
 void UpdateAmbientSound(AmbientSound* p_sound)
 {
 	HSAMPLE sample;

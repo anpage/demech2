@@ -499,6 +499,7 @@ MechS32 TestSceneryCollision(Ray* p_ray, Shape** p_hit)
 // FUNCTION: MW2MATROX 0x100241af
 // FUNCTION: MW23DFX 0x10010650
 // FUNCTION: MW2ATI 0x10010bb0
+// FUNCTION: MW2POWERVR 0x1000fa40
 MechS32 TestShapeRay(Shape* p_shape, Ray* p_ray, MechScalar p_distance)
 {
 	MechS32 (*testRay)(Shape*, Ray*);

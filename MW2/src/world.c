@@ -1464,6 +1464,7 @@ MechS32 LoadWorld(MechChar* p_name)
 // FUNCTION: MW2MATROX 0x10048e04
 // FUNCTION: MW23DFX 0x1003f6f0
 // FUNCTION: MW2ATI 0x1003d450
+// FUNCTION: MW2POWERVR 0x100382b0
 void AfterWorldLoader(void)
 {
 	SceneObject* obj;

@@ -387,6 +387,7 @@ MechS32 TargetNavPoint(MechU32 p_player, MechS32 p_nav, MechU32 p_flags)
 // FUNCTION: MW2MATROX 0x10006d1a
 // FUNCTION: MW23DFX 0x1001d050
 // FUNCTION: MW2ATI 0x1001d380
+// FUNCTION: MW2POWERVR 0x1001c170
 MechS32 TargetGamePiece(MechS32 p_player, MechS32 p_index, MechU32 p_flags)
 {
 	MechS32 breakpoint;
@@ -579,6 +580,7 @@ MechS32 TargetGameThing(MechS32 p_player, MechS32 p_index, MechU32 p_flags)
 // FUNCTION: MW23DFX 0x1001d510
 // FUNCTION: MW2ATI 0x1001d840
 // FUNCTION: MW2S3 0x10038470
+// FUNCTION: MW2POWERVR 0x1001c630
 MechS32 UpdateTarget(Player* p_player)
 {
 	MechS32 isLocal;

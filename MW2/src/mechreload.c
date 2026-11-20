@@ -192,6 +192,7 @@ void RememberMechSegments(Mech* p_mech)
 // FUNCTION: MW23DFX 0x10023a20
 // FUNCTION: MW2ATI 0x10023ce0
 // FUNCTION: MW2S3 0x10003080
+// FUNCTION: MW2POWERVR 0x10022f40
 SceneObject* RestoreMechSegments(MechSegment* p_segment)
 {
 	SceneObject* obj;

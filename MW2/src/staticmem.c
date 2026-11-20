@@ -212,6 +212,7 @@ int __cdecl CompareStaticPools(const void* p_a, const void* p_b)
 // FUNCTION: MW2MATROX 0x1007938c
 // FUNCTION: MW23DFX 0x10023ec0
 // FUNCTION: MW2ATI 0x10024130
+// FUNCTION: MW2POWERVR 0x100233b0
 void ResetStaticPools(void)
 {
 }
