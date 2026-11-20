@@ -173,7 +173,6 @@
 0x10062610 RunMenuTextBox menucontrols.c pad 8
 0x10062b20 FreeMenus menu.c pad 6
 0x10062da0 LoadMenuResources menu.c pad 24
-0x10063e20 FUN_10063e20 a3d.c pad 4
-0x10063eb0 FUN_10063eb0 a3d.c pad 9
-0x10064200 FUN_10064200 a3d.c pad 1
-0x10064720 FUN_10064720 a3d.c pad 1
+0x10063db0 FUN_10063db0 a3d.c pad 3
+0x10063e20 FUN_10063e20 a3d.c pad 13
+0x10063eb0 FUN_10063eb0 a3d.c pad 10

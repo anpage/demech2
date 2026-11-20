@@ -264,13 +264,12 @@ MW2ATI 0x100621d0 RunMenuStatus d04d281f6ec3 undiagnosed
 MW2ATI 0x10062400 RunMenuChoice af14dafc1dea undiagnosed
 MW2ATI 0x10062f70 FirstMenu 1f33c3c40a58 undiagnosed
 MW2ATI 0x10063d50 A3D_SetPalette 081991f82cb6 undiagnosed
-MW2ATI 0x100640e0 FUN_100640e0 c27c7fda8adf undiagnosed
+MW2ATI 0x100640e0 FUN_100640e0 ca9a972509dc undiagnosed
 MW2ATI 0x10064340 FUN_10064340 762e82b6dee5 undiagnosed
-MW2ATI 0x100643b0 FUN_100643b0 3252bf23a3e1 undiagnosed
-MW2ATI 0x10064570 A3D_TEXTURE_fill da0f59270bed undiagnosed
+MW2ATI 0x100643b0 FUN_100643b0 8eda4bd52ee6 undiagnosed
 MW2ATI 0x10064650 FUN_10064650 afbae6d79a6d undiagnosed
 MW2ATI 0x10064780 FUN_10064780 5008cee1012d undiagnosed
 MW2ATI 0x10064930 A3D_DrawPolygon addc6ef2b89c undiagnosed
-MW2ATI 0x100649e0 A3D_map_polygon 429c738f6894 undiagnosed
-MW2ATI 0x10064b60 A3D_polygon_clip_XY_and_render d26b3d67f972 undiagnosed
+MW2ATI 0x100649e0 A3D_map_polygon 1b5bd7f24daf undiagnosed
+MW2ATI 0x10064b60 A3D_polygon_clip_XY_and_render 24af69c0bfaf undiagnosed
 MW2ATI 0x10064eb0 A3D_EdgeCrossing b0b413bbd7ae undiagnosed

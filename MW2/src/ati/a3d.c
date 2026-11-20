@@ -48,7 +48,7 @@ DECOMP_SIZE_ASSERT(A3DCachedTexture, 0xc4)
 
 // The CIF's context.
 // GLOBAL: MW2ATI 0x101999e8
-C3D_HRC g_a3dContext = 0;
+C3D_HRC g_a3dContext = NULL;
 
 // The CIF is rendering (ATI3DCIF_RenderBegin).
 // GLOBAL: MW2ATI 0x101999ec
@@ -64,28 +64,28 @@ MechS32 g_a3dInitialized = FALSE;
 
 // The context's states, as last set.
 // GLOBAL: MW2ATI 0x101999f8
-MechU32 g_a3dPrimType = C3D_EPRIM_LINE;
+C3D_EPRIM g_a3dPrimType = C3D_EPRIM_LINE;
 
 // GLOBAL: MW2ATI 0x101999fc
-MechU32 g_a3dShadeMode = C3D_ESH_FLAT;
+C3D_ESHADE g_a3dShadeMode = C3D_ESH_FLAT;
 
 // GLOBAL: MW2ATI 0x10199a00
-MechU32 g_a3dPerspective = C3D_ETPC_NONE;
+C3D_ETPERSPCOR g_a3dPerspective = C3D_ETPC_NONE;
 
 // GLOBAL: MW2ATI 0x10199a04
-MechU32 g_a3dLight = C3D_ETL_NONE;
+C3D_ETLIGHT g_a3dLight = C3D_ETL_NONE;
 
 // GLOBAL: MW2ATI 0x10199a08
-MechU32 g_a3dFilter = C3D_ETFILT_MIPLIN_MAG2BY2;
+C3D_ETEXFILTER g_a3dFilter = C3D_ETFILT_MIPLIN_MAG2BY2;
 
 // GLOBAL: MW2ATI 0x10199a0c
-MechU32 g_a3dTexOp = C3D_ETEXOP_ALPHA_MASK;
+C3D_ETEXOP g_a3dTexOp = C3D_ETEXOP_ALPHA_MASK;
 
 // GLOBAL: MW2ATI 0x10199a10
-C3D_HTX g_a3dTexture = 0;
+C3D_HTX g_a3dTexture = NULL;
 
 // GLOBAL: MW2ATI 0x10199a14
-MechU32 g_a3dTextureEnable = FALSE;
+C3D_BOOL g_a3dTextureEnable = FALSE;
 
 // Statistics: the textures found cached, the textures copied, and the bytes copied.
 // GLOBAL: MW2ATI 0x10199a18
@@ -117,7 +117,7 @@ MechU32 g_a3dPaletteClock = 0;
 
 // The textures' chroma key.
 // GLOBAL: MW2ATI 0x10199a38
-C3D_COLOR g_a3dChromaKey = {0xff, 0xff, 0xff, 0};
+C3D_COLOR g_a3dChromaKey = {{0xff, 0xff, 0xff, 0}};
 
 // The sizes, by their log, from which no surface can be created.
 // GLOBAL: MW2ATI 0x10199a3c
@@ -164,9 +164,9 @@ void FUN_10064710(void);
 MechS32 A3D_Init(void)
 {
 	C3D_EC result;
-	MechU32 vertexType;
-	MechU32 alphaSource;
-	MechU32 alphaDestination;
+	C3D_EVERTEX vertexType;
+	C3D_EASRC alphaSource;
+	C3D_EADST alphaDestination;
 
 	alphaDestination = C3D_EADST_ZERO;
 	alphaSource = C3D_EASRC_ONE;
@@ -186,7 +186,7 @@ MechS32 A3D_Init(void)
 	g_a3dInitialized = TRUE;
 	ATI3DCIF_ContextSetState(g_a3dContext, C3D_ERS_ALPHA_DST, &alphaDestination);
 	ATI3DCIF_ContextSetState(g_a3dContext, C3D_ERS_ALPHA_SRC, &alphaSource);
-	ATI3DCIF_ContextSetState(g_a3dContext, C3D_ERS_VERTEX, &vertexType);
+	ATI3DCIF_ContextSetState(g_a3dContext, C3D_ERS_VERTEX_TYPE, &vertexType);
 	if (g_a3dPrimType != C3D_EPRIM_TRI) {
 		g_a3dPrimType = C3D_EPRIM_TRI;
 		ATI3DCIF_ContextSetState(g_a3dContext, C3D_ERS_PRIM_TYPE, &g_a3dPrimType);
@@ -217,8 +217,8 @@ MechS32 A3D_Init(void)
 // FUNCTION: MW2ATI 0x10063c40
 MechS32 FUN_10063c40(void)
 {
-	MechU32 pixelFormat;
-	MechU32 pitch;
+	C3D_EPIXFMT pixelFormat;
+	C3D_UINT32 pitch;
 
 	pixelFormat = C3D_EPF_RGB1555;
 	if (!g_a3dInitialized && !A3D_Init()) {
@@ -530,7 +530,7 @@ MechS32 FUN_100641a0(A3DCachedTexture* p_texture)
 	C3D_EC result;
 
 	if (g_a3dTexture) {
-		g_a3dTexture = 0;
+		g_a3dTexture = NULL;
 		ATI3DCIF_ContextSetState(g_a3dContext, C3D_ERS_TMAP_SELECT, &g_a3dTexture);
 	}
 
@@ -690,7 +690,7 @@ void A3D_TEXTURE_fill(
 	MechU32 p_log
 )
 {
-	MechU16* out;
+	MechU16* texels;
 	MechU16* level;
 	MechU16* next;
 
@@ -701,11 +701,11 @@ void A3D_TEXTURE_fill(
 	}
 
 	p_texture->m_pixels = p_pixels;
-	out = (MechU16*) p_texture->m_desc.lpSurface;
-	// The original copies the texels with an __asm block, leaving out after them.
+	texels = (MechU16*) p_texture->m_desc.lpSurface;
+	// The original copies the texels with an __asm block, which leaves texels pointing past them.
 #ifdef PORTABLE_C
-	memcpy(out, p_pixels, ((MechU32) (p_width * p_height) >> 1) * sizeof(MechU32));
-	out += ((MechU32) (p_width * p_height) >> 1) * 2;
+	memcpy(texels, p_pixels, ((MechU32) (p_width * p_height) >> 1) * sizeof(MechU32));
+	texels += ((MechU32) (p_width * p_height) >> 1) * 2;
 #else
 	__asm {
 		mov eax, p_width
@@ -713,18 +713,18 @@ void A3D_TEXTURE_fill(
 		imul ecx
 		mov esi, p_pixels
 		mov ecx, eax
-		mov edi, out
+		mov edi, texels
 		shr ecx, 1
 		rep movsd
-		mov out, edi
+		mov texels, edi
 	}
 #endif
 	if (p_mip) {
 		level = (MechU16*) p_texture->m_desc.lpSurface;
 		while (p_log) {
 			p_log--;
-			next = out;
-			out = FUN_100643b0(level, out, p_log);
+			next = texels;
+			texels = FUN_100643b0(level, texels, p_log);
 			level = next;
 		}
 	}
@@ -862,7 +862,7 @@ C3D_HTX FUN_10064780(MechU16* p_pixels, MechU32 p_width, MechU32 p_height, MechS
 		}
 
 		if (!texture && (texture = FUN_10064650(log, p_mip)) == NULL) {
-			return 0;
+			return NULL;
 		}
 
 		A3D_TEXTURE_fill(texture, p_pixels, p_width, p_height, p_mip, log);
@@ -873,7 +873,7 @@ C3D_HTX FUN_10064780(MechU16* p_pixels, MechU32 p_width, MechU32 p_height, MechS
 			A3D_TEXTURE_fill(texture, p_pixels, p_width, p_height, p_mip, log);
 			FUN_100641a0(texture);
 			if (!FUN_100640e0(texture, log, p_mip)) {
-				return 0;
+				return NULL;
 			}
 		}
 	}
@@ -883,7 +883,7 @@ C3D_HTX FUN_10064780(MechU16* p_pixels, MechU32 p_width, MechU32 p_height, MechS
 		return texture->m_handle;
 	}
 
-	return 0;
+	return NULL;
 }
 
 // FUNCTION: MW2ATI 0x100648a0
@@ -1094,9 +1094,9 @@ void A3D_DrawOutline(PANE* p_pane, A3DVertex* p_vertices, MechU32 p_count)
 {
 	C3D_COLOR color;
 
-	color.r = (C3D_UINT32) p_vertices->m_red;
-	color.g = (C3D_UINT32) p_vertices->m_green;
-	color.b = (C3D_UINT32) p_vertices->m_blue;
+	color.r = (unsigned) p_vertices->m_red;
+	color.g = (unsigned) p_vertices->m_green;
+	color.b = (unsigned) p_vertices->m_blue;
 	if (!FUN_10063db0(p_count)) {
 		return;
 	}
