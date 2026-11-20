@@ -19,7 +19,7 @@ built. The S3 and PowerVR editions (optimized builds with `__fastcall` and no fr
 | C runtime | `LIBCMTD` (`/MTd`) | `LIBC` (`/ML`) | `LIBCMT` (`/MT`) | `LIBC` (`/ML`) |
 | Draws through | DirectDraw and VFX | ATI's 3D CIF (`ati3dcif.dll`), on DirectDraw | Matrox's `MSI95.DLL` | Glide 1.x (`GLIDE.DLL`), with 3dfx's Texus linked in |
 | Identity macros | none | `MW2_ACCEL`, `MW2_ATI` | `MW2_ACCEL`, `MW2_MATROX` | `MW2_ACCEL`, `MW2_3DFX` |
-| Game-code functions | 1537 | 1430 | 1597 | 1574 |
+| Game-code functions | 1537 | 1426 | 1597 | 1574 |
 
 ## How the source tells them apart
 
