@@ -8,7 +8,7 @@
 #endif
 #include "projectedvertex.h"
 #include "types.h"
-#ifdef MW2_ATI
+#if defined(MW2_ATI) || defined(MW2_S3) || defined(MW2_POWERVR)
 #include "accel/a3dvertex.h"
 #include "pane.h"
 #endif
@@ -41,7 +41,7 @@ MechS32 DrawBand(MechU32 p_color, MechS32 p_count, MechS32* p_points, MechS32 p_
 #ifndef MW2_A3D
 	MechS32 DrawBandWithFlash(undefined4 p_unk0x00, MechS32 p_unk0x04, undefined4* p_unk0x08);
 #endif
-#ifdef MW2_ATI
+#if defined(MW2_ATI) || defined(MW2_S3) || defined(MW2_POWERVR)
 	void FUN_1002a480(
 		PANE* p_pane,
 		MechU16* p_pixels,

@@ -270,12 +270,14 @@ typedef struct BwdAnim2dRecord {
 // GLOBAL: MW2 0x100a173c
 // GLOBAL: MW2MATROX 0x100a85c8
 // GLOBAL: MW23DFX 0x10259c74
+// GLOBAL: MW2S3 0x100770a0
 MechS32 g_loadHudFile = 0;
 
 // The next g_shots slot a booyowthing record fills.
 // GLOBAL: MW2 0x100a1740
 // GLOBAL: MW2MATROX 0x100a85cc
 // GLOBAL: MW23DFX 0x10259c78
+// GLOBAL: MW2S3 0x100770a4
 MechS32 g_nextShotRecord = 0;
 
 // The next g_effects slot an xplode record fills.
@@ -283,12 +285,15 @@ MechS32 g_nextShotRecord = 0;
 // GLOBAL: MW2MATROX 0x100a85d0
 // GLOBAL: MW23DFX 0x10259c7c
 // GLOBAL: MW2ATI 0x1018df7c
+// GLOBAL: MW2S3 0x100770a8
+// GLOBAL: MW2POWERVR 0x101b9244
 MechS32 g_nextEffectRecord = 0;
 
 // The name of the mission's music (the world stream's music record).
 // GLOBAL: MW2 0x100e9330
 // GLOBAL: MW2MATROX 0x10125870
 // GLOBAL: MW23DFX 0x102441b0
+// GLOBAL: MW2S3 0x100abf60
 MechChar g_musicName[12];
 
 // The mission's "MUS" resource.
@@ -296,6 +301,8 @@ MechChar g_musicName[12];
 // GLOBAL: MW2MATROX 0x1012587c
 // GLOBAL: MW23DFX 0x102441bc
 // GLOBAL: MW2ATI 0x10177e7c
+// GLOBAL: MW2S3 0x100abf70
+// GLOBAL: MW2POWERVR 0x101a2b3c
 MechS32 g_musicResource;
 
 // Widens p_flags: any of the bits 0x730 sets them all, as does either of the bits 3.
@@ -303,6 +310,8 @@ MechS32 g_musicResource;
 // FUNCTION: MW2MATROX 0x100461c0
 // FUNCTION: MW23DFX 0x1003ddf0
 // FUNCTION: MW2ATI 0x1003bb50
+// FUNCTION: MW2S3 0x100457c0
+// FUNCTION: MW2POWERVR 0x100369b0
 MechU32 WidenEventFlags(MechU32 p_flags)
 {
 	if (p_flags & 0x730) {
@@ -334,6 +343,7 @@ typedef union BwdTargetId {
 // FUNCTION: MW2MATROX 0x100461f5
 // FUNCTION: MW23DFX 0x1003de10
 // FUNCTION: MW2ATI 0x1003bb70
+// FUNCTION: MW2S3 0x100457e0
 MechS32 BwdExecuteStream(BwdStream* p_stream)
 {
 	MechS32 result;
@@ -1402,6 +1412,8 @@ MechS32 BwdExecuteStream(BwdStream* p_stream)
 // FUNCTION: MW2MATROX 0x10048c6d
 // FUNCTION: MW23DFX 0x1003f5e0
 // FUNCTION: MW2ATI 0x1003d340
+// FUNCTION: MW2S3 0x10046fc0
+// FUNCTION: MW2POWERVR 0x100381a0
 MechS32 LoadWorld(MechChar* p_name)
 {
 	BwdStream* stream;
@@ -1456,6 +1468,8 @@ MechS32 LoadWorld(MechChar* p_name)
 // FUNCTION: MW2MATROX 0x10048e04
 // FUNCTION: MW23DFX 0x1003f6f0
 // FUNCTION: MW2ATI 0x1003d450
+// FUNCTION: MW2S3 0x100470d0
+// FUNCTION: MW2POWERVR 0x100382b0
 void AfterWorldLoader(void)
 {
 	SceneObject* obj;

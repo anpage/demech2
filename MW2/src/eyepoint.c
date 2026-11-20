@@ -36,6 +36,8 @@
 // GLOBAL: MW2 0x100a23ec
 // GLOBAL: MW2MATROX 0x100a362c
 // GLOBAL: MW23DFX 0x1024e644
+// GLOBAL: MW2S3 0x100765a8
+// GLOBAL: MW2POWERVR 0x101ad9bc
 MechScalar g_trackDistance = 0;
 
 // The track view's distance limits, height and turn around the mech (UpdateTrackView).
@@ -43,33 +45,41 @@ MechScalar g_trackDistance = 0;
 // GLOBAL: MW2 0x100a23f0
 // GLOBAL: MW2MATROX 0x100a3630
 // GLOBAL: MW23DFX 0x1024e648
+// GLOBAL: MW2S3 0x100765ac
 MechScalar g_trackMinDistance = 0;
 
 // GLOBAL: MW2 0x100a23f4
 // GLOBAL: MW2MATROX 0x100a3634
 // GLOBAL: MW23DFX 0x1024e64c
+// GLOBAL: MW2S3 0x100765b0
 MechScalar g_trackMaxDistance = 0;
 
 // GLOBAL: MW2 0x100a23f8
 // GLOBAL: MW2MATROX 0x100a3638
 // GLOBAL: MW23DFX 0x1024e650
+// GLOBAL: MW2S3 0x100765b4
 MechScalar g_trackHeight = 0;
 
 // GLOBAL: MW2 0x100a23fc
 // GLOBAL: MW2MATROX 0x100a363c
 // GLOBAL: MW23DFX 0x1024e654
+// GLOBAL: MW2S3 0x100765b8
 MechScalar g_trackTurn = FIXED_LITERAL(0xb40000, 180.0f);
 
 // GLOBAL: MW2 0x100a2400
 // GLOBAL: MW2MATROX 0x100a3640
 // GLOBAL: MW23DFX 0x1024e658
 // GLOBAL: MW2ATI 0x10182968
+// GLOBAL: MW2S3 0x100765bc
+// GLOBAL: MW2POWERVR 0x101ad9d0
 MechScalar g_normalFov = FIXED_CONST(1);
 
 // GLOBAL: MW2 0x100a2404
 // GLOBAL: MW2MATROX 0x100a3644
 // GLOBAL: MW23DFX 0x1024e65c
 // GLOBAL: MW2ATI 0x1018296c
+// GLOBAL: MW2S3 0x100765c0
+// GLOBAL: MW2POWERVR 0x101ad9d4
 MechScalar g_zoomFov = FIXED_CONST(1);
 
 // The view mode the camera was updated in last (c_view...), or -1.
@@ -77,6 +87,8 @@ MechScalar g_zoomFov = FIXED_CONST(1);
 // GLOBAL: MW2MATROX 0x100a3648
 // GLOBAL: MW23DFX 0x1024e660
 // GLOBAL: MW2ATI 0x10182970
+// GLOBAL: MW2S3 0x100765c4
+// GLOBAL: MW2POWERVR 0x101ad9d8
 MechS32 g_viewMode = -1;
 
 // The view mode to return to from the ordinance view.
@@ -84,6 +96,8 @@ MechS32 g_viewMode = -1;
 // GLOBAL: MW2MATROX 0x100a364c
 // GLOBAL: MW23DFX 0x1024e664
 // GLOBAL: MW2ATI 0x10182974
+// GLOBAL: MW2S3 0x100765c8
+// GLOBAL: MW2POWERVR 0x101ad9dc
 MechS32 g_ordinanceReturnMode = -1;
 
 // The view mode FirstEyepoint starts the camera in.
@@ -91,6 +105,8 @@ MechS32 g_ordinanceReturnMode = -1;
 // GLOBAL: MW2MATROX 0x100a3650
 // GLOBAL: MW23DFX 0x1024e668
 // GLOBAL: MW2ATI 0x10182978
+// GLOBAL: MW2S3 0x100765cc
+// GLOBAL: MW2POWERVR 0x101ad9e0
 MechS32 g_initialViewMode = 0;
 
 // The view mode SetViewMode asked for; UpdateEyepoint switches to it.
@@ -98,6 +114,8 @@ MechS32 g_initialViewMode = 0;
 // GLOBAL: MW2MATROX 0x100a3654
 // GLOBAL: MW23DFX 0x1024e66c
 // GLOBAL: MW2ATI 0x1018297c
+// GLOBAL: MW2S3 0x100765d0
+// GLOBAL: MW2POWERVR 0x101ad9e4
 MechS32 g_requestedViewMode = 0;
 
 // Set when a mech starts under the autopilot (mechclass.c); nothing reads it.
@@ -105,6 +123,8 @@ MechS32 g_requestedViewMode = 0;
 // GLOBAL: MW2MATROX 0x100a3658
 // GLOBAL: MW23DFX 0x1024e670
 // GLOBAL: MW2ATI 0x10182980
+// GLOBAL: MW2S3 0x100765d4
+// GLOBAL: MW2POWERVR 0x101ad9e8
 MechS32 g_autopilotStart = 1;
 
 // Set while the cockpit view is placed at the eye (GetCockpitEyeView), not shaking: the HUD
@@ -113,6 +133,8 @@ MechS32 g_autopilotStart = 1;
 // GLOBAL: MW2MATROX 0x100a365c
 // GLOBAL: MW23DFX 0x1024e674
 // GLOBAL: MW2ATI 0x10182984
+// GLOBAL: MW2S3 0x100765d8
+// GLOBAL: MW2POWERVR 0x101ad9ec
 MechS32 g_cockpitEyeSteady = 0;
 
 // Set while the camera is in the cockpit view: the cockpit's own shape (g_cockpitObject) is drawn
@@ -121,6 +143,8 @@ MechS32 g_cockpitEyeSteady = 0;
 // GLOBAL: MW2MATROX 0x100a3660
 // GLOBAL: MW23DFX 0x1024e678
 // GLOBAL: MW2ATI 0x10182988
+// GLOBAL: MW2S3 0x100765dc
+// GLOBAL: MW2POWERVR 0x101ad9f0
 undefined4 g_inCockpitView = 0;
 
 // The view mode SetViewMode forces once the local mech is lost (g_localMechLost): the track view.
@@ -128,6 +152,8 @@ undefined4 g_inCockpitView = 0;
 // GLOBAL: MW2MATROX 0x100a3664
 // GLOBAL: MW23DFX 0x1024e67c
 // GLOBAL: MW2ATI 0x1018298c
+// GLOBAL: MW2S3 0x100765e0
+// GLOBAL: MW2POWERVR 0x101ad9f4
 MechS32 g_lostViewMode = -1;
 
 // Set while a network game's lost player advances the viewpoint between players; until then the
@@ -136,12 +162,16 @@ MechS32 g_lostViewMode = -1;
 // GLOBAL: MW2MATROX 0x100a3668
 // GLOBAL: MW23DFX 0x1024e680
 // GLOBAL: MW2ATI 0x10182990
+// GLOBAL: MW2S3 0x100765e4
+// GLOBAL: MW2POWERVR 0x101ad9f8
 MechS32 g_spectating = 0;
 
 // GLOBAL: MW2 0x100a242c
 // GLOBAL: MW2MATROX 0x100a366c
 // GLOBAL: MW23DFX 0x1024e684
 // GLOBAL: MW2ATI 0x10182994
+// GLOBAL: MW2S3 0x100765e8
+// GLOBAL: MW2POWERVR 0x101ad9fc
 struct Player* g_localPlayer = NULL;
 
 // The player the camera tracks.
@@ -149,6 +179,8 @@ struct Player* g_localPlayer = NULL;
 // GLOBAL: MW2MATROX 0x100a3670
 // GLOBAL: MW23DFX 0x1024e688
 // GLOBAL: MW2ATI 0x10182998
+// GLOBAL: MW2S3 0x100765ec
+// GLOBAL: MW2POWERVR 0x101ada00
 MechS32 g_trackedPlayer = 0;
 
 // The local mech's cockpit height and torso twist (InitCockpitPanels): the first raises the eye
@@ -157,12 +189,15 @@ MechS32 g_trackedPlayer = 0;
 // GLOBAL: MW2MATROX 0x100a3674
 // GLOBAL: MW23DFX 0x1024e68c
 // GLOBAL: MW2ATI 0x1018299c
+// GLOBAL: MW2S3 0x100765f0
+// GLOBAL: MW2POWERVR 0x101ada04
 MechScalar* g_eyeHeightOffset = NULL;
 
 // GLOBAL: MW2 0x100a2438
 // GLOBAL: MW2MATROX 0x100a3678
 // GLOBAL: MW23DFX 0x1024e690
 // GLOBAL: MW2ATI 0x101829a0
+// GLOBAL: MW2S3 0x100765f4
 MechS32* g_eyeTwist = NULL;
 
 // The drop camera (UpdateDropView): its vertical speed, acceleration and start clock.
@@ -170,18 +205,24 @@ MechS32* g_eyeTwist = NULL;
 // GLOBAL: MW2MATROX 0x100a367c
 // GLOBAL: MW23DFX 0x1024e694
 // GLOBAL: MW2ATI 0x101829a4
+// GLOBAL: MW2S3 0x100765f8
+// GLOBAL: MW2POWERVR 0x101ada0c
 MechScalar g_dropSpeed = 0;
 
 // GLOBAL: MW2 0x100a2440
 // GLOBAL: MW2MATROX 0x100a3680
 // GLOBAL: MW23DFX 0x1024e698
 // GLOBAL: MW2ATI 0x101829a8
+// GLOBAL: MW2S3 0x100765fc
+// GLOBAL: MW2POWERVR 0x101ada10
 MechScalar g_dropAcceleration = FIXED_LITERAL(0x3ca0, 0.2368f);
 
 // GLOBAL: MW2 0x100a2444
 // GLOBAL: MW2MATROX 0x100a3684
 // GLOBAL: MW23DFX 0x1024e69c
 // GLOBAL: MW2ATI 0x101829ac
+// GLOBAL: MW2S3 0x10076600
+// GLOBAL: MW2POWERVR 0x101ada14
 MechS32 g_dropStartClock = 0;
 
 // Set while no glance key is held (UpdateCockpitView).
@@ -189,6 +230,8 @@ MechS32 g_dropStartClock = 0;
 // GLOBAL: MW2MATROX 0x100a3688
 // GLOBAL: MW23DFX 0x1024e6a0
 // GLOBAL: MW2ATI 0x101829b0
+// GLOBAL: MW2S3 0x10076604
+// GLOBAL: MW2POWERVR 0x101ada18
 MechS8 g_glanceReleased = 0;
 
 // The view UpdateOrdinanceView saves when it enters the ordinance view.
@@ -196,12 +239,15 @@ MechS8 g_glanceReleased = 0;
 // GLOBAL: MW2MATROX 0x10218350
 // GLOBAL: MW23DFX 0x1015f040
 // GLOBAL: MW2ATI 0x10093030
+// GLOBAL: MW2S3 0x10084380
+// GLOBAL: MW2POWERVR 0x10089570
 MechScalar g_ordinanceSavedView[7];
 
 // The track view's height limits (UpdateTrackView).
 // GLOBAL: MW2 0x10176f2c
 // GLOBAL: MW2MATROX 0x102182e0
 // GLOBAL: MW23DFX 0x1015efd0
+// GLOBAL: MW2S3 0x1008439c
 MechScalar g_trackMaxHeight;
 
 // The track view's eased offsets from the mech and its eased heading and pitch.
@@ -209,23 +255,30 @@ MechScalar g_trackMaxHeight;
 // GLOBAL: MW2MATROX 0x10218310
 // GLOBAL: MW23DFX 0x1015f000
 // GLOBAL: MW2ATI 0x10092ff0
+// GLOBAL: MW2S3 0x100843a0
+// GLOBAL: MW2POWERVR 0x10089530
 ScalarRamp g_trackOffsetZ;
 
 // GLOBAL: MW2 0x10176f40
 // GLOBAL: MW2MATROX 0x10218330
 // GLOBAL: MW23DFX 0x1015f020
 // GLOBAL: MW2ATI 0x10093010
+// GLOBAL: MW2S3 0x100843b0
+// GLOBAL: MW2POWERVR 0x10089550
 WrappedRamp g_trackPitch;
 
 // GLOBAL: MW2 0x10176f60
 // GLOBAL: MW2MATROX 0x102182f0
 // GLOBAL: MW23DFX 0x1015efe0
 // GLOBAL: MW2ATI 0x10092fd0
+// GLOBAL: MW2S3 0x100843d0
+// GLOBAL: MW2POWERVR 0x10089510
 WrappedRamp g_trackHeading;
 
 // GLOBAL: MW2 0x10176f74
 // GLOBAL: MW2MATROX 0x10218344
 // GLOBAL: MW23DFX 0x1015f034
+// GLOBAL: MW2S3 0x100843e4
 MechScalar g_trackMinHeight;
 
 // The cockpit view's tilt, eased toward g_sinkPilotTilt.
@@ -233,18 +286,24 @@ MechScalar g_trackMinHeight;
 // GLOBAL: MW2MATROX 0x10218320
 // GLOBAL: MW23DFX 0x1015f010
 // GLOBAL: MW2ATI 0x10093000
+// GLOBAL: MW2S3 0x100843f0
+// GLOBAL: MW2POWERVR 0x10089540
 ScalarRamp g_pilotTilt;
 
 // GLOBAL: MW2 0x10176f90
 // GLOBAL: MW2MATROX 0x102182d0
 // GLOBAL: MW23DFX 0x1015efc0
 // GLOBAL: MW2ATI 0x10092fb0
+// GLOBAL: MW2S3 0x10084400
+// GLOBAL: MW2POWERVR 0x100894f0
 ScalarRamp g_trackOffsetY;
 
 // GLOBAL: MW2 0x10176fa0
 // GLOBAL: MW2MATROX 0x10218370
 // GLOBAL: MW23DFX 0x1015f060
 // GLOBAL: MW2ATI 0x10093050
+// GLOBAL: MW2S3 0x10084410
+// GLOBAL: MW2POWERVR 0x10089590
 SavedView g_savedViews[5];
 
 // The cockpit view's pan, eased toward g_sinkPilotPan.
@@ -252,6 +311,8 @@ SavedView g_savedViews[5];
 // GLOBAL: MW2MATROX 0x102182c0
 // GLOBAL: MW23DFX 0x1015efb0
 // GLOBAL: MW2ATI 0x10092fa0
+// GLOBAL: MW2S3 0x100844a0
+// GLOBAL: MW2POWERVR 0x100894e0
 ScalarRamp g_pilotPan;
 
 // The free camera's forward speed.
@@ -259,12 +320,16 @@ ScalarRamp g_pilotPan;
 // GLOBAL: MW2MATROX 0x102182b0
 // GLOBAL: MW23DFX 0x1015efa0
 // GLOBAL: MW2ATI 0x10092f90
+// GLOBAL: MW2S3 0x100844b0
+// GLOBAL: MW2POWERVR 0x100894d0
 ScalarRamp g_freeEyeSpeed;
 
 // GLOBAL: MW2 0x10177050
 // GLOBAL: MW2MATROX 0x102182a0
 // GLOBAL: MW23DFX 0x1015ef90
 // GLOBAL: MW2ATI 0x10092f80
+// GLOBAL: MW2S3 0x100844c0
+// GLOBAL: MW2POWERVR 0x100894c0
 ScalarRamp g_trackOffsetX;
 
 // Resets the camera: its ramps, the saved views and the view scale, follows the local player
@@ -273,6 +338,8 @@ ScalarRamp g_trackOffsetX;
 // FUNCTION: MW2MATROX 0x10008b70
 // FUNCTION: MW23DFX 0x1002db70
 // FUNCTION: MW2ATI 0x1002ccc0
+// FUNCTION: MW2S3 0x1003f690
+// FUNCTION: MW2POWERVR 0x10027aa0
 void FirstEyepoint(void)
 {
 	MechS32 i;
@@ -308,6 +375,8 @@ void FirstEyepoint(void)
 // FUNCTION: MW2MATROX 0x10008d87
 // FUNCTION: MW23DFX 0x1002dc90
 // FUNCTION: MW2ATI 0x1002cde0
+// FUNCTION: MW2S3 0x1003f7b0
+// FUNCTION: MW2POWERVR 0x10027bc0
 void UpdateEyepoint(void)
 {
 	MechS32 mode;
@@ -415,6 +484,8 @@ void UpdateEyepoint(void)
 // FUNCTION: MW2MATROX 0x10009107
 // FUNCTION: MW23DFX 0x1002ded0
 // FUNCTION: MW2ATI 0x1002d020
+// FUNCTION: MW2S3 0x1003f9f0
+// FUNCTION: MW2POWERVR 0x10027e00
 MechScalar GetCameraFloor(Eyepoint* p_eyepoint)
 {
 	MechScalar height;
@@ -438,6 +509,8 @@ MechScalar GetCameraFloor(Eyepoint* p_eyepoint)
 // FUNCTION: MW2MATROX 0x1000916a
 // FUNCTION: MW23DFX 0x1002df20
 // FUNCTION: MW2ATI 0x1002d070
+// FUNCTION: MW2S3 0x1003fa40
+// FUNCTION: MW2POWERVR 0x10027e50
 void SetViewMode(MechS32 p_zoom)
 {
 	if (g_localMechLost) {
@@ -455,6 +528,8 @@ void SetViewMode(MechS32 p_zoom)
 // FUNCTION: MW2MATROX 0x100091a9
 // FUNCTION: MW23DFX 0x1002df50
 // FUNCTION: MW2ATI 0x1002d0a0
+// FUNCTION: MW2S3 0x1003fa70
+// FUNCTION: MW2POWERVR 0x10027e80
 MechS32 GetViewMode(void)
 {
 	return g_requestedViewMode;
@@ -466,6 +541,7 @@ MechS32 GetViewMode(void)
 // FUNCTION: MW2MATROX 0x100091be
 // FUNCTION: MW23DFX 0x1002df60
 // FUNCTION: MW2ATI 0x1002d0b0
+// FUNCTION: MW2S3 0x1003fa80
 void ApplyCameraFov(MechS32 p_reset)
 {
 	MechScalar fov;
@@ -495,6 +571,8 @@ void ApplyCameraFov(MechS32 p_reset)
 // FUNCTION: MW2MATROX 0x10009258
 // FUNCTION: MW23DFX 0x1002dfe0
 // FUNCTION: MW2ATI 0x1002d130
+// FUNCTION: MW2S3 0x1003fb00
+// FUNCTION: MW2POWERVR 0x10027f50
 MechS32 SaveView(Eyepoint* p_eyepoint, MechScalar* p_view)
 {
 	if (p_view == NULL || p_eyepoint == NULL) {
@@ -522,6 +600,8 @@ MechS32 SaveView(Eyepoint* p_eyepoint, MechScalar* p_view)
 // FUNCTION: MW2MATROX 0x100092d8
 // FUNCTION: MW23DFX 0x1002e020
 // FUNCTION: MW2ATI 0x1002d170
+// FUNCTION: MW2S3 0x1003fb40
+// FUNCTION: MW2POWERVR 0x10027f90
 MechS32 RestoreView(Eyepoint* p_eyepoint, MechScalar* p_view)
 {
 	if (p_view == NULL || p_eyepoint == NULL) {
@@ -553,6 +633,8 @@ MechS32 RestoreView(Eyepoint* p_eyepoint, MechScalar* p_view)
 // FUNCTION: MW2MATROX 0x10009362
 // FUNCTION: MW23DFX 0x1002e070
 // FUNCTION: MW2ATI 0x1002d1c0
+// FUNCTION: MW2S3 0x1003fb90
+// FUNCTION: MW2POWERVR 0x10027fe0
 void CycleTrackedPlayer(MechS32 p_next, MechS32 p_home)
 {
 	MechS32 step;
@@ -592,6 +674,8 @@ void CycleTrackedPlayer(MechS32 p_next, MechS32 p_home)
 // FUNCTION: MW2MATROX 0x10009431
 // FUNCTION: MW23DFX 0x1002e0f0
 // FUNCTION: MW2ATI 0x1002d240
+// FUNCTION: MW2S3 0x1003fc10
+// FUNCTION: MW2POWERVR 0x10028060
 void GetPlayerEyeView(
 	MechScalar* p_pitch,
 	MechScalar* p_heading,
@@ -647,6 +731,8 @@ void GetPlayerEyeView(
 // FUNCTION: MW2MATROX 0x100095b0
 // FUNCTION: MW23DFX 0x1002e210
 // FUNCTION: MW2ATI 0x1002d360
+// FUNCTION: MW2S3 0x1003fd30
+// FUNCTION: MW2POWERVR 0x10028180
 void UpdateOrdinanceView(void)
 {
 	MechScalar* camera;
@@ -677,6 +763,8 @@ void UpdateOrdinanceView(void)
 // FUNCTION: MW2MATROX 0x10009653
 // FUNCTION: MW23DFX 0x1002e280
 // FUNCTION: MW2ATI 0x1002d3d0
+// FUNCTION: MW2S3 0x1003fda0
+// FUNCTION: MW2POWERVR 0x100281f0
 void UpdateTrackView(MechScalar p_distance, MechScalar p_height, MechScalar p_tilt, MechScalar p_turn)
 {
 	MechScalar y;
@@ -887,6 +975,8 @@ void UpdateTrackView(MechScalar p_distance, MechScalar p_height, MechScalar p_ti
 // FUNCTION: MW2MATROX 0x10009ae7
 // FUNCTION: MW23DFX 0x1002e640
 // FUNCTION: MW2ATI 0x1002d790
+// FUNCTION: MW2S3 0x10040160
+// FUNCTION: MW2POWERVR 0x100285b0
 void UpdateCockpitView(void)
 {
 	if (g_viewMode) {
@@ -941,6 +1031,8 @@ void UpdateCockpitView(void)
 // FUNCTION: MW2MATROX 0x10009c7c
 // FUNCTION: MW23DFX 0x1002e750
 // FUNCTION: MW2ATI 0x1002d8a0
+// FUNCTION: MW2S3 0x10040270
+// FUNCTION: MW2POWERVR 0x100286c0
 void GetCockpitEyeView(
 	MechScalar* p_pitch,
 	MechScalar* p_heading,
@@ -973,6 +1065,8 @@ void GetCockpitEyeView(
 // FUNCTION: MW2MATROX 0x10009d1d
 // FUNCTION: MW23DFX 0x1002e7d0
 // FUNCTION: MW2ATI 0x1002d920
+// FUNCTION: MW2S3 0x100402f0
+// FUNCTION: MW2POWERVR 0x10028740
 void UpdateDropView(void)
 {
 	MechScalar unk0x10;
@@ -1002,6 +1096,8 @@ void UpdateDropView(void)
 // FUNCTION: MW2MATROX 0x10009e0a
 // FUNCTION: MW23DFX 0x1002e8a0
 // FUNCTION: MW2ATI 0x1002d9f0
+// FUNCTION: MW2S3 0x100403c0
+// FUNCTION: MW2POWERVR 0x10028810
 void UpdateFreeEyeView(
 	MechScalar p_climb,
 	MechScalar p_speed,
@@ -1110,6 +1206,8 @@ void UpdateFreeEyeView(
 // FUNCTION: MW2MATROX 0x1000a065
 // FUNCTION: MW23DFX 0x1002ea80
 // FUNCTION: MW2ATI 0x1002dbd0
+// FUNCTION: MW2S3 0x100405a0
+// FUNCTION: MW2POWERVR 0x100289f0
 void TurnBillboards(void)
 {
 	MechScalar pitch;
@@ -1140,3 +1238,8 @@ void TurnBillboards(void)
 		}
 	}
 }
+
+// The S3 edition ends this object with the cockpit panels, which 1.1 has in config.c's.
+#ifdef MW2_S3
+#include "cockpitpanels.c"
+#endif

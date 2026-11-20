@@ -5,10 +5,11 @@
 #include "types.h"
 
 // The BWD version this build reads: a mission stream's REV record must be at least this.
-#if defined(MW2_3DFX) || defined(MW2_ATI)
+#if defined(MW2_3DFX) || defined(MW2_ATI) || defined(MW2_S3) || defined(MW2_POWERVR)
 // The ATI and 3Dfx editions' has no terminator: the keyword names follow it directly.
 // GLOBAL: MW23DFX 0x1025a0a0
 // GLOBAL: MW2ATI 0x1018e398
+// GLOBAL: MW2POWERVR 0x101b9680
 MechChar g_bwdVersion[4] = "1.22";
 #else
 // GLOBAL: MW2 0x100a66b8
@@ -20,6 +21,8 @@ MechChar g_bwdVersion[] = "1.22";
 // GLOBAL: MW2MATROX 0x100a5ca8
 // GLOBAL: MW23DFX 0x1025a380
 // GLOBAL: MW2ATI 0x1018e678
+// GLOBAL: MW2S3 0x10060038
+// GLOBAL: MW2POWERVR 0x101b9960
 MechChar* g_bwdKeywordNames[0x48] = {
 	"bwd",           "rev",
 	"dtbl",          "planet",
@@ -64,6 +67,8 @@ MechChar* g_bwdKeywordNames[0x48] = {
 // GLOBAL: MW2MATROX 0x100a5dc8
 // GLOBAL: MW23DFX 0x1025a4a0
 // GLOBAL: MW2ATI 0x1018e798
+// GLOBAL: MW2S3 0x10060158
+// GLOBAL: MW2POWERVR 0x101b9a80
 MechChar g_bwdExtension[8] = "BWD";
 
 // The node tags, four characters each. The first is a stream's header node (BwdHeader).
@@ -71,6 +76,8 @@ MechChar g_bwdExtension[8] = "BWD";
 // GLOBAL: MW2MATROX 0x100a5dd0
 // GLOBAL: MW23DFX 0x1025a4a8
 // GLOBAL: MW2ATI 0x1018e7a0
+// GLOBAL: MW2S3 0x10060160
+// GLOBAL: MW2POWERVR 0x101b9a88
 BwdTag g_bwdTypeCodes[0x48] = {
 	0x00445742, // BWD
 	0x00564552, // REV

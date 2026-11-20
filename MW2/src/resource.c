@@ -109,12 +109,16 @@ typedef struct FormationNames {
 // GLOBAL: MW2MATROX 0x100a85e0
 // GLOBAL: MW23DFX 0x1025a5f8
 // GLOBAL: MW2ATI 0x1018e8f0
+// GLOBAL: MW2S3 0x10073130
+// GLOBAL: MW2POWERVR 0x101b9c04
 ScenarioTable* g_scenarios = NULL;
 
 // GLOBAL: MW2 0x100a860c
 // GLOBAL: MW2MATROX 0x100a85e4
 // GLOBAL: MW23DFX 0x1025a5fc
 // GLOBAL: MW2ATI 0x1018e8f4
+// GLOBAL: MW2S3 0x10073134
+// GLOBAL: MW2POWERVR 0x101b9c08
 void* g_unk0x100a860c = NULL;
 
 // The next name of g_scenarios ExecuteInclude substitutes.
@@ -122,6 +126,8 @@ void* g_unk0x100a860c = NULL;
 // GLOBAL: MW2MATROX 0x100a85e8
 // GLOBAL: MW23DFX 0x1025a600
 // GLOBAL: MW2ATI 0x1018e8f8
+// GLOBAL: MW2S3 0x10073138
+// GLOBAL: MW2POWERVR 0x101b9c0c
 MechS32 g_nextScenario = 0;
 
 // The number of entries in g_thingRecordIndices, and the next one NextThingRecordObject returns.
@@ -129,24 +135,31 @@ MechS32 g_nextScenario = 0;
 // GLOBAL: MW2MATROX 0x100a85f8
 // GLOBAL: MW23DFX 0x1025a610
 // GLOBAL: MW2ATI 0x1018e908
+// GLOBAL: MW2S3 0x10073148
+// GLOBAL: MW2POWERVR 0x101b9c1c
 MechS32 g_thingRecordCount = 0;
 
 // GLOBAL: MW2 0x100a8624
 // GLOBAL: MW2MATROX 0x100a85fc
 // GLOBAL: MW23DFX 0x1025a614
 // GLOBAL: MW2ATI 0x1018e90c
+// GLOBAL: MW2S3 0x1007314c
+// GLOBAL: MW2POWERVR 0x101b9c20
 MechS32 g_nextThingRecord = 0;
 
 // GLOBAL: MW2 0x100a8628
 // GLOBAL: MW2MATROX 0x100a8600
 // GLOBAL: MW23DFX 0x1025a618
 // GLOBAL: MW2ATI 0x1018e910
+// GLOBAL: MW2S3 0x10073150
+// GLOBAL: MW2POWERVR 0x101b9c24
 MechS32 g_mangleBase = 0;
 
 // The mangle base of the world stream's next mangle_on section (BwdExecuteStream).
 // GLOBAL: MW2 0x100a862c
 // GLOBAL: MW2MATROX 0x100a8604
 // GLOBAL: MW23DFX 0x1025a61c
+// GLOBAL: MW2S3 0x10073154
 MechS32 g_nextMangleBase = 0;
 
 // The formation LoadStarTable gives the player's team, or NULL to use the record's.
@@ -154,6 +167,8 @@ MechS32 g_nextMangleBase = 0;
 // GLOBAL: MW2MATROX 0x100a8608
 // GLOBAL: MW23DFX 0x1025a620
 // GLOBAL: MW2ATI 0x1018e918
+// GLOBAL: MW2S3 0x10073158
+// GLOBAL: MW2POWERVR 0x101b9c2c
 MechChar* g_playerTeamFormation = NULL;
 
 // The formation LoadStarTable gives the other teams, or NULL to use the record's.
@@ -161,12 +176,15 @@ MechChar* g_playerTeamFormation = NULL;
 // GLOBAL: MW2MATROX 0x100a860c
 // GLOBAL: MW23DFX 0x1025a624
 // GLOBAL: MW2ATI 0x1018e91c
+// GLOBAL: MW2S3 0x1007315c
+// GLOBAL: MW2POWERVR 0x101b9c30
 MechChar* g_otherTeamFormation = NULL;
 
 // The player the world stream (BwdExecuteStream) created last, for ReelMotionTask.
 // GLOBAL: MW2 0x100a8638
 // GLOBAL: MW2MATROX 0x100a8610
 // GLOBAL: MW23DFX 0x1025a628
+// GLOBAL: MW2S3 0x10073160
 struct Player* g_lastPlayer = NULL;
 
 // The task kinds of a world stream's task record (BwdExecuteStream): 0 spins a star's object, 1
@@ -176,12 +194,16 @@ struct Player* g_lastPlayer = NULL;
 // GLOBAL: MW2MATROX 0x100a8618
 // GLOBAL: MW23DFX 0x1025a630
 // GLOBAL: MW2ATI 0x1018e928
+// GLOBAL: MW2S3 0x10073168
+// GLOBAL: MW2POWERVR 0x101b9c38
 TimedCallbackFn g_taskFns[6] = {SpinTask, ColorCycleTask, OrbitTask, ReelMotionTask, AmbientSoundTask, PathTask};
 
 // GLOBAL: MW2 0x100ea500
 // GLOBAL: MW2MATROX 0x101d4770
 // GLOBAL: MW23DFX 0x10159510
 // GLOBAL: MW2ATI 0x1008d520
+// GLOBAL: MW2S3 0x100aae50
+// GLOBAL: MW2POWERVR 0x10083b00
 MissionTable* g_missionTables[16];
 
 // The number of entries of each of g_missionTables.
@@ -189,12 +211,16 @@ MissionTable* g_missionTables[16];
 // GLOBAL: MW2MATROX 0x101d4730
 // GLOBAL: MW23DFX 0x101594d0
 // GLOBAL: MW2ATI 0x1008d4e0
+// GLOBAL: MW2S3 0x100aae90
+// GLOBAL: MW2POWERVR 0x10083ac0
 MechS32 g_missionTableCounts[16];
 
 // GLOBAL: MW2 0x100ea580
 // GLOBAL: MW2MATROX 0x101d47b0
 // GLOBAL: MW23DFX 0x10159550
 // GLOBAL: MW2ATI 0x1008d560
+// GLOBAL: MW2S3 0x100aaed0
+// GLOBAL: MW2POWERVR 0x10083b40
 MechS32 g_thingRecordIndices[0x96];
 
 // The number of names in g_scenarios.
@@ -202,6 +228,8 @@ MechS32 g_thingRecordIndices[0x96];
 // GLOBAL: MW2MATROX 0x101d4720
 // GLOBAL: MW23DFX 0x101594cc
 // GLOBAL: MW2ATI 0x1008d4d8
+// GLOBAL: MW2S3 0x100ab128
+// GLOBAL: MW2POWERVR 0x10083ab8
 MechS32 g_scenarioCount;
 
 // Copies a bitmap record's size to p_width and p_height and its data to p_data, each if not NULL.
@@ -209,6 +237,8 @@ MechS32 g_scenarioCount;
 // FUNCTION: MW2MATROX 0x10048fb0
 // FUNCTION: MW23DFX 0x10042970
 // FUNCTION: MW2ATI 0x10040510
+// FUNCTION: MW2S3 0x10032de0
+// FUNCTION: MW2POWERVR 0x1003b270
 void LoadMapBitmap(BwdRecord* p_record, MechS32* p_width, MechS32* p_height, MechS32* p_data)
 {
 	BitmapRecord* record;
@@ -237,6 +267,8 @@ void LoadMapBitmap(BwdRecord* p_record, MechS32* p_width, MechS32* p_height, Mec
 // FUNCTION: MW2MATROX 0x1004903a
 // FUNCTION: MW23DFX 0x100429b0
 // FUNCTION: MW2ATI 0x10040550
+// FUNCTION: MW2S3 0x10032e20
+// FUNCTION: MW2POWERVR 0x1003b2b0
 MechS32 LoadScenarioTable(ScenarioTable* p_table)
 {
 	MechS32 result;
@@ -267,6 +299,8 @@ MechS32 LoadScenarioTable(ScenarioTable* p_table)
 // FUNCTION: MW2MATROX 0x10049105
 // FUNCTION: MW23DFX 0x10042a50
 // FUNCTION: MW2ATI 0x100405f0
+// FUNCTION: MW2S3 0x10032ec0
+// FUNCTION: MW2POWERVR 0x1003b350
 MechS32 LoadMissionTable(MissionTable* p_table)
 {
 	MechS32 result;
@@ -300,6 +334,8 @@ MechS32 LoadMissionTable(MissionTable* p_table)
 // FUNCTION: MW2MATROX 0x1004920a
 // FUNCTION: MW23DFX 0x10042b00
 // FUNCTION: MW2ATI 0x100406a0
+// FUNCTION: MW2S3 0x10032f70
+// FUNCTION: MW2POWERVR 0x1003b400
 MechS32 LoadPathTable(PathRecord* p_record)
 {
 	MechS32 index;
@@ -337,6 +373,8 @@ MechS32 LoadPathTable(PathRecord* p_record)
 // FUNCTION: MW2MATROX 0x1004946c
 // FUNCTION: MW23DFX 0x10042bc0
 // FUNCTION: MW2ATI 0x10040760
+// FUNCTION: MW2S3 0x10033030
+// FUNCTION: MW2POWERVR 0x1003b4c0
 MechS32 LoadFormationTable(FormationRecord* p_record)
 {
 	MechS32 count;
@@ -369,6 +407,8 @@ MechS32 LoadFormationTable(FormationRecord* p_record)
 // FUNCTION: MW2MATROX 0x1004959b
 // FUNCTION: MW23DFX 0x10042c60
 // FUNCTION: MW2ATI 0x10040800
+// FUNCTION: MW2S3 0x100330d0
+// FUNCTION: MW2POWERVR 0x1003b560
 MechS32 ExecuteInclude(IncludeRecord* p_record, BwdStreamFn p_fn)
 {
 	undefined buffer[0x20];
@@ -423,6 +463,8 @@ MechS32 ExecuteInclude(IncludeRecord* p_record, BwdStreamFn p_fn)
 // FUNCTION: MW2MATROX 0x100496fe
 // FUNCTION: MW23DFX 0x10042d40
 // FUNCTION: MW2ATI 0x100408e0
+// FUNCTION: MW2S3 0x100331b0
+// FUNCTION: MW2POWERVR 0x1003b640
 void LoadStarTable(StarTable* p_table)
 {
 	MechS32 count;
@@ -461,6 +503,8 @@ void LoadStarTable(StarTable* p_table)
 // FUNCTION: MW2MATROX 0x10049839
 // FUNCTION: MW23DFX 0x10042de0
 // FUNCTION: MW2ATI 0x10040980
+// FUNCTION: MW2S3 0x10033250
+// FUNCTION: MW2POWERVR 0x1003b6e0
 void SetTeamFormations(FormationNames* p_record)
 {
 	FormationNames* record;
@@ -478,6 +522,8 @@ void SetTeamFormations(FormationNames* p_record)
 // FUNCTION: MW2MATROX 0x1004989d
 // FUNCTION: MW23DFX 0x10042e10
 // FUNCTION: MW2ATI 0x100409b0
+// FUNCTION: MW2S3 0x10033280
+// FUNCTION: MW2POWERVR 0x1003b710
 MechS32 RunIncludedStream(IncludeRecord2* p_record, BwdStreamFn p_fn)
 {
 	undefined buffer[0x20];
@@ -513,6 +559,8 @@ MechS32 RunIncludedStream(IncludeRecord2* p_record, BwdStreamFn p_fn)
 // FUNCTION: MW2MATROX 0x10049946
 // FUNCTION: MW23DFX 0x10042e80
 // FUNCTION: MW2ATI 0x10040a20
+// FUNCTION: MW2S3 0x100332f0
+// FUNCTION: MW2POWERVR 0x1003b780
 void FreeMissionTables(void)
 {
 	MechS32 i;
@@ -702,6 +750,8 @@ void GetPointNormalPlane(
 // FUNCTION: MW2MATROX 0x10049d71
 // FUNCTION: MW23DFX 0x10043250
 // FUNCTION: MW2ATI 0x10040aa0
+// FUNCTION: MW2S3 0x10033370
+// FUNCTION: MW2POWERVR 0x1003b800
 MechS32 MapResourceId(MechS32 p_id)
 {
 	return g_mangleBase + p_id;
@@ -711,6 +761,8 @@ MechS32 MapResourceId(MechS32 p_id)
 // FUNCTION: MW2MATROX 0x10049d8a
 // FUNCTION: MW23DFX 0x10043260
 // FUNCTION: MW2ATI 0x10040ab0
+// FUNCTION: MW2S3 0x10033380
+// FUNCTION: MW2POWERVR 0x1003b810
 void SetMangleBase(MechS32 p_base)
 {
 	g_mangleBase = p_base;
@@ -724,6 +776,8 @@ void SetMangleBase(MechS32 p_base)
 // FUNCTION: MW2MATROX 0x10049d9d
 // FUNCTION: MW23DFX 0x10043270
 // FUNCTION: MW2ATI 0x10040ac0
+// FUNCTION: MW2S3 0x10033390
+// FUNCTION: MW2POWERVR 0x1003b820
 void CreateObjectNode(
 	BwdObjectRecord* p_record,
 	undefined4 p_unk0x04,
@@ -907,6 +961,8 @@ void CreateObjectNode(
 // FUNCTION: MW2MATROX 0x1004a45a
 // FUNCTION: MW23DFX 0x100436f0
 // FUNCTION: MW2ATI 0x10040f40
+// FUNCTION: MW2S3 0x10033810
+// FUNCTION: MW2POWERVR 0x1003bca0
 struct SceneObject* NextThingRecordObject(void)
 {
 	MechS32 id;
@@ -929,6 +985,8 @@ struct SceneObject* NextThingRecordObject(void)
 // FUNCTION: MW2MATROX 0x1004a4b1
 // FUNCTION: MW23DFX 0x10043720
 // FUNCTION: MW2ATI 0x10040f70
+// FUNCTION: MW2S3 0x10033840
+// FUNCTION: MW2POWERVR 0x1003bcd0
 MechS32 FindFreeGameThing(void)
 {
 	MechS32 index;

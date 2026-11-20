@@ -19,6 +19,8 @@ DECOMP_SIZE_ASSERT(EasedValue, 0x0c)
 // FUNCTION: MW2MATROX 0x1002dfe0
 // FUNCTION: MW23DFX 0x1003b700
 // FUNCTION: MW2ATI 0x1003a1a0
+// FUNCTION: MW2S3 0x1002ae50
+// FUNCTION: MW2POWERVR 0x10034fe0
 MechS32 StartRamp(Ramp* p_ramp, MechS32 p_target, MechS32 p_value, MechDouble p_seconds)
 {
 	MechS32 result = FALSE;
@@ -38,6 +40,8 @@ MechS32 StartRamp(Ramp* p_ramp, MechS32 p_target, MechS32 p_value, MechDouble p_
 // FUNCTION: MW2MATROX 0x1002e041
 // FUNCTION: MW23DFX 0x1003b740
 // FUNCTION: MW2ATI 0x1003a1e0
+// FUNCTION: MW2S3 0x1002ae90
+// FUNCTION: MW2POWERVR 0x10035020
 MechS32 UpdateRamp(Ramp* p_ramp)
 {
 	MechS32 delta;
@@ -63,6 +67,8 @@ MechS32 UpdateRamp(Ramp* p_ramp)
 // FUNCTION: MW2MATROX 0x1002e0db
 // FUNCTION: MW23DFX 0x1003b7a0
 // FUNCTION: MW2ATI 0x1003a240
+// FUNCTION: MW2S3 0x1002aef0
+// FUNCTION: MW2POWERVR 0x10035080
 MechS32 StartFloatRamp(FloatRamp* p_ramp, MechFloat p_target, MechFloat p_value, MechDouble p_seconds)
 {
 	MechS32 result = FALSE;
@@ -82,6 +88,8 @@ MechS32 StartFloatRamp(FloatRamp* p_ramp, MechFloat p_target, MechFloat p_value,
 // FUNCTION: MW2MATROX 0x1002e141
 // FUNCTION: MW23DFX 0x1003b7e0
 // FUNCTION: MW2ATI 0x1003a280
+// FUNCTION: MW2S3 0x1002af30
+// FUNCTION: MW2POWERVR 0x100350c0
 MechFloat UpdateFloatRamp(FloatRamp* p_ramp)
 {
 	MechFloat delta;
@@ -110,6 +118,8 @@ MechFloat UpdateFloatRamp(FloatRamp* p_ramp)
 // FUNCTION: MW2MATROX 0x1002e226
 // FUNCTION: MW23DFX 0x1003b8b0
 // FUNCTION: MW2ATI 0x1003a350
+// FUNCTION: MW2S3 0x1002afe0
+// FUNCTION: MW2POWERVR 0x10035190
 MechS32 StartWrappedRamp(
 	WrappedRamp* p_ramp,
 	MechScalar p_target,
@@ -137,6 +147,8 @@ MechS32 StartWrappedRamp(
 // FUNCTION: MW2MATROX 0x1002e295
 // FUNCTION: MW23DFX 0x1003b900
 // FUNCTION: MW2ATI 0x1003a3a0
+// FUNCTION: MW2S3 0x1002b030
+// FUNCTION: MW2POWERVR 0x100351e0
 MechScalar UpdateWrappedRamp(WrappedRamp* p_ramp)
 {
 #ifdef MW2_ACCEL
@@ -191,6 +203,8 @@ MechScalar UpdateWrappedRamp(WrappedRamp* p_ramp)
 // FUNCTION: MW2MATROX 0x1002e3de
 // FUNCTION: MW23DFX 0x1003b9f0
 // FUNCTION: MW2ATI 0x1003a490
+// FUNCTION: MW2S3 0x1002b110
+// FUNCTION: MW2POWERVR 0x100352d0
 MechScalar SetWrappedRampTarget(WrappedRamp* p_ramp, MechScalar p_target)
 {
 #ifdef MW2_ACCEL
@@ -223,6 +237,8 @@ MechScalar SetWrappedRampTarget(WrappedRamp* p_ramp, MechScalar p_target)
 // FUNCTION: MW2MATROX 0x1002e471
 // FUNCTION: MW23DFX 0x1003ba60
 // FUNCTION: MW2ATI 0x1003a500
+// FUNCTION: MW2S3 0x1002b180
+// FUNCTION: MW2POWERVR 0x10035340
 MechS32 UpdateEasedValue(EasedValue* p_value)
 {
 	MechS32 delta;

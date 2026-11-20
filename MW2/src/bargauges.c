@@ -28,6 +28,7 @@
 // GLOBAL: MW2MATROX 0x100bbd50
 // GLOBAL: MW23DFX 0x1024c818
 // GLOBAL: MW2ATI 0x10180b98
+// GLOBAL: MW2POWERVR 0x101aba70
 EasedValue g_heatBarLevel = {0, 0, 1};
 
 // GLOBAL: MW2 0x100a82fc
@@ -38,6 +39,8 @@ undefined4 g_unk0x100a82fc = 0;
 // GLOBAL: MW2MATROX 0x100bbd60
 // GLOBAL: MW23DFX 0x1024c828
 // GLOBAL: MW2ATI 0x10180ba8
+// GLOBAL: MW2S3 0x10064130
+// GLOBAL: MW2POWERVR 0x101aba80
 EasedValue g_throttleBarLevel = {0, 0, 1};
 
 // GLOBAL: MW2 0x100a830c
@@ -48,6 +51,8 @@ undefined4 g_unk0x100a830c = 0;
 // GLOBAL: MW2MATROX 0x100bbd70
 // GLOBAL: MW23DFX 0x1024c838
 // GLOBAL: MW2ATI 0x10180bb8
+// GLOBAL: MW2S3 0x10064140
+// GLOBAL: MW2POWERVR 0x101aba90
 EasedValue g_heatRateBarLevel = {0, 0, 4};
 
 // GLOBAL: MW2 0x100a831c
@@ -58,6 +63,8 @@ undefined4 g_unk0x100a831c = 0;
 // GLOBAL: MW2MATROX 0x100bbd80
 // GLOBAL: MW23DFX 0x1024c848
 // GLOBAL: MW2ATI 0x10180bc8
+// GLOBAL: MW2S3 0x10064150
+// GLOBAL: MW2POWERVR 0x101abaa0
 EasedValue g_jumpFuelBarLevel = {0, 0, 1};
 
 // GLOBAL: MW2 0x100a832c
@@ -83,6 +90,8 @@ DECOMP_SIZE_ASSERT(ThrottleGauge, 0x20)
 // GLOBAL: MW2MATROX 0x100bbd90
 // GLOBAL: MW23DFX 0x1024c858
 // GLOBAL: MW2ATI 0x10180bd8
+// GLOBAL: MW2S3 0x10064160
+// GLOBAL: MW2POWERVR 0x101abab0
 ThrottleGauge g_throttleGauge = {{0x1e7a, 0x8dc9}, 0, 0, 0, 0, 0, 0};
 
 // The heat bar: its position and size.
@@ -90,12 +99,15 @@ ThrottleGauge g_throttleGauge = {{0x1e7a, 0x8dc9}, 0, 0, 0, 0, 0, 0};
 // GLOBAL: MW2MATROX 0x100bbdb0
 // GLOBAL: MW23DFX 0x1024c878
 // GLOBAL: MW2ATI 0x10180bf8
+// GLOBAL: MW2S3 0x10064180
+// GLOBAL: MW2POWERVR 0x101abad0
 Point g_heatBarPosition = {0, 0x3333};
 
 // GLOBAL: MW2 0x100a8358
 // GLOBAL: MW2MATROX 0x100bbdb8
 // GLOBAL: MW23DFX 0x1024c880
 // GLOBAL: MW2ATI 0x10180c00
+// GLOBAL: MW2POWERVR 0x101abad8
 Point g_heatBarSize = {0xea4e, 0x5555};
 
 // The heat rate bar.
@@ -103,12 +115,16 @@ Point g_heatBarSize = {0xea4e, 0x5555};
 // GLOBAL: MW2MATROX 0x100bbdc0
 // GLOBAL: MW23DFX 0x1024c888
 // GLOBAL: MW2ATI 0x10180c08
+// GLOBAL: MW2S3 0x10064190
+// GLOBAL: MW2POWERVR 0x101abae0
 Point g_heatRateBarPosition = {0, 0x3333};
 
 // GLOBAL: MW2 0x100a8368
 // GLOBAL: MW2MATROX 0x100bbdc8
 // GLOBAL: MW23DFX 0x1024c890
 // GLOBAL: MW2ATI 0x10180c10
+// GLOBAL: MW2S3 0x10064198
+// GLOBAL: MW2POWERVR 0x101abae8
 Point g_heatRateBarSize = {0xdf2e, 0x5555};
 
 // The jump jet fuel bar.
@@ -116,12 +132,16 @@ Point g_heatRateBarSize = {0xdf2e, 0x5555};
 // GLOBAL: MW2MATROX 0x100bbdd0
 // GLOBAL: MW23DFX 0x1024c898
 // GLOBAL: MW2ATI 0x10180c18
+// GLOBAL: MW2S3 0x100641a0
+// GLOBAL: MW2POWERVR 0x101abaf0
 Point g_jumpFuelBarPosition = {0, 0x3333};
 
 // GLOBAL: MW2 0x100a8378
 // GLOBAL: MW2MATROX 0x100bbdd8
 // GLOBAL: MW23DFX 0x1024c8a0
 // GLOBAL: MW2ATI 0x10180c20
+// GLOBAL: MW2S3 0x100641a8
+// GLOBAL: MW2POWERVR 0x101abaf8
 Point g_jumpFuelBarSize = {0xdf2e, 0x5555};
 
 // Scales the gauges' rectangles to their panels.
@@ -129,6 +149,8 @@ Point g_jumpFuelBarSize = {0xdf2e, 0x5555};
 // FUNCTION: MW2MATROX 0x10089040
 // FUNCTION: MW23DFX 0x1001c250
 // FUNCTION: MW2ATI 0x1001c580
+// FUNCTION: MW2S3 0x10014bc0
+// FUNCTION: MW2POWERVR 0x1001b370
 void ScaleBarGauges(void)
 {
 	CockpitPanel* panel;
@@ -161,6 +183,8 @@ void ScaleBarGauges(void)
 // FUNCTION: MW2MATROX 0x10089195
 // FUNCTION: MW23DFX 0x1001c350
 // FUNCTION: MW2ATI 0x1001c680
+// FUNCTION: MW2S3 0x10014cc0
+// FUNCTION: MW2POWERVR 0x1001b470
 void DrawHeatBar(PANE* p_target)
 {
 	MechS32 heat;
@@ -221,6 +245,8 @@ void DrawHeatBar(PANE* p_target)
 // FUNCTION: MW2MATROX 0x10089332
 // FUNCTION: MW23DFX 0x1001c4a0
 // FUNCTION: MW2ATI 0x1001c7d0
+// FUNCTION: MW2S3 0x10014e10
+// FUNCTION: MW2POWERVR 0x1001b5c0
 void DrawHeatRateBar(PANE* p_target)
 {
 	Mech* mech;
@@ -291,6 +317,8 @@ void DrawHeatRateBar(PANE* p_target)
 // FUNCTION: MW2MATROX 0x100894b4
 // FUNCTION: MW23DFX 0x1001c5b0
 // FUNCTION: MW2ATI 0x1001c8e0
+// FUNCTION: MW2S3 0x10014f20
+// FUNCTION: MW2POWERVR 0x1001b6d0
 void DrawThrottleGauge(PANE* p_target)
 {
 	MechS32 color;
@@ -377,6 +405,8 @@ void DrawThrottleGauge(PANE* p_target)
 // FUNCTION: MW2MATROX 0x100896bf
 // FUNCTION: MW23DFX 0x1001c750
 // FUNCTION: MW2ATI 0x1001ca80
+// FUNCTION: MW2S3 0x100150c0
+// FUNCTION: MW2POWERVR 0x1001b870
 void DrawJumpFuelBar(PANE* p_target)
 {
 	MechS32 fill;
@@ -415,6 +445,7 @@ void DrawJumpFuelBar(PANE* p_target)
 // FUNCTION: MW2MATROX 0x10089791
 // FUNCTION: MW23DFX 0x1001c810
 // FUNCTION: MW2ATI 0x1001cb40
+// FUNCTION: MW2S3 0x10015180
 void DrawVerticalBar(PANE* p_target, MechS32 p_x, MechS32 p_y, MechS32 p_width, MechS32 p_height, MechS32 p_color)
 {
 	MechS32 half;
@@ -456,6 +487,7 @@ void DrawVerticalBar(PANE* p_target, MechS32 p_x, MechS32 p_y, MechS32 p_width, 
 // FUNCTION: MW2MATROX 0x10089931
 // FUNCTION: MW23DFX 0x1001c960
 // FUNCTION: MW2ATI 0x1001cc90
+// FUNCTION: MW2S3 0x100152d0
 void DrawHorizontalBar(PANE* p_target, MechS32 p_x, MechS32 p_y, MechS32 p_width, MechS32 p_height, MechS32 p_color)
 {
 	MechS32 half;

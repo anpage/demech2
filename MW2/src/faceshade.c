@@ -19,6 +19,7 @@
 // GLOBAL: MW2 0x100a5544
 // GLOBAL: MW2MATROX 0x100a4940
 // GLOBAL: MW23DFX 0x1024e410
+// GLOBAL: MW2S3 0x100771ac
 MechS32 g_backgroundColor = 0;
 
 // The sky's color (DrawSkyAndGround; the ground's is g_groundColor).
@@ -26,6 +27,7 @@ MechS32 g_backgroundColor = 0;
 // GLOBAL: MW2MATROX 0x100a4944
 // GLOBAL: MW23DFX 0x1024e414
 // GLOBAL: MW2ATI 0x10182724
+// GLOBAL: MW2S3 0x100771b0
 MechS32 g_skyColor = 0xe0;
 
 // The ground's color (DrawSkyAndGround; the sky's is g_skyColor).
@@ -33,18 +35,21 @@ MechS32 g_skyColor = 0xe0;
 // GLOBAL: MW2MATROX 0x100a4948
 // GLOBAL: MW23DFX 0x1024e418
 // GLOBAL: MW2ATI 0x10182728
+// GLOBAL: MW2S3 0x100771b4
 MechS32 g_groundColor = 0xef;
 
 // The horizon map's (LoadMapBitmap, from the world stream's hrzm record).
 // GLOBAL: MW2 0x100a5550
 // GLOBAL: MW2MATROX 0x100a494c
 // GLOBAL: MW23DFX 0x1024e41c
+// GLOBAL: MW2S3 0x100771b8
 MechS32 g_horizonMapColor = 0xea;
 
 // GLOBAL: MW2 0x100a5558
 // GLOBAL: MW2MATROX 0x100a4954
 // GLOBAL: MW23DFX 0x1024e424
 // GLOBAL: MW2ATI 0x10182734
+// GLOBAL: MW2S3 0x100771c0
 MechS32 g_unk0x100a5558 = -1;
 
 // Set by the world stream (BwdExecuteStream): GetFaceColor brightens damaged shapes instead of
@@ -52,6 +57,7 @@ MechS32 g_unk0x100a5558 = -1;
 // GLOBAL: MW2 0x100a555c
 // GLOBAL: MW2MATROX 0x100a4958
 // GLOBAL: MW23DFX 0x1024e428
+// GLOBAL: MW2S3 0x100771c4
 MechS32 g_brightenDamage = 0;
 
 // The eyepoint's ambient light (SelectEyepoint): ComputeShade's base shade, out of 0x80.
@@ -59,6 +65,8 @@ MechS32 g_brightenDamage = 0;
 // GLOBAL: MW2MATROX 0x101d6960
 // GLOBAL: MW23DFX 0x101b0ec0
 // GLOBAL: MW2ATI 0x100e4ea0
+// GLOBAL: MW2S3 0x100b1d00
+// GLOBAL: MW2POWERVR 0x1010c3c0
 MechS32 g_ambientLight;
 
 MechS32 ComputeShade(MechS32 p_light, MechS32 p_value, MechScalar p_distance);
@@ -73,6 +81,7 @@ MechS32 ComputeShade(MechS32 p_light, MechS32 p_value, MechScalar p_distance);
 // FUNCTION: MW2MATROX 0x10016b60
 // FUNCTION: MW23DFX 0x1002a4b0
 // FUNCTION: MW2ATI 0x1002a0c0
+// FUNCTION: MW2S3 0x10047300
 MechU32 GetFaceColor(Face* p_face, Vertex* p_vertices, MechU32 p_color, MechS32 p_distance)
 {
 #ifdef MW2_A3D
@@ -432,6 +441,8 @@ MechS32 ComputeShade(MechS32 p_light, MechS32 p_value, MechScalar p_distance)
 // FUNCTION: MW2MATROX 0x100170d8
 // FUNCTION: MW23DFX 0x1002a880
 // FUNCTION: MW2ATI 0x1002a420
+// FUNCTION: MW2S3 0x10047660
+// FUNCTION: MW2POWERVR 0x100269f0
 void ToggleTextureMaps(MechU32 p_flags)
 {
 	g_renderSettings.m_untexturedKinds ^= p_flags;
@@ -441,6 +452,8 @@ void ToggleTextureMaps(MechU32 p_flags)
 // FUNCTION: MW2MATROX 0x100170ec
 // FUNCTION: MW23DFX 0x1002a890
 // FUNCTION: MW2ATI 0x1002a430
+// FUNCTION: MW2S3 0x10047670
+// FUNCTION: MW2POWERVR 0x10026a00
 MechS32 AreTextureMapsOn(MechU32 p_flags)
 {
 	return !(p_flags & g_renderSettings.m_untexturedKinds);
@@ -450,6 +463,8 @@ MechS32 AreTextureMapsOn(MechU32 p_flags)
 // FUNCTION: MW2MATROX 0x10017116
 // FUNCTION: MW23DFX 0x1002a8a0
 // FUNCTION: MW2ATI 0x1002a440
+// FUNCTION: MW2S3 0x10047680
+// FUNCTION: MW2POWERVR 0x10026a10
 void EnableTextureMaps(MechU32 p_flags, MechS32 p_enable)
 {
 	if (p_enable) {
@@ -465,6 +480,8 @@ void EnableTextureMaps(MechU32 p_flags, MechS32 p_enable)
 // FUNCTION: MW2MATROX 0x10017144
 // FUNCTION: MW23DFX 0x1002a8c0
 // FUNCTION: MW2ATI 0x1002a460
+// FUNCTION: MW2S3 0x100476a0
+// FUNCTION: MW2POWERVR 0x10026a30
 MechS32 ArePerspectiveTexturesOn(undefined4 p_unk0x00)
 {
 	return !g_renderSettings.m_affineTextures;
@@ -474,6 +491,8 @@ MechS32 ArePerspectiveTexturesOn(undefined4 p_unk0x00)
 // FUNCTION: MW2MATROX 0x1001716d
 // FUNCTION: MW23DFX 0x1002a8d0
 // FUNCTION: MW2ATI 0x1002a470
+// FUNCTION: MW2S3 0x100476b0
+// FUNCTION: MW2POWERVR 0x10026a40
 void EnablePerspectiveTextures(undefined4 p_unk0x00, MechS32 p_enable)
 {
 	g_renderSettings.m_affineTextures = !p_enable;

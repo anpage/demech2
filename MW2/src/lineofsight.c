@@ -19,6 +19,8 @@
 // FUNCTION: MW2MATROX 0x1006d320
 // FUNCTION: MW23DFX 0x10015090
 // FUNCTION: MW2ATI 0x100154a0
+// FUNCTION: MW2S3 0x1003c010
+// FUNCTION: MW2POWERVR 0x100143e0
 MechS32 CanSeeTarget(Player* p_player, MechS32 p_ahead)
 {
 	Ray ray;
@@ -112,6 +114,8 @@ MechS32 IsGroundLevelToward(Player* p_player, MechS32 p_x, MechS32 p_y, MechS32 
 // FUNCTION: MW2MATROX 0x1006d4b9
 // FUNCTION: MW23DFX 0x100151a0
 // FUNCTION: MW2ATI 0x100155b0
+// FUNCTION: MW2S3 0x1003c120
+// FUNCTION: MW2POWERVR 0x100144f0
 MechS32 GetTargetRangeBand(Player* p_player, WeaponDef* p_weapon)
 {
 	if (p_player->m_targetInfo.m_distance < p_weapon->m_shortRange) {

@@ -51,6 +51,11 @@ OBJECTS = {
         ("VP_R", 0x1018F8AC, 0x1D0),
         ("dfactor_1", 0x1018FA7C, 0x1920),
     ],
+    "MW2POWERVR": [
+        ("VFX_describe_driver", 0x101BC6E4, 0x19F0),
+        ("VP_R", 0x101BABF4, 0x1D0),
+        ("dfactor_1", 0x101BADC4, 0x1920),
+    ],
 }
 
 HEADERS = ["vfxa.h", "vfx3d.h", "vfxrend.h"]

@@ -17,24 +17,31 @@ DECOMP_SIZE_ASSERT(PrjFile, 0x14a)
 // GLOBAL: MW2 0x100ae734
 // GLOBAL: MW2MATROX 0x100a4580
 // GLOBAL: MW23DFX 0x102598fc
+// GLOBAL: MW2S3 0x1006626c
 PrjAllocFn g_prjAlloc = NULL;
 
 // GLOBAL: MW2 0x100ae738
 // GLOBAL: MW2MATROX 0x100a4584
 // GLOBAL: MW23DFX 0x10259900
 // GLOBAL: MW2ATI 0x1018dc00
+// GLOBAL: MW2S3 0x10066270
+// GLOBAL: MW2POWERVR 0x101b8e9c
 PrjFreeFn g_prjFree = NULL;
 
 // GLOBAL: MW2 0x100c3120
 // GLOBAL: MW2MATROX 0x102157d0
 // GLOBAL: MW23DFX 0x10159c50
 // GLOBAL: MW2ATI 0x1008dc50
+// GLOBAL: MW2S3 0x100abd30
+// GLOBAL: MW2POWERVR 0x10084230
 PrjFile g_prjFiles[1];
 
 // FUNCTION: MW2 0x10071ad0
 // FUNCTION: MW2MATROX 0x1000c110
 // FUNCTION: MW23DFX 0x1003d090
 // FUNCTION: MW2ATI 0x1003b050
+// FUNCTION: MW2S3 0x10027b90
+// FUNCTION: MW2POWERVR 0x10035eb0
 void SetPrjAllocator(PrjAllocFn p_alloc, PrjFreeFn p_free)
 {
 	g_prjAlloc = p_alloc;
@@ -45,6 +52,8 @@ void SetPrjAllocator(PrjAllocFn p_alloc, PrjFreeFn p_free)
 // FUNCTION: MW2MATROX 0x1000c12b
 // FUNCTION: MW23DFX 0x1003d0a0
 // FUNCTION: MW2ATI 0x1003b060
+// FUNCTION: MW2S3 0x10027ba0
+// FUNCTION: MW2POWERVR 0x10035ec0
 void* PrjAlloc(MechU32 p_size)
 {
 	return g_prjAlloc(p_size);
@@ -54,6 +63,8 @@ void* PrjAlloc(MechU32 p_size)
 // FUNCTION: MW2MATROX 0x1000c148
 // FUNCTION: MW23DFX 0x1003d0b0
 // FUNCTION: MW2ATI 0x1003b070
+// FUNCTION: MW2S3 0x10027bb0
+// FUNCTION: MW2POWERVR 0x10035ed0
 void PrjFreeBlock(void* p_block)
 {
 	g_prjFree(p_block);
@@ -90,6 +101,8 @@ MechS32 WritePrjBytes(MechS32 p_fd, void* p_buffer, MechU32 p_length)
 // FUNCTION: MW2MATROX 0x1000c1de
 // FUNCTION: MW23DFX 0x1003d110
 // FUNCTION: MW2ATI 0x1003b080
+// FUNCTION: MW2S3 0x10027bc0
+// FUNCTION: MW2POWERVR 0x10035ee0
 MechS32 ReadPrjBytes(MechS32 p_fd, void* p_buffer, MechU32 p_length)
 {
 	MechU32 chunk;
@@ -118,6 +131,8 @@ MechS32 ReadPrjBytes(MechS32 p_fd, void* p_buffer, MechU32 p_length)
 // FUNCTION: MW2MATROX 0x1000c25c
 // FUNCTION: MW23DFX 0x1003d160
 // FUNCTION: MW2ATI 0x1003b0d0
+// FUNCTION: MW2S3 0x10027c10
+// FUNCTION: MW2POWERVR 0x10035f30
 MechS32 OpenPrjFile(const MechChar* p_name, MechChar p_mode)
 {
 	MechChar tag[12];
@@ -195,6 +210,8 @@ MechS32 OpenPrjFile(const MechChar* p_name, MechChar p_mode)
 // FUNCTION: MW2MATROX 0x1000c549
 // FUNCTION: MW23DFX 0x1003d370
 // FUNCTION: MW2ATI 0x1003b2e0
+// FUNCTION: MW2S3 0x10027e20
+// FUNCTION: MW2POWERVR 0x10036140
 MechS32 ClosePrjFile(MechS32 p_file)
 {
 	MechU16 i;
@@ -223,6 +240,8 @@ MechS32 ClosePrjFile(MechS32 p_file)
 // FUNCTION: MW2MATROX 0x1000c6f7
 // FUNCTION: MW23DFX 0x1003d410
 // FUNCTION: MW2ATI 0x1003b380
+// FUNCTION: MW2S3 0x10027ec0
+// FUNCTION: MW2POWERVR 0x100361e0
 MechU16 FindPrjType(MechS32 p_file, const MechChar* p_type)
 {
 	MechS8 found;
@@ -256,6 +275,8 @@ MechU16 FindPrjType(MechS32 p_file, const MechChar* p_type)
 // FUNCTION: MW2MATROX 0x1000c7cf
 // FUNCTION: MW23DFX 0x1003d4a0
 // FUNCTION: MW2ATI 0x1003b410
+// FUNCTION: MW2S3 0x10027f50
+// FUNCTION: MW2POWERVR 0x10036270
 MechS32 LoadPrjIndexes(MechS32 p_file)
 {
 	PrjType* types;
@@ -291,6 +312,8 @@ MechS32 LoadPrjIndexes(MechS32 p_file)
 // FUNCTION: MW2MATROX 0x1000c935
 // FUNCTION: MW23DFX 0x1003d580
 // FUNCTION: MW2ATI 0x1003b4f0
+// FUNCTION: MW2S3 0x10028030
+// FUNCTION: MW2POWERVR 0x10036350
 MechS32 GetPrjResourceSize(MechS32 p_file, const MechChar* p_type, MechU16 p_id)
 {
 	PrjIndexEntry* entries;
@@ -370,6 +393,8 @@ MechS32 ReadPrjAt(void* p_buffer, MechS32 p_file, MechS32 p_offset, MechU32 p_le
 // FUNCTION: MW2MATROX 0x1000cbee
 // FUNCTION: MW23DFX 0x1003d720
 // FUNCTION: MW2ATI 0x1003b590
+// FUNCTION: MW2S3 0x100280d0
+// FUNCTION: MW2POWERVR 0x100363f0
 MechS32 ReadPrjResource(MechS32 p_file, const MechChar* p_type, MechU16 p_id, void* p_buffer)
 {
 	PrjIndexEntry* entries;

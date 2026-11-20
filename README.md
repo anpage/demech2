@@ -12,7 +12,8 @@ This project is modeled after the [LEGO Island](https://github.com/isledecomp/is
 <a href="https://anpage.github.io/demech2/MECH2PROGRESS.HTML"><img src="https://anpage.github.io/demech2/MECH2PROGRESS.SVG" width="50%"></a><a href="https://anpage.github.io/demech2/MW2SHELLPROGRESS.HTML"><img src="https://anpage.github.io/demech2/MW2SHELLPROGRESS.SVG" width="50%"></a>
 <a href="https://anpage.github.io/demech2/NETMECHWPROGRESS.HTML"><img src="https://anpage.github.io/demech2/NETMECHWPROGRESS.SVG" width="50%"></a><a href="https://anpage.github.io/demech2/MW2PROGRESS.HTML"><img src="https://anpage.github.io/demech2/MW2PROGRESS.SVG" width="50%"></a>
 <a href="https://anpage.github.io/demech2/MW2MATROXPROGRESS.HTML"><img src="https://anpage.github.io/demech2/MW2MATROXPROGRESS.SVG" width="50%"></a><a href="https://anpage.github.io/demech2/MW23DFXPROGRESS.HTML"><img src="https://anpage.github.io/demech2/MW23DFXPROGRESS.SVG" width="50%"></a>
-<a href="https://anpage.github.io/demech2/MW2ATIPROGRESS.HTML"><img src="https://anpage.github.io/demech2/MW2ATIPROGRESS.SVG" width="50%"></a>
+<a href="https://anpage.github.io/demech2/MW2ATIPROGRESS.HTML"><img src="https://anpage.github.io/demech2/MW2ATIPROGRESS.SVG" width="50%"></a><a href="https://anpage.github.io/demech2/MW2S3PROGRESS.HTML"><img src="https://anpage.github.io/demech2/MW2S3PROGRESS.SVG" width="50%"></a>
+<a href="https://anpage.github.io/demech2/MW2POWERVRPROGRESS.HTML"><img src="https://anpage.github.io/demech2/MW2POWERVRPROGRESS.SVG" width="50%"></a>
 
 Progress only counts game code. The statically linked C runtime and the import thunks are left out of both the matched and the total counts. The totals come from Ghidra’s analysis of the original binaries and may grow slightly as decompilation turns up missed functions.
 
@@ -24,7 +25,7 @@ What counts is proof, not similarity. `tools/certify.py` gives every annotated f
 
 The current counts for every binary, and each function that isn't byte-identical with its record or its reason, are on the [proof states page](https://anpage.github.io/demech2/STATES.HTML), which CI rewrites on every push to `main`. Each target's list (`<TARGET>STATES.md` and `.json`) is also published with the progress reports in the [continuous release](https://github.com/anpage/demech2/releases/tag/continuous). A match proves the code, the types, the data layout and the constants; it proves nothing about names, comments and descriptions, which are readings of the code. The original's hand-written assembly is reproduced as MASM source (its own objects) or inline assembly, and every function with inline assembly is listed in `tools/asm_allowlist.txt` with what in the original shows it was hand-written: everything else matches as C or C++.
 
-Every game-code function of the four binaries of the 1.1 patch and the retail release is decompiled. Three more targets, the simulators of the ATI 3D Rage edition (`MW2_ATI.DLL`), the Matrox Mystique edition (`MW2_MATROX.DLL`) and the 3Dfx edition (`MW2_3DFX.DLL`), are built from the same simulator source, where their differences (they keep the simulation's values as floats, and draw through ATI's 3D CIF, Matrox's API and 3Dfx's Glide; the ATI and 3Dfx editions are optimized code) are being worked in. [docs/EDITIONS.md](docs/EDITIONS.md) records what is known of each edition and lists every difference between them the source expresses, generated from the source. Beyond those editions, two kinds of work remain. One is raising the match: the unproven functions above, whose differences are real until shown otherwise. The other is understanding the code: much of it still carries placeholder names (`FUN_10003580`, `m_unk0x04`, `g_unk0x100a00dc`) that need to be studied and replaced with meaningful names and types. Contributions are welcome.
+Every game-code function of the four binaries of the 1.1 patch and the retail release is decompiled. Five more targets, the simulators of the ATI 3D Rage edition (`MW2_ATI.DLL`), the S3 ViRGE edition (`MW2_S3.DLL`), the Matrox Mystique edition (`MW2_MATROX.DLL`), the PowerVR edition (`MW2_POWERVR.DLL`) and the 3Dfx edition (`MW2_3DFX.DLL`), are built from the same simulator source, where their differences (they keep the simulation's values as floats, and draw through ATI's 3D CIF, Matrox's API and 3Dfx's Glide; the ATI and 3Dfx editions are optimized code) are being worked in. [docs/EDITIONS.md](docs/EDITIONS.md) records what is known of each edition and lists every difference between them the source expresses, generated from the source. Beyond those editions, two kinds of work remain. One is raising the match: the unproven functions above, whose differences are real until shown otherwise. The other is understanding the code: much of it still carries placeholder names (`FUN_10003580`, `m_unk0x04`, `g_unk0x100a00dc`) that need to be studied and replaced with meaningful names and types. Contributions are welcome.
 
 The continuous release ([`continuous`](https://github.com/anpage/demech2/releases/tag/continuous)) carries the latest recompiled binaries from `main`, with their PDBs and progress reports.
 
@@ -40,7 +41,7 @@ You will need the following software installed:
 
 - Microsoft Visual C++ 4.1. A [portable version](https://github.com/madebr/msvc410) is available that can be downloaded and used quickly.
 - MASM 6.11 (ML), for the original's hand-written assembly. A [ready-to-use copy](https://github.com/shengyanli1982/MASM611) is available; the build only needs its `BIN\ML.EXE`. Don't put its `BIN` on your `PATH`: it also holds a 16-bit `LINK`, `LIB` and `NMAKE` that would shadow Visual C++ 4.1's.
-- Microsoft Visual C++ 2.2, for `MECH2.EXE`, `NETMECHW.DLL` and the ATI and 3Dfx editions' `MW2_ATI.DLL` and `MW2_3DFX.DLL` (optional). A [portable version](https://github.com/archaic-msvc/msvc220) is available too. Without it, the first two are built with Visual C++ 4.1 instead, which isn't their original toolchain, and the 3Dfx edition isn't built.
+- Microsoft Visual C++ 2.2, for `MECH2.EXE`, `NETMECHW.DLL` and the ATI, PowerVR and 3Dfx editions' `MW2_ATI.DLL`, `MW2_POWERVR.DLL` and `MW2_3DFX.DLL` (optional). A [portable version](https://github.com/archaic-msvc/msvc220) is available too. Without it, the first two are built with Visual C++ 4.1 instead, which isn't their original toolchain, and the 3Dfx edition isn't built.
 - Microsoft Visual C++ 4.0, for the Matrox edition's `MW2_MATROX.DLL` (optional). A [portable version](https://github.com/itsmattkc/MSVC400) is available. Without it, the Matrox edition is built with Visual C++ 4.1, whose stack-slot assignment and C runtime differ from its original toolchain's.
 - [CMake](https://cmake.org/). A copy is often included with the "Desktop development with C++" workload in newer versions of Visual Studio; however, it can also be installed as a standalone app. Version 3.26.6 (i386) is known to work with the VC++ 4.1 NMake generator.
 
@@ -60,12 +61,12 @@ cmake <path-to-source> -G "NMake Makefiles" -DCMAKE_BUILD_TYPE=RelWithDebInfo -D
 - Replace `<path-to-source>` with the source repository. This can be `..` if your build folder is inside the source repository.
 - `RelWithDebInfo` is recommended because it will produce debug symbols useful for further decompilation work.
 - `NMake Makefiles` is most recommended because it will be immediately compatible with Visual C++ 4.1.
-- To build `MECH2.EXE`, `NETMECHW.DLL`, `MW2_3DFX.DLL` and `MW2_ATI.DLL` with Visual C++ 2.2, add `-DDEMECH2_MSVC22_ROOT=<path-to-msvc22>`. CMake builds them in a nested build and sets up Visual C++ 2.2's environment itself, so only Visual C++ 4.1's `VCVARS32.BAT` needs to run.
+- To build `MECH2.EXE`, `NETMECHW.DLL`, `MW2_3DFX.DLL`, `MW2_ATI.DLL` and `MW2_POWERVR.DLL` with Visual C++ 2.2, add `-DDEMECH2_MSVC22_ROOT=<path-to-msvc22>`. CMake builds them in a nested build and sets up Visual C++ 2.2's environment itself, so only Visual C++ 4.1's `VCVARS32.BAT` needs to run.
 - To build `MW2_MATROX.DLL` with Visual C++ 4.0, add `-DDEMECH2_MSVC40_ROOT=<path-to-msvc40>`: another nested build, set up the same way.
 - The shell's dialogs show an icon that is not included in this repository. If the original 1.1 `MW2SHELL.DLL` is in the repository root, the build takes the icon from it; point `-DDEMECH2_MW2SHELL_ORIGINAL=<path>` at a copy elsewhere. Without it, the shell still builds and runs, and those dialogs just show no icon. The same goes for the launcher's window icons and the original `MECH2.EXE` (`-DDEMECH2_MECH2_ORIGINAL=<path>`), and for the NetMech lobby's icons and bitmaps and the original `NETMECHW.DLL` (`-DDEMECH2_NETMECHW_ORIGINAL=<path>`).
 
 1. Build the project by running `nmake` or `cmake --build <build-folder>`
-2. When this is done, there should be a recompiled `MW2SHELL.DLL`, `MW2.DLL`, `NETMECHW.DLL`, `MECH2.EXE` and `MW2_MATROX.DLL` in the build folder (`NETMECHW.DLL` and `MECH2.EXE` in its `vc22` subfolder when built with Visual C++ 2.2, with `MW2_3DFX.DLL` and `MW2_ATI.DLL`, and `MW2_MATROX.DLL` in its `vc40` subfolder when built with Visual C++ 4.0).
+2. When this is done, there should be a recompiled `MW2SHELL.DLL`, `MW2.DLL`, `NETMECHW.DLL`, `MECH2.EXE`, `MW2_MATROX.DLL` and `MW2_S3.DLL` in the build folder (`MW2_S3.DLL` in its `vc41` subfolder; `NETMECHW.DLL` and `MECH2.EXE` in its `vc22` subfolder when built with Visual C++ 2.2, with `MW2_3DFX.DLL`, `MW2_ATI.DLL` and `MW2_POWERVR.DLL`; and `MW2_MATROX.DLL` in its `vc40` subfolder when built with Visual C++ 4.0).
 
 The build configuration for each binary (comparison builds use Visual C++ 4.1's linker with Visual C++ 2.2's libraries for the Visual C++ 2.2 targets, so reccmp can read their PDBs):
 
@@ -78,6 +79,8 @@ The build configuration for each binary (comparison builds use Visual C++ 4.1's 
 | `MW2_MATROX.DLL` | C (Visual C++ 4.0)         | `/Od /Oi /G5`                                     | `/MT` (static)          | `/DLL /DEBUG /INCREMENTAL:no`    |
 | `MW2_3DFX.DLL`   | C (Visual C++ 2.2)         | `/Ox /Ow /Oi /G5 /Gr /Gy /Z7` (three files `/Od`) | `/ML` (single-threaded) | `/DLL /DEBUG /INCREMENTAL:no`    |
 | `MW2_ATI.DLL`    | C (Visual C++ 2.2)         | `/Ox /Ow /Oi /G5 /Gr /Gy /Z7` (three files `/Od`) | `/ML` (single-threaded) | `/DLL /DEBUG /INCREMENTAL:no`    |
+| `MW2_S3.DLL`     | C (Visual C++ 4.1)         | `/Ox /Ow /Oi /G5 /Gr /Gy` (three files `/Od`)     | `/ML` (single-threaded) | `/DLL /DEBUG /INCREMENTAL:no`    |
+| `MW2_POWERVR.DLL`| C (Visual C++ 2.2)         | `/Ox /Ow /Oi /G5 /Gr /Gy /Z7` (three files `/Od`) | `/ML` (single-threaded) | `/DLL /DEBUG /INCREMENTAL:no`    |
 
 ### Docker
 
@@ -95,7 +98,7 @@ docker run --rm \
 
 `<path-to-source>` should be replaced with the path to the source code directory (ie: the root of this repository).
 `<build-folder>` should be replaced with the path to the build folder you'd like CMake to use during compilation.
-`<originals-folder>` should be replaced with a folder holding the original binaries you have, under the names in the table above (`MW2.DLL`, `MW2SHELL.DLL`, `NETMECHW.DLL`, `MECH2.EXE`, `MW2_MATROX.DLL`, `MW2_3DFX.DLL`, `MW2_ATI.DLL`, in any case). Leave that line out to only build.
+`<originals-folder>` should be replaced with a folder holding the original binaries you have, under the names in the table above (`MW2.DLL`, `MW2SHELL.DLL`, `NETMECHW.DLL`, `MECH2.EXE`, `MW2_MATROX.DLL`, `MW2_3DFX.DLL`, `MW2_ATI.DLL`, `MW2_S3.DLL`, `MW2_POWERVR.DLL`, in any case). Leave that line out to only build.
 
 After the build, each target whose original is there is certified (`tools/verify.py`, which runs `tools/certify.py` per target: see [Verification](#verification)): the file is checked to be the one this project targets, every unit is compiled again, the witness records are applied, and every function is compared with the original. It ends with the counts the [proof states page](https://anpage.github.io/demech2/STATES.HTML) shows:
 
@@ -138,6 +141,10 @@ targets:
     path: path/to/MW2_3DFX.DLL
   MW2ATI:
     path: path/to/MW2_ATI.DLL
+  MW2S3:
+    path: path/to/MW2_S3.DLL
+  MW2POWERVR:
+    path: path/to/MW2_POWERVR.DLL
 ```
 
 Then run:
@@ -150,6 +157,8 @@ reccmp-reccmp --target MECH2 --nolib --total 21
 reccmp-reccmp --target MW2MATROX --nolib --total 1597
 reccmp-reccmp --target MW23DFX --nolib --total 1574
 reccmp-reccmp --target MW2ATI --nolib --total 1427
+reccmp-reccmp --target MW2S3 --nolib --total 1394
+reccmp-reccmp --target MW2POWERVR --nolib --total 1425
 ```
 
 To certify the build (from the repository root, after building; it compiles each unit again with the build's own commands, applies the witness records, and compares every function with the original):
@@ -195,7 +204,19 @@ Both DLLs come from the [freely downloadable 1.1 patch](https://archive.org/deta
 | `NETMECHW.DLL` | NetMech lobby | 433,152 bytes | `3f4d1508238d847213127e46623a85b249985686d6053a3d9e1c6deea87c0095` | December 8, 1995 |
 | `MECH2.EXE`    | Launcher      | 53,248 bytes  | `064a9f1f45cfd18f0bef1dea9711b7fd582755cfbb8a8e9694f8cef2e5c3690c` | December 5, 1995 |
 
-Both come from the retail release, not the patch. Comparing them requires the original retail files and a build with Visual C++ 2.2 (`-DDEMECH2_MSVC22_ROOT`). Without that compiler the project still builds both, but the results cannot be compared to the originals.
+Both come from the retail release, not the patch: the same files are on the [Windows 95 & MS-DOS + NetMech](http://redump.org/disc/25243/) disc, the [Pentium Processor Edition](http://redump.org/disc/12864/), the [Microsoft SideWinder OEM](http://redump.org/disc/24336/) disc and the [SoftKey](http://redump.org/disc/41925/) release (`MECH2.EXE` as `MECH2.EX_`). Comparing them requires the original retail files and a build with Visual C++ 2.2 (`-DDEMECH2_MSVC22_ROOT`). Without that compiler the project still builds both, but the results cannot be compared to the originals.
+
+The 3D-accelerated editions each shipped their own simulator, as `MW2.DLL` at the root of the edition's retail CD. The project names them after their edition:
+
+| Binary            | Edition                    | Size          | SHA256                                                             | Modified           | Disc                                                                                 |
+| ----------------- | -------------------------- | ------------- | ------------------------------------------------------------------ | ------------------ | ------------------------------------------------------------------------------------ |
+| `MW2_ATI.DLL`     | ATI 3D Rage                | 638,976 bytes | `c0509cefd31887301bd86ef8cca748211af224d9cce1a40cf87d2da6e942a739` | April 11, 1996     | [ATI 3D Rage Edition](http://redump.org/disc/46902/)                                 |
+| `MW2_S3.DLL`      | S3 ViRGE                   | 545,792 bytes | `97ea9f9d10425cc2a7991e0d6f0079ed2e15c2d0e5c863f1d9811ed44b16e590` | July 12, 1996      | [Enhanced for the S3 ViRGE](http://redump.org/disc/9708/)                            |
+| `MW2_MATROX.DLL`  | Matrox Mystique            | 845,824 bytes | `444e19ad054cbe852ec8a54ddb8a6ffa019de2ce7ab97571fea62f9666982220` | August 22, 1996    | [Enhanced for Matrox Mystique](http://redump.org/disc/43477/) (the Alt entry)        |
+| `MW2_POWERVR.DLL` | PowerVR                    | 634,368 bytes | `4de37c948ce563d5fd00f51ecb5b710ad0b1b198401a4a3b916bcf8dd6a2f754` | September 6, 1996  | [PowerVR OEM](http://redump.org/disc/25180/)                                         |
+| `MW2_3DFX.DLL`    | 3Dfx (Diamond Monster 3D)  | 724,480 bytes | `e15b8ca2013a365df11723aa97f9e7ea2914e1139090800f9b452fb7ea08282f` | October 21, 1996   | [3Dfx OEM](http://redump.org/disc/11391/)                                            |
+
+Like the retail files, they aren't freely downloadable, so CI compares them with originals kept in a private repository. Each needs the compiler it was built with: Visual C++ 2.2 for the ATI, PowerVR and 3Dfx editions, 4.0 for the Matrox edition (`-DDEMECH2_MSVC40_ROOT`), and 4.1 for the S3 edition. [docs/EDITIONS.md](docs/EDITIONS.md) describes each edition.
 
 ## Contributing
 

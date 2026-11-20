@@ -42,10 +42,12 @@
 #ifdef MW2_SKY_TILE_DEFAULTS
 // GLOBAL: MW23DFX 0x1024e118
 // GLOBAL: MW2ATI 0x10182428
+// GLOBAL: MW2S3 0x10061ea0
 MechFloat g_skyTileU = 4.0f;
 
 // GLOBAL: MW23DFX 0x1024e11c
 // GLOBAL: MW2ATI 0x1018242c
+// GLOBAL: MW2S3 0x10061ea4
 MechFloat g_skyTileV = 0.8f;
 
 // GLOBAL: MW23DFX 0x1024e120
@@ -53,18 +55,22 @@ MechFloat g_skyTileV = 0.8f;
 MechFloat g_groundTile = 20000.0f;
 #else
 // GLOBAL: MW2MATROX 0x100addc0
+// GLOBAL: MW2POWERVR 0x101ad544
 MechFloat g_skyTileU = 12.0f;
 
 // GLOBAL: MW2MATROX 0x100addc4
+// GLOBAL: MW2POWERVR 0x101ad548
 MechFloat g_skyTileV = 2.4f;
 
 // GLOBAL: MW2MATROX 0x100addc8
+// GLOBAL: MW2POWERVR 0x101ad54c
 MechFloat g_groundTile = 50.0f;
 #endif
 
 // GLOBAL: MW2MATROX 0x100addcc
 // GLOBAL: MW23DFX 0x1024e124
 // GLOBAL: MW2ATI 0x10182434
+// GLOBAL: MW2POWERVR 0x101ad550
 MechFloat g_skyScroll = 0;
 #endif
 
@@ -72,6 +78,8 @@ MechFloat g_skyScroll = 0;
 // GLOBAL: MW2MATROX 0x100addd0
 // GLOBAL: MW23DFX 0x1024e128
 // GLOBAL: MW2ATI 0x10182438
+// GLOBAL: MW2S3 0x10061ec8
+// GLOBAL: MW2POWERVR 0x101ad558
 Eyepoint g_mainEyepoint = {0,       0, 0, 0, 0, 0,  FIXED_CONST(1), 1000, 10000, -1000, 1, 0x48, 0, 319, 0, 199, 0x40,
 						   0x249f0, 0, 0, 0, 0, {0}};
 
@@ -79,12 +87,16 @@ Eyepoint g_mainEyepoint = {0,       0, 0, 0, 0, 0,  FIXED_CONST(1), 1000, 10000,
 // GLOBAL: MW2MATROX 0x100ade74
 // GLOBAL: MW23DFX 0x1024e1cc
 // GLOBAL: MW2ATI 0x101824dc
+// GLOBAL: MW2S3 0x10061f6c
+// GLOBAL: MW2POWERVR 0x101ad5fc
 Eyepoint* g_eyepoint = &g_mainEyepoint;
 
 // GLOBAL: MW2 0x100a6cc8
 // GLOBAL: MW2MATROX 0x100ade78
 // GLOBAL: MW23DFX 0x1024e1d0
 // GLOBAL: MW2ATI 0x101824e0
+// GLOBAL: MW2S3 0x10061f70
+// GLOBAL: MW2POWERVR 0x101ad600
 RenderSettings g_renderSettings = {
 	0,
 	1,
@@ -121,6 +133,8 @@ RenderSettings g_renderSettings = {
 // GLOBAL: MW2MATROX 0x100adee8
 // GLOBAL: MW23DFX 0x1024e240
 // GLOBAL: MW2ATI 0x10182550
+// GLOBAL: MW2S3 0x10061fe0
+// GLOBAL: MW2POWERVR 0x101ad670
 MechS32 g_horizonBandHeight = 0x24;
 
 #ifdef MW2_A3D
@@ -132,6 +146,7 @@ MechS32 g_unk0x100adeec = 0;
 // GLOBAL: MW2MATROX 0x100adef0
 // GLOBAL: MW23DFX 0x1024e248
 // GLOBAL: MW2ATI 0x10182558
+// GLOBAL: MW2S3 0x10061fe8
 SkyCorner g_skyCorners[16] = {
 	{-64000000.0f, 2200000.0f, -64000000.0f, 0, 0},
 	{64000000.0f, 2200000.0f, -64000000.0f, 1, 0},
@@ -190,17 +205,20 @@ MechFloat g_groundRed;
 // GLOBAL: MW2MATROX 0x1015d600
 // GLOBAL: MW23DFX 0x101b0f10
 // GLOBAL: MW2ATI 0x100e4ef0
+// GLOBAL: MW2S3 0x10161200
 A3DVertex g_a3dClipped[16];
 
 // GLOBAL: MW2MATROX 0x1015d900
 // GLOBAL: MW23DFX 0x101b12d0
 // GLOBAL: MW2ATI 0x100e5170
+// GLOBAL: MW2POWERVR 0x1010c3d8
 MechFloat g_skyScrollSpeed;
 
 // The polygon the Matrox edition hands its renderer.
 // GLOBAL: MW2MATROX 0x1015d910
 // GLOBAL: MW23DFX 0x101b12e0
 // GLOBAL: MW2ATI 0x100e5180
+// GLOBAL: MW2S3 0x10161400
 A3DVertex g_a3dVertices[16];
 
 // The point count of g_a3dClipped.
@@ -208,11 +226,14 @@ A3DVertex g_a3dVertices[16];
 // GLOBAL: MW23DFX 0x101b16a0
 MechU32 g_a3dClippedCount;
 
-// The palette's colors as the renderer takes them (0-255 per component).
+#ifndef MW2_S3
+// The palette's colors as the renderer takes them (0-255 per component; the S3 edition's renderer
+// keeps its own, g_a3dPalette).
 // GLOBAL: MW2MATROX 0x1015dcb0
 // GLOBAL: MW23DFX 0x101528c0
 // GLOBAL: MW2ATI 0x10086880
 MechFloat g_paletteRgb[256][3];
+#endif
 
 void FUN_10068856(
 	MechS32 p_count,
@@ -240,6 +261,7 @@ void FUN_100692db(Eyepoint* p_eyepoint);
 // FUNCTION: MW2MATROX 0x10067b90
 // FUNCTION: MW23DFX 0x10026a30
 // FUNCTION: MW2ATI 0x100266f0
+// FUNCTION: MW2S3 0x1000a5e0
 MechS32 FUN_10067b90(MechU32 p_count, MechU32 p_edges, MechS32 p_unk0x08)
 {
 	A3DVertex** in;
@@ -453,6 +475,7 @@ MechS32 g_lineEndY;
 // FUNCTION: MW2MATROX 0x100683ba
 // FUNCTION: MW23DFX 0x10026e80
 // FUNCTION: MW2ATI 0x10026b30
+// FUNCTION: MW2S3 0x1000aa90
 #ifdef MW2_A3D
 void DrawScenePolygon(MechS32 p_count, ProjectedVertex** p_points, MechU32 p_flags, MechS32 p_unk0x0c)
 #else
@@ -669,6 +692,52 @@ void DrawScenePolygon(MechS32 p_count, MechU32* p_points, MechU32 p_flags)
 }
 
 #ifdef MW2_A3D
+#ifdef MW2_S3
+// The S3 edition's: the polygon is placed in the frame buffer (the pane's origin added), the colors
+// tinted by g_unk0x10184700 when g_unk0x100aa1d0 is set, and clipped to the pane's edges. Its test
+// of p_unk0x14 is always true (p_unk0x14 & 1 | 0xe).
+// FUNCTION: MW2S3 0x1000ae50
+void FUN_10068856(
+	MechS32 p_count,
+	ProjectedVertex** p_points,
+	MechFloat p_red,
+	MechFloat p_green,
+	MechFloat p_blue,
+	MechS32 p_unk0x14
+)
+{
+	ProjectedVertex* point;
+	A3DVertex* vertex;
+	MechS32 i;
+
+	if (g_unk0x100aa1d0) {
+		p_red = g_unk0x10184700[2] * p_red * (1.0f / 255);
+		p_green = g_unk0x10184700[1] * p_green * (1.0f / 255);
+		p_blue = g_unk0x10184700[0] * p_blue * (1.0f / 255);
+	}
+
+	vertex = g_a3dVertices;
+	for (i = p_count; i > 0; i--) {
+		point = *p_points++;
+		vertex->m_x = point->m_screenX + g_currentPane.m_x0;
+		vertex->m_y = point->m_screenY + g_currentPane.m_y0;
+		vertex->m_red = point->m_light * p_red;
+		vertex->m_green = point->m_light * p_green;
+		vertex->m_blue = point->m_light * p_blue;
+		vertex++;
+	}
+
+	if (p_unk0x14 & 1 | 0xe) {
+		p_count = FUN_10067b90(p_count, p_unk0x14, 1);
+		if (p_count > 2) {
+			A3D_DrawPolygon(&g_currentPane, p_count, g_a3dClipped);
+		}
+	}
+	else {
+		A3D_DrawPolygon(&g_currentPane, p_count, g_a3dVertices);
+	}
+}
+#else
 // Draws a polygon in the color p_red, p_green, p_blue, lit by each vertex's light.
 // FUNCTION: MW2MATROX 0x10068856
 // FUNCTION: MW23DFX 0x10027240
@@ -712,7 +781,62 @@ void FUN_10068856(
 	A3D_DrawPolygon(&g_currentPane, p_count, g_a3dVertices);
 #endif
 }
+#endif
 
+#ifdef MW2_S3
+// The S3 edition's: the color is the renderer's palette entry (tinted by g_unk0x10184700 when
+// g_unk0x100aa1d0 is set), the polygon placed in the frame buffer and clipped to the pane's edges.
+// FUNCTION: MW2S3 0x1000af90
+void FUN_100688fe(MechS32 p_count, ProjectedVertex** p_points, MechU32 p_color, MechS32 p_unk0x0c, MechS32 p_lit)
+{
+	ProjectedVertex* point;
+	A3DVertex* vertex;
+	MechFloat red;
+	MechFloat green;
+	MechFloat blue;
+	MechS32 i;
+
+	if (g_unk0x100aa1d0) {
+		red = g_a3dPalette[p_color].m_red * g_unk0x10184700[2] * (1.0f / 255);
+		green = g_a3dPalette[p_color].m_green * g_unk0x10184700[1] * (1.0f / 255);
+		blue = g_a3dPalette[p_color].m_blue * g_unk0x10184700[0] * (1.0f / 255);
+	}
+	else {
+		red = g_a3dPalette[p_color].m_red;
+		green = g_a3dPalette[p_color].m_green;
+		blue = g_a3dPalette[p_color].m_blue;
+	}
+
+	vertex = g_a3dVertices;
+	for (i = 0; i < p_count; i++) {
+		point = *p_points++;
+		vertex->m_x = point->m_screenX + g_currentPane.m_x0;
+		vertex->m_y = point->m_screenY + g_currentPane.m_y0;
+		if (p_lit) {
+			vertex->m_red = point->m_light * red;
+			vertex->m_green = point->m_light * green;
+			vertex->m_blue = point->m_light * blue;
+		}
+		else {
+			vertex->m_red = red;
+			vertex->m_green = green;
+			vertex->m_blue = blue;
+		}
+
+		vertex++;
+	}
+
+	if (p_unk0x0c & 1 | 0xe) {
+		p_count = FUN_10067b90(p_count, p_unk0x0c, p_lit || g_unk0x100aa1d0);
+		if (p_count > 2) {
+			A3D_DrawPolygon(&g_currentPane, p_count, g_a3dClipped);
+		}
+	}
+	else {
+		A3D_DrawPolygon(&g_currentPane, p_count, g_a3dVertices);
+	}
+}
+#else
 // Draws a polygon in palette color p_color, lit by each vertex's light if p_lit is set.
 // FUNCTION: MW2MATROX 0x100688fe
 // FUNCTION: MW23DFX 0x100272e0
@@ -729,7 +853,7 @@ void FUN_100688fe(MechS32 p_count, ProjectedVertex** p_points, MechU32 p_color, 
 		vertex->m_x = point->m_screenX;
 		vertex->m_y = point->m_screenY;
 		// The ATI and 3Dfx editions store the color's components red first, the Matrox edition blue first.
-#if defined(MW2_3DFX) || defined(MW2_ATI)
+#if defined(MW2_3DFX) || defined(MW2_ATI) || defined(MW2_S3) || defined(MW2_POWERVR)
 		vertex->m_red = g_paletteRgb[p_color][0];
 		vertex->m_green = g_paletteRgb[p_color][1];
 		vertex->m_blue = g_paletteRgb[p_color][2];
@@ -762,7 +886,69 @@ void FUN_100688fe(MechS32 p_count, ProjectedVertex** p_points, MechU32 p_color, 
 	A3D_DrawPolygon(&g_currentPane, p_count, g_a3dVertices);
 #endif
 }
+#endif
 
+#ifdef MW2_S3
+// The S3 edition's: the colors tinted by g_unk0x10184700 when g_unk0x100aa1d0 is set, the polygon
+// placed in the frame buffer and clipped to the pane's edges.
+// FUNCTION: MW2S3 0x1000b180
+void FUN_100689f5(MechS32 p_count, ProjectedVertex** p_points, MechU32 p_color, MechS32 p_unk0x0c)
+{
+	MechFloat light;
+	MechFloat red;
+	MechFloat green;
+	MechFloat blue;
+	MechS32 i;
+	A3DVertex* vertex;
+	ProjectedVertex* point;
+
+	if (g_unk0x100aa1d0) {
+		red = g_unk0x10184700[2] * (1.0f / 255);
+		green = g_unk0x10184700[1] * (1.0f / 255);
+		blue = g_unk0x10184700[0] * (1.0f / 255);
+	}
+
+	vertex = g_a3dVertices;
+	for (i = 0; i < p_count; i++) {
+		point = *p_points++;
+		vertex->m_x = point->m_screenX + g_currentPane.m_x0;
+		vertex->m_y = point->m_screenY + g_currentPane.m_y0;
+		if (point->m_u > 0.0f && point->m_u < 48.0f) {
+			vertex->m_blue = point->m_blue;
+			vertex->m_green = point->m_green;
+			vertex->m_red = point->m_red;
+		}
+		else {
+			light = point->m_light;
+			if (g_unk0x100aa1d0) {
+				vertex->m_blue = point->m_blue * blue * light;
+				vertex->m_green = point->m_green * green * light;
+				vertex->m_red = point->m_red * red * light;
+			}
+			else {
+				vertex->m_blue = point->m_blue * light;
+				vertex->m_green = point->m_green * light;
+				vertex->m_red = point->m_red * light;
+			}
+		}
+
+		vertex++;
+	}
+
+	if (p_unk0x0c & 1 | 0xe) {
+		p_count = FUN_10067b90(p_count, p_unk0x0c, 1);
+		if (p_count > 2) {
+			A3D_DrawPolygon(&g_currentPane, p_count, g_a3dClipped);
+		}
+	}
+	else if (g_renderSettings.m_gouraud) {
+		A3D_DrawPolygon(&g_currentPane, p_count, g_a3dVertices);
+	}
+	else {
+		A3D_DrawPolygon(&g_currentPane, p_count, g_a3dVertices);
+	}
+}
+#else
 // Draws a shaded polygon in each vertex's color: lit by its light, unless the vertex's shade (in
 // m_u) is between 0 and 48. With p_unk0x0c set, only a polygon of three points or more (the 3Dfx
 // edition's after clipping it to the pane edges p_unk0x0c names).
@@ -816,7 +1002,31 @@ void FUN_100689f5(MechS32 p_count, ProjectedVertex** p_points, MechU32 p_color, 
 		A3D_DrawPolygon(&g_currentPane, p_count, g_a3dVertices);
 	}
 }
+#endif
 
+#ifdef MW2_S3
+// The S3 edition's draws the outline with VFX's lines, as 1.1 does, closing it.
+// FUNCTION: MW2S3 0x1000b340
+void FUN_10068b57(MechS32 p_count, ProjectedVertex** p_points, MechU32 p_color)
+{
+	ProjectedVertex* point;
+	MechS32 x;
+	MechS32 y;
+	MechS32 i;
+
+	x = p_points[0]->m_screenX;
+	y = p_points[0]->m_screenY;
+	for (i = 1; i < p_count; i++) {
+		point = p_points[i];
+		VFX_line_draw(&g_currentPane, point->m_screenX, point->m_screenY, x, y, 0, PIXEL_COLOR(p_color));
+		x = point->m_screenX;
+		y = point->m_screenY;
+	}
+
+	point = p_points[0];
+	VFX_line_draw(&g_currentPane, point->m_screenX, point->m_screenY, x, y, 0, PIXEL_COLOR(p_color));
+}
+#else
 // Draws the outline of a polygon in palette color p_color.
 // FUNCTION: MW2MATROX 0x10068b57
 // FUNCTION: MW23DFX 0x10027490
@@ -834,7 +1044,7 @@ void FUN_10068b57(MechS32 p_count, ProjectedVertex** p_points, MechU32 p_color)
 		vertex->m_y = 0;
 		vertex->m_z = 1.0f;
 		// The ATI and 3Dfx editions clear the color blue first.
-#if defined(MW2_3DFX) || defined(MW2_ATI)
+#if defined(MW2_3DFX) || defined(MW2_ATI) || defined(MW2_S3) || defined(MW2_POWERVR)
 		vertex->m_blue = 0;
 		vertex->m_green = 0;
 		vertex->m_red = 0;
@@ -851,7 +1061,7 @@ void FUN_10068b57(MechS32 p_count, ProjectedVertex** p_points, MechU32 p_color)
 		vertex->m_x = point->m_screenX;
 		vertex->m_y = point->m_screenY;
 		// The ATI and 3Dfx editions store the color's components red first, as in FUN_100688fe.
-#if defined(MW2_3DFX) || defined(MW2_ATI)
+#if defined(MW2_3DFX) || defined(MW2_ATI) || defined(MW2_S3) || defined(MW2_POWERVR)
 		vertex->m_red = g_paletteRgb[p_color][0];
 		vertex->m_green = g_paletteRgb[p_color][1];
 		vertex->m_blue = g_paletteRgb[p_color][2];
@@ -876,6 +1086,7 @@ void FUN_10068b57(MechS32 p_count, ProjectedVertex** p_points, MechU32 p_color)
 	}
 #endif
 }
+#endif
 
 // Reads a line of at most p_size - 1 characters, with its newline, from p_file into p_buffer.
 // Returns its length plus one, or 0 at the end of the file.
@@ -903,6 +1114,7 @@ MechU32 ReadTextLine(FILE* p_file, MechChar* p_buffer, MechS32 p_size)
 // Reads the textured sky's and ground's settings for mission p_mission from skygnd.par, or sets the
 // defaults without the file (but in the Matrox edition not when the file has no line for the mission).
 // FUNCTION: MW2MATROX 0x10068d0f
+// FUNCTION: MW2S3 0x1000b440
 void LoadSkyGroundSettings(const MechChar* p_mission)
 {
 	MechChar mission[4];
@@ -1118,6 +1330,64 @@ void FUN_100692db(Eyepoint* p_eyepoint)
 }
 #endif
 
+#ifdef MW2_S3
+// The S3 edition's polygon in the color p_red, p_green, p_blue, unlit (tinted by g_unk0x10184700
+// when g_unk0x100aa1d0 is set), placed in the frame buffer and clipped to the pane's edges. Its
+// test of p_unk0x14 is always true (p_unk0x14 & 1 | 0xe).
+// FUNCTION: MW2S3 0x1000bcc0
+void FUN_1000bcc0(
+	MechS32 p_count,
+	ProjectedVertex** p_points,
+	MechFloat p_red,
+	MechFloat p_green,
+	MechFloat p_blue,
+	MechS32 p_unk0x14
+)
+{
+	ProjectedVertex* point;
+	A3DVertex* vertex;
+	MechFloat red;
+	MechFloat green;
+	MechFloat blue;
+	MechS32 i;
+
+	if (g_unk0x100aa1d0) {
+		red = g_unk0x10184700[2] * (1.0f / 255);
+		green = g_unk0x10184700[1] * (1.0f / 255);
+		blue = g_unk0x10184700[0] * (1.0f / 255);
+	}
+
+	vertex = g_a3dVertices;
+	for (i = p_count; i > 0; i--) {
+		point = *p_points++;
+		vertex->m_x = point->m_screenX + g_currentPane.m_x0;
+		vertex->m_y = point->m_screenY + g_currentPane.m_y0;
+		if (g_unk0x100aa1d0) {
+			vertex->m_red = red * p_red;
+			vertex->m_green = green * p_green;
+			vertex->m_blue = blue * p_blue;
+		}
+		else {
+			vertex->m_red = p_red;
+			vertex->m_green = p_green;
+			vertex->m_blue = p_blue;
+		}
+
+		vertex++;
+	}
+
+	if (p_unk0x14 & 1 | 0xe) {
+		p_count = FUN_10067b90(p_count, p_unk0x14, 1);
+		if (p_count > 2) {
+			A3D_DrawPolygon(&g_currentPane, p_count, g_a3dClipped);
+		}
+	}
+	else {
+		A3D_DrawPolygon(&g_currentPane, p_count, g_a3dVertices);
+	}
+}
+#endif
+
 // A 16-bit pixel from 8-bit components: RGB555 in the 3Dfx edition, RGB565 in the Matrox edition.
 #if MW2_PIXEL_FORMAT == 555
 #define PIXEL_RGB16(r, g, b) ((((MechU8) (r) & ~7) << 5 | ((MechU8) (g) & ~7)) << 2 | (MechU8) (b) >> 3)
@@ -1226,6 +1496,22 @@ void DrawSkyAndGround(Eyepoint* p_eyepoint)
 	g_skyColor = 0xe0;
 	g_groundColor = 0xef;
 #endif
+#ifdef MW2_S3
+	g_a3dPalette[g_skyColor].m_red = g_skyRed;
+	g_a3dPalette[g_skyColor].m_green = g_skyGreen;
+	g_a3dPalette[g_skyColor].m_blue = g_skyBlue;
+	VFX_lookaside_write16(g_skyColor, PIXEL_RGB16(g_skyRed, g_skyGreen, g_skyBlue));
+	g_a3dPalette[g_groundColor].m_red = g_groundRed;
+	g_a3dPalette[g_groundColor].m_green = g_groundGreen;
+	g_a3dPalette[g_groundColor].m_blue = g_groundBlue;
+	VFX_lookaside_write16(g_groundColor, PIXEL_RGB16(g_groundRed, g_groundGreen, g_groundBlue));
+	band[0].m_red = g_a3dPalette[g_skyColor].m_red;
+	band[0].m_green = g_a3dPalette[g_skyColor].m_green;
+	band[0].m_blue = g_a3dPalette[g_skyColor].m_blue;
+	band[1].m_red = g_a3dPalette[g_skyColor].m_red;
+	band[1].m_green = g_a3dPalette[g_skyColor].m_green;
+	band[1].m_blue = g_a3dPalette[g_skyColor].m_blue;
+#else
 	g_paletteRgb[g_skyColor][0] = g_skyRed;
 	g_paletteRgb[g_skyColor][1] = g_skyGreen;
 	g_paletteRgb[g_skyColor][2] = g_skyBlue;
@@ -1234,8 +1520,10 @@ void DrawSkyAndGround(Eyepoint* p_eyepoint)
 	g_paletteRgb[g_groundColor][1] = g_groundGreen;
 	g_paletteRgb[g_groundColor][2] = g_groundBlue;
 	VFX_lookaside_write16(g_groundColor, PIXEL_RGB16(g_groundRed, g_groundGreen, g_groundBlue));
+#endif
 	// The ATI and 3Dfx editions store the color's components red first, as in FUN_100688fe.
-#if defined(MW2_3DFX) || defined(MW2_ATI)
+#if defined(MW2_S3)
+#elif defined(MW2_3DFX) || defined(MW2_ATI) || defined(MW2_POWERVR)
 	band[0].m_red = g_paletteRgb[g_skyColor][0];
 	band[0].m_green = g_paletteRgb[g_skyColor][1];
 	band[0].m_blue = g_paletteRgb[g_skyColor][2];
@@ -1949,6 +2237,7 @@ void DrawSkyAndGround(Eyepoint* p_eyepoint)
 // FUNCTION: MW2MATROX 0x1006ab1d
 // FUNCTION: MW23DFX 0x10027570
 // FUNCTION: MW2ATI 0x10027220
+// FUNCTION: MW2S3 0x1000d8a0
 void DrawPentagon(
 	MechS32 p_x0,
 	MechS32 p_y0,
@@ -2000,10 +2289,58 @@ void DrawPentagon(
 #endif
 }
 
+#ifdef MW2_S3
+// The S3 edition's polygon in palette color p_color, unlit (tinted by g_unk0x10184700 when
+// g_unk0x100aa1d0 is set), its points already in the frame buffer, clipped to the pane's edges.
+// FUNCTION: MW2S3 0x1000d960
+void FUN_1000d960(MechS32 p_count, ProjectedVertex** p_points, MechU32 p_color, MechS32 p_unk0x0c)
+{
+	ProjectedVertex* point;
+	A3DVertex* vertex;
+	MechFloat red;
+	MechFloat green;
+	MechFloat blue;
+	MechS32 i;
+
+	if (g_unk0x100aa1d0) {
+		red = g_a3dPalette[p_color].m_red * g_unk0x10184700[2] * (1.0f / 255);
+		green = g_a3dPalette[p_color].m_green * g_unk0x10184700[1] * (1.0f / 255);
+		blue = g_a3dPalette[p_color].m_blue * g_unk0x10184700[0] * (1.0f / 255);
+	}
+	else {
+		red = g_a3dPalette[p_color].m_red;
+		green = g_a3dPalette[p_color].m_green;
+		blue = g_a3dPalette[p_color].m_blue;
+	}
+
+	vertex = g_a3dVertices;
+	for (i = 0; i < p_count; i++) {
+		point = *p_points++;
+		vertex->m_x = point->m_screenX;
+		vertex->m_y = point->m_screenY;
+		vertex->m_red = red;
+		vertex->m_green = green;
+		vertex->m_blue = blue;
+		vertex++;
+	}
+
+	if (p_unk0x0c & 1 | 0xe) {
+		p_count = FUN_10067b90(p_count, p_unk0x0c, 1);
+		if (p_count > 2) {
+			A3D_DrawPolygon(&g_currentPane, p_count, g_a3dClipped);
+		}
+	}
+	else {
+		A3D_DrawPolygon(&g_currentPane, p_count, g_a3dVertices);
+	}
+}
+#endif
+
 // FUNCTION: MW2 0x100444a6
 // FUNCTION: MW2MATROX 0x1006abde
 // FUNCTION: MW23DFX 0x10027630
 // FUNCTION: MW2ATI 0x100272e0
+// FUNCTION: MW2S3 0x1000daf0
 void DrawQuad(
 	MechS32 p_x0,
 	MechS32 p_y0,
@@ -2053,6 +2390,7 @@ void DrawQuad(
 // FUNCTION: MW2MATROX 0x1006ac8d
 // FUNCTION: MW23DFX 0x100276d0
 // FUNCTION: MW2ATI 0x10027380
+// FUNCTION: MW2S3 0x1000db90
 void DrawTriangle(MechS32 p_x0, MechS32 p_y0, MechS32 p_x1, MechS32 p_y1, MechS32 p_x2, MechS32 p_y2, MechU32 p_flags)
 {
 #ifdef MW2_A3D

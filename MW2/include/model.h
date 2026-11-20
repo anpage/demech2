@@ -10,7 +10,7 @@
    transforms it). */
 typedef struct Model Model;
 
-// SIZE 0x18
+// SIZE 0x18 (0x1c in the PowerVR edition)
 struct Model {
 	MechScalar m_key;                 // 0x00 — the list is sorted by it, ascending
 	MechS16 m_vertexCount;            // 0x04
@@ -20,6 +20,10 @@ struct Model {
 	undefined4 m_transformCount;      // 0x10
 	MechU16 m_unk0x14;                // 0x14
 	undefined m_unk0x16[0x18 - 0x16]; // 0x16
+#ifdef MW2_POWERVR
+	// The PowerVR edition's models are 0x1c bytes, with the model's SGL list.
+	MechS32 m_list; // 0x18
+#endif
 };
 
 #endif // MODEL_H

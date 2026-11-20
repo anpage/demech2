@@ -29,6 +29,8 @@
 // FUNCTION: MW2MATROX 0x1007e020
 // FUNCTION: MW23DFX 0x10064780
 // FUNCTION: MW2ATI 0x10061df0
+// FUNCTION: MW2S3 0x100414b0
+// FUNCTION: MW2POWERVR 0x1005cb60
 void RunMenuSlider(MenuDefinition* p_menu, MenuControl* p_control, MechS32 p_index, Point p_pos, MenuPage* p_page)
 {
 	MechS32 width;
@@ -207,6 +209,8 @@ void RunMenuSlider(MenuDefinition* p_menu, MenuControl* p_control, MechS32 p_ind
 // FUNCTION: MW2MATROX 0x1007e58b
 // FUNCTION: MW23DFX 0x10064b60
 // FUNCTION: MW2ATI 0x100621d0
+// FUNCTION: MW2S3 0x10041890
+// FUNCTION: MW2POWERVR 0x1005cf40
 void RunMenuStatus(MenuDefinition* p_menu, MenuControl* p_control, MechS32 p_index, Point p_pos, MenuPage* p_page)
 {
 	MechS32 pressed;
@@ -344,6 +348,8 @@ void RunMenuStatus(MenuDefinition* p_menu, MenuControl* p_control, MechS32 p_ind
 // FUNCTION: MW2MATROX 0x1007e92e
 // FUNCTION: MW23DFX 0x10064d90
 // FUNCTION: MW2ATI 0x10062400
+// FUNCTION: MW2S3 0x10041ac0
+// FUNCTION: MW2POWERVR 0x1005d170
 void RunMenuChoice(MenuDefinition* p_menu, MenuControl* p_control, MechS32 p_index, Point p_pos, MenuPage* p_page)
 {
 	MechS32 pressed;
@@ -486,6 +492,8 @@ void RunMenuChoice(MenuDefinition* p_menu, MenuControl* p_control, MechS32 p_ind
 // FUNCTION: MW2MATROX 0x1007eca5
 // FUNCTION: MW23DFX 0x10064fa0
 // FUNCTION: MW2ATI 0x10062610
+// FUNCTION: MW2S3 0x10041cd0
+// FUNCTION: MW2POWERVR 0x1005d380
 void RunMenuTextBox(MenuDefinition* p_menu, MenuControl* p_control, MechS32 p_index, Point p_pos, MenuPage* p_page)
 {
 	MenuTextBox* box;

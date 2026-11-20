@@ -17,6 +17,13 @@ typedef struct AnimFrame {
 	MechFloat m_blue;  // 0x0c
 #endif
 	MechU16* m_data; // 0x04 (0x10 in the Matrox edition) — width, height, then the pixels
+#ifdef MW2_POWERVR
+	// The PowerVR edition's frames are 0x20 bytes: the SGL cached texture made of them, and the
+	// frame it was last used in.
+	undefined4 m_unk0x14; // 0x14
+	MechS32 m_texture;    // 0x18
+	MechS32 m_lastUsed;   // 0x1c
+#endif
 } AnimFrame;
 
 #endif // ANIMFRAME_H

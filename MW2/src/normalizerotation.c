@@ -13,6 +13,8 @@
 // FUNCTION: MW2MATROX 0x10002479
 // FUNCTION: MW23DFX 0x1002f500
 // FUNCTION: MW2ATI 0x1002e5e0
+// FUNCTION: MW2S3 0x10028a60
+// FUNCTION: MW2POWERVR 0x10029460
 void NormalizeRotation(Matrix* p_matrix)
 {
 #ifdef MW2_FLOAT_SCALARS
@@ -35,6 +37,7 @@ void NormalizeRotation(Matrix* p_matrix)
 // Scales (*p_x, *p_y, *p_z) to length p_length (the Matrox edition always to 1).
 // FUNCTION: MW2 0x1007ccc2
 // FUNCTION: MW2MATROX 0x1000252c
+// FUNCTION: MW2S3 0x10028ac0
 void ScaleVectorToLength(SCALE_VECTOR_PARAMS)
 {
 	MechDouble scale;

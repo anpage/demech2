@@ -21,6 +21,8 @@
 // FUNCTION: MW2MATROX 0x1007edd0
 // FUNCTION: MW23DFX 0x1002ffb0
 // FUNCTION: MW2ATI 0x1002f010
+// FUNCTION: MW2S3 0x10041d60
+// FUNCTION: MW2POWERVR 0x10029a90
 MechS32 InitSinAtanTables(void)
 {
 	MechS32 i;
@@ -40,6 +42,8 @@ MechS32 InitSinAtanTables(void)
 // FUNCTION: MW2MATROX 0x1007ee7b
 // FUNCTION: MW23DFX 0x10030030
 // FUNCTION: MW2ATI 0x1002f090
+// FUNCTION: MW2S3 0x10041dd0
+// FUNCTION: MW2POWERVR 0x10029b10
 MechScalar FixedSin(MechScalar p_angle)
 {
 	MechScalar sine;
@@ -80,6 +84,8 @@ MechScalar FixedSin(MechScalar p_angle)
 // FUNCTION: MW2MATROX 0x1007ef93
 // FUNCTION: MW23DFX 0x10030120
 // FUNCTION: MW2ATI 0x1002f180
+// FUNCTION: MW2S3 0x10041ec0
+// FUNCTION: MW2POWERVR 0x10029c00
 MechScalar FixedAtan2(MechScalar p_x, MechScalar p_z)
 {
 	MechS32 zNegative;
@@ -143,6 +149,8 @@ MechScalar FixedAtan2(MechScalar p_x, MechScalar p_z)
 // FUNCTION: MW2MATROX 0x1007f15b
 // FUNCTION: MW23DFX 0x100302c0
 // FUNCTION: MW2ATI 0x1002f320
+// FUNCTION: MW2S3 0x10042030
+// FUNCTION: MW2POWERVR 0x10029da0
 MechS32 InitSlopeTables(void)
 {
 	MechS32 i;
@@ -172,6 +180,8 @@ MechS32 InitSlopeTables(void)
 // FUNCTION: MW2MATROX 0x1007f25b
 // FUNCTION: MW23DFX 0x10030330
 // FUNCTION: MW2ATI 0x1002f390
+// FUNCTION: MW2S3 0x10042090
+// FUNCTION: MW2POWERVR 0x10029e10
 MechScalar ApproximateVectorLength(MechScalar p_x, MechScalar p_y, MechScalar p_z)
 {
 	MechScalar z;
@@ -219,6 +229,8 @@ MechScalar ApproximateVectorLength(MechScalar p_x, MechScalar p_y, MechScalar p_
 // FUNCTION: MW2MATROX 0x1007f336
 // FUNCTION: MW23DFX 0x100303f0
 // FUNCTION: MW2ATI 0x1002f450
+// FUNCTION: MW2S3 0x10042150
+// FUNCTION: MW2POWERVR 0x10029ed0
 MechScalar Hypot2D(MechScalar p_x, MechScalar p_y)
 {
 	MechDouble x;
@@ -234,6 +246,8 @@ MechScalar Hypot2D(MechScalar p_x, MechScalar p_y)
 // FUNCTION: MW2MATROX 0x1007f368
 // FUNCTION: MW23DFX 0x10030410
 // FUNCTION: MW2ATI 0x1002f470
+// FUNCTION: MW2S3 0x10042170
+// FUNCTION: MW2POWERVR 0x10029ef0
 MechS32 ComputeTriangleNormal(
 	MechScalar p_x0,
 	MechScalar p_y0,
@@ -268,6 +282,8 @@ MechS32 ComputeTriangleNormal(
 // FUNCTION: MW2MATROX 0x1007f461
 // FUNCTION: MW23DFX 0x10030500
 // FUNCTION: MW2ATI 0x1002f560
+// FUNCTION: MW2S3 0x10042220
+// FUNCTION: MW2POWERVR 0x10029fe0
 void NormalizeVectorGuarded(MechScalar* p_x, MechScalar* p_y, MechScalar* p_z)
 {
 	MechScalar length;

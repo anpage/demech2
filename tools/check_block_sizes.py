@@ -63,12 +63,15 @@ TARGET_DEFINES = {
 COMMON_INCLUDES = [
     "util",
     "common/include",
+    "3rdparty/ati3dcif",
     "3rdparty/ddraw",
     "3rdparty/dispdib",
     "3rdparty/dplay",
     "3rdparty/glide",
     "3rdparty/mss",
     "3rdparty/msi95",
+    "3rdparty/s3dtk",
+    "3rdparty/sgl",
     "3rdparty/smacker",
     "3rdparty/texus",
 ]
@@ -79,6 +82,8 @@ EDITION_DEFINES = {
     "matrox": ["MW2_ACCEL", "MW2_MATROX"],
     "3dfx": ["MW2_ACCEL", "MW2_3DFX"],
     "ati": ["MW2_ACCEL", "MW2_ATI"],
+    "s3": ["MW2_ACCEL", "MW2_S3"],
+    "powervr": ["MW2_ACCEL", "MW2_POWERVR"],
 }
 
 COMMON_DEFINES = ["WIN32", "_WINDOWS"]

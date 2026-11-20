@@ -1,0 +1,9 @@
+; Import library for S3DTKW.DLL (S3's ViRGE toolkit): the functions the S3 edition imports, by
+; name (__cdecl, undecorated). Its other calls go through the renderer object's function table.
+LIBRARY S3DTKW
+EXPORTS
+    S3DTK_CreateRenderer
+    S3DTK_DestroyRenderer
+    S3DTK_ExitLib
+    S3DTK_InitLib
+    S3DTK_LinearToPhysical

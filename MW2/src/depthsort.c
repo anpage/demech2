@@ -54,24 +54,28 @@ DECOMP_SIZE_ASSERT(QueuedPolygon, 0xc)
 // GLOBAL: MW2MATROX 0x100a5540
 // GLOBAL: MW23DFX 0x1024e404
 // GLOBAL: MW2ATI 0x10182714
+// GLOBAL: MW2S3 0x10065768
 MechS32 g_depthEntryCount = 0;
 
 // GLOBAL: MW2 0x100a54b4
 // GLOBAL: MW2MATROX 0x100a5544
 // GLOBAL: MW23DFX 0x1024e408
 // GLOBAL: MW2ATI 0x10182718
+// GLOBAL: MW2S3 0x1006576c
 MechS32 g_polygonCount = 0;
 
 // GLOBAL: MW2 0x100a54b8
 // GLOBAL: MW2MATROX 0x100a5548
 // GLOBAL: MW23DFX 0x1024e40c
 // GLOBAL: MW2ATI 0x1018271c
+// GLOBAL: MW2S3 0x10065770
 MechS32 g_maxPolygons = 0;
 
 // GLOBAL: MW2 0x1010b5a0
 // GLOBAL: MW2MATROX 0x101d696c
 // GLOBAL: MW23DFX 0x101b0ecc
 // GLOBAL: MW2ATI 0x100e4eac
+// GLOBAL: MW2S3 0x100b1d60
 MechS32 g_shapesDrawn;
 
 // The depth the shapes are queued at.
@@ -79,6 +83,7 @@ MechS32 g_shapesDrawn;
 // GLOBAL: MW2MATROX 0x101d6964
 // GLOBAL: MW23DFX 0x101b0ec4
 // GLOBAL: MW2ATI 0x100e4ea4
+// GLOBAL: MW2S3 0x100b1d64
 MechScalar g_queueDepth;
 
 // The list being built: g_depthQueue or g_drawList.
@@ -86,6 +91,7 @@ MechScalar g_queueDepth;
 // GLOBAL: MW2MATROX 0x101d6980
 // GLOBAL: MW23DFX 0x101b0ee0
 // GLOBAL: MW2ATI 0x100e4ec0
+// GLOBAL: MW2S3 0x100b1d80
 DepthEntry* g_depthList;
 
 // The flags of the shape being queued.
@@ -93,12 +99,14 @@ DepthEntry* g_depthList;
 // GLOBAL: MW2MATROX 0x101d697c
 // GLOBAL: MW23DFX 0x101b0edc
 // GLOBAL: MW2ATI 0x100e4ebc
+// GLOBAL: MW2S3 0x100b1d84
 MechU32 g_queuedShapeFlags;
 
 // GLOBAL: MW2 0x1010b5cc
 // GLOBAL: MW2MATROX 0x101d6970
 // GLOBAL: MW23DFX 0x101b0ed0
 // GLOBAL: MW2ATI 0x100e4eb0
+// GLOBAL: MW2S3 0x100b1d88
 MechS32 g_shapesConsidered;
 
 // Selects the shape's level of detail for p_depth (the first model whose distance, scaled by the
@@ -107,6 +115,7 @@ MechS32 g_shapesConsidered;
 // FUNCTION: MW2MATROX 0x100232f0
 // FUNCTION: MW23DFX 0x10029f00
 // FUNCTION: MW2ATI 0x10029b30
+// FUNCTION: MW2S3 0x10021880
 MechS32 QueueShapeLod(Shape* p_shape, MechScalar p_depth)
 {
 	Model* model;
@@ -243,6 +252,7 @@ void DrawQueuedPolygon(QueuedPolygon* p_poly)
 // FUNCTION: MW2MATROX 0x10023500
 // FUNCTION: MW23DFX 0x10029ff0
 // FUNCTION: MW2ATI 0x10029c20
+// FUNCTION: MW2S3 0x10021970
 void SortDepthEntries(DepthEntry* p_first, DepthEntry* p_last)
 {
 	MechScalar pivot;
@@ -308,6 +318,7 @@ void SortDepthEntries(DepthEntry* p_first, DepthEntry* p_last)
 // FUNCTION: MW2MATROX 0x100235a0
 // FUNCTION: MW23DFX 0x1002a080
 // FUNCTION: MW2ATI 0x10029cb0
+// FUNCTION: MW2S3 0x10021a00
 void DrawShapeList(Shape* p_root)
 {
 	Shape* shape;
@@ -350,6 +361,7 @@ void DrawShapeList(Shape* p_root)
 // FUNCTION: MW2MATROX 0x100236a0
 // FUNCTION: MW23DFX 0x1002a170
 // FUNCTION: MW2ATI 0x10029da0
+// FUNCTION: MW2S3 0x10021af0
 void DrawDepthQueue(void)
 {
 	MechS32 i;
@@ -400,6 +412,7 @@ void DrawDepthQueue(void)
 // FUNCTION: MW2MATROX 0x100237e0
 // FUNCTION: MW23DFX 0x1002a300
 // FUNCTION: MW2ATI 0x10029f30
+// FUNCTION: MW2S3 0x10021c80
 void QueueObjTree(SceneObject* p_object)
 {
 	SceneObject* child;

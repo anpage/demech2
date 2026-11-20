@@ -6,7 +6,7 @@
 #include "palette.h"
 #include "polydraw.h"
 #include "types.h"
-#ifdef MW2_ATI
+#if defined(MW2_ATI) || defined(MW2_S3) || defined(MW2_POWERVR)
 #include "accel/a3d.h"
 #include "rendersettings.h"
 #endif
@@ -23,7 +23,8 @@ FloatPoint g_bandTexCoords[4] = {{0, 0}, {1.0f, 0}, {1.0f, 1.0f}, {0, 1.0f}};
 Point g_bandTexCoords[4] = {{0, 0}, {0x10000, 0}, {0x10000, 0x10000}, {0, 0x10000}};
 #endif
 
-#ifdef MW2_ATI
+// The S3 edition has this function at the start of palette.c's object (bandtexture.c).
+#if defined(MW2_ATI) || defined(MW2_POWERVR)
 // The ATI edition's: draws the textured polygon of p_count vertices p_vertices on p_pane, its
 // texture the p_width x p_height pixels p_pixels (at most 128 texels square, as wide as it is high),
 // with levels when p_mip, translucent with p_translucent; perspective-corrected when the render
@@ -111,6 +112,7 @@ void DrawBandPolygon(MechU32 p_flags, MechS32 p_count, MechU32* p_points, MechS3
 // FUNCTION: MW2MATROX 0x100459b0
 // FUNCTION: MW23DFX 0x1002a8e0
 // FUNCTION: MW2ATI 0x1002a530
+// FUNCTION: MW2S3 0x1003f090
 #ifdef MW2_A3D
 MechS32 DrawBand(
 	MechU32 p_color,

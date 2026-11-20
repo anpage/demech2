@@ -75,6 +75,8 @@ enum FilePermission {
 // GLOBAL: MW2MATROX 0x100a3f00
 // GLOBAL: MW23DFX 0x10259c90
 // GLOBAL: MW2ATI 0x1018df90
+// GLOBAL: MW2S3 0x1006a2a8
+// GLOBAL: MW2POWERVR 0x101b9288
 MechChar g_gameDir[256] = {0};
 
 // The number of the next screenshot SaveScreenshot saves.
@@ -82,6 +84,8 @@ MechChar g_gameDir[256] = {0};
 // GLOBAL: MW2MATROX 0x100a4000
 // GLOBAL: MW23DFX 0x10259d90
 // GLOBAL: MW2ATI 0x1018e090
+// GLOBAL: MW2S3 0x1006a3a8
+// GLOBAL: MW2POWERVR 0x101b9388
 MechS32 g_screenshotCount = 0;
 
 // The path BuildGamePath returns: 0x100 bytes in every edition, each with other globals after it
@@ -90,6 +94,8 @@ MechS32 g_screenshotCount = 0;
 // GLOBAL: MW2MATROX 0x100c1d20
 // GLOBAL: MW23DFX 0x1007db30
 // GLOBAL: MW2ATI 0x10072b30
+// GLOBAL: MW2S3 0x1007ce30
+// GLOBAL: MW2POWERVR 0x10070b78
 MechChar g_gamePath[0x100];
 
 // The three values of the HUD layout (LoadHudFile).
@@ -97,6 +103,7 @@ MechChar g_gamePath[0x100];
 // GLOBAL: MW2MATROX 0x1015e8b0
 // GLOBAL: MW23DFX 0x101de8e0
 // GLOBAL: MW2ATI 0x101125a0
+// GLOBAL: MW2S3 0x1008ac10
 MechS32 g_hudLayoutValues[3];
 
 // Loads seven values from resource p_ref.
@@ -104,6 +111,8 @@ MechS32 g_hudLayoutValues[3];
 // FUNCTION: MW2MATROX 0x1000acd0
 // FUNCTION: MW23DFX 0x100400b0
 // FUNCTION: MW2ATI 0x1003de10
+// FUNCTION: MW2S3 0x1002dd80
+// FUNCTION: MW2POWERVR 0x10038c70
 MechS32 LoadMgdFile(
 	ResourceRef* p_ref,
 	MechScalar* p_height,
@@ -157,10 +166,13 @@ MechS32 LoadMgdFile(
 
 // Loads the animation file p_ref: up to 32 animations, numbered from the current base
 // (GetAnimBase), into g_reels.
+// Matches but for the registers, which VC++ 2.2 allocates differently.
 // FUNCTION: MW2 0x100708f4
 // FUNCTION: MW2MATROX 0x1000ae34
 // FUNCTION: MW23DFX 0x100401c0
 // FUNCTION: MW2ATI 0x1003df20
+// FUNCTION: MW2S3 0x1002de90
+// FUNCTION: MW2POWERVR 0x10038d80
 MechS32 LoadReels(ResourceRef* p_ref)
 {
 	MechS32 ids[32];
@@ -254,10 +266,13 @@ MechS32 LoadReels(ResourceRef* p_ref)
 // Loads the cockpit layout resource p_ref: the gauge positions (g_hudGaugePositions), three values
 // (g_hudLayoutValues) and fifteen rectangles in percent of the screen (g_outlinePartRects), any of
 // them out of range cleared.
+// Matches but for the registers, which VC++ 2.2 allocates differently.
 // FUNCTION: MW2 0x10070bda
 // FUNCTION: MW2MATROX 0x1000b1c6
 // FUNCTION: MW23DFX 0x100403a0
 // FUNCTION: MW2ATI 0x1003e100
+// FUNCTION: MW2S3 0x1002e070
+// FUNCTION: MW2POWERVR 0x10038f60
 MechS32 LoadHudFile(ResourceRef* p_ref)
 {
 	MechS32 size;
@@ -331,6 +346,8 @@ MechS32 LoadHudFile(ResourceRef* p_ref)
 // FUNCTION: MW2MATROX 0x1000b40e
 // FUNCTION: MW23DFX 0x100404f0
 // FUNCTION: MW2ATI 0x1003e250
+// FUNCTION: MW2S3 0x1002e1c0
+// FUNCTION: MW2POWERVR 0x100390b0
 MechS32 LoadCptFile(ResourceRef* p_ref, PANE* p_gauges, PANE* p_panels, Point* p_point)
 {
 	MechS32 size;
@@ -430,6 +447,8 @@ MechS32 WriteScreenPicture(MechChar* p_path, void* p_palette)
 // FUNCTION: MW2MATROX 0x1000b6f4
 // FUNCTION: MW23DFX 0x10040700
 // FUNCTION: MW2ATI 0x1003e3c0
+// FUNCTION: MW2S3 0x1002e330
+// FUNCTION: MW2POWERVR 0x10039220
 MechS32 LoadFile(MechChar* p_path, MechS32* p_size, void** p_data, BwdTag* p_poolTag)
 {
 	FILE* log;
@@ -493,6 +512,8 @@ MechS32 ReadGameFile(MechChar* p_name, void** p_data)
 // FUNCTION: MW2MATROX 0x1000b89c
 // FUNCTION: MW23DFX 0x10040850
 // FUNCTION: MW2ATI 0x1003e4c0
+// FUNCTION: MW2S3 0x1002e430
+// FUNCTION: MW2POWERVR 0x10039320
 MechS32 WriteCareerRecordFile(MechChar* p_name, void* p_data)
 {
 	MechS32 file;
@@ -517,6 +538,8 @@ MechS32 WriteCareerRecordFile(MechChar* p_name, void* p_data)
 // FUNCTION: MW2MATROX 0x1000b912
 // FUNCTION: MW23DFX 0x100408a0
 // FUNCTION: MW2ATI 0x1003e510
+// FUNCTION: MW2S3 0x1002e480
+// FUNCTION: MW2POWERVR 0x10039370
 MechS32 LoadDifficultyCfg(MechChar* p_name, DifficultyCfg** p_cfg)
 {
 	MechS32 size;
@@ -580,6 +603,8 @@ MechS32 SaveDifficultyCfg(MechChar* p_name, DifficultyCfg* p_cfg)
 // FUNCTION: MW2MATROX 0x1000ba9f
 // FUNCTION: MW23DFX 0x100409b0
 // FUNCTION: MW2ATI 0x1003e5d0
+// FUNCTION: MW2S3 0x1002e540
+// FUNCTION: MW2POWERVR 0x10039430
 MechS32 LoadSndCfg(MechChar* p_name, SoundConfig** p_cfg)
 {
 	MechS32 size;
@@ -603,6 +628,8 @@ MechS32 LoadSndCfg(MechChar* p_name, SoundConfig** p_cfg)
 // FUNCTION: MW2MATROX 0x1000bb1b
 // FUNCTION: MW23DFX 0x10040a10
 // FUNCTION: MW2ATI 0x1003e630
+// FUNCTION: MW2S3 0x1002e5a0
+// FUNCTION: MW2POWERVR 0x10039490
 MechS32 SaveSndCfg(MechChar* p_name, SoundConfig* p_cfg)
 {
 	MechS32 file;
@@ -626,6 +653,7 @@ MechS32 SaveSndCfg(MechChar* p_name, SoundConfig* p_cfg)
 // FUNCTION: MW2MATROX 0x1000bb8e
 // FUNCTION: MW23DFX 0x10040a60
 // FUNCTION: MW2ATI 0x1003e680
+// FUNCTION: MW2S3 0x1002e5f0
 void SaveScreenshot(void)
 {
 	MechS32 count;
@@ -683,6 +711,8 @@ void SaveScreenshot(void)
 // FUNCTION: MW2MATROX 0x1000bcd2
 // FUNCTION: MW23DFX 0x10040b60
 // FUNCTION: MW2ATI 0x1003e780
+// FUNCTION: MW2S3 0x1002e6f0
+// FUNCTION: MW2POWERVR 0x100394e0
 MechChar* BuildGamePath(MechChar* p_name)
 {
 	MechS32 i;

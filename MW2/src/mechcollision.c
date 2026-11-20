@@ -34,6 +34,8 @@
 // FUNCTION: MW2MATROX 0x10075a80
 // FUNCTION: MW23DFX 0x1000b5e0
 // FUNCTION: MW2ATI 0x1000bd50
+// FUNCTION: MW2S3 0x1002b900
+// FUNCTION: MW2POWERVR 0x1000a910
 MechS32 MoveMechWithCollisions(
 	Mech* p_mech,
 	Shape** p_hit,
@@ -217,6 +219,8 @@ MechS32 MoveMechWithCollisions(
 // FUNCTION: MW2MATROX 0x10075f6c
 // FUNCTION: MW23DFX 0x1000ba20
 // FUNCTION: MW2ATI 0x1000c190
+// FUNCTION: MW2S3 0x1002bd40
+// FUNCTION: MW2POWERVR 0x1000ad50
 MechS32 CollideWithMechs(Mech* p_mech, MechScalar* p_x, MechScalar* p_y, MechScalar* p_z, Player** p_hit)
 {
 	MechScalar radius;
@@ -431,6 +435,8 @@ MechS32 CollideWithMechs(Mech* p_mech, MechScalar* p_x, MechScalar* p_y, MechSca
 // FUNCTION: MW2MATROX 0x1007649e
 // FUNCTION: MW23DFX 0x1000be60
 // FUNCTION: MW2ATI 0x1000c5d0
+// FUNCTION: MW2S3 0x1002c100
+// FUNCTION: MW2POWERVR 0x1000b190
 MechS32 CollideWithBuildings(Mech* p_mech, MechScalar* p_x, MechScalar* p_y, MechScalar* p_z, Shape** p_hit)
 {
 	MechScalar dz;
@@ -563,6 +569,8 @@ MechS32 CollideWithBuildings(Mech* p_mech, MechScalar* p_x, MechScalar* p_y, Mec
 // FUNCTION: MW2MATROX 0x1007685c
 // FUNCTION: MW23DFX 0x1000c160
 // FUNCTION: MW2ATI 0x1000c8d0
+// FUNCTION: MW2S3 0x1002c3c0
+// FUNCTION: MW2POWERVR 0x1000b490
 void DamageMechsInCollision(Mech* p_mech, Mech* p_other)
 {
 	MechScalar speed;
@@ -594,6 +602,8 @@ void DamageMechsInCollision(Mech* p_mech, Mech* p_other)
 // FUNCTION: MW2MATROX 0x10076927
 // FUNCTION: MW23DFX 0x1000c1f0
 // FUNCTION: MW2ATI 0x1000c960
+// FUNCTION: MW2S3 0x1002c450
+// FUNCTION: MW2POWERVR 0x1000b520
 void ApplyCollisionDamage(Mech* p_mech, Mech* p_other, MechScalar p_damage)
 {
 	MechS32 attacker;
@@ -667,6 +677,8 @@ void ApplyCollisionDamage(Mech* p_mech, Mech* p_other, MechScalar p_damage)
 // FUNCTION: MW2MATROX 0x10076bc3
 // FUNCTION: MW23DFX 0x1000c3c0
 // FUNCTION: MW2ATI 0x1000cb30
+// FUNCTION: MW2S3 0x1002c610
+// FUNCTION: MW2POWERVR 0x1000b6f0
 void DamageMechHittingShape(Mech* p_mech, Shape* p_shape)
 {
 	MechScalar damage;
@@ -719,6 +731,8 @@ void DamageMechHittingShape(Mech* p_mech, Shape* p_shape)
 // FUNCTION: MW2MATROX 0x10076d51
 // FUNCTION: MW23DFX 0x1000c4d0
 // FUNCTION: MW2ATI 0x1000cc40
+// FUNCTION: MW2S3 0x1002c720
+// FUNCTION: MW2POWERVR 0x1000b800
 void KnockMechOver(Mech* p_mech)
 {
 	MechScalar x;

@@ -66,6 +66,9 @@
 #ifdef MW2_MATROX
 #include "matrox/msidraw.h"
 #endif
+#ifdef MW2_POWERVR
+#include "powervr/a3dclient.h"
+#endif
 #include "random.h"
 #include "refreshmode.h"
 #include "render.h"
@@ -94,6 +97,9 @@
 #ifdef MW2_MATROX
 #include <msi95.h>
 #endif
+#ifdef MW2_S3
+#include <stdio.h>
+#endif
 
 #ifdef MW2_VFX16
 #include "accel/vfx16.h"
@@ -107,34 +113,45 @@ DECOMP_SIZE_ASSERT(MissionObjective, 0x13f)
 // GLOBAL: MW2MATROX 0x100be4c0
 // GLOBAL: MW23DFX 0x1024ac60
 // GLOBAL: MW2ATI 0x1017f098
+// GLOBAL: MW2S3 0x10065ce0
+// GLOBAL: MW2POWERVR 0x101a9e14
 MechS32 g_shouldQuit = 0;
 
 // GLOBAL: MW2 0x100acb1c
 // GLOBAL: MW2MATROX 0x100be4c4
 // GLOBAL: MW23DFX 0x1024ac64
 // GLOBAL: MW2ATI 0x1017f09c
+// GLOBAL: MW2S3 0x10065ce4
+// GLOBAL: MW2POWERVR 0x101a9e18
 MechS32 g_quitStage = 0;
 
 // GLOBAL: MW2 0x100acb20
 // GLOBAL: MW2MATROX 0x100be4c8
 // GLOBAL: MW23DFX 0x1024ac68
+// GLOBAL: MW2S3 0x10065ce8
+// GLOBAL: MW2POWERVR 0x101a9e1c
 TimedCallback* g_detachedTasks = NULL;
 
 // GLOBAL: MW2 0x100acb24
 // GLOBAL: MW2MATROX 0x100be4cc
 // GLOBAL: MW23DFX 0x1024ac6c
 // GLOBAL: MW2ATI 0x1017f0a4
+// GLOBAL: MW2S3 0x10065cec
+// GLOBAL: MW2POWERVR 0x101a9e20
 DifficultyCfg* g_difficulty = NULL;
 
 // GLOBAL: MW2 0x100acb28
 // GLOBAL: MW2MATROX 0x100be4d0
 // GLOBAL: MW23DFX 0x1024ac70
 // GLOBAL: MW2ATI 0x1017f0a8
+// GLOBAL: MW2S3 0x10065cf0
+// GLOBAL: MW2POWERVR 0x101a9e24
 MechS32 g_localPlayerId = 0;
 
 // GLOBAL: MW2 0x100acb2c
 // GLOBAL: MW2MATROX 0x100be4d4
 // GLOBAL: MW23DFX 0x1024ac74
+// GLOBAL: MW2POWERVR 0x101a9e28
 MechS32 g_remoteWaitTime = 0;
 
 // Set when the local player starts on the autopilot (FirstMech).
@@ -142,6 +159,8 @@ MechS32 g_remoteWaitTime = 0;
 // GLOBAL: MW2MATROX 0x100be4dc
 // GLOBAL: MW23DFX 0x1024ac7c
 // GLOBAL: MW2ATI 0x1017f0b4
+// GLOBAL: MW2S3 0x10065cfc
+// GLOBAL: MW2POWERVR 0x101a9e30
 MechS32 g_startOnAutopilot = 0;
 
 #ifdef MW2_MATROX
@@ -154,40 +173,53 @@ HWND g_unk0x100be508 = NULL;
 // GLOBAL: MW2MATROX 0x100be50c
 // GLOBAL: MW23DFX 0x1024aca8
 // GLOBAL: MW2ATI 0x1017f0e0
+// GLOBAL: MW2S3 0x10065d28
+// GLOBAL: MW2POWERVR 0x101a9e58
 HWND g_gameWindow = NULL;
 
 // GLOBAL: MW2 0x100acb64
 // GLOBAL: MW2MATROX 0x100be510
 // GLOBAL: MW23DFX 0x1024acac
+// GLOBAL: MW2POWERVR 0x101a9e5c
 HINSTANCE g_simModule = NULL;
 
 // GLOBAL: MW2 0x100acb68
 // GLOBAL: MW2MATROX 0x100be514
 // GLOBAL: MW23DFX 0x1024acb0
 // GLOBAL: MW2ATI 0x1017f0e8
+// GLOBAL: MW2S3 0x10065d30
+// GLOBAL: MW2POWERVR 0x101a9e60
 HANDLE g_primaryHeap = NULL;
 
 // GLOBAL: MW2 0x100acb6c
 // GLOBAL: MW2MATROX 0x100be518
 // GLOBAL: MW23DFX 0x1024acb4
 // GLOBAL: MW2ATI 0x1017f0ec
+// GLOBAL: MW2S3 0x10065d34
+// GLOBAL: MW2POWERVR 0x101a9e64
 MechS32 g_gameWindowWidth = 0;
 
 // GLOBAL: MW2 0x100acb70
 // GLOBAL: MW2MATROX 0x100be51c
 // GLOBAL: MW23DFX 0x1024acb8
 // GLOBAL: MW2ATI 0x1017f0f0
+// GLOBAL: MW2S3 0x10065d38
+// GLOBAL: MW2POWERVR 0x101a9e68
 MechS32 g_gameWindowHeight = 0;
 
 // GLOBAL: MW2 0x100acb74
 // GLOBAL: MW2MATROX 0x100be520
 // GLOBAL: MW23DFX 0x1024acbc
 // GLOBAL: MW2ATI 0x1017f0f4
+// GLOBAL: MW2S3 0x10065d3c
+// GLOBAL: MW2POWERVR 0x101a9e6c
 MechS32 g_windowActive = 0;
 
 // GLOBAL: MW2 0x100acb78
 // GLOBAL: MW2MATROX 0x100be524
 // GLOBAL: MW23DFX 0x1024acc0
+// GLOBAL: MW2S3 0x10065d40
+// GLOBAL: MW2POWERVR 0x101a9e70
 MechS32 g_drawModeReady = 0;
 
 // GLOBAL: MW2 0x100acb7c
@@ -198,35 +230,46 @@ undefined4 g_shouldToggleFullscreen = 0;
 // GLOBAL: MW2 0x100acb80
 // GLOBAL: MW2MATROX 0x100be52c
 // GLOBAL: MW23DFX 0x1024acc8
+// GLOBAL: MW2S3 0x10065d48
+// GLOBAL: MW2POWERVR 0x101a9e78
 MechS32 g_desktopWidth = 0;
 
 // GLOBAL: MW2 0x100acb84
 // GLOBAL: MW2MATROX 0x100be530
 // GLOBAL: MW23DFX 0x1024accc
+// GLOBAL: MW2POWERVR 0x101a9e7c
 MechS32 g_desktopHeight = 0;
 
 // GLOBAL: MW2 0x100acb88
 // GLOBAL: MW2MATROX 0x100be534
 // GLOBAL: MW23DFX 0x1024acd0
 // GLOBAL: MW2ATI 0x1017f108
+// GLOBAL: MW2S3 0x10065d50
+// GLOBAL: MW2POWERVR 0x101a9e80
 MechS32 g_simPaused = 0;
 
 // GLOBAL: MW2 0x100acb8c
 // GLOBAL: MW2MATROX 0x100be538
 // GLOBAL: MW23DFX 0x1024acd4
 // GLOBAL: MW2ATI 0x1017f10c
+// GLOBAL: MW2S3 0x10065d54
+// GLOBAL: MW2POWERVR 0x101a9e84
 MechS32 g_pauseRequested = 0;
 
 // GLOBAL: MW2 0x100acb90
 // GLOBAL: MW2MATROX 0x100be53c
 // GLOBAL: MW23DFX 0x1024acd8
 // GLOBAL: MW2ATI 0x1017f110
+// GLOBAL: MW2S3 0x10065d58
+// GLOBAL: MW2POWERVR 0x101a9e88
 undefined4 g_windowedSwitchPending = 0;
 
 // GLOBAL: MW2 0x100acb94
 // GLOBAL: MW2MATROX 0x100be540
 // GLOBAL: MW23DFX 0x1024acdc
 // GLOBAL: MW2ATI 0x1017f114
+// GLOBAL: MW2S3 0x10065d5c
+// GLOBAL: MW2POWERVR 0x101a9e8c
 MechS32 g_mouseOutsideClientWindow = 0;
 
 #ifdef MW2_MATROX
@@ -240,33 +283,104 @@ MechS32 g_unk0x100be544 = 0;
 // GLOBAL: MW2MATROX 0x100be548
 // GLOBAL: MW23DFX 0x1024ace0
 // GLOBAL: MW2ATI 0x1017f118
+// GLOBAL: MW2S3 0x10065d60
+// GLOBAL: MW2POWERVR 0x101a9e90
 MechS32 g_goLaunch = 0;
+
+#ifdef MW2_POWERVR
+// The first frame SGL hands over to FUN_10007db0 is only cleared.
+// GLOBAL: MW2POWERVR 0x101a9e94
+MechS32 g_unk0x101a9e94 = 1;
+#endif
 
 // GLOBAL: MW2 0x100e9240
 // GLOBAL: MW2MATROX 0x1012595c
 // GLOBAL: MW23DFX 0x1024429c
 // GLOBAL: MW2ATI 0x10177f5c
+// GLOBAL: MW2S3 0x100abe7c
+// GLOBAL: MW2POWERVR 0x101a2c1c
 MechU32 g_windowedSwitchTime;
 
 // GLOBAL: MW2 0x100e933c
 // GLOBAL: MW2MATROX 0x10125958
 // GLOBAL: MW23DFX 0x10244298
 // GLOBAL: MW2ATI 0x10177f58
+// GLOBAL: MW2S3 0x100abf6c
+// GLOBAL: MW2POWERVR 0x101a2c18
 MechU32 g_windowedSwitchDeadline;
 
 // GLOBAL: MW2 0x1012b7c0
 // GLOBAL: MW2MATROX 0x101d69c0
 // GLOBAL: MW23DFX 0x10159ea0
 // GLOBAL: MW2ATI 0x1008dea0
+// GLOBAL: MW2S3 0x100b1d90
+// GLOBAL: MW2POWERVR 0x100843e0
 VideoDriverChoice g_videoDriverChoice;
 
 #ifdef MW2_REGISTRY_SETTINGS
 // The accelerated editions': reads the renderer's settings from the registry, the sky and the
 // ground (drawn unless set to 0) and the Matrox edition's texture filter or the 3Dfx edition's
 // resolution (off unless set).
+#ifdef MW2_POWERVR
+// The PowerVR edition's reads the renderer's fog and smooth shading (on unless set to 0).
+// FUNCTION: MW2POWERVR 0x10007d40
+void FUN_1008fad0(void)
+{
+	DWORD value;
+
+	if (ReadRegistryDword("Fog", &value)) {
+		A3D_SetQuality(&g_a3dMainView, c_a3dQualityFog, value);
+	}
+	else {
+		A3D_SetQuality(&g_a3dMainView, c_a3dQualityFog, 1);
+	}
+
+	if (ReadRegistryDword("Smooth Shading", &value)) {
+		A3D_SetQuality(&g_a3dMainView, c_a3dQualitySmoothShading, value);
+	}
+	else {
+		A3D_SetQuality(&g_a3dMainView, c_a3dQualitySmoothShading, 1);
+	}
+}
+
+// The 2D drawing of the PowerVR edition's frame: SGL calls it (through the renderer's DirectDraw
+// mode callback) with the frame's pixels locked, and the game draws the cockpit, the menus and the
+// overlays into them, then reads the input.
+// FUNCTION: MW2POWERVR 0x10007db0
+void FUN_10007db0(void* p_pixels, MechS32 p_pitch)
+{
+	if (p_pixels != NULL && g_a3dLightsChanged) {
+		g_mainPixelBuffer.m_buffer = p_pixels;
+		g_mainPixelBuffer.m_xMax = p_pitch - 1;
+		if (g_unk0x101a9e94) {
+			VFX_pane_wipe(&g_currentPane, VFX_lookaside_read16(0));
+			g_unk0x101a9e94 = 0;
+			return;
+		}
+
+		if (g_cockpitLayoutIndex == 4) {
+			FUN_10003310();
+		}
+
+		DrawLocalPlayer();
+		UpdateMenus();
+		DrawTimedOverlays();
+		DrawDebugOverlays();
+		if (g_simPaused && g_pauseRequested) {
+			DrawPausedBanner();
+		}
+
+		g_mainPixelBuffer.m_buffer = NULL;
+		UpdateInputs();
+		UpdateMenuKey();
+		HandleGameKeys(0, 0, 0);
+	}
+}
+#else
 // FUNCTION: MW2MATROX 0x1008fad0
 // FUNCTION: MW23DFX 0x100087e0
 // FUNCTION: MW2ATI 0x10008fd0
+// FUNCTION: MW2S3 0x10026680
 void FUN_1008fad0(void)
 {
 #ifdef MW2_RES_800X600
@@ -299,6 +413,7 @@ void FUN_1008fad0(void)
 	A3D_SET_TEXTURE_FILTER(filter);
 #endif
 }
+#endif
 #endif
 
 #ifdef MW2_MATROX
@@ -673,7 +788,337 @@ int __stdcall SimMain(
 	result = g_fledToWindows ? 0xff : 0;
 	return result;
 }
-#elif defined(MW2_3DFX) || defined(MW2_ATI)
+#elif defined(MW2_POWERVR)
+// The PowerVR edition's SimMain, which the 3Dfx edition's kept six weeks later but for the renderer
+// (the window, the sky and ground settings read after the difficulty, the DC released after
+// StartSupAnim, the bitmaps' average colours, the players updated every frame). SGL renders the frame and calls back
+// the 2D drawing (FUN_10007db0, which also reads the input), so the main loop neither acquires the frame buffer nor
+// blits: it only calls the frame draw callback while the window is active, after turning the scene's shapes of kind
+// 0x20 (FUN_10028ac0), and it has no refresh mode fallback loop. After the world is loaded it applies the time of day's
+// palette and opens the renderer (FUN_10060f00, FUN_10061530) before reading its registry settings (FUN_1008fad0, which
+// it calls again after InitRefreshMode), and the mission ends without a last wipe and blit. FUNCTION: MW2POWERVR
+// 0x10007e60
+int __stdcall SimMain(
+	HINSTANCE p_module,
+	undefined4 p_unk0x0c,
+	LPSTR p_cmdLine,
+	NetLaunchInfo* p_netLaunch,
+	undefined4 p_isNetGameUnused,
+	HWND p_hWnd
+)
+{
+	MSG msg;
+	int result;
+	MechS32 i;
+	char missionName[64];
+	undefined4 flags[2];
+	MechS32 seed;
+	MechS32 quitLatched;
+	HDC supAnimDc;
+
+	quitLatched = 0;
+	seed = 0;
+	g_gameWindow = p_hWnd;
+	g_simModule = p_module;
+	g_desktopWidth = GetSystemMetrics(SM_CXSCREEN);
+	g_desktopHeight = GetSystemMetrics(SM_CYSCREEN);
+	g_primaryHeap = HeapCreate(HEAP_NO_SERIALIZE, 1000000, 0);
+	if (g_primaryHeap == NULL) {
+		Error(9, "Insufficient memory available.");
+	}
+
+	flags[1] = 1;
+	flags[0] = 0;
+	if (getenv("MECHWARRIOR")) {
+		strcpy(g_gameDir, getenv("MECHWARRIOR"));
+	}
+
+	if (LoadSndCfg("mw2snd.cfg", &g_mw2SndCfgData) == -1) {
+		if (g_mw2SndCfgData == NULL) {
+			Error(0x11, "%s", "mw2snd.cfg");
+		}
+		else {
+			*g_mw2SndCfgData = g_soundConfig;
+		}
+	}
+	else {
+		g_soundConfig = *g_mw2SndCfgData;
+	}
+
+	g_displayBrightness = g_brightnessSetting = g_mw2SndCfgData->m_displayBrightness;
+	g_videoDriverChoice.m_flags = 0;
+	if (g_mw2SndCfgData->m_videoDriver[0]) {
+		g_videoDriverChoice.m_flags |= 1;
+		if (_stricmp(g_mw2SndCfgData->m_videoDriver, "scan") == 0) {
+			g_videoDriverChoice.m_name[0] = 0;
+		}
+		else {
+			strncpy(g_videoDriverChoice.m_name, g_mw2SndCfgData->m_videoDriver, 12);
+			g_videoDriverChoice.m_name[12] = 0;
+		}
+	}
+
+	if (!ProcessCmdLineArgs(p_cmdLine, flags, missionName)) {
+		return 0;
+	}
+
+	if (StartupCheckStub()) {
+		Error(0x51, NULL);
+	}
+
+	SetGameResolution(g_videoDriverChoice.m_name);
+	if (g_logFileEnabled) {
+		OpenMw2Log();
+	}
+
+	InitRefreshMode(5, 0, &g_mainPixelBuffer, 640, 480, 0);
+	SendMessage(g_gameWindow, 0x41f, 0, 0);
+	SendMessage(g_gameWindow, WM_ACTIVATEAPP, TRUE, 0);
+	if (!InitDisplayGeometry()) {
+		Error(0x50, NULL);
+	}
+
+	if (p_netLaunch) {
+		g_isNetworkGame = 1;
+		if (p_netLaunch->m_localPlayerId == 1) {
+			g_netRole = 1;
+		}
+		else {
+			g_netRole = 2;
+		}
+
+		strncpy(missionName, p_netLaunch->m_missionName, sizeof(missionName));
+		if (LoadDifficultyCfg("MW2NET.CFG", &g_difficulty) == -1 || g_difficulty == NULL) {
+			Error(0x11, "%s", "MW2NET.CFG");
+		}
+	}
+	else {
+		if (LoadDifficultyCfg("mw2dif.cfg", &g_difficulty) == -1 || g_difficulty == NULL) {
+			Error(0x11, "%s", "mw2dif.cfg");
+		}
+	}
+
+	LoadSkyGroundSettings(missionName);
+	DebugPrint("FirstClock()\n");
+	__try {
+		FirstClock();
+		DebugPrint("StartSupAnim()\n");
+		supAnimDc = GetDC(g_gameWindow);
+		StartSupAnim(GetDeviceCaps(supAnimDc, NUMCOLORS) == -1 || g_windowMode == c_windowModeFullscreen);
+		ReleaseDC(g_gameWindow, supAnimDc);
+		DebugPrint("FirstResource()\n");
+		FirstResource();
+		DebugPrint("InitStaticMem()\n");
+		InitStaticMem(missionName);
+		DebugPrint("generate_gammas()\n");
+		InitGammaTable();
+		DebugPrint("InitRandom()\n");
+		InitRandom(seed);
+		DebugPrint("FirstAudio()\n");
+		FirstAudio();
+		DebugPrint("FirstRender()\n");
+		FirstRender();
+		DebugPrint("FirstNetwork()\n");
+		FirstNetwork(p_netLaunch);
+		DebugPrint("ResetClocks()\n");
+		ResetClocks();
+		DebugPrint("WinMain(1): pause_timer(TRUE)");
+		PauseTimer(0x80, TRUE);
+		DebugPrint("FirstShots()\n");
+		FirstShots();
+		DebugPrint("ZeroGamethings()\n");
+		ZeroGamethings();
+		DebugPrint("ZeroChunx()\n");
+		ZeroChunx();
+		DebugPrint("LoadWorld()\n");
+		LoadWorld(missionName);
+		DebugPrint("CollectMissionAudio()\n");
+		CollectMissionAudio();
+		DebugPrint("SetRes()\n");
+		SetRes();
+		DebugPrint("FirstEnvironment()\n");
+		FirstEnvironment();
+		DebugPrint("FirstStaticCache()\n");
+		FirstStaticCache();
+		DebugPrint("CachePreloads()\n");
+		CachePreloads();
+		DebugPrint("AfterWorldLoader()\n");
+		AfterWorldLoader();
+		CalcAverageBitmapColors();
+		DebugPrint("FirstGPAnim()\n");
+		FirstGPAnim();
+		DebugPrint("FirstEyepoint()\n");
+		FirstEyepoint();
+		DebugPrint("FirstInputs()\n");
+		FirstInputs();
+		DebugPrint("FirstMenu()\n");
+		FirstMenu();
+		DebugPrint("RegisterMenu()...\n");
+		RegisterMenu(4);
+		RegisterMenu(5);
+		RegisterMenu(1);
+		RegisterMenu(7);
+		RegisterMenu(8);
+		RegisterMenu(3);
+		DebugPrint("DoFirstObjtv()...\n");
+		for (i = 0; i < g_objectiveCount; i++) {
+			DoFirstObjtv(&g_objectiveTable[i], i);
+		}
+
+		DebugPrint("FirstClassFunctions()\n");
+		FirstClassFunctions();
+		DebugPrint("FirstAI()\n");
+		FirstAI();
+		DebugPrint("FirstExternalCtrl()\n");
+		if (!FirstExternalCtrl()) {
+			g_shouldQuit = 1;
+			g_quitStage = 3;
+		}
+
+		DebugPrint("UpdateGeoCache()\n");
+		UpdateGeoCache();
+		DebugPrint("SecondRender()\n");
+		SecondRender();
+		DebugPrint("FirstPerfSetting()\n");
+		FirstPerfSetting();
+		if (g_missionTimerStopped) {
+			DebugPrint("SimEntranceDbug()\n");
+			SimEntranceDbug(missionName, 0);
+		}
+
+		DebugPrint("StopSupAnim()\n");
+		ApplyPaletteResource(FUN_10006f30());
+		if (!FUN_10060f00()) {
+			Error(0x50, NULL);
+		}
+
+		FUN_10061530();
+		FUN_1008fad0();
+		StopSupAnim();
+		g_drawModeReady = 1;
+		DebugPrint("InitDrawMode(%d,%d)\n", g_gameWindowWidth, g_gameWindowHeight);
+		if (!InitRefreshMode(
+				g_drawModeIndex,
+				g_initDrawModeParam2,
+				&g_mainPixelBuffer,
+				g_gameWindowWidth,
+				g_gameWindowHeight,
+				0
+			)) {
+			Error(0x50, "Error profiling video modes.");
+		}
+
+		DebugPrint("done InitDrawMode\n");
+		FUN_1008fad0();
+		while (ShowCursor(FALSE) >= 0) {
+		}
+
+		g_mouseOutsideClientWindow = 0;
+		if (!g_refreshModeFallback) {
+			g_goLaunch |= 2;
+		}
+
+		g_careerRecord.m_outcome = 1;
+		g_careerRecord.m_winner = -1;
+		while (g_quitStage < 3) {
+			if (g_goLaunch == 7) {
+				DebugPrint("GoLaunch == GO_READY\n");
+				g_goLaunch |= 0x80000000;
+				DebugPrint("WinMain(2): pause_timer(false)");
+				PauseTimer(0x80, FALSE);
+				StartMissionMusic();
+				g_statusMessage = 0;
+			}
+			else if (g_isNetworkGame && !(g_goLaunch & 0x80000000)) {
+				if (g_remoteWaitTime == 0) {
+					g_remoteWaitTime = g_realClock + 0xb5;
+				}
+				else if (g_remoteWaitTime < g_realClock) {
+					g_statusMessage = 3;
+				}
+			}
+
+			HandleMessages();
+			UpdateNetwork();
+			NextClock();
+			RunTimedCallbacks(&g_detachedTasks);
+			UpdateAllPlayers();
+
+			UpdateEyepoint();
+			UpdateAllShots();
+			UpdateEffects();
+			UpdateLocalPlayer();
+			LateUpdateAllPlayers();
+			UpdateDebris();
+			if (g_goLaunch & 0x80000000) {
+				UpdateGeoCache();
+			}
+
+			AdvanceAnimations();
+			UpdatePaletteFade();
+			ApplyPendingPalette();
+			FUN_10028ac0();
+			if (g_windowActive) {
+				g_renderSettings.m_frameDrawCallback();
+			}
+
+			if (g_goLaunch & 0x80000000) {
+				DoAudio();
+				AdvanceSpeechQueue();
+			}
+
+			UpdateTimeOfDay();
+			UpdateObjectives();
+			LoopCdMusic();
+			UpdatePauseState();
+			if (g_shouldQuit && !quitLatched) {
+				g_quitStage++;
+				quitLatched = 1;
+				g_drawModeReady = 0;
+			}
+
+			g_goLaunch |= 6;
+		}
+
+		FadeToEndPalette(g_careerRecord.m_outcome & 4);
+		while (PeekMessage(&msg, NULL, 0, 0, PM_REMOVE)) {
+		}
+
+		SendMessage(g_gameWindow, 0x41e, 0, 0);
+		SaveCareerRecord();
+		ShutdownAllPlayers();
+		ShutdownNetwork();
+		ShutdownAudio();
+		FreeMenus();
+		StopTimers();
+		ShutdownMw2Prj();
+		ShutdownRender();
+		CloseInputDevices();
+		if (g_logFileEnabled) {
+			CloseMw2Log();
+		}
+
+		DebugPrint("Calling EndTheMission()\n");
+		EndTheMission1();
+		EndTheMission2();
+	}
+	__finally {
+		if (AbnormalTermination() && g_ticksTimerInitialized) {
+			SendMessage(g_gameWindow, 0x41e, 0, 0);
+			MessageBox(NULL, "Attempting to shutdown from an unknown fatal error.", "MECHWARRIOR 2", MB_ICONHAND);
+			AIL_shutdown();
+		}
+	}
+
+	HeapDestroy(g_primaryHeap);
+	g_primaryHeap = NULL;
+	while (ShowCursor(TRUE) < 1) {
+	}
+
+	result = g_fledToWindows ? 0xff : 0;
+	return result;
+}
+#elif defined(MW2_3DFX) || defined(MW2_ATI) || defined(MW2_S3)
 // The fill of the refresh mode fallback, the edition's display back end's.
 #ifdef MW2_3DFX
 #define SIM_BACKEND_FILL GlideFill
@@ -692,6 +1137,7 @@ int __stdcall SimMain(
 // before FirstClock (the Matrox edition before the main loop) and releases the DCs.
 // FUNCTION: MW23DFX 0x10008850
 // FUNCTION: MW2ATI 0x10009040
+// FUNCTION: MW2S3 0x100266f0
 int __stdcall SimMain(
 	HINSTANCE p_module,
 	undefined4 p_unk0x0c,
@@ -1575,12 +2021,14 @@ LRESULT CALLBACK SimWindowProc(HWND p_hWnd, UINT p_msg, WPARAM p_wParam, LPARAM 
 
 	return DefWindowProc(p_hWnd, p_msg, p_wParam, p_lParam);
 }
-#elif defined(MW2_3DFX) || defined(MW2_ATI)
+#elif defined(MW2_3DFX) || defined(MW2_ATI) || defined(MW2_S3) || defined(MW2_POWERVR)
 // The ATI and 3Dfx editions' window procedure. On WM_ACTIVATEAPP it has none of 1.1's switching
 // between full screen and the desktop: it only restores or minimizes a full-screen window and
 // resets the palette.
 // FUNCTION: MW23DFX 0x10009400
 // FUNCTION: MW2ATI 0x10009bd0
+// FUNCTION: MW2S3 0x100272f0
+// FUNCTION: MW2POWERVR 0x10008830
 LRESULT CALLBACK SimWindowProc(HWND p_hWnd, UINT p_msg, WPARAM p_wParam, LPARAM p_lParam)
 {
 	WINDOWPOS* windowPos;
@@ -1803,6 +2251,8 @@ LRESULT CALLBACK SimWindowProc(HWND p_hWnd, UINT p_msg, WPARAM p_wParam, LPARAM 
 // FUNCTION: MW2MATROX 0x10090ca7
 // FUNCTION: MW23DFX 0x10009680
 // FUNCTION: MW2ATI 0x10009e50
+// FUNCTION: MW2S3 0x10027570
+// FUNCTION: MW2POWERVR 0x10008ab0
 void HandleMessages(void)
 {
 	MSG msg;
@@ -1836,6 +2286,8 @@ void HandleMessages(void)
 // FUNCTION: MW2MATROX 0x10090d71
 // FUNCTION: MW23DFX 0x10009740
 // FUNCTION: MW2ATI 0x10009f10
+// FUNCTION: MW2S3 0x10027630
+// FUNCTION: MW2POWERVR 0x10008b70
 void UpdatePauseState(void)
 {
 	if (g_pauseRequested) {
@@ -1912,6 +2364,26 @@ void SetGameResolution(char* p_driverName)
 		g_gameWindowWidth = 640;
 		g_gameWindowHeight = 480;
 	}
+}
+#elif defined(MW2_S3)
+// The S3 edition's: the driver name is the size ("640x480"), kept if DirectDraw has it in 16 bits,
+// 320x200 otherwise.
+// FUNCTION: MW2S3 0x10027780
+void SetGameResolution(char* p_driverName)
+{
+	sscanf(p_driverName, "%dx%d", &g_gameWindowWidth, &g_gameWindowHeight);
+	if (!FUN_100059b0(g_gameWindowWidth, g_gameWindowHeight, 16)) {
+		g_gameWindowWidth = 320;
+		g_gameWindowHeight = 200;
+	}
+}
+#elif defined(MW2_POWERVR)
+// The PowerVR edition's game window is always 640x480, whatever the driver.
+// FUNCTION: MW2POWERVR 0x10008cc0
+void SetGameResolution(char* p_driverName)
+{
+	g_gameWindowWidth = 640;
+	g_gameWindowHeight = 480;
 }
 #else
 // FUNCTION: MW2 0x10067e23

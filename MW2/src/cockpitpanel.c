@@ -13,6 +13,8 @@ DECOMP_SIZE_ASSERT(CockpitPanel, 0x88)
 // FUNCTION: MW2MATROX 0x1001c7d0
 // FUNCTION: MW23DFX 0x10023440
 // FUNCTION: MW2ATI 0x10023700
+// FUNCTION: MW2S3 0x10037870
+// FUNCTION: MW2POWERVR 0x10022940
 void InitCockpitPanel(CockpitPanel* p_panel)
 {
 	p_panel->m_self = p_panel;
@@ -46,6 +48,8 @@ void InitCockpitPanel(CockpitPanel* p_panel)
 // FUNCTION: MW2MATROX 0x1001c8d9
 // FUNCTION: MW23DFX 0x100234e0
 // FUNCTION: MW2ATI 0x100237a0
+// FUNCTION: MW2S3 0x10037910
+// FUNCTION: MW2POWERVR 0x10022a00
 void ShutdownCockpitPanel(CockpitPanel* p_panel)
 {
 }
@@ -54,6 +58,8 @@ void ShutdownCockpitPanel(CockpitPanel* p_panel)
 // FUNCTION: MW2MATROX 0x1001c8e4
 // FUNCTION: MW23DFX 0x100234f0
 // FUNCTION: MW2ATI 0x100237b0
+// FUNCTION: MW2S3 0x10037920
+// FUNCTION: MW2POWERVR 0x10022a10
 void SetCockpitPanelLightUpTime(CockpitPanel* p_panel, undefined4 p_lightUpTime)
 {
 	p_panel->m_lightUpTime = p_lightUpTime;
@@ -63,6 +69,8 @@ void SetCockpitPanelLightUpTime(CockpitPanel* p_panel, undefined4 p_lightUpTime)
 // FUNCTION: MW2MATROX 0x1001c8f8
 // FUNCTION: MW23DFX 0x10023500
 // FUNCTION: MW2ATI 0x100237c0
+// FUNCTION: MW2S3 0x10037930
+// FUNCTION: MW2POWERVR 0x10022a20
 void SetCockpitPanelWeapon(CockpitPanel* p_panel, MechS32 p_weapon)
 {
 	p_panel->m_weapon = p_weapon;
@@ -72,6 +80,8 @@ void SetCockpitPanelWeapon(CockpitPanel* p_panel, MechS32 p_weapon)
 // FUNCTION: MW2MATROX 0x1001c90c
 // FUNCTION: MW23DFX 0x10023510
 // FUNCTION: MW2ATI 0x100237d0
+// FUNCTION: MW2S3 0x10037940
+// FUNCTION: MW2POWERVR 0x10022a30
 void SetCockpitPanelName(CockpitPanel* p_panel, const MechChar* p_name)
 {
 	strncpy(p_panel->m_name, p_name, sizeof(p_panel->m_name));
@@ -82,6 +92,7 @@ void SetCockpitPanelName(CockpitPanel* p_panel, const MechChar* p_name)
 // FUNCTION: MW2MATROX 0x1001c933
 // FUNCTION: MW23DFX 0x10023530
 // FUNCTION: MW2ATI 0x100237f0
+// FUNCTION: MW2S3 0x10037960
 void SetCockpitPanelTarget(CockpitPanel* p_panel, PANE* p_target)
 {
 	p_panel->m_target = p_target;
@@ -95,6 +106,7 @@ void SetCockpitPanelTarget(CockpitPanel* p_panel, PANE* p_target)
 // FUNCTION: MW2MATROX 0x1001c989
 // FUNCTION: MW23DFX 0x10023560
 // FUNCTION: MW2ATI 0x10023820
+// FUNCTION: MW2S3 0x10037990
 void SetCockpitPanelTextOrigin(CockpitPanel* p_panel, Point* p_textOrigin)
 {
 	p_panel->m_textOrigin = p_textOrigin;
@@ -104,6 +116,7 @@ void SetCockpitPanelTextOrigin(CockpitPanel* p_panel, Point* p_textOrigin)
 // FUNCTION: MW2MATROX 0x1001c99d
 // FUNCTION: MW23DFX 0x10023570
 // FUNCTION: MW2ATI 0x10023830
+// FUNCTION: MW2S3 0x100379a0
 void SetCockpitPanelTransition(CockpitPanel* p_panel, RectTransition* p_transition)
 {
 	p_panel->m_transition = p_transition;
@@ -113,6 +126,7 @@ void SetCockpitPanelTransition(CockpitPanel* p_panel, RectTransition* p_transiti
 // FUNCTION: MW2MATROX 0x1001c9b1
 // FUNCTION: MW23DFX 0x10023580
 // FUNCTION: MW2ATI 0x10023840
+// FUNCTION: MW2S3 0x100379b0
 void SetCockpitPanelRect(CockpitPanel* p_panel, MechS32 p_x, MechS32 p_y, MechS32 p_width, MechS32 p_height)
 {
 	p_panel->m_x = p_x;
@@ -125,6 +139,8 @@ void SetCockpitPanelRect(CockpitPanel* p_panel, MechS32 p_x, MechS32 p_y, MechS3
 // FUNCTION: MW2MATROX 0x1001c9e4
 // FUNCTION: MW23DFX 0x100235b0
 // FUNCTION: MW2ATI 0x10023870
+// FUNCTION: MW2S3 0x100379e0
+// FUNCTION: MW2POWERVR 0x10022ad0
 void SetCockpitPanelDamage(CockpitPanel* p_panel, MechS32 p_damage)
 {
 	p_panel->m_damage = p_damage;
@@ -134,6 +150,8 @@ void SetCockpitPanelDamage(CockpitPanel* p_panel, MechS32 p_damage)
 // FUNCTION: MW2MATROX 0x1001c9f9
 // FUNCTION: MW23DFX 0x100235c0
 // FUNCTION: MW2ATI 0x10023880
+// FUNCTION: MW2S3 0x100379f0
+// FUNCTION: MW2POWERVR 0x10022ae0
 void EnableCockpitPanel(CockpitPanel* p_panel)
 {
 	p_panel->m_enabled = 1;
@@ -143,6 +161,8 @@ void EnableCockpitPanel(CockpitPanel* p_panel)
 // FUNCTION: MW2MATROX 0x1001ca0d
 // FUNCTION: MW23DFX 0x100235d0
 // FUNCTION: MW2ATI 0x10023890
+// FUNCTION: MW2S3 0x10037a00
+// FUNCTION: MW2POWERVR 0x10022af0
 void DisableCockpitPanel(CockpitPanel* p_panel)
 {
 	p_panel->m_enabled = 0;

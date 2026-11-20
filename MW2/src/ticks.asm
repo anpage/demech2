@@ -164,8 +164,15 @@ jmp_10067fd8:
 	shl ecx, 2
 	add ebx, ecx
 	mov dword ptr [ebx], eax
+IFDEF MW2_S3
+	; demech2: the S3 edition's restores the registers in the order it saved them; the others
+	; return with ebx and ecx swapped.
+	pop ecx
+	pop ebx
+ELSE
 	pop ebx
 	pop ecx
+ENDIF
 	mov esp, ebp
 	pop ebp
 	ret

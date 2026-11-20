@@ -87,6 +87,9 @@ extern void* g_unk0x100a5bb8[4];
 	MechS32 SwitchCockpitView(void);
 	void DrawCockpitView(void);
 	void DrawMapView(void);
+#ifdef MW2_POWERVR
+	void FUN_10003310(void);
+#endif
 	void DrawMapContents(CockpitLayout* p_layout);
 #ifdef MW2_FLOAT_SCALARS
 	void DrawMapIcon(CockpitLayout* p_layout, Vector3* p_position, MechS32 p_icon);

@@ -19,24 +19,32 @@ DECOMP_SIZE_ASSERT(StaticPoolGroup, 0x0c)
 // GLOBAL: MW2MATROX 0x100b1450
 // GLOBAL: MW23DFX 0x1024d7c4
 // GLOBAL: MW2ATI 0x10181b44
+// GLOBAL: MW2S3 0x1006a280
+// GLOBAL: MW2POWERVR 0x101acbd4
 MechS32 g_staticPoolGroupCount = 0;
 
 // GLOBAL: MW2 0x100a6de0
 // GLOBAL: MW2MATROX 0x100b1454
 // GLOBAL: MW23DFX 0x1024d7c8
 // GLOBAL: MW2ATI 0x10181b48
+// GLOBAL: MW2S3 0x1006a284
+// GLOBAL: MW2POWERVR 0x101acbd8
 MechS32 g_staticPoolCount = 0;
 
 // GLOBAL: MW2 0x100be5e0
 // GLOBAL: MW2MATROX 0x101249b8
 // GLOBAL: MW23DFX 0x1007c678
 // GLOBAL: MW2ATI 0x10071678
+// GLOBAL: MW2S3 0x1007cb70
+// GLOBAL: MW2POWERVR 0x1006f6c0
 StaticPoolGroup g_staticPoolGroups[5];
 
 // GLOBAL: MW2 0x100be620
 // GLOBAL: MW2MATROX 0x10124738
 // GLOBAL: MW23DFX 0x1007c3f8
 // GLOBAL: MW2ATI 0x100713f8
+// GLOBAL: MW2S3 0x1007cbb0
+// GLOBAL: MW2POWERVR 0x1006f440
 StaticPool g_staticPools[32];
 
 void ResetStaticPools(void);
@@ -50,6 +58,8 @@ MechS32 AddStaticPoolType(MechS32 p_size, BwdTag p_tag);
 // FUNCTION: MW2MATROX 0x10078f20
 // FUNCTION: MW23DFX 0x10023bb0
 // FUNCTION: MW2ATI 0x10023e70
+// FUNCTION: MW2S3 0x1002d9f0
+// FUNCTION: MW2POWERVR 0x100230f0
 MechS32 InitStaticMem(char* p_mission)
 {
 	MechS32 i;
@@ -120,6 +130,8 @@ MechS32 InitStaticMem(char* p_mission)
 // FUNCTION: MW2MATROX 0x1007916a
 // FUNCTION: MW23DFX 0x10023d40
 // FUNCTION: MW2ATI 0x10024000
+// FUNCTION: MW2S3 0x1002db80
+// FUNCTION: MW2POWERVR 0x10023280
 void* StaticPoolAlloc(MechU32 p_size, BwdTag p_tag)
 {
 	MechS32 i;
@@ -178,6 +190,8 @@ void FreeStaticMem(void)
 // FUNCTION: MW2MATROX 0x10079334
 // FUNCTION: MW23DFX 0x10023e90
 // FUNCTION: MW2ATI 0x10024100
+// FUNCTION: MW2S3 0x1002dc80
+// FUNCTION: MW2POWERVR 0x10023380
 int __cdecl CompareStaticPools(const void* p_a, const void* p_b)
 {
 	StaticPool* a;
@@ -202,6 +216,8 @@ int __cdecl CompareStaticPools(const void* p_a, const void* p_b)
 // FUNCTION: MW2MATROX 0x1007938c
 // FUNCTION: MW23DFX 0x10023ec0
 // FUNCTION: MW2ATI 0x10024130
+// FUNCTION: MW2S3 0x1002dcb0
+// FUNCTION: MW2POWERVR 0x100233b0
 void ResetStaticPools(void)
 {
 }
@@ -212,6 +228,8 @@ void ResetStaticPools(void)
 // FUNCTION: MW2MATROX 0x10079397
 // FUNCTION: MW23DFX 0x10023ed0
 // FUNCTION: MW2ATI 0x10024140
+// FUNCTION: MW2S3 0x1002dcc0
+// FUNCTION: MW2POWERVR 0x100233c0
 MechS32 ParseStaticPoolConfig(char* p_mission)
 {
 	StaticPoolSize* entry;
@@ -239,6 +257,8 @@ MechS32 ParseStaticPoolConfig(char* p_mission)
 // FUNCTION: MW2MATROX 0x10079410
 // FUNCTION: MW23DFX 0x10023f10
 // FUNCTION: MW2ATI 0x10024180
+// FUNCTION: MW2S3 0x1002dd00
+// FUNCTION: MW2POWERVR 0x10023400
 MechS32 AddStaticPoolType(MechS32 p_size, BwdTag p_tag)
 {
 	StaticPool* pool;

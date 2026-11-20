@@ -39,6 +39,8 @@
 // GLOBAL: MW2MATROX 0x100b1a50
 // GLOBAL: MW23DFX 0x102492b8
 // GLOBAL: MW2ATI 0x1017d2b8
+// GLOBAL: MW2S3 0x1006a4b8
+// GLOBAL: MW2POWERVR 0x101a8310
 DisplayBackend* g_displayBackends[3] = {
 #if defined(MW2_MATROX)
 	&g_msiBackend,
@@ -55,6 +57,8 @@ DisplayBackend* g_displayBackends[3] = {
 // GLOBAL: MW2MATROX 0x100b1a60
 // GLOBAL: MW23DFX 0x102492c8
 // GLOBAL: MW2ATI 0x1017d2c8
+// GLOBAL: MW2S3 0x1006a4c8
+// GLOBAL: MW2POWERVR 0x101a8320
 RefreshMode* g_refreshModes[6] = {
 #if defined(MW2_MATROX)
 	&g_msiFlipRefreshMode,
@@ -80,12 +84,16 @@ RefreshMode* g_refreshModes[6] = {
 // GLOBAL: MW2MATROX 0x100b1a78
 // GLOBAL: MW23DFX 0x102492e0
 // GLOBAL: MW2ATI 0x1017d2e0
+// GLOBAL: MW2S3 0x1006a4e0
+// GLOBAL: MW2POWERVR 0x101a8338
 DisplayBackend* g_currentDisplayBackend = NULL;
 
 // GLOBAL: MW2 0x100b1774
 // GLOBAL: MW2MATROX 0x100b1a7c
 // GLOBAL: MW23DFX 0x102492e4
 // GLOBAL: MW2ATI 0x1017d2e4
+// GLOBAL: MW2S3 0x1006a4e4
+// GLOBAL: MW2POWERVR 0x101a833c
 RefreshMode* g_currentRefreshMode = NULL;
 
 // The fastest refresh mode found by the profiling, the one to return to from windowed mode.
@@ -93,12 +101,15 @@ RefreshMode* g_currentRefreshMode = NULL;
 // GLOBAL: MW2MATROX 0x100b1a80
 // GLOBAL: MW23DFX 0x102492e8
 // GLOBAL: MW2ATI 0x1017d2e8
+// GLOBAL: MW2S3 0x1006a4e8
 RefreshMode* g_fastestRefreshMode = NULL;
 
 // GLOBAL: MW2 0x100b177c
 // GLOBAL: MW2MATROX 0x100b1a84
 // GLOBAL: MW23DFX 0x102492ec
 // GLOBAL: MW2ATI 0x1017d2ec
+// GLOBAL: MW2S3 0x1006a4ec
+// GLOBAL: MW2POWERVR 0x101a8344
 MechS32 g_refreshModeFallback = FALSE;
 
 // The last refresh mode the profiling tries.
@@ -106,6 +117,7 @@ MechS32 g_refreshModeFallback = FALSE;
 // GLOBAL: MW2MATROX 0x100b1a88
 // GLOBAL: MW23DFX 0x102492f0
 // GLOBAL: MW2ATI 0x1017d2f0
+// GLOBAL: MW2S3 0x1006a4f0
 MechS32 g_lastProfiledRefreshMode = 4;
 
 // The buffer the active refresh mode renders into.
@@ -113,12 +125,16 @@ MechS32 g_lastProfiledRefreshMode = 4;
 // GLOBAL: MW2MATROX 0x100b1a8c
 // GLOBAL: MW23DFX 0x102492f4
 // GLOBAL: MW2ATI 0x1017d2f4
+// GLOBAL: MW2S3 0x1006a4f4
+// GLOBAL: MW2POWERVR 0x101a834c
 WINDOW* g_refreshModeBuffer = NULL;
 
 // GLOBAL: MW2 0x100b1788
 // GLOBAL: MW2MATROX 0x100b1a90
 // GLOBAL: MW23DFX 0x102492f8
 // GLOBAL: MW2ATI 0x1017d2f8
+// GLOBAL: MW2S3 0x1006a4f8
+// GLOBAL: MW2POWERVR 0x101a8350
 PaletteColor g_paletteColors[0x100] = {0};
 
 // The DIB bits of the GDI and DisplayDib back ends, restored into g_refreshModeBuffer by
@@ -127,30 +143,39 @@ PaletteColor g_paletteColors[0x100] = {0};
 // GLOBAL: MW2MATROX 0x100b1d90
 // GLOBAL: MW23DFX 0x102495f8
 // GLOBAL: MW2ATI 0x1017d5f8
+// GLOBAL: MW2S3 0x1006a7f8
+// GLOBAL: MW2POWERVR 0x101a8650
 undefined* g_dibBits = NULL;
 
 // GLOBAL: MW2 0x100b1aa4
 // GLOBAL: MW2MATROX 0x100b1dac
 // GLOBAL: MW23DFX 0x10249614
 // GLOBAL: MW2ATI 0x1017d614
+// GLOBAL: MW2S3 0x1006a814
+// GLOBAL: MW2POWERVR 0x101a866c
 MechS32 g_windowMode = 0;
 
 // GLOBAL: MW2 0x100b1aa8
 // GLOBAL: MW2MATROX 0x100b1db0
 // GLOBAL: MW23DFX 0x10249618
 // GLOBAL: MW2ATI 0x1017d618
+// GLOBAL: MW2S3 0x1006a818
+// GLOBAL: MW2POWERVR 0x101a8670
 MechS32 g_refreshModeInactive = 1;
 
 // GLOBAL: MW2 0x100b1aac
 // GLOBAL: MW2MATROX 0x100b1db4
 // GLOBAL: MW23DFX 0x1024961c
 // GLOBAL: MW2ATI 0x1017d61c
+// GLOBAL: MW2S3 0x1006a81c
+// GLOBAL: MW2POWERVR 0x101a8674
 MechS32 g_profileFrame = 0;
 
 // GLOBAL: MW2 0x100bf1c8
 // GLOBAL: MW2MATROX 0x101249f8
 // GLOBAL: MW23DFX 0x1007b000
 // GLOBAL: MW2ATI 0x10070000
+// GLOBAL: MW2S3 0x1007cf30
 static LARGE_INTEGER g_profileStart;
 
 // The window's position and size in windowed mode (SetWindowPos arguments, not corners).
@@ -158,12 +183,16 @@ static LARGE_INTEGER g_profileStart;
 // GLOBAL: MW2MATROX 0x1012f950
 // GLOBAL: MW23DFX 0x102453b0
 // GLOBAL: MW2ATI 0x101791d0
+// GLOBAL: MW2S3 0x100ab7d0
+// GLOBAL: MW2POWERVR 0x101a3d50
 RECT g_windowedRect;
 
 // GLOBAL: MW2 0x100c28a0
 // GLOBAL: MW2MATROX 0x1012f520
 // GLOBAL: MW23DFX 0x10244f80
 // GLOBAL: MW2ATI 0x10178da0
+// GLOBAL: MW2S3 0x100ab7e0
+// GLOBAL: MW2POWERVR 0x101a3920
 DrawBitmapInfo g_bitmapInfo;
 
 // The frame's size in pixels, p_width * p_height of InitRefreshMode.
@@ -171,18 +200,24 @@ DrawBitmapInfo g_bitmapInfo;
 // GLOBAL: MW2MATROX 0x1012f510
 // GLOBAL: MW23DFX 0x10244f78
 // GLOBAL: MW2ATI 0x10178d98
+// GLOBAL: MW2S3 0x100abc08
+// GLOBAL: MW2POWERVR 0x101a3918
 MechS32 g_refreshModePixelCount;
 
 // GLOBAL: MW2 0x100c2ce4
 // GLOBAL: MW2MATROX 0x1012f50c
 // GLOBAL: MW23DFX 0x10244f74
 // GLOBAL: MW2ATI 0x10178d94
+// GLOBAL: MW2S3 0x100abc0c
+// GLOBAL: MW2POWERVR 0x101a3914
 MechS32 g_refreshModeWidth;
 
 // GLOBAL: MW2 0x100c2ce8
 // GLOBAL: MW2MATROX 0x1012f508
 // GLOBAL: MW23DFX 0x10244f50
 // GLOBAL: MW2ATI 0x10178d90
+// GLOBAL: MW2S3 0x100abc10
+// GLOBAL: MW2POWERVR 0x101a3910
 MechS32 g_refreshModeHeight;
 
 // Switches to refresh mode p_mode (-1: the first), falling through the later modes while a mode
@@ -192,6 +227,8 @@ MechS32 g_refreshModeHeight;
 // FUNCTION: MW2MATROX 0x1007add0
 // FUNCTION: MW23DFX 0x100025e0
 // FUNCTION: MW2ATI 0x100024f0
+// FUNCTION: MW2S3 0x1002ecd0
+// FUNCTION: MW2POWERVR 0x100024d0
 MechS32 InitRefreshMode(
 	MechS32 p_mode,
 	MechS32 p_allowFallback,
@@ -300,6 +337,8 @@ MechS32 InitRefreshMode(
 // FUNCTION: MW2MATROX 0x1007b0e5
 // FUNCTION: MW23DFX 0x10002840
 // FUNCTION: MW2ATI 0x10002750
+// FUNCTION: MW2S3 0x1002ef30
+// FUNCTION: MW2POWERVR 0x10002730
 void ShutdownRefreshMode(void)
 {
 	if (g_currentRefreshMode != NULL) {
@@ -318,6 +357,7 @@ void ShutdownRefreshMode(void)
 // FUNCTION: MW2MATROX 0x1007b124
 // FUNCTION: MW23DFX 0x10002870
 // FUNCTION: MW2ATI 0x10002780
+// FUNCTION: MW2S3 0x1002ef60
 void ProfileRefreshModes(void)
 {
 	LARGE_INTEGER end;
@@ -391,6 +431,7 @@ void ProfileRefreshModes(void)
 // FUNCTION: MW2MATROX 0x1007b31f
 // FUNCTION: MW23DFX 0x10002a20
 // FUNCTION: MW2ATI 0x10002930
+// FUNCTION: MW2S3 0x1002f110
 void SelectFastestRefreshMode(void)
 {
 	MechS32 i;
@@ -500,6 +541,8 @@ void ToggleFullScreen(void)
 // FUNCTION: MW2MATROX 0x1007b63a
 // FUNCTION: MW23DFX 0x10002c70
 // FUNCTION: MW2ATI 0x100029b0
+// FUNCTION: MW2S3 0x1002f190
+// FUNCTION: MW2POWERVR 0x10002760
 void InitBitmapInfo(MechS32 p_width, MechS32 p_height)
 {
 	g_bitmapInfo.m_header.biSize = sizeof(BITMAPINFOHEADER);
@@ -521,6 +564,8 @@ void InitBitmapInfo(MechS32 p_width, MechS32 p_height)
 // FUNCTION: MW2MATROX 0x1007b6b5
 // FUNCTION: MW23DFX 0x10002cc0
 // FUNCTION: MW2ATI 0x10002a00
+// FUNCTION: MW2S3 0x1002f1e0
+// FUNCTION: MW2POWERVR 0x100027b0
 void AdjustWindowSize(DisplayBackend* p_backend)
 {
 	if (p_backend == NULL) {

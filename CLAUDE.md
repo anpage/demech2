@@ -2,7 +2,7 @@
 
 Decompilation of MechWarrior 2 (Windows 95 release) using Microsoft Visual C++ 4.1 (`cl` 10.10.6038, `_MSC_VER` 1010). Modeled after the [LEGO Island](https://github.com/isledecomp/isle) and [LEGO Racers](https://github.com/isledecomp/racers) decompilations.
 
-Seven reccmp targets:
+Nine reccmp targets:
 
 - **MW2SHELL** — `MW2SHELL.DLL`: shell (FMV, menus, settings, metagame), from the freely downloadable 1.1 patch. A mixture of C and C++.
 - **MW2** — `MW2.DLL`: simulator (in-mission gameplay), from the same patch. Probably all C.
@@ -11,8 +11,10 @@ Seven reccmp targets:
 - **MW2MATROX** — `MW2_MATROX.DLL`: the simulator of the Matrox Mystique edition (its `MW2.DLL`, linked 1996-08-22), built with VC++ 4.0 (`cl` 10.00, LINK 3.00). It is 1.1's C at `/Od`, drawing through Matrox's `MSI95.DLL` instead of DirectDraw: it shares the `MW2/` sources, and most of its functions carry a `MW2MATROX` annotation under MW2's (see "Other builds of the simulator").
 - **MW23DFX** — `MW2_3DFX.DLL`: the simulator of the 3Dfx edition (the Diamond Monster disc's `MW2.DLL`, linked 1996-10-21), built with VC++ 2.2 and optimized (`/Ox /Ow /G5 /Gr /Gy`), drawing through Glide. It shares the Matrox edition's C (the float conversion, the 16-bit VFXA port, the A3D renderer interface), so it builds MW2's sources with `MW2_ACCEL` defined, and `MW2_3DFX` for its own differences (see "Other builds of the simulator" and "The 3Dfx edition").
 - **MW2ATI** — `MW2_ATI.DLL`: the simulator of the ATI 3D Rage edition (linked 1996-04-11, registry key `MechWarrior 2\1.0`), the oldest edition, built the way the 3Dfx edition was six months later (VC++ 2.2, `/Ox /Ow /G5 /Gr /Gy`), drawing through ATI's 3D CIF (`ati3dcif.dll`) on DirectDraw surfaces. It builds MW2's sources with `MW2_ACCEL` and `MW2_ATI` (see "The ATI edition").
+- **MW2S3** — `MW2_S3.DLL`: the simulator of the S3 ViRGE edition (linked 1996-07-12 by LINK 3.10), built with VC++ 4.1 the way the ATI and 3Dfx editions were with 2.2 (`/Ox /Ow /G5 /Gr /Gy`, 4.1's `LIBC`), drawing through S3's toolkit (`S3DTKW.DLL`) on DirectDraw surfaces, without VFX3D and VFXREND. It builds MW2's sources with `MW2_ACCEL` and `MW2_S3` in the `vc41/` directory (see "The S3 and PowerVR editions").
+- **MW2POWERVR** — `MW2_POWERVR.DLL`: the simulator of the PowerVR edition (linked 1996-09-06), built like the ATI and 3Dfx editions (VC++ 2.2), drawing through VideoLogic's SGL (`sgl.dll`), PowerVR's scene graph library. It builds MW2's sources with `MW2_ACCEL` and `MW2_POWERVR` (see "The S3 and PowerVR editions").
 
-The build uses 2.2 for NETMECHW, MECH2, MW23DFX and MW2ATI, and 4.0 for MW2MATROX, when configured (see "Building"); otherwise it builds NETMECHW and MECH2 with the project's compiler, which cannot match the originals, and MW23DFX and MW2ATI not at all.
+The build uses 2.2 for NETMECHW, MECH2, MW23DFX, MW2ATI and MW2POWERVR, and 4.0 for MW2MATROX, when configured (see "Building"); otherwise it builds NETMECHW and MECH2 with the project's compiler, which cannot match the originals, and MW23DFX, MW2ATI and MW2POWERVR not at all.
 
 Not targets: the third-party DLLs `WAIL32.DLL` (Miles Sound System) and `SMACKW32.DLL` (Smacker), which we only link against.
 
@@ -46,6 +48,8 @@ Build configuration:
 | MW2MATROX | C (VC++ 4.0)           | `/Od /Oi /G5`          | `/MT` (static `LIBCMT`)                    | `/DLL` (comparison build adds `/DEBUG /OPT:REF /INCREMENTAL:no`) |
 | MW23DFX  | C (VC++ 2.2)            | `/Ox /Ow /Oi /G5 /Gr /Gy /Z7` (three units `/Od`; Texus `/Ox /G5 /QIfdiv-`) | `/ML` (single-threaded `LIBC`) | `/DLL /DEBUG /INCREMENTAL:no`             |
 | MW2ATI   | C (VC++ 2.2)            | `/Ox /Ow /Oi /G5 /Gr /Gy /Z7` (three units `/Od`) | `/ML` (single-threaded `LIBC`) | `/DLL /DEBUG /INCREMENTAL:no`             |
+| MW2S3    | C (VC++ 4.1)            | `/Ox /Ow /Oi /G5 /Gr /Gy` (three units `/Od`) | `/ML` (single-threaded `LIBC`) | `/DLL /DEBUG /INCREMENTAL:no`             |
+| MW2POWERVR | C (VC++ 2.2)          | `/Ox /Ow /Oi /G5 /Gr /Gy /Z7` (three units `/Od`; the ATI edition's, until probes settle them) | `/ML` (single-threaded `LIBC`) | `/DLL /DEBUG /INCREMENTAL:no` |
 
 The CRT is selected through `MSVC_RUNTIME_LIBRARY` under `CMP0091 NEW` (`MultiThreadedDebug` for MW2, `MultiThreaded` for MW2SHELL and NETMECHW; CMake has no value for `/ML`, so MECH2 and MW23DFX set an empty one and pass the flag). No CRT patching is needed: the originals match 4.1's `LIBCMTD.LIB` (MW2) and `LIBCMT.LIB` (MW2SHELL), and 2.2's `LIBCMT.LIB` (NETMECHW) and `LIBC.LIB` (MECH2, MW23DFX) as-is.
 
@@ -66,6 +70,8 @@ reccmp-reccmp --target MECH2 --print-rec-addr
 reccmp-reccmp --target MW2MATROX --print-rec-addr
 reccmp-reccmp --target MW23DFX --print-rec-addr
 reccmp-reccmp --target MW2ATI --print-rec-addr
+reccmp-reccmp --target MW2S3 --print-rec-addr
+reccmp-reccmp --target MW2POWERVR --print-rec-addr
 
 # Game-code progress, as CI reports it
 reccmp-reccmp --target MW2SHELL --silent --nolib --total 770
@@ -75,6 +81,8 @@ reccmp-reccmp --target MECH2 --silent --nolib --total 21
 reccmp-reccmp --target MW2MATROX --silent --nolib --total 1597
 reccmp-reccmp --target MW23DFX --silent --nolib --total 1574
 reccmp-reccmp --target MW2ATI --silent --nolib --total 1427
+reccmp-reccmp --target MW2S3 --silent --nolib --total 1394
+reccmp-reccmp --target MW2POWERVR --silent --nolib --total 1425
 
 # Compare global variable data values
 reccmp-datacmp --target MW2SHELL --verbose --print-rec-addr
@@ -84,6 +92,8 @@ reccmp-datacmp --target MECH2 --verbose --print-rec-addr
 reccmp-datacmp --target MW2MATROX --verbose --print-rec-addr
 reccmp-datacmp --target MW23DFX --verbose --print-rec-addr
 reccmp-datacmp --target MW2ATI --verbose --print-rec-addr
+reccmp-datacmp --target MW2S3 --verbose --print-rec-addr
+reccmp-datacmp --target MW2POWERVR --verbose --print-rec-addr
 
 # Lint annotations (pass source dirs to avoid scanning gitignored files)
 reccmp-decomplint --module MW2SHELL --warnfail <path-to-MW2SHELL>
@@ -93,6 +103,8 @@ reccmp-decomplint --module MECH2 --warnfail <path-to-MECH2>
 reccmp-decomplint --module MW2MATROX --warnfail <path-to-MW2> <path-to-common>
 reccmp-decomplint --module MW23DFX --warnfail <path-to-MW2> <path-to-common>
 reccmp-decomplint --module MW2ATI --warnfail <path-to-MW2> <path-to-common>
+reccmp-decomplint --module MW2S3 --warnfail <path-to-MW2> <path-to-common>
+reccmp-decomplint --module MW2POWERVR --warnfail <path-to-MW2> <path-to-common>
 
 # Blocks of globals (see "Annotations"): the original's block operations against the
 # recompiled layout (from build/), and the source's (from the repository root; needs the
@@ -184,7 +196,7 @@ Run `reccmp-datacmp` after adding/modifying globals with non-zero initial values
 
 **An uninitialized buffer's size comes from the originals' layouts, not from the code.** The code shows how much one function writes (a loop's bound, a read's size, the literal it copies), which can be less than the buffer: `BuildGamePath` clears 0x50 bytes of `g_gamePath`, which has 0x100, and `LoadMekImage` reads 0x800 bytes into `g_mekFileBuffer`, which has 0x2000. The room a global has before the next address anything refers to is an upper bound; the same room in two builds whose globals follow one another differently is its size, and a room that changes from one build to the next is other data. The simulator's editions are such builds (`g_gamePath` has 0x100 bytes in 1.1, the Matrox and the 3Dfx edition; `g_shapeHasKey` has 636 in 1.1 and 4 in the others), and each 3D-card edition shipped its own shell: the Matrox edition's gives `g_dialogText` 0xa40 bytes and `g_mekFileBuffer` 0x2000, as 1.1 does, and shows that `g_pageTemp`'s 0x458 in 1.1 are 0x400 and something else (`g_pageWord` follows it there). No annotations are needed to look: a global is found in another build by the code around a reference to it, relocated fields masked, and the next address anything refers to is the next relocation's target. One binary alone can't tell a buffer from the unreferenced data after it, and a placeholder global can't keep that data in place: a unit's uninitialized globals aren't laid out in the order of their definitions (measured: of seven placeholders defined right after buffers of the shell's and the lobby's, two landed right after them, the others before them or elsewhere), and the linker places C tentative definitions. `check_block_layout.py` fails on a global declared larger than its room; nothing fails on a smaller one, since most of that room is data nobody has annotated.
 
-When a shared function carries annotations for more than one target, they follow the target order in `reccmp-project.yml`: MW2SHELL, MW2, MW2MATROX, MW23DFX, MW2ATI, NETMECHW, MECH2.
+When a shared function carries annotations for more than one target, they follow the target order in `reccmp-project.yml`: MW2SHELL, MW2, MW2MATROX, MW23DFX, MW2ATI, MW2S3, MW2POWERVR, NETMECHW, MECH2.
 
 **CRT names differ between the debug and release CRT**: LIBCMTD (MW2) carries CodeView procedure symbols, so reccmp sees the C name (`_vsnprintf`, `_DllMainCRTStartup`); LIBCMT (MW2SHELL) has only publics, so it sees the decorated name (`__vsnprintf`, `__DllMainCRTStartup@12`). `library_msvc.h` therefore matches public CRT functions by their public symbol, which both libraries share: `// LIBRARY: MW2 0x10080490 SYMBOL` followed by `// _sprintf`. Static CRT functions have no public symbol: MW2 names them by their CodeView C name (when unique), and MW2SHELL's stay unmatched but still mark library addresses. The 2.2 CRTs (NETMECHW's `LIBCMT`, MECH2's and MW23DFX's `LIBC`) have only publics too, so they follow MW2SHELL's rules. At an alias address (`__chkstk`/`__alloca_probe`), use the symbol reccmp keeps.
 
@@ -235,7 +247,7 @@ undefined m_unk0x92c[0x944 - 0x92c]; // 0x92c
 
 - **Bit tests:** `if (flags & c_flagCached)` / `if (!(flags & c_flagCached))` — no `!= 0` / `== 0`.
 - **Address padding:** 8 hex digits, lowercase: `0x10003580`.
-- **Annotation ordering:** when a function has annotations for several targets, they go in the order MW2SHELL, MW2, MW2MATROX, MW23DFX, MW2ATI, NETMECHW, MECH2.
+- **Annotation ordering:** when a function has annotations for several targets, they go in the order MW2SHELL, MW2, MW2MATROX, MW23DFX, MW2ATI, MW2S3, MW2POWERVR, NETMECHW, MECH2.
 - **No redundant `this->`.** Write `m_member`, `Method()`, `BaseClass::VirtualMethod()` directly.
 - **Win32 API: prefer un-suffixed names.** Use `CreateWindowEx`, `DEVMODE`, `MSG`, `WIN32_FIND_DATA`, etc. — NOT `CreateWindowExA`/`DEVMODEA`. The un-suffixed names are macros that resolve to the `A` form when `UNICODE` is undefined; the compiled binary still imports the `A` symbols. Disassemblers show the resolved `*A` symbol — translate back to the macro.
 - **Pointer/bool constants:** use `NULL` for null pointer assignments/returns, `TRUE`/`FALSE` for boolean values, and plain `0` only for scalar values and status codes.
@@ -433,7 +445,7 @@ This section only grows as patterns are **proven by matches**:
 - **Struct members come first in a commutative chain, in source order.** `g_a.m_y + g_b + g_c.m_y` adds the two members as written, then the plain globals by their places. So a global that the original adds ahead of a struct member is a member itself: `g_compassArrowSize.m_y + g_compassOrigin.m_y + g_compassTapeBelow` showed the arrow's width and height to be one object (`DrawCompassMarkers`).
 - **Locals that share a bucket of the slot hash are allocated last declared first.** With more locals than the 16 buckets, the slots are runs of locals in reverse order of declaration, so a function whose locals are declared in the order of their slots can't be right (`UpdateMech`'s 49, `ChoosePlayerDetailLevels`' 25): the original declared each shared bucket's locals the other way round.
 - **Comparison operand order follows symbol order, not source order.** `a > b` and `b < a` compile identically; 4.1 chooses which side of `<`/`>`/`==` goes in `eax` from the symbol table. If a comparison is reversed vs. the original, reordering the operands' _declarations_ fixes it — even the count of extra symbols declared ahead of the function in the TU can flip it. Global _definitions_ count the same way: reordering the `// GLOBAL:` definitions in the TU fixed `KeyboardReadKeyCode` and `SimMain`'s objective loop. Array indexing shows the same effect: `p->m_items[i]` loads the base first in some functions and the index first in others (`CollectionGet`, `ClearCollection`), and declaration order didn't flip those. Don't chase either by hand: between a local and a global the order follows the number of symbols declared ahead of the function, and `tools/witness.py` finds a count that gives the original's (padding proved 38 of the 42 operand-order claims in MW2's comments); between two locals it follows their order of declaration, which no padding or renaming reaches, and `tools/declorder.py` finds an order that gives the original's code (it also decides which commutative operand loads first, and the slots of locals that share a bucket of the slot hash). Moving declarations changes every target that compiles the function, so pass the others to `--also`, then rerun `tools/witness.py --write` on the unit for each of them. A commutative pair that no order, padding or renaming flips may be a struct: between two struct members the operand order follows the source, so `rect.m_y0 + top` against the original's `top + rect.m_y0` meant `left`/`top` were one `Point` (`CenterRectOnScreen`). A global's own position counts as well: padding shifts every global at once, so two comparisons with different globals can need different paddings, and neither padding nor an order of the locals gives both. Don't move the declaration in its header for that (it changes every unit that includes it, in every edition): `tools/witness.py --early` moves the one global in a scratch copy of the one unit. It tries each move at every padding (`-v` prints each order's state at paddings 0 to 16: where no padding leaves only slots, the difference is in the source), declares a commutative chain's locals together in the order the original evaluates them (`GetFaceColor`), shares the slot hash's buckets without moving two locals the code orders past each other (`UpdateMech`), and takes `--early` for a function whose slots only show once a global is redeclared (`ChoosePlayerDetailLevels`; `tools/witness.py --early` names the padding in its report). declorder also takes a function defined in a fragment (`--file shapebounds.c`), the definition its target's annotation marks, and the declarations of the `#if` group the target compiles where an edition's whole body has its own (`UpdateProjection`); and where no move leaves the audit anything to classify, it climbs the distance to the original, slot by slot (`ComputeShapeBounds`, `DrawSkyAndGround`).
-- **A newly included file counts as a symbol (4.0 and 4.1).** The first `#include` of a file, even an empty one or one of `#define`s only, advances the compiler's counters (`$L`, `$T`, `$SG`) by one, as a declaration does, and flips comparisons and slots in the units that include it; including it again costs nothing, and 2.2 doesn't react. Macros in a header already included are free. So a new header of macros for every unit moves code, where the same macros added to `types.h` don't (measured with `tools/compare_objects.py`).
+- **A newly included file counts as a symbol (4.0 and 4.1).** The first `#include` of a file, even an empty one or one of `#define`s only, advances the compiler's counters (`$L`, `$T`, `$SG`) by one, as a declaration does, and flips comparisons and slots in the units that include it; including it again costs nothing, and 2.2 doesn't react to the file itself (what it declares still counts: a fragment of `bandpoly.c` included in the optimized 2.2 editions' unit changed `DrawBand`, so the S3 edition has its own `bandtexture.c`). Macros in a header already included are free. So a new header of macros for every unit moves code, where the same macros added to `types.h` don't (measured with `tools/compare_objects.py`).
 - **`x * -1` is not `-x`.** `p_height * -1` compiles to `mov ecx, eax; add eax, eax; sub eax, ecx; neg eax`; `-p_height` and `0 - p_height` give a lone `neg` and `xor`/`sub` (`InitBitmapInfo`).
 - **`int -= int` after `&=` negates twice.** `n &= 0xfff; rem -= n;` with both `int` compiles to `xor eax, eax; sub eax, [n]; neg eax; sub [rem], eax`; an unsigned `n` gives the plain `mov`/`sub` (`TMPackDataBase::GetDBItemLZ`). The same double negation shows `-=` against a plain subtraction chain: `c -= p + 1` computes `p + 1` in `ecx` (`mov ecx, [p]; inc ecx; sub eax, ecx`), while `c = c - p - 1` compiles to `xor eax, eax; sub eax, [p]; dec eax; neg eax; sub [c], eax` (`FUN_100020fa`).
 - **`x < 0` and `x <= -1` compile differently.** On a signed global, `< 0` tests with `jns`; `<= -1` compiles to `cmp x, -1; jg` (`EndBlock`).
@@ -536,7 +548,7 @@ The upstream LEGO Racers decomp documented extensive `cl` 12.00 `/O2` codegen lo
 - **MECH2's incremental link.** The original is an incremental EXE without `/DEBUG`: calls go through a table of `jmp` thunks at the start of `.text`, and each object is padded with `0xCC` to `align16(size * 1.25)`, the linker's reserve for relinking. The comparison build (LINK 3.10, `/INCREMENTAL:yes /DEBUG`) pads differently, so recompiled addresses drift from the original's past the first object: always pass `--print-rec-addr`. `tools/check_units.py` doesn't understand this layout yet, and the nested build writes no map file for it, so it doesn't run on MECH2.
 - **MECH2's object order** is `winmain.c`, `cdcheck.c`, `debug.c`.
 
-## Other builds of the simulator (MW2MATROX, MW23DFX, MW2ATI)
+## Other builds of the simulator (MW2MATROX, MW23DFX, MW2ATI, MW2S3, MW2POWERVR)
 
 The 3D-card editions shipped their own `MW2.DLL`, built from the game's source as it stood when each was made (the ATI edition in April 1996 and the Matrox edition in August, both before 1.1; the 3Dfx edition in October). Matrox's is the one built like 1.1 (`/Od`, VC++ 4.0); the ATI, S3, PowerVR and 3Dfx editions' are optimized builds (`__fastcall`, frame pointers omitted; VC++ 2.x, S3's 4.x). The 3Dfx and ATI editions are targets too (MW23DFX and MW2ATI, "The 3Dfx edition" and "The ATI edition" below); S3 and PowerVR aren't.
 
@@ -585,6 +597,16 @@ The ATI 3D Rage edition's simulator (`MW2_ATI.DLL`, linked 1996-04-11) is the ol
 - **Back ends:** the display back end and refresh modes are DirectDraw's (`directdraw.c`, in the slot after `gdi.c` that the 3Dfx edition later fills with Glide's); the renderer, `MW2/src/ati/a3d.c` (`0x10063af0` to the import thunks), draws through ATI's 3D CIF (`3rdparty/ati3dcif`: our own declarations and the import library, checked against the SDK's `ATI3DCIF.H`), its vertex the CIF's `C3D_VTCF` (`A3DVertex` under `MW2_ATI`), its textures DirectDraw surfaces the CIF registers. Its texel copy is an `__asm` block (`tools/asm_allowlist.txt`). The client code is the interface the 3Dfx edition kept (`MW2_SKY_GROUND_CLIPPED_HELPERS`, `MW2_CLIP_TO_PANE_EDGES`, `MW2_FRAME_TEXELS`), with the edition's own `DrawAnimatedPolygon` and its textured-polygon drawer (`bandpoly.c`'s `FUN_1002a480`); `SimMain` and `SimWindowProc` are one definition for both editions. Its `SetGameResolution` asks DirectDraw for 512x384 (`MW2_RES_512X384`), and its VFX3D's first two routines are an older version than the release's, which the later editions link.
 - **Features:** the 3Dfx edition kept its RGB555 pixels, inline helpers, map layouts, ranges, message backgrounds, near-plane clip and sky and ground clip; the Matrox edition kept its texture filter (which only the ATI edition lists on its graphics page, `MW2_TEXTURE_FILTER_ITEM`). The other sites that test `MW2_MATROX` or `MW2_3DFX` are still to check against it ("Adding an edition", step 5, in `docs/EDITIONS.md`).
 - **Placement:** the units are in the 3Dfx edition's order, and `tools/check_units.py` (`MW2ATI comdat`) passes with no findings. The retail workflow skips its import check while the code the edition compiles from 1.1's branches (the GDI back end, the MIDI) imports what the original doesn't.
+
+## The S3 and PowerVR editions (MW2S3, MW2POWERVR)
+
+The S3 ViRGE edition (`MW2_S3.DLL`, linked 1996-07-12) and the PowerVR edition (`MW2_POWERVR.DLL`, 1996-09-06) fall between the ATI and 3Dfx editions. Both started from the ATI edition (its features but its back end's, its client code for the renderer, its units' order), then took their own where their binaries differ.
+
+- **Builds.** The PowerVR edition is the ATI edition's build (VC++ 2.2, LINK 2.55, `/QIfdiv` on; `vc22/targets.cmake`). The S3 edition is VC++ 4.1 with the same flags (its C runtime matches 4.1's `LIBC` as it is, and it has none of 2.2's division guards). Its sources' optimization flags are source properties, which CMake keeps per directory, so it is defined in `vc41/`, a directory of the top-level 4.1 build, where they don't reach MW2.DLL's `/Od` objects. Its `SimMain`'s `__finally` funclet, which 4.1 reaches with a `call`, is in the traced function count.
+- **The S3 edition** draws through S3's toolkit (`MW2/src/s3/a3d.c`, over `3rdparty/s3dtk`, checked against the toolkit's `S3DTK.H` of 1997): the ATI renderer's design (cached states, triangle fans, textures in DirectDraw surfaces with LRU reuse), its vertex the toolkit's `S3DTK_VERTEX_TEX`, its other calls through the renderer's function list. It links VFXA and the 16-bit port but neither VFX3D nor VFXREND (`MW2_NO_VFXREND`); its `directdraw.c` hands each unlocked frame to the renderer, and `ResetTicks` pops in its save order (`ticks.asm`). Its client code places polygons at the pane's origin with byte colours (`g_a3dPalette`), a layer of its own in `polydraw.c`, `cockpit.c` and `animation.c`. `bandtexture.c` is its copy of the ATI edition's textured-polygon drawer, which opens `palette.c`'s object: including a fragment of `bandpoly.c` instead changed `DrawBand` in the 2.2 editions (next item).
+- **The PowerVR edition** draws through VideoLogic's SGL scene graph (`MW2/src/powervr/a3d.c`, over `3rdparty/sgl`): the models are SGL meshes, the objects SGL lists with transforms, the animation frames cached textures, in three views (the 3D view and two cockpit panels' insets). SGL owns DirectDraw (`directdraw.c` has no surfaces of its own) and calls the game back with the locked frame, where `FUN_10007db0` (`simmain.c`) draws the cockpit, the menus and the overlays. Its graphics page has fog and smooth shading; the PowerVR members of `Animation`, `AnimFrame`, `SceneObject`, `Shape` and `Model` hold the SGL objects.
+- **Annotations** were ported by bytes from the ATI and 3Dfx originals, the C runtime from the rebuilds (`tools/port_annotations.py --rebuild`), the rest paired with `tools/edition.py --target MW2S3` / `MW2POWERVR`. The cautions of the ATI edition's port apply.
+- **Checks:** `tools/check_units.py` passes for both; the retail workflow skips `tools/check_imports.py` for both, as for the ATI edition (the code they compile from 1.1's branches).
 
 ## Ghidra ↔ Source
 
@@ -649,8 +671,9 @@ common/       # what both DLLs share: Miles Design VFX's headers (include/) and 
               # VFXA.ASM, VFX3D.ASM, VFXREND.ASM, …) from its July 2000 open-source release, as both DLLs link
               # it, and 3dfx's Texus (texus/, under its own licence), as the 3Dfx edition links it (changes marked)
 util/         # decomp.h, compat.h, types.h
-vc22/         # the VC++ 2.2 sub-project (CMakeLists.txt) and the 2.2 targets' definitions (targets.cmake): NETMECHW, MECH2, MW23DFX, MW2ATI
+vc22/         # the VC++ 2.2 sub-project (CMakeLists.txt) and the 2.2 targets' definitions (targets.cmake): NETMECHW, MECH2, MW23DFX, MW2ATI, MW2POWERVR
 vc40/         # the VC++ 4.0 sub-project and its target's definition: MW2MATROX (MW2's sources)
+vc41/         # a directory of the 4.1 build with its optimized target: MW2S3 (MW2's sources at /Ox)
 cmake/        # reccmp CMake integration, shared CMake helpers
 tools/        # ncc, lint scripts, requirements
 tests/        # asmequiv: the portable C against the hand-written assembly (ctest; also a standalone project)

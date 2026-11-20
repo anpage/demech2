@@ -45,6 +45,8 @@
 // GLOBAL: MW2MATROX 0x100a4b08
 // GLOBAL: MW23DFX 0x1024cd70
 // GLOBAL: MW2ATI 0x101810f0
+// GLOBAL: MW2S3 0x10064d18
+// GLOBAL: MW2POWERVR 0x101ac050
 ProbeDirection g_probeDirections[16] = {
 	{0, 1},
 	{2, 1},
@@ -70,6 +72,7 @@ ProbeDirection g_probeDirections[16] = {
 // GLOBAL: MW2MATROX 0x100a4b88
 // GLOBAL: MW23DFX 0x1024cdf0
 // GLOBAL: MW2ATI 0x10181170
+// GLOBAL: MW2POWERVR 0x101ac0d0
 ManeuverEntry g_mechManeuvers[13] = {
 	{{0, 6, 0, 1, 2, 3, 4, 4, 0}},
 	{{1, 5, 0, 1, 2, 3, 4, 0, 0}},
@@ -90,18 +93,22 @@ ManeuverEntry g_mechManeuvers[13] = {
 // GLOBAL: MW2MATROX 0x100a4c78
 // GLOBAL: MW23DFX 0x1024cee0
 // GLOBAL: MW2ATI 0x10181260
+// GLOBAL: MW2S3 0x10064e88
+// GLOBAL: MW2POWERVR 0x101ac1c0
 ManeuverEntry g_stupidManeuvers = {{0, 1, 0, 0, 0, 0, 0, 0, 0}};
 
 // GLOBAL: MW2 0x100a2a88
 // GLOBAL: MW2MATROX 0x100a4c90
 // GLOBAL: MW23DFX 0x1024cef8
 // GLOBAL: MW2ATI 0x10181278
+// GLOBAL: MW2POWERVR 0x101ac1d8
 ManeuverEntry g_circleManeuvers = {{12, 1, 12, 0, 0, 0, 0, 0, 0}};
 
 // GLOBAL: MW2 0x100a2aa0
 // GLOBAL: MW2MATROX 0x100a4ca8
 // GLOBAL: MW23DFX 0x1024cf10
 // GLOBAL: MW2ATI 0x10181290
+// GLOBAL: MW2POWERVR 0x101ac1f0
 ManeuverEntry g_behindManeuvers = {{1, 1, 1, 0, 0, 0, 0, 0, 0}};
 
 // The table of a mech whose m_tons is 1 (ChooseManeuver).
@@ -109,6 +116,7 @@ ManeuverEntry g_behindManeuvers = {{1, 1, 1, 0, 0, 0, 0, 0, 0}};
 // GLOBAL: MW2MATROX 0x100a4cc0
 // GLOBAL: MW23DFX 0x1024cf28
 // GLOBAL: MW2ATI 0x101812a8
+// GLOBAL: MW2POWERVR 0x101ac208
 ManeuverEntry g_altMechManeuvers[13] = {
 	{{0, 7, 0, 1, 2, 3, 4, 4, 4}},
 	{{1, 6, 0, 1, 2, 3, 4, 4, 0}},
@@ -130,6 +138,8 @@ ManeuverEntry g_altMechManeuvers[13] = {
 // GLOBAL: MW2MATROX 0x100a4dac
 // GLOBAL: MW23DFX 0x1024d014
 // GLOBAL: MW2ATI 0x10181394
+// GLOBAL: MW2S3 0x10064fbc
+// GLOBAL: MW2POWERVR 0x101ac2f4
 MechS32 g_maneuverTablesReady = 0;
 
 // The maneuver table of each player type (m_type, 1 to 8), and in entry 8 the alternative to the
@@ -138,6 +148,7 @@ MechS32 g_maneuverTablesReady = 0;
 // GLOBAL: MW2MATROX 0x10212cf0
 // GLOBAL: MW23DFX 0x101de7b0
 // GLOBAL: MW2ATI 0x10112470
+// GLOBAL: MW2POWERVR 0x1013d130
 ManeuverTable g_maneuverTables[9];
 
 // Runs p_player's current maneuver (m_maneuver) against p_target for a tick, and ends it when it
@@ -147,6 +158,8 @@ ManeuverTable g_maneuverTables[9];
 // FUNCTION: MW2MATROX 0x10019000
 // FUNCTION: MW23DFX 0x1001ea40
 // FUNCTION: MW2ATI 0x1001ed10
+// FUNCTION: MW2S3 0x10018b10
+// FUNCTION: MW2POWERVR 0x1001db60
 void RunManeuver(Player* p_player, MechU16 p_target)
 {
 	MechS32 done;
@@ -300,6 +313,8 @@ void RunManeuver(Player* p_player, MechU16 p_target)
 // FUNCTION: MW2MATROX 0x100195d1
 // FUNCTION: MW23DFX 0x1001ee30
 // FUNCTION: MW2ATI 0x1001f100
+// FUNCTION: MW2S3 0x10018f00
+// FUNCTION: MW2POWERVR 0x1001df50
 void InitializeManeuvers(Player* p_player)
 {
 	MechS16 i;
@@ -424,6 +439,8 @@ void InitializeManeuvers(Player* p_player)
 // FUNCTION: MW2MATROX 0x10019969
 // FUNCTION: MW23DFX 0x1001f030
 // FUNCTION: MW2ATI 0x1001f300
+// FUNCTION: MW2S3 0x100190e0
+// FUNCTION: MW2POWERVR 0x1001e150
 MechS32 ChooseManeuver(Player* p_player)
 {
 	ManeuverTable* table;
@@ -523,6 +540,8 @@ MechS32 ChooseManeuver(Player* p_player)
 // FUNCTION: MW2MATROX 0x10019cd8
 // FUNCTION: MW23DFX 0x1001f260
 // FUNCTION: MW2ATI 0x1001f530
+// FUNCTION: MW2S3 0x10019310
+// FUNCTION: MW2POWERVR 0x1001e380
 MechS16 FindManeuver(ManeuverTable* p_table, MechS16 p_id)
 {
 	MechS16 i;
@@ -542,6 +561,8 @@ MechS16 FindManeuver(ManeuverTable* p_table, MechS16 p_id)
 // FUNCTION: MW2MATROX 0x10019d3d
 // FUNCTION: MW23DFX 0x1001f290
 // FUNCTION: MW2ATI 0x1001f560
+// FUNCTION: MW2S3 0x10019340
+// FUNCTION: MW2POWERVR 0x1001e3b0
 void StartManeuver(Player* p_player)
 {
 	p_player->m_ai.m_goal = p_player->m_ai.m_target;
@@ -631,6 +652,8 @@ void StartManeuver(Player* p_player)
 // FUNCTION: MW2MATROX 0x1001a106
 // FUNCTION: MW23DFX 0x1001f500
 // FUNCTION: MW2ATI 0x1001f7d0
+// FUNCTION: MW2S3 0x100195b0
+// FUNCTION: MW2POWERVR 0x1001e620
 void EndManeuver(Player* p_player)
 {
 	switch (p_player->m_maneuver) {
@@ -688,6 +711,8 @@ void EndManeuver(Player* p_player)
 // FUNCTION: MW2MATROX 0x1001a31b
 // FUNCTION: MW23DFX 0x1001f630
 // FUNCTION: MW2ATI 0x1001f900
+// FUNCTION: MW2S3 0x100196e0
+// FUNCTION: MW2POWERVR 0x1001e750
 #ifdef MW2_FLOAT_SCALARS
 void PlaceOffsetNav(Player* p_player, MechU32 p_target, MechS16 p_direction, MechFloat p_distance)
 #else
@@ -716,6 +741,8 @@ void PlaceOffsetNav(Player* p_player, MechU32 p_target, MechS16 p_direction, Mec
 // FUNCTION: MW2MATROX 0x1001a3c8
 // FUNCTION: MW23DFX 0x1001f6b0
 // FUNCTION: MW2ATI 0x1001f980
+// FUNCTION: MW2S3 0x10019760
+// FUNCTION: MW2POWERVR 0x1001e7d0
 #ifdef MW2_FLOAT_SCALARS
 void GetOffsetPoint(
 	MechU32 p_target,
@@ -808,6 +835,8 @@ void GetOffsetPoint(MechU32 p_target, MechS16 p_direction, MechS32* p_x, MechS32
 // FUNCTION: MW2MATROX 0x1001a6a8
 // FUNCTION: MW23DFX 0x1001f910
 // FUNCTION: MW2ATI 0x1001fbe0
+// FUNCTION: MW2S3 0x10019960
+// FUNCTION: MW2POWERVR 0x1001ea30
 MechS32 IsSharpTurn(Player* p_player, MechScalar p_turn)
 {
 	MechS32 sharp;
@@ -837,6 +866,8 @@ MechS32 IsSharpTurn(Player* p_player, MechScalar p_turn)
 // FUNCTION: MW2MATROX 0x1001a709
 // FUNCTION: MW23DFX 0x1001f950
 // FUNCTION: MW2ATI 0x1001fc20
+// FUNCTION: MW2S3 0x100199a0
+// FUNCTION: MW2POWERVR 0x1001ea70
 void ManeuverStupid(Player* p_player, MechS16 p_target)
 {
 #ifndef MW2_FLOAT_SCALARS
@@ -873,6 +904,8 @@ void ManeuverStupid(Player* p_player, MechS16 p_target)
 // FUNCTION: MW2MATROX 0x1001a7cb
 // FUNCTION: MW23DFX 0x1001f9d0
 // FUNCTION: MW2ATI 0x1001fca0
+// FUNCTION: MW2S3 0x10019a20
+// FUNCTION: MW2POWERVR 0x1001eaf0
 void ManeuverBehind(Player* p_player, MechS16 p_target)
 {
 	MechScalar heading;
@@ -926,6 +959,8 @@ void ManeuverBehind(Player* p_player, MechS16 p_target)
 // FUNCTION: MW2MATROX 0x1001a978
 // FUNCTION: MW23DFX 0x1001faf0
 // FUNCTION: MW2ATI 0x1001fdc0
+// FUNCTION: MW2S3 0x10019b40
+// FUNCTION: MW2POWERVR 0x1001ec10
 MechS32 ManeuverAchick(Player* p_player, MechS16 p_target)
 {
 #ifdef MW2_FLOAT_SCALARS
@@ -977,6 +1012,8 @@ MechS32 ManeuverAchick(Player* p_player, MechS16 p_target)
 // FUNCTION: MW2MATROX 0x1001aa79
 // FUNCTION: MW23DFX 0x1001fb90
 // FUNCTION: MW2ATI 0x1001fe60
+// FUNCTION: MW2S3 0x10019be0
+// FUNCTION: MW2POWERVR 0x1001ecb0
 MechS32 ManeuverKama(Player* p_player, MechS16 p_target)
 {
 	MechS32 result;
@@ -1001,6 +1038,8 @@ MechS32 ManeuverKama(Player* p_player, MechS16 p_target)
 // FUNCTION: MW2MATROX 0x1001ab25
 // FUNCTION: MW23DFX 0x1001fc00
 // FUNCTION: MW2ATI 0x1001fed0
+// FUNCTION: MW2S3 0x10019c50
+// FUNCTION: MW2POWERVR 0x1001ed20
 MechS32 ManeuverWbackp(Player* p_player, MechS16 p_target)
 {
 	MechScalar heading;
@@ -1020,6 +1059,8 @@ MechS32 ManeuverWbackp(Player* p_player, MechS16 p_target)
 // FUNCTION: MW2MATROX 0x1001ab92
 // FUNCTION: MW23DFX 0x1001fc40
 // FUNCTION: MW2ATI 0x1001ff10
+// FUNCTION: MW2S3 0x10019c90
+// FUNCTION: MW2POWERVR 0x1001ed60
 MechS32 ManeuverWchick(Player* p_player, MechS16 p_target)
 {
 	MechScalar heading;
@@ -1046,6 +1087,8 @@ MechS32 ManeuverWchick(Player* p_player, MechS16 p_target)
 // FUNCTION: MW2MATROX 0x1001ac60
 // FUNCTION: MW23DFX 0x1001fcc0
 // FUNCTION: MW2ATI 0x1001ff90
+// FUNCTION: MW2S3 0x10019d10
+// FUNCTION: MW2POWERVR 0x1001ede0
 MechS32 ManeuverWpeek(Player* p_player, MechS16 p_target)
 {
 	MechScalar heading;
@@ -1096,6 +1139,8 @@ MechS32 ManeuverWpeek(Player* p_player, MechS16 p_target)
 // FUNCTION: MW2MATROX 0x1001ae00
 // FUNCTION: MW23DFX 0x1001fdd0
 // FUNCTION: MW2ATI 0x100200a0
+// FUNCTION: MW2S3 0x10019e20
+// FUNCTION: MW2POWERVR 0x1001eef0
 MechS32 ManeuverAjmpin(Player* p_player, MechS16 p_target)
 {
 	MechScalar heading;
@@ -1116,6 +1161,8 @@ MechS32 ManeuverAjmpin(Player* p_player, MechS16 p_target)
 // FUNCTION: MW2MATROX 0x1001ae73
 // FUNCTION: MW23DFX 0x1001fe10
 // FUNCTION: MW2ATI 0x100200e0
+// FUNCTION: MW2S3 0x10019e60
+// FUNCTION: MW2POWERVR 0x1001ef30
 MechS32 ManeuverSprint(Player* p_player, MechS16 p_target)
 {
 	MechScalar heading;
@@ -1134,6 +1181,8 @@ MechS32 ManeuverSprint(Player* p_player, MechS16 p_target)
 // FUNCTION: MW2MATROX 0x1001aeb7
 // FUNCTION: MW23DFX 0x1001fe30
 // FUNCTION: MW2ATI 0x10020100
+// FUNCTION: MW2S3 0x10019e80
+// FUNCTION: MW2POWERVR 0x1001ef50
 MechS32 ManeuverAdfa(Player* p_player, MechS16 p_target)
 {
 	MechScalar rate;
@@ -1208,6 +1257,8 @@ MechS32 ManeuverAdfa(Player* p_player, MechS16 p_target)
 // FUNCTION: MW2MATROX 0x1001b0b1
 // FUNCTION: MW23DFX 0x1001ff70
 // FUNCTION: MW2ATI 0x10020240
+// FUNCTION: MW2S3 0x10019fc0
+// FUNCTION: MW2POWERVR 0x1001f090
 void ManeuverAvoid(Player* p_player, MechS16 p_target)
 {
 	MechScalar heading;
@@ -1237,6 +1288,8 @@ void ManeuverAvoid(Player* p_player, MechS16 p_target)
 // FUNCTION: MW2MATROX 0x1001b155
 // FUNCTION: MW23DFX 0x1001ffd0
 // FUNCTION: MW2ATI 0x100202a0
+// FUNCTION: MW2S3 0x1001a020
+// FUNCTION: MW2POWERVR 0x1001f0f0
 MechS32 ManeuverCircle(Player* p_player, MechS16 p_target)
 {
 	MechScalar heading;
@@ -1278,6 +1331,8 @@ MechS32 ManeuverCircle(Player* p_player, MechS16 p_target)
 // FUNCTION: MW2MATROX 0x1001b292
 // FUNCTION: MW23DFX 0x10020090
 // FUNCTION: MW2ATI 0x10020360
+// FUNCTION: MW2S3 0x1001a0e0
+// FUNCTION: MW2POWERVR 0x1001f1b0
 MechS32 IsBelowHiddenTarget(Player* p_player)
 {
 	MechS16 index;
@@ -1311,6 +1366,8 @@ MechS32 IsBelowHiddenTarget(Player* p_player)
 // FUNCTION: MW2MATROX 0x1001b359
 // FUNCTION: MW23DFX 0x100200f0
 // FUNCTION: MW2ATI 0x100203c0
+// FUNCTION: MW2S3 0x1001a140
+// FUNCTION: MW2POWERVR 0x1001f210
 MechS32 BrakeFall(Player* p_player)
 {
 	MechS16 value;
@@ -1353,6 +1410,8 @@ MechS32 BrakeFall(Player* p_player)
 // FUNCTION: MW2MATROX 0x1001b476
 // FUNCTION: MW23DFX 0x100201b0
 // FUNCTION: MW2ATI 0x10020480
+// FUNCTION: MW2S3 0x1001a200
+// FUNCTION: MW2POWERVR 0x1001f2d0
 void SetJumpJets(Player* p_player, MechS8 p_value)
 {
 	p_player->m_steering->m_jumpJetEnabled = p_value;
@@ -1366,6 +1425,8 @@ void SetJumpJets(Player* p_player, MechS8 p_value)
 // FUNCTION: MW2MATROX 0x1001b48d
 // FUNCTION: MW23DFX 0x100201c0
 // FUNCTION: MW2ATI 0x10020490
+// FUNCTION: MW2S3 0x1001a210
+// FUNCTION: MW2POWERVR 0x1001f2e0
 MechS32 AvoidObstacles(Player* p_player)
 {
 #ifdef MW2_FLOAT_SCALARS
@@ -1587,6 +1648,8 @@ MechS32 AvoidObstacles(Player* p_player)
 // FUNCTION: MW2MATROX 0x1001b91f
 // FUNCTION: MW23DFX 0x100204b0
 // FUNCTION: MW2ATI 0x10020780
+// FUNCTION: MW2S3 0x1001a500
+// FUNCTION: MW2POWERVR 0x1001f5d0
 MechS32 IsStandableShape(Shape* p_shape)
 {
 #ifdef MW2_FLOAT_SCALARS
@@ -1607,6 +1670,8 @@ MechS32 IsStandableShape(Shape* p_shape)
 // FUNCTION: MW2MATROX 0x1001b985
 // FUNCTION: MW23DFX 0x100204e0
 // FUNCTION: MW2ATI 0x100207b0
+// FUNCTION: MW2S3 0x1001a530
+// FUNCTION: MW2POWERVR 0x1001f600
 void BuildProbeRay(
 	Player* p_player,
 	Ray* p_ray,
@@ -1712,6 +1777,8 @@ void BuildProbeRay(
 // FUNCTION: MW2MATROX 0x1001bb6c
 // FUNCTION: MW23DFX 0x10020670
 // FUNCTION: MW2ATI 0x10020940
+// FUNCTION: MW2S3 0x1001a6a0
+// FUNCTION: MW2POWERVR 0x1001f790
 MechS16 GetAvoidSide(Player* p_player, Shape* p_shape, MechScalar p_x, MechScalar p_y, MechScalar p_z)
 {
 #ifdef MW2_FLOAT_SCALARS
@@ -1767,6 +1834,8 @@ MechS16 GetAvoidSide(Player* p_player, Shape* p_shape, MechScalar p_x, MechScala
 // FUNCTION: MW2MATROX 0x1001bc2c
 // FUNCTION: MW23DFX 0x10020710
 // FUNCTION: MW2ATI 0x100209e0
+// FUNCTION: MW2S3 0x1001a740
+// FUNCTION: MW2POWERVR 0x1001f830
 MechScalar GetHeadingTo(Player* p_player, MechS16 p_target)
 {
 	MechS32 target;
@@ -1788,6 +1857,8 @@ MechScalar GetHeadingTo(Player* p_player, MechS16 p_target)
 // FUNCTION: MW2MATROX 0x1001bc8e
 // FUNCTION: MW23DFX 0x10020760
 // FUNCTION: MW2ATI 0x10020a30
+// FUNCTION: MW2S3 0x1001a790
+// FUNCTION: MW2POWERVR 0x1001f880
 MechScalar ClampMagnitude(MechScalar p_value, MechScalar p_limit)
 {
 	if (p_value > p_limit) {
@@ -1805,6 +1876,8 @@ MechScalar ClampMagnitude(MechScalar p_value, MechScalar p_limit)
 // FUNCTION: MW2MATROX 0x1001bcd8
 // FUNCTION: MW23DFX 0x100207b0
 // FUNCTION: MW2ATI 0x10020a80
+// FUNCTION: MW2S3 0x1001a7e0
+// FUNCTION: MW2POWERVR 0x1001f8d0
 MechS32 HasLineToTarget(Player* p_player, MechScalar p_y)
 {
 	Ray ray;
@@ -1845,6 +1918,8 @@ MechS32 HasLineToTarget(Player* p_player, MechScalar p_y)
 // FUNCTION: MW2MATROX 0x1001be0c
 // FUNCTION: MW23DFX 0x10020880
 // FUNCTION: MW2ATI 0x10020b50
+// FUNCTION: MW2S3 0x1001a8b0
+// FUNCTION: MW2POWERVR 0x1001f9a0
 MechS32 IsOutOfAmmo(Mech* p_mech)
 {
 	MechS16 i;
@@ -1868,6 +1943,8 @@ MechS32 IsOutOfAmmo(Mech* p_mech)
 // FUNCTION: MW2MATROX 0x1001bebb
 // FUNCTION: MW23DFX 0x100208e0
 // FUNCTION: MW2ATI 0x10020bb0
+// FUNCTION: MW2S3 0x1001a910
+// FUNCTION: MW2POWERVR 0x1001fa00
 void SetJumpDirection(Player* p_player, MechS16 p_value)
 {
 	p_player->m_steering->m_jumpJetFireForward = p_value;
@@ -1879,6 +1956,8 @@ void SetJumpDirection(Player* p_player, MechS16 p_value)
 // FUNCTION: MW2MATROX 0x1001bef7
 // FUNCTION: MW23DFX 0x100208f0
 // FUNCTION: MW2ATI 0x10020bc0
+// FUNCTION: MW2S3 0x1001a920
+// FUNCTION: MW2POWERVR 0x1001fa10
 MechScalar GetClosingRate(Player* p_player)
 {
 	MechScalar rate;
@@ -1899,6 +1978,8 @@ MechScalar GetClosingRate(Player* p_player)
 // FUNCTION: MW2MATROX 0x1001bf6d
 // FUNCTION: MW23DFX 0x10020950
 // FUNCTION: MW2ATI 0x10020c20
+// FUNCTION: MW2S3 0x1001a960
+// FUNCTION: MW2POWERVR 0x1001fa70
 void JumpToTurn(Player* p_player)
 {
 	MechScalar turn;
@@ -1931,6 +2012,8 @@ void JumpToTurn(Player* p_player)
 // FUNCTION: MW2MATROX 0x1001c0b2
 // FUNCTION: MW23DFX 0x10020a30
 // FUNCTION: MW2ATI 0x10020d00
+// FUNCTION: MW2S3 0x1001aa40
+// FUNCTION: MW2POWERVR 0x1001fb50
 MechS32 CanJump(Player* p_player, MechS32 p_limit)
 {
 	Mech* mech;
@@ -1949,6 +2032,8 @@ MechS32 CanJump(Player* p_player, MechS32 p_limit)
 // FUNCTION: MW2MATROX 0x1001c11d
 // FUNCTION: MW23DFX 0x10020a70
 // FUNCTION: MW2ATI 0x10020d40
+// FUNCTION: MW2S3 0x1001aa80
+// FUNCTION: MW2POWERVR 0x1001fb90
 Shape* GetTargetShape(MechS16 p_target)
 {
 	MechS16 index;
@@ -1978,6 +2063,8 @@ Shape* GetTargetShape(MechS16 p_target)
 // FUNCTION: MW2MATROX 0x1001c1ca
 // FUNCTION: MW23DFX 0x10020ac0
 // FUNCTION: MW2ATI 0x10020d90
+// FUNCTION: MW2S3 0x1001aad0
+// FUNCTION: MW2POWERVR 0x1001fbe0
 void DodgeShot(WeaponSlot* p_slot, Mech* p_mech)
 {
 	MechScalar maxAngle;
@@ -2115,6 +2202,8 @@ void DodgeShot(WeaponSlot* p_slot, Mech* p_mech)
 // FUNCTION: MW2MATROX 0x1001c584
 // FUNCTION: MW23DFX 0x10020d00
 // FUNCTION: MW2ATI 0x10020fd0
+// FUNCTION: MW2S3 0x1001ad10
+// FUNCTION: MW2POWERVR 0x1001fe20
 MechS16 ChooseFlankPlace(Player* p_player)
 {
 	MechScalar angle;
@@ -2194,6 +2283,8 @@ MechS16 ChooseFlankPlace(Player* p_player)
 // FUNCTION: MW2MATROX 0x1001c761
 // FUNCTION: MW23DFX 0x10020e00
 // FUNCTION: MW2ATI 0x100210d0
+// FUNCTION: MW2S3 0x1001ae10
+// FUNCTION: MW2POWERVR 0x1001ff20
 MechS32 IsStuck(Mech* p_mech)
 {
 	return p_mech->m_collisionTicks && p_mech->m_player->m_steering->m_reverse != 1 &&

@@ -14,7 +14,7 @@ struct Vertex;
    detail and the one in use. CreateShape allocates it. */
 typedef struct Shape Shape;
 
-// SIZE 0x4c
+// SIZE 0x4c (0x50 in the PowerVR edition)
 struct Shape {
 	MechU16 m_flags; // 0x00 — 0x10f: the load flags (SetShapeLoadFlags), 0xf0: the damage level (RaisePartDamageLevel),
 					 // 0x200: transformed bounds current, 0x800: not in the collision list, 0x1000: hidden
@@ -39,6 +39,11 @@ struct Shape {
 	MechScalar m_radius;          // 0x40 — the bounding sphere around the center
 	void* m_collisionData;        // 0x44 — a BoundBox (type 0) or a QuadtreeNode (type 5)
 	undefined4 m_transformCount;  // 0x48 — bumped per transform; Model::m_transformCount stamps it
+#ifdef MW2_POWERVR
+	// The PowerVR edition's shapes are 0x50 bytes, with the shape's SGL list (m_flags 0x2000: the
+	// shape is converted to SGL).
+	MechS32 m_list; // 0x4c
+#endif
 };
 
 // The functions and globals of shape.c that other units use.
@@ -133,6 +138,11 @@ void AddShapeVertex(Shape* p_shape, MechS32 p_x, MechS32 p_y, MechS32 p_z, undef
 // The 3Dfx edition's diff is register allocation, scheduling and stack layout only.
 // FUNCTION: MW23DFX 0x10029210
 // FUNCTION: MW2ATI 0x10028ed0
+// ComputeFaceNormal
+
+// The PowerVR edition places these out of shape.c's order, so they are annotated here, by name.
+
+// FUNCTION: MW2POWERVR 0x10025d20
 // ComputeFaceNormal
 
 #endif // SHAPE_H

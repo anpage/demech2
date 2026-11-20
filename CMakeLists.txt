@@ -256,6 +256,13 @@ demech2_add_dll(mw2
   LIBRARIES winmm.lib wail32 ddraw dplay kernel32.lib user32.lib gdi32.lib advapi32.lib
 )
 
+# MW2_S3.DLL, the S3 ViRGE edition's simulator, was built with VC++ 4.1 like MW2.DLL but optimized:
+# the vc41/ directory defines it, where its sources' optimization flags reach only its own target.
+# Modern compilers don't build it: it is MW2.DLL's code.
+if (MSVC_FOR_DECOMP)
+  add_subdirectory(vc41)
+endif()
+
 # --- VC++ 2.2 targets ---
 #
 # MECH2.EXE, NETMECHW.DLL and the ATI and 3Dfx editions' MW2_ATI.DLL and MW2_3DFX.DLL were built with VC++ 2.2, which
@@ -324,6 +331,10 @@ if (MSVC_FOR_DECOMP AND DEMECH2_MSVC22_ROOT)
   reccmp_add_external_target(MW2ATI
     PATH "${PROJECT_BINARY_DIR}/vc22/MW2_ATI.dll"
     PDB "${PROJECT_BINARY_DIR}/vc22/MW2_ATI.pdb"
+  )
+  reccmp_add_external_target(MW2POWERVR
+    PATH "${PROJECT_BINARY_DIR}/vc22/MW2_POWERVR.dll"
+    PDB "${PROJECT_BINARY_DIR}/vc22/MW2_POWERVR.pdb"
   )
 else()
   if (MSVC_FOR_DECOMP)

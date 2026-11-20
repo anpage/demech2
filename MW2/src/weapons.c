@@ -48,12 +48,16 @@
 // GLOBAL: MW2MATROX 0x100a61c8
 // GLOBAL: MW23DFX 0x1025a664
 // GLOBAL: MW2ATI 0x1018e95c
+// GLOBAL: MW2S3 0x10066284
+// GLOBAL: MW2POWERVR 0x101b9c6c
 Shape* g_aimedShape = NULL;
 
 // The fire button fires only the selected weapon; cleared, it fires them all.
 // GLOBAL: MW2 0x100a6d38
 // GLOBAL: MW2MATROX 0x100a61cc
 // GLOBAL: MW23DFX 0x1025a668
+// GLOBAL: MW2S3 0x10066288
+// GLOBAL: MW2POWERVR 0x101b9c70
 MechS32 g_singleWeaponFire = 1;
 
 // The weapons each remote player's weapons message fired, and those the local player fired since
@@ -65,18 +69,24 @@ MechS32 g_singleWeaponFire = 1;
 // GLOBAL: MW2MATROX 0x101d4bd0
 // GLOBAL: MW23DFX 0x10159470
 // GLOBAL: MW2ATI 0x1008d480
+// GLOBAL: MW2S3 0x100abcd0
+// GLOBAL: MW2POWERVR 0x10083a60
 MechS32 g_remoteWeaponsFired[10];
 
 // GLOBAL: MW2 0x101099f0
 // GLOBAL: MW2MATROX 0x101d4c00
 // GLOBAL: MW23DFX 0x101594a0
 // GLOBAL: MW2ATI 0x1008d4b0
+// GLOBAL: MW2S3 0x100abd00
+// GLOBAL: MW2POWERVR 0x10083a90
 MechS32 g_localWeaponsFired[10];
 
 // FUNCTION: MW2 0x10044740
 // FUNCTION: MW2MATROX 0x1002b4e0
 // FUNCTION: MW23DFX 0x10043760
 // FUNCTION: MW2ATI 0x10040fb0
+// FUNCTION: MW2S3 0x10028b00
+// FUNCTION: MW2POWERVR 0x1003bd10
 void ReleaseWeaponTriggers(Mech* p_mech)
 {
 	WeaponSlot* slot;
@@ -99,6 +109,8 @@ void ReleaseWeaponTriggers(Mech* p_mech)
 // FUNCTION: MW2MATROX 0x1002b581
 // FUNCTION: MW23DFX 0x100437a0
 // FUNCTION: MW2ATI 0x10040ff0
+// FUNCTION: MW2S3 0x10028b40
+// FUNCTION: MW2POWERVR 0x1003bd50
 void UpdateWeaponFireState(Mech* p_mech)
 {
 	MechScalar dy;
@@ -315,6 +327,8 @@ void UpdateWeaponFireState(Mech* p_mech)
 // FUNCTION: MW2MATROX 0x1002be15
 // FUNCTION: MW23DFX 0x10043cc0
 // FUNCTION: MW2ATI 0x10041510
+// FUNCTION: MW2S3 0x10029070
+// FUNCTION: MW2POWERVR 0x1003c270
 MechS32 SpawnShot(Player* p_player, WeaponSlot* p_slot)
 {
 	MechS32 result;
@@ -430,6 +444,8 @@ MechS32 SpawnShot(Player* p_player, WeaponSlot* p_slot)
 // FUNCTION: MW2MATROX 0x1002c1ef
 // FUNCTION: MW23DFX 0x10043f80
 // FUNCTION: MW2ATI 0x100417d0
+// FUNCTION: MW2S3 0x10029330
+// FUNCTION: MW2POWERVR 0x1003c530
 void SelectNextWeaponInGroup(Mech* p_mech, MechS32 p_wrap)
 {
 	MechS32 index;
@@ -472,6 +488,8 @@ void SelectNextWeaponInGroup(Mech* p_mech, MechS32 p_wrap)
 // FUNCTION: MW2MATROX 0x1002c30d
 // FUNCTION: MW23DFX 0x10044030
 // FUNCTION: MW2ATI 0x10041880
+// FUNCTION: MW2S3 0x100293e0
+// FUNCTION: MW2POWERVR 0x1003c5e0
 void SelectNextWeapon(Mech* p_mech)
 {
 	MechS32 done;
@@ -509,6 +527,8 @@ void SelectNextWeapon(Mech* p_mech)
 // FUNCTION: MW2MATROX 0x1002c421
 // FUNCTION: MW23DFX 0x100440c0
 // FUNCTION: MW2ATI 0x10041910
+// FUNCTION: MW2S3 0x10029470
+// FUNCTION: MW2POWERVR 0x1003c670
 void SelectNextWeaponGroup(Mech* p_mech)
 {
 	MechS32 group;
@@ -551,6 +571,8 @@ void SelectNextWeaponGroup(Mech* p_mech)
 // FUNCTION: MW2MATROX 0x1002c579
 // FUNCTION: MW23DFX 0x10044160
 // FUNCTION: MW2ATI 0x100419b0
+// FUNCTION: MW2S3 0x10029510
+// FUNCTION: MW2POWERVR 0x1003c710
 MechS32 SelectWeaponGroup(Mech* p_mech, MechS32 p_group)
 {
 	MechS32 i;
@@ -594,6 +616,8 @@ MechS32 SelectWeaponGroup(Mech* p_mech, MechS32 p_group)
 // FUNCTION: MW2MATROX 0x1002c6bf
 // FUNCTION: MW23DFX 0x100441f0
 // FUNCTION: MW2ATI 0x10041a40
+// FUNCTION: MW2S3 0x100295a0
+// FUNCTION: MW2POWERVR 0x1003c7a0
 MechS32 IsSelectedWeaponReady(Mech* p_mech)
 {
 	MechS32 result;
@@ -616,6 +640,8 @@ MechS32 IsSelectedWeaponReady(Mech* p_mech)
 // FUNCTION: MW2MATROX 0x1002c721
 // FUNCTION: MW23DFX 0x10044220
 // FUNCTION: MW2ATI 0x10041a70
+// FUNCTION: MW2S3 0x100295d0
+// FUNCTION: MW2POWERVR 0x1003c7d0
 MechS32 JettisonAmmo(Mech* p_mech)
 {
 	MechChar text[40];
@@ -644,6 +670,8 @@ MechS32 JettisonAmmo(Mech* p_mech)
 // FUNCTION: MW2MATROX 0x1002c801
 // FUNCTION: MW23DFX 0x100442e0
 // FUNCTION: MW2ATI 0x10041b20
+// FUNCTION: MW2S3 0x10029680
+// FUNCTION: MW2POWERVR 0x1003c880
 void LoadWeaponSounds(void)
 {
 	MechS32 i;
@@ -667,6 +695,8 @@ void LoadWeaponSounds(void)
 // FUNCTION: MW2MATROX 0x1002c8ba
 // FUNCTION: MW23DFX 0x10044330
 // FUNCTION: MW2ATI 0x10041b70
+// FUNCTION: MW2S3 0x100296d0
+// FUNCTION: MW2POWERVR 0x1003c8d0
 void SetWeaponGroup(Mech* p_mech, MechS32 p_index, MechS32 p_group)
 {
 	WeaponSlot* slot;
@@ -682,6 +712,8 @@ void SetWeaponGroup(Mech* p_mech, MechS32 p_index, MechS32 p_group)
 // FUNCTION: MW2MATROX 0x1002c8fc
 // FUNCTION: MW23DFX 0x10044350
 // FUNCTION: MW2ATI 0x10041ba0
+// FUNCTION: MW2S3 0x100296f0
+// FUNCTION: MW2POWERVR 0x1003c8f0
 void SetSelectedWeaponGroup(MechS32 p_group)
 {
 	Mech* mech;
@@ -696,6 +728,8 @@ void SetSelectedWeaponGroup(MechS32 p_group)
 // FUNCTION: MW2MATROX 0x1002c942
 // FUNCTION: MW23DFX 0x10044380
 // FUNCTION: MW2ATI 0x10041bd0
+// FUNCTION: MW2S3 0x10029720
+// FUNCTION: MW2POWERVR 0x1003c920
 void CycleLocalWeaponGroup(void)
 {
 	Mech* mech;
@@ -709,6 +743,8 @@ void CycleLocalWeaponGroup(void)
 // FUNCTION: MW2MATROX 0x1002c96e
 // FUNCTION: MW23DFX 0x100443a0
 // FUNCTION: MW2ATI 0x10041bf0
+// FUNCTION: MW2S3 0x10029740
+// FUNCTION: MW2POWERVR 0x1003c940
 void FireRemoteWeapons(Mech* p_mech)
 {
 	WeaponSlot* slot;
@@ -741,6 +777,8 @@ void FireRemoteWeapons(Mech* p_mech)
 // FUNCTION: MW2MATROX 0x1002ca7e
 // FUNCTION: MW23DFX 0x10044440
 // FUNCTION: MW2ATI 0x10041c90
+// FUNCTION: MW2S3 0x100297e0
+// FUNCTION: MW2POWERVR 0x1003c9d0
 void FireWeaponGroup(void)
 {
 	Mech* mech;
@@ -781,6 +819,8 @@ void FireWeaponGroup(void)
 // FUNCTION: MW2MATROX 0x1002cbcb
 // FUNCTION: MW23DFX 0x10044520
 // FUNCTION: MW2ATI 0x10041d70
+// FUNCTION: MW2S3 0x100298c0
+// FUNCTION: MW2POWERVR 0x1003cab0
 void AddNextWeaponToGroup(Mech* p_mech)
 {
 	MechS32 group;
@@ -804,6 +844,7 @@ void AddNextWeaponToGroup(Mech* p_mech)
 // FUNCTION: MW2MATROX 0x1002cc52
 // FUNCTION: MW23DFX 0x10044560
 // FUNCTION: MW2ATI 0x10041db0
+// FUNCTION: MW2S3 0x10029900
 void UpdateWeaponLock(Mech* p_mech)
 {
 	MechScalar dz;
@@ -894,6 +935,8 @@ void UpdateWeaponLock(Mech* p_mech)
 // FUNCTION: MW2MATROX 0x1002d0b1
 // FUNCTION: MW23DFX 0x10044810
 // FUNCTION: MW2ATI 0x10042060
+// FUNCTION: MW2S3 0x10029bb0
+// FUNCTION: MW2POWERVR 0x1003cd90
 Shape* UpdateAimDistance(Player* p_player)
 {
 	Ray ray;
@@ -936,6 +979,8 @@ Shape* UpdateAimDistance(Player* p_player)
 // FUNCTION: MW2MATROX 0x1002d1bc
 // FUNCTION: MW23DFX 0x100448d0
 // FUNCTION: MW2ATI 0x10042120
+// FUNCTION: MW2S3 0x10029c70
+// FUNCTION: MW2POWERVR 0x1003ce50
 MechScalar GetAimRange(Player* p_player)
 {
 	return p_player->m_aimRange.m_value;
@@ -945,6 +990,8 @@ MechScalar GetAimRange(Player* p_player)
 // FUNCTION: MW2MATROX 0x1002d1de
 // FUNCTION: MW23DFX 0x100448e0
 // FUNCTION: MW2ATI 0x10042130
+// FUNCTION: MW2S3 0x10029c80
+// FUNCTION: MW2POWERVR 0x1003ce60
 void GetMechAimDirection(Player* p_player, MechScalar* p_x, MechScalar* p_y, MechScalar* p_z)
 {
 	Ray ray;
@@ -965,6 +1012,8 @@ void GetMechAimDirection(Player* p_player, MechScalar* p_x, MechScalar* p_y, Mec
 // FUNCTION: MW2MATROX 0x1002d253
 // FUNCTION: MW23DFX 0x10044950
 // FUNCTION: MW2ATI 0x100421a0
+// FUNCTION: MW2S3 0x10029cf0
+// FUNCTION: MW2POWERVR 0x1003ced0
 void BuildAimRay(Player* p_player, Ray* p_ray)
 {
 	MechScalar z;
@@ -988,6 +1037,8 @@ void BuildAimRay(Player* p_player, Ray* p_ray)
 // FUNCTION: MW2MATROX 0x1002d2d7
 // FUNCTION: MW23DFX 0x100449d0
 // FUNCTION: MW2ATI 0x10042220
+// FUNCTION: MW2S3 0x10029d70
+// FUNCTION: MW2POWERVR 0x1003cf50
 void GetEyeAimDirection(Player* p_player, MechScalar* p_x, MechScalar* p_y, MechScalar* p_z)
 {
 	Matrix matrix;
@@ -1020,6 +1071,8 @@ void GetEyeAimDirection(Player* p_player, MechScalar* p_x, MechScalar* p_y, Mech
 // FUNCTION: MW2MATROX 0x1002d364
 // FUNCTION: MW23DFX 0x10044a50
 // FUNCTION: MW2ATI 0x100422a0
+// FUNCTION: MW2S3 0x10029df0
+// FUNCTION: MW2POWERVR 0x1003cfd0
 void GetFiringPosition(Player* p_player, MechScalar* p_x, MechScalar* p_y, MechScalar* p_z)
 {
 	GetObjPosition(p_player->m_firingObj, p_x, p_y, p_z);
@@ -1030,6 +1083,8 @@ void GetFiringPosition(Player* p_player, MechScalar* p_x, MechScalar* p_y, MechS
 // FUNCTION: MW2MATROX 0x1002d38a
 // FUNCTION: MW23DFX 0x10044a70
 // FUNCTION: MW2ATI 0x100422c0
+// FUNCTION: MW2S3 0x10029e10
+// FUNCTION: MW2POWERVR 0x1003cff0
 void PlaceAtFiringObj(Player* p_player, SceneObject* p_obj)
 {
 	MechScalar z;
@@ -1047,6 +1102,8 @@ void PlaceAtFiringObj(Player* p_player, SceneObject* p_obj)
 // FUNCTION: MW2MATROX 0x1002d3e4
 // FUNCTION: MW23DFX 0x10044ac0
 // FUNCTION: MW2ATI 0x10042310
+// FUNCTION: MW2S3 0x10029e60
+// FUNCTION: MW2POWERVR 0x1003d040
 void SpawnLaunchFx(
 	Player* p_player,
 	SceneObject* p_obj,

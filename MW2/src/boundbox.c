@@ -16,6 +16,8 @@ DECOMP_SIZE_ASSERT(BoundBox, 0x18)
 // FUNCTION: MW2MATROX 0x1000a4f0
 // FUNCTION: MW23DFX 0x1000d820
 // FUNCTION: MW2ATI 0x1000df90
+// FUNCTION: MW2S3 0x10025230
+// FUNCTION: MW2POWERVR 0x1000cb90
 BoundBox* CreateBoundBox(void)
 {
 	BoundBox* box;
@@ -34,6 +36,8 @@ BoundBox* CreateBoundBox(void)
 // FUNCTION: MW2MATROX 0x1000a566
 // FUNCTION: MW23DFX 0x1000d850
 // FUNCTION: MW2ATI 0x1000dfc0
+// FUNCTION: MW2S3 0x10025260
+// FUNCTION: MW2POWERVR 0x1000cbc0
 void EnsureBoundBox(Shape* p_shape)
 {
 	BoundBox* box;
@@ -107,6 +111,7 @@ void AttachShapeBoundBox(Shape* p_shape)
 // FUNCTION: MW2MATROX 0x1000a700
 // FUNCTION: MW23DFX 0x1000d920
 // FUNCTION: MW2ATI 0x1000e010
+// FUNCTION: MW2S3 0x100252b0
 void ComputeModelBounds(
 	Shape* p_shape,
 	MechScalar* p_minX,
@@ -170,6 +175,8 @@ void ComputeModelBounds(
 // FUNCTION: MW2MATROX 0x1000a8ce
 // FUNCTION: MW23DFX 0x1000da90
 // FUNCTION: MW2ATI 0x1000e180
+// FUNCTION: MW2S3 0x10025420
+// FUNCTION: MW2POWERVR 0x1000cd80
 void FreeBoundBox(Shape* p_shape)
 {
 	void* data;
@@ -200,6 +207,8 @@ void FreeBoundBox(Shape* p_shape)
 // FUNCTION: MW2MATROX 0x1000a961
 // FUNCTION: MW23DFX 0x1000dae0
 // FUNCTION: MW2ATI 0x1000e1d0
+// FUNCTION: MW2S3 0x10025470
+// FUNCTION: MW2POWERVR 0x1000cdd0
 MechS32 GetBoundBoxSize(Shape* p_shape)
 {
 	MechS32 size;

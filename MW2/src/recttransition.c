@@ -14,6 +14,8 @@
 // FUNCTION: MW2MATROX 0x10045d90
 // FUNCTION: MW23DFX 0x10001610
 // FUNCTION: MW2ATI 0x10001610
+// FUNCTION: MW2S3 0x100476c0
+// FUNCTION: MW2POWERVR 0x100015f0
 void StartRectTransition(RectTransition* p_transition)
 {
 	p_transition->m_state->m_active = TRUE;
@@ -35,6 +37,8 @@ void StopRectTransition(RectTransition* p_transition)
 // FUNCTION: MW2MATROX 0x10045dd4
 // FUNCTION: MW23DFX 0x10001630
 // FUNCTION: MW2ATI 0x10001620
+// FUNCTION: MW2S3 0x100476d0
+// FUNCTION: MW2POWERVR 0x10001600
 PANE* LerpPaneRect(PANE* p_from, PANE* p_to, PANE* p_out, MechS32 p_t, MechS32 p_axis)
 {
 	MechS32 delta;
@@ -62,6 +66,8 @@ PANE* LerpPaneRect(PANE* p_from, PANE* p_to, PANE* p_out, MechS32 p_t, MechS32 p
 // FUNCTION: MW2MATROX 0x10045eb2
 // FUNCTION: MW23DFX 0x10001710
 // FUNCTION: MW2ATI 0x10001700
+// FUNCTION: MW2S3 0x100477b0
+// FUNCTION: MW2POWERVR 0x100016e0
 PANE* UpdateRectTransition(MechS32 p_reverse, RectTransition* p_transition)
 {
 	MechS32 t;
@@ -116,6 +122,8 @@ PANE* UpdateRectTransition(MechS32 p_reverse, RectTransition* p_transition)
 // FUNCTION: MW2MATROX 0x10045fd7
 // FUNCTION: MW23DFX 0x100017f0
 // FUNCTION: MW2ATI 0x100017e0
+// FUNCTION: MW2S3 0x10047890
+// FUNCTION: MW2POWERVR 0x100017c0
 PANE* UpdateRectTransitionByAxis(MechS32 p_reverse, RectTransition* p_transition)
 {
 	MechS32 t;

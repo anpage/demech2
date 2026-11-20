@@ -16,36 +16,48 @@ DECOMP_SIZE_ASSERT(ShapeListHead, 0x18)
 // GLOBAL: MW2MATROX 0x100a20e8
 // GLOBAL: MW23DFX 0x1024b320
 // GLOBAL: MW2ATI 0x1017f6a0
+// GLOBAL: MW2S3 0x10066a34
+// GLOBAL: MW2POWERVR 0x101aa414
 Shape* g_sceneShapes = NULL;
 
 // GLOBAL: MW2 0x100ad5ec
 // GLOBAL: MW2MATROX 0x100a20ec
 // GLOBAL: MW23DFX 0x1024b324
 // GLOBAL: MW2ATI 0x1017f6a4
+// GLOBAL: MW2S3 0x10066a38
+// GLOBAL: MW2POWERVR 0x101aa418
 Shape* g_hiddenShapes = NULL;
 
 // GLOBAL: MW2 0x100bef10
 // GLOBAL: MW2MATROX 0x100c1c68
 // GLOBAL: MW23DFX 0x1007c2c8
 // GLOBAL: MW2ATI 0x100712c8
+// GLOBAL: MW2S3 0x1007cb28
+// GLOBAL: MW2POWERVR 0x1006f2c8
 ShapeListHead g_sceneShapeHead;
 
 // GLOBAL: MW2 0x100bef28
 // GLOBAL: MW2MATROX 0x100c1c50
 // GLOBAL: MW23DFX 0x1007c2b0
 // GLOBAL: MW2ATI 0x100712b0
+// GLOBAL: MW2S3 0x1007cb40
+// GLOBAL: MW2POWERVR 0x1006f2b0
 ShapeListHead g_hiddenShapeHead;
 
 // GLOBAL: MW2 0x100bef40
 // GLOBAL: MW2MATROX 0x100c1c80
 // GLOBAL: MW23DFX 0x1007c2e0
 // GLOBAL: MW2ATI 0x100712e0
+// GLOBAL: MW2S3 0x1007cb58
+// GLOBAL: MW2POWERVR 0x1006f2e0
 ShapeListHead g_detachedShapeHead;
 
 // FUNCTION: MW2 0x1006d680
 // FUNCTION: MW2MATROX 0x100035d0
 // FUNCTION: MW23DFX 0x1000db10
 // FUNCTION: MW2ATI 0x1000e200
+// FUNCTION: MW2S3 0x1002a4d0
+// FUNCTION: MW2POWERVR 0x1000ce00
 void InitShapeLists(void)
 {
 	g_sceneShapeHead.m_prev = g_sceneShapeHead.m_prevCollider = NULL;
@@ -67,6 +79,8 @@ void InitShapeLists(void)
 // FUNCTION: MW2MATROX 0x10003682
 // FUNCTION: MW23DFX 0x1000db80
 // FUNCTION: MW2ATI 0x1000e270
+// FUNCTION: MW2S3 0x1002a540
+// FUNCTION: MW2POWERVR 0x1000ce70
 void AddSceneShape(Shape* p_shape)
 {
 	Shape* list;
@@ -102,6 +116,8 @@ void AddSceneShape(Shape* p_shape)
 // FUNCTION: MW2MATROX 0x1000374b
 // FUNCTION: MW23DFX 0x1000dbe0
 // FUNCTION: MW2ATI 0x1000e2d0
+// FUNCTION: MW2S3 0x1002a5a0
+// FUNCTION: MW2POWERVR 0x1000ced0
 void RemoveSceneShape(Shape* p_shape)
 {
 	if (!p_shape || p_shape == g_sceneShapes || p_shape == (Shape*) &g_hiddenShapeHead) {
@@ -124,6 +140,8 @@ void RemoveSceneShape(Shape* p_shape)
 // FUNCTION: MW2MATROX 0x100037db
 // FUNCTION: MW23DFX 0x1000dc30
 // FUNCTION: MW2ATI 0x1000e320
+// FUNCTION: MW2S3 0x1002a5f0
+// FUNCTION: MW2POWERVR 0x1000cf20
 void DetachShape(Shape* p_shape)
 {
 	if (g_sceneShapes != (Shape*) &g_sceneShapeHead || !p_shape) {
@@ -138,6 +156,8 @@ void DetachShape(Shape* p_shape)
 // FUNCTION: MW2MATROX 0x10003822
 // FUNCTION: MW23DFX 0x1000dc60
 // FUNCTION: MW2ATI 0x1000e350
+// FUNCTION: MW2S3 0x1002a620
+// FUNCTION: MW2POWERVR 0x1000cf50
 void EnableShapeCollision(Shape* p_shape)
 {
 	if (!p_shape) {
@@ -170,6 +190,8 @@ void EnableShapeCollision(Shape* p_shape)
 // FUNCTION: MW2MATROX 0x100038da
 // FUNCTION: MW23DFX 0x1000dca0
 // FUNCTION: MW2ATI 0x1000e390
+// FUNCTION: MW2S3 0x1002a660
+// FUNCTION: MW2POWERVR 0x1000cf90
 void DisableShapeCollision(Shape* p_shape)
 {
 	if (!p_shape) {
@@ -200,6 +222,8 @@ void DisableShapeCollision(Shape* p_shape)
 // FUNCTION: MW2MATROX 0x1000397e
 // FUNCTION: MW23DFX 0x1000dcf0
 // FUNCTION: MW2ATI 0x1000e3e0
+// FUNCTION: MW2S3 0x1002a6b0
+// FUNCTION: MW2POWERVR 0x1000cfe0
 void HideShape(Shape* p_shape)
 {
 	if (!p_shape) {
@@ -223,6 +247,8 @@ void HideShape(Shape* p_shape)
 // FUNCTION: MW2MATROX 0x100039f1
 // FUNCTION: MW23DFX 0x1000dd30
 // FUNCTION: MW2ATI 0x1000e420
+// FUNCTION: MW2S3 0x1002a6f0
+// FUNCTION: MW2POWERVR 0x1000d030
 void ShowShape(Shape* p_shape)
 {
 	if (!p_shape) {
@@ -247,6 +273,8 @@ void ShowShape(Shape* p_shape)
 // FUNCTION: MW2MATROX 0x10003a79
 // FUNCTION: MW23DFX 0x1000dd70
 // FUNCTION: MW2ATI 0x1000e460
+// FUNCTION: MW2S3 0x1002a730
+// FUNCTION: MW2POWERVR 0x1000d090
 void FreeSceneShapes(void)
 {
 	Shape* shape;
@@ -277,6 +305,8 @@ void FreeSceneShapes(void)
 // FUNCTION: MW2MATROX 0x10003b33
 // FUNCTION: MW23DFX 0x1000de00
 // FUNCTION: MW2ATI 0x1000e4f0
+// FUNCTION: MW2S3 0x1002a7c0
+// FUNCTION: MW2POWERVR 0x1000d120
 void UnlinkShape(Shape* p_shape)
 {
 	if (p_shape->m_next) {
@@ -295,6 +325,8 @@ void UnlinkShape(Shape* p_shape)
 // FUNCTION: MW2MATROX 0x10003b8c
 // FUNCTION: MW23DFX 0x1000de30
 // FUNCTION: MW2ATI 0x1000e520
+// FUNCTION: MW2S3 0x1002a7f0
+// FUNCTION: MW2POWERVR 0x1000d150
 void LinkShape(Shape* p_shape, Shape* p_list)
 {
 	if (p_list->m_next) {
@@ -312,6 +344,8 @@ void LinkShape(Shape* p_shape, Shape* p_list)
 // FUNCTION: MW2MATROX 0x10003bce
 // FUNCTION: MW23DFX 0x1000de50
 // FUNCTION: MW2ATI 0x1000e540
+// FUNCTION: MW2S3 0x1002a810
+// FUNCTION: MW2POWERVR 0x1000d170
 void ShowDensityShapes(MechS32 p_enable)
 {
 	Shape* shape;

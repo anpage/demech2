@@ -20,6 +20,8 @@ DECOMP_SIZE_ASSERT(QuadtreeNode, 0x2c)
 // GLOBAL: MW2MATROX 0x100a4834
 // GLOBAL: MW23DFX 0x1024b2f8
 // GLOBAL: MW2ATI 0x1017f678
+// GLOBAL: MW2S3 0x10077078
+// GLOBAL: MW2POWERVR 0x101aa3c0
 MechS32 g_quadtreesDisabled = 0;
 
 // Builds p_shape's quadtree (m_collisionData) over its model's bounds, unless g_quadtreesDisabled is set.
@@ -27,6 +29,8 @@ MechS32 g_quadtreesDisabled = 0;
 // FUNCTION: MW2MATROX 0x100158f0
 // FUNCTION: MW23DFX 0x1000c550
 // FUNCTION: MW2ATI 0x1000ccc0
+// FUNCTION: MW2S3 0x10044b60
+// FUNCTION: MW2POWERVR 0x1000b880
 void BuildShapeQuadtree(Shape* p_shape)
 {
 	Model* model;
@@ -97,6 +101,8 @@ void BuildShapeQuadtree(Shape* p_shape)
 // FUNCTION: MW2MATROX 0x10015ab5
 // FUNCTION: MW23DFX 0x1000c640
 // FUNCTION: MW2ATI 0x1000cdb0
+// FUNCTION: MW2S3 0x10044c50
+// FUNCTION: MW2POWERVR 0x1000b970
 QuadtreeNode* BuildQuadtreeChild(QuadtreeNode* p_node, MechS32 p_quadrant, Model* p_model)
 {
 	MechS32 j;
@@ -210,6 +216,8 @@ QuadtreeNode* BuildQuadtreeChild(QuadtreeNode* p_node, MechS32 p_quadrant, Model
 // FUNCTION: MW2MATROX 0x10015ee6
 // FUNCTION: MW23DFX 0x1000c8c0
 // FUNCTION: MW2ATI 0x1000d030
+// FUNCTION: MW2S3 0x10044ed0
+// FUNCTION: MW2POWERVR 0x1000bbf0
 QuadtreeNode* AllocQuadtreeNode(
 	MechScalar p_minX,
 	MechScalar p_maxX,
@@ -255,6 +263,8 @@ QuadtreeNode* AllocQuadtreeNode(
 // FUNCTION: MW2MATROX 0x10015fca
 // FUNCTION: MW23DFX 0x1000c960
 // FUNCTION: MW2ATI 0x1000d0d0
+// FUNCTION: MW2S3 0x10044f70
+// FUNCTION: MW2POWERVR 0x1000bc90
 void FreeQuadtree(QuadtreeNode* p_node)
 {
 	MechS32 i;
@@ -278,6 +288,8 @@ void FreeQuadtree(QuadtreeNode* p_node)
 // FUNCTION: MW2MATROX 0x10016037
 // FUNCTION: MW23DFX 0x1000c9a0
 // FUNCTION: MW2ATI 0x1000d110
+// FUNCTION: MW2S3 0x10044fb0
+// FUNCTION: MW2POWERVR 0x1000bcd0
 MechS32 FaceOverlapsBox(
 	Face* p_face,
 	Model* p_model,
@@ -352,6 +364,8 @@ MechS32 FaceOverlapsBox(
 // FUNCTION: MW2MATROX 0x100161c7
 // FUNCTION: MW23DFX 0x1000cb10
 // FUNCTION: MW2ATI 0x1000d280
+// FUNCTION: MW2S3 0x10045120
+// FUNCTION: MW2POWERVR 0x1000be40
 MechS32 ClassifyQuadtreePoint(QuadtreeNode* p_node, Model* p_model, MechScalar p_x, MechScalar p_y, MechScalar p_z)
 {
 	MechS32 result;
@@ -423,6 +437,8 @@ MechS32 ClassifyQuadtreePoint(QuadtreeNode* p_node, Model* p_model, MechScalar p
 // FUNCTION: MW2MATROX 0x10016422
 // FUNCTION: MW23DFX 0x1000ccf0
 // FUNCTION: MW2ATI 0x1000d460
+// FUNCTION: MW2S3 0x10045300
+// FUNCTION: MW2POWERVR 0x1000c020
 MechS32 TestQuadtreeRay(QuadtreeNode* p_node, Model* p_model, Ray* p_ray)
 {
 	MechS32 i;
@@ -513,6 +529,8 @@ MechS32 TestQuadtreeRay(QuadtreeNode* p_node, Model* p_model, Ray* p_ray)
 // FUNCTION: MW2MATROX 0x10016662
 // FUNCTION: MW23DFX 0x1000ced0
 // FUNCTION: MW2ATI 0x1000d640
+// FUNCTION: MW2S3 0x100454e0
+// FUNCTION: MW2POWERVR 0x1000c200
 MechS32 TestQuadtreeChildrenRay(QuadtreeNode* p_node, Model* p_model, Ray* p_ray)
 {
 	MechScalar length;
@@ -550,6 +568,8 @@ MechS32 TestQuadtreeChildrenRay(QuadtreeNode* p_node, Model* p_model, Ray* p_ray
 // FUNCTION: MW2MATROX 0x10016740
 // FUNCTION: MW23DFX 0x1000cf80
 // FUNCTION: MW2ATI 0x1000d6f0
+// FUNCTION: MW2S3 0x10045590
+// FUNCTION: MW2POWERVR 0x1000c2b0
 MechS32 GetQuadtreeTop(
 	QuadtreeNode* p_node,
 	Model* p_model,
@@ -611,6 +631,8 @@ MechS32 GetQuadtreeTop(
 // FUNCTION: MW2MATROX 0x1001695e
 // FUNCTION: MW23DFX 0x1000d160
 // FUNCTION: MW2ATI 0x1000d8d0
+// FUNCTION: MW2S3 0x10045770
+// FUNCTION: MW2POWERVR 0x1000c490
 void DisableQuadtrees(void)
 {
 	g_quadtreesDisabled = 1;
@@ -621,6 +643,8 @@ void DisableQuadtrees(void)
 // FUNCTION: MW2MATROX 0x10016973
 // FUNCTION: MW23DFX 0x1000d170
 // FUNCTION: MW2ATI 0x1000d8e0
+// FUNCTION: MW2S3 0x10045780
+// FUNCTION: MW2POWERVR 0x1000c4a0
 MechS32 GetQuadtreeSize(QuadtreeNode* p_node)
 {
 	MechS32 i;

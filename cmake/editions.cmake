@@ -1,5 +1,5 @@
 # The simulator editions' features for the assembly. util/types.h maps each edition macro
-# (MW2_ACCEL, MW2_MATROX, MW2_3DFX, MW2_ATI) to the features it has, one #define each, and the C reads
+# (MW2_ACCEL, MW2_MATROX, MW2_3DFX, MW2_ATI, MW2_S3, MW2_POWERVR) to the features it has, one #define each, and the C reads
 # them from there; ML can't read a C header, so it gets the same features as /D options, read
 # from the same table. Expects DEMECH2_SOURCE_DIR.
 
@@ -28,7 +28,7 @@ function(demech2_edition_masm_defines out)
   foreach(line IN LISTS lines)
     if(line MATCHES "^[ \t]*#[ \t]*(ifdef|ifndef|if)([^A-Za-z0-9_]|$)")
       math(EXPR depth "${depth} + 1")
-      if(line MATCHES "^[ \t]*#[ \t]*ifdef[ \t]+(MW2_ACCEL|MW2_MATROX|MW2_3DFX|MW2_ATI)[ \t]*$")
+      if(line MATCHES "^[ \t]*#[ \t]*ifdef[ \t]+(MW2_ACCEL|MW2_MATROX|MW2_3DFX|MW2_ATI|MW2_S3|MW2_POWERVR)[ \t]*$")
         set(edition_depth ${depth})
         list(FIND ARGN "${CMAKE_MATCH_1}" found)
         if(found EQUAL -1)

@@ -40,12 +40,16 @@ enum KeyStateWord {
 // GLOBAL: MW2MATROX 0x101246f4
 // GLOBAL: MW23DFX 0x1007cb3c
 // GLOBAL: MW2ATI 0x10071b3c
+// GLOBAL: MW2S3 0x1007cb20
+// GLOBAL: MW2POWERVR 0x1006fb84
 static undefined4 g_keyCodeWriteIndex;
 
 // GLOBAL: MW2 0x100be5cc
 // GLOBAL: MW2MATROX 0x101246f0
 // GLOBAL: MW23DFX 0x1007cb38
 // GLOBAL: MW2ATI 0x10071b38
+// GLOBAL: MW2S3 0x1007cb1c
+// GLOBAL: MW2POWERVR 0x1006fb80
 static undefined4 g_keyCodeReadIndex;
 
 // A ring buffer of key codes, filled by KeyboardQueueKeyCode.
@@ -53,6 +57,8 @@ static undefined4 g_keyCodeReadIndex;
 // GLOBAL: MW2MATROX 0x1015dc30
 // GLOBAL: MW23DFX 0x10159ed0
 // GLOBAL: MW2ATI 0x1008ded0
+// GLOBAL: MW2S3 0x100abc50
+// GLOBAL: MW2POWERVR 0x10084410
 MechS16 g_keyCodes[c_keyCodeBufferSize];
 
 // One bit per (remapped) scan code, set while the key is down. Word 3 also holds the modifier
@@ -62,6 +68,8 @@ MechS16 g_keyCodes[c_keyCodeBufferSize];
 // GLOBAL: MW2MATROX 0x1015dc20
 // GLOBAL: MW23DFX 0x10159ec0
 // GLOBAL: MW2ATI 0x1008dec0
+// GLOBAL: MW2S3 0x100abc40
+// GLOBAL: MW2POWERVR 0x10084400
 undefined4 g_keyStates[4];
 
 // clang-format off
@@ -70,6 +78,8 @@ undefined4 g_keyStates[4];
 // GLOBAL: MW2MATROX 0x100ad4d8
 // GLOBAL: MW23DFX 0x10250d78
 // GLOBAL: MW2ATI 0x10185088
+// GLOBAL: MW2S3 0x10066688
+// GLOBAL: MW2POWERVR 0x101b0228
 MechS16 g_keyCodeMap[256] = {
 	0,     0,     0,     0,     0,     0,     0,     0,     0x08,  0x09,  0,     0,     0,     0x0d,  0,     0,
 	0,     0,     0,     0x1ff, 0,     0,     0,     0,     0,     0,     0,     0x1b,  0,     0,     0,     0,
@@ -88,6 +98,8 @@ MechS16 g_keyCodeMap[256] = {
 // GLOBAL: MW2MATROX 0x100ad6d8
 // GLOBAL: MW23DFX 0x10250f78
 // GLOBAL: MW2ATI 0x10185288
+// GLOBAL: MW2S3 0x10066888
+// GLOBAL: MW2POWERVR 0x101b0428
 MechS32 g_extendedScanCodeMap[0x59] = {
 	0,     0,     0,     0,     0,     0,     0,     0,     0,     0,     0,     0,     0,     0,     0,     0,
 	0,     0,     0,     0,     0,     0,     0,     0,     0,     0,     0,     0,     0x55,  0x70,  0,     0,
@@ -105,12 +117,16 @@ MechS32 g_extendedScanCodeMap[0x59] = {
 // GLOBAL: MW2MATROX 0x100a0768
 // GLOBAL: MW23DFX 0x102479c8
 // GLOBAL: MW2ATI 0x1017b970
+// GLOBAL: MW2S3 0x1005e660
+// GLOBAL: MW2POWERVR 0x101a6920
 const MechChar g_unk0x1009d150[] = "";
 
 // GLOBAL: MW2 0x1009d54c
 // GLOBAL: MW2MATROX 0x100a0b64
 // GLOBAL: MW23DFX 0x10247dc4
 // GLOBAL: MW2ATI 0x1017bd6c
+// GLOBAL: MW2S3 0x1005ea5c
+// GLOBAL: MW2POWERVR 0x101a6d1c
 const MechChar g_unk0x1009d54c[] = "";
 
 // clang-format off
@@ -119,6 +135,8 @@ const MechChar g_unk0x1009d54c[] = "";
 // GLOBAL: MW2MATROX 0x100ad108
 // GLOBAL: MW23DFX 0x102509a8
 // GLOBAL: MW2ATI 0x10184cb8
+// GLOBAL: MW2S3 0x100662b8
+// GLOBAL: MW2POWERVR 0x101afe58
 MechChar* g_keyShortNames[0x79] = {
 	"*Esc", "*One", "*Two", "*Three", "*Four", "*Five", "*Six", "*Seven", "*Eight", "*Nine", "*Zero", "Minus", "Equal",
 	"*Backspace", "Tab", "*Q", "*W", "*E", "*R", "*T", "Y", "*U", "*I", "*O", "*P", "LeftBracket", "RightBracket",
@@ -140,6 +158,8 @@ MechChar* g_keyShortNames[0x79] = {
 // GLOBAL: MW2MATROX 0x100ad2f0
 // GLOBAL: MW23DFX 0x10250b90
 // GLOBAL: MW2ATI 0x10184ea0
+// GLOBAL: MW2S3 0x100664a0
+// GLOBAL: MW2POWERVR 0x101b0040
 MechChar* g_keyNames[0x79] = {
 	"Escape Key", "Number One", "Number Two", "Number Three", "Number Four", "Number Five", "Number Six",
 	"Number Seven", "Number Eight", "Number Nine", "Number Zero", "Minus (-) Key", "Equal (=) Key", "Backspace Key",
@@ -176,6 +196,8 @@ void KeyboardRecordKeyState(WPARAM p_virtualKey, MechU32 p_lParam, BOOL p_presse
 // GLOBAL: MW2MATROX 0x100ad840
 // GLOBAL: MW23DFX 0x102510e0
 // GLOBAL: MW2ATI 0x101853f0
+// GLOBAL: MW2S3 0x100669f0
+// GLOBAL: MW2POWERVR 0x101b0590
 InputDriverModule g_keyboardDriver = {
 	GetKeyboardDeviceCount,
 	FillKeyboardDeviceInfo,
@@ -191,6 +213,8 @@ InputDriverModule g_keyboardDriver = {
 // FUNCTION: MW2MATROX 0x10067500
 // FUNCTION: MW23DFX 0x10038330
 // FUNCTION: MW2ATI 0x10036ef0
+// FUNCTION: MW2S3 0x10029fe0
+// FUNCTION: MW2POWERVR 0x10031bf0
 MechS32 GetKeyboardDeviceCount(void)
 {
 	return 1;
@@ -200,6 +224,8 @@ MechS32 GetKeyboardDeviceCount(void)
 // FUNCTION: MW2MATROX 0x10067515
 // FUNCTION: MW23DFX 0x10038340
 // FUNCTION: MW2ATI 0x10036f00
+// FUNCTION: MW2S3 0x10029ff0
+// FUNCTION: MW2POWERVR 0x10031c00
 MechS32 FillKeyboardDeviceInfo(MechS32 p_index, InputDeviceInfo* p_info)
 {
 	p_info->m_axisCount = 0;
@@ -219,6 +245,8 @@ MechS32 FillKeyboardDeviceInfo(MechS32 p_index, InputDeviceInfo* p_info)
 // FUNCTION: MW2MATROX 0x100675a6
 // FUNCTION: MW23DFX 0x100383a0
 // FUNCTION: MW2ATI 0x10036f60
+// FUNCTION: MW2S3 0x1002a050
+// FUNCTION: MW2POWERVR 0x10031c60
 MechS32 KeyboardOpenDevice(void)
 {
 	return 0;
@@ -228,6 +256,8 @@ MechS32 KeyboardOpenDevice(void)
 // FUNCTION: MW2MATROX 0x100675b8
 // FUNCTION: MW23DFX 0x100383b0
 // FUNCTION: MW2ATI 0x10036f70
+// FUNCTION: MW2S3 0x1002a060
+// FUNCTION: MW2POWERVR 0x10031c70
 MechS32 KeyboardCloseDevice(void)
 {
 	return 0;
@@ -237,6 +267,8 @@ MechS32 KeyboardCloseDevice(void)
 // FUNCTION: MW2MATROX 0x100675ca
 // FUNCTION: MW23DFX 0x100383c0
 // FUNCTION: MW2ATI 0x10036f80
+// FUNCTION: MW2S3 0x1002a070
+// FUNCTION: MW2POWERVR 0x10031c80
 MechS32 KeyboardCenterAxis(void)
 {
 	return 0;
@@ -247,6 +279,8 @@ MechS32 KeyboardCenterAxis(void)
 // FUNCTION: MW2MATROX 0x100675dc
 // FUNCTION: MW23DFX 0x100383d0
 // FUNCTION: MW2ATI 0x10036f90
+// FUNCTION: MW2S3 0x1002a080
+// FUNCTION: MW2POWERVR 0x10031c90
 MechS32 KeyboardPoll(undefined4 p_unk0x00, undefined4 p_unk0x04, undefined4* p_keyStates)
 {
 	MechS32 i;
@@ -264,6 +298,8 @@ MechS32 KeyboardPoll(undefined4 p_unk0x00, undefined4 p_unk0x04, undefined4* p_k
 // FUNCTION: MW2MATROX 0x10067639
 // FUNCTION: MW23DFX 0x10038400
 // FUNCTION: MW2ATI 0x10036fc0
+// FUNCTION: MW2S3 0x1002a0b0
+// FUNCTION: MW2POWERVR 0x10031cc0
 MechS32 KeyboardReadKeyCode(MechS16* p_keyCode)
 {
 	if (g_keyCodeReadIndex == g_keyCodeWriteIndex) {
@@ -284,6 +320,8 @@ MechS32 KeyboardReadKeyCode(MechS16* p_keyCode)
 // FUNCTION: MW2MATROX 0x10067699
 // FUNCTION: MW23DFX 0x10038440
 // FUNCTION: MW2ATI 0x10037000
+// FUNCTION: MW2S3 0x1002a0f0
+// FUNCTION: MW2POWERVR 0x10031d00
 MechS32 KeyboardFlushKeyCodes(void)
 {
 	MSG msg;
@@ -301,6 +339,8 @@ MechS32 KeyboardFlushKeyCodes(void)
 // FUNCTION: MW2MATROX 0x100676f6
 // FUNCTION: MW23DFX 0x10038490
 // FUNCTION: MW2ATI 0x10037050
+// FUNCTION: MW2S3 0x1002a140
+// FUNCTION: MW2POWERVR 0x10031d50
 void HandleKeyboardMessages(UINT p_msg, WPARAM p_wParam, LPARAM p_lParam)
 {
 	MSG msg;
@@ -340,6 +380,8 @@ void HandleKeyboardMessages(UINT p_msg, WPARAM p_wParam, LPARAM p_lParam)
 // FUNCTION: MW2MATROX 0x10067801
 // FUNCTION: MW23DFX 0x10038560
 // FUNCTION: MW2ATI 0x10037120
+// FUNCTION: MW2S3 0x1002a210
+// FUNCTION: MW2POWERVR 0x10031e20
 void KeyboardQueueKeyCode(WPARAM p_virtualKey, LPARAM p_lParam)
 {
 	MechS16 keyCode;
@@ -379,6 +421,8 @@ void KeyboardQueueKeyCode(WPARAM p_virtualKey, LPARAM p_lParam)
 // FUNCTION: MW2MATROX 0x10067920
 // FUNCTION: MW23DFX 0x10038610
 // FUNCTION: MW2ATI 0x100371d0
+// FUNCTION: MW2S3 0x1002a2c0
+// FUNCTION: MW2POWERVR 0x10031ed0
 void KeyboardRecordKeyState(WPARAM p_virtualKey, MechU32 p_lParam, BOOL p_pressed)
 {
 	MechS32 key;
@@ -433,6 +477,8 @@ void KeyboardRecordKeyState(WPARAM p_virtualKey, MechU32 p_lParam, BOOL p_presse
 // FUNCTION: MW2MATROX 0x10067ae5
 // FUNCTION: MW23DFX 0x100387a0
 // FUNCTION: MW2ATI 0x10037360
+// FUNCTION: MW2S3 0x1002a450
+// FUNCTION: MW2POWERVR 0x10032060
 void KeyboardClearKeyStates(void)
 {
 	MechS32 i;
@@ -446,6 +492,8 @@ void KeyboardClearKeyStates(void)
 // FUNCTION: MW2MATROX 0x10067b1f
 // FUNCTION: MW23DFX 0x100387c0
 // FUNCTION: MW2ATI 0x10037380
+// FUNCTION: MW2S3 0x1002a470
+// FUNCTION: MW2POWERVR 0x10032080
 MechS16 KeyboardPollKeyCode(void)
 {
 	MSG msg;

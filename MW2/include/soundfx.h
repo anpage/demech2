@@ -83,11 +83,13 @@ extern "C"
 // The 3Dfx edition's diff is register allocation and instruction scheduling only.
 // FUNCTION: MW23DFX 0x10032410
 // FUNCTION: MW2ATI 0x10031210
+// FUNCTION: MW2POWERVR 0x1002bc90
 // SampleEosCallback
 
 // The ATI edition places these out of soundfx.c's order, so they are annotated here, by name.
 
 // FUNCTION: MW2ATI 0x10030df0
+// FUNCTION: MW2POWERVR 0x1002b870
 // StartSample
 
 #endif // SOUNDFX_H

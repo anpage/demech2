@@ -32,7 +32,7 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from unitbuild import IMAGE_SYM_CLASS_FILE, IMAGE_SYM_CLASS_FUNCTION, ROOT, TARGETS, Compiler, Object, Request, Target  # noqa: E402
 
-SIMULATORS = ["MW2", "MW2MATROX", "MW23DFX", "MW2ATI"]
+SIMULATORS = ["MW2", "MW2MATROX", "MW23DFX", "MW2ATI", "MW2S3", "MW2POWERVR"]
 
 
 def tree_of(spec, scratch, label):

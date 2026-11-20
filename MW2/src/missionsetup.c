@@ -20,6 +20,8 @@ DECOMP_SIZE_ASSERT(MissionEntry, 0x97)
 // FUNCTION: MW2MATROX 0x1007f550
 // FUNCTION: MW23DFX 0x1003f900
 // FUNCTION: MW2ATI 0x1003d660
+// FUNCTION: MW2S3 0x10033880
+// FUNCTION: MW2POWERVR 0x100384c0
 void SetUpStarMission(MissionTable* p_table)
 {
 	MechS32 i;
@@ -105,6 +107,8 @@ void SetUpStarMission(MissionTable* p_table)
 // FUNCTION: MW2MATROX 0x1007fe7b
 // FUNCTION: MW23DFX 0x1003fe70
 // FUNCTION: MW2ATI 0x1003dbd0
+// FUNCTION: MW2S3 0x10033df0
+// FUNCTION: MW2POWERVR 0x10038a30
 MechU32 FindEventList(MechChar* p_name)
 {
 	MechU32 unk0x04;
@@ -143,6 +147,8 @@ MechU32 FindEventList(MechChar* p_name)
 // FUNCTION: MW2MATROX 0x10080007
 // FUNCTION: MW23DFX 0x1003ff60
 // FUNCTION: MW2ATI 0x1003dcc0
+// FUNCTION: MW2S3 0x10033ee0
+// FUNCTION: MW2POWERVR 0x10038b20
 void PostEventToList(MechChar* p_name, MechS32 p_types, MechU16 p_target)
 {
 	MechS32 i;
@@ -173,6 +179,8 @@ void PostEventToList(MechChar* p_name, MechS32 p_types, MechU16 p_target)
 // FUNCTION: MW2MATROX 0x100801be
 // FUNCTION: MW23DFX 0x10040060
 // FUNCTION: MW2ATI 0x1003ddc0
+// FUNCTION: MW2S3 0x10033fe0
+// FUNCTION: MW2POWERVR 0x10038c20
 void FlushEventLists(MechU32 p_lists)
 {
 	MechS32 j;

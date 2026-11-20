@@ -23,6 +23,8 @@ MechS32 g_rayBoxEntryBehind = 0;
 // FUNCTION: MW2MATROX 0x10052170
 // FUNCTION: MW23DFX 0x1000d1b0
 // FUNCTION: MW2ATI 0x1000d920
+// FUNCTION: MW2S3 0x1001e870
+// FUNCTION: MW2POWERVR 0x1000c4e0
 MechS32 TestPointInBox(Shape* p_shape, MechScalar p_x, MechScalar p_y, MechScalar p_z)
 {
 	MechS32 inColumn;
@@ -39,6 +41,8 @@ MechS32 TestPointInBox(Shape* p_shape, MechScalar p_x, MechScalar p_y, MechScala
 // FUNCTION: MW2MATROX 0x100521aa
 // FUNCTION: MW23DFX 0x1000d1f0
 // FUNCTION: MW2ATI 0x1000d960
+// FUNCTION: MW2S3 0x1001e8b0
+// FUNCTION: MW2POWERVR 0x1000c520
 MechS32 GetBoxTop(Shape* p_shape, MechScalar p_x, MechScalar p_y, MechScalar p_z, MechScalar* p_top)
 {
 	MechScalar top;
@@ -62,6 +66,8 @@ MechS32 GetBoxTop(Shape* p_shape, MechScalar p_x, MechScalar p_y, MechScalar p_z
 // FUNCTION: MW2MATROX 0x1005221b
 // FUNCTION: MW23DFX 0x1000d250
 // FUNCTION: MW2ATI 0x1000d9c0
+// FUNCTION: MW2S3 0x1001e910
+// FUNCTION: MW2POWERVR 0x1000c580
 void ClassifyPointInBox(
 	Shape* p_shape,
 	MechScalar p_x,
@@ -102,6 +108,8 @@ void ClassifyPointInBox(
 // FUNCTION: MW2MATROX 0x10052318
 // FUNCTION: MW23DFX 0x1000d310
 // FUNCTION: MW2ATI 0x1000da80
+// FUNCTION: MW2S3 0x1001e9d0
+// FUNCTION: MW2POWERVR 0x1000c640
 MechS32 TestRayBox(Shape* p_shape, Ray* p_ray)
 {
 	MechS32 axis;
@@ -205,6 +213,8 @@ MechS32 TestRayBox(Shape* p_shape, Ray* p_ray)
 // FUNCTION: MW2MATROX 0x10052602
 // FUNCTION: MW23DFX 0x1000d520
 // FUNCTION: MW2ATI 0x1000dc90
+// FUNCTION: MW2S3 0x1001ebe0
+// FUNCTION: MW2POWERVR 0x1000c850
 MechS32 TestPointInBoxColumn(Shape* p_shape, MechScalar p_x, MechScalar p_y, MechScalar p_z)
 {
 	BoundBox* box;
@@ -222,6 +232,8 @@ MechS32 TestPointInBoxColumn(Shape* p_shape, MechScalar p_x, MechScalar p_y, Mec
 // FUNCTION: MW2MATROX 0x10052696
 // FUNCTION: MW23DFX 0x1000d580
 // FUNCTION: MW2ATI 0x1000dcf0
+// FUNCTION: MW2S3 0x1001ec40
+// FUNCTION: MW2POWERVR 0x1000c8b0
 MechS32 TestPointNever(Shape* p_shape, MechScalar p_x, MechScalar p_y, MechScalar p_z)
 {
 	return 0;
@@ -231,6 +243,8 @@ MechS32 TestPointNever(Shape* p_shape, MechScalar p_x, MechScalar p_y, MechScala
 // FUNCTION: MW2MATROX 0x100526a8
 // FUNCTION: MW23DFX 0x1000d590
 // FUNCTION: MW2ATI 0x1000dd00
+// FUNCTION: MW2S3 0x1001ec50
+// FUNCTION: MW2POWERVR 0x1000c8c0
 MechS32 TestRayNever(Shape* p_shape, Ray* p_ray)
 {
 	return 0;
@@ -241,6 +255,8 @@ MechS32 TestRayNever(Shape* p_shape, Ray* p_ray)
 // FUNCTION: MW2MATROX 0x100526ba
 // FUNCTION: MW23DFX 0x1000d5a0
 // FUNCTION: MW2ATI 0x1000dd10
+// FUNCTION: MW2S3 0x1001ec60
+// FUNCTION: MW2POWERVR 0x1000c8d0
 MechS32 TestPointUnderFloor(Shape* p_shape, MechScalar p_x, MechScalar p_y, MechScalar p_z)
 {
 	MechS32 i;
@@ -276,6 +292,8 @@ MechS32 TestPointUnderFloor(Shape* p_shape, MechScalar p_x, MechScalar p_y, Mech
 // FUNCTION: MW2MATROX 0x100527b3
 // FUNCTION: MW23DFX 0x1000d640
 // FUNCTION: MW2ATI 0x1000ddb0
+// FUNCTION: MW2S3 0x1001ed00
+// FUNCTION: MW2POWERVR 0x1000c980
 MechS32 TestPointTerrain(Shape* p_shape, MechScalar p_x, MechScalar p_y, MechScalar p_z)
 {
 	Model* model;
@@ -293,6 +311,8 @@ MechS32 TestPointTerrain(Shape* p_shape, MechScalar p_x, MechScalar p_y, MechSca
 // FUNCTION: MW2MATROX 0x10052820
 // FUNCTION: MW23DFX 0x1000d680
 // FUNCTION: MW2ATI 0x1000ddf0
+// FUNCTION: MW2S3 0x1001ed40
+// FUNCTION: MW2POWERVR 0x1000c9c0
 MechS32 TestRayTerrain(Shape* p_shape, Ray* p_ray)
 {
 	return TestQuadtreeRay(p_shape->m_collisionData, p_shape->m_models, p_ray) & 1;
@@ -302,6 +322,8 @@ MechS32 TestRayTerrain(Shape* p_shape, Ray* p_ray)
 // FUNCTION: MW2MATROX 0x1005284d
 // FUNCTION: MW23DFX 0x1000d690
 // FUNCTION: MW2ATI 0x1000de00
+// FUNCTION: MW2S3 0x1001ed50
+// FUNCTION: MW2POWERVR 0x1000c9d0
 MechS32 GetTerrainShapeTop(Shape* p_shape, MechScalar p_x, MechScalar p_y, MechScalar p_z, MechScalar* p_top)
 {
 	return GetQuadtreeTop(p_shape->m_collisionData, p_shape->m_models, p_x, p_y, p_z, p_top);
@@ -312,6 +334,8 @@ MechS32 GetTerrainShapeTop(Shape* p_shape, MechScalar p_x, MechScalar p_y, MechS
 // FUNCTION: MW2MATROX 0x10052883
 // FUNCTION: MW23DFX 0x1000d6b0
 // FUNCTION: MW2ATI 0x1000de20
+// FUNCTION: MW2S3 0x1001ed70
+// FUNCTION: MW2POWERVR 0x1000c9f0
 MechS32 TestPointAboveFaces(Shape* p_shape, MechScalar p_x, MechScalar p_y, MechScalar p_z)
 {
 	MechS32 i;
@@ -373,6 +397,8 @@ MechS32 TestPointAboveFaces(Shape* p_shape, MechScalar p_x, MechScalar p_y, Mech
 // FUNCTION: MW2MATROX 0x100529df
 // FUNCTION: MW23DFX 0x1000d7b0
 // FUNCTION: MW2ATI 0x1000df20
+// FUNCTION: MW2S3 0x1001ee60
+// FUNCTION: MW2POWERVR 0x1000cb10
 MechS32 TestRayFaces(Shape* p_shape, Ray* p_ray)
 {
 	Model* model;

@@ -22,7 +22,9 @@ extern "C"
 #ifdef MW2_A3D
 	extern A3DVertex g_a3dClipped[16];
 	extern A3DVertex g_a3dVertices[16];
+#ifndef MW2_S3
 	extern MechFloat g_paletteRgb[256][3];
+#endif
 
 	MechS32 FUN_10067b90(MechU32 p_count, MechU32 p_edges, MechS32 p_unk0x08);
 	void LoadSkyGroundSettings(const MechChar* p_mission);
@@ -79,6 +81,7 @@ void DrawScenePolygon(MechS32 p_count, MechU32* p_points, MechU32 p_flags);
 
 // The 3Dfx edition's diff is register allocation and instruction scheduling only.
 // FUNCTION: MW23DFX 0x10027750
+// FUNCTION: MW2S3 0x1000b3e0
 // ReadTextLine
 
 // FUNCTION: MW23DFX 0x100277b0
@@ -87,14 +90,17 @@ void DrawScenePolygon(MechS32 p_count, MechU32* p_points, MechU32 p_flags);
 // The 3Dfx edition's diff is register allocation and instruction scheduling only.
 // FUNCTION: MW23DFX 0x100278b0
 // FUNCTION: MW2ATI 0x10027560
+// FUNCTION: MW2S3 0x1000b590
 // FUN_10068e33
 
 // FUNCTION: MW23DFX 0x10027ab0
 // FUNCTION: MW2ATI 0x10027760
+// FUNCTION: MW2S3 0x1000b790
 // FUN_10069172
 
 // FUNCTION: MW23DFX 0x10027bb0
 // FUNCTION: MW2ATI 0x10027860
+// FUNCTION: MW2S3 0x1000b8f0
 // FUN_100692db
 
 // FUNCTION: MW23DFX 0x10027c80
@@ -109,6 +115,7 @@ void DrawScenePolygon(MechS32 p_count, MechU32* p_points, MechU32 p_flags);
 // LoadSkyGroundSettings
 
 // FUNCTION: MW2ATI 0x10027930
+// FUNCTION: MW2S3 0x1000be20
 // DrawSkyAndGround
 
 #endif // POLYDRAW_H

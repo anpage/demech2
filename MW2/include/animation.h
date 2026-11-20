@@ -8,7 +8,7 @@
 #pragma pack(push, 1)
 
 // An animated texture: which frame set it plays, where it is, and how fast.
-// SIZE 0x0e
+// SIZE 0x0e (0x16 in the PowerVR edition)
 typedef struct Animation {
 	MechS16 m_set;      // 0x00 — in g_animFrames
 	MechS16 m_frame;    // 0x02
@@ -16,6 +16,11 @@ typedef struct Animation {
 	MechU16 m_mode;     // 0x06 — 0 stopped, 1 looping, 2 playing once
 	MechS16 m_flags;    // 0x08 — -2 for a free slot
 	MechS32 m_lastTime; // 0x0a
+#ifdef MW2_POWERVR
+	// The PowerVR edition's animations are 0x16 bytes: the renderer keeps an SGL material for each.
+	MechS32 m_material; // 0x0e
+	MechS32 m_lit;      // 0x12 — lit by the scene's lights (0: the texture glows)
+#endif
 } Animation;
 
 #pragma pack(pop)
@@ -31,7 +36,11 @@ extern "C"
 	extern Animation g_animations[0x200];
 #ifdef MW2_A3D
 	extern MechS32 g_unk0x100aa1d0;
+#ifdef MW2_S3
+	extern MechU8 g_unk0x10184700[3];
+#else
 	extern MechFloat g_unk0x10184700[3];
+#endif
 #endif
 
 #ifdef MW2_A3D
@@ -86,7 +95,7 @@ MechS32 DrawAnimatedPolygon(
 		undefined4 p_unk0x1c,
 		MechS32 p_unk0x20
 	);
-#elif defined(MW2_ATI)
+#elif defined(MW2_ATI) || defined(MW2_S3) || defined(MW2_POWERVR)
 	MechU16* FUN_10051dfe(MechS32 p_index, MechS16* p_width, MechS16* p_height);
 	MechS32 FUN_10051c07(MechS32 p_index, struct ProjectedVertex** p_points, MechS32 p_count);
 	MechS32 FUN_10051ea2(MechS32 p_index, struct ProjectedVertex** p_points, MechS32 p_count);
