@@ -38,6 +38,7 @@ DECOMP_SIZE_ASSERT(Rect, 0x10)
 // GLOBAL: MW2 0x100a9450
 // GLOBAL: MW2MATROX 0x100ae330
 // GLOBAL: MW23DFX 0x1024a840
+// GLOBAL: MW2ATI 0x1017ec98
 Point g_textMargins = {0x28f, 0x28f};
 
 // DrawPulsingFrame's state: the frame's inset (1 or 2, alternating each call), its color (0xf0
@@ -58,6 +59,7 @@ MechS32 g_pulseStep = 0;
 // FUNCTION: MW2 0x10056920
 // FUNCTION: MW2MATROX 0x10071320
 // FUNCTION: MW23DFX 0x10005b70
+// FUNCTION: MW2ATI 0x10006790
 PANE* ScaleRectToScreen(WINDOW* p_buffer, PANE* p_src, PANE* p_dst)
 {
 	p_dst->m_x0 = FixedMul16(g_screenWidthMinus1, p_src->m_x0);
@@ -71,6 +73,7 @@ PANE* ScaleRectToScreen(WINDOW* p_buffer, PANE* p_src, PANE* p_dst)
 // FUNCTION: MW2 0x1005699f
 // FUNCTION: MW2MATROX 0x1007139f
 // FUNCTION: MW23DFX 0x10005c20
+// FUNCTION: MW2ATI 0x10006840
 PANE* ScaleRectToFrame(PANE* p_frame, PANE* p_src, PANE* p_dst)
 {
 	MechS32 width;
@@ -105,6 +108,7 @@ Rect* ScaleBoundsToScreen(WINDOW* p_buffer, Rect* p_src, Rect* p_dst)
 // FUNCTION: MW2 0x10056ae4
 // FUNCTION: MW2MATROX 0x100714e4
 // FUNCTION: MW23DFX 0x10005db0
+// FUNCTION: MW2ATI 0x10006920
 Point* ScalePointToScreen(WINDOW* p_buffer, Point* p_src, Point* p_dst)
 {
 	p_dst->m_x = FixedMul16(g_screenWidthMinus1, p_src->m_x);
@@ -135,6 +139,7 @@ Rect* ScaleBoundsToFrame(PANE* p_frame, Rect* p_src, Rect* p_dst)
 // FUNCTION: MW2 0x10056bc1
 // FUNCTION: MW2MATROX 0x100715c1
 // FUNCTION: MW23DFX 0x10005ec0
+// FUNCTION: MW2ATI 0x10006980
 Point* ScalePointToFrame(PANE* p_frame, Point* p_src, Point* p_dst)
 {
 	MechS32 width;
@@ -152,6 +157,7 @@ Point* ScalePointToFrame(PANE* p_frame, Point* p_src, Point* p_dst)
 // FUNCTION: MW2 0x10056c25
 // FUNCTION: MW2MATROX 0x10071625
 // FUNCTION: MW23DFX 0x10005f30
+// FUNCTION: MW2ATI 0x100069f0
 PANE* ScaleRectToLowRes(PANE* p_rect, MechScalar p_aspect)
 {
 	MechScalar scale;
@@ -180,6 +186,7 @@ PANE* ScaleRectToLowRes(PANE* p_rect, MechScalar p_aspect)
 // FUNCTION: MW2 0x10056ce9
 // FUNCTION: MW2MATROX 0x100716f9
 // FUNCTION: MW23DFX 0x10006000
+// FUNCTION: MW2ATI 0x10006ac0
 PANE* ScaleRectFromLowRes(PANE* p_src, PANE* p_dst)
 {
 	p_dst->m_x0 = FixedDiv16(p_src->m_x0, 319);
@@ -204,6 +211,7 @@ Rect* ScaleBoundsFromLowRes(Rect* p_src, Rect* p_dst)
 // FUNCTION: MW2 0x10056ddd
 // FUNCTION: MW2MATROX 0x100717ed
 // FUNCTION: MW23DFX 0x10006140
+// FUNCTION: MW2ATI 0x10006b60
 Point* ScalePointFromLowRes(Point* p_src, Point* p_dst)
 {
 	p_dst->m_x = FixedDiv16(p_src->m_x, 319);
@@ -215,6 +223,7 @@ Point* ScalePointFromLowRes(Point* p_src, Point* p_dst)
 // FUNCTION: MW2 0x10056e22
 // FUNCTION: MW2MATROX 0x10071832
 // FUNCTION: MW23DFX 0x100061a0
+// FUNCTION: MW2ATI 0x10006bc0
 PANE* CenterRectOnScreen(WINDOW* p_buffer, PANE* p_src, PANE* p_dst)
 {
 	PANE rect;
@@ -238,6 +247,7 @@ PANE* CenterRectOnScreen(WINDOW* p_buffer, PANE* p_src, PANE* p_dst)
 // FUNCTION: MW2 0x10056ec5
 // FUNCTION: MW2MATROX 0x100718d5
 // FUNCTION: MW23DFX 0x10006210
+// FUNCTION: MW2ATI 0x10006c30
 PANE* ScaleRectAboutCenter(PANE* p_src, PANE* p_dst, Point p_scale)
 {
 	MechS32 centerX;
@@ -264,6 +274,7 @@ PANE* ScaleRectAboutCenter(PANE* p_src, PANE* p_dst, Point p_scale)
 // FUNCTION: MW2 0x10056fcf
 // FUNCTION: MW2MATROX 0x100719df
 // FUNCTION: MW23DFX 0x10006310
+// FUNCTION: MW2ATI 0x10006d30
 PANE* FitRectToShape(PANE* p_src, PANE* p_dst, void* p_shape, MechS32 p_frame)
 {
 	MechS32 size;
@@ -300,6 +311,7 @@ PANE* FitRectToGif(PANE* p_src, PANE* p_dst, void* p_shape)
 // FUNCTION: MW2 0x100570e9
 // FUNCTION: MW2MATROX 0x10071af9
 // FUNCTION: MW23DFX 0x10006450
+// FUNCTION: MW2ATI 0x10006dd0
 void OutlinePane(PANE* p_target, MechS32 p_color)
 {
 	MechS32 width;
@@ -317,6 +329,7 @@ void OutlinePane(PANE* p_target, MechS32 p_color)
 // FUNCTION: MW2 0x1005718d
 // FUNCTION: MW2MATROX 0x10071bc1
 // FUNCTION: MW23DFX 0x100064e0
+// FUNCTION: MW2ATI 0x10006e60
 void DrawRuleUnderRow(PANE* p_target, Point p_pos, void* p_font, MechS32 p_color)
 {
 	MechS32 height;
@@ -333,6 +346,7 @@ void DrawRuleUnderRow(PANE* p_target, Point p_pos, void* p_font, MechS32 p_color
 // FUNCTION: MW2 0x100571ea
 // FUNCTION: MW2MATROX 0x10071c27
 // FUNCTION: MW23DFX 0x10006520
+// FUNCTION: MW2ATI 0x10006ea0
 void UnderlineText(PANE* p_target, MechChar* p_text, Point p_pos, void* p_font, MechS32 p_color)
 {
 	MechS32 width;
@@ -353,6 +367,7 @@ void UnderlineText(PANE* p_target, MechChar* p_text, Point p_pos, void* p_font, 
 // FUNCTION: MW2 0x10057282
 // FUNCTION: MW2MATROX 0x10071cc8
 // FUNCTION: MW23DFX 0x100065c0
+// FUNCTION: MW2ATI 0x10006f40
 void BoxText(PANE* p_target, MechChar* p_text, Point p_pos, void* p_font, MechS32 p_color)
 {
 	MechS32 left;
@@ -383,6 +398,7 @@ void BoxText(PANE* p_target, MechChar* p_text, Point p_pos, void* p_font, MechS3
 // FUNCTION: MW2 0x10057396
 // FUNCTION: MW2MATROX 0x10071e00
 // FUNCTION: MW23DFX 0x100066c0
+// FUNCTION: MW2ATI 0x10007040
 void DrawWrappedText(PANE* p_target, MechChar* p_text, void* p_font)
 {
 	MechS32 x;
@@ -465,6 +481,7 @@ void DrawWrappedText(PANE* p_target, MechChar* p_text, void* p_font)
 // FUNCTION: MW2 0x100575b9
 // FUNCTION: MW2MATROX 0x10072023
 // FUNCTION: MW23DFX 0x10006860
+// FUNCTION: MW2ATI 0x100071e0
 PANE* FitRectToText(MechChar* p_text, void* p_font, PANE* p_rect)
 {
 	MechS32 lineWidth;
@@ -577,6 +594,7 @@ void DrawPulsingFrame(PANE* p_target)
 // FUNCTION: MW2 0x10057896
 // FUNCTION: MW2MATROX 0x10072153
 // FUNCTION: MW23DFX 0x10006960
+// FUNCTION: MW2ATI 0x100072e0
 void TilePane(PANE* p_target, void* p_shape, MechS32 p_frame)
 {
 	MechS32 size;
@@ -625,6 +643,7 @@ void TilePane(PANE* p_target, void* p_shape, MechS32 p_frame)
 // FUNCTION: MW2 0x1005798d
 // FUNCTION: MW2MATROX 0x1007224a
 // FUNCTION: MW23DFX 0x10006a20
+// FUNCTION: MW2ATI 0x100073a0
 MechS32 GetLineSlope(MechScalar p_dx, MechScalar p_dy, MechScalar* p_slope)
 {
 	MechS32 steep;
@@ -655,6 +674,7 @@ MechS32 GetLineSlope(MechScalar p_dx, MechScalar p_dy, MechScalar* p_slope)
 // FUNCTION: MW2 0x10057a03
 // FUNCTION: MW2MATROX 0x100722b1
 // FUNCTION: MW23DFX 0x10006a60
+// FUNCTION: MW2ATI 0x100073e0
 Point* GetRectNeedleToward(PANE* p_target, Point* p_point, Point* p_out)
 {
 	GaugeQuadrant quadrant;
@@ -687,6 +707,7 @@ Point* GetRectNeedleToward(PANE* p_target, Point* p_point, Point* p_out)
 // FUNCTION: MW2 0x10057ac4
 // FUNCTION: MW2MATROX 0x10072388
 // FUNCTION: MW23DFX 0x10006b10
+// FUNCTION: MW2ATI 0x10007490
 Point* GetRectNeedleAt(PANE* p_target, MechScalar p_angle, Point* p_out)
 {
 	GaugeQuadrant quadrant;
@@ -742,6 +763,7 @@ Point* GetRectNeedleAt(PANE* p_target, MechScalar p_angle, Point* p_out)
 // FUNCTION: MW2 0x10057bf3
 // FUNCTION: MW2MATROX 0x100724c7
 // FUNCTION: MW23DFX 0x10006c20
+// FUNCTION: MW2ATI 0x100075a0
 Point* GetRectEdgeAtSlope(Point* p_half, GaugeQuadrant p_quadrant, MechScalar p_slope, Point* p_out)
 {
 	MechS32 height;
@@ -827,6 +849,7 @@ Point* GetRectEdgeAtSlope(Point* p_half, GaugeQuadrant p_quadrant, MechScalar p_
 // FUNCTION: MW2 0x10057e56
 // FUNCTION: MW2MATROX 0x100727aa
 // FUNCTION: MW23DFX 0x10006e80
+// FUNCTION: MW2ATI 0x10007800
 void DrawGaugeEllipse(PANE* p_target, MechS32 p_color)
 {
 	MechS32 centerX;
@@ -885,6 +908,7 @@ void FillGaugeEllipse(PANE* p_target, Rect* p_rect, MechS32 p_color)
 // FUNCTION: MW2 0x10057fbe
 // FUNCTION: MW2MATROX 0x10072834
 // FUNCTION: MW23DFX 0x10006ef0
+// FUNCTION: MW2ATI 0x10007870
 #ifdef MW2_FLOAT_SCALARS
 MechS32 IsInsideGaugeEllipse(PANE* p_target, Point* p_point)
 #else
@@ -921,6 +945,7 @@ MechS32 IsInsideGaugeEllipse(PANE* p_target, MechS32 p_x, MechS32 p_y)
 // FUNCTION: MW2 0x1005806a
 // FUNCTION: MW2MATROX 0x100728f3
 // FUNCTION: MW23DFX 0x10006f70
+// FUNCTION: MW2ATI 0x100078f0
 Point* GetEllipseNeedleToward(PANE* p_target, Point* p_point, Point* p_out)
 {
 	MechScalar angle;
@@ -964,6 +989,7 @@ Point* GetEllipseNeedleToward(PANE* p_target, Point* p_point, Point* p_out)
 // FUNCTION: MW2 0x1005816f
 // FUNCTION: MW2MATROX 0x10072a22
 // FUNCTION: MW23DFX 0x10007070
+// FUNCTION: MW2ATI 0x100079f0
 Point* GetEllipseNeedleAt(PANE* p_target, MechScalar p_angle, Point* p_out)
 {
 	MechScalar angle;
@@ -1034,6 +1060,7 @@ Point* GetEllipseNeedleAt(PANE* p_target, MechScalar p_angle, Point* p_out)
 // FUNCTION: MW2 0x100582c4
 // FUNCTION: MW2MATROX 0x10072b74
 // FUNCTION: MW23DFX 0x100071a0
+// FUNCTION: MW2ATI 0x10007b20
 Point* GetEllipseEdgeAtAngle(
 	PANE* p_target,
 	Point* p_center,

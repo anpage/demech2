@@ -26,12 +26,14 @@ DECOMP_SIZE_ASSERT(BwdStream, 0x1f)
 // GLOBAL: MW2 0x100a5bec
 // GLOBAL: MW2MATROX 0x100a5998
 // GLOBAL: MW23DFX 0x10259ea8
+// GLOBAL: MW2ATI 0x1018e1a0
 MechS32 g_streamsFromFiles = 0;
 
 // Set by a command-line switch: OpenBwdStream logs each stream it opens to mw2debug.txt.
 // GLOBAL: MW2 0x100a5bf0
 // GLOBAL: MW2MATROX 0x100a599c
 // GLOBAL: MW23DFX 0x10259eac
+// GLOBAL: MW2ATI 0x1018e1a4
 MechS32 g_logStreams = 0;
 
 // Only LogKeywordName's dead first store takes its address. 28 bytes in 1.1 and in the Matrox
@@ -46,6 +48,7 @@ MechChar g_unk0x10109c40[28];
 // FUNCTION: MW2 0x1003fb00
 // FUNCTION: MW2MATROX 0x10029ef0
 // FUNCTION: MW23DFX 0x10040c60
+// FUNCTION: MW2ATI 0x1003e810
 BwdStream* OpenBwdStream(BwdStreamKey* p_key, BwdStream* p_stream)
 {
 	MechChar line[256];
@@ -133,6 +136,7 @@ BwdStream* OpenBwdStream(BwdStreamKey* p_key, BwdStream* p_stream)
 // FUNCTION: MW2 0x1003fdfb
 // FUNCTION: MW2MATROX 0x1002a1eb
 // FUNCTION: MW23DFX 0x10040eb0
+// FUNCTION: MW2ATI 0x1003ea60
 BwdNode* GetNextNode(BwdStream* p_stream)
 {
 	BwdNode* next;
@@ -165,6 +169,7 @@ BwdNode* GetNextNode(BwdStream* p_stream)
 // FUNCTION: MW2 0x1003feb8
 // FUNCTION: MW2MATROX 0x1002a2a8
 // FUNCTION: MW23DFX 0x10040f20
+// FUNCTION: MW2ATI 0x1003ead0
 void UnloadResource(BwdStream* p_stream)
 {
 	if (p_stream) {
@@ -181,6 +186,7 @@ void UnloadResource(BwdStream* p_stream)
 // FUNCTION: MW2 0x1003ff09
 // FUNCTION: MW2MATROX 0x1002a2f9
 // FUNCTION: MW23DFX 0x10040f60
+// FUNCTION: MW2ATI 0x1003eb10
 MechChar* GetKeywordName(BwdTag p_code)
 {
 	MechS32 i;
@@ -203,6 +209,7 @@ MechChar* GetKeywordName(BwdTag p_code)
 // FUNCTION: MW2 0x1003ff75
 // FUNCTION: MW2MATROX 0x1002a365
 // FUNCTION: MW23DFX 0x10040fa0
+// FUNCTION: MW2ATI 0x1003eb50
 void LogDebugLine(MechChar* p_text)
 {
 	FILE* file;
@@ -219,6 +226,7 @@ void LogDebugLine(MechChar* p_text)
 // FUNCTION: MW2 0x1003ffcf
 // FUNCTION: MW2MATROX 0x1002a3bf
 // FUNCTION: MW23DFX 0x10040fe0
+// FUNCTION: MW2ATI 0x1003eb90
 void LogKeywordName(BwdTag p_code)
 {
 	MechChar line[256];

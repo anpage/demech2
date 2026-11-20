@@ -4,7 +4,8 @@
    the texture filter, and a fourth, unused setting, aren't on the page. One object of its own,
    between geocache.c's and players.c's in the Matrox edition. The 3Dfx edition's page lists all
    four items, its third a "Resolution 800x600" setting in the texture filter's place (the
-   "Res800x600" registry value, off by default, which A3D_Init reads at the next start). */
+   "Res800x600" registry value, off by default, which A3D_Init reads at the next start); the ATI
+   edition's lists the texture filter there. */
 #include "accel/graphicsmenu.h"
 
 #include "accel/a3d.h"
@@ -40,10 +41,12 @@ void SetUnusedSetting(MechS32 p_arg, MechS32 p_unusedSetting);
 
 // GLOBAL: MW2MATROX 0x100aa470
 // GLOBAL: MW23DFX 0x10265420
+// GLOBAL: MW2ATI 0x10199718
 MechChar g_graphicsItem[] = "Graphics";
 
 // GLOBAL: MW2MATROX 0x100aa480
 // GLOBAL: MW23DFX 0x10265430
+// GLOBAL: MW2ATI 0x10199728
 MechChar g_graphicsTitle[] = "GRAPHICS";
 
 // GLOBAL: MW2MATROX 0x100aa490
@@ -52,10 +55,12 @@ MechChar g_monitorBrightnessItem[] = "Monitor Brightness";
 
 // GLOBAL: MW2MATROX 0x100aa4a8
 // GLOBAL: MW23DFX 0x10265458
+// GLOBAL: MW2ATI 0x10199750
 MechChar g_texturedSkyItem[] = "Textured Sky";
 
 // GLOBAL: MW2MATROX 0x100aa4b8
 // GLOBAL: MW23DFX 0x10265468
+// GLOBAL: MW2ATI 0x10199760
 MechChar g_texturedGroundItem[] = "Textured Ground";
 
 #ifdef MW2_RES_800X600
@@ -64,6 +69,7 @@ MechChar g_res800x600Item[] = "Resolution 800x600";
 #endif
 #ifdef MW2_TEXTURE_FILTER
 // GLOBAL: MW2MATROX 0x100aa4c8
+// GLOBAL: MW2ATI 0x10199770
 MechChar g_filterTexturesItem[] = "Filter Textures";
 #endif
 
@@ -73,10 +79,12 @@ MechChar g_unusedItem[] = "Unused";
 
 // GLOBAL: MW2MATROX 0x100aa4e0
 // GLOBAL: MW23DFX 0x10265498
+// GLOBAL: MW2ATI 0x10199788
 MechS32 g_texturedSky = 1;
 
 // GLOBAL: MW2MATROX 0x100aa4e4
 // GLOBAL: MW23DFX 0x1026549c
+// GLOBAL: MW2ATI 0x1019978c
 MechS32 g_texturedGround = 1;
 
 #ifdef MW2_RES_800X600
@@ -85,11 +93,13 @@ MechS32 g_res800x600 = 1;
 #endif
 #ifdef MW2_TEXTURE_FILTER
 // GLOBAL: MW2MATROX 0x100aa4e8
+// GLOBAL: MW2ATI 0x10199790
 MechS32 g_filterTextures = 1;
 #endif
 
 // GLOBAL: MW2MATROX 0x100aa4ec
 // GLOBAL: MW23DFX 0x102654a4
+// GLOBAL: MW2ATI 0x10199794
 MechS32 g_unusedSetting = 1;
 
 // GLOBAL: MW2MATROX 0x100aa4f0
@@ -108,10 +118,12 @@ MenuControl g_brightnessControl = {
 
 // GLOBAL: MW2MATROX 0x100aa518
 // GLOBAL: MW23DFX 0x102654d0
+// GLOBAL: MW2ATI 0x101997c0
 MenuControl g_texturedSkyControl = {2, 0, &g_offOnChoices, 0, NULL, GetTexturedSky, NULL, SetTexturedSky, NULL};
 
 // GLOBAL: MW2MATROX 0x100aa540
 // GLOBAL: MW23DFX 0x102654f8
+// GLOBAL: MW2ATI 0x101997e8
 MenuControl g_texturedGroundControl =
 	{2, 0, &g_offOnChoices, 0, NULL, GetTexturedGround, NULL, SetTexturedGround, NULL};
 
@@ -121,6 +133,7 @@ MenuControl g_res800x600Control = {2, 0, &g_noYesChoices, 0, NULL, GetRes800x600
 #endif
 #ifdef MW2_TEXTURE_FILTER
 // GLOBAL: MW2MATROX 0x100aa568
+// GLOBAL: MW2ATI 0x10199810
 MenuControl g_filterTexturesControl =
 	{2, 0, &g_offOnChoices, 0, NULL, GetFilterTextures, NULL, SetFilterTextures, NULL};
 #endif
@@ -132,6 +145,7 @@ MenuControl g_unusedControl = {2, 0, &g_offOnChoices, 0, NULL, GetUnusedSetting,
 // The Matrox edition's counts four items but lists three.
 // GLOBAL: MW2MATROX 0x100aa5b8
 // GLOBAL: MW23DFX 0x10265570
+// GLOBAL: MW2ATI 0x10199860
 MenuPage g_graphicsPage = {
 	0,
 	g_graphicsTitle,
@@ -144,11 +158,15 @@ MenuPage g_graphicsPage = {
 #ifdef MW2_RES_800X600
 	 {1, g_res800x600Item, RunMenuChoice, &g_res800x600Control, NULL},
 #endif
+#ifdef MW2_TEXTURE_FILTER_ITEM
+	 {1, g_filterTexturesItem, RunMenuChoice, &g_filterTexturesControl, NULL},
+#endif
 	 {2, g_acceptText, NULL, NULL, NULL}}
 };
 
 // FUNCTION: MW2MATROX 0x10054c80
 // FUNCTION: MW23DFX 0x10066400
+// FUNCTION: MW2ATI 0x10063980
 MechS32 InitGraphicsPage(MenuDefinition* p_menu, MenuPage* p_page)
 {
 	return TRUE;
@@ -156,6 +174,7 @@ MechS32 InitGraphicsPage(MenuDefinition* p_menu, MenuPage* p_page)
 
 // FUNCTION: MW2MATROX 0x10054c95
 // FUNCTION: MW23DFX 0x10066410
+// FUNCTION: MW2ATI 0x10063990
 MechS32 GetTexturedSky(MechS32 p_arg)
 {
 	if (ReadRegistryDword("Sky", (DWORD*) &g_texturedSky)) {
@@ -170,6 +189,7 @@ MechS32 GetTexturedSky(MechS32 p_arg)
 
 // FUNCTION: MW2MATROX 0x10054cdd
 // FUNCTION: MW23DFX 0x10066450
+// FUNCTION: MW2ATI 0x100639d0
 void SetTexturedSky(MechS32 p_arg, MechS32 p_texturedSky)
 {
 	WriteRegistryDword("Sky", (DWORD*) &p_texturedSky);
@@ -179,6 +199,7 @@ void SetTexturedSky(MechS32 p_arg, MechS32 p_texturedSky)
 
 // FUNCTION: MW2MATROX 0x10054d09
 // FUNCTION: MW23DFX 0x10066480
+// FUNCTION: MW2ATI 0x10063a00
 MechS32 GetTexturedGround(MechS32 p_arg)
 {
 	if (ReadRegistryDword("Ground", (DWORD*) &g_texturedGround)) {
@@ -193,6 +214,7 @@ MechS32 GetTexturedGround(MechS32 p_arg)
 
 // FUNCTION: MW2MATROX 0x10054d51
 // FUNCTION: MW23DFX 0x100664c0
+// FUNCTION: MW2ATI 0x10063a40
 void SetTexturedGround(MechS32 p_arg, MechS32 p_texturedGround)
 {
 	WriteRegistryDword("Ground", (DWORD*) &p_texturedGround);
@@ -221,6 +243,7 @@ void SetRes800x600(MechS32 p_arg, MechS32 p_res800x600)
 #endif
 #ifdef MW2_TEXTURE_FILTER
 // FUNCTION: MW2MATROX 0x10054d7d
+// FUNCTION: MW2ATI 0x10063a70
 MechS32 GetFilterTextures(MechS32 p_arg)
 {
 	if (!ReadRegistryDword("Filter", (DWORD*) &g_filterTextures)) {
@@ -231,16 +254,18 @@ MechS32 GetFilterTextures(MechS32 p_arg)
 }
 
 // FUNCTION: MW2MATROX 0x10054db6
+// FUNCTION: MW2ATI 0x10063aa0
 void SetFilterTextures(MechS32 p_arg, MechS32 p_filterTextures)
 {
 	WriteRegistryDword("Filter", (DWORD*) &p_filterTextures);
 	g_filterTextures = p_filterTextures;
-	FUN_1005f810(p_filterTextures);
+	A3D_SET_TEXTURE_FILTER(p_filterTextures);
 }
 #endif
 
 // FUNCTION: MW2MATROX 0x10054de6
 // FUNCTION: MW23DFX 0x10066550
+// FUNCTION: MW2ATI 0x10063ad0
 MechS32 GetUnusedSetting(MechS32 p_arg)
 {
 	return g_unusedSetting;
@@ -248,6 +273,7 @@ MechS32 GetUnusedSetting(MechS32 p_arg)
 
 // FUNCTION: MW2MATROX 0x10054dfb
 // FUNCTION: MW23DFX 0x10066560
+// FUNCTION: MW2ATI 0x10063ae0
 void SetUnusedSetting(MechS32 p_arg, MechS32 p_unusedSetting)
 {
 	g_unusedSetting = p_unusedSetting;

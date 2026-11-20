@@ -62,6 +62,7 @@ static MechS32 TransformRow(Matrix* p_matrix, MechS32 p_row, MechS32 p_x, MechS3
 // FUNCTION: MW2 0x10039a30
 // FUNCTION: MW2MATROX 0x10028adb
 // FUNCTION: MW23DFX 0x10029ab0
+// FUNCTION: MW2ATI 0x100296e0
 void TransformModel(Model* p_model, Matrix* p_matrix)
 {
 #if defined(MW2_FLOAT_SCALARS)
@@ -273,6 +274,7 @@ void TransformModel(Model* p_model, Matrix* p_matrix)
 // FUNCTION: MW2 0x10039b94
 // FUNCTION: MW2MATROX 0x10028cf4
 // FUNCTION: MW23DFX 0x10029c10
+// FUNCTION: MW2ATI 0x10029840
 void TransformShapeCenter(struct Shape* p_shape, Matrix* p_matrix)
 {
 	p_shape->m_flags &= ~0x200;
@@ -370,6 +372,7 @@ void TransformShapeCenter(struct Shape* p_shape, Matrix* p_matrix)
 // FUNCTION: MW2 0x10039c36
 // FUNCTION: MW2MATROX 0x10028db4
 // FUNCTION: MW23DFX 0x10029c80
+// FUNCTION: MW2ATI 0x100298b0
 void TransformShape(struct Shape* p_shape, Matrix* p_matrix)
 {
 	Model* model;
@@ -427,6 +430,7 @@ MechS32 SolvePlaneY(
 // FUNCTION: MW2 0x10039ccc
 // FUNCTION: MW2MATROX 0x10028e14
 // FUNCTION: MW23DFX 0x10029cb0
+// FUNCTION: MW2ATI 0x100298e0
 MechScalar ApproximateShapeDistance(struct Shape* p_shape, MechScalar p_x, MechScalar p_y, MechScalar p_z)
 {
 #if defined(MW2_FLOAT_SCALARS)
@@ -919,6 +923,7 @@ done:
 // FUNCTION: MW2 0x1003a096
 // FUNCTION: MW2MATROX 0x10028f0e
 // FUNCTION: MW23DFX 0x10029db0
+// FUNCTION: MW2ATI 0x100299e0
 MechScalar RayShapeDistance(struct Shape* p_shape, Ray* p_ray)
 {
 #if defined(MW2_FLOAT_SCALARS)

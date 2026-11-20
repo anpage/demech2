@@ -12,16 +12,19 @@
 // GLOBAL: MW2 0x100a7130
 // GLOBAL: MW2MATROX 0x100a84a0
 // GLOBAL: MW23DFX 0x10261748
+// GLOBAL: MW2ATI 0x10195a40
 PANE g_commandPoint2MenuTarget = {NULL, 0x3852, 0x4ccd, 0x10000, 0x999a};
 
 // GLOBAL: MW2 0x100a7148
 // GLOBAL: MW2MATROX 0x100a84b8
 // GLOBAL: MW23DFX 0x10261760
+// GLOBAL: MW2ATI 0x10195a58
 PANE g_commandPoint2MenuBackgroundTarget = {NULL, 0x3852, 0x4ccd, 0x10000, 0x999a};
 
 // GLOBAL: MW2 0x100a7160
 // GLOBAL: MW2MATROX 0x100a84d0
 // GLOBAL: MW23DFX 0x10261778
+// GLOBAL: MW2ATI 0x10195a70
 MenuDefinition g_commandPoint2Menu = {
 	&g_commandPoint2MenuTarget,
 	10,
@@ -50,4 +53,5 @@ MenuDefinition g_commandPoint2Menu = {
 // GLOBAL: MW2 0x100ea800
 // GLOBAL: MW2MATROX 0x101d4a10
 // GLOBAL: MW23DFX 0x10153540
+// GLOBAL: MW2ATI 0x10087550
 MenuPage* g_commandPoint2MenuPageStack[8];

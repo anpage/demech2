@@ -15,7 +15,8 @@
 // The A3D renderer, which the accelerated editions draw their polygons through in place of VFX's
 // (CLAUDE.md, "The A3D layer"): the game's interface to one back end per card. The Matrox edition's
 // is matrox/a3d.c (0x1005a5f0-0x10067500, between damagepanel.c's and keyboard.c's objects),
-// optimized code compiled with /Ox /G5 /Op; the 3Dfx edition's is 3dfx/a3d.c, over Glide.
+// optimized code compiled with /Ox /G5 /Op; the 3Dfx edition's is 3dfx/a3d.c, over Glide; the ATI
+// edition's is ati/a3d.c, over ATI's 3D CIF.
 
 // A vertex of the textured polygons A3D_GroundSkyPolyPlot draws, in doubles: the screen position, the depth
 // and the projection scale over it, the color (0-255 per component) and the texture coordinates
@@ -129,6 +130,8 @@ extern "C"
 
 // The 3D view's pane wipe, with a 16-bit pixel: the Matrox edition's goes through the renderer.
 #define A3D_PANE_WIPE(p_pane, p_color) FUN_1005f8a0(p_pane, p_color)
+// The texture filter setting (MW2_TEXTURE_FILTER), passed to the renderer.
+#define A3D_SET_TEXTURE_FILTER(p_filter) FUN_1005f810(p_filter)
 #endif
 
 #ifdef MW2_3DFX
@@ -193,6 +196,19 @@ extern "C"
 		MechU32 p_flags,
 		MechS32 p_mode
 	);
+
+// The 3D view's pane wipe, with a 16-bit pixel: VFX's (the 16-bit port, accel/vfx16.h).
+#define A3D_PANE_WIPE(p_pane, p_color) VFX_pane_wipe(p_pane, p_color)
+#endif
+
+#ifdef MW2_ATI
+	// The ATI edition's renderer, over ATI's 3D CIF (ati/a3d.c). Not decompiled yet.
+
+	// Takes the "Filter" registry setting (SimMain's settings and the graphics page).
+	void FUN_100648a0(MechS32 p_filter);
+
+// The texture filter setting (MW2_TEXTURE_FILTER), passed to the renderer.
+#define A3D_SET_TEXTURE_FILTER(p_filter) FUN_100648a0(p_filter)
 
 // The 3D view's pane wipe, with a 16-bit pixel: VFX's (the 16-bit port, accel/vfx16.h).
 #define A3D_PANE_WIPE(p_pane, p_color) VFX_pane_wipe(p_pane, p_color)

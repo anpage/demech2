@@ -17,34 +17,40 @@
 // GLOBAL: MW2 0x100a3948
 // GLOBAL: MW2MATROX 0x100a8154
 // GLOBAL: MW23DFX 0x1024f770
+// GLOBAL: MW2ATI 0x10183a80
 MechS8 g_lockedChannel = -1;
 
 // GLOBAL: MW2 0x100a394c
 // GLOBAL: MW2MATROX 0x100a8158
 // GLOBAL: MW23DFX 0x1024f774
+// GLOBAL: MW2ATI 0x10183a84
 HMDIDRIVER g_midiDriver = NULL;
 
 // Set by ShutdownMidi: the sequences are gone for good.
 // GLOBAL: MW2 0x100a3950
 // GLOBAL: MW2MATROX 0x100a815c
 // GLOBAL: MW23DFX 0x1024f778
+// GLOBAL: MW2ATI 0x10183a88
 MechS32 g_midiShutDown = 0;
 
 // GLOBAL: MW2 0x100a3954
 // GLOBAL: MW2MATROX 0x100a8160
 // GLOBAL: MW23DFX 0x1024f77c
+// GLOBAL: MW2ATI 0x10183a8c
 MechS32 g_midiInitialized = 0;
 
 // The resource ids of the sequences' data, or 0.
 // GLOBAL: MW2 0x1010b5e0
 // GLOBAL: MW2MATROX 0x101d4a70
 // GLOBAL: MW23DFX 0x1015a040
+// GLOBAL: MW2ATI 0x1008e030
 MechS16 g_midiSequenceIds[8];
 
 // The sequence handles, or -1.
 // GLOBAL: MW2 0x1010b5f0
 // GLOBAL: MW2MATROX 0x101d4a50
 // GLOBAL: MW23DFX 0x1015a020
+// GLOBAL: MW2ATI 0x1008e010
 HSEQUENCE g_midiSequences[8];
 
 // FUNCTION: MW2 0x10021460
@@ -125,6 +131,7 @@ void ResumeMidiSequences(void)
 // FUNCTION: MW2 0x1002161d
 // FUNCTION: MW2MATROX 0x10043d1d
 // FUNCTION: MW23DFX 0x100330a0
+// FUNCTION: MW2ATI 0x10031ea0
 MechS32 InitializeMidi(void)
 {
 	MechS32 i;
@@ -208,6 +215,7 @@ MechS32 PlayMidiSequence(undefined4 p_unk0x00, MechS16 p_id, MechS16 p_sequenceN
 // FUNCTION: MW2 0x1002187c
 // FUNCTION: MW2MATROX 0x10043f7c
 // FUNCTION: MW23DFX 0x100332b0
+// FUNCTION: MW2ATI 0x10031f50
 void ShutdownMidi(void)
 {
 	if (!g_midiInitialized) {
@@ -226,6 +234,7 @@ void ShutdownMidi(void)
 // FUNCTION: MW2 0x100218bf
 // FUNCTION: MW2MATROX 0x10043fbf
 // FUNCTION: MW23DFX 0x100332e0
+// FUNCTION: MW2ATI 0x10031f80
 MechS16 AnyMidiPlaying(void)
 {
 	MechS32 i;
@@ -329,6 +338,7 @@ void StartEngineNote(void)
 // FUNCTION: MW2 0x10021b2a
 // FUNCTION: MW2MATROX 0x1004422f
 // FUNCTION: MW23DFX 0x100333d0
+// FUNCTION: MW2ATI 0x10032070
 void UpdateEngineNote(MechU32 p_pitch)
 {
 	if (g_midiDriver == NULL) {
@@ -363,6 +373,7 @@ void UpdateEngineNote(MechU32 p_pitch)
 // FUNCTION: MW2 0x10021be2
 // FUNCTION: MW2MATROX 0x100442e7
 // FUNCTION: MW23DFX 0x10033490
+// FUNCTION: MW2ATI 0x10032130
 void StopEngineNote(void)
 {
 	if (g_midiDriver == NULL) {
@@ -380,6 +391,7 @@ void StopEngineNote(void)
 // FUNCTION: MW2 0x10021c49
 // FUNCTION: MW2MATROX 0x1004434e
 // FUNCTION: MW23DFX 0x100334e0
+// FUNCTION: MW2ATI 0x10032180
 void MuteEngineNote(void)
 {
 	if (g_midiDriver == NULL) {

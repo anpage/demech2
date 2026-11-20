@@ -137,17 +137,20 @@ MechS32 FindSession(LPDPSESSIONDESC p_desc);
 // GLOBAL: MW2 0x100a1758
 // GLOBAL: MW2MATROX 0x100a2108
 // GLOBAL: MW23DFX 0x1024ffc8
+// GLOBAL: MW2ATI 0x101842d8
 MechS32 g_stateInterval = 36;
 
 // The number of players of a network game, or 0.
 // GLOBAL: MW2 0x100a175c
 // GLOBAL: MW2MATROX 0x100a210c
 // GLOBAL: MW23DFX 0x1024ffcc
+// GLOBAL: MW2ATI 0x101842dc
 MechS32 g_isNetworkGame = 0;
 
 // GLOBAL: MW2 0x100a1760
 // GLOBAL: MW2MATROX 0x100a2110
 // GLOBAL: MW23DFX 0x1024ffd0
+// GLOBAL: MW2ATI 0x101842e0
 MechChar* g_sessionName = NULL;
 
 // Set when this tick's messages brought the master's clock.
@@ -160,11 +163,13 @@ MechS16 g_clockSynced = 0;
 // GLOBAL: MW2 0x100a1768
 // GLOBAL: MW2MATROX 0x100a2118
 // GLOBAL: MW23DFX 0x1024ffd8
+// GLOBAL: MW2ATI 0x101842e8
 MechS16 g_launchedByShell = 0;
 
 // GLOBAL: MW2 0x100a1770
 // GLOBAL: MW2MATROX 0x100a2120
 // GLOBAL: MW23DFX 0x1024ffe0
+// GLOBAL: MW2ATI 0x101842f0
 MechS32 g_stateCount = 0;
 
 // GLOBAL: MW2 0x100a1774
@@ -180,16 +185,19 @@ MechS32 g_unrecognizedMessages = 0;
 // GLOBAL: MW2 0x100a177c
 // GLOBAL: MW2MATROX 0x100a212c
 // GLOBAL: MW23DFX 0x1024ffec
+// GLOBAL: MW2ATI 0x101842fc
 MechS32 g_successSent = 0;
 
 // GLOBAL: MW2 0x100a1780
 // GLOBAL: MW2MATROX 0x100a2130
 // GLOBAL: MW23DFX 0x1024fff0
+// GLOBAL: MW2ATI 0x10184300
 MechS16 g_gameStarted = 0;
 
 // GLOBAL: MW2 0x100a1788
 // GLOBAL: MW2MATROX 0x100a2138
 // GLOBAL: MW23DFX 0x1024fff8
+// GLOBAL: MW2ATI 0x10184308
 NetLaunchInfo* g_netLaunch = NULL;
 
 // The send buffers. The weapons message shares the state message's.
@@ -197,11 +205,13 @@ NetLaunchInfo* g_netLaunch = NULL;
 // GLOBAL: MW2 0x100a178c
 // GLOBAL: MW2MATROX 0x100a213c
 // GLOBAL: MW23DFX 0x1024fffc
+// GLOBAL: MW2ATI 0x1018430c
 NetStateMsg* g_stateMsg = NULL;
 
 // GLOBAL: MW2 0x100a1790
 // GLOBAL: MW2MATROX 0x100a2140
 // GLOBAL: MW23DFX 0x10250000
+// GLOBAL: MW2ATI 0x10184310
 NetWeaponsMsg* g_weaponsMsg = NULL;
 
 // SN: the game things destroyed so far. After the tag, the sender's g_stateCount (an older
@@ -209,112 +219,133 @@ NetWeaponsMsg* g_weaponsMsg = NULL;
 // GLOBAL: MW2 0x100a1794
 // GLOBAL: MW2MATROX 0x100a2144
 // GLOBAL: MW23DFX 0x10250004
+// GLOBAL: MW2ATI 0x10184314
 MechU8* g_thingsMsg = NULL;
 
 // GLOBAL: MW2 0x100a1798
 // GLOBAL: MW2MATROX 0x100a2148
 // GLOBAL: MW23DFX 0x10250008
+// GLOBAL: MW2ATI 0x10184318
 NetChatMsg* g_chatMsg = NULL;
 
 // 1 while the network runs, 2 once it has stopped.
 // GLOBAL: MW2 0x100a179c
 // GLOBAL: MW2MATROX 0x100a214c
 // GLOBAL: MW23DFX 0x1025000c
+// GLOBAL: MW2ATI 0x1018431c
 MechS32 g_netState = 0;
 
 // 0 alone, 1 the master (it keeps the clock), 2 a slave.
 // GLOBAL: MW2 0x100a17a0
 // GLOBAL: MW2MATROX 0x100a2150
 // GLOBAL: MW23DFX 0x10250010
+// GLOBAL: MW2ATI 0x10184320
 MechS32 g_netRole = 0;
 
 // GLOBAL: MW2 0x100a17a8
 // GLOBAL: MW2MATROX 0x100a2158
 // GLOBAL: MW23DFX 0x10250018
+// GLOBAL: MW2ATI 0x10184328
 GUID g_sessionGuid = {0x5a237e00, 0xea03, 0x11ce, {0x97, 0xdc, 0x00, 0x20, 0xaf, 0x24, 0xc6, 0x4a}};
 
 // GLOBAL: MW2 0x100a17b8
 // GLOBAL: MW2MATROX 0x100a2168
 // GLOBAL: MW23DFX 0x10250028
+// GLOBAL: MW2ATI 0x10184338
 LPDIRECTPLAY g_directPlay = NULL;
 
 // GLOBAL: MW2 0x100a17bc
 // GLOBAL: MW2MATROX 0x100a216c
 // GLOBAL: MW23DFX 0x1025002c
+// GLOBAL: MW2ATI 0x1018433c
 DPID g_localDpid = 99;
 
 // The lowest id among the players: the master's.
 // GLOBAL: MW2 0x100a17c0
 // GLOBAL: MW2MATROX 0x100a2170
 // GLOBAL: MW23DFX 0x10250030
+// GLOBAL: MW2ATI 0x10184340
 DPID g_masterDpid = 0;
 
 // GLOBAL: MW2 0x100a17c4
 // GLOBAL: MW2MATROX 0x100a2174
 // GLOBAL: MW23DFX 0x10250034
+// GLOBAL: MW2ATI 0x10184344
 LPGUID g_serviceProvider = NULL;
 
 // GLOBAL: MW2 0x100a17c8
 // GLOBAL: MW2MATROX 0x100a2178
 // GLOBAL: MW23DFX 0x10250038
+// GLOBAL: MW2ATI 0x10184348
 MechS32 g_nextStateTime = 0;
 
 // GLOBAL: MW2 0x101770a0
 // GLOBAL: MW2MATROX 0x102184b0
 // GLOBAL: MW23DFX 0x10159ff0
+// GLOBAL: MW2ATI 0x1008dff0
 MechChar* g_netRecvBuffer;
 
 // GLOBAL: MW2 0x101770cc
 // GLOBAL: MW2MATROX 0x10218468
 // GLOBAL: MW23DFX 0x10159fa8
+// GLOBAL: MW2ATI 0x1008dfa8
 void* g_unk0x101770cc;
 
 // GLOBAL: MW2 0x101770d0
 // GLOBAL: MW2MATROX 0x102184b4
 // GLOBAL: MW23DFX 0x10159ff4
+// GLOBAL: MW2ATI 0x1008dff4
 MechU32 g_stateMsgSize;
 
 // When each player was last heard from.
 // GLOBAL: MW2 0x101770e0
 // GLOBAL: MW2MATROX 0x10218490
 // GLOBAL: MW23DFX 0x10159fd0
+// GLOBAL: MW2ATI 0x1008dfd0
 MechS32 g_lastHeard[8];
 
 // The clock of each player's last state message.
 // GLOBAL: MW2 0x10177100
 // GLOBAL: MW2MATROX 0x10218440
 // GLOBAL: MW23DFX 0x10159f80
+// GLOBAL: MW2ATI 0x1008df80
 MechS32 g_lastStateClock[8];
 
 // GLOBAL: MW2 0x10177120
 // GLOBAL: MW2MATROX 0x102184b8
 // GLOBAL: MW23DFX 0x10159ff8
+// GLOBAL: MW2ATI 0x1008dff8
 MechS8 g_playerReady[8];
 
 // GLOBAL: MW2 0x10177128
 // GLOBAL: MW2MATROX 0x10218430
 // GLOBAL: MW23DFX 0x10159f70
+// GLOBAL: MW2ATI 0x1008df70
 MechS32 g_playersFound;
 
 // GLOBAL: MW2 0x1017712c
 // GLOBAL: MW2MATROX 0x102184c0
 // GLOBAL: MW23DFX 0x1015a01c
+// GLOBAL: MW2ATI 0x1008e000
 MechU32 g_thingsMsgSize;
 
 // GLOBAL: MW2 0x10177130
 // GLOBAL: MW2MATROX 0x10218460
 // GLOBAL: MW23DFX 0x10159fa0
+// GLOBAL: MW2ATI 0x1008dfa0
 MechS8 g_playerDestroyed[8];
 
 // The count of each player's last things message.
 // GLOBAL: MW2 0x10177140
 // GLOBAL: MW2MATROX 0x10218470
 // GLOBAL: MW23DFX 0x10159fb0
+// GLOBAL: MW2ATI 0x1008dfb0
 MechS32 g_lastThingsCount[8];
 
 // FUNCTION: MW2 0x1000e410
 // FUNCTION: MW2MATROX 0x10003df0
 // FUNCTION: MW23DFX 0x10033840
+// FUNCTION: MW2ATI 0x10032480
 MechS32 GetPlayerSlotFromNetId(DPID p_id)
 {
 	MechS32 i;
@@ -353,6 +384,7 @@ void FUN_1000e488(undefined4 p_unk0x00, undefined4 p_unk0x04)
 // FUNCTION: MW2 0x1000e493
 // FUNCTION: MW2MATROX 0x10003e73
 // FUNCTION: MW23DFX 0x10033900
+// FUNCTION: MW2ATI 0x10032500
 void FirstNetwork(NetLaunchInfo* p_netLaunch)
 {
 	MechS32 i;
@@ -402,6 +434,7 @@ void FirstNetwork(NetLaunchInfo* p_netLaunch)
 // FUNCTION: MW2 0x1000e677
 // FUNCTION: MW2MATROX 0x10004057
 // FUNCTION: MW23DFX 0x10033ae0
+// FUNCTION: MW2ATI 0x100326e0
 MechS32 FirstExternalCtrl(void)
 {
 	return 1;
@@ -531,6 +564,7 @@ MechS32 UpdateNetwork(void)
 // FUNCTION: MW2 0x1000eb05
 // FUNCTION: MW2MATROX 0x100044e6
 // FUNCTION: MW23DFX 0x10033f50
+// FUNCTION: MW2ATI 0x10032b50
 void ShutdownNetwork(void)
 {
 	StopExternalIO();
@@ -556,6 +590,7 @@ void ShutdownNetwork(void)
 // FUNCTION: MW2 0x1000ebad
 // FUNCTION: MW2MATROX 0x1000458e
 // FUNCTION: MW23DFX 0x10034000
+// FUNCTION: MW2ATI 0x10032c00
 void SendStateMsg(void)
 {
 	Player* player;
@@ -694,6 +729,7 @@ MechS32 SendChatMsg(MechS32 p_to, MechChar* p_text)
 // FUNCTION: MW2 0x1000f171
 // FUNCTION: MW2MATROX 0x10004c3f
 // FUNCTION: MW23DFX 0x100346a0
+// FUNCTION: MW2ATI 0x100332a0
 void ReceiveChatMsg(NetChatMsg* p_msg, MechS32 p_slot)
 {
 	MechChar text[100];
@@ -900,6 +936,7 @@ void ReceiveStateMsg(NetStateMsg* p_msg, MechS32 p_slot)
 // FUNCTION: MW2 0x1000f989
 // FUNCTION: MW2MATROX 0x10005666
 // FUNCTION: MW23DFX 0x100350e0
+// FUNCTION: MW2ATI 0x10033ce0
 void SendWeaponsMsg(void)
 {
 	Player* player;
@@ -927,6 +964,7 @@ void SendWeaponsMsg(void)
 // FUNCTION: MW2 0x1000fa58
 // FUNCTION: MW2MATROX 0x10005735
 // FUNCTION: MW23DFX 0x100351b0
+// FUNCTION: MW2ATI 0x10033db0
 void ReceiveWeaponsMsg(NetWeaponsMsg* p_msg, MechS32 p_slot)
 {
 	Player* player;
@@ -979,6 +1017,7 @@ void SendCollisionMsg(MechS32 p_slot, MechScalar p_x, MechScalar p_y, MechScalar
 // FUNCTION: MW2 0x1000fb8f
 // FUNCTION: MW2MATROX 0x100058d3
 // FUNCTION: MW23DFX 0x10035360
+// FUNCTION: MW2ATI 0x10033f60
 void ReceiveCollisionMsg(NetCollisionMsg* p_msg, MechS32 p_slot)
 {
 	MechScalar volume;
@@ -1020,6 +1059,7 @@ void ReceiveCollisionMsg(NetCollisionMsg* p_msg, MechS32 p_slot)
 // FUNCTION: MW2 0x1000fca8
 // FUNCTION: MW2MATROX 0x10005a67
 // FUNCTION: MW23DFX 0x10035500
+// FUNCTION: MW2ATI 0x10034100
 void SendGoMsg(void)
 {
 	MechChar msg[] = "GO";
@@ -1064,6 +1104,7 @@ void ReceiveGoMsg(MechChar* p_msg, MechS32 p_slot)
 // FUNCTION: MW2 0x1000fda6
 // FUNCTION: MW2MATROX 0x10005b66
 // FUNCTION: MW23DFX 0x10035610
+// FUNCTION: MW2ATI 0x10034210
 void SendThingsMsg(void)
 {
 	MechU8* out;
@@ -1099,6 +1140,7 @@ void SendThingsMsg(void)
 // FUNCTION: MW2 0x1000fe61
 // FUNCTION: MW2MATROX 0x10005c21
 // FUNCTION: MW23DFX 0x100356d0
+// FUNCTION: MW2ATI 0x100342d0
 void ReceiveThingsMsg(MechU8* p_msg, MechS32 p_slot)
 {
 	MechU8* in;
@@ -1136,6 +1178,7 @@ void ReceiveThingsMsg(MechU8* p_msg, MechS32 p_slot)
 // FUNCTION: MW2 0x1000ff29
 // FUNCTION: MW2MATROX 0x10005ce9
 // FUNCTION: MW23DFX 0x100357a0
+// FUNCTION: MW2ATI 0x100343a0
 void SendSuccessMsg(void)
 {
 	MechChar msg[] = "SU";
@@ -1183,6 +1226,7 @@ BOOL PASCAL CountPlayersCallback(DPID p_id, LPSTR p_friendlyName, LPSTR p_formal
 // FUNCTION: MW2 0x1001001a
 // FUNCTION: MW2MATROX 0x10005dda
 // FUNCTION: MW23DFX 0x100358b0
+// FUNCTION: MW2ATI 0x100344b0
 BOOL PASCAL FindSessionCallback(LPDPSESSIONDESC p_desc, LPVOID p_context, LPDWORD p_timeout, DWORD p_flags)
 {
 	if (p_flags & DPESC_TIMEDOUT) {
@@ -1200,6 +1244,7 @@ BOOL PASCAL FindSessionCallback(LPDPSESSIONDESC p_desc, LPVOID p_context, LPDWOR
 // FUNCTION: MW2 0x10010098
 // FUNCTION: MW2MATROX 0x10005e58
 // FUNCTION: MW23DFX 0x10035930
+// FUNCTION: MW2ATI 0x10034530
 BOOL PASCAL FindIpxProviderCallback(LPGUID p_guid, LPSTR p_name, DWORD p_major, DWORD p_minor, LPVOID p_context)
 {
 	if (memcmp(p_name, "WinSock IPX Connection For DirectPlay", 38) == 0) {
@@ -1213,6 +1258,7 @@ BOOL PASCAL FindIpxProviderCallback(LPGUID p_guid, LPSTR p_name, DWORD p_major, 
 // FUNCTION: MW2 0x100100cc
 // FUNCTION: MW2MATROX 0x10005e8c
 // FUNCTION: MW23DFX 0x10035970
+// FUNCTION: MW2ATI 0x10034570
 MechS32 FindSession(LPDPSESSIONDESC p_desc)
 {
 	HRESULT result;
@@ -1237,6 +1283,7 @@ MechS32 FindSession(LPDPSESSIONDESC p_desc)
 // FUNCTION: MW2 0x10010178
 // FUNCTION: MW2MATROX 0x10005f38
 // FUNCTION: MW23DFX 0x10035a40
+// FUNCTION: MW2ATI 0x10034640
 MechS32 StartExternalIO(NetLaunchInfo* p_netLaunch)
 {
 	HRESULT result;
@@ -1352,6 +1399,7 @@ MechS32 StartExternalIO(NetLaunchInfo* p_netLaunch)
 // FUNCTION: MW2 0x10010539
 // FUNCTION: MW2MATROX 0x100062de
 // FUNCTION: MW23DFX 0x10035e00
+// FUNCTION: MW2ATI 0x10034a00
 MechS32 StopExternalIO(void)
 {
 	MechChar msg[] = "SS";
@@ -1393,6 +1441,7 @@ MechS32 StopExternalIO(void)
 // FUNCTION: MW2 0x10010669
 // FUNCTION: MW2MATROX 0x1000640e
 // FUNCTION: MW23DFX 0x10035f40
+// FUNCTION: MW2ATI 0x10034b40
 void ElectMaster(void)
 {
 	HRESULT result;

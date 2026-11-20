@@ -40,6 +40,7 @@ DECOMP_SIZE_ASSERT(NavPoint, 0x54)
 // GLOBAL: MW2 0x100aaba4
 // GLOBAL: MW2MATROX 0x100a243c
 // GLOBAL: MW23DFX 0x1024c8a8
+// GLOBAL: MW2ATI 0x10180c28
 MechS32 g_navCount = 0;
 
 // What inspecting the local player's target did (UpdateTarget): 1 inspected it, 2 too far, 3
@@ -47,6 +48,7 @@ MechS32 g_navCount = 0;
 // GLOBAL: MW2 0x100aaba8
 // GLOBAL: MW2MATROX 0x100a2440
 // GLOBAL: MW23DFX 0x1024c8ac
+// GLOBAL: MW2ATI 0x10180c2c
 MechS32 g_inspectResult = 0;
 
 // Set once the local player has targeted at the reticle (TargetAtReticle), cleared when they
@@ -55,11 +57,13 @@ MechS32 g_inspectResult = 0;
 // GLOBAL: MW2 0x100aabac
 // GLOBAL: MW2MATROX 0x100a2444
 // GLOBAL: MW23DFX 0x1024c8b0
+// GLOBAL: MW2ATI 0x10180c30
 MechS32 g_reticleTargeting = 0;
 
 // GLOBAL: MW2 0x10177160
 // GLOBAL: MW2MATROX 0x10212dd0
 // GLOBAL: MW23DFX 0x101e4230
+// GLOBAL: MW2ATI 0x10117ef0
 NavPoint g_navTable[128];
 
 // Places a nav point for player p_owner at (p_x, p_y, p_z), named "!". Returns its index, or
@@ -67,6 +71,7 @@ NavPoint g_navTable[128];
 // FUNCTION: MW2 0x1005ec80
 // FUNCTION: MW2MATROX 0x100064f0
 // FUNCTION: MW23DFX 0x1001cab0
+// FUNCTION: MW2ATI 0x1001cde0
 MechS32 AddNavPoint(MechU32 p_owner, MechScalar p_x, MechScalar p_y, MechScalar p_z)
 {
 	MechS32 index;
@@ -99,6 +104,7 @@ MechS32 AddNavPoint(MechU32 p_owner, MechScalar p_x, MechScalar p_y, MechScalar 
 // FUNCTION: MW2 0x1005ed4f
 // FUNCTION: MW2MATROX 0x100065bf
 // FUNCTION: MW23DFX 0x1001cb40
+// FUNCTION: MW2ATI 0x1001ce70
 MechS32 RemoveNavPoint(MechU32 p_owner, MechU32 p_nav)
 {
 	MechS32 index;
@@ -268,6 +274,7 @@ void CycleTarget(Player* p_player, MechS32 p_step, MechU32 p_flags)
 // FUNCTION: MW2 0x1005f284
 // FUNCTION: MW2MATROX 0x10006af2
 // FUNCTION: MW23DFX 0x1001ce80
+// FUNCTION: MW2ATI 0x1001d1b0
 void ResetTargeting(void)
 {
 	Player* player;
@@ -283,6 +290,7 @@ void ResetTargeting(void)
 // FUNCTION: MW2 0x1005f2ae
 // FUNCTION: MW2MATROX 0x10006b1c
 // FUNCTION: MW23DFX 0x1001cea0
+// FUNCTION: MW2ATI 0x1001d1d0
 MechS32 TargetNavPoint(MechU32 p_player, MechS32 p_nav, MechU32 p_flags)
 {
 	Player* player;
@@ -550,6 +558,7 @@ MechS32 TargetGameThing(MechS32 p_player, MechS32 p_index, MechU32 p_flags)
 // FUNCTION: MW2 0x1005fa22
 // FUNCTION: MW2MATROX 0x100072a6
 // FUNCTION: MW23DFX 0x1001d510
+// FUNCTION: MW2ATI 0x1001d840
 MechS32 UpdateTarget(Player* p_player)
 {
 	MechS32 isLocal;
@@ -662,6 +671,7 @@ MechS32 UpdateTarget(Player* p_player)
 // FUNCTION: MW2 0x1005fe63
 // FUNCTION: MW2MATROX 0x100076fe
 // FUNCTION: MW23DFX 0x1001d790
+// FUNCTION: MW2ATI 0x1001dac0
 MechS32 GetLocalTargetGamePiece(void)
 {
 	MechS32 index;
@@ -752,6 +762,7 @@ SceneObject* GetLocalTargetObject(void)
 // FUNCTION: MW2 0x10060010
 // FUNCTION: MW2MATROX 0x100078ab
 // FUNCTION: MW23DFX 0x1001d870
+// FUNCTION: MW2ATI 0x1001db40
 void TargetAtReticle(void)
 {
 	MechS32 autopilot;
@@ -814,6 +825,7 @@ void TargetAtReticle(void)
 // FUNCTION: MW2 0x10060197
 // FUNCTION: MW2MATROX 0x10007a32
 // FUNCTION: MW23DFX 0x1001d970
+// FUNCTION: MW2ATI 0x1001dc40
 void GetBearingAndRange(
 	MechScalar p_dx,
 	MechScalar p_dy,
@@ -871,6 +883,7 @@ void GetBearingAndRange(
 // FUNCTION: MW2 0x100602b2
 // FUNCTION: MW2MATROX 0x10007b93
 // FUNCTION: MW23DFX 0x1001dac0
+// FUNCTION: MW2ATI 0x1001dd90
 void CycleNavTarget(Player* p_player, MechS32 p_step, MechS32 p_ownOnly)
 {
 	MechU32 flags;
@@ -886,6 +899,7 @@ void CycleNavTarget(Player* p_player, MechS32 p_step, MechS32 p_ownOnly)
 // FUNCTION: MW2 0x100602ec
 // FUNCTION: MW2MATROX 0x10007bcd
 // FUNCTION: MW23DFX 0x1001dae0
+// FUNCTION: MW2ATI 0x1001ddb0
 void CycleGameThingTarget(MechS32 p_step)
 {
 	Player* player;
@@ -897,6 +911,7 @@ void CycleGameThingTarget(MechS32 p_step)
 // FUNCTION: MW2 0x1006031b
 // FUNCTION: MW2MATROX 0x10007bfc
 // FUNCTION: MW23DFX 0x1001db00
+// FUNCTION: MW2ATI 0x1001ddd0
 void CycleGamePieceTarget(MechS32 p_step)
 {
 	Player* player;
@@ -908,6 +923,7 @@ void CycleGamePieceTarget(MechS32 p_step)
 // FUNCTION: MW2 0x1006034a
 // FUNCTION: MW2MATROX 0x10007c2b
 // FUNCTION: MW23DFX 0x1001db20
+// FUNCTION: MW2ATI 0x1001ddf0
 void CycleFriendlyTarget(MechS32 p_step)
 {
 	Player* player;
@@ -919,6 +935,7 @@ void CycleFriendlyTarget(MechS32 p_step)
 // FUNCTION: MW2 0x1006037c
 // FUNCTION: MW2MATROX 0x10007c5d
 // FUNCTION: MW23DFX 0x1001db40
+// FUNCTION: MW2ATI 0x1001de10
 void CycleEnemyTarget(MechS32 p_step)
 {
 	Player* player;
@@ -987,7 +1004,7 @@ void TargetNearestEnemy(void)
 	}
 }
 
-// The 3Dfx edition ends this object with the cockpit panels, which 1.1 has in config.c's.
-#ifdef MW2_3DFX
+// The 3Dfx and ATI editions end this object with the cockpit panels, which 1.1 has in config.c's.
+#if defined(MW2_3DFX) || defined(MW2_ATI)
 #include "cockpitpanels.c"
 #endif

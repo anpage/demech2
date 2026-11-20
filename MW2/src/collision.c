@@ -24,6 +24,7 @@ DECOMP_SIZE_ASSERT(ShapeCollisionFns, 0xc)
 // GLOBAL: MW2 0x100a54c0
 // GLOBAL: MW2MATROX 0x100a5550
 // GLOBAL: MW23DFX 0x1024b3a8
+// GLOBAL: MW2ATI 0x1017f728
 ShapeCollisionFns g_shapeCollisionFns[8] = {
 	{TestPointInBox, TestRayBox, GetBoxTop},
 	{TestPointInBoxColumn, TestRayBox, NULL},
@@ -39,53 +40,63 @@ ShapeCollisionFns g_shapeCollisionFns[8] = {
 // GLOBAL: MW2 0x100a5520
 // GLOBAL: MW2MATROX 0x100a55b0
 // GLOBAL: MW23DFX 0x1024b408
+// GLOBAL: MW2ATI 0x1017f788
 MechScalar g_hitNormalX = 0;
 
 // GLOBAL: MW2 0x100a5524
 // GLOBAL: MW2MATROX 0x100a55b4
 // GLOBAL: MW23DFX 0x1024b40c
+// GLOBAL: MW2ATI 0x1017f78c
 MechScalar g_hitNormalY = 0;
 
 // GLOBAL: MW2 0x100a5528
 // GLOBAL: MW2MATROX 0x100a55b8
 // GLOBAL: MW23DFX 0x1024b410
+// GLOBAL: MW2ATI 0x1017f790
 MechScalar g_hitNormalZ = 0;
 
 // The normal of the ground GetTerrainHeight found.
 // GLOBAL: MW2 0x100a552c
 // GLOBAL: MW2MATROX 0x100a55bc
 // GLOBAL: MW23DFX 0x1024b414
+// GLOBAL: MW2ATI 0x1017f794
 MechScalar g_groundNormalX = 0;
 
 // GLOBAL: MW2 0x100a5530
 // GLOBAL: MW2MATROX 0x100a55c0
 // GLOBAL: MW23DFX 0x1024b418
+// GLOBAL: MW2ATI 0x1017f798
 MechScalar g_groundNormalY = 0;
 
 // GLOBAL: MW2 0x100a5534
 // GLOBAL: MW2MATROX 0x100a55c4
 // GLOBAL: MW23DFX 0x1024b41c
+// GLOBAL: MW2ATI 0x1017f79c
 MechScalar g_groundNormalZ = 0;
 
 // The normal of the surface TestSegmentCollision hit.
 // GLOBAL: MW2 0x100a5538
 // GLOBAL: MW2MATROX 0x100a55c8
 // GLOBAL: MW23DFX 0x1024b420
+// GLOBAL: MW2ATI 0x1017f7a0
 MechScalar g_segmentNormalX = 0;
 
 // GLOBAL: MW2 0x100a553c
 // GLOBAL: MW2MATROX 0x100a55cc
 // GLOBAL: MW23DFX 0x1024b424
+// GLOBAL: MW2ATI 0x1017f7a4
 MechScalar g_segmentNormalY = 0;
 
 // GLOBAL: MW2 0x100a5540
 // GLOBAL: MW2MATROX 0x100a55d0
 // GLOBAL: MW23DFX 0x1024b428
+// GLOBAL: MW2ATI 0x1017f7a8
 MechScalar g_segmentNormalZ = 0;
 
 // FUNCTION: MW2 0x10034a40
 // FUNCTION: MW2MATROX 0x10023910
 // FUNCTION: MW23DFX 0x1000ffd0
+// FUNCTION: MW2ATI 0x10010530
 void SetShapeCollisionType(Shape* p_shape, MechS32 p_collisionType)
 {
 	p_shape->m_collisionType = p_collisionType;
@@ -103,6 +114,7 @@ void SetShapeCollisionType(Shape* p_shape, MechS32 p_collisionType)
 // FUNCTION: MW2 0x10034a7b
 // FUNCTION: MW2MATROX 0x1002394b
 // FUNCTION: MW23DFX 0x1000fff0
+// FUNCTION: MW2ATI 0x10010550
 MechS32 IsBelowFacePlane(
 	Face* p_face,
 	Vertex* p_vertices,
@@ -144,6 +156,7 @@ MechS32 IsBelowFacePlane(
 // FUNCTION: MW2 0x10034b30
 // FUNCTION: MW2MATROX 0x100239fc
 // FUNCTION: MW23DFX 0x10010080
+// FUNCTION: MW2ATI 0x100105e0
 MechScalar GetTerrainHeight(MechScalar p_x, MechScalar p_y, MechScalar p_z)
 {
 	Shape* root;
@@ -205,6 +218,7 @@ MechScalar GetTerrainHeight(MechScalar p_x, MechScalar p_y, MechScalar p_z)
 // FUNCTION: MW2 0x10034cbc
 // FUNCTION: MW2MATROX 0x10023bc0
 // FUNCTION: MW23DFX 0x100101f0
+// FUNCTION: MW2ATI 0x10010750
 MechScalar GetHighestSurface(MechScalar p_x, MechScalar p_y, MechScalar p_z)
 {
 	Shape* root;
@@ -246,6 +260,7 @@ MechScalar GetHighestSurface(MechScalar p_x, MechScalar p_y, MechScalar p_z)
 // FUNCTION: MW2 0x10034db8
 // FUNCTION: MW2MATROX 0x10023cd0
 // FUNCTION: MW23DFX 0x100102c0
+// FUNCTION: MW2ATI 0x10010820
 MechS32 HasHeightTest(Shape* p_shape)
 {
 	return g_shapeCollisionFns[p_shape->m_collisionType].m_getHeight != NULL;
@@ -255,6 +270,7 @@ MechS32 HasHeightTest(Shape* p_shape)
 // FUNCTION: MW2 0x10034deb
 // FUNCTION: MW2MATROX 0x10023d03
 // FUNCTION: MW23DFX 0x100102e0
+// FUNCTION: MW2ATI 0x10010840
 MechS32 TestPointCollision(MechScalar p_x, MechScalar p_y, MechScalar p_z, Shape** p_hit)
 {
 	*p_hit = FindNearestShape(g_sceneShapes, p_x, p_y, p_z);
@@ -270,6 +286,7 @@ MechS32 TestPointCollision(MechScalar p_x, MechScalar p_y, MechScalar p_z, Shape
 // FUNCTION: MW2 0x10034e59
 // FUNCTION: MW2MATROX 0x10023d71
 // FUNCTION: MW23DFX 0x10010330
+// FUNCTION: MW2ATI 0x10010890
 Shape* FindNearestShape(Shape* p_root, MechScalar p_x, MechScalar p_y, MechScalar p_z)
 {
 	MechScalar best;
@@ -298,6 +315,7 @@ Shape* FindNearestShape(Shape* p_root, MechScalar p_x, MechScalar p_y, MechScala
 // FUNCTION: MW2 0x10034ee7
 // FUNCTION: MW2MATROX 0x10023e01
 // FUNCTION: MW23DFX 0x100103a0
+// FUNCTION: MW2ATI 0x10010900
 MechS32 TestShapePoint(Shape* p_shape, MechScalar p_x, MechScalar p_y, MechScalar p_z)
 {
 	MechS32 (*testPoint)(Shape*, MechScalar, MechScalar, MechScalar);
@@ -316,6 +334,7 @@ MechS32 TestShapePoint(Shape* p_shape, MechScalar p_x, MechScalar p_y, MechScala
 // FUNCTION: MW2 0x10034f37
 // FUNCTION: MW2MATROX 0x10023e51
 // FUNCTION: MW23DFX 0x100103e0
+// FUNCTION: MW2ATI 0x10010940
 MechS32 TestSegmentCollision(Ray* p_ray, Shape** p_hit, MechS32 p_exclude)
 {
 #ifdef MW2_FLOAT_SCALARS
@@ -387,6 +406,7 @@ MechS32 TestSegmentCollision(Ray* p_ray, Shape** p_hit, MechS32 p_exclude)
 // FUNCTION: MW2 0x10035107
 // FUNCTION: MW2MATROX 0x10024016
 // FUNCTION: MW23DFX 0x10010530
+// FUNCTION: MW2ATI 0x10010a90
 MechS32 TestSceneryCollision(Ray* p_ray, Shape** p_hit)
 {
 	MechU16 surface;
@@ -443,6 +463,7 @@ MechS32 TestSceneryCollision(Ray* p_ray, Shape** p_hit)
 // FUNCTION: MW2 0x100352ad
 // FUNCTION: MW2MATROX 0x100241af
 // FUNCTION: MW23DFX 0x10010650
+// FUNCTION: MW2ATI 0x10010bb0
 MechS32 TestShapeRay(Shape* p_shape, Ray* p_ray, MechScalar p_distance)
 {
 	MechS32 (*testRay)(Shape*, Ray*);
@@ -497,6 +518,7 @@ MechS32 TestShapeRay(Shape* p_shape, Ray* p_ray, MechScalar p_distance)
 // FUNCTION: MW2 0x10035423
 // FUNCTION: MW2MATROX 0x10024382
 // FUNCTION: MW23DFX 0x100107b0
+// FUNCTION: MW2ATI 0x10010d10
 void EndRayAtShape(Shape* p_shape, Ray* p_ray, MechScalar p_distance)
 {
 	if (p_distance > 0) {
@@ -522,6 +544,7 @@ void EndRayAtShape(Shape* p_shape, Ray* p_ray, MechScalar p_distance)
 // FUNCTION: MW2 0x100354d3
 // FUNCTION: MW2MATROX 0x1002444c
 // FUNCTION: MW23DFX 0x10010830
+// FUNCTION: MW2ATI 0x10010d90
 MechS32 IntersectRayFace(Face* p_face, Vertex* p_vertices, Ray* p_ray)
 {
 #ifdef MW2_FLOAT_SCALARS
@@ -625,6 +648,7 @@ MechS32 IntersectRayFace(Face* p_face, Vertex* p_vertices, Ray* p_ray)
 // FUNCTION: MW2 0x10035722
 // FUNCTION: MW2MATROX 0x10024606
 // FUNCTION: MW23DFX 0x100109e0
+// FUNCTION: MW2ATI 0x10010f40
 MechS32 IsPointInFace(Face* p_face, Vertex* p_vertices, MechScalar p_x, MechScalar p_y, MechScalar p_z)
 {
 	MechScalar nx;
@@ -660,6 +684,7 @@ MechS32 IsPointInFace(Face* p_face, Vertex* p_vertices, MechScalar p_x, MechScal
 // FUNCTION: MW2 0x100357f8
 // FUNCTION: MW2MATROX 0x100246e2
 // FUNCTION: MW23DFX 0x10010a90
+// FUNCTION: MW2ATI 0x10010ff0
 MechS32 IsPointInFaceXZ(Face* p_face, Vertex* p_vertices, MechScalar p_x, MechScalar p_z)
 {
 	MechS32 count;
@@ -808,6 +833,7 @@ MechS32 IsPointInFaceXZ(Face* p_face, Vertex* p_vertices, MechScalar p_x, MechSc
 // FUNCTION: MW2 0x10035b5b
 // FUNCTION: MW2MATROX 0x10024aa5
 // FUNCTION: MW23DFX 0x10010db0
+// FUNCTION: MW2ATI 0x10011310
 MechS32 IsPointInFaceXY(Face* p_face, Vertex* p_vertices, MechScalar p_x, MechScalar p_y)
 {
 	MechS32 count;
@@ -956,6 +982,7 @@ MechS32 IsPointInFaceXY(Face* p_face, Vertex* p_vertices, MechScalar p_x, MechSc
 // FUNCTION: MW2 0x10035ebe
 // FUNCTION: MW2MATROX 0x10024e68
 // FUNCTION: MW23DFX 0x100110d0
+// FUNCTION: MW2ATI 0x10011630
 MechS32 IsPointInFaceYZ(Face* p_face, Vertex* p_vertices, MechScalar p_y, MechScalar p_z)
 {
 	MechS32 count;

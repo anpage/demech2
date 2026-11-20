@@ -30,6 +30,7 @@
 // FUNCTION: MW2 0x1001ee80
 // FUNCTION: MW2MATROX 0x10021140
 // FUNCTION: MW23DFX 0x10038820
+// FUNCTION: MW2ATI 0x100373e0
 MechS32 ProcessCmdLineArgs(MechChar* p_cmdLine, undefined4* p_flags, MechChar* p_mission)
 {
 	MechS32 result;

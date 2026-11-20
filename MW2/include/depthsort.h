@@ -76,6 +76,7 @@ extern "C"
 
 // The 3Dfx edition's diff is register allocation and instruction scheduling only.
 // FUNCTION: MW23DFX 0x1002a390
+// FUNCTION: MW2ATI 0x10029fa0
 // DrawQueuedPolygon
 
 #endif // DEPTHSORT_H

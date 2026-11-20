@@ -559,6 +559,7 @@ MechS32 CollideWithBuildings(Mech* p_mech, MechScalar* p_x, MechScalar* p_y, Mec
 // FUNCTION: MW2 0x100765f8
 // FUNCTION: MW2MATROX 0x1007685c
 // FUNCTION: MW23DFX 0x1000c160
+// FUNCTION: MW2ATI 0x1000c8d0
 void DamageMechsInCollision(Mech* p_mech, Mech* p_other)
 {
 	MechScalar speed;
@@ -589,6 +590,7 @@ void DamageMechsInCollision(Mech* p_mech, Mech* p_other)
 // FUNCTION: MW2 0x1007669e
 // FUNCTION: MW2MATROX 0x10076927
 // FUNCTION: MW23DFX 0x1000c1f0
+// FUNCTION: MW2ATI 0x1000c960
 void ApplyCollisionDamage(Mech* p_mech, Mech* p_other, MechScalar p_damage)
 {
 	MechS32 attacker;
@@ -661,6 +663,7 @@ void ApplyCollisionDamage(Mech* p_mech, Mech* p_other, MechScalar p_damage)
 // FUNCTION: MW2 0x100768a8
 // FUNCTION: MW2MATROX 0x10076bc3
 // FUNCTION: MW23DFX 0x1000c3c0
+// FUNCTION: MW2ATI 0x1000cb30
 void DamageMechHittingShape(Mech* p_mech, Shape* p_shape)
 {
 	MechScalar damage;
@@ -712,6 +715,7 @@ void DamageMechHittingShape(Mech* p_mech, Shape* p_shape)
 // FUNCTION: MW2 0x10076a23
 // FUNCTION: MW2MATROX 0x10076d51
 // FUNCTION: MW23DFX 0x1000c4d0
+// FUNCTION: MW2ATI 0x1000cc40
 void KnockMechOver(Mech* p_mech)
 {
 	MechScalar x;

@@ -18,61 +18,73 @@ DECOMP_SIZE_ASSERT(CameraShakeKey, 0x1c)
 // GLOBAL: MW2 0x100acb10
 // GLOBAL: MW2MATROX 0x100ac624
 // GLOBAL: MW23DFX 0x1024e63c
+// GLOBAL: MW2ATI 0x1018294c
 MechS32 g_cameraShakeKeyCount = 10;
 
 // GLOBAL: MW2 0x100acb14
 // GLOBAL: MW2MATROX 0x100ac628
 // GLOBAL: MW23DFX 0x1024e640
+// GLOBAL: MW2ATI 0x10182950
 MechS32 g_cameraShakeActive = 0;
 
 // GLOBAL: MW2 0x100becc8
 // GLOBAL: MW2MATROX 0x100c21e8
 // GLOBAL: MW23DFX 0x1007c860
+// GLOBAL: MW2ATI 0x10071860
 ScalarRamp g_cameraShakeHeading;
 
 // GLOBAL: MW2 0x100becd8
 // GLOBAL: MW2MATROX 0x100c21c8
 // GLOBAL: MW23DFX 0x1007c840
+// GLOBAL: MW2ATI 0x10071840
 MechS32 g_cameraShakeKey;
 
 // GLOBAL: MW2 0x100bece0
 // GLOBAL: MW2MATROX 0x100c2090
 // GLOBAL: MW23DFX 0x1007c708
+// GLOBAL: MW2ATI 0x10071708
 ScalarRamp g_cameraShakeZ;
 
 // GLOBAL: MW2 0x100becf0
 // GLOBAL: MW2MATROX 0x100c21e0
 // GLOBAL: MW23DFX 0x1007c858
+// GLOBAL: MW2ATI 0x10071858
 MechS32 g_cameraShakeKeyTime;
 
 // GLOBAL: MW2 0x100becf8
 // GLOBAL: MW2MATROX 0x100c2080
 // GLOBAL: MW23DFX 0x1007c6f8
+// GLOBAL: MW2ATI 0x100716f8
 ScalarRamp g_cameraShakeRoll;
 
 // GLOBAL: MW2 0x100bed08
 // GLOBAL: MW2MATROX 0x100c21d0
 // GLOBAL: MW23DFX 0x1007c848
+// GLOBAL: MW2ATI 0x10071848
 ScalarRamp g_cameraShakeX;
 
 // GLOBAL: MW2 0x100bed18
 // GLOBAL: MW2MATROX 0x100c21b8
 // GLOBAL: MW23DFX 0x1007c830
+// GLOBAL: MW2ATI 0x10071830
 ScalarRamp g_cameraShakePitch;
 
 // GLOBAL: MW2 0x100bed28
 // GLOBAL: MW2MATROX 0x100c20a0
 // GLOBAL: MW23DFX 0x1007c718
+// GLOBAL: MW2ATI 0x10071718
 CameraShakeKey g_cameraShakeKeys[10];
 
 // GLOBAL: MW2 0x100bee40
 // GLOBAL: MW2MATROX 0x100c2070
 // GLOBAL: MW23DFX 0x1007c6e8
+// GLOBAL: MW2ATI 0x100716e8
 ScalarRamp g_cameraShakeY;
 
 // FUNCTION: MW2 0x100665e0
 // FUNCTION: MW2MATROX 0x100591a0
 // FUNCTION: MW23DFX 0x1002d7b0
+// FUNCTION: MW2ATI 0x1002c900
 void ResetCameraShake(void)
 {
 	ClearCameraShakeKeys();
@@ -82,6 +94,7 @@ void ResetCameraShake(void)
 // FUNCTION: MW2 0x100665f0
 // FUNCTION: MW2MATROX 0x100591b0
 // FUNCTION: MW23DFX 0x1002d7c0
+// FUNCTION: MW2ATI 0x1002c910
 MechS32 UpdateCameraShake(void)
 {
 	MechScalar base10;
@@ -121,6 +134,7 @@ MechS32 UpdateCameraShake(void)
 // FUNCTION: MW2 0x10066758
 // FUNCTION: MW2MATROX 0x1005930c
 // FUNCTION: MW23DFX 0x1002d8f0
+// FUNCTION: MW2ATI 0x1002ca40
 void StartCameraShake(void)
 {
 	g_cameraShakeKey = 0;
@@ -136,6 +150,7 @@ void StartCameraShake(void)
 // FUNCTION: MW2 0x10066798
 // FUNCTION: MW2MATROX 0x1005934c
 // FUNCTION: MW23DFX 0x1002d920
+// FUNCTION: MW2ATI 0x1002ca70
 void StartCameraShakeKey(MechS32 p_key)
 {
 	MechScalar x;
@@ -182,6 +197,7 @@ void StartCameraShakeKey(MechS32 p_key)
 // FUNCTION: MW2 0x10066968
 // FUNCTION: MW2MATROX 0x10059537
 // FUNCTION: MW23DFX 0x1002dac0
+// FUNCTION: MW2ATI 0x1002cc10
 void ClearCameraShakeKeys(void)
 {
 	memset(g_cameraShakeKeys, 0, sizeof(g_cameraShakeKeys));
@@ -194,6 +210,7 @@ void ClearCameraShakeKeys(void)
 // FUNCTION: MW2 0x100669a9
 // FUNCTION: MW2MATROX 0x10059578
 // FUNCTION: MW23DFX 0x1002daf0
+// FUNCTION: MW2ATI 0x1002cc40
 void AddCameraShakeKey(
 	MechScalar p_x,
 	MechScalar p_y,
@@ -224,6 +241,7 @@ void AddCameraShakeKey(
 // FUNCTION: MW2 0x10066a2e
 // FUNCTION: MW2MATROX 0x100595fd
 // FUNCTION: MW23DFX 0x1002db60
+// FUNCTION: MW2ATI 0x1002ccb0
 MechS32 IsCameraShaking(void)
 {
 	return g_cameraShakeActive;

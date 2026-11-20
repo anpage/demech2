@@ -50,16 +50,19 @@ MechS32 g_debugSection = -1;
 // GLOBAL: MW2 0x100a15e0
 // GLOBAL: MW2MATROX 0x100a6238
 // GLOBAL: MW23DFX 0x102503b0
+// GLOBAL: MW2ATI 0x101846c0
 PANE g_pausedBannerRect = {NULL, 0, 0x3333, 0x10000, 0x6666};
 
 // GLOBAL: MW2 0x100a15f4
 // GLOBAL: MW2MATROX 0x100a624c
 // GLOBAL: MW23DFX 0x102503c4
+// GLOBAL: MW2ATI 0x101846d4
 MechS32 g_pausedBannerUnscaled = 1;
 
 // FUNCTION: MW2 0x10009e50
 // FUNCTION: MW2MATROX 0x1002ecc0
 // FUNCTION: MW23DFX 0x10036370
+// FUNCTION: MW2ATI 0x10034f70
 void DrawPausedBanner(void)
 {
 	void* shape;
@@ -87,6 +90,7 @@ void DrawPausedBanner(void)
 // FUNCTION: MW2 0x10009ef1
 // FUNCTION: MW2MATROX 0x1002ed6e
 // FUNCTION: MW23DFX 0x100363f0
+// FUNCTION: MW2ATI 0x10034ff0
 void PlayPauseSound(void)
 {
 	PlaySoundOnce(0xc6, 100, 0x40, RandomSampleRate());
@@ -95,6 +99,7 @@ void PlayPauseSound(void)
 // FUNCTION: MW2 0x10009f13
 // FUNCTION: MW2MATROX 0x1002ed90
 // FUNCTION: MW23DFX 0x10036410
+// FUNCTION: MW2ATI 0x10035010
 void PlayResumeSound(void)
 {
 	PlaySoundOnce(0xf1, 0x32, 0x40, RandomSampleRate());

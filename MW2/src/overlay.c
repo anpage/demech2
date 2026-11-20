@@ -44,11 +44,13 @@
 // GLOBAL: MW2 0x100a9478
 // GLOBAL: MW2MATROX 0x100bcbf0
 // GLOBAL: MW23DFX 0x10259430
+// GLOBAL: MW2ATI 0x1018d730
 MechChar g_blankText[] = "                                 ";
 
 // GLOBAL: MW2 0x100a949c
 // GLOBAL: MW2MATROX 0x100bcc14
 // GLOBAL: MW23DFX 0x10259454
+// GLOBAL: MW2ATI 0x1018d754
 MechS32 g_showPalette = 0;
 
 // GLOBAL: MW2 0x100a94a0
@@ -58,31 +60,37 @@ MechS32 g_unk0x100a94a0 = 0;
 // GLOBAL: MW2 0x100a94a4
 // GLOBAL: MW2MATROX 0x100bcc1c
 // GLOBAL: MW23DFX 0x1025945c
+// GLOBAL: MW2ATI 0x1018d75c
 MechS32 g_monoLastRow = 3;
 
 // GLOBAL: MW2 0x100a94a8
 // GLOBAL: MW2MATROX 0x100bcc20
 // GLOBAL: MW23DFX 0x10259460
+// GLOBAL: MW2ATI 0x1018d760
 MechS32 g_unk0x100a94a8 = 3;
 
 // GLOBAL: MW2 0x100a94ac
 // GLOBAL: MW2MATROX 0x100bcc24
 // GLOBAL: MW23DFX 0x10259464
+// GLOBAL: MW2ATI 0x1018d764
 MechChar g_unk0x100a94ac[4] = "";
 
 // GLOBAL: MW2 0x100a94b0
 // GLOBAL: MW2MATROX 0x100bcc28
 // GLOBAL: MW23DFX 0x10259468
+// GLOBAL: MW2ATI 0x1018d768
 MechS32 g_frameRateShown = 0;
 
 // GLOBAL: MW2 0x100a94b4
 // GLOBAL: MW2MATROX 0x100bcc2c
 // GLOBAL: MW23DFX 0x1025946c
+// GLOBAL: MW2ATI 0x1018d76c
 MechS32 g_showFrameRate = 0;
 
 // GLOBAL: MW2 0x100a94b8
 // GLOBAL: MW2MATROX 0x100bcc30
 // GLOBAL: MW23DFX 0x10259470
+// GLOBAL: MW2ATI 0x1018d770
 MechS32 g_showFrameRateMain = 0;
 
 // GLOBAL: MW2 0x100a94bc
@@ -93,31 +101,37 @@ MechS32 g_unk0x100a94bc = 0;
 // GLOBAL: MW2 0x100a94c0
 // GLOBAL: MW2MATROX 0x100bcc38
 // GLOBAL: MW23DFX 0x10259478
+// GLOBAL: MW2ATI 0x1018d778
 Point g_frameRateOrigin = {0x51f, 0x147b};
 
 // GLOBAL: MW2 0x100a94c8
 // GLOBAL: MW2MATROX 0x100bcc40
 // GLOBAL: MW23DFX 0x10259480
+// GLOBAL: MW2ATI 0x1018d780
 Point g_memInfoOrigin = {0x51f, 0x2148};
 
 // GLOBAL: MW2 0x100a94d0
 // GLOBAL: MW2MATROX 0x100bcc48
 // GLOBAL: MW23DFX 0x10259488
+// GLOBAL: MW2ATI 0x1018d788
 Point g_eyePositionOrigin = {0xccd, 0xb333};
 
 // GLOBAL: MW2 0x100a94d8
 // GLOBAL: MW2MATROX 0x100bcc50
 // GLOBAL: MW23DFX 0x10259490
+// GLOBAL: MW2ATI 0x1018d790
 MechS32 g_showSceneInfo = 0;
 
 // GLOBAL: MW2 0x100a94dc
 // GLOBAL: MW2MATROX 0x100bcc54
 // GLOBAL: MW23DFX 0x10259494
+// GLOBAL: MW2ATI 0x1018d794
 MechS32 g_showSceneInfoMain = 0;
 
 // GLOBAL: MW2 0x100a94e0
 // GLOBAL: MW2MATROX 0x100bcc58
 // GLOBAL: MW23DFX 0x10259498
+// GLOBAL: MW2ATI 0x1018d798
 MechS32 g_sceneInfoShown = 0;
 
 // GLOBAL: MW2 0x100a94e4
@@ -136,31 +150,37 @@ MechS32 g_eyePositionShown = 0;
 // GLOBAL: MW2 0x100a94f0
 // GLOBAL: MW2MATROX 0x100bcc68
 // GLOBAL: MW23DFX 0x102594a8
+// GLOBAL: MW2ATI 0x1018d7a8
 MechS32 g_showMemInfo = 1;
 
 // GLOBAL: MW2 0x100a94f4
 // GLOBAL: MW2MATROX 0x100bcc6c
 // GLOBAL: MW23DFX 0x102594ac
+// GLOBAL: MW2ATI 0x1018d7ac
 MechS32 g_showMemInfoMain = 0;
 
 // GLOBAL: MW2 0x100a94f8
 // GLOBAL: MW2MATROX 0x100bcc70
 // GLOBAL: MW23DFX 0x102594b0
+// GLOBAL: MW2ATI 0x1018d7b0
 MechS32 g_memInfoShown = 0;
 
 // GLOBAL: MW2 0x100a94fc
 // GLOBAL: MW2MATROX 0x100bcc74
 // GLOBAL: MW23DFX 0x102594b4
+// GLOBAL: MW2ATI 0x1018d7b4
 MechS32 g_showCacheInfo = 0;
 
 // GLOBAL: MW2 0x100a9500
 // GLOBAL: MW2MATROX 0x100bcc78
 // GLOBAL: MW23DFX 0x102594b8
+// GLOBAL: MW2ATI 0x1018d7b8
 MechS32 g_cacheInfoShown = 0;
 
 // GLOBAL: MW2 0x100a9504
 // GLOBAL: MW2MATROX 0x100bcc7c
 // GLOBAL: MW23DFX 0x102594bc
+// GLOBAL: MW2ATI 0x1018d7bc
 MechS32 g_showSpinner = 1;
 
 // The spinner StepSpinner steps through: the CP437 arrows up, left, down and right.
@@ -173,63 +193,75 @@ MechChar g_spinnerArrows[4] = {0x1e, 0x11, 0x1f, 0x10};
 // GLOBAL: MW2 0x100a950c
 // GLOBAL: MW2MATROX 0x100bcc84
 // GLOBAL: MW23DFX 0x102594c4
+// GLOBAL: MW2ATI 0x1018d7c4
 MechS32 g_nextCacheDump = 0;
 
 // GLOBAL: MW2 0x100a9510
 // GLOBAL: MW2MATROX 0x100bcc88
 // GLOBAL: MW23DFX 0x102594c8
+// GLOBAL: MW2ATI 0x1018d7c8
 MechS32 g_dumpCacheRepeat = 0;
 
 // GLOBAL: MW2 0x100a9514
 // GLOBAL: MW2MATROX 0x100bcc8c
 // GLOBAL: MW23DFX 0x102594cc
+// GLOBAL: MW2ATI 0x1018d7cc
 MechS32 g_unk0x100a9514 = 0;
 
 // GLOBAL: MW2 0x100a9518
 // GLOBAL: MW2MATROX 0x100bcc90
 // GLOBAL: MW23DFX 0x102594d0
+// GLOBAL: MW2ATI 0x1018d7d0
 MechS32 g_unk0x100a9518 = 0;
 
 // The frame rate, in whole frames per second and tenths, over the last ten frames.
 // GLOBAL: MW2 0x100a951c
 // GLOBAL: MW2MATROX 0x100bcc94
 // GLOBAL: MW23DFX 0x102594d4
+// GLOBAL: MW2ATI 0x1018d7d4
 MechS32 g_frameRate = 0;
 
 // GLOBAL: MW2 0x100a9520
 // GLOBAL: MW2MATROX 0x100bcc98
 // GLOBAL: MW23DFX 0x102594d8
+// GLOBAL: MW2ATI 0x1018d7d8
 MechS32 g_frameRateTenths = 0;
 
 // GLOBAL: MW2 0x100a9524
 // GLOBAL: MW2MATROX 0x100bcc9c
 // GLOBAL: MW23DFX 0x102594dc
+// GLOBAL: MW2ATI 0x1018d7dc
 MechS32 g_frameRateTime = 0;
 
 // GLOBAL: MW2 0x100a9528
 // GLOBAL: MW2MATROX 0x100bcca0
 // GLOBAL: MW23DFX 0x102594e0
+// GLOBAL: MW2ATI 0x1018d7e0
 MechS32 g_frameRateFrames = 0;
 
 // GLOBAL: MW2 0x100a952c
 // GLOBAL: MW2MATROX 0x100bcca4
 // GLOBAL: MW23DFX 0x102594e4
+// GLOBAL: MW2ATI 0x1018d7e4
 MechS32 g_spinnerDelay = 4;
 
 // GLOBAL: MW2 0x100a9530
 // GLOBAL: MW2MATROX 0x100bcca8
 // GLOBAL: MW23DFX 0x102594e8
+// GLOBAL: MW2ATI 0x1018d7e8
 MechS32 g_spinnerArrow = 3;
 
 // The cursor of MonoPrint.
 // GLOBAL: MW2 0x100a9534
 // GLOBAL: MW2MATROX 0x100bccac
 // GLOBAL: MW23DFX 0x102594ec
+// GLOBAL: MW2ATI 0x1018d7ec
 MechS32 g_monoRow = 3;
 
 // GLOBAL: MW2 0x100a9538
 // GLOBAL: MW2MATROX 0x100bccb0
 // GLOBAL: MW23DFX 0x102594f0
+// GLOBAL: MW2ATI 0x1018d7f0
 MechS32 g_monoColumn = 0;
 
 // The debug build drew each text it formatted while g_monoEnabled was set; the release
@@ -244,21 +276,25 @@ MechS32 g_monoColumn = 0;
 // GLOBAL: MW2 0x100bea00
 // GLOBAL: MW2MATROX 0x101256c8
 // GLOBAL: MW23DFX 0x1007d720
+// GLOBAL: MW2ATI 0x10072720
 static MechS32 g_sceneVertexCount;
 
 // GLOBAL: MW2 0x100bea04
 // GLOBAL: MW2MATROX 0x101256d4
 // GLOBAL: MW23DFX 0x1007d72c
+// GLOBAL: MW2ATI 0x1007272c
 static MechS32 g_sceneMemory;
 
 // GLOBAL: MW2 0x100bea08
 // GLOBAL: MW2MATROX 0x101256d0
 // GLOBAL: MW23DFX 0x1007d728
+// GLOBAL: MW2ATI 0x10072728
 static MechS32 g_sceneShapeCount;
 
 // GLOBAL: MW2 0x100bea0c
 // GLOBAL: MW2MATROX 0x101256cc
 // GLOBAL: MW23DFX 0x1007d724
+// GLOBAL: MW2ATI 0x10072724
 static MechS32 g_sceneFaceCount;
 
 // Set when the monochrome debug screen is in use; the AI logs its state to it too. Only the
@@ -266,23 +302,27 @@ static MechS32 g_sceneFaceCount;
 // GLOBAL: MW2 0x100e9630
 // GLOBAL: MW2MATROX 0x1012b980
 // GLOBAL: MW23DFX 0x10159d9c
+// GLOBAL: MW2ATI 0x1008dd9c
 MechS32 g_monoEnabled;
 
 // A line of spaces, with its terminator.
 // GLOBAL: MW2 0x100e9640
 // GLOBAL: MW2MATROX 0x1012b990
 // GLOBAL: MW23DFX 0x10159da0
+// GLOBAL: MW2ATI 0x1008dda0
 MechChar g_monoBlankLine[0x50];
 
 // GLOBAL: MW2 0x100e9690
 // GLOBAL: MW2MATROX 0x1012b9e0
 // GLOBAL: MW23DFX 0x10159df0
+// GLOBAL: MW2ATI 0x1008ddf0
 MechChar g_monoBlankLineEnd;
 
 // Draws each debug overlay that is on, or blanks it once it goes off; called every frame.
 // FUNCTION: MW2 0x10058750
 // FUNCTION: MW2MATROX 0x1008dbe0
 // FUNCTION: MW23DFX 0x1003c550
+// FUNCTION: MW2ATI 0x1003a520
 void DrawDebugOverlays(void)
 {
 	if (g_showPalette) {
@@ -342,6 +382,7 @@ void DrawDebugOverlays(void)
 // FUNCTION: MW2 0x100588a7
 // FUNCTION: MW2MATROX 0x1008dd05
 // FUNCTION: MW23DFX 0x1003c630
+// FUNCTION: MW2ATI 0x1003a600
 void DrawPaletteGrid(void)
 {
 	MechS32 x;
@@ -371,6 +412,7 @@ void DrawPaletteGrid(void)
 // FUNCTION: MW2 0x10058958
 // FUNCTION: MW2MATROX 0x1008ddbf
 // FUNCTION: MW23DFX 0x1003c6a0
+// FUNCTION: MW2ATI 0x1003a670
 void InitializeMono(void)
 {
 	MechS32 i;
@@ -389,6 +431,7 @@ void InitializeMono(void)
 // FUNCTION: MW2 0x100589ae
 // FUNCTION: MW2MATROX 0x1008de15
 // FUNCTION: MW23DFX 0x1003c6c0
+// FUNCTION: MW2ATI 0x1003a690
 void ShowFrameRate(void)
 {
 	MechChar text[64];
@@ -424,6 +467,7 @@ void ShowFrameRate(void)
 // FUNCTION: MW2 0x10058ae5
 // FUNCTION: MW2MATROX 0x1008df4c
 // FUNCTION: MW23DFX 0x1003c7c0
+// FUNCTION: MW2ATI 0x1003a790
 void HideFrameRate(void)
 {
 	MechChar text[16];
@@ -438,6 +482,7 @@ void HideFrameRate(void)
 // FUNCTION: MW2 0x10058b34
 // FUNCTION: MW2MATROX 0x1008df9b
 // FUNCTION: MW23DFX 0x1003c800
+// FUNCTION: MW2ATI 0x1003a7d0
 void ShowSceneInfo(void)
 {
 	MechChar text[80];
@@ -489,6 +534,7 @@ void ShowSceneInfo(void)
 // FUNCTION: MW2 0x10058cda
 // FUNCTION: MW2MATROX 0x1008e141
 // FUNCTION: MW23DFX 0x1003c940
+// FUNCTION: MW2ATI 0x1003a910
 void HideSceneInfo(void)
 {
 	MechChar text[32];
@@ -505,6 +551,7 @@ void HideSceneInfo(void)
 // FUNCTION: MW2 0x10058d36
 // FUNCTION: MW2MATROX 0x1008e19d
 // FUNCTION: MW23DFX 0x1003c980
+// FUNCTION: MW2ATI 0x1003a950
 void CountSceneShape(Shape* p_shape)
 {
 	MechS32 vertexCount;
@@ -573,6 +620,7 @@ void HideEyePosition(void)
 // FUNCTION: MW2 0x10058f3c
 // FUNCTION: MW2MATROX 0x1008e1f7
 // FUNCTION: MW23DFX 0x1003c9e0
+// FUNCTION: MW2ATI 0x1003a9b0
 void ShowCacheInfo(void)
 {
 	MechChar text[28];
@@ -585,6 +633,7 @@ void ShowCacheInfo(void)
 // FUNCTION: MW2 0x10058f78
 // FUNCTION: MW2MATROX 0x1008e233
 // FUNCTION: MW23DFX 0x1003ca10
+// FUNCTION: MW2ATI 0x1003a9e0
 void HideCacheInfo(void)
 {
 	MechChar text[28];
@@ -601,6 +650,7 @@ void HideCacheInfo(void)
 // FUNCTION: MW2 0x10058fb2
 // FUNCTION: MW2MATROX 0x1008e26d
 // FUNCTION: MW23DFX 0x1003ca40
+// FUNCTION: MW2ATI 0x1003aa10
 void ShowMemInfo(void)
 {
 	MechChar text[40];
@@ -622,6 +672,7 @@ void ShowMemInfo(void)
 // FUNCTION: MW2 0x10059036
 // FUNCTION: MW2MATROX 0x1008e2f1
 // FUNCTION: MW23DFX 0x1003caa0
+// FUNCTION: MW2ATI 0x1003aa70
 void HideMemInfo(void)
 {
 	MechChar text[16];
@@ -637,6 +688,7 @@ void HideMemInfo(void)
 // FUNCTION: MW2 0x10059085
 // FUNCTION: MW2MATROX 0x1008e340
 // FUNCTION: MW23DFX 0x1003cae0
+// FUNCTION: MW2ATI 0x1003aab0
 void StepSpinner(void)
 {
 	MechChar text[2];
@@ -657,6 +709,7 @@ void StepSpinner(void)
 // FUNCTION: MW2 0x100590ea
 // FUNCTION: MW2MATROX 0x1008e3a5
 // FUNCTION: MW23DFX 0x1003cb10
+// FUNCTION: MW2ATI 0x1003aae0
 void MonoPrintLine(MechChar* p_text)
 {
 	MechS32 i;
@@ -683,6 +736,7 @@ void MonoPrintLine(MechChar* p_text)
 // FUNCTION: MW2 0x1005917d
 // FUNCTION: MW2MATROX 0x1008e438
 // FUNCTION: MW23DFX 0x1003cb60
+// FUNCTION: MW2ATI 0x1003ab30
 void MonoClear(void)
 {
 	MechS32 i;
@@ -700,6 +754,7 @@ void MonoClear(void)
 // FUNCTION: MW2 0x100591d1
 // FUNCTION: MW2MATROX 0x1008e48c
 // FUNCTION: MW23DFX 0x1003cb80
+// FUNCTION: MW2ATI 0x1003ab50
 void MonoPrint(MechChar* p_text)
 {
 	MechS32 newline;
@@ -739,6 +794,7 @@ void MonoPrint(MechChar* p_text)
 // FUNCTION: MW2 0x100592b0
 // FUNCTION: MW2MATROX 0x1008e56b
 // FUNCTION: MW23DFX 0x1003cc00
+// FUNCTION: MW2ATI 0x1003abd0
 void ScaleOverlayPositions(void)
 {
 	ScalePointToScreen(&g_mainPixelBuffer, &g_frameRateOrigin, &g_frameRateOrigin);
@@ -749,6 +805,7 @@ void ScaleOverlayPositions(void)
 // FUNCTION: MW2 0x10059300
 // FUNCTION: MW2MATROX 0x1008e5bb
 // FUNCTION: MW23DFX 0x1003cc40
+// FUNCTION: MW2ATI 0x1003ac10
 void SimEntranceDbug(MechChar* p_mission, MechS32 p_memory)
 {
 	MechChar text[80];

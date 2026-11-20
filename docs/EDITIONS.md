@@ -5,20 +5,20 @@ Windows 95 release this project started from, and one build per 3D card. This do
 what is known about each one and what differs between them. Its second half is generated from the
 sources, so that it can't drift from them.
 
-Three editions are decompiled today. The ATI, S3 and PowerVR editions (optimized builds with
+Four editions are decompiled today. The S3 and PowerVR editions (optimized builds with
 `__fastcall` and no frame pointers, VC++ 2.x, S3's 4.x) and Ghost Bear's Legacy aren't targets yet.
 
-| | 1.1 | Matrox | 3Dfx |
-|---|---|---|---|
-| reccmp target | `MW2` | `MW2MATROX` | `MW23DFX` |
-| Binary | `MW2.DLL` of the freely downloadable 1.1 patch | `MW2_MATROX.DLL`: the Matrox Mystique edition's `MW2.DLL` | `MW2_3DFX.DLL`: the Diamond Monster disc's `MW2.DLL` |
-| Linked | | 1996-08-22 | 1996-10-21 |
-| Compiler | VC++ 4.1 (`cl` 10.10.6038) | VC++ 4.0 (`cl` 10.00, LINK 3.00) | VC++ 2.2 (`cl` 9.10) |
-| Flags | `/Od /Oi /G5` | `/Od /Oi /G5`; the renderer `/Ox /G5 /Op`, the depth sort `/Ox /Oa /Op` | `/Ox /Ow /Oi /G5 /Gr /Gy`; `network.c`, `shots.c` and `mechreload.c` `/Od`; `QueueFace` unoptimized |
-| C runtime | `LIBCMTD` (`/MTd`) | `LIBCMT` (`/MT`) | `LIBC` (`/ML`) |
-| Draws through | DirectDraw and VFX | Matrox's `MSI95.DLL` | Glide 1.x (`GLIDE.DLL`), with 3dfx's Texus linked in |
-| Identity macros | none | `MW2_ACCEL`, `MW2_MATROX` | `MW2_ACCEL`, `MW2_3DFX` |
-| Game-code functions | 1537 | 1597 | 1574 |
+| | 1.1 | Matrox | 3Dfx | ATI |
+|---|---|---|---|---|
+| reccmp target | `MW2` | `MW2MATROX` | `MW23DFX` | `MW2ATI` |
+| Binary | `MW2.DLL` of the freely downloadable 1.1 patch | `MW2_MATROX.DLL`: the Matrox Mystique edition's `MW2.DLL` | `MW2_3DFX.DLL`: the Diamond Monster disc's `MW2.DLL` | `MW2_ATI.DLL`: the ATI 3D Rage edition's `MW2.DLL` |
+| Linked | | 1996-08-22 | 1996-10-21 | 1996-04-11 |
+| Compiler | VC++ 4.1 (`cl` 10.10.6038) | VC++ 4.0 (`cl` 10.00, LINK 3.00) | VC++ 2.2 (`cl` 9.10) | VC++ 2.2 (LINK 2.55) |
+| Flags | `/Od /Oi /G5` | `/Od /Oi /G5`; the renderer `/Ox /G5 /Op`, the depth sort `/Ox /Oa /Op` | `/Ox /Ow /Oi /G5 /Gr /Gy`; `network.c`, `shots.c` and `mechreload.c` `/Od`; `QueueFace` unoptimized | The 3Dfx edition's, so far |
+| C runtime | `LIBCMTD` (`/MTd`) | `LIBCMT` (`/MT`) | `LIBC` (`/ML`) | `LIBC` (`/ML`) |
+| Draws through | DirectDraw and VFX | Matrox's `MSI95.DLL` | Glide 1.x (`GLIDE.DLL`), with 3dfx's Texus linked in | ATI's 3D CIF (`ati3dcif.dll`), on DirectDraw |
+| Identity macros | none | `MW2_ACCEL`, `MW2_MATROX` | `MW2_ACCEL`, `MW2_3DFX` | `MW2_ACCEL`, `MW2_ATI` |
+| Game-code functions | 1537 | 1597 | 1574 | 1429 |
 
 ## How the source tells them apart
 
@@ -81,6 +81,13 @@ what follows was found in the Matrox edition and holds for both.
 - **Texus.** Texus (`3rdparty/texus`) is 3dfx's texture library, which the renderer converts the textures with: `swlibs/texus/lib` of Debian's `glide` 2002.04.10 (the 1999 Glide source release), the 11 files the DLL links, under its own licence (`glide_license.txt`, the 3DFX GLIDE Source Code General Public License, not the repository's LGPL; see its `README`). Changes to the source sit between dated `demech2: begin change` / `end change` comments, like `3rdparty/vfx`'s. 3dfx built it, `__cdecl`, with VC++ 2.2 at `/Ox /G5 /QIfdiv-` (no `/Gy`: its functions pad with `npad`; no FDIV check), as a static library (`3rdparty/texus/texus.cmake`) the target links first. `MW2/library_texus.h` annotates it (`LIBRARY`, outside the game-code `--total`): it starts at `0x10068270`, where the calling convention changes, and ends at the import thunks (`0x1006e8b0`). About half of its 101 functions match; the rest is mostly register allocation, which depends on the symbols a file declares (its headers stay verbatim).
 - **The renderer and the display back end.** `MW2/src/3dfx/a3d.c` (`0x10066570`-`0x100680b2`, after `accel/graphicsmenu.c`) draws through Glide: its vertex is Glide's `GrVertex` (`A3DVertex` under `MW2_3DFX`, the Matrox vertex's members keeping their names), its textures VFX `WINDOW`s of 16-bit texels, converted through Texus and cached, or read converted from `MW2.MIP`, which the game writes on its first run; it writes the 2D panels straight into Glide's frame buffer. `MW2/src/3dfx/glidedraw.c` (`0x100059a0`-`0x10005b65`, after `gdi.c`) is the display back end and refresh modes, `directdraw.c`'s functions one for one, in DirectDraw's slot of `g_displayBackends`/`g_refreshModes`. The edition has no key color fills (nor the `0xfffe` key-colour wipes of the panels, `ClipRectToPane` and the visible-rectangle bounds of `DrawHudShape`: those are `MW2_KEY_COLOR`, the Matrox edition's), and wipes the 3D view's panes with VFX's 16-bit `VFX_pane_wipe`. Its pixels are RGB555 where the Matrox edition's are RGB565 (`PIXEL_RGB16`, the palette in `ApplyPaletteResource`), and it reads no `LOD.PAR`: the detail levels are 1.1's constants. The renderer's `.bss` variables are `static` (their order is the object's), and 2.2 lays statics out in an order of its own: a pointer just past an array names a different neighbour on either side.
 - **Data.** What the 3Dfx edition changed (found by datacmp): the map colors (`targeting.c`) are other palette entries in both accelerated editions; the torso pan and throttle ranges of `g_inputSinks` (`inputmap.c`) are the 3Dfx edition's own; its graphics page lists a fourth item, a "Resolution 800x600" setting in the texture filter's place (`accel/graphicsmenu.c`; the "Res800x600" registry value, which `SimMain`'s settings pass to the renderer for `grSstOpen`). At 800x600 the menus keep their 640x480 size, scaling their points by eight tenths of the frame (`ScaleMenuPointToFrame`), and `DrawAnim2d` tiles animation 0 across its pane (`TileShapeFrame`). The resource type tags and extensions are one `char*` global each where 1.1 has two arrays: 2.2 lays an array's strings out ahead of it, and the original alternates strings and pointers.
+
+## The ATI edition
+
+- **What it is.** `MW2_ATI.DLL`, the ATI 3D Rage edition's simulator, was linked on 1996-04-11 by LINK 2.55, five months before 1.1, and keeps its settings under 1.0's registry key (`Software\Activision\MechWarrior 2\1.0`). Its C is nonetheless the accelerated editions' (the float conversion, the 16-bit VFXA port, the A3D interface), built like the 3Dfx edition's: VC++ 2.2, `__fastcall` the default, `int3` between functions, 2.2's single-threaded `LIBC` (it lacks only the 3Dfx edition's `UnhandledExceptionFilter` import), and no Texus. 1186 of the 3Dfx edition's 1574 game functions are byte-identical in it, relocations aside, so the target starts from the 3Dfx edition's flags and unit order: `tools/check_units.py` places every annotated function and global with them.
+- **Its back ends.** It draws its polygons through ATI's 3D CIF (`ati3dcif.dll`: `ATI3DCIF_Init`, contexts, registered textures, primitive lists and strips) in DirectDraw surfaces, and its display back end and refresh modes are DirectDraw's, `directdraw.c`'s functions one for one in the Glide back end's slot after `gdi.c`. The renderer (`MW2/src/ati/a3d.c`, `0x10063af0` to the import thunks at `0x10065066`) isn't written yet; nor are its own `DrawAnimatedPolygon` and sky and ground drawers, the 3Dfx edition's without MW2.MIP, in vertices of ten floats.
+- **What it shares.** From the binary so far: the 3Dfx edition's RGB555 pixels (`ApplyPaletteResource`), VFX's pane wipe for the 3D view (`DrawMapView`), the cockpit panels at the end of `targeting.c`'s object, the inline helpers, the message backgrounds, the torso pan and throttle ranges, the map layouts' gauge functions and the unterminated BWD version, and two features both have that the Matrox edition doesn't (`ProjectPolygon`'s own near-plane clip, the sky and ground drawers' own clip); and the Matrox edition's texture filter, which its graphics page lists third, where the 3Dfx edition lists 800x600. The `MW2_ACCEL` features and the other sites that test `MW2_MATROX` or `MW2_3DFX` are still to check against it.
+- **Annotations** were ported from the 3Dfx original by bytes (`tools/port_annotations.py --from MW23DFX MW2_3DFX.DLL --to MW2ATI MW2_ATI.DLL`). Relocations are masked, so a function or global placed by bytes or pointers can be another one that differs only in what it addresses (the 3Dfx edition's 800x600 setting is the ATI edition's texture filter at the same place, its Glide back end the ATI edition's DirectDraw one): datacmp and `tools/check_imports.py` find them.
 
 ## Adding an edition
 
@@ -249,113 +256,131 @@ tests an `MW2_` macro the table doesn't define, and when no target compiles a br
 
 ## Features
 
-From the table in `util/types.h` (84 features) and the 890 conditional sites of the simulators' sources (`MW2/`, `common/`, `3rdparty/vfx`). A feature's cell is its value where it has one.
+From the table in `util/types.h` (87 features) and the 893 conditional sites of the simulators' sources (`MW2/`, `common/`, `3rdparty/vfx`). A feature's cell is its value where it has one.
 
-### The Matrox and 3Dfx editions (`MW2_ACCEL`)
+### The Matrox, 3Dfx and ATI editions (`MW2_ACCEL`)
 
 Every edition that has one of these has them all, so no binary separates one from another: which of them a site belongs to is a reading of what its code does.
 
-| Feature | 1.1 | Matrox | 3Dfx | Sites | What it does |
-|---|:-:|:-:|:-:|--:|---|
-| `MW2_FLOAT_SCALARS` |  | yes | yes | 348 | *Representation.* The simulation's 16.16 fixed-point values are floats (MechScalar, FIXED_*) |
-| `MW2_A3D` |  | yes | yes | 67 | The A3D renderer interface and its records: queued polygons, projected vertices, depth lists |
-| `MW2_VERTEX_SHADING` |  | yes | yes | 13 | Per-vertex shading for the renderer: WTB normals and colours, shaded projected vertices |
-| `MW2_VFX16` |  | yes | yes | 35 | The 2D drawing goes to the 16-bit port of VFXA |
-| `MW2_VFX_STOCK` |  | yes | yes | 8 | VFX as released (unaligned fills and runs, word-wise character copies), where 1.1 modified it; the assembly gets it from cmake/editions.cmake |
-| `MW2_VFX_LOOKASIDE_WRITE` |  | yes | yes | 2 | VFXA's VFX_lookaside_write, which sets one lookaside entry (cmake/editions.cmake) |
-| `MW2_LARGER_POLYGON_BUFFERS` |  | yes | yes | 1 | A larger draw buffer and polygon limit |
-| `MW2_NO_DISSOLVE` |  | yes | yes | 1 | StartPalettes blends through the display back end, without 1.1's pixel dissolve |
-| `MW2_DISPLAYDIB_DISABLED` |  | yes | yes | 1 | DispDibBegin always fails |
-| `MW2_REFRESH_MODE_RETRY` |  | yes | yes | 2 | InitRefreshMode tries a mode without checking it's available, and marks it |
-| `MW2_RAW_SCREENSHOTS` |  | yes | yes | 3 | Screenshots are the screen's raw 24-bit pixels (MW2NNNN.888), not GIFs |
-| `MW2_GRAPHICS_MENU` |  | yes | yes | 6 | The graphics page, in place of 1.1's monitor brightness page |
-| `MW2_REGISTRY_SETTINGS` |  | yes | yes | 2 | The sky, the ground and the renderer's settings are read from the registry |
-| `MW2_DEFAULT_DRAW_MODE` |  | yes | yes | 1 | The draw mode and its parameter start at 0 (1.1: -1 and 1) |
-| `MW2_HUD_ART` |  | yes | yes | 10 | The HUD art: its resolution chosen before the 512x384 override, and the shapes' numbering |
-| `MW2_HUD_SHAPE_IDS` |  | yes | yes | 6 | HUD shape resource ids 3 higher (the pause banner, the target panel, the nav icons) |
-| `MW2_SLIDER_SHAPES` |  | yes | yes | 1 | The menu sliders' shapes are 3 higher |
-| `MW2_MENU_BACKGROUND_0X118` |  | yes | yes | 1 | The main menu's background is shape 0x118, not 0x112 |
-| `MW2_PRJ_CEL_IDS` |  | yes | yes | 1 | The resource archive numbers the preloaded cels differently |
-| `MW2_BRIGHT_MAP_COLORS` |  | yes | yes | 3 | The maps' colours are other (brighter) palette entries |
-| `MW2_COCKPIT_POINT_ONLY` |  | yes | yes | 3 | The cockpit layout keeps only its point, and SetRes scales no gauge pane or point |
-| `MW2_UNRESOLVED_GAUGE_INDICES` |  | yes | yes | 2 | LoadCockpitLayout doesn't map the gauge indices to functions |
-| `MW2_DEBUG_OVERLAY_COLOR` |  | yes | yes | 1 | The debug overlays' text is colour 0x52, not 0x4f |
-| `MW2_NO_EYE_POSITION_OVERLAY` |  | yes | yes | 1 | No eye position overlay |
-| `MW2_NO_BOUNDING_SPHERES` |  | yes | yes | 1 | No debug drawing of the shapes' bounding spheres |
-| `MW2_INFRARED_OFF_FADE` |  | yes | yes | 1 | Turning infrared off fades back to the base palette |
-| `MW2_FADE_BACK_DURATION` |  | yes | yes | 1 | The palette's fade back takes the duration as its step count |
-| `MW2_TIME_OF_DAY_FADE_ONCE` |  | yes | yes | 1 | FadeToTimeOfDayPhase fades only while no phase is set |
-| `MW2_FACE_KIND_BIT15` |  | yes | yes | 3 | Bit 15 of a face's id is part of its kind, not a flag for MapFaceId's remap |
-| `MW2_WTB_NEGATED_NAMES` |  | yes | yes | 1 | LoadShapeRecord decodes negated shape names |
-| `MW2_MODEL_MIN_ONE_FACE` |  | yes | yes | 1 | AddModel allocates at least one face |
-| `MW2_GRID_CELL_XZ` |  | yes | yes | 5 | The grid object's anchor and cell keep only x and z |
-| `MW2_NO_PROJECTION_OFFSET` |  | yes | yes | 3 | The eyepoint has no projection offset |
-| `MW2_FRUSTUM_HEIGHT_SIGN_FROM_SIDE` |  | yes | yes | 1 | The vertical frustum limit takes its sign from the side distance |
-| `MW2_NO_RAY_BOX_ENTRY_BEHIND` |  | yes | yes | 1 | TestRayBox doesn't record whether the ray entered behind |
-| `MW2_AIMED_SHAPE_RESET` |  | yes | yes | 2 | DestroyObjShape clears the aimed shape when it destroys it |
-| `MW2_BUILDING_BOUNCE` |  | yes | yes | 1 | The bounce off buildings isn't negated, and is halved either way |
-| `MW2_COLLISION_DAMAGE_X2` |  | yes | yes | 1 | Damage from below scales by twice the mass ratio, not four times |
-| `MW2_RADIUS_HEAD_DAMAGE_HALF` |  | yes | yes | 1 | Radius (fire) damage to the head is half, not a quarter |
-| `MW2_NO_ENGINE_NOTE` |  | yes | yes | 1 | StartEngineNote returns at once |
-| `MW2_LEADER_NEAR_TARGET` |  | yes | yes | 3 | IsTeamNearTarget tests only the team's leader |
-| `MW2_LOCAL_STAR_FROM_ZERO` |  | yes | yes | 2 | The local star starts at 0, and the player's formation goes to it |
-| `MW2_NETWORK_STAR_PLAYERS` |  | yes | yes | 2 | UpdateObjective takes star N as player N in network games |
-| `MW2_RESTART_KEEPS_LISTED` |  | yes | yes | 1 | Restarting a star mission keeps its objectives' targets' listed flags |
-| `MW2_JOYSTICK_OPEN_POSEX` |  | yes | yes | 2 | JoystickOpenDevice probes with joyGetPosEx alone, on an uncleared JOYINFOEX |
-| `MW2_JOYINFOEX_UNCLEARED` |  | yes | yes | 1 | JoystickPoll neither clears its JOYINFOEX nor sets its size |
-| `MW2_AXIS_RATE_POINTER_TEST` |  | yes | yes | 1 | UpdateInputs compares an axis' rate pointer with its position's address |
-| `MW2_NO_FULLSCREEN_KEY` |  | yes | yes | 1 | Key code 0x40d no longer toggles full screen |
-| `MW2_LEMMY_CHEAT` |  | yes | yes | 1 | The "lemmy" cheat |
-| `MW2_NO_DORCS_CHEAT` |  | yes | yes | 1 | 1.1's "dorcs" cheat is gone |
-| `MW2_EXTRA_DEBUG_PRINTS` |  | yes | yes | 5 | Debug output both accelerated editions add |
+| Feature | 1.1 | Matrox | 3Dfx | ATI | Sites | What it does |
+|---|:-:|:-:|:-:|:-:|--:|---|
+| `MW2_FLOAT_SCALARS` |  | yes | yes | yes | 348 | *Representation.* The simulation's 16.16 fixed-point values are floats (MechScalar, FIXED_*) |
+| `MW2_A3D` |  | yes | yes | yes | 67 | The A3D renderer interface and its records: queued polygons, projected vertices, depth lists |
+| `MW2_VERTEX_SHADING` |  | yes | yes | yes | 13 | Per-vertex shading for the renderer: WTB normals and colours, shaded projected vertices |
+| `MW2_VFX16` |  | yes | yes | yes | 35 | The 2D drawing goes to the 16-bit port of VFXA |
+| `MW2_VFX_STOCK` |  | yes | yes | yes | 8 | VFX as released (unaligned fills and runs, word-wise character copies), where 1.1 modified it; the assembly gets it from cmake/editions.cmake |
+| `MW2_VFX_LOOKASIDE_WRITE` |  | yes | yes | yes | 2 | VFXA's VFX_lookaside_write, which sets one lookaside entry (cmake/editions.cmake) |
+| `MW2_LARGER_POLYGON_BUFFERS` |  | yes | yes | yes | 1 | A larger draw buffer and polygon limit |
+| `MW2_NO_DISSOLVE` |  | yes | yes | yes | 1 | StartPalettes blends through the display back end, without 1.1's pixel dissolve |
+| `MW2_DISPLAYDIB_DISABLED` |  | yes | yes | yes | 1 | DispDibBegin always fails |
+| `MW2_REFRESH_MODE_RETRY` |  | yes | yes | yes | 2 | InitRefreshMode tries a mode without checking it's available, and marks it |
+| `MW2_RAW_SCREENSHOTS` |  | yes | yes | yes | 3 | Screenshots are the screen's raw 24-bit pixels (MW2NNNN.888), not GIFs |
+| `MW2_GRAPHICS_MENU` |  | yes | yes | yes | 6 | The graphics page, in place of 1.1's monitor brightness page |
+| `MW2_REGISTRY_SETTINGS` |  | yes | yes | yes | 2 | The sky, the ground and the renderer's settings are read from the registry |
+| `MW2_DEFAULT_DRAW_MODE` |  | yes | yes | yes | 1 | The draw mode and its parameter start at 0 (1.1: -1 and 1) |
+| `MW2_HUD_ART` |  | yes | yes | yes | 10 | The HUD art: its resolution chosen before the 512x384 override, and the shapes' numbering |
+| `MW2_HUD_SHAPE_IDS` |  | yes | yes | yes | 6 | HUD shape resource ids 3 higher (the pause banner, the target panel, the nav icons) |
+| `MW2_SLIDER_SHAPES` |  | yes | yes | yes | 1 | The menu sliders' shapes are 3 higher |
+| `MW2_MENU_BACKGROUND_0X118` |  | yes | yes | yes | 1 | The main menu's background is shape 0x118, not 0x112 |
+| `MW2_PRJ_CEL_IDS` |  | yes | yes | yes | 1 | The resource archive numbers the preloaded cels differently |
+| `MW2_BRIGHT_MAP_COLORS` |  | yes | yes | yes | 3 | The maps' colours are other (brighter) palette entries |
+| `MW2_COCKPIT_POINT_ONLY` |  | yes | yes | yes | 3 | The cockpit layout keeps only its point, and SetRes scales no gauge pane or point |
+| `MW2_UNRESOLVED_GAUGE_INDICES` |  | yes | yes | yes | 2 | LoadCockpitLayout doesn't map the gauge indices to functions |
+| `MW2_DEBUG_OVERLAY_COLOR` |  | yes | yes | yes | 1 | The debug overlays' text is colour 0x52, not 0x4f |
+| `MW2_NO_EYE_POSITION_OVERLAY` |  | yes | yes | yes | 1 | No eye position overlay |
+| `MW2_NO_BOUNDING_SPHERES` |  | yes | yes | yes | 1 | No debug drawing of the shapes' bounding spheres |
+| `MW2_INFRARED_OFF_FADE` |  | yes | yes | yes | 1 | Turning infrared off fades back to the base palette |
+| `MW2_FADE_BACK_DURATION` |  | yes | yes | yes | 1 | The palette's fade back takes the duration as its step count |
+| `MW2_TIME_OF_DAY_FADE_ONCE` |  | yes | yes | yes | 1 | FadeToTimeOfDayPhase fades only while no phase is set |
+| `MW2_FACE_KIND_BIT15` |  | yes | yes | yes | 3 | Bit 15 of a face's id is part of its kind, not a flag for MapFaceId's remap |
+| `MW2_WTB_NEGATED_NAMES` |  | yes | yes | yes | 1 | LoadShapeRecord decodes negated shape names |
+| `MW2_MODEL_MIN_ONE_FACE` |  | yes | yes | yes | 1 | AddModel allocates at least one face |
+| `MW2_GRID_CELL_XZ` |  | yes | yes | yes | 5 | The grid object's anchor and cell keep only x and z |
+| `MW2_NO_PROJECTION_OFFSET` |  | yes | yes | yes | 3 | The eyepoint has no projection offset |
+| `MW2_FRUSTUM_HEIGHT_SIGN_FROM_SIDE` |  | yes | yes | yes | 1 | The vertical frustum limit takes its sign from the side distance |
+| `MW2_NO_RAY_BOX_ENTRY_BEHIND` |  | yes | yes | yes | 1 | TestRayBox doesn't record whether the ray entered behind |
+| `MW2_AIMED_SHAPE_RESET` |  | yes | yes | yes | 2 | DestroyObjShape clears the aimed shape when it destroys it |
+| `MW2_BUILDING_BOUNCE` |  | yes | yes | yes | 1 | The bounce off buildings isn't negated, and is halved either way |
+| `MW2_COLLISION_DAMAGE_X2` |  | yes | yes | yes | 1 | Damage from below scales by twice the mass ratio, not four times |
+| `MW2_RADIUS_HEAD_DAMAGE_HALF` |  | yes | yes | yes | 1 | Radius (fire) damage to the head is half, not a quarter |
+| `MW2_NO_ENGINE_NOTE` |  | yes | yes | yes | 1 | StartEngineNote returns at once |
+| `MW2_LEADER_NEAR_TARGET` |  | yes | yes | yes | 3 | IsTeamNearTarget tests only the team's leader |
+| `MW2_LOCAL_STAR_FROM_ZERO` |  | yes | yes | yes | 2 | The local star starts at 0, and the player's formation goes to it |
+| `MW2_NETWORK_STAR_PLAYERS` |  | yes | yes | yes | 2 | UpdateObjective takes star N as player N in network games |
+| `MW2_RESTART_KEEPS_LISTED` |  | yes | yes | yes | 1 | Restarting a star mission keeps its objectives' targets' listed flags |
+| `MW2_JOYSTICK_OPEN_POSEX` |  | yes | yes | yes | 2 | JoystickOpenDevice probes with joyGetPosEx alone, on an uncleared JOYINFOEX |
+| `MW2_JOYINFOEX_UNCLEARED` |  | yes | yes | yes | 1 | JoystickPoll neither clears its JOYINFOEX nor sets its size |
+| `MW2_AXIS_RATE_POINTER_TEST` |  | yes | yes | yes | 1 | UpdateInputs compares an axis' rate pointer with its position's address |
+| `MW2_NO_FULLSCREEN_KEY` |  | yes | yes | yes | 1 | Key code 0x40d no longer toggles full screen |
+| `MW2_LEMMY_CHEAT` |  | yes | yes | yes | 1 | The "lemmy" cheat |
+| `MW2_NO_DORCS_CHEAT` |  | yes | yes | yes | 1 | 1.1's "dorcs" cheat is gone |
+| `MW2_EXTRA_DEBUG_PRINTS` |  | yes | yes | yes | 5 | Debug output both accelerated editions add |
 
-### A value per edition: the Matrox and 3Dfx editions (`MW2_MATROX`, `MW2_3DFX`)
+### A value per edition: the Matrox, 3Dfx and ATI editions (`MW2_MATROX`, `MW2_3DFX`, `MW2_ATI`)
 
-| Feature | 1.1 | Matrox | 3Dfx | Sites | What it does |
-|---|:-:|:-:|:-:|--:|---|
-| `MW2_PIXEL_FORMAT` |  | 565 | 555 | 2 | The 16-bit pixels and the palette: RGB565 (Matrox); The 16-bit pixels and the palette: RGB555 (3Dfx) |
+| Feature | 1.1 | Matrox | 3Dfx | ATI | Sites | What it does |
+|---|:-:|:-:|:-:|:-:|--:|---|
+| `MW2_PIXEL_FORMAT` |  | 565 | 555 | 555 | 2 | The 16-bit pixels and the palette: RGB565 (Matrox); The 16-bit pixels and the palette: RGB555 (3Dfx); The 16-bit pixels and the palette: RGB555 (ATI) |
 
 ### The Matrox edition (`MW2_MATROX`)
 
-| Feature | 1.1 | Matrox | 3Dfx | Sites | What it does |
-|---|:-:|:-:|:-:|--:|---|
-| `MW2_KEY_COLOR` |  | yes |  | 48 | Key colour fills and 0xfffe wipes for the renderer's overlay, ClipRectToPane |
-| `MW2_VFXREND_CS_SEGMENT` |  | yes |  | 3 | VFXREND's polygon renderer reads its table through CS and leaves ES as it is (cmake/editions.cmake) |
-| `MW2_LOD_PAR` |  | yes |  | 11 | LOD.PAR's LOD_SCALE scales the detail scale |
-| `MW2_TEXTURE_FILTER` |  | yes |  | 7 | The "Filter" registry setting, passed to the renderer |
-| `MW2_DEPTH_ENTRY_TAG` |  | yes |  | 2 | A depth entry is 0xc bytes, a dword ahead of the polygon |
-| `MW2_RES_640X400` |  | yes |  | 1 | 640x400: SimMain sets it instead of SetGameResolution, and the art follows |
-| `MW2_DETAIL_LEVEL_IN_LOADER` |  | yes |  | 2 | LoadClassLevel records the player's detail level itself |
-| `MW2_SKIP_LOADED_LEVEL` |  | yes |  | 1 | LoadClassEntryShape returns early when the entry is loaded at the level |
-| `MW2_SHOT_DAMAGE_AFTER_RECORD` |  | yes |  | 2 | A shot's heat and damage are applied after RecordAttack |
-| `MW2_POWER_STATE_7_KEYS` |  | yes |  | 3 | Both power keys do nothing in power state 7, tested first (1.1: key 0x3e only) |
-| `MW2_JOYSTICK_AXIS_SUMS` |  | yes |  | 2 | JoystickPoll sums the axes between polls |
-| `MW2_FULLSCREEN_SAVES_MODE` |  | yes |  | 1 | ToggleFullScreen records the current mode as the fastest |
-| `MW2_MOUSE_PEEK_RETURNS` |  | yes |  | 1 | HandleMessages returns when its mouse-skipping PeekMessage finds nothing |
-| `MW2_STDCALL_TIMER_CALLBACK` |  | yes |  | 2 | SupAnimTimerCallback is __stdcall and takes the timer's argument |
-| `MW2_DEBUG_LOG_TEXT` |  | yes |  | 3 | The debug log's messages end in newlines, with prints of its own |
+| Feature | 1.1 | Matrox | 3Dfx | ATI | Sites | What it does |
+|---|:-:|:-:|:-:|:-:|--:|---|
+| `MW2_KEY_COLOR` |  | yes |  |  | 48 | Key colour fills and 0xfffe wipes for the renderer's overlay, ClipRectToPane |
+| `MW2_VFXREND_CS_SEGMENT` |  | yes |  |  | 3 | VFXREND's polygon renderer reads its table through CS and leaves ES as it is (cmake/editions.cmake) |
+| `MW2_LOD_PAR` |  | yes |  |  | 11 | LOD.PAR's LOD_SCALE scales the detail scale |
+| `MW2_DEPTH_ENTRY_TAG` |  | yes |  |  | 2 | A depth entry is 0xc bytes, a dword ahead of the polygon |
+| `MW2_RES_640X400` |  | yes |  |  | 1 | 640x400: SimMain sets it instead of SetGameResolution, and the art follows |
+| `MW2_DETAIL_LEVEL_IN_LOADER` |  | yes |  |  | 2 | LoadClassLevel records the player's detail level itself |
+| `MW2_SKIP_LOADED_LEVEL` |  | yes |  |  | 1 | LoadClassEntryShape returns early when the entry is loaded at the level |
+| `MW2_SHOT_DAMAGE_AFTER_RECORD` |  | yes |  |  | 2 | A shot's heat and damage are applied after RecordAttack |
+| `MW2_POWER_STATE_7_KEYS` |  | yes |  |  | 3 | Both power keys do nothing in power state 7, tested first (1.1: key 0x3e only) |
+| `MW2_JOYSTICK_AXIS_SUMS` |  | yes |  |  | 2 | JoystickPoll sums the axes between polls |
+| `MW2_FULLSCREEN_SAVES_MODE` |  | yes |  |  | 1 | ToggleFullScreen records the current mode as the fastest |
+| `MW2_MOUSE_PEEK_RETURNS` |  | yes |  |  | 1 | HandleMessages returns when its mouse-skipping PeekMessage finds nothing |
+| `MW2_STDCALL_TIMER_CALLBACK` |  | yes |  |  | 2 | SupAnimTimerCallback is __stdcall and takes the timer's argument |
+| `MW2_DEBUG_LOG_TEXT` |  | yes |  |  | 3 | The debug log's messages end in newlines, with prints of its own |
+
+### The Matrox and ATI editions (`MW2_MATROX`, `MW2_ATI`)
+
+| Feature | 1.1 | Matrox | 3Dfx | ATI | Sites | What it does |
+|---|:-:|:-:|:-:|:-:|--:|---|
+| `MW2_TEXTURE_FILTER` |  | yes |  | yes | 7 | The "Filter" registry setting, passed to the renderer |
 
 ### The 3Dfx edition (`MW2_3DFX`)
 
-| Feature | 1.1 | Matrox | 3Dfx | Sites | What it does |
-|---|:-:|:-:|:-:|--:|---|
-| `MW2_RES_800X600` |  |  | yes | 16 | The "Res800x600" setting: 800x600, the menus scaled, animation 0 tiled |
-| `MW2_ART_RESOLUTION_NEAREST` |  |  | yes | 1 | ChooseArtResolution takes the nearest of the three sizes |
-| `MW2_SKY_TILE_DEFAULTS` |  |  | yes | 2 | The sky and ground textures' tiling defaults: 4 x 0.8, and 20000 |
-| `MW2_SKY_DEFAULTS_AT_END` |  |  | yes | 1 | LoadSkyGroundSettings sets the defaults when skygnd.par has no line for the mission too |
-| `MW2_SKY_GROUND_COLORS` |  |  | yes | 1 | DrawSkyAndGround sets the sky and ground palette entries |
-| `MW2_SKY_GROUND_ALL_CASES` |  |  | yes | 1 | DrawSkyAndGround goes through the horizon's cases when it draws neither the sky nor the ground |
-| `MW2_MESSAGE_BACKGROUND_SHAPES` |  |  | yes | 1 | Message boxes' backgrounds are shape 0x4f, not 0x4c |
-| `MW2_OUTLINE_CLEARS_FLAGS` |  |  | yes | 1 | The wireframe outline clears flag bits 12, 14 and 15 |
-| `MW2_NARROW_TORSO_PAN` |  |  | yes | 1 | The torso pan's range is -90 to 90 |
-| `MW2_NO_REVERSE_THROTTLE` |  |  | yes | 1 | The throttle's range is 0 to 1024 |
-| `MW2_HIT_FEEDBACK_FLAG_CHECK` |  |  | yes | 1 | No hit feedback for the local player while its flag 2 is set |
-| `MW2_NET_RETURN_ZERO` |  |  | yes | 2 | FindSession and StopExternalIO return 0 where the others fall off the end |
-| `MW2_NO_NET_DEBUG_PRINTS` |  |  | yes | 3 | NetSend and NetReceive log nothing |
-| `MW2_NO_STATE_7_POWER_TEST` |  |  | yes | 1 | Key 0x3e asks for power down in power state 7 too, where 1.1 ignores it |
-| `MW2_LAYOUT_GAUGE_FUNCTIONS` |  |  | yes | 5 | The map layouts hold their gauge functions from the start, not indices in g_cockpitGauges |
-| `MW2_INLINE_HELPERS` |  |  | yes | 12 | *Artefact.* The edition's headers define FixedMul16, FixedDiv16, MulDiv64, HashName and DebugBreakpoint __inline (its /Ox expands them in every caller), and MemCopy and MemSet are C |
-| `MW2_DEBUG_LOG_FORMATS` |  |  | yes | 3 | The debug log's own formats (the sky's colours on one line, the armor and the jump thrust as %f) |
+| Feature | 1.1 | Matrox | 3Dfx | ATI | Sites | What it does |
+|---|:-:|:-:|:-:|:-:|--:|---|
+| `MW2_RES_800X600` |  |  | yes |  | 16 | The "Res800x600" setting: 800x600, the menus scaled, animation 0 tiled |
+| `MW2_ART_RESOLUTION_NEAREST` |  |  | yes |  | 1 | ChooseArtResolution takes the nearest of the three sizes |
+| `MW2_SKY_TILE_DEFAULTS` |  |  | yes |  | 2 | The sky and ground textures' tiling defaults: 4 x 0.8, and 20000 |
+| `MW2_SKY_DEFAULTS_AT_END` |  |  | yes |  | 1 | LoadSkyGroundSettings sets the defaults when skygnd.par has no line for the mission too |
+| `MW2_SKY_GROUND_COLORS` |  |  | yes |  | 1 | DrawSkyAndGround sets the sky and ground palette entries |
+| `MW2_SKY_GROUND_ALL_CASES` |  |  | yes |  | 1 | DrawSkyAndGround goes through the horizon's cases when it draws neither the sky nor the ground |
+| `MW2_OUTLINE_CLEARS_FLAGS` |  |  | yes |  | 1 | The wireframe outline clears flag bits 12, 14 and 15 |
+| `MW2_HIT_FEEDBACK_FLAG_CHECK` |  |  | yes |  | 1 | No hit feedback for the local player while its flag 2 is set |
+| `MW2_NET_RETURN_ZERO` |  |  | yes |  | 2 | FindSession and StopExternalIO return 0 where the others fall off the end |
+| `MW2_NO_NET_DEBUG_PRINTS` |  |  | yes |  | 3 | NetSend and NetReceive log nothing |
+| `MW2_NO_STATE_7_POWER_TEST` |  |  | yes |  | 1 | Key 0x3e asks for power down in power state 7 too, where 1.1 ignores it |
+| `MW2_DEBUG_LOG_FORMATS` |  |  | yes |  | 3 | The debug log's own formats (the sky's colours on one line, the armor and the jump thrust as %f) |
+
+### The 3Dfx and ATI editions (`MW2_3DFX`, `MW2_ATI`)
+
+| Feature | 1.1 | Matrox | 3Dfx | ATI | Sites | What it does |
+|---|:-:|:-:|:-:|:-:|--:|---|
+| `MW2_MESSAGE_BACKGROUND_SHAPES` |  |  | yes | yes | 1 | Message boxes' backgrounds are shape 0x4f, not 0x4c |
+| `MW2_NARROW_TORSO_PAN` |  |  | yes | yes | 1 | The torso pan's range is -90 to 90 |
+| `MW2_NO_REVERSE_THROTTLE` |  |  | yes | yes | 1 | The throttle's range is 0 to 1024 |
+| `MW2_LAYOUT_GAUGE_FUNCTIONS` |  |  | yes | yes | 5 | The map layouts hold their gauge functions from the start, not indices in g_cockpitGauges |
+| `MW2_INLINE_HELPERS` |  |  | yes | yes | 12 | *Artefact.* The edition's headers define FixedMul16, FixedDiv16, MulDiv64, HashName and DebugBreakpoint __inline (its /Ox expands them in every caller), and MemCopy and MemSet are C |
+| `MW2_PROJECT_NEAR_CLIP` |  |  | yes | yes | 1 | ProjectPolygon clips to the near plane itself, as 1.1's QueueFace does, not through the renderer |
+| `MW2_SKY_GROUND_CLIPPED_HELPERS` |  |  | yes | yes | 3 | The sky and ground drawers clip the polygon to the pane themselves: their callers draw it even when ProjectPolygon leaves no points |
+
+### The ATI edition (`MW2_ATI`)
+
+| Feature | 1.1 | Matrox | 3Dfx | ATI | Sites | What it does |
+|---|:-:|:-:|:-:|:-:|--:|---|
+| `MW2_TEXTURE_FILTER_ITEM` |  |  |  | yes | 1 | The graphics page lists the texture filter, third |
 
 ## Where each feature is tested
 
@@ -443,6 +468,9 @@ Every edition that has one of these has them all, so no binary separates one fro
 - `MW2_LAYOUT_GAUGE_FUNCTIONS`: `MW2/src/cockpitlayouts.c`: `g_largeMapLayout`, `g_satelliteLayout`, `g_smallMapLayout`, file scope; `MW2/src/targeting.c`: file scope
 - `MW2_INLINE_HELPERS`: `MW2/include/debugbreak.h`: the definition of `DebugBreakpoint`; `MW2/include/fixeddiv.h`: the definition of `FixedDiv16`; `MW2/include/fixedmul.h`: the definition of `FixedMul16`; `MW2/include/muldiv.h`: the definition of `MulDiv64`; `MW2/include/namehash.h`: the definition of `HashName`; `MW2/src/debugbreak.c`: the definition of `DebugBreakpoint`; `MW2/src/fixeddiv.c`: the definition of `FixedDiv16`; `MW2/src/fixedmul.c`: the definition of `FixedMul16`; `MW2/src/loadres.c`: `MemCopy`, `MemSet`; `MW2/src/muldiv.c`: the definition of `MulDiv64`; `MW2/src/namehash.c`: the definition of `HashName`
 - `MW2_DEBUG_LOG_FORMATS`: `MW2/src/mekfile.c`: `LoadMechConfig` (2); `MW2/src/polydraw.c`: `DrawSkyAndGround`
+- `MW2_PROJECT_NEAR_CLIP`: `MW2/src/accel/queueface.c`: `ProjectPolygon`
+- `MW2_SKY_GROUND_CLIPPED_HELPERS`: `MW2/src/polydraw.c`: `FUN_10068e33`, `FUN_10069172`, `FUN_100692db`
+- `MW2_TEXTURE_FILTER_ITEM`: `MW2/src/accel/graphicsmenu.c`: `g_graphicsPage`
 
 ## Functions with a definition per edition
 
@@ -450,13 +478,13 @@ Where an edition's version of a function differs in its control flow or in more 
 
 | Function | File | Selected by | Definitions |
 |---|---|---|---|
-| `ChooseArtResolution` | `MW2/src/setres.c` | `defined(MW2_ART_RESOLUTION_NEAREST)` | 3Dfx; 1.1 and Matrox |
-| `DrawSkyAndGround` | `MW2/src/polydraw.c` | `defined(MW2_A3D)` | Matrox and 3Dfx; 1.1 |
-| `JoystickPoll` | `MW2/src/joystick.c` | `defined(MW2_JOYSTICK_AXIS_SUMS)` | Matrox; 1.1 and 3Dfx |
-| `SetGameResolution` | `MW2/src/simmain.c` | `defined(MW2_RES_800X600)` | 3Dfx; 1.1 and Matrox |
-| `SimMain` | `MW2/src/simmain.c` | `defined(MW2_MATROX)` | Matrox; 3Dfx; 1.1 |
-| `SimWindowProc` | `MW2/src/simmain.c` | `defined(MW2_MATROX)` | Matrox; 3Dfx; 1.1 |
-| `UpdateMech` | `MW2/src/mechclass.c` | `defined(MW2_FLOAT_SCALARS)` | Matrox and 3Dfx; 1.1 |
+| `ChooseArtResolution` | `MW2/src/setres.c` | `defined(MW2_ART_RESOLUTION_NEAREST)` | 3Dfx; 1.1 and Matrox and ATI |
+| `DrawSkyAndGround` | `MW2/src/polydraw.c` | `defined(MW2_A3D)` | Matrox and 3Dfx and ATI; 1.1 |
+| `JoystickPoll` | `MW2/src/joystick.c` | `defined(MW2_JOYSTICK_AXIS_SUMS)` | Matrox; 1.1 and 3Dfx and ATI |
+| `SetGameResolution` | `MW2/src/simmain.c` | `defined(MW2_RES_800X600)` | 3Dfx; 1.1 and Matrox and ATI |
+| `SimMain` | `MW2/src/simmain.c` | `defined(MW2_MATROX)` | Matrox; 3Dfx; 1.1 and ATI |
+| `SimWindowProc` | `MW2/src/simmain.c` | `defined(MW2_MATROX)` | Matrox; 3Dfx; 1.1 and ATI |
+| `UpdateMech` | `MW2/src/mechclass.c` | `defined(MW2_FLOAT_SCALARS)` | Matrox and 3Dfx and ATI; 1.1 |
 
 ## Sites that test an edition
 
@@ -479,13 +507,20 @@ What tests `MW2_ACCEL`, `MW2_MATROX` or `MW2_3DFX` itself rather than a feature,
 - Data and declarations that differ (5): `MW2/include/accel/a3d.h`: file scope; `MW2/src/refreshmode.c`: `g_displayBackends`, `g_refreshModes`; `MW2/src/simmain.c`: file scope (2)
 - Includes (3): `MW2/src/refreshmode.c`: file scope; `MW2/src/simmain.c`: file scope (2)
 
-### `MW2_3DFX` (93 sites)
+### `MW2_3DFX` (89 sites)
 
-- In a function: the edition's back end, what the shared code does for it, or the same computation written another way (73): `MW2/src/accel/floatmath.c`: `InitSlopeTables` (2); `MW2/src/accel/queueface.c`: `ProjectPolygon`, `ProjectVertex` (2); `MW2/src/aiweapons.c`: `RunAIWeapons`; `MW2/src/animation.c`: `CalcAverageBitmapColors`, `DrawAnimatedPolygon`, `FUN_100519b0`, `FUN_10069591`; `MW2/src/brightnessmenu.c`: `RestoreBrightness`; `MW2/src/cockpit.c`: `FUN_100751a9`; `MW2/src/horizon.c`: `HorizonYAtX` (2); `MW2/src/hud.c`: `DrawObjectBrackets` (4), `DrawPlayerBrackets` (3); `MW2/src/loadres.c`: `LoadCachedResource` (2); `MW2/src/maneuvers.c`: `DodgeShot` (8), `InitializeManeuvers` (5); `MW2/src/mapview.c`: `BeginMapView`; `MW2/src/mechclass.c`: `LateUpdateMech` (3), `UpdateMech` (7); `MW2/src/mechcollision.c`: `MoveMechWithCollisions`; `MW2/src/mechdamage.c`: `ApplyDamageToMech`; `MW2/src/menucontrols.c`: `RunMenuStatus` (2); `MW2/src/mw2prj.c`: `CachePreloads`; `MW2/src/objectanim.c`: `ReelMotionTask`; `MW2/src/overlay.c`: `HideCacheInfo`; `MW2/src/pausebanner.c`: `HandleDebugKey`; `MW2/src/polydraw.c`: `DrawSkyAndGround`, `FUN_10068856`, `FUN_100688fe` (2), `FUN_100689f5`, `FUN_10068b57` (3), `FUN_10068e33`, `FUN_10069172`, `FUN_100692db`; `MW2/src/screenscale.c`: `GetEllipseNeedleAt` (2), `GetRectNeedleAt`; `MW2/src/shots.c`: `SpawnEffectEx`, `UpdateShot`; `MW2/src/view.c`: `UpdateProjection` (2)
+- In a function: the edition's back end, what the shared code does for it, or the same computation written another way (69): `MW2/src/accel/floatmath.c`: `InitSlopeTables` (2); `MW2/src/accel/queueface.c`: `ProjectVertex` (2); `MW2/src/aiweapons.c`: `RunAIWeapons`; `MW2/src/animation.c`: `CalcAverageBitmapColors`, `DrawAnimatedPolygon`, `FUN_100519b0`, `FUN_10069591`; `MW2/src/brightnessmenu.c`: `RestoreBrightness`; `MW2/src/cockpit.c`: `FUN_100751a9`; `MW2/src/horizon.c`: `HorizonYAtX` (2); `MW2/src/hud.c`: `DrawObjectBrackets` (4), `DrawPlayerBrackets` (3); `MW2/src/loadres.c`: `LoadCachedResource` (2); `MW2/src/maneuvers.c`: `DodgeShot` (8), `InitializeManeuvers` (5); `MW2/src/mapview.c`: `BeginMapView`; `MW2/src/mechclass.c`: `LateUpdateMech` (3), `UpdateMech` (7); `MW2/src/mechcollision.c`: `MoveMechWithCollisions`; `MW2/src/mechdamage.c`: `ApplyDamageToMech`; `MW2/src/menucontrols.c`: `RunMenuStatus` (2); `MW2/src/mw2prj.c`: `CachePreloads`; `MW2/src/objectanim.c`: `ReelMotionTask`; `MW2/src/overlay.c`: `HideCacheInfo`; `MW2/src/pausebanner.c`: `HandleDebugKey`; `MW2/src/polydraw.c`: `DrawSkyAndGround`, `FUN_10068856`, `FUN_100688fe` (2), `FUN_100689f5`, `FUN_10068b57` (3); `MW2/src/screenscale.c`: `GetEllipseNeedleAt` (2), `GetRectNeedleAt`; `MW2/src/shots.c`: `SpawnEffectEx`, `UpdateShot`; `MW2/src/view.c`: `UpdateProjection` (2)
 - An edition's own definition of a function, or functions only some editions' objects have (6): `MW2/src/animation.c`: the definition of `FUN_1002cfd0`, the definition of `FUN_1002d760`, the definition of `FUN_10051dfe`, the definitions of `FUN_10051c07`, `FUN_10051ea2`; `MW2/src/simmain.c`: the definition of `SimMain`, the definition of `SimWindowProc`
 - A fragment included at the position of the object that holds it (1): `MW2/src/targeting.c`: file scope
 - Data and declarations that differ (9): `MW2/include/accel/a3d.h`: file scope; `MW2/include/accel/a3dvertex.h`: file scope; `MW2/include/animation.h`: file scope; `MW2/include/missionobjective.h`: file scope; `MW2/src/animation.c`: file scope; `MW2/src/bwdkeywords.c`: file scope; `MW2/src/damagepanel.c`: file scope; `MW2/src/refreshmode.c`: `g_displayBackends`, `g_refreshModes`
 - Includes (2): `MW2/src/refreshmode.c`: file scope; `MW2/src/simmain.c`: file scope
 - Pragmas that reproduce a unit's flags (2): `MW2/src/accel/queueface.c`: file scope (2)
+
+### `MW2_ATI` (6 sites)
+
+- In a function: the edition's back end, what the shared code does for it, or the same computation written another way (1): `MW2/src/animation.c`: `DrawAnimatedPolygon`
+- An edition's own definition of a function, or functions only some editions' objects have (1): `MW2/src/animation.c`: the definitions of `FUN_10051c07`, `FUN_10051ea2`
+- A fragment included at the position of the object that holds it (1): `MW2/src/targeting.c`: file scope
+- Data and declarations that differ (3): `MW2/include/accel/a3d.h`: file scope; `MW2/include/animation.h`: file scope; `MW2/src/bwdkeywords.c`: file scope
 
 <!-- generated: end -->

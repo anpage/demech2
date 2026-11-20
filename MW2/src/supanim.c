@@ -23,21 +23,25 @@
 // GLOBAL: MW2 0x100a0150
 // GLOBAL: MW2MATROX 0x100a8650
 // GLOBAL: MW23DFX 0x1024a850
+// GLOBAL: MW2ATI 0x1017eca8
 HTIMER g_supAnimTimer = -1;
 
 // GLOBAL: MW2 0x100a0154
 // GLOBAL: MW2MATROX 0x100a8654
 // GLOBAL: MW23DFX 0x1024a854
+// GLOBAL: MW2ATI 0x1017ecac
 void* g_supAnimBackdrop = NULL;
 
 // GLOBAL: MW2 0x100a0158
 // GLOBAL: MW2MATROX 0x100a8658
 // GLOBAL: MW23DFX 0x1024a858
+// GLOBAL: MW2ATI 0x1017ecb0
 void* g_supAnimShape = NULL;
 
 // GLOBAL: MW2 0x100a015c
 // GLOBAL: MW2MATROX 0x100a865c
 // GLOBAL: MW23DFX 0x1024a85c
+// GLOBAL: MW2ATI 0x1017ecb4
 MechS32 g_supAnimFrameCount = 0;
 
 // The command line's overrides of the backdrop and dropship file names (ProcessCmdLineArgs).
@@ -45,17 +49,20 @@ MechS32 g_supAnimFrameCount = 0;
 // GLOBAL: MW2 0x100a0160
 // GLOBAL: MW2MATROX 0x100a8660
 // GLOBAL: MW23DFX 0x1024a860
+// GLOBAL: MW2ATI 0x1017ecb8
 MechChar* g_supAnimBackdropName = NULL;
 
 // GLOBAL: MW2 0x100a0164
 // GLOBAL: MW2MATROX 0x100a8664
 // GLOBAL: MW23DFX 0x1024a864
+// GLOBAL: MW2ATI 0x1017ecbc
 MechChar* g_supAnimShapeName = NULL;
 
 // The first 16 palette entries in single player.
 // GLOBAL: MW2 0x100a0168
 // GLOBAL: MW2MATROX 0x100a8668
 // GLOBAL: MW23DFX 0x1024a868
+// GLOBAL: MW2ATI 0x1017ecc0
 PaletteColor g_supAnimPalette[16] = {
 	{0x00, 0x00, 0x00},
 	{0x33, 0x34, 0x36},
@@ -78,26 +85,31 @@ PaletteColor g_supAnimPalette[16] = {
 // GLOBAL: MW2 0x100a0198
 // GLOBAL: MW2MATROX 0x100a8698
 // GLOBAL: MW23DFX 0x1024a898
+// GLOBAL: MW2ATI 0x1017ecf0
 MechS32 g_supAnimFrame = 0;
 
 // GLOBAL: MW2 0x100bcd50
 // GLOBAL: MW2MATROX 0x100c2068
 // GLOBAL: MW23DFX 0x1007b058
+// GLOBAL: MW2ATI 0x10070058
 MechS32 g_supAnimY;
 
 // GLOBAL: MW2 0x100bcd54
 // GLOBAL: MW2MATROX 0x100c2064
 // GLOBAL: MW23DFX 0x1007b054
+// GLOBAL: MW2ATI 0x10070054
 MechS32 g_supAnimX;
 
 // GLOBAL: MW2 0x100bcd58
 // GLOBAL: MW2MATROX 0x100c2038
 // GLOBAL: MW23DFX 0x1007b028
+// GLOBAL: MW2ATI 0x10070028
 PANE g_supAnimTarget;
 
 // GLOBAL: MW2 0x100bcd70
 // GLOBAL: MW2MATROX 0x100c2050
 // GLOBAL: MW23DFX 0x1007b040
+// GLOBAL: MW2ATI 0x10070040
 WINDOW g_supAnimBuffer;
 
 #ifdef MW2_STDCALL_TIMER_CALLBACK
@@ -113,6 +125,7 @@ void SupAnimTimerCallback(void);
 // FUNCTION: MW2 0x10003a70
 // FUNCTION: MW2MATROX 0x1004a510
 // FUNCTION: MW23DFX 0x100073b0
+// FUNCTION: MW2ATI 0x10007d10
 void StartSupAnim(MechS32 p_slowFade)
 {
 	MechChar backdropPath[256];
@@ -223,6 +236,7 @@ void StartSupAnim(MechS32 p_slowFade)
 // FUNCTION: MW2 0x10003f3d
 // FUNCTION: MW2MATROX 0x1004a9b0
 // FUNCTION: MW23DFX 0x10007730
+// FUNCTION: MW2ATI 0x10008090
 #ifdef MW2_STDCALL_TIMER_CALLBACK
 // The Matrox edition's pops the timer's argument (AIL's callbacks are __stdcall); the 3Dfx
 // edition's is 1.1's.
@@ -252,6 +266,7 @@ void SupAnimTimerCallback(void)
 // FUNCTION: MW2 0x10004031
 // FUNCTION: MW2MATROX 0x1004aaa6
 // FUNCTION: MW23DFX 0x10007800
+// FUNCTION: MW2ATI 0x10008160
 void StopSupAnim(void)
 {
 	if (g_supAnimTimer != -1) {

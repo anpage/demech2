@@ -39,6 +39,7 @@
 // GLOBAL: MW2 0x100a5c78
 // GLOBAL: MW2MATROX 0x100ac6a8
 // GLOBAL: MW23DFX 0x1024c5c0
+// GLOBAL: MW2ATI 0x10180940
 MechS32 g_outlinePartSections[16] = {1, 3, 3, 2, 2, 4, 4, 5, 5, 6, 6, 7, 7, 8, 8, 0};
 
 // The Matrox edition keeps the full armor values as floats.
@@ -57,33 +58,39 @@ typedef struct ArmorPoint {
 // GLOBAL: MW2 0x100a5cb8
 // GLOBAL: MW2MATROX 0x100ac6e8
 // GLOBAL: MW23DFX 0x1024c600
+// GLOBAL: MW2ATI 0x10180980
 Point g_htalLabelHPosition = {0x1e1e, 0x199a};
 
 // GLOBAL: MW2 0x100a5cc0
 // GLOBAL: MW2MATROX 0x100ac6f0
 // GLOBAL: MW23DFX 0x1024c608
+// GLOBAL: MW2ATI 0x10180988
 Point g_htalLabelTPosition = {0x5050, 0x199a};
 
 // GLOBAL: MW2 0x100a5cc8
 // GLOBAL: MW2MATROX 0x100ac6f8
 // GLOBAL: MW23DFX 0x1024c610
+// GLOBAL: MW2ATI 0x10180990
 Point g_htalLabelAPosition = {0x9697, 0x199a};
 
 // GLOBAL: MW2 0x100a5cd0
 // GLOBAL: MW2MATROX 0x100ac700
 // GLOBAL: MW23DFX 0x1024c618
+// GLOBAL: MW2ATI 0x10180998
 Point g_htalLabelLPosition = {0xd2d3, 0x199a};
 
 // The largest armor value of the local mech's sections.
 // GLOBAL: MW2 0x100a5cd8
 // GLOBAL: MW2MATROX 0x100ac708
 // GLOBAL: MW23DFX 0x1024c620
+// GLOBAL: MW2ATI 0x101809a0
 MechScalar g_maxSectionArmor = 0;
 
 // The outline's rectangle, centered in the panel.
 // GLOBAL: MW2 0x100a5ce0
 // GLOBAL: MW2MATROX 0x100ac710
 // GLOBAL: MW23DFX 0x1024c628
+// GLOBAL: MW2ATI 0x101809a8
 PANE g_outlineRect = {NULL, 0, 0, 0, 0};
 
 // The outline's sixteen parts: rectangles in the outline shape's pixels (LoadHudFile reads them)
@@ -91,18 +98,21 @@ PANE g_outlineRect = {NULL, 0, 0, 0, 0};
 // GLOBAL: MW2 0x100a5cf8
 // GLOBAL: MW2MATROX 0x100ac728
 // GLOBAL: MW23DFX 0x1024c640
+// GLOBAL: MW2ATI 0x101809c0
 PANE g_outlinePartRects[16] = {0};
 
 // Where each part's shape is drawn from, relative to its rectangle.
 // GLOBAL: MW2 0x100a5e38
 // GLOBAL: MW2MATROX 0x100ac868
 // GLOBAL: MW23DFX 0x1024c780
+// GLOBAL: MW2ATI 0x10180b00
 Point g_outlinePartOffsets[16] = {0};
 
 // Frames the outline's parts (OutlinePane) when set.
 // GLOBAL: MW2 0x100a5eb8
 // GLOBAL: MW2MATROX 0x100ac8e8
 // GLOBAL: MW23DFX 0x1024c800
+// GLOBAL: MW2ATI 0x10180b80
 MechS32 g_frameOutlineParts = 0;
 
 // The armor bars' labels.
@@ -110,33 +120,39 @@ MechS32 g_frameOutlineParts = 0;
 // GLOBAL: MW2 0x100a5ebc
 // GLOBAL: MW2MATROX 0x100ac8ec
 // GLOBAL: MW23DFX 0x1024c808
+// GLOBAL: MW2ATI 0x10180b88
 MechChar g_htalLabelH[4] = "H";
 
 // GLOBAL: MW2 0x100a5ec0
 // GLOBAL: MW2MATROX 0x100ac8f0
 // GLOBAL: MW23DFX 0x1024c80c
+// GLOBAL: MW2ATI 0x10180b8c
 MechChar g_htalLabelT[4] = "T";
 
 // GLOBAL: MW2 0x100a5ec4
 // GLOBAL: MW2MATROX 0x100ac8f4
 // GLOBAL: MW23DFX 0x1024c810
+// GLOBAL: MW2ATI 0x10180b90
 MechChar g_htalLabelA[4] = "A";
 
 // GLOBAL: MW2 0x100a5ec8
 // GLOBAL: MW2MATROX 0x100ac8f8
 // GLOBAL: MW23DFX 0x1024c814
+// GLOBAL: MW2ATI 0x10180b94
 MechChar g_htalLabelL[4] = "L";
 
 // The armor bars' places, one per section (m_x the bar's left, m_y its bottom).
 // GLOBAL: MW2 0x100be418
 // GLOBAL: MW2MATROX 0x100c25f8
 // GLOBAL: MW23DFX 0x1007c340
+// GLOBAL: MW2ATI 0x10071340
 Point g_armorBarPositions[8];
 
 // Each section's full front and rear armor.
 // GLOBAL: MW2 0x100be458
 // GLOBAL: MW2MATROX 0x100c2640
 // GLOBAL: MW23DFX 0x1007c388
+// GLOBAL: MW2ATI 0x10071388
 ArmorPoint g_fullSectionArmor[8];
 
 // The remap table that colors an outline part (entry 6) by its damage.
@@ -147,6 +163,7 @@ MechU8 g_outlineRemap[0x100];
 // GLOBAL: MW2 0x100be598
 // GLOBAL: MW2MATROX 0x100c2638
 // GLOBAL: MW23DFX 0x1007c380
+// GLOBAL: MW2ATI 0x10071380
 Point g_armorBarSize;
 
 // Sets up the damage panel: the identity remap table, the outline's rectangle and parts, the
@@ -154,6 +171,7 @@ Point g_armorBarSize;
 // FUNCTION: MW2 0x10040020
 // FUNCTION: MW2MATROX 0x10059940
 // FUNCTION: MW23DFX 0x1001b230
+// FUNCTION: MW2ATI 0x1001b5c0
 void InitDamagePanel(void)
 {
 	MechS32 color;
@@ -266,6 +284,7 @@ void InitDamagePanel(void)
 // FUNCTION: MW2 0x10040511
 // FUNCTION: MW2MATROX 0x10059e60
 // FUNCTION: MW23DFX 0x1001b620
+// FUNCTION: MW2ATI 0x1001b9b0
 void DrawDamageOutline(Mech* p_mech, PANE* p_target)
 {
 	MechS32 rear;
@@ -376,6 +395,7 @@ void DrawDamageOutline(Mech* p_mech, PANE* p_target)
 // FUNCTION: MW2 0x100407b6
 // FUNCTION: MW2MATROX 0x1005a18b
 // FUNCTION: MW23DFX 0x1001b890
+// FUNCTION: MW2ATI 0x1001bc20
 void DrawArmorBars(Mech* p_mech, PANE* p_target)
 {
 	MechScalar full;

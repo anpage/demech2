@@ -22,11 +22,13 @@ PrjAllocFn g_prjAlloc = NULL;
 // GLOBAL: MW2 0x100ae738
 // GLOBAL: MW2MATROX 0x100a4584
 // GLOBAL: MW23DFX 0x10259900
+// GLOBAL: MW2ATI 0x1018dc00
 PrjFreeFn g_prjFree = NULL;
 
 // GLOBAL: MW2 0x100c3120
 // GLOBAL: MW2MATROX 0x102157d0
 // GLOBAL: MW23DFX 0x10159c50
+// GLOBAL: MW2ATI 0x1008dc50
 PrjFile g_prjFiles[1];
 
 // FUNCTION: MW2 0x10071ad0
@@ -111,6 +113,7 @@ MechS32 ReadPrjBytes(MechS32 p_fd, void* p_buffer, MechU32 p_length)
 // FUNCTION: MW2 0x10071c1c
 // FUNCTION: MW2MATROX 0x1000c25c
 // FUNCTION: MW23DFX 0x1003d160
+// FUNCTION: MW2ATI 0x1003b0d0
 MechS32 OpenPrjFile(const MechChar* p_name, MechChar p_mode)
 {
 	MechChar tag[12];
@@ -187,6 +190,7 @@ MechS32 OpenPrjFile(const MechChar* p_name, MechChar p_mode)
 // FUNCTION: MW2 0x10071f09
 // FUNCTION: MW2MATROX 0x1000c549
 // FUNCTION: MW23DFX 0x1003d370
+// FUNCTION: MW2ATI 0x1003b2e0
 MechS32 ClosePrjFile(MechS32 p_file)
 {
 	MechU16 i;
@@ -214,6 +218,7 @@ MechS32 ClosePrjFile(MechS32 p_file)
 // FUNCTION: MW2 0x100720b7
 // FUNCTION: MW2MATROX 0x1000c6f7
 // FUNCTION: MW23DFX 0x1003d410
+// FUNCTION: MW2ATI 0x1003b380
 MechU16 FindPrjType(MechS32 p_file, const MechChar* p_type)
 {
 	MechS8 found;
@@ -246,6 +251,7 @@ MechU16 FindPrjType(MechS32 p_file, const MechChar* p_type)
 // FUNCTION: MW2 0x1007218f
 // FUNCTION: MW2MATROX 0x1000c7cf
 // FUNCTION: MW23DFX 0x1003d4a0
+// FUNCTION: MW2ATI 0x1003b410
 MechS32 LoadPrjIndexes(MechS32 p_file)
 {
 	PrjType* types;
@@ -280,6 +286,7 @@ MechS32 LoadPrjIndexes(MechS32 p_file)
 // FUNCTION: MW2 0x100722f5
 // FUNCTION: MW2MATROX 0x1000c935
 // FUNCTION: MW23DFX 0x1003d580
+// FUNCTION: MW2ATI 0x1003b4f0
 MechS32 GetPrjResourceSize(MechS32 p_file, const MechChar* p_type, MechU16 p_id)
 {
 	PrjIndexEntry* entries;
@@ -358,6 +365,7 @@ MechS32 ReadPrjAt(void* p_buffer, MechS32 p_file, MechS32 p_offset, MechU32 p_le
 // FUNCTION: MW2 0x100725ae
 // FUNCTION: MW2MATROX 0x1000cbee
 // FUNCTION: MW23DFX 0x1003d720
+// FUNCTION: MW2ATI 0x1003b590
 MechS32 ReadPrjResource(MechS32 p_file, const MechChar* p_type, MechU16 p_id, void* p_buffer)
 {
 	PrjIndexEntry* entries;

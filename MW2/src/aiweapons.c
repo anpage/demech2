@@ -24,6 +24,7 @@
 // FUNCTION: MW2 0x1004b5a0
 // FUNCTION: MW2MATROX 0x1007a850
 // FUNCTION: MW23DFX 0x100231a0
+// FUNCTION: MW2ATI 0x10023460
 MechS32 RunAIWeapons(Player* p_player, MechScalar p_heading)
 {
 	MechS32 fired;

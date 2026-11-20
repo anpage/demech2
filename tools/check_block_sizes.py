@@ -78,6 +78,7 @@ EDITION_DEFINES = {
     "accel": ["MW2_ACCEL", "MW2_MATROX"],
     "matrox": ["MW2_ACCEL", "MW2_MATROX"],
     "3dfx": ["MW2_ACCEL", "MW2_3DFX"],
+    "ati": ["MW2_ACCEL", "MW2_ATI"],
 }
 
 COMMON_DEFINES = ["WIN32", "_WINDOWS"]

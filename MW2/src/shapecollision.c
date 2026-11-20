@@ -22,6 +22,7 @@ MechS32 g_rayBoxEntryBehind = 0;
 // FUNCTION: MW2 0x100699a0
 // FUNCTION: MW2MATROX 0x10052170
 // FUNCTION: MW23DFX 0x1000d1b0
+// FUNCTION: MW2ATI 0x1000d920
 MechS32 TestPointInBox(Shape* p_shape, MechScalar p_x, MechScalar p_y, MechScalar p_z)
 {
 	MechS32 inColumn;
@@ -37,6 +38,7 @@ MechS32 TestPointInBox(Shape* p_shape, MechScalar p_x, MechScalar p_y, MechScala
 // FUNCTION: MW2 0x100699da
 // FUNCTION: MW2MATROX 0x100521aa
 // FUNCTION: MW23DFX 0x1000d1f0
+// FUNCTION: MW2ATI 0x1000d960
 MechS32 GetBoxTop(Shape* p_shape, MechScalar p_x, MechScalar p_y, MechScalar p_z, MechScalar* p_top)
 {
 	MechScalar top;
@@ -59,6 +61,7 @@ MechS32 GetBoxTop(Shape* p_shape, MechScalar p_x, MechScalar p_y, MechScalar p_z
 // FUNCTION: MW2 0x10069a4b
 // FUNCTION: MW2MATROX 0x1005221b
 // FUNCTION: MW23DFX 0x1000d250
+// FUNCTION: MW2ATI 0x1000d9c0
 void ClassifyPointInBox(
 	Shape* p_shape,
 	MechScalar p_x,
@@ -98,6 +101,7 @@ void ClassifyPointInBox(
 // FUNCTION: MW2 0x10069b2a
 // FUNCTION: MW2MATROX 0x10052318
 // FUNCTION: MW23DFX 0x1000d310
+// FUNCTION: MW2ATI 0x1000da80
 MechS32 TestRayBox(Shape* p_shape, Ray* p_ray)
 {
 	MechS32 axis;
@@ -200,6 +204,7 @@ MechS32 TestRayBox(Shape* p_shape, Ray* p_ray)
 // FUNCTION: MW2 0x10069dd4
 // FUNCTION: MW2MATROX 0x10052602
 // FUNCTION: MW23DFX 0x1000d520
+// FUNCTION: MW2ATI 0x1000dc90
 MechS32 TestPointInBoxColumn(Shape* p_shape, MechScalar p_x, MechScalar p_y, MechScalar p_z)
 {
 	BoundBox* box;
@@ -216,6 +221,7 @@ MechS32 TestPointInBoxColumn(Shape* p_shape, MechScalar p_x, MechScalar p_y, Mec
 // FUNCTION: MW2 0x10069e54
 // FUNCTION: MW2MATROX 0x10052696
 // FUNCTION: MW23DFX 0x1000d580
+// FUNCTION: MW2ATI 0x1000dcf0
 MechS32 TestPointNever(Shape* p_shape, MechScalar p_x, MechScalar p_y, MechScalar p_z)
 {
 	return 0;
@@ -224,6 +230,7 @@ MechS32 TestPointNever(Shape* p_shape, MechScalar p_x, MechScalar p_y, MechScala
 // FUNCTION: MW2 0x10069e66
 // FUNCTION: MW2MATROX 0x100526a8
 // FUNCTION: MW23DFX 0x1000d590
+// FUNCTION: MW2ATI 0x1000dd00
 MechS32 TestRayNever(Shape* p_shape, Ray* p_ray)
 {
 	return 0;
@@ -233,6 +240,7 @@ MechS32 TestRayNever(Shape* p_shape, Ray* p_ray)
 // FUNCTION: MW2 0x10069e78
 // FUNCTION: MW2MATROX 0x100526ba
 // FUNCTION: MW23DFX 0x1000d5a0
+// FUNCTION: MW2ATI 0x1000dd10
 MechS32 TestPointUnderFloor(Shape* p_shape, MechScalar p_x, MechScalar p_y, MechScalar p_z)
 {
 	MechS32 i;
@@ -267,6 +275,7 @@ MechS32 TestPointUnderFloor(Shape* p_shape, MechScalar p_x, MechScalar p_y, Mech
 // FUNCTION: MW2 0x10069f67
 // FUNCTION: MW2MATROX 0x100527b3
 // FUNCTION: MW23DFX 0x1000d640
+// FUNCTION: MW2ATI 0x1000ddb0
 MechS32 TestPointTerrain(Shape* p_shape, MechScalar p_x, MechScalar p_y, MechScalar p_z)
 {
 	Model* model;
@@ -283,6 +292,7 @@ MechS32 TestPointTerrain(Shape* p_shape, MechScalar p_x, MechScalar p_y, MechSca
 // FUNCTION: MW2 0x10069fd4
 // FUNCTION: MW2MATROX 0x10052820
 // FUNCTION: MW23DFX 0x1000d680
+// FUNCTION: MW2ATI 0x1000ddf0
 MechS32 TestRayTerrain(Shape* p_shape, Ray* p_ray)
 {
 	return TestQuadtreeRay(p_shape->m_collisionData, p_shape->m_models, p_ray) & 1;
@@ -291,6 +301,7 @@ MechS32 TestRayTerrain(Shape* p_shape, Ray* p_ray)
 // FUNCTION: MW2 0x1006a001
 // FUNCTION: MW2MATROX 0x1005284d
 // FUNCTION: MW23DFX 0x1000d690
+// FUNCTION: MW2ATI 0x1000de00
 MechS32 GetTerrainShapeTop(Shape* p_shape, MechScalar p_x, MechScalar p_y, MechScalar p_z, MechScalar* p_top)
 {
 	return GetQuadtreeTop(p_shape->m_collisionData, p_shape->m_models, p_x, p_y, p_z, p_top);
@@ -300,6 +311,7 @@ MechS32 GetTerrainShapeTop(Shape* p_shape, MechScalar p_x, MechScalar p_y, MechS
 // FUNCTION: MW2 0x1006a037
 // FUNCTION: MW2MATROX 0x10052883
 // FUNCTION: MW23DFX 0x1000d6b0
+// FUNCTION: MW2ATI 0x1000de20
 MechS32 TestPointAboveFaces(Shape* p_shape, MechScalar p_x, MechScalar p_y, MechScalar p_z)
 {
 	MechS32 i;
@@ -360,6 +372,7 @@ MechS32 TestPointAboveFaces(Shape* p_shape, MechScalar p_x, MechScalar p_y, Mech
 // FUNCTION: MW2 0x1006a190
 // FUNCTION: MW2MATROX 0x100529df
 // FUNCTION: MW23DFX 0x1000d7b0
+// FUNCTION: MW2ATI 0x1000df20
 MechS32 TestRayFaces(Shape* p_shape, Ray* p_ray)
 {
 	Model* model;

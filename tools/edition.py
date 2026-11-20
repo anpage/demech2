@@ -24,8 +24,9 @@ comparisons and of commutative operations. Run it from the repository root.
 Options: --build DIR (default build-wine): the Matrox edition's rebuild is DIR/vc40/MW2_MATROX.dll and
 its map. The cache is DIR/edition-MW2MATROX.json.
 
---target MW23DFX works on the 3Dfx edition instead (tools/edition_3dfx.py): state, report, cmp,
-auto, annotate, fix-order and audit, against the rebuild in DIR/vc22, and
+--target MW23DFX works on the 3Dfx edition instead, --target MW2ATI on the ATI edition
+(tools/edition_3dfx.py): state, report, cmp, auto, annotate, fix-order and audit, against the
+rebuild in DIR/vc22, and
 
     python tools/edition.py --target MW23DFX unpaired   # the original's functions nothing paired
     python tools/edition.py --target MW23DFX functions  # count the functions, list the unannotated
@@ -626,7 +627,7 @@ def cmd_scalar_locals(args):
 def main():
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     parser.add_argument("--build", default="build-wine")
-    parser.add_argument("--target", choices=["MW2MATROX", "MW23DFX"], default="MW2MATROX")
+    parser.add_argument("--target", choices=["MW2MATROX", "MW23DFX", "MW2ATI"], default="MW2MATROX")
     sub = parser.add_subparsers(dest="command", required=True)
     sub.add_parser("state").set_defaults(fn=cmd_state)
     p = sub.add_parser("report")
@@ -639,7 +640,7 @@ def main():
     p.set_defaults(fn=cmd_cmp)
     p = sub.add_parser("auto")
     p.add_argument("--unit")
-    p.add_argument("--registers", action="store_true", help="MW23DFX: also annotate register-only differences")
+    p.add_argument("--registers", action="store_true", help="MW23DFX, MW2ATI: also annotate register-only differences")
     p.set_defaults(fn=cmd_auto)
     sub.add_parser("fix-order").set_defaults(fn=cmd_fix_order)
     sub.add_parser("crt").set_defaults(fn=cmd_crt)
@@ -677,11 +678,12 @@ def main():
     p.add_argument("--write", action="store_true")
     p.set_defaults(fn=None)
     args = parser.parse_args()
-    if args.target == "MW23DFX":
+    if args.target in ("MW23DFX", "MW2ATI"):
         import edition_3dfx
 
         global TARGET
-        TARGET = "MW23DFX"
+        TARGET = args.target
+        edition_3dfx.configure(args.target)
         if args.command == "global":
             return cmd_global(args)
         if args.command == "audit":
@@ -689,10 +691,10 @@ def main():
             return cmd_audit(args)
         fn = getattr(edition_3dfx, "cmd_" + args.command.replace("-", "_"), None)
         if fn is None:
-            sys.exit("%s isn't available for MW23DFX" % args.command)
+            sys.exit("%s isn't available for %s" % (args.command, args.target))
         return fn(args)
     if args.fn is None:
-        sys.exit("%s is for --target MW23DFX" % args.command)
+        sys.exit("%s is for --target MW23DFX or MW2ATI" % args.command)
     args.code_end = getattr(args, "code_end", None) or 0x10092D30
     args.fn(args)
 

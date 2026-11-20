@@ -32,116 +32,139 @@ void ChooseJoystickMapName(InputDeviceInfo* p_info, JOYCAPS* p_caps);
 // GLOBAL: MW2 0x100a6e08
 // GLOBAL: MW2MATROX 0x100a5608
 // GLOBAL: MW23DFX 0x102590d0
+// GLOBAL: MW2ATI 0x1018d3e0
 MechChar g_downUpAxisName[] = "Down/Up Movement";
 
 // GLOBAL: MW2 0x100a6e20
 // GLOBAL: MW2MATROX 0x100a5620
 // GLOBAL: MW23DFX 0x102590e8
+// GLOBAL: MW2ATI 0x1018d3f8
 MechChar g_leftRightAxisName[] = "Left/Right Movement";
 
 // GLOBAL: MW2 0x100a6e38
 // GLOBAL: MW2MATROX 0x100a5638
 // GLOBAL: MW23DFX 0x10259100
+// GLOBAL: MW2ATI 0x1018d410
 MechChar g_throttleAxisName[] = "Throttle Control";
 
 // GLOBAL: MW2 0x100a6e50
 // GLOBAL: MW2MATROX 0x100a5650
 // GLOBAL: MW23DFX 0x10259118
+// GLOBAL: MW2ATI 0x1018d428
 MechChar g_rudderAxisName[] = "Rudder Movement";
 
 // GLOBAL: MW2 0x100a6e60
 // GLOBAL: MW2MATROX 0x100a5660
 // GLOBAL: MW23DFX 0x10259128
+// GLOBAL: MW2ATI 0x1018d438
 MechChar g_fifthAxisName[] = "5th axis Movement";
 
 // GLOBAL: MW2 0x100a6e78
 // GLOBAL: MW2MATROX 0x100a5678
 // GLOBAL: MW23DFX 0x10259140
+// GLOBAL: MW2ATI 0x1018d450
 MechChar g_sixthAxisName[] = "6th axis Movement";
 
 // GLOBAL: MW2 0x100a6e90
 // GLOBAL: MW2MATROX 0x100a5690
 // GLOBAL: MW23DFX 0x10259158
+// GLOBAL: MW2ATI 0x1018d468
 MechChar g_downUpAxisShortName[] = "Down/Up";
 
 // GLOBAL: MW2 0x100a6e98
 // GLOBAL: MW2MATROX 0x100a5698
 // GLOBAL: MW23DFX 0x10259160
+// GLOBAL: MW2ATI 0x1018d470
 MechChar g_leftRightAxisShortName[] = "Left/Right";
 
 // GLOBAL: MW2 0x100a6ea8
 // GLOBAL: MW2MATROX 0x100a56a8
 // GLOBAL: MW23DFX 0x10259170
+// GLOBAL: MW2ATI 0x1018d480
 MechChar g_throttleAxisShortName[] = "Throttle";
 
 // GLOBAL: MW2 0x100a6eb8
 // GLOBAL: MW2MATROX 0x100a56b8
 // GLOBAL: MW23DFX 0x10259180
+// GLOBAL: MW2ATI 0x1018d490
 MechChar g_rudderAxisShortName[] = "Rudder";
 
 // GLOBAL: MW2 0x100a6ec0
 // GLOBAL: MW2MATROX 0x100a56c0
 // GLOBAL: MW23DFX 0x10259188
+// GLOBAL: MW2ATI 0x1018d498
 MechChar g_fifthAxisShortName[] = "5thAxis";
 
 // GLOBAL: MW2 0x100a6ec8
 // GLOBAL: MW2MATROX 0x100a56c8
 // GLOBAL: MW23DFX 0x10259190
+// GLOBAL: MW2ATI 0x1018d4a0
 MechChar g_sixthAxisShortName[] = "6thAxis";
 
 // GLOBAL: MW2 0x100a6ed0
 // GLOBAL: MW2MATROX 0x100a56d0
 // GLOBAL: MW23DFX 0x10259198
+// GLOBAL: MW2ATI 0x1018d4a8
 MechChar g_headRollAxisName[] = "Left/Right Head Roll";
 
 // GLOBAL: MW2 0x100a6ee8
 // GLOBAL: MW2MATROX 0x100a56e8
 // GLOBAL: MW23DFX 0x102591b0
+// GLOBAL: MW2ATI 0x1018d4c0
 MechChar g_headRollAxisShortName[] = "HeadRoll";
 
 // GLOBAL: MW2 0x100a6ef8
 // GLOBAL: MW2MATROX 0x100a56f8
 // GLOBAL: MW23DFX 0x102591c0
+// GLOBAL: MW2ATI 0x1018d4d0
 MechChar g_hatUpName[] = "Hat Up";
 
 // GLOBAL: MW2 0x100a6f00
 // GLOBAL: MW2MATROX 0x100a5700
 // GLOBAL: MW23DFX 0x102591c8
+// GLOBAL: MW2ATI 0x1018d4d8
 MechChar g_hatRightName[] = "Hat Right";
 
 // GLOBAL: MW2 0x100a6f10
 // GLOBAL: MW2MATROX 0x100a5710
 // GLOBAL: MW23DFX 0x102591d8
+// GLOBAL: MW2ATI 0x1018d4e8
 MechChar g_hatDownName[] = "Hat Down";
 
 // GLOBAL: MW2 0x100a6f20
 // GLOBAL: MW2MATROX 0x100a5720
 // GLOBAL: MW23DFX 0x102591e8
+// GLOBAL: MW2ATI 0x1018d4f8
 MechChar g_hatLeftName[] = "Hat Left";
 
 // GLOBAL: MW2 0x100a6f30
 // GLOBAL: MW2MATROX 0x100a5730
 // GLOBAL: MW23DFX 0x102591f8
+// GLOBAL: MW2ATI 0x1018d508
 MechChar g_hatUpShortName[] = "HatUp";
 
 // GLOBAL: MW2 0x100a6f38
 // GLOBAL: MW2MATROX 0x100a5738
 // GLOBAL: MW23DFX 0x10259200
+// GLOBAL: MW2ATI 0x1018d510
 MechChar g_hatRightShortName[] = "HatRight";
 
 // GLOBAL: MW2 0x100a6f48
 // GLOBAL: MW2MATROX 0x100a5748
 // GLOBAL: MW23DFX 0x10259210
+// GLOBAL: MW2ATI 0x1018d520
 MechChar g_hatDownShortName[] = "HatDown";
 
 // GLOBAL: MW2 0x100a6f50
 // GLOBAL: MW2MATROX 0x100a5750
 // GLOBAL: MW23DFX 0x10259218
+// GLOBAL: MW2ATI 0x1018d528
 MechChar g_hatLeftShortName[] = "HatLeft";
 
 // GLOBAL: MW2 0x100a6f58
 // GLOBAL: MW2MATROX 0x100a5758
 // GLOBAL: MW23DFX 0x10259220
+// GLOBAL: MW2ATI 0x1018d530
 InputDriverModule g_joystickDriver = {
 	GetJoystickDeviceCount,
 	FillJoystickDeviceInfo,
@@ -167,16 +190,19 @@ MechS32 g_joystickAxisSums[6] = {0};
 // GLOBAL: MW2 0x100be8a0
 // GLOBAL: MW2MATROX 0x100c1ea0
 // GLOBAL: MW23DFX 0x1007d418
+// GLOBAL: MW2ATI 0x10072418
 MechChar g_joystickOemName[0x40];
 
 // GLOBAL: MW2 0x100be8e0
 // GLOBAL: MW2MATROX 0x100c1ee0
 // GLOBAL: MW23DFX 0x1007d458
+// GLOBAL: MW2ATI 0x10072458
 MechChar g_joystickRegistryKey[0x100];
 
 // FUNCTION: MW2 0x10049e70
 // FUNCTION: MW2MATROX 0x10025f40
 // FUNCTION: MW23DFX 0x1003a680
+// FUNCTION: MW2ATI 0x10039240
 MechS32 GetJoystickDeviceCount(void)
 {
 	return joyGetNumDevs();
@@ -188,6 +214,7 @@ MechS32 GetJoystickDeviceCount(void)
 // FUNCTION: MW2 0x10049e86
 // FUNCTION: MW2MATROX 0x10025f56
 // FUNCTION: MW23DFX 0x1003a690
+// FUNCTION: MW2ATI 0x10039250
 MechS32 FillJoystickDeviceInfo(MechS32 p_index, InputDeviceInfo* p_info)
 {
 	JOYCAPS caps;
@@ -309,6 +336,7 @@ MechS32 FillJoystickDeviceInfo(MechS32 p_index, InputDeviceInfo* p_info)
 // FUNCTION: MW2 0x1004a3be
 // FUNCTION: MW2MATROX 0x10026380
 // FUNCTION: MW23DFX 0x1003a9c0
+// FUNCTION: MW2ATI 0x10039580
 MechS32 JoystickOpenDevice(InputDeviceInfo* p_info)
 {
 	JoystickData* data;
@@ -411,6 +439,7 @@ MechS32 JoystickOpenDevice(InputDeviceInfo* p_info)
 // FUNCTION: MW2 0x1004a947
 // FUNCTION: MW2MATROX 0x1002699d
 // FUNCTION: MW23DFX 0x1003adc0
+// FUNCTION: MW2ATI 0x10039980
 MechS32 JoystickCloseDevice(InputDeviceInfo* p_info)
 {
 	if (p_info) {
@@ -449,6 +478,7 @@ MechS32 JoystickCloseDevice(InputDeviceInfo* p_info)
 // FUNCTION: MW2 0x1004aa59
 // FUNCTION: MW2MATROX 0x10026aaf
 // FUNCTION: MW23DFX 0x1003ae70
+// FUNCTION: MW2ATI 0x10039a30
 MechS32 JoystickCenterAxis(void)
 {
 	return 0;
@@ -576,6 +606,7 @@ MechS32 JoystickPoll(JoystickData* p_data, MechS32* p_axes, MechU32* p_buttons)
 // The 3Dfx edition's is 1.1's, without clearing the JOYINFOEX or setting its size.
 // FUNCTION: MW2 0x1004aa6b
 // FUNCTION: MW23DFX 0x1003ae80
+// FUNCTION: MW2ATI 0x10039a40
 MechS32 JoystickPoll(JoystickData* p_data, MechS32* p_axes, MechU32* p_buttons)
 {
 	MechS32 i;
@@ -653,6 +684,7 @@ MechS32 JoystickPoll(JoystickData* p_data, MechS32* p_axes, MechU32* p_buttons)
 // FUNCTION: MW2 0x1004ad42
 // FUNCTION: MW2MATROX 0x10026f79
 // FUNCTION: MW23DFX 0x1003b030
+// FUNCTION: MW2ATI 0x10039bf0
 MechS32 JoystickReadKeyCode(void)
 {
 	return 2;
@@ -661,6 +693,7 @@ MechS32 JoystickReadKeyCode(void)
 // FUNCTION: MW2 0x1004ad57
 // FUNCTION: MW2MATROX 0x10026f8e
 // FUNCTION: MW23DFX 0x1003b040
+// FUNCTION: MW2ATI 0x10039c00
 MechS32 JoystickFlushKeyCodes(void)
 {
 	return 2;
@@ -675,6 +708,7 @@ MechS32 JoystickFlushKeyCodes(void)
 // FUNCTION: MW2 0x1004ae29
 // FUNCTION: MW2MATROX 0x10026fa3
 // FUNCTION: MW23DFX 0x1003b0d0
+// FUNCTION: MW2ATI 0x10039c90
 BOOL ReadJoystickOemName(MechS32 p_index, MechChar* p_driverKey, MechChar* p_name, MechU32 p_size)
 {
 	HKEY key;
@@ -723,6 +757,7 @@ BOOL ReadJoystickOemName(MechS32 p_index, MechChar* p_driverKey, MechChar* p_nam
 // FUNCTION: MW2 0x1004af8c
 // FUNCTION: MW2MATROX 0x10027106
 // FUNCTION: MW23DFX 0x1003b210
+// FUNCTION: MW2ATI 0x10039dd0
 void ChooseJoystickMapName(InputDeviceInfo* p_info, JOYCAPS* p_caps)
 {
 	MechU16 caps;

@@ -32,46 +32,55 @@ MechS32 g_paneIndex = -1;
 // GLOBAL: MW2 0x100a00d0
 // GLOBAL: MW2MATROX 0x100a61fc
 // GLOBAL: MW23DFX 0x1024e454
+// GLOBAL: MW2ATI 0x10182764
 MechS32 g_currentPalette = 0x10;
 
 // GLOBAL: MW2 0x100a00d4
 // GLOBAL: MW2MATROX 0x100a6200
 // GLOBAL: MW23DFX 0x1024e458
+// GLOBAL: MW2ATI 0x10182768
 MechS32 g_palettePending = 0;
 
 // GLOBAL: MW2 0x100a00d8
 // GLOBAL: MW2MATROX 0x100a6204
 // GLOBAL: MW23DFX 0x1024e45c
+// GLOBAL: MW2ATI 0x1018276c
 MechS32 g_basePalette = 0;
 
 // GLOBAL: MW2 0x100a00dc
 // GLOBAL: MW2MATROX 0x100a6208
 // GLOBAL: MW23DFX 0x1024e460
+// GLOBAL: MW2ATI 0x10182770
 MechS32 g_settledPalette = 0x10;
 
 // GLOBAL: MW2 0x100a00e0
 // GLOBAL: MW2MATROX 0x100a620c
 // GLOBAL: MW23DFX 0x1024e464
+// GLOBAL: MW2ATI 0x10182774
 MechS32 g_paletteFadeTarget = -1;
 
 // GLOBAL: MW2 0x100a00e4
 // GLOBAL: MW2MATROX 0x100a6210
 // GLOBAL: MW23DFX 0x1024e468
+// GLOBAL: MW2ATI 0x10182778
 MechS32 g_paletteFadeBack = -1;
 
 // GLOBAL: MW2 0x100a00e8
 // GLOBAL: MW2MATROX 0x100a6214
 // GLOBAL: MW23DFX 0x1024e46c
+// GLOBAL: MW2ATI 0x1018277c
 MechS32 g_paletteFadeBackSteps = 0;
 
 // GLOBAL: MW2 0x100a00ec
 // GLOBAL: MW2MATROX 0x100a6218
 // GLOBAL: MW23DFX 0x1024e470
+// GLOBAL: MW2ATI 0x10182780
 MechS32 g_paletteFadeSteps = 0;
 
 // GLOBAL: MW2 0x100a00f0
 // GLOBAL: MW2MATROX 0x100a621c
 // GLOBAL: MW23DFX 0x1024e474
+// GLOBAL: MW2ATI 0x10182784
 MechS32 g_paletteCycling = 0;
 
 // GLOBAL: MW2 0x100a00f4
@@ -82,21 +91,25 @@ MechS32 g_paletteCycleResource = -1;
 // GLOBAL: MW2 0x100bcd20
 // GLOBAL: MW2MATROX 0x100c1ff8
 // GLOBAL: MW23DFX 0x1007c6b8
+// GLOBAL: MW2ATI 0x100716b8
 static PaletteFade g_paletteFade;
 
 // GLOBAL: MW2 0x100bcd40
 // GLOBAL: MW2MATROX 0x100c2018
 // GLOBAL: MW23DFX 0x1007c6d8
+// GLOBAL: MW2ATI 0x100716d8
 static PaletteCycle g_paletteCycle;
 
 // GLOBAL: MW2 0x10181a60
 // GLOBAL: MW2MATROX 0x101d4af0
 // GLOBAL: MW23DFX 0x101b0d70
+// GLOBAL: MW2ATI 0x100e4d60
 PANE g_panes[11];
 
 // GLOBAL: MW2 0x10181b40
 // GLOBAL: MW2MATROX 0x101d4aa0
 // GLOBAL: MW23DFX 0x101b0d20
+// GLOBAL: MW2ATI 0x100e4d10
 MechS32 g_paletteResourceIds[20];
 
 // FUNCTION: MW2 0x100023c0
@@ -164,6 +177,7 @@ void GetViewCenter(Eyepoint* p_eyepoint, MechS32* p_x, MechS32* p_y)
 // FUNCTION: MW2 0x10002546
 // FUNCTION: MW2MATROX 0x1002d6be
 // FUNCTION: MW23DFX 0x1002ac00
+// FUNCTION: MW2ATI 0x1002a820
 void ApplyPendingPalette(void)
 {
 	if (g_palettePending && g_paletteFadeSteps <= 0) {
@@ -176,6 +190,7 @@ void ApplyPendingPalette(void)
 // FUNCTION: MW2 0x1000258d
 // FUNCTION: MW2MATROX 0x1002d705
 // FUNCTION: MW23DFX 0x1002ac40
+// FUNCTION: MW2ATI 0x1002a860
 void ApplyPaletteResource(MechS32 p_slot)
 {
 	MechU8* palette;
@@ -216,6 +231,7 @@ void ApplyPaletteResource(MechS32 p_slot)
 // FUNCTION: MW2 0x10002600
 // FUNCTION: MW2MATROX 0x1002d7de
 // FUNCTION: MW23DFX 0x1002acf0
+// FUNCTION: MW2ATI 0x1002a910
 void UpdatePaletteFade(void)
 {
 	if (g_paletteFadeSteps) {
@@ -367,6 +383,7 @@ MechS32 StartPaletteFade(MechS32 p_palette, MechS32 p_duration, MechS32 p_mode)
 // FUNCTION: MW2 0x1000288e
 // FUNCTION: MW2MATROX 0x1002db4c
 // FUNCTION: MW23DFX 0x1002af60
+// FUNCTION: MW2ATI 0x1002ab80
 MechS32 StartPaletteFlash(MechS32 p_offset, MechS32 p_duration, MechS32 p_mode)
 {
 	return StartPaletteFade(p_offset + g_basePalette, p_duration, p_mode);
@@ -416,6 +433,7 @@ void StopPaletteCycle(void)
 // FUNCTION: MW2 0x100029c8
 // FUNCTION: MW2MATROX 0x1002dc86
 // FUNCTION: MW23DFX 0x1002b050
+// FUNCTION: MW2ATI 0x1002aba0
 MechS32 SetPaletteResourceId(MechS32 p_id, MechS32 p_slot)
 {
 	MechS32 old;
@@ -430,6 +448,7 @@ MechS32 SetPaletteResourceId(MechS32 p_id, MechS32 p_slot)
 // FUNCTION: MW2 0x10002a24
 // FUNCTION: MW2MATROX 0x1002dce2
 // FUNCTION: MW23DFX 0x1002b090
+// FUNCTION: MW2ATI 0x1002abe0
 void FadeToBasePalette(MechS32 p_palette, MechS32 p_duration)
 {
 	MechS32 palette;
@@ -455,6 +474,7 @@ void SetBasePalette(MechS32 p_palette)
 // FUNCTION: MW2 0x10002a75
 // FUNCTION: MW2MATROX 0x1002dd33
 // FUNCTION: MW23DFX 0x1002b0c0
+// FUNCTION: MW2ATI 0x1002ac00
 void StartPalettes(MechS32 p_dissolve)
 {
 	MechU8* palette;
@@ -538,6 +558,7 @@ void StartPalettes(MechS32 p_dissolve)
 // FUNCTION: MW2 0x10002c76
 // FUNCTION: MW2MATROX 0x1002ddd8
 // FUNCTION: MW23DFX 0x1002b130
+// FUNCTION: MW2ATI 0x1002ac70
 MechS32 GetPaletteFadeSteps(void)
 {
 	return g_paletteFadeSteps;

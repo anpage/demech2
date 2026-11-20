@@ -27,6 +27,7 @@
 // GLOBAL: MW2 0x100a82f0
 // GLOBAL: MW2MATROX 0x100bbd50
 // GLOBAL: MW23DFX 0x1024c818
+// GLOBAL: MW2ATI 0x10180b98
 EasedValue g_heatBarLevel = {0, 0, 1};
 
 // GLOBAL: MW2 0x100a82fc
@@ -36,6 +37,7 @@ undefined4 g_unk0x100a82fc = 0;
 // GLOBAL: MW2 0x100a8300
 // GLOBAL: MW2MATROX 0x100bbd60
 // GLOBAL: MW23DFX 0x1024c828
+// GLOBAL: MW2ATI 0x10180ba8
 EasedValue g_throttleBarLevel = {0, 0, 1};
 
 // GLOBAL: MW2 0x100a830c
@@ -45,6 +47,7 @@ undefined4 g_unk0x100a830c = 0;
 // GLOBAL: MW2 0x100a8310
 // GLOBAL: MW2MATROX 0x100bbd70
 // GLOBAL: MW23DFX 0x1024c838
+// GLOBAL: MW2ATI 0x10180bb8
 EasedValue g_heatRateBarLevel = {0, 0, 4};
 
 // GLOBAL: MW2 0x100a831c
@@ -54,6 +57,7 @@ undefined4 g_unk0x100a831c = 0;
 // GLOBAL: MW2 0x100a8320
 // GLOBAL: MW2MATROX 0x100bbd80
 // GLOBAL: MW23DFX 0x1024c848
+// GLOBAL: MW2ATI 0x10180bc8
 EasedValue g_jumpFuelBarLevel = {0, 0, 1};
 
 // GLOBAL: MW2 0x100a832c
@@ -78,45 +82,53 @@ DECOMP_SIZE_ASSERT(ThrottleGauge, 0x20)
 // GLOBAL: MW2 0x100a8330
 // GLOBAL: MW2MATROX 0x100bbd90
 // GLOBAL: MW23DFX 0x1024c858
+// GLOBAL: MW2ATI 0x10180bd8
 ThrottleGauge g_throttleGauge = {{0x1e7a, 0x8dc9}, 0, 0, 0, 0, 0, 0};
 
 // The heat bar: its position and size.
 // GLOBAL: MW2 0x100a8350
 // GLOBAL: MW2MATROX 0x100bbdb0
 // GLOBAL: MW23DFX 0x1024c878
+// GLOBAL: MW2ATI 0x10180bf8
 Point g_heatBarPosition = {0, 0x3333};
 
 // GLOBAL: MW2 0x100a8358
 // GLOBAL: MW2MATROX 0x100bbdb8
 // GLOBAL: MW23DFX 0x1024c880
+// GLOBAL: MW2ATI 0x10180c00
 Point g_heatBarSize = {0xea4e, 0x5555};
 
 // The heat rate bar.
 // GLOBAL: MW2 0x100a8360
 // GLOBAL: MW2MATROX 0x100bbdc0
 // GLOBAL: MW23DFX 0x1024c888
+// GLOBAL: MW2ATI 0x10180c08
 Point g_heatRateBarPosition = {0, 0x3333};
 
 // GLOBAL: MW2 0x100a8368
 // GLOBAL: MW2MATROX 0x100bbdc8
 // GLOBAL: MW23DFX 0x1024c890
+// GLOBAL: MW2ATI 0x10180c10
 Point g_heatRateBarSize = {0xdf2e, 0x5555};
 
 // The jump jet fuel bar.
 // GLOBAL: MW2 0x100a8370
 // GLOBAL: MW2MATROX 0x100bbdd0
 // GLOBAL: MW23DFX 0x1024c898
+// GLOBAL: MW2ATI 0x10180c18
 Point g_jumpFuelBarPosition = {0, 0x3333};
 
 // GLOBAL: MW2 0x100a8378
 // GLOBAL: MW2MATROX 0x100bbdd8
 // GLOBAL: MW23DFX 0x1024c8a0
+// GLOBAL: MW2ATI 0x10180c20
 Point g_jumpFuelBarSize = {0xdf2e, 0x5555};
 
 // Scales the gauges' rectangles to their panels.
 // FUNCTION: MW2 0x1004d020
 // FUNCTION: MW2MATROX 0x10089040
 // FUNCTION: MW23DFX 0x1001c250
+// FUNCTION: MW2ATI 0x1001c580
 void ScaleBarGauges(void)
 {
 	CockpitPanel* panel;
@@ -148,6 +160,7 @@ void ScaleBarGauges(void)
 // FUNCTION: MW2 0x1004d175
 // FUNCTION: MW2MATROX 0x10089195
 // FUNCTION: MW23DFX 0x1001c350
+// FUNCTION: MW2ATI 0x1001c680
 void DrawHeatBar(PANE* p_target)
 {
 	MechS32 heat;
@@ -207,6 +220,7 @@ void DrawHeatBar(PANE* p_target)
 // FUNCTION: MW2 0x1004d310
 // FUNCTION: MW2MATROX 0x10089332
 // FUNCTION: MW23DFX 0x1001c4a0
+// FUNCTION: MW2ATI 0x1001c7d0
 void DrawHeatRateBar(PANE* p_target)
 {
 	Mech* mech;
@@ -276,6 +290,7 @@ void DrawHeatRateBar(PANE* p_target)
 // FUNCTION: MW2 0x1004d48a
 // FUNCTION: MW2MATROX 0x100894b4
 // FUNCTION: MW23DFX 0x1001c5b0
+// FUNCTION: MW2ATI 0x1001c8e0
 void DrawThrottleGauge(PANE* p_target)
 {
 	MechS32 color;
@@ -361,6 +376,7 @@ void DrawThrottleGauge(PANE* p_target)
 // FUNCTION: MW2 0x1004d660
 // FUNCTION: MW2MATROX 0x100896bf
 // FUNCTION: MW23DFX 0x1001c750
+// FUNCTION: MW2ATI 0x1001ca80
 void DrawJumpFuelBar(PANE* p_target)
 {
 	MechS32 fill;
@@ -398,6 +414,7 @@ void DrawJumpFuelBar(PANE* p_target)
 // FUNCTION: MW2 0x1004d732
 // FUNCTION: MW2MATROX 0x10089791
 // FUNCTION: MW23DFX 0x1001c810
+// FUNCTION: MW2ATI 0x1001cb40
 void DrawVerticalBar(PANE* p_target, MechS32 p_x, MechS32 p_y, MechS32 p_width, MechS32 p_height, MechS32 p_color)
 {
 	MechS32 half;
@@ -438,6 +455,7 @@ void DrawVerticalBar(PANE* p_target, MechS32 p_x, MechS32 p_y, MechS32 p_width, 
 // FUNCTION: MW2 0x1004d8ae
 // FUNCTION: MW2MATROX 0x10089931
 // FUNCTION: MW23DFX 0x1001c960
+// FUNCTION: MW2ATI 0x1001cc90
 void DrawHorizontalBar(PANE* p_target, MechS32 p_x, MechS32 p_y, MechS32 p_width, MechS32 p_height, MechS32 p_color)
 {
 	MechS32 half;

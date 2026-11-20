@@ -32,3 +32,6 @@ NETMECHW split 0x1000f0a0  # IronLantern0x160::FUN_1000f0a0 (unk1000e410.cpp)
 # MW23DFX is built with /Gy: every function is a COMDAT of its own, padded to 16 with 0xCC inside an
 # object as between objects, so only the order of the runs places its units.
 MW23DFX comdat
+
+# MW2ATI is built with /Gy too.
+MW2ATI comdat

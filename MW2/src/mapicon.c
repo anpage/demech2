@@ -22,6 +22,7 @@
 // FUNCTION: MW2 0x1003e40a
 // FUNCTION: MW2MATROX 0x1007426c
 // FUNCTION: MW23DFX 0x100038d0
+// FUNCTION: MW2ATI 0x10003560
 #ifdef MW2_FLOAT_SCALARS
 void DrawMapIcon(CockpitLayout* p_layout, Vector3* p_position, MechS32 p_icon)
 #else

@@ -82,6 +82,7 @@ extern "C"
 
 // The 3Dfx edition's diff is register allocation and instruction scheduling only.
 // FUNCTION: MW23DFX 0x10032410
+// FUNCTION: MW2ATI 0x10031210
 // SampleEosCallback
 
 #endif // SOUNDFX_H

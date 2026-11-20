@@ -1,4 +1,4 @@
-"""The 3Dfx edition's side of tools/edition.py (--target MW23DFX).
+"""The optimized editions' side of tools/edition.py (--target MW23DFX, --target MW2ATI).
 
 The 3Dfx edition is the Matrox edition's C built by VC++ 2.2 with optimization, so its functions
 can't be paired with another binary's byte by byte, as the Matrox edition's are with 1.1's.
@@ -11,7 +11,10 @@ two paired ones, as many in the rebuild's file order as in the original's addres
 
 The comparison of a rebuilt function with its original reports two ratios: the instructions as
 they are, and with registers renamed away, which tells register allocation (2.2's entropy under
-/Ox) from differences in the code. The pairing is cached in DIR/edition-MW23DFX.json.
+/Ox) from differences in the code. The pairing is cached in DIR/edition-<TARGET>.json.
+
+The ATI edition is built the same way (VC++ 2.2, /Ox /Gr /Gy), and pairs the same; configure()
+selects the edition.
 """
 
 import bisect
@@ -33,11 +36,29 @@ from port_annotations import (  # noqa: E402
     read_map,
 )
 
-TARGET = "MW23DFX"
-BINARY = "MW2_3DFX.DLL"
-MODULES = ["MW2SHELL", "MW2", "MW2MATROX", "MW23DFX", "NETMECHW", "MECH2"]  # reccmp-project.yml's order
+# Each optimized edition: its original, the rebuild's base name in the vc22 build, where the
+# function search stops (CODE_END) and where the game code ends (THUNKS), and its name in messages.
+EDITIONS = {
+    # Texus starts at 0x10068270; the import thunks before it end the game code.
+    "MW23DFX": {"binary": "MW2_3DFX.DLL", "output": "MW2_3DFX", "code_end": 0x10068270, "thunks": 0x100680B2,
+                "name": "the 3Dfx edition"},
+    # No Texus: the import thunks follow the renderer, then the C runtime.
+    "MW2ATI": {"binary": "MW2_ATI.DLL", "output": "MW2_ATI", "code_end": 0x10065066, "thunks": 0x10065066,
+               "name": "the ATI edition"},
+}
+MODULES = ["MW2SHELL", "MW2", "MW2MATROX", "MW23DFX", "MW2ATI", "NETMECHW", "MECH2"]  # reccmp-project.yml's order
 DIRS = ["MW2", "common"]
-CODE_END = 0x10068270  # Texus, then the import thunks and the C runtime
+
+
+def configure(target):
+    """Select the edition the commands work on."""
+    global TARGET, BINARY, OUTPUT, CODE_END, THUNKS, EDITION_NAME
+    edition = EDITIONS[target]
+    TARGET, BINARY, OUTPUT = target, edition["binary"], edition["output"]
+    CODE_END, THUNKS, EDITION_NAME = edition["code_end"], edition["thunks"], edition["name"]
+
+
+configure("MW23DFX")
 REGISTER = re.compile(r"\b(e?[abcd]x|[abcd][lh]|e?[sd]i|e?[sb]p)\b")
 ADDRESS = re.compile(r"0x[0-9a-f]{5,}")
 WEIGHTS = {"s": 4, "i": 2, "f": 1, "g": 1}  # strings, imports, functions, globals
@@ -216,7 +237,7 @@ def similarity(a, b):
 
 class Rebuild:
     def __init__(self, build):
-        base = os.path.join(build, "vc22", "MW2_3DFX")
+        base = os.path.join(build, "vc22", OUTPUT)
         if not os.path.exists(base + ".dll"):
             sys.exit("no rebuilt edition at %s.dll" % base)
         self.image = Image(base + ".dll")
@@ -388,7 +409,7 @@ def text(x):
 REGISTERS_NOTE = "// Matches but for the registers, which VC++ 2.2 allocates differently."
 
 
-BY_NAME_INTRO = "// The 3Dfx edition places these out of %s's order, so they are annotated here, by name."
+BY_NAME_INTRO = "// %s places these out of %s's order, so they are annotated here, by name."
 
 
 def add_by_name(path, name, address):
@@ -402,7 +423,7 @@ def add_by_name(path, name, address):
     lines = open(header, encoding="utf-8").read().split("\n")
     if any(MARKER.match(l) and MARKER.match(l).group(3) == TARGET and n == "// " + name for l, n in zip(lines, lines[1:])):
         return False  # annotated by name already
-    intro = BY_NAME_INTRO % os.path.basename(path)
+    intro = BY_NAME_INTRO % (EDITION_NAME[0].upper() + EDITION_NAME[1:], os.path.basename(path))
     if intro not in lines:
         guard = max(i for i, l in enumerate(lines) if l.startswith("#endif"))
         lines[guard:guard] = [intro, ""]
@@ -491,7 +512,7 @@ def cmd_cmp(args):
     elif args.name in state:
         v = state[args.name]
     else:
-        sys.exit("%s has no paired address in the 3Dfx edition (try --address)" % args.name)
+        sys.exit("%s has no paired address in %s (try --address)" % (args.name, EDITION_NAME))
     result = compare(Rebuild(args.build), Side(Image(BINARY), original_names()), args.name, v["address"], v["end"])
     if result is None:
         sys.exit("%s isn't in the rebuild's map" % args.name)
@@ -674,7 +695,6 @@ def cmd_fix_order(args):
             f.write("\n".join(lines))
 
 
-THUNKS = 0x100680b2  # the import thunks before Texus: the end of the game code
 
 
 def function_starts(image, names, data=()):

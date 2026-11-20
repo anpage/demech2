@@ -59,22 +59,26 @@ MechFloat g_lodLevel4 = 40000.0f;
 // GLOBAL: MW2 0x100a37d4
 // GLOBAL: MW2MATROX 0x100ae0e4
 // GLOBAL: MW23DFX 0x1024dbd8
+// GLOBAL: MW2ATI 0x10181ee8
 MechS32 g_classEntryCount = 0;
 
 // GLOBAL: MW2 0x100a37d8
 // GLOBAL: MW2MATROX 0x100ae0e8
 // GLOBAL: MW23DFX 0x1024dbdc
+// GLOBAL: MW2ATI 0x10181eec
 MechS32 g_classTableReady = 0;
 
 // GLOBAL: MW2 0x1012b7e0
 // GLOBAL: MW2MATROX 0x10150690
 // GLOBAL: MW23DFX 0x101b16b0
+// GLOBAL: MW2ATI 0x100e5410
 ClassEntry g_classTable[0x30c];
 
 // Loads the shapes of p_player's entries for its base level (m_baseLevel) into one pool block.
 // FUNCTION: MW2 0x1001ce90
 // FUNCTION: MW2MATROX 0x1006d550
 // FUNCTION: MW23DFX 0x100260e0
+// FUNCTION: MW2ATI 0x10025e50
 MechS32 LoadBaseLevelShapes(Player* p_player)
 {
 	MechS32 i;
@@ -110,6 +114,7 @@ MechS32 LoadBaseLevelShapes(Player* p_player)
 // FUNCTION: MW2 0x1001cf93
 // FUNCTION: MW2MATROX 0x1006d653
 // FUNCTION: MW23DFX 0x10026180
+// FUNCTION: MW2ATI 0x10025ef0
 MechS32 AddClassEntryLevel(
 	MechS32 p_unk0x00,
 	ClassEntryCoord p_unk0x04,
@@ -179,6 +184,7 @@ MechS32 AddClassEntryLevel(
 // FUNCTION: MW2 0x1001d12a
 // FUNCTION: MW2MATROX 0x1006d7ea
 // FUNCTION: MW23DFX 0x10026280
+// FUNCTION: MW2ATI 0x10025ff0
 void ResetClassTable(void)
 {
 	ClassEntry* entry;
@@ -209,6 +215,7 @@ void ResetClassTable(void)
 // FUNCTION: MW2 0x1001d220
 // FUNCTION: MW2MATROX 0x1006d8e0
 // FUNCTION: MW23DFX 0x100262f0
+// FUNCTION: MW2ATI 0x10026060
 void ClaimNewClassEntries(Player* p_player)
 {
 	MechS32 i;
@@ -230,6 +237,7 @@ void ClaimNewClassEntries(Player* p_player)
 // FUNCTION: MW2 0x1001d292
 // FUNCTION: MW2MATROX 0x1006d952
 // FUNCTION: MW23DFX 0x10026330
+// FUNCTION: MW2ATI 0x100260a0
 MechS32 LoadClassLevel(MechS32 p_owner, MechS32 p_level)
 {
 	MechS32 i;
@@ -290,6 +298,7 @@ void ReleaseClassLevel(MechS32 p_owner, MechS32 p_level)
 // FUNCTION: MW2 0x1001d3ff
 // FUNCTION: MW2MATROX 0x1006dad9
 // FUNCTION: MW23DFX 0x10026430
+// FUNCTION: MW2ATI 0x10026160
 MechS32 LoadClassEntryShape(MechS32 p_index, MechS32 p_level, void* p_buffer)
 {
 	MechS32 kind;
@@ -442,6 +451,7 @@ void ReleasePendingDetailLevel(void)
 // FUNCTION: MW2 0x1001d912
 // FUNCTION: MW2MATROX 0x1006e00e
 // FUNCTION: MW23DFX 0x10026730
+// FUNCTION: MW2ATI 0x10026410
 void ReleaseClassEntryShape(MechS32 p_index, MechS32 p_level)
 {
 	ClassEntry* entry;
@@ -457,6 +467,7 @@ void ReleaseClassEntryShape(MechS32 p_index, MechS32 p_level)
 // FUNCTION: MW2 0x1001d980
 // FUNCTION: MW2MATROX 0x1006e07c
 // FUNCTION: MW23DFX 0x10026770
+// FUNCTION: MW2ATI 0x10026450
 struct SceneObject* GetClassObject(MechS32 p_index)
 {
 	struct SceneObject* obj;
@@ -487,6 +498,7 @@ Shape* GetClassShape(MechS32 p_index)
 // FUNCTION: MW2 0x1001da14
 // FUNCTION: MW2MATROX 0x1006e10f
 // FUNCTION: MW23DFX 0x100267b0
+// FUNCTION: MW2ATI 0x10026470
 void SetClassEntryPartId(MechS32 p_index, MechU16 p_value)
 {
 	ClassEntry* entry;
@@ -501,6 +513,7 @@ void SetClassEntryPartId(MechS32 p_index, MechU16 p_value)
 // FUNCTION: MW2 0x1001da44
 // FUNCTION: MW2MATROX 0x1006e13f
 // FUNCTION: MW23DFX 0x100267d0
+// FUNCTION: MW2ATI 0x10026490
 void ChoosePlayerDetailLevels(void)
 {
 #ifdef MW2_FLOAT_SCALARS
@@ -753,6 +766,7 @@ void ChoosePlayerDetailLevels(void)
 // FUNCTION: MW2 0x1001ddf2
 // FUNCTION: MW2MATROX 0x1006e63c
 // FUNCTION: MW23DFX 0x100269a0
+// FUNCTION: MW2ATI 0x10026660
 void ReleaseObjShape(struct SceneObject* p_obj)
 {
 	MechS32 i;
@@ -777,6 +791,7 @@ void ReleaseObjShape(struct SceneObject* p_obj)
 // FUNCTION: MW2 0x1001de84
 // FUNCTION: MW2MATROX 0x1006e6ce
 // FUNCTION: MW23DFX 0x100269f0
+// FUNCTION: MW2ATI 0x100266b0
 void ForgetObjShape(struct SceneObject* p_obj)
 {
 	ClassEntry* entry;

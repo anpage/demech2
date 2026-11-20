@@ -68,6 +68,7 @@ extern "C"
 
 // The 3Dfx edition's diff is register allocation, scheduling and float operand order only.
 // FUNCTION: MW23DFX 0x1002f4a0
+// FUNCTION: MW2ATI 0x1002e580
 // ScaleVectorToLength
 
 #endif // CLOCK_H
