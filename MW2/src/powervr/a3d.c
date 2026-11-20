@@ -56,19 +56,19 @@
 #include <string.h>
 
 // SGL's errors the renderer handles.
-enum {
+enum SglError {
 	c_sglErrorFace = -100,             // sgl_add_face couldn't add the face
 	c_sglErrorTextureMemoryFull = -243 // sgl_load_cached_texture: no room left
 };
 
 // The animations the sky's and the ground's textures are.
-enum {
+enum SkyGroundAnimation {
 	c_a3dGroundAnimation = 0x108,
 	c_a3dSkyAnimation = 0x18c
 };
 
 // The orders FUN_1005fbc0 rotates in.
-enum {
+enum RotationOrder {
 	c_a3dRotateYXZ = 0,
 	c_a3dRotateXYZ = 1,
 	c_a3dRotateXZY = 2,
@@ -1961,7 +1961,7 @@ void __cdecl FUN_10061360(sgl_tex_callback_struct* p_entries, MechS32 p_count, M
 	AnimFrame* frame;
 	sgl_intermediate_map* map;
 	MechU16* data;
-	MechS32 unk;
+	MechS32 unk0x0c;
 	MechS32 first;
 	MechS32 result;
 	MechS32 size;
@@ -1992,7 +1992,7 @@ void __cdecl FUN_10061360(sgl_tex_callback_struct* p_entries, MechS32 p_count, M
 			continue;
 		}
 
-		map = FUN_10027350(set, number, &data, &unk);
+		map = FUN_10027350(set, number, &data, &unk0x0c);
 		if (!map) {
 			DebugPrintInternal("can't get texture bits\n");
 			continue;
