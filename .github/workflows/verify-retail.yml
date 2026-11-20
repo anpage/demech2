@@ -242,8 +242,8 @@ jobs:
           # game code or library, must use the imports the original's does
           # (tools/check_imports.py). The known findings are data: they come
           # from the PR's checkout, like the sources.
-          # Not for MW2ATI yet: the code it compiles from 1.1 (its SimMain, the GDI
-          # back end, the MIDI) imports what the original doesn't.
+          # Not for MW2ATI yet: the code it compiles from 1.1 (the GDI back end, the
+          # MIDI) imports what the original doesn't.
           for entry in $RETAIL_ENTRIES; do
             target="${entry%%:*}"
             if [ "$target" = MW2ATI ]; then

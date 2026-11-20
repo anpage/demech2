@@ -266,6 +266,7 @@ VideoDriverChoice g_videoDriverChoice;
 // resolution (off unless set).
 // FUNCTION: MW2MATROX 0x1008fad0
 // FUNCTION: MW23DFX 0x100087e0
+// FUNCTION: MW2ATI 0x10008fd0
 void FUN_1008fad0(void)
 {
 #ifdef MW2_RES_800X600
@@ -672,14 +673,25 @@ int __stdcall SimMain(
 	result = g_fledToWindows ? 0xff : 0;
 	return result;
 }
-#elif defined(MW2_3DFX)
-// The 3Dfx edition's SimMain. It keeps 1.1's window, asks SetGameResolution (800x600 with the
-// registry's setting), reads the render settings before FirstClock where the Matrox edition reads
-// them before the main loop, and releases the DCs it tests the palette with. Like the Matrox
-// edition's, it computes the bitmaps' average colours after loading the world, updates the
-// players every frame before a network launch, which starts when the go state is 7.
-// It keeps 1.1's refresh mode fallback loop, filling through Glide.
+#elif defined(MW2_3DFX) || defined(MW2_ATI)
+// The fill of the refresh mode fallback, the edition's display back end's.
+#ifdef MW2_3DFX
+#define SIM_BACKEND_FILL GlideFill
+#else
+#define SIM_BACKEND_FILL DdrawFill
+#endif
+
+// The 3Dfx and ATI editions' SimMain. It keeps 1.1's window, asks SetGameResolution (800x600 with
+// the 3Dfx edition's registry setting), reads the render settings before FirstClock where the
+// Matrox edition reads them before the main loop, and the 3Dfx edition releases the DCs it tests
+// the palette with. Like the Matrox edition's, it computes the bitmaps' average colours after
+// loading the world, updates the players every frame before a network launch, which starts when
+// the go state is 7. It keeps 1.1's refresh mode fallback loop, filling through the edition's
+// display back end (Glide, DirectDraw). The ATI edition reads the sky and ground and the render
+// settings right after the command line, and shuts its renderer down (A3D_shutdown) after the last
+// blit.
 // FUNCTION: MW23DFX 0x10008850
+// FUNCTION: MW2ATI 0x10009040
 int __stdcall SimMain(
 	HINSTANCE p_module,
 	undefined4 p_unk0x0c,
@@ -698,8 +710,10 @@ int __stdcall SimMain(
 	undefined4 flags[2];
 	MechS32 seed;
 	MechS32 quitLatched;
+#ifdef MW2_3DFX
 	HDC supAnimDc;
 	HDC paletteDc;
+#endif
 
 	quitLatched = 0;
 	seed = 0;
@@ -747,6 +761,10 @@ int __stdcall SimMain(
 		return 0;
 	}
 
+#ifdef MW2_ATI
+	LoadSkyGroundSettings(missionName);
+	FUN_1008fad0();
+#endif
 	if (StartupCheckStub()) {
 		Error(0x51, NULL);
 	}
@@ -783,15 +801,21 @@ int __stdcall SimMain(
 		}
 	}
 
+#ifdef MW2_3DFX
 	LoadSkyGroundSettings(missionName);
 	FUN_1008fad0();
+#endif
 	DebugPrint("FirstClock()\n");
 	__try {
 		FirstClock();
 		DebugPrint("StartSupAnim()\n");
+#ifdef MW2_3DFX
 		supAnimDc = GetDC(g_gameWindow);
 		StartSupAnim(GetDeviceCaps(supAnimDc, NUMCOLORS) == -1 || g_windowMode == c_windowModeFullscreen);
 		ReleaseDC(g_gameWindow, supAnimDc);
+#else
+		StartSupAnim(GetDeviceCaps(GetDC(g_gameWindow), NUMCOLORS) == -1 || g_windowMode == c_windowModeFullscreen);
+#endif
 		DebugPrint("FirstResource()\n");
 		FirstResource();
 		DebugPrint("InitStaticMem()\n");
@@ -874,8 +898,12 @@ int __stdcall SimMain(
 
 		DebugPrint("StopSupAnim()\n");
 		StopSupAnim();
+#ifdef MW2_3DFX
 		paletteDc = GetDC(g_gameWindow);
 		if (GetDeviceCaps(paletteDc, NUMCOLORS) == -1 || g_windowMode == c_windowModeFullscreen) {
+#else
+		if (GetDeviceCaps(GetDC(g_gameWindow), NUMCOLORS) == -1 || g_windowMode == c_windowModeFullscreen) {
+#endif
 			DebugPrint("StartPalettes()\n");
 			StartPalettes(0);
 		}
@@ -889,7 +917,9 @@ int __stdcall SimMain(
 			}
 		}
 
+#ifdef MW2_3DFX
 		ReleaseDC(g_gameWindow, paletteDc);
+#endif
 		g_drawModeReady = 1;
 		DebugPrint("InitDrawMode(%d,%d)\n", g_gameWindowWidth, g_gameWindowHeight);
 		if (!InitRefreshMode(
@@ -949,7 +979,7 @@ int __stdcall SimMain(
 			if (g_refreshModeFallback) {
 				while (g_refreshModeFallback) {
 					if (g_currentDisplayBackend->m_id == 0 && !g_renderSettings.m_texturedGround) {
-						GlideFill(0, 0, g_gameWindowWidth, g_gameWindowHeight, PIXEL_COLOR(g_groundColor));
+						SIM_BACKEND_FILL(0, 0, g_gameWindowWidth, g_gameWindowHeight, PIXEL_COLOR(g_groundColor));
 					}
 
 					if ((g_windowActive ? g_currentDisplayBackend->m_acquireFramebuffer() : -1) == 0) {
@@ -973,7 +1003,7 @@ int __stdcall SimMain(
 			UpdatePaletteFade();
 			ApplyPendingPalette();
 			if (g_windowActive && g_currentDisplayBackend->m_id == 0 && !g_renderSettings.m_texturedGround) {
-				GlideFill(0, 0, g_gameWindowWidth, g_gameWindowHeight, PIXEL_COLOR(g_groundColor));
+				SIM_BACKEND_FILL(0, 0, g_gameWindowWidth, g_gameWindowHeight, PIXEL_COLOR(g_groundColor));
 			}
 
 			if ((g_windowActive ? g_currentDisplayBackend->m_acquireFramebuffer() : -1) == 0) {
@@ -1013,7 +1043,11 @@ int __stdcall SimMain(
 
 		DebugPrint("Calling Blit()\n");
 		Blit();
+#ifdef MW2_3DFX
 		FUN_10066910();
+#else
+		A3D_shutdown();
+#endif
 		while (PeekMessage(&msg, NULL, 0, 0, PM_REMOVE)) {
 		}
 
@@ -1541,11 +1575,12 @@ LRESULT CALLBACK SimWindowProc(HWND p_hWnd, UINT p_msg, WPARAM p_wParam, LPARAM 
 
 	return DefWindowProc(p_hWnd, p_msg, p_wParam, p_lParam);
 }
-#elif defined(MW2_3DFX)
-// The 3Dfx edition's window procedure. On WM_ACTIVATEAPP it has none of 1.1's switching between
-// full screen and the desktop: it only restores or minimizes a full-screen window and resets the
-// palette.
+#elif defined(MW2_3DFX) || defined(MW2_ATI)
+// The 3Dfx and ATI editions' window procedure. On WM_ACTIVATEAPP it has none of 1.1's switching
+// between full screen and the desktop: it only restores or minimizes a full-screen window and
+// resets the palette.
 // FUNCTION: MW23DFX 0x10009400
+// FUNCTION: MW2ATI 0x10009bd0
 LRESULT CALLBACK SimWindowProc(HWND p_hWnd, UINT p_msg, WPARAM p_wParam, LPARAM p_lParam)
 {
 	WINDOWPOS* windowPos;

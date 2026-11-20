@@ -167,6 +167,7 @@ MW2ATI 0x10007490 GetRectNeedleAt d8b167851e50 undiagnosed
 MW2ATI 0x100079f0 GetEllipseNeedleAt 77a64169bd23 undiagnosed
 MW2ATI 0x100085e0 PrintMono 47cea519f9c6 undiagnosed
 MW2ATI 0x10008bc0 SignalTask ba7489e74b59 undiagnosed
+MW2ATI 0x10009040 SimMain 5cdaf7851b04 undiagnosed
 MW2ATI 0x10009f10 UpdatePauseState cbe253d77e1c undiagnosed
 MW2ATI 0x1000a1c0 DoFirstObjtv 06842f45f04c undiagnosed
 MW2ATI 0x1000d280 ClassifyQuadtreePoint 9d2b404f10ab undiagnosed
