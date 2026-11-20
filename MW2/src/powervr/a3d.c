@@ -270,7 +270,7 @@ static A3DView g_a3dPanel13View;
 
 // The cached textures SGL's texture callback is given.
 // GLOBAL: MW2POWERVR 0x10070e80
-static sgl_texture_cache_entry g_a3dCacheEntries[2000];
+static sgl_tex_callback_struct g_a3dCacheEntries[2000];
 
 // The lists by kind (FUN_10061910) and by detail level (FUN_100617b0).
 // GLOBAL: MW2POWERVR 0x1007ca00
@@ -314,8 +314,8 @@ static A3DView g_a3dPanel2View;
 // GLOBAL: MW2POWERVR 0x1007cab0
 static sgl_vector g_a3dVertex;
 
-MechS32 __cdecl FUN_10060000(sgl_ddraw_frame* p_frame);
-void __cdecl FUN_10061360(sgl_texture_cache_entry* p_entries, MechS32 p_count, MechU32 p_freeMemory);
+MechS32 __cdecl FUN_10060000(CALLBACK_SURFACE_PARAMS* p_frame);
+void __cdecl FUN_10061360(sgl_tex_callback_struct* p_entries, MechS32 p_count, MechU32 p_freeMemory);
 MechS32 FUN_1005f200(MechS32 p_parent);
 void FUN_1005ef90(MechS32 p_fog);
 void FUN_1005f3f0(MechS32 p_list);
@@ -375,7 +375,7 @@ MechS32 FUN_1005e8c0(MechS32 p_width, MechS32 p_height)
 	MechS32 mode;
 	sgl_bool doubleBuffer;
 
-	g_a3dDevice = sgl_create_screen_device(0, p_width - 1, p_height - 1, 0, TRUE);
+	g_a3dDevice = sgl_create_screen_device(0, p_width - 1, p_height - 1, sgl_device_16bit, TRUE);
 	sgl_get_errors(&first, &last);
 	if (last) {
 		DebugPrintInternal("sgl_create_screen_device last error %d\n", last);
@@ -601,7 +601,8 @@ void FUN_1005ed90(
 		sgl_new_translucent();
 		if (g_a3dWhiteTexture == -1) {
 			memset(g_a3dWhiteTexels, 0xff, sizeof(g_a3dWhiteTexels));
-			g_a3dWhiteTexture = sgl_create_texture(0, 0, FALSE, FALSE, &g_a3dWhiteMap, NULL);
+			g_a3dWhiteTexture =
+				sgl_create_texture(sgl_map_16bit, sgl_map_32x32, sgl_mipmap_generate_none, FALSE, &g_a3dWhiteMap, NULL);
 			FUN_1005e820();
 		}
 
@@ -939,7 +940,7 @@ void FUN_1005f5c0(MechS32 p_list)
 		FUN_1005e820();
 		sgl_create_mesh(FALSE);
 		FUN_1005e820();
-		sgl_set_cull_mode(2);
+		sgl_set_cull_mode(sgl_cull_clockwise);
 		FUN_1005e820();
 	}
 }
@@ -1293,13 +1294,13 @@ void FUN_1005ff50(MechS32 p_camera, MechFloat p_zoom, MechFloat p_near, MechFloa
 
 // sgl_use_ddraw_mode's callback: keeps the DirectDraw object, and draws the 2D over the frame.
 // FUNCTION: MW2POWERVR 0x10060000
-MechS32 __cdecl FUN_10060000(sgl_ddraw_frame* p_frame)
+MechS32 __cdecl FUN_10060000(CALLBACK_SURFACE_PARAMS* p_frame)
 {
 	if (!g_a3dDirectDraw) {
-		g_a3dDirectDraw = (LPDIRECTDRAW) p_frame->ddraw;
+		g_a3dDirectDraw = (LPDIRECTDRAW) p_frame->pDDObject;
 	}
-	if (p_frame->pixels) {
-		FUN_10007db0(p_frame->pixels, p_frame->pitch);
+	if (p_frame->p3DSurfaceMemory) {
+		FUN_10007db0(p_frame->p3DSurfaceMemory, p_frame->dwStride);
 	}
 
 	return 0;
@@ -1875,9 +1876,9 @@ void FUN_10061160(MechFloat* p_colour, MechS32 p_mode)
 // p_data that this frame doesn't need, or else the needed one of the lowest priority, whose
 // animations then take their average color.
 // FUNCTION: MW2POWERVR 0x100611a0
-MechS32 FUN_100611a0(sgl_texture_cache_entry* p_entries, MechS32 p_count, MechS32 p_index, MechU16* p_data)
+MechS32 FUN_100611a0(sgl_tex_callback_struct* p_entries, MechS32 p_count, MechS32 p_index, MechU16* p_data)
 {
-	sgl_texture_cache_entry* entry;
+	sgl_tex_callback_struct* entry;
 	AnimFrame* frame;
 	MechS32 first;
 	MechS32 last;
@@ -1892,7 +1893,7 @@ MechS32 FUN_100611a0(sgl_texture_cache_entry* p_entries, MechS32 p_count, MechS3
 	oldest = g_a3dFrame;
 	oldestEntry = -1;
 	priorityEntry = -1;
-	priority = p_entries[p_index].priority;
+	priority = p_entries[p_index].approx_object_size;
 	for (i = 0, entry = p_entries; i < p_count; i++, entry++) {
 		if (i == p_index) {
 			continue;
@@ -1906,15 +1907,15 @@ MechS32 FUN_100611a0(sgl_texture_cache_entry* p_entries, MechS32 p_count, MechS3
 		}
 
 		frame = &g_animFrames[set][number];
-		if (frame->m_data == p_data && entry->loaded && !entry->unk10) {
+		if (frame->m_data == p_data && entry->loaded && !entry->used_previous_render) {
 			if (!entry->needed) {
 				if (oldest > frame->m_lastUsed) {
 					oldestEntry = i;
 					oldest = frame->m_lastUsed;
 				}
 			}
-			else if (priority > entry->priority) {
-				priority = entry->priority;
+			else if (priority > entry->approx_object_size) {
+				priority = entry->approx_object_size;
 				priorityEntry = i;
 			}
 		}
@@ -1922,7 +1923,7 @@ MechS32 FUN_100611a0(sgl_texture_cache_entry* p_entries, MechS32 p_count, MechS3
 
 	if (oldestEntry >= 0) {
 		entry = &p_entries[oldestEntry];
-		sgl_unload_cached_texture(entry->texture);
+		sgl_unload_cached_texture(entry->texture_name);
 		sgl_get_errors(&first, &last);
 		if (last) {
 			DebugPrintInternal("sgl_unload_cached_texture error: %d\n", last);
@@ -1935,7 +1936,7 @@ MechS32 FUN_100611a0(sgl_texture_cache_entry* p_entries, MechS32 p_count, MechS3
 
 	if (priorityEntry >= 0) {
 		entry = &p_entries[priorityEntry];
-		sgl_unload_cached_texture(entry->texture);
+		sgl_unload_cached_texture(entry->texture_name);
 		sgl_get_errors(&first, &last);
 		if (last) {
 			DebugPrintInternal("sgl_unload_cached_texture error: %d\n", last);
@@ -1954,9 +1955,9 @@ MechS32 FUN_100611a0(sgl_texture_cache_entry* p_entries, MechS32 p_count, MechS3
 // is full, and marks the loaded ones used this frame. An animation set whose texture can't be loaded
 // takes its average color.
 // FUNCTION: MW2POWERVR 0x10061360
-void __cdecl FUN_10061360(sgl_texture_cache_entry* p_entries, MechS32 p_count, MechU32 p_freeMemory)
+void __cdecl FUN_10061360(sgl_tex_callback_struct* p_entries, MechS32 p_count, MechU32 p_freeMemory)
 {
-	sgl_texture_cache_entry* entry;
+	sgl_tex_callback_struct* entry;
 	AnimFrame* frame;
 	sgl_intermediate_map* map;
 	MechU16* data;
@@ -2006,7 +2007,16 @@ void __cdecl FUN_10061360(sgl_texture_cache_entry* p_entries, MechS32 p_count, M
 			}
 
 			if (size < (MechS32) p_freeMemory) {
-				sgl_load_cached_texture(entry->texture, 0, 0, 0, 0, map, NULL, NULL);
+				sgl_load_cached_texture(
+					entry->texture_name,
+					sgl_map_16bit,
+					sgl_map_32x32,
+					sgl_mipmap_generate_none,
+					FALSE,
+					map,
+					NULL,
+					FALSE
+				);
 				sgl_get_errors(&first, &result);
 			}
 			else {
