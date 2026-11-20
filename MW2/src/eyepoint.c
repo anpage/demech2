@@ -552,6 +552,7 @@ MechS32 RestoreView(Eyepoint* p_eyepoint, MechScalar* p_view)
 // FUNCTION: MW2 0x100115f4
 // FUNCTION: MW2MATROX 0x10009362
 // FUNCTION: MW23DFX 0x1002e070
+// FUNCTION: MW2ATI 0x1002d1c0
 void CycleTrackedPlayer(MechS32 p_next, MechS32 p_home)
 {
 	MechS32 step;

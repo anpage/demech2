@@ -99,6 +99,7 @@
 0x1001d380 TargetGamePiece targeting.c pad 22
 0x1001d600 TargetGameThing targeting.c pad 9
 0x1001d840 UpdateTarget targeting.c pad 15
+0x1001daf0 GetLocalTargetObject targeting.c pad 1
 0x1001db40 TargetAtReticle targeting.c pad 12
 0x1001de30 TargetNearestEnemy targeting.c pad 2
 0x1001ed10 RunManeuver maneuvers.c pad 12
@@ -161,7 +162,10 @@
 0x10031da0 StopMidiSequences midi.c pad 16
 0x10031fe0 SetMidiVolume midi.c pad 5
 0x10032480 GetPlayerSlotFromNetId network.c pad 5
+0x10032700 UpdateNetwork network.c pad 13 rename from=zqai i=zqal player=zqaj slot=zqak tag=zqam text=zqan
 0x10032c00 SendStateMsg network.c pad 1 rename i=zqak mech=zqaj player=zqal section=zqam steering=zqan thing=zqai
+0x100330e0 SendChatMsg network.c early struct~NetLaunchInfo*~g_netLaunch 0 rename i=zqaj p_text=zqal p_to=zqak size=zqai
+0x10033330 ReceiveStateMsg network.c rename damage1=zqam damage2=zqaj i=zqan levels=zqak mech=zqal msg=zqaa p_msg=zqad p_slot=zqae player=zqao section=zqap text=zqab text2=zqac thing=zqai
 0x10033ce0 SendWeaponsMsg network.c rename i=zqaj mech=zqai player=zqak
 0x10033db0 ReceiveWeaponsMsg network.c rename bit=zqai i=zqak mech=zqaj msg=zqal p_msg=zqan p_slot=zqao player=zqam
 0x10033e50 SendCollisionMsg network.c pad 5
@@ -197,15 +201,19 @@
 0x100417d0 SelectNextWeaponInGroup weapons.c pad 2
 0x10041880 SelectNextWeapon weapons.c pad 23
 0x10041910 SelectNextWeaponGroup weapons.c pad 7
+0x10041a40 IsSelectedWeaponReady weapons.c pad 11
+0x10041b70 SetWeaponGroup weapons.c pad 5
 0x10041c90 FireWeaponGroup weapons.c pad 23
-0x10041d70 AddNextWeaponToGroup weapons.c pad 5
 0x10042490 FirstShots shots.c rename effect=zqai i=zqaj shot=zqak
 0x10042700 UpdateAllShots shots.c rename i=zqai shot=zqaj
 0x10043090 GuideMissileToTarget shots.c rename distance=zqap dx=zqal dy=zqan dz=zqao p_shot=zqae player=zqad targetX=zqaa targetY=zqab targetZ=zqac thing=zqai vx=zqaj vy=zqak vz=zqam
 0x10043310 DetonateShot shots.c rename impact=zqai p_explode=zqal p_index=zqak shot=zqaj
+0x10043bc0 UpdateEffects shots.c rename effect=zqak i=zqaj radius=zqam release=zqai restore=zqal x=zqan y=zqao z=zqap
+0x10043e30 DamageMechsInRadius shots.c pad 4 rename damage=zqap dx=zqai dy=zqaj dz=zqal i=zqam mech=zqak p_owner=zqaa player=zqao reach=zqan
 0x10043fe0 DamageThingsInRadius shots.c pad 8 rename distance=zqan dx=zqaj dy=zqak dz=zqal i=zqam p_owner=zqae radius=zqac reach=zqaa shape=zqad thing=zqai x=zqao y=zqap z=zqab
 0x100441c0 KillGameThing shots.c pad 13
 0x10044470 ScatterDebris shots.c pad 1
+0x100445a0 HeatMechsNearFires shots.c pad 1 rename distance=zqaf dx=zqam dy=zqan dz=zqab heat=zqad i=zqae mech=zqap player=zqag radius=zqao reach=zqaa root=zqak shape=zqac x=zqai y=zqaj z=zqal
 0x10044750 StartNuke shots.c rename duration=zqai effect=zqak i=zqaj p_player=zqam shape=zqal
 0x1005ea70 InitPaletteFade palfade.c pad 5
 0x10061880 PreviewBrightnessFraction brightnessmenu.c pad 6

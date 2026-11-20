@@ -229,6 +229,7 @@ MechS32 HasTeamReachedTarget(MechU8* p_target, MechS32 p_team)
 // FUNCTION: MW2 0x1001ad5b
 // FUNCTION: MW2MATROX 0x1001f0f8
 // FUNCTION: MW23DFX 0x10009b80
+// FUNCTION: MW2ATI 0x1000a3b0
 MechS32 IsTeamNearTarget(MechU8* p_target, MechS32 p_team)
 {
 	MechU16 index;
@@ -368,6 +369,7 @@ MechS32 IsTeamNearTarget(MechU8* p_target, MechS32 p_team)
 // FUNCTION: MW2 0x1001b0cb
 // FUNCTION: MW2MATROX 0x1001f428
 // FUNCTION: MW23DFX 0x10009d60
+// FUNCTION: MW2ATI 0x1000a590
 MechS32 AnnounceObjective(MechS32 p_star, MechS32 p_objective, MechS32 p_state)
 {
 	MechChar text[100];

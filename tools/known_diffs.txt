@@ -148,7 +148,8 @@ MW23DFX 0x10066e70 FUN_10066e70 b52be62747e7 the original reads texture-list add
 MW23DFX 0x100674c0 FUN_100674c0 d665cfaefbbc register allocation: the original spills p_count to a frame slot of its own (0xb9c against 0xb98) and keeps the loop counters in other registers; the control flow is the original's (each case calls grDrawPolygonVertexList, which 2.2 merges into one shared call)
 MW23DFX 0x10067d00 FUN_10067d00 c7b888834cbf first[] and second[] swap places in the frame; everything else matches, and declaration order doesn't change it
 MW23DFX 0x10067ef0 A3D_EdgeCrossing 3fb16d4501b3 in case 2 the original loads p_out and p_edge after the FDIV check's branches, in case 1 before; both editions do this, and no source form found gives it
-MW2ATI 0x10001000 BeginMapView 0588ff982fe7 undiagnosed
+MW2ATI 0x10001000 BeginMapView af23034671dd undiagnosed
+MW2ATI 0x10001220 CullMapViewShape 26be71ee54b9 undiagnosed
 MW2ATI 0x100014b0 ProjectMapPoint f66af19cf571 undiagnosed
 MW2ATI 0x10002b20 LayoutMessageBoxes 8038baa5483e undiagnosed
 MW2ATI 0x10002c00 ShowInGameMessage 5fc3f1746eb1 undiagnosed
@@ -169,10 +170,13 @@ MW2ATI 0x10007490 GetRectNeedleAt d8b167851e50 undiagnosed
 MW2ATI 0x100079f0 GetEllipseNeedleAt 77a64169bd23 undiagnosed
 MW2ATI 0x100085e0 PrintMono 47cea519f9c6 undiagnosed
 MW2ATI 0x10008bc0 SignalTask ba7489e74b59 undiagnosed
-MW2ATI 0x10009040 SimMain b8ff4e1cd0b0 undiagnosed
+MW2ATI 0x10009040 SimMain ffe4700e178b undiagnosed
 MW2ATI 0x10009f10 UpdatePauseState cbe253d77e1c undiagnosed
 MW2ATI 0x1000a1c0 DoFirstObjtv 06842f45f04c undiagnosed
-MW2ATI 0x1000aa00 UpdateObjective 889282118a52 undiagnosed
+MW2ATI 0x1000a3b0 IsTeamNearTarget 5b3ffdbda07e undiagnosed
+MW2ATI 0x1000a590 AnnounceObjective 4fb5181b8c1c undiagnosed
+MW2ATI 0x1000aa00 UpdateObjective 6137e546c746 undiagnosed
+MW2ATI 0x1000bf20 MoveMechWithCollisions d199bba26a63 undiagnosed
 MW2ATI 0x1000d280 ClassifyQuadtreePoint 9d2b404f10ab undiagnosed
 MW2ATI 0x1000e5b0 ReelMotionTask 776c26c2a3b3 undiagnosed
 MW2ATI 0x1000ed20 LoadAnimFile ccf7e7304cef undiagnosed
@@ -230,6 +234,7 @@ MW2ATI 0x1002c150 AdvanceAnimations a10898acd076 undiagnosed
 MW2ATI 0x1002c630 FUN_10051c07 c64fa6a83277 undiagnosed
 MW2ATI 0x1002c740 FUN_10051ea2 cb483e9bb7bb undiagnosed
 MW2ATI 0x1002c880 CalcAverageBitmapColors 32a34cac171e undiagnosed
+MW2ATI 0x1002d1c0 CycleTrackedPlayer 0c71a36000c4 undiagnosed
 MW2ATI 0x1002dca0 TransformPoint 037efc379bb9 undiagnosed
 MW2ATI 0x1002deb0 MultiplyRotations 3ccbf7296e6d undiagnosed
 MW2ATI 0x1002e150 BuildMatrixEx 5eec60e613a9 undiagnosed
@@ -241,13 +246,13 @@ MW2ATI 0x1002f320 InitSlopeTables fad7c1a95312 undiagnosed
 MW2ATI 0x1002f470 ComputeTriangleNormal 2616397d7c38 undiagnosed
 MW2ATI 0x1002f560 NormalizeVectorGuarded 8d1f94774e1f undiagnosed
 MW2ATI 0x10030c20 DoAudio 5e4c5056c826 undiagnosed
-MW2ATI 0x10031210 SampleEosCallback 8c0baac76a6b undiagnosed
+MW2ATI 0x10030df0 StartSample f31c42e41e27 undiagnosed
 MW2ATI 0x10031a70 StopSamples 9ef7b25200c8 undiagnosed
 MW2ATI 0x10034150 ReceiveGoMsg 1a1e6d043c07 undiagnosed
 MW2ATI 0x10034570 FindSession d65f23753f74 undiagnosed
 MW2ATI 0x10034a00 StopExternalIO 8237dc04895b undiagnosed
-MW2ATI 0x10035030 HandleDebugKey c78ce0488c73 undiagnosed
-MW2ATI 0x10036440 RunGameKey 9fcd41ff89f1 undiagnosed
+MW2ATI 0x10035030 HandleDebugKey 393349d36257 undiagnosed
+MW2ATI 0x10036440 RunGameKey ede968031326 undiagnosed
 MW2ATI 0x10036f90 KeyboardPoll 5c48fae37e9c undiagnosed
 MW2ATI 0x10037a30 FindInputButton 11ddd8043154 undiagnosed
 MW2ATI 0x10037b20 FindInputAxis 3ce780dd17f4 undiagnosed
@@ -273,8 +278,8 @@ MW2ATI 0x100409b0 RunIncludedStream d01e92d30c4a undiagnosed
 MW2ATI 0x10040ac0 CreateObjectNode 292cefc63453 undiagnosed
 MW2ATI 0x10041db0 UpdateWeaponLock c472356c45b3 undiagnosed
 MW2ATI 0x10042310 SpawnLaunchFx bd837bee23bf undiagnosed
-MW2ATI 0x100433b0 SpawnEffect 01f8ba206b65 undiagnosed
-MW2ATI 0x100433f0 SpawnLaunchEffect 37be15acc5af undiagnosed
+MW2ATI 0x100427b0 UpdateShot 3b29327262ce undiagnosed
+MW2ATI 0x10043430 SpawnEffectEx 2c3a3ef0eaed undiagnosed
 MW2ATI 0x10061910 RestoreBrightness 2dd226fb5ca6 undiagnosed
 MW2ATI 0x10061930 AbortMissionAction 84f3a5aa3ac6 undiagnosed
 MW2ATI 0x10061990 FleeToWindowsAction f22b2a08f514 undiagnosed

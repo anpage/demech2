@@ -443,6 +443,7 @@ MechS32 FirstExternalCtrl(void)
 // FUNCTION: MW2 0x1000e68c
 // FUNCTION: MW2MATROX 0x1000406c
 // FUNCTION: MW23DFX 0x10033b00
+// FUNCTION: MW2ATI 0x10032700
 MechS32 UpdateNetwork(void)
 {
 	MechChar text[80];
@@ -687,6 +688,7 @@ void SendStateMsg(void)
 // FUNCTION: MW2 0x1000efa4
 // FUNCTION: MW2MATROX 0x10004a71
 // FUNCTION: MW23DFX 0x100344e0
+// FUNCTION: MW2ATI 0x100330e0
 MechS32 SendChatMsg(MechS32 p_to, MechChar* p_text)
 {
 	MechS32 i;
@@ -748,6 +750,7 @@ void ReceiveChatMsg(NetChatMsg* p_msg, MechS32 p_slot)
 // FUNCTION: MW2 0x1000f1ee
 // FUNCTION: MW2MATROX 0x10004cbc
 // FUNCTION: MW23DFX 0x10034730
+// FUNCTION: MW2ATI 0x10033330
 void ReceiveStateMsg(NetStateMsg* p_msg, MechS32 p_slot)
 {
 	MechChar text2[40];

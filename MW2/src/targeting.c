@@ -732,6 +732,7 @@ Shape* GetLocalTargetShape(void)
 // FUNCTION: MW2 0x1005ff56
 // FUNCTION: MW2MATROX 0x100077f1
 // FUNCTION: MW23DFX 0x1001d810
+// FUNCTION: MW2ATI 0x1001daf0
 SceneObject* GetLocalTargetObject(void)
 {
 	MechS32 index;
