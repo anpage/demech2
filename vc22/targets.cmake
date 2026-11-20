@@ -828,7 +828,8 @@ function(demech2_add_mw2powervr)
     ID MW2POWERVR
     SOURCE_DIR MW2
     OUTPUT_NAME MW2_POWERVR
-    LINK_DIR powervr
+    # o\powervr\ would take its 165 object names past LINK's 4K limit on Windows (4340 bytes)
+    LINK_DIR pvr
     RUNTIME ""
     SOURCES
       ${sources}
