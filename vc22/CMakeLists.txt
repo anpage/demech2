@@ -76,6 +76,8 @@ demech2_add_import_library(wail32 DEF "${DEMECH2_SOURCE_DIR}/3rdparty/mss/wail32
 demech2_add_import_library(msi95 DEF "${DEMECH2_SOURCE_DIR}/3rdparty/msi95/msi95.def")
 demech2_add_import_library(glide DEF "${DEMECH2_SOURCE_DIR}/3rdparty/glide/glide.def"
   SOURCES "${DEMECH2_SOURCE_DIR}/3rdparty/glide/glide.c")
+demech2_add_import_library(ati3dcif DEF "${DEMECH2_SOURCE_DIR}/3rdparty/ati3dcif/ati3dcif.def"
+  SOURCES "${DEMECH2_SOURCE_DIR}/3rdparty/ati3dcif/ati3dcif.c")
 
 option(DEMECH2_DECOMP_ASSERT "Assert struct size" TRUE)
 

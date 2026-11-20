@@ -249,6 +249,11 @@ typedef char MechChar;
 /* The sky and ground drawers clip the polygon to the pane themselves: their callers draw it even
    when ProjectPolygon leaves no points */
 #define MW2_SKY_GROUND_CLIPPED_HELPERS
+/* The polygon drawers clip to the pane's edges themselves (FUN_10067b90), and the outline is closed */
+#define MW2_CLIP_TO_PANE_EDGES
+/* The textures are the animations' frames as they are, 16-bit texels (FUN_10051dfe), and their
+   average colors are computed from them */
+#define MW2_FRAME_TEXELS
 #endif
 
 #ifdef MW2_ATI
@@ -274,6 +279,11 @@ typedef char MechChar;
 /* Artefact: the edition's headers define FixedMul16, FixedDiv16, MulDiv64, HashName and DebugBreakpoint
    __inline (its /Ox expands them in every caller), and MemCopy and MemSet are C */
 #define MW2_INLINE_HELPERS
+/* The polygon drawers clip to the pane's edges themselves (FUN_10067b90), and the outline is closed */
+#define MW2_CLIP_TO_PANE_EDGES
+/* The textures are the animations' frames as they are, 16-bit texels (FUN_10051dfe), and their
+   average colors are computed from them */
+#define MW2_FRAME_TEXELS
 #endif
 
 /* Boolean typedefs (MechBool / MechBool8 ...) are added when a match proves

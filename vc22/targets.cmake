@@ -441,7 +441,7 @@ endfunction()
 # the 3Dfx edition's: VC++ 2.2, optimized with __fastcall the default (/Gr), int3 between the
 # functions, and 2.2's LIBC (no TLS or critical section imports). MW2_ACCEL and MW2_ATI are
 # defined. The flags and the units' order are the 3Dfx edition's until probes settle them; its
-# display back end is DirectDraw's (directdraw.c), and ati/a3d.c, its renderer, is stubs for now.
+# display back end is DirectDraw's (directdraw.c), and ati/a3d.c its renderer, over the 3D CIF.
 function(demech2_add_mw2ati)
   set(od
     "${DEMECH2_SOURCE_DIR}/MW2/src/network.c"
@@ -633,6 +633,7 @@ function(demech2_add_mw2ati)
     COMPILE_OPTIONS "$<$<COMPILE_LANGUAGE:C,CXX>:/ML;/G5;/Gr;/Gy;/DMW2_ACCEL;/DMW2_ATI>"
       "$<$<COMPILE_LANGUAGE:ASM_MASM>:${ati_masm_defines}>"
     LINK_OPTIONS /DEBUG /INCREMENTAL:no
-    LIBRARIES kernel32.lib user32.lib gdi32.lib advapi32.lib winmm.lib dplay ddraw wail32
+    LIBRARIES kernel32.lib user32.lib gdi32.lib advapi32.lib winmm.lib dplay ddraw wail32 ati3dcif
   )
+  target_include_directories(mw2ati SYSTEM PRIVATE "${DEMECH2_SOURCE_DIR}/3rdparty/ati3dcif")
 endfunction()
