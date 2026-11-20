@@ -100,4 +100,9 @@ void DrawScenePolygon(MechS32 p_count, MechU32* p_points, MechU32 p_flags);
 // FUNCTION: MW23DFX 0x10027c80
 // DrawSkyAndGround
 
+// The ATI edition places these out of polydraw.c's order, so they are annotated here, by name.
+
+// FUNCTION: MW2ATI 0x10027460
+// LoadSkyGroundSettings
+
 #endif // POLYDRAW_H

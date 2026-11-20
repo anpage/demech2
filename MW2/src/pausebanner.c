@@ -135,6 +135,7 @@ void ResumeGame(void)
 // FUNCTION: MW2 0x10009f8d
 // FUNCTION: MW2MATROX 0x1002ee0a
 // FUNCTION: MW23DFX 0x10036470
+// FUNCTION: MW2ATI 0x10035030
 void HandleDebugKey(MechU16 p_key)
 {
 	MechChar text[40];

@@ -996,6 +996,7 @@ void ReceiveWeaponsMsg(NetWeaponsMsg* p_msg, MechS32 p_slot)
 // FUNCTION: MW2 0x1000faef
 // FUNCTION: MW2MATROX 0x100057cc
 // FUNCTION: MW23DFX 0x10035250
+// FUNCTION: MW2ATI 0x10033e50
 void SendCollisionMsg(MechS32 p_slot, MechScalar p_x, MechScalar p_y, MechScalar p_z)
 {
 	Mech* mech;
@@ -1074,6 +1075,7 @@ void SendGoMsg(void)
 // FUNCTION: MW2 0x1000fcf5
 // FUNCTION: MW2MATROX 0x10005ab4
 // FUNCTION: MW23DFX 0x10035550
+// FUNCTION: MW2ATI 0x10034150
 void ReceiveGoMsg(MechChar* p_msg, MechS32 p_slot)
 {
 	MechS32 i;
@@ -1192,6 +1194,7 @@ void SendSuccessMsg(void)
 // FUNCTION: MW2 0x1000ff70
 // FUNCTION: MW2MATROX 0x10005d30
 // FUNCTION: MW23DFX 0x100357f0
+// FUNCTION: MW2ATI 0x100343f0
 void ReceiveSuccessMsg(MechChar* p_msg, MechS32 p_slot)
 {
 	MechChar text[80];
@@ -1212,6 +1215,7 @@ void ReceiveSuccessMsg(MechChar* p_msg, MechS32 p_slot)
 // FUNCTION: MW2 0x1000ffe6
 // FUNCTION: MW2MATROX 0x10005da6
 // FUNCTION: MW23DFX 0x10035870
+// FUNCTION: MW2ATI 0x10034470
 BOOL PASCAL CountPlayersCallback(DPID p_id, LPSTR p_friendlyName, LPSTR p_formalName, DWORD p_flags, LPVOID p_context)
 {
 	if (p_id < g_masterDpid) {

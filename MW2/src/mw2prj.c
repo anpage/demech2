@@ -344,6 +344,7 @@ void ShutdownMw2Prj(void)
 // FUNCTION: MW2 0x10050848
 // FUNCTION: MW2MATROX 0x1002b428
 // FUNCTION: MW23DFX 0x1003d000
+// FUNCTION: MW2ATI 0x1003afd0
 void CachePreloads(void)
 {
 	LoadWeaponSounds();

@@ -365,6 +365,7 @@ void RunMapView(void)
 // FUNCTION: MW2 0x1003ddd7
 // FUNCTION: MW2MATROX 0x10073ab1
 // FUNCTION: MW23DFX 0x10003420
+// FUNCTION: MW2ATI 0x100030b0
 MechS32 SwitchCockpitView(void)
 {
 	MechS32 changed;
@@ -638,6 +639,7 @@ void DrawMapContents(CockpitLayout* p_layout)
 // FUNCTION: MW2 0x1003e4cd
 // FUNCTION: MW2MATROX 0x10074102
 // FUNCTION: MW23DFX 0x10003960
+// FUNCTION: MW2ATI 0x100035f0
 void DrawMapUnits(CockpitLayout* p_layout)
 {
 	MechS32 i;
@@ -827,6 +829,7 @@ void DrawMapTarget(CockpitLayout* p_layout)
 // FUNCTION: MW2 0x1003e974
 // FUNCTION: MW2MATROX 0x1007465e
 // FUNCTION: MW23DFX 0x10003c10
+// FUNCTION: MW2ATI 0x100038a0
 void DrawMapNavPoints(CockpitLayout* p_layout)
 {
 #ifdef MW2_FLOAT_SCALARS
@@ -904,6 +907,7 @@ void DrawMapNavPoints(CockpitLayout* p_layout)
 // FUNCTION: MW2 0x1003eb22
 // FUNCTION: MW2MATROX 0x1007480f
 // FUNCTION: MW23DFX 0x10003d40
+// FUNCTION: MW2ATI 0x100039d0
 void DrawMapFieldOfView(CockpitLayout* p_layout, MechScalar p_heading)
 {
 	MechScalar halfFov;
@@ -1076,6 +1080,7 @@ void LeaveSatelliteView(void)
 // FUNCTION: MW2 0x1003eeaf
 // FUNCTION: MW2MATROX 0x10074bce
 // FUNCTION: MW23DFX 0x10004000
+// FUNCTION: MW2ATI 0x10003c90
 void ToggleSatelliteView(void)
 {
 	if (g_cockpitLayoutIndex == 4 && g_requestedCockpitView == 4) {
@@ -1368,6 +1373,7 @@ void SatelliteDrawPolygon(MechS32 p_count, MechU32* p_points, MechU32 p_flags)
 // in the colors p_flags picks.
 // FUNCTION: MW2MATROX 0x100751a9
 // FUNCTION: MW23DFX 0x10004390
+// FUNCTION: MW2ATI 0x10004020
 void FUN_100751a9(CockpitLayout* p_layout, MechS32 p_count, ProjectedVertex** p_points, MechU32 p_flags)
 {
 	A3DVertex* vertices;
@@ -1487,6 +1493,7 @@ MechS32 DrawMapViewTransition(MechS32 p_reverse, CockpitLayout* p_layout, RectTr
 // FUNCTION: MW2 0x1003f66d
 // FUNCTION: MW2MATROX 0x10075428
 // FUNCTION: MW23DFX 0x10004560
+// FUNCTION: MW2ATI 0x100041f0
 void PowerUpMapView(void)
 {
 	RectTransition* transition;
@@ -1528,6 +1535,7 @@ void PowerUpMapView(void)
 // FUNCTION: MW2 0x1003f74e
 // FUNCTION: MW2MATROX 0x10075509
 // FUNCTION: MW23DFX 0x100045f0
+// FUNCTION: MW2ATI 0x10004280
 void DrawSatelliteStatic(void)
 {
 	RectTransition* transition;
@@ -1628,6 +1636,7 @@ void DrawDamagedMapView(void)
 // FUNCTION: MW2 0x1003fa05
 // FUNCTION: MW2MATROX 0x100757c0
 // FUNCTION: MW23DFX 0x100047d0
+// FUNCTION: MW2ATI 0x10004460
 void PowerDownMapView(void)
 {
 	RectTransition* transition;

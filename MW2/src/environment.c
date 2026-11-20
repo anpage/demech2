@@ -159,6 +159,7 @@ void FirstEnvironment(void)
 // FUNCTION: MW2 0x1007d6bb
 // FUNCTION: MW2MATROX 0x10085d3b
 // FUNCTION: MW23DFX 0x10007900
+// FUNCTION: MW2ATI 0x10008260
 void UpdateTimeOfDay(void)
 {
 	MechS32 phase;
@@ -243,6 +244,7 @@ MechS32 IsInfraredOn(undefined4 p_unk0x00)
 // FUNCTION: MW2 0x1007d88a
 // FUNCTION: MW2MATROX 0x10085f09
 // FUNCTION: MW23DFX 0x10007a50
+// FUNCTION: MW2ATI 0x100083b0
 void SetInfrared(undefined4 p_unk0x00, MechS32 p_state)
 {
 	if (g_infraredOn != p_state) {

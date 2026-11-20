@@ -1340,6 +1340,7 @@ void DamageGameThing(
 // FUNCTION: MW2 0x1006c237
 // FUNCTION: MW2MATROX 0x1006ce62
 // FUNCTION: MW23DFX 0x10046d40
+// FUNCTION: MW2ATI 0x10044470
 void ScatterDebris(MechScalar p_x, MechScalar p_y, MechScalar p_z, MechS32 p_count)
 {
 	MechS32 shown;

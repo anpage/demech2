@@ -333,6 +333,7 @@ typedef union BwdTargetId {
 // FUNCTION: MW2 0x1000a9f5
 // FUNCTION: MW2MATROX 0x100461f5
 // FUNCTION: MW23DFX 0x1003de10
+// FUNCTION: MW2ATI 0x1003bb70
 MechS32 BwdExecuteStream(BwdStream* p_stream)
 {
 	MechS32 result;
@@ -1454,6 +1455,7 @@ MechS32 LoadWorld(MechChar* p_name)
 // FUNCTION: MW2 0x1000d4a6
 // FUNCTION: MW2MATROX 0x10048e04
 // FUNCTION: MW23DFX 0x1003f6f0
+// FUNCTION: MW2ATI 0x1003d450
 void AfterWorldLoader(void)
 {
 	SceneObject* obj;

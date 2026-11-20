@@ -361,6 +361,7 @@ void ShiftCharacter(MechChar* p_char)
 // FUNCTION: MW2 0x1005c057
 // FUNCTION: MW2MATROX 0x1004278d
 // FUNCTION: MW23DFX 0x10037310
+// FUNCTION: MW2ATI 0x10035ed0
 MechS32 HandleChatKey(MechU32 p_keyCode)
 {
 	MechChar text[80];

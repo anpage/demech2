@@ -1004,6 +1004,7 @@ InputSink* FindInputSink(MechChar* p_name)
 // FUNCTION: MW2 0x100799b7
 // FUNCTION: MW2MATROX 0x1007c176
 // FUNCTION: MW23DFX 0x10039090
+// FUNCTION: MW2ATI 0x10037c50
 MechS32 ReadInputMapLine(MechChar* p_buffer, MechS32 p_size, FILE* p_file)
 {
 	MechChar* p;
@@ -1038,6 +1039,7 @@ MechS32 ReadInputMapLine(MechChar* p_buffer, MechS32 p_size, FILE* p_file)
 // FUNCTION: MW2 0x10079aac
 // FUNCTION: MW2MATROX 0x1007c26b
 // FUNCTION: MW23DFX 0x10039140
+// FUNCTION: MW2ATI 0x10037d00
 InputAxis* GetOrCreateInputAxis(InputSink* p_sink)
 {
 	MechChar* suffix;
@@ -1134,6 +1136,7 @@ InputAxis* GetOrCreateInputAxis(InputSink* p_sink)
 // FUNCTION: MW2 0x10079f71
 // FUNCTION: MW2MATROX 0x1007c72f
 // FUNCTION: MW23DFX 0x10039440
+// FUNCTION: MW2ATI 0x10038000
 MechS32 AddAnalogBinding(InputSink* p_sink, MechChar* p_deviceName, MechS32 p_channel)
 {
 	MechS32 device;
@@ -1191,6 +1194,7 @@ MechS32 AddAnalogBinding(InputSink* p_sink, MechChar* p_deviceName, MechS32 p_ch
 // FUNCTION: MW2 0x1007a168
 // FUNCTION: MW2MATROX 0x1007c926
 // FUNCTION: MW23DFX 0x10039590
+// FUNCTION: MW2ATI 0x10038150
 MechS32 ParseInputConditions(FILE* p_file, MechS32* p_count, InputCondition* p_conditions)
 {
 	MechS32 device;
@@ -1264,6 +1268,7 @@ MechS32 CheckInputConditions(MechS32 p_count, InputCondition* p_conditions)
 // FUNCTION: MW2 0x1007a3d1
 // FUNCTION: MW2MATROX 0x1007cb6b
 // FUNCTION: MW23DFX 0x10039730
+// FUNCTION: MW2ATI 0x100382f0
 MechS32 ParseInputMap(FILE* p_file)
 {
 	MechChar line[256];
@@ -1383,6 +1388,7 @@ MechS32 ParseInputMap(FILE* p_file)
 // FUNCTION: MW2 0x1007a97a
 // FUNCTION: MW2MATROX 0x1007d0ba
 // FUNCTION: MW23DFX 0x10039ac0
+// FUNCTION: MW2ATI 0x10038680
 MechS32 LoadInputMap(void)
 {
 	MechChar name[256];
@@ -1422,6 +1428,7 @@ MechS32 LoadInputMap(void)
 // FUNCTION: MW2 0x1007aba9
 // FUNCTION: MW2MATROX 0x1007d2c1
 // FUNCTION: MW23DFX 0x10039c90
+// FUNCTION: MW2ATI 0x10038850
 MechS32 LoadGamekeyMap(void)
 {
 	MechChar line[256];
@@ -1605,6 +1612,7 @@ void FirstInputs(void)
 // FUNCTION: MW2 0x1007b19b
 // FUNCTION: MW2MATROX 0x1007d86f
 // FUNCTION: MW23DFX 0x1003a0a0
+// FUNCTION: MW2ATI 0x10038c60
 void UpdateInputs(void)
 {
 	MechS32 i;
@@ -1787,6 +1795,7 @@ MechS16 LookupGameKey(MechS16 p_keyCode)
 // FUNCTION: MW2 0x1007b7b1
 // FUNCTION: MW2MATROX 0x1007dea0
 // FUNCTION: MW23DFX 0x1003a3f0
+// FUNCTION: MW2ATI 0x10038fb0
 void ReportInputDeviceError(MechS32 p_code, MechChar* p_channel, MechChar* p_device)
 {
 	MechS32 hidden;

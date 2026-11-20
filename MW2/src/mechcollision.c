@@ -215,6 +215,7 @@ MechS32 MoveMechWithCollisions(
 // FUNCTION: MW2 0x10075d7b
 // FUNCTION: MW2MATROX 0x10075f6c
 // FUNCTION: MW23DFX 0x1000ba20
+// FUNCTION: MW2ATI 0x1000c190
 MechS32 CollideWithMechs(Mech* p_mech, MechScalar* p_x, MechScalar* p_y, MechScalar* p_z, Player** p_hit)
 {
 	MechScalar radius;
@@ -428,6 +429,7 @@ MechS32 CollideWithMechs(Mech* p_mech, MechScalar* p_x, MechScalar* p_y, MechSca
 // FUNCTION: MW2 0x10076295
 // FUNCTION: MW2MATROX 0x1007649e
 // FUNCTION: MW23DFX 0x1000be60
+// FUNCTION: MW2ATI 0x1000c5d0
 MechS32 CollideWithBuildings(Mech* p_mech, MechScalar* p_x, MechScalar* p_y, MechScalar* p_z, Shape** p_hit)
 {
 	MechScalar dz;

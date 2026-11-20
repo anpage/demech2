@@ -368,6 +368,7 @@ MechS32 LoadFormationTable(FormationRecord* p_record)
 // FUNCTION: MW2 0x1004f9a8
 // FUNCTION: MW2MATROX 0x1004959b
 // FUNCTION: MW23DFX 0x10042c60
+// FUNCTION: MW2ATI 0x10040800
 MechS32 ExecuteInclude(IncludeRecord* p_record, BwdStreamFn p_fn)
 {
 	undefined buffer[0x20];
@@ -459,6 +460,7 @@ void LoadStarTable(StarTable* p_table)
 // FUNCTION: MW2 0x1004fc48
 // FUNCTION: MW2MATROX 0x10049839
 // FUNCTION: MW23DFX 0x10042de0
+// FUNCTION: MW2ATI 0x10040980
 void SetTeamFormations(FormationNames* p_record)
 {
 	FormationNames* record;
@@ -721,6 +723,7 @@ void SetMangleBase(MechS32 p_base)
 // FUNCTION: MW2 0x100500ef
 // FUNCTION: MW2MATROX 0x10049d9d
 // FUNCTION: MW23DFX 0x10043270
+// FUNCTION: MW2ATI 0x10040ac0
 void CreateObjectNode(
 	BwdObjectRecord* p_record,
 	undefined4 p_unk0x04,

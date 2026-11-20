@@ -233,6 +233,7 @@ Point* ScaleMenuPointToFrame(PANE* p_frame, Point* p_src, Point* p_dst)
 // FUNCTION: MW2 0x1003c5a2
 // FUNCTION: MW2MATROX 0x10091772
 // FUNCTION: MW23DFX 0x10065580
+// FUNCTION: MW2ATI 0x10062b60
 void LayoutMenu(MenuDefinition* p_menu)
 {
 	Point scale;
@@ -381,6 +382,7 @@ MechS32 ActivateMenu(MenuSlot* p_slot)
 // FUNCTION: MW2 0x1003c9d2
 // FUNCTION: MW2MATROX 0x10091ba2
 // FUNCTION: MW23DFX 0x10065910
+// FUNCTION: MW2ATI 0x10062ec0
 void DeactivateMenu(MenuSlot* p_slot)
 {
 	MenuDefinition* menu;
@@ -558,6 +560,7 @@ void UpdateMenuKey(void)
 // FUNCTION: MW2 0x1003ce91
 // FUNCTION: MW2MATROX 0x1009207d
 // FUNCTION: MW23DFX 0x10065c20
+// FUNCTION: MW2ATI 0x100631d0
 void UpdateMenus(void)
 {
 	MechS32 requested;
@@ -698,6 +701,7 @@ void ApplyMenuKey(MechS32 p_key, MechS32 p_itemType, MechS32* p_action, MechS32*
 // FUNCTION: MW2 0x1003d1a7
 // FUNCTION: MW2MATROX 0x100923b4
 // FUNCTION: MW23DFX 0x10065df0
+// FUNCTION: MW2ATI 0x100633a0
 void RunMenuItems(MenuDefinition* p_menu)
 {
 	MechS32 back;

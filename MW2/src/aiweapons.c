@@ -70,6 +70,7 @@ MechS32 RunAIWeapons(Player* p_player, MechScalar p_heading)
 // FUNCTION: MW2 0x1004b724
 // FUNCTION: MW2MATROX 0x1007a9d9
 // FUNCTION: MW23DFX 0x100232b0
+// FUNCTION: MW2ATI 0x10023570
 MechS32 DecideAIFire(Player* p_player)
 {
 	MechS32 fire;

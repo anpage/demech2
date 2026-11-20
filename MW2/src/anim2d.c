@@ -205,6 +205,7 @@ void TileShapeFrame(PANE* p_target, void* p_shape, MechS32 p_frame, MechS32 p_x,
 // FUNCTION: MW2 0x100077b3
 // FUNCTION: MW2MATROX 0x10001653
 // FUNCTION: MW23DFX 0x100022f0
+// FUNCTION: MW2ATI 0x10002240
 void DrawAnim2d(PANE* p_target, MechS32 p_index, MechS32 p_x, MechS32 p_y)
 {
 	MechS32 frame;

@@ -101,6 +101,7 @@ MechChar g_anonymousInstallationName[16];
 // FUNCTION: MW2 0x1007b930
 // FUNCTION: MW2MATROX 0x10017e50
 // FUNCTION: MW23DFX 0x10020e40
+// FUNCTION: MW2ATI 0x10021110
 void DrawTargetPanelText(CockpitPanel* p_panel)
 {
 	MechS32 index;
@@ -318,6 +319,7 @@ void DrawTargetPanelText(CockpitPanel* p_panel)
 // FUNCTION: MW2 0x1007c126
 // FUNCTION: MW2MATROX 0x10018683
 // FUNCTION: MW23DFX 0x10021300
+// FUNCTION: MW2ATI 0x100215d0
 void DrawTargetPanel(CockpitPanel* p_panel)
 {
 	MechS32 index;

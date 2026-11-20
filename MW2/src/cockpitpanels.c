@@ -319,6 +319,7 @@ void PreloadCockpitSounds(void)
 // FUNCTION: MW2 0x1006f4fa
 // FUNCTION: MW2MATROX 0x1007954a
 // FUNCTION: MW23DFX 0x1001dcc0
+// FUNCTION: MW2ATI 0x1001df90
 void LayoutWeaponPanels(Mech* p_mech)
 {
 	MechS32 rightStart;
@@ -791,6 +792,7 @@ void ShutdownCockpitPanels(void)
 // FUNCTION: MW2 0x1007053d
 // FUNCTION: MW2MATROX 0x1007a5b8
 // FUNCTION: MW23DFX 0x1001e670
+// FUNCTION: MW2ATI 0x1001e940
 void DamageCockpitPanels(Mech* p_mech, MechS32 p_heavy)
 {
 	MechS32 chance;
@@ -818,6 +820,7 @@ void DamageCockpitPanels(Mech* p_mech, MechS32 p_heavy)
 // FUNCTION: MW2 0x100705dd
 // FUNCTION: MW2MATROX 0x1007a658
 // FUNCTION: MW23DFX 0x1001e6c0
+// FUNCTION: MW2ATI 0x1001e990
 void PlayCockpitWarnings(Mech* p_mech)
 {
 	if (g_hitFadePending) {

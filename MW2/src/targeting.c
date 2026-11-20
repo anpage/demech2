@@ -163,6 +163,7 @@ MechS32 RemoveNavPoint(MechU32 p_owner, MechU32 p_nav)
 // FUNCTION: MW2 0x1005ef5e
 // FUNCTION: MW2MATROX 0x100067cc
 // FUNCTION: MW23DFX 0x1001cca0
+// FUNCTION: MW2ATI 0x1001cfd0
 void CycleTarget(Player* p_player, MechS32 p_step, MechU32 p_flags)
 {
 	MechS32 target;
@@ -370,6 +371,7 @@ MechS32 TargetNavPoint(MechU32 p_player, MechS32 p_nav, MechU32 p_flags)
 // FUNCTION: MW2 0x1005f4ac
 // FUNCTION: MW2MATROX 0x10006d1a
 // FUNCTION: MW23DFX 0x1001d050
+// FUNCTION: MW2ATI 0x1001d380
 MechS32 TargetGamePiece(MechS32 p_player, MechS32 p_index, MechU32 p_flags)
 {
 	MechS32 breakpoint;
@@ -470,6 +472,7 @@ MechS32 TargetGamePiece(MechS32 p_player, MechS32 p_index, MechU32 p_flags)
 // FUNCTION: MW2 0x1005f798
 // FUNCTION: MW2MATROX 0x10007012
 // FUNCTION: MW23DFX 0x1001d2d0
+// FUNCTION: MW2ATI 0x1001d600
 MechS32 TargetGameThing(MechS32 p_player, MechS32 p_index, MechU32 p_flags)
 {
 	Player* player;
@@ -950,6 +953,7 @@ void CycleEnemyTarget(MechS32 p_step)
 // FUNCTION: MW2 0x100603ae
 // FUNCTION: MW2MATROX 0x10007c8f
 // FUNCTION: MW23DFX 0x1001db60
+// FUNCTION: MW2ATI 0x1001de30
 void TargetNearestEnemy(void)
 {
 	MechS32 autopilot;

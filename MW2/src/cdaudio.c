@@ -63,6 +63,7 @@ MechS32 g_cdStatus;
 // FUNCTION: MW2 0x1005a7a0
 // FUNCTION: MW2MATROX 0x100025b0
 // FUNCTION: MW23DFX 0x10030600
+// FUNCTION: MW2ATI 0x1002f660
 MechS32 GetCdAudioAuxDevice(void)
 {
 	MechS32 numDevs;
@@ -480,6 +481,7 @@ void FUN_1005aff8(undefined4 p_unk0x00)
 // FUNCTION: MW2 0x1005b00b
 // FUNCTION: MW2MATROX 0x10002e1b
 // FUNCTION: MW23DFX 0x10030c40
+// FUNCTION: MW2ATI 0x1002fbb0
 MechS32 PollCdDrive(void)
 {
 	MechS32 status;
