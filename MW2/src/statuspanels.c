@@ -40,6 +40,7 @@
 // GLOBAL: MW2MATROX 0x100a4ff4
 // GLOBAL: MW23DFX 0x1024c008
 // GLOBAL: MW2ATI 0x10180388
+// GLOBAL: MW2S3 0x10074248
 // GLOBAL: MW2POWERVR 0x101ab1bc
 MechS32 g_chatRecipient = 0;
 
@@ -72,6 +73,7 @@ static MechChar g_secondsText[16];
 // GLOBAL: MW2MATROX 0x101d6990
 // GLOBAL: MW23DFX 0x101e4200
 // GLOBAL: MW2ATI 0x10117ec0
+// GLOBAL: MW2S3 0x1008abe0
 // GLOBAL: MW2POWERVR 0x10142b80
 MechChar g_chatMessage[0x30];
 
@@ -355,6 +357,7 @@ void DrawObjectivesPanel(CockpitPanel* p_panel)
 // FUNCTION: MW2MATROX 0x100224b9
 // FUNCTION: MW23DFX 0x10017e10
 // FUNCTION: MW2ATI 0x100181d0
+// FUNCTION: MW2S3 0x1003a840
 void DrawNetworkPanel(CockpitPanel* p_panel)
 {
 	MechChar* state;

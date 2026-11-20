@@ -1,8 +1,8 @@
 /* The cockpit panels: their layout, set-up, per-frame update and warnings. Not a unit of its own:
    1.1 has these in config.c's object, ahead of its other functions, the Matrox edition at the end
-   of staticmem.c's, and the 3Dfx edition at the end of targeting.c's, so config.c includes this
-   file in 1.1's build, staticmem.c in the Matrox edition's and targeting.c in the 3Dfx
-   edition's. */
+   of staticmem.c's, the S3 edition at the end of eyepoint.c's, and the 3Dfx edition at the end of
+   targeting.c's, so config.c includes this file in 1.1's build, staticmem.c in the Matrox
+   edition's, eyepoint.c in the S3 edition's and targeting.c in the 3Dfx edition's. */
 #include "ammobin.h"
 #include "anim2d.h"
 #include "approxlen.h"
@@ -270,22 +270,26 @@ undefined4 g_cockpitPanelLightUpTimes[c_panelCount] = {0x16a, 0xb5,  0xb5,  0x21
 // GLOBAL: MW2 0x100ae3f0
 // GLOBAL: MW2MATROX 0x100b1910
 // GLOBAL: MW23DFX 0x1024cd50
+// GLOBAL: MW2S3 0x10076aa0
 MechS32 g_lastWarningPowerState = 0;
 
 // GLOBAL: MW2 0x100ae3f4
 // GLOBAL: MW2MATROX 0x100b1914
 // GLOBAL: MW23DFX 0x1024cd54
+// GLOBAL: MW2S3 0x10076aa4
 MechS32 g_lockedTonePlayed = 0;
 
 // GLOBAL: MW2 0x100ae3f8
 // GLOBAL: MW2MATROX 0x100b1918
 // GLOBAL: MW23DFX 0x1024cd58
+// GLOBAL: MW2S3 0x10076aa8
 MechS32 g_lockingTonePlayed = 0;
 
 // GLOBAL: MW2 0x100ae3fc
 // GLOBAL: MW2MATROX 0x100b191c
 // GLOBAL: MW23DFX 0x1024cd5c
 // GLOBAL: MW2ATI 0x101810dc
+// GLOBAL: MW2S3 0x10076aac
 MechS32 g_hitFadeCount = 0;
 
 // The local player's heading and torso twist, in whole degrees (UpdateCockpit).
@@ -361,6 +365,7 @@ void PreloadCockpitSounds(void)
 // FUNCTION: MW2MATROX 0x1007954a
 // FUNCTION: MW23DFX 0x1001dcc0
 // FUNCTION: MW2ATI 0x1001df90
+// FUNCTION: MW2S3 0x100406e0
 void LayoutWeaponPanels(Mech* p_mech)
 {
 	MechS32 rightStart;

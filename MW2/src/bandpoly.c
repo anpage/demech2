@@ -23,14 +23,14 @@ FloatPoint g_bandTexCoords[4] = {{0, 0}, {1.0f, 0}, {1.0f, 1.0f}, {0, 1.0f}};
 Point g_bandTexCoords[4] = {{0, 0}, {0x10000, 0}, {0x10000, 0x10000}, {0, 0x10000}};
 #endif
 
-#if defined(MW2_ATI) || defined(MW2_S3) || defined(MW2_POWERVR)
+// The S3 edition has this function at the start of palette.c's object (bandtexture.c).
+#if defined(MW2_ATI) || defined(MW2_POWERVR)
 // The ATI edition's: draws the textured polygon of p_count vertices p_vertices on p_pane, its
 // texture the p_width x p_height pixels p_pixels (at most 128 texels square, as wide as it is high),
 // with levels when p_mip, translucent with p_translucent; perspective-corrected when the render
 // settings' member at 0x54 is clear (the 3Dfx edition's DrawAnimatedPolygon tests m_affineTextures,
 // at 0x4c, in its place).
 // FUNCTION: MW2ATI 0x1002a480
-// FUNCTION: MW2S3 0x1003eaf0
 void FUN_1002a480(
 	PANE* p_pane,
 	MechU16* p_pixels,
@@ -112,6 +112,7 @@ void DrawBandPolygon(MechU32 p_flags, MechS32 p_count, MechU32* p_points, MechS3
 // FUNCTION: MW2MATROX 0x100459b0
 // FUNCTION: MW23DFX 0x1002a8e0
 // FUNCTION: MW2ATI 0x1002a530
+// FUNCTION: MW2S3 0x1003f090
 #ifdef MW2_A3D
 MechS32 DrawBand(
 	MechU32 p_color,

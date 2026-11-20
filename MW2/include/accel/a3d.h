@@ -247,10 +247,11 @@ extern "C"
 #endif
 
 #ifdef MW2_S3
-	// The S3 edition's renderer, over S3's toolkit (s3/a3d.c). Not decompiled yet: the
-	// client code compiles the ATI edition's calls for it until its own are known.
+	// The S3 edition's renderer, over S3's toolkit (s3/a3d.c). Its textures are VFX's: a WINDOW of
+	// 16-bit texels, copied into a DirectDraw surface the toolkit textures from.
 
-	// A texture as A3D_polygon_clip_XY_and_render takes it (the ATI edition's A3DTextureRows).
+	// A texture as A3D_polygon_clip_XY_and_render takes it: a table of row pointers (only the first is set, the
+	// pixels) and the size.
 	// SIZE 0xc
 	typedef struct A3DTextureRows {
 		MechU16** m_rows; // 0x0
@@ -258,7 +259,41 @@ extern "C"
 		MechS32 m_height; // 0x8
 	} A3DTextureRows;
 
+	// A palette color as the renderer takes it, a byte per component (0-252), blue first like the
+	// toolkit's vertices.
+	// SIZE 0x3
+	typedef struct A3DPaletteColor {
+		MechU8 m_blue;  // 0x0
+		MechU8 m_green; // 0x1
+		MechU8 m_red;   // 0x2
+	} A3DPaletteColor;
+
+	// The palette's colors as the renderer takes them (A3D_SetPalette).
+	extern A3DPaletteColor g_a3dPalette[0x100];
+
+	// Waits until the toolkit's engine is idle (FUN_1000f800), done with p_surface: the display back
+	// end calls it once it has unlocked the frame buffer.
+	void FUN_1000f840(undefined* p_surface);
+	// Waits until the engine is idle, then takes p_surface as the frame buffer to draw on (the display
+	// back end's, once it has locked it).
+	void FUN_1000f850(undefined* p_surface);
+	// Takes the "Filter" registry setting (SimMain's settings and the graphics page): nonzero filters
+	// the textures (4 texels per pixel), 0 doesn't.
+	void FUN_100102b0(MechS32 p_filter);
+	// Has the textures that may be mip-mapped mip-mapped (p_mipmapped).
+	void FUN_10010470(MechS32 p_mipmapped);
+	// Frees the textures.
+	void FUN_10010150(void);
+	// Returns the log of p_size, rounded down.
+	MechU32 FUN_1000f9b0(MechU32 p_size);
+	// Writes the mip level under p_pixels (2 << p_log texels square) to p_out; returns its end.
+	MechU16* FUN_1000fd60(MechU16* p_pixels, MechU16* p_out, MechU32 p_log);
+	// Draws a textured polygon of p_count vertices on p_pane (DrawAnimatedPolygon's, with p_flags 1
+	// for its shades and 2 for its translucency).
 	void A3D_map_polygon(PANE* p_pane, MechU32 p_count, A3DVertex* p_vertices, WINDOW* p_texture, MechU32 p_flags);
+	// Draws the textured polygon p_vertices of p_count vertices on p_pane, its texture p_texture with
+	// mip levels when p_mip: p_flags 1 is translucent, 0x400 or 0x600 perspective-corrected. The last
+	// two arguments aren't read.
 	void A3D_polygon_clip_XY_and_render(
 		PANE* p_pane,
 		MechU32 p_count,
@@ -269,8 +304,11 @@ extern "C"
 		undefined4 p_unk0x18,
 		undefined4 p_unk0x1c
 	);
-	// Closes the renderer.
+	// Destroys the renderer and closes the toolkit (DdrawStop).
 	void A3D_shutdown(void);
+
+// The texture filter setting (MW2_TEXTURE_FILTER), passed to the renderer.
+#define A3D_SET_TEXTURE_FILTER(p_filter) FUN_100102b0(p_filter)
 
 // The 3D view's pane wipe, with a 16-bit pixel: VFX's (the 16-bit port, accel/vfx16.h).
 #define A3D_PANE_WIPE(p_pane, p_color) VFX_pane_wipe(p_pane, p_color)

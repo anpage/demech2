@@ -68,6 +68,7 @@ MechScalar g_hitNormalZ = 0;
 // GLOBAL: MW2MATROX 0x100a55bc
 // GLOBAL: MW23DFX 0x1024b414
 // GLOBAL: MW2ATI 0x1017f794
+// GLOBAL: MW2S3 0x10065bfc
 // GLOBAL: MW2POWERVR 0x101aa534
 MechScalar g_groundNormalX = 0;
 
@@ -75,6 +76,7 @@ MechScalar g_groundNormalX = 0;
 // GLOBAL: MW2MATROX 0x100a55c0
 // GLOBAL: MW23DFX 0x1024b418
 // GLOBAL: MW2ATI 0x1017f798
+// GLOBAL: MW2S3 0x10065c00
 // GLOBAL: MW2POWERVR 0x101aa538
 MechScalar g_groundNormalY = 0;
 
@@ -82,6 +84,7 @@ MechScalar g_groundNormalY = 0;
 // GLOBAL: MW2MATROX 0x100a55c4
 // GLOBAL: MW23DFX 0x1024b41c
 // GLOBAL: MW2ATI 0x1017f79c
+// GLOBAL: MW2S3 0x10065c04
 // GLOBAL: MW2POWERVR 0x101aa53c
 MechScalar g_groundNormalZ = 0;
 
@@ -178,6 +181,7 @@ MechS32 IsBelowFacePlane(
 // FUNCTION: MW2MATROX 0x100239fc
 // FUNCTION: MW23DFX 0x10010080
 // FUNCTION: MW2ATI 0x100105e0
+// FUNCTION: MW2S3 0x100223b0
 // FUNCTION: MW2POWERVR 0x1000f470
 MechScalar GetTerrainHeight(MechScalar p_x, MechScalar p_y, MechScalar p_z)
 {
@@ -241,6 +245,7 @@ MechScalar GetTerrainHeight(MechScalar p_x, MechScalar p_y, MechScalar p_z)
 // FUNCTION: MW2MATROX 0x10023bc0
 // FUNCTION: MW23DFX 0x100101f0
 // FUNCTION: MW2ATI 0x10010750
+// FUNCTION: MW2S3 0x10022520
 // FUNCTION: MW2POWERVR 0x1000f5e0
 MechScalar GetHighestSurface(MechScalar p_x, MechScalar p_y, MechScalar p_z)
 {
@@ -499,6 +504,7 @@ MechS32 TestSceneryCollision(Ray* p_ray, Shape** p_hit)
 // FUNCTION: MW2MATROX 0x100241af
 // FUNCTION: MW23DFX 0x10010650
 // FUNCTION: MW2ATI 0x10010bb0
+// FUNCTION: MW2S3 0x10022980
 MechS32 TestShapeRay(Shape* p_shape, Ray* p_ray, MechScalar p_distance)
 {
 	MechS32 (*testRay)(Shape*, Ray*);
@@ -582,6 +588,7 @@ void EndRayAtShape(Shape* p_shape, Ray* p_ray, MechScalar p_distance)
 // FUNCTION: MW2MATROX 0x1002444c
 // FUNCTION: MW23DFX 0x10010830
 // FUNCTION: MW2ATI 0x10010d90
+// FUNCTION: MW2S3 0x10022b60
 // FUNCTION: MW2POWERVR 0x1000fc20
 MechS32 IntersectRayFace(Face* p_face, Vertex* p_vertices, Ray* p_ray)
 {
@@ -725,6 +732,7 @@ MechS32 IsPointInFace(Face* p_face, Vertex* p_vertices, MechScalar p_x, MechScal
 // FUNCTION: MW2MATROX 0x100246e2
 // FUNCTION: MW23DFX 0x10010a90
 // FUNCTION: MW2ATI 0x10010ff0
+// FUNCTION: MW2S3 0x10022db0
 // FUNCTION: MW2POWERVR 0x1000fe80
 MechS32 IsPointInFaceXZ(Face* p_face, Vertex* p_vertices, MechScalar p_x, MechScalar p_z)
 {
@@ -875,6 +883,7 @@ MechS32 IsPointInFaceXZ(Face* p_face, Vertex* p_vertices, MechScalar p_x, MechSc
 // FUNCTION: MW2MATROX 0x10024aa5
 // FUNCTION: MW23DFX 0x10010db0
 // FUNCTION: MW2ATI 0x10011310
+// FUNCTION: MW2S3 0x100230b0
 // FUNCTION: MW2POWERVR 0x100101a0
 MechS32 IsPointInFaceXY(Face* p_face, Vertex* p_vertices, MechScalar p_x, MechScalar p_y)
 {
@@ -1025,6 +1034,7 @@ MechS32 IsPointInFaceXY(Face* p_face, Vertex* p_vertices, MechScalar p_x, MechSc
 // FUNCTION: MW2MATROX 0x10024e68
 // FUNCTION: MW23DFX 0x100110d0
 // FUNCTION: MW2ATI 0x10011630
+// FUNCTION: MW2S3 0x100233b0
 // FUNCTION: MW2POWERVR 0x100104c0
 MechS32 IsPointInFaceYZ(Face* p_face, Vertex* p_vertices, MechScalar p_y, MechScalar p_z)
 {

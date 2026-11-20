@@ -39,11 +39,13 @@
 // GLOBAL: MW2 0x100a15d0
 // GLOBAL: MW2MATROX 0x100a6228
 // GLOBAL: MW23DFX 0x102503a0
+// GLOBAL: MW2S3 0x100624c0
 MechS32 g_debugSlot = -1;
 
 // GLOBAL: MW2 0x100a15d4
 // GLOBAL: MW2MATROX 0x100a622c
 // GLOBAL: MW23DFX 0x102503a4
+// GLOBAL: MW2S3 0x100624c4
 MechS32 g_debugSection = -1;
 
 // The banner's rectangle, in 16.16 fractions of the screen until the first draw scales it.
@@ -146,6 +148,7 @@ void ResumeGame(void)
 // FUNCTION: MW2MATROX 0x1002ee0a
 // FUNCTION: MW23DFX 0x10036470
 // FUNCTION: MW2ATI 0x10035030
+// FUNCTION: MW2S3 0x10011280
 // FUNCTION: MW2POWERVR 0x1002fab0
 void HandleDebugKey(MechU16 p_key)
 {

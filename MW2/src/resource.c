@@ -159,6 +159,7 @@ MechS32 g_mangleBase = 0;
 // GLOBAL: MW2 0x100a862c
 // GLOBAL: MW2MATROX 0x100a8604
 // GLOBAL: MW23DFX 0x1025a61c
+// GLOBAL: MW2S3 0x10073154
 MechS32 g_nextMangleBase = 0;
 
 // The formation LoadStarTable gives the player's team, or NULL to use the record's.
@@ -183,6 +184,7 @@ MechChar* g_otherTeamFormation = NULL;
 // GLOBAL: MW2 0x100a8638
 // GLOBAL: MW2MATROX 0x100a8610
 // GLOBAL: MW23DFX 0x1025a628
+// GLOBAL: MW2S3 0x10073160
 struct Player* g_lastPlayer = NULL;
 
 // The task kinds of a world stream's task record (BwdExecuteStream): 0 spins a star's object, 1
@@ -774,6 +776,7 @@ void SetMangleBase(MechS32 p_base)
 // FUNCTION: MW2MATROX 0x10049d9d
 // FUNCTION: MW23DFX 0x10043270
 // FUNCTION: MW2ATI 0x10040ac0
+// FUNCTION: MW2S3 0x10033390
 // FUNCTION: MW2POWERVR 0x1003b820
 void CreateObjectNode(
 	BwdObjectRecord* p_record,

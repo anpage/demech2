@@ -236,6 +236,7 @@ MechS32 g_viewProjectScaleY16;
 // GLOBAL: MW2MATROX 0x101d6874
 // GLOBAL: MW23DFX 0x1015ef1c
 // GLOBAL: MW2ATI 0x10092f0c
+// GLOBAL: MW2S3 0x10162f9c
 // GLOBAL: MW2POWERVR 0x1008944c
 MechScalar g_viewRotX0;
 
@@ -500,6 +501,7 @@ void SelectEyepoint(Eyepoint* p_eyepoint)
 // FUNCTION: MW2MATROX 0x100292cc
 // FUNCTION: MW23DFX 0x1002f740
 // FUNCTION: MW2ATI 0x1002e820
+// FUNCTION: MW2S3 0x100067b0
 void UpdateProjection(Eyepoint* p_eyepoint)
 {
 #ifdef MW2_FLOAT_SCALARS
@@ -788,6 +790,7 @@ void GetEyepointTransform(Eyepoint* p_eyepoint, Matrix* p_matrix)
 // FUNCTION: MW2MATROX 0x1002975e
 // FUNCTION: MW23DFX 0x1002f9f0
 // FUNCTION: MW2ATI 0x1002ea50
+// FUNCTION: MW2S3 0x100069b0
 MechS32 ProjectWorldPoint(MechScalar* p_x, MechScalar* p_y, MechScalar* p_z)
 {
 	MechScalar x;
@@ -880,6 +883,7 @@ MechS32 ProjectWorldPoint(MechScalar* p_x, MechScalar* p_y, MechScalar* p_z)
 // FUNCTION: MW2MATROX 0x10029957
 // FUNCTION: MW23DFX 0x1002fba0
 // FUNCTION: MW2ATI 0x1002ec00
+// FUNCTION: MW2S3 0x10006b40
 MechS32 CullSceneShape(Shape* p_shape)
 {
 	MechScalar y;
@@ -996,6 +1000,7 @@ MechS32 CullSceneShape(Shape* p_shape)
 // FUNCTION: MW2MATROX 0x10029c23
 // FUNCTION: MW23DFX 0x1002fdc0
 // FUNCTION: MW2ATI 0x1002ee20
+// FUNCTION: MW2S3 0x10006d30
 MechS32 CullShapeToFrustum(Shape* p_shape)
 {
 	MechScalar y;

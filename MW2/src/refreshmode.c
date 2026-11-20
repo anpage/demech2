@@ -117,6 +117,7 @@ MechS32 g_refreshModeFallback = FALSE;
 // GLOBAL: MW2MATROX 0x100b1a88
 // GLOBAL: MW23DFX 0x102492f0
 // GLOBAL: MW2ATI 0x1017d2f0
+// GLOBAL: MW2S3 0x1006a4f0
 MechS32 g_lastProfiledRefreshMode = 4;
 
 // The buffer the active refresh mode renders into.
@@ -174,6 +175,7 @@ MechS32 g_profileFrame = 0;
 // GLOBAL: MW2MATROX 0x101249f8
 // GLOBAL: MW23DFX 0x1007b000
 // GLOBAL: MW2ATI 0x10070000
+// GLOBAL: MW2S3 0x1007cf30
 static LARGE_INTEGER g_profileStart;
 
 // The window's position and size in windowed mode (SetWindowPos arguments, not corners).
@@ -355,6 +357,7 @@ void ShutdownRefreshMode(void)
 // FUNCTION: MW2MATROX 0x1007b124
 // FUNCTION: MW23DFX 0x10002870
 // FUNCTION: MW2ATI 0x10002780
+// FUNCTION: MW2S3 0x1002ef60
 void ProfileRefreshModes(void)
 {
 	LARGE_INTEGER end;

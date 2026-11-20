@@ -47,6 +47,7 @@
 // GLOBAL: MW2MATROX 0x100a7cb8
 // GLOBAL: MW23DFX 0x1025050c
 // GLOBAL: MW2ATI 0x1018481c
+// GLOBAL: MW2S3 0x1006262c
 // GLOBAL: MW2POWERVR 0x101af8e4
 MechS32 g_missionEndTime = 0;
 
@@ -54,6 +55,7 @@ MechS32 g_missionEndTime = 0;
 // GLOBAL: MW2MATROX 0x100a7cbc
 // GLOBAL: MW23DFX 0x10250510
 // GLOBAL: MW2ATI 0x10184820
+// GLOBAL: MW2S3 0x10062630
 MechS32 g_speechFlushTime = 0;
 
 // A game-key toggle (GetSystemSetting's setting 0x40).
@@ -70,6 +72,7 @@ MechS32 g_overrideShutdown = 0;
 // GLOBAL: MW2MATROX 0x100a7cc8
 // GLOBAL: MW23DFX 0x1025051c
 // GLOBAL: MW2ATI 0x1018482c
+// GLOBAL: MW2S3 0x1006263c
 MechS32 g_feetToTorso = 0;
 
 // GLOBAL: MW2 0x100aa2a4
@@ -84,6 +87,7 @@ MechS32 g_mechViewMode = 1;
 // GLOBAL: MW2MATROX 0x100a7cd0
 // GLOBAL: MW23DFX 0x10250524
 // GLOBAL: MW2ATI 0x10184834
+// GLOBAL: MW2S3 0x10062644
 // GLOBAL: MW2POWERVR 0x101af8fc
 MechS32 g_missionEnded = 0;
 
@@ -100,12 +104,14 @@ MechS32 g_missionTimerStopped = 0;
 // GLOBAL: MW2MATROX 0x100a7cd8
 // GLOBAL: MW23DFX 0x1025052c
 // GLOBAL: MW2ATI 0x1018483c
+// GLOBAL: MW2S3 0x1006264c
 MechS32 g_timeCompressionCheat = 0;
 
 // The length of the chat message being typed (HandleChatKey).
 // GLOBAL: MW2 0x100aa2b8
 // GLOBAL: MW2MATROX 0x100a7ce0
 // GLOBAL: MW23DFX 0x10250534
+// GLOBAL: MW2S3 0x10062654
 // GLOBAL: MW2POWERVR 0x101af90c
 MechS32 g_chatLength = 0;
 
@@ -190,6 +196,7 @@ MechS32 TypedCodeMatches(MechChar* p_code)
 // FUNCTION: MW2MATROX 0x10041f93
 // FUNCTION: MW23DFX 0x10036d80
 // FUNCTION: MW2ATI 0x10035940
+// FUNCTION: MW2S3 0x10011b90
 void HandleCheatInput(MechS16 p_key)
 {
 	MechS32 target;
@@ -384,6 +391,7 @@ void ShiftCharacter(MechChar* p_char)
 // FUNCTION: MW2MATROX 0x1004278d
 // FUNCTION: MW23DFX 0x10037310
 // FUNCTION: MW2ATI 0x10035ed0
+// FUNCTION: MW2S3 0x10012160
 // FUNCTION: MW2POWERVR 0x10030cb0
 MechS32 HandleChatKey(MechU32 p_keyCode)
 {
@@ -482,6 +490,7 @@ MechS32 HandleChatKey(MechU32 p_keyCode)
 // FUNCTION: MW2MATROX 0x10042a17
 // FUNCTION: MW23DFX 0x100374e0
 // FUNCTION: MW2ATI 0x100360a0
+// FUNCTION: MW2S3 0x10012330
 void HandleGameKeys(MechS32 p_unk0x00, MechS32 p_unk0x04, MechU16 p_key)
 {
 	if (g_simPaused) {
@@ -612,6 +621,7 @@ void HandleGameKeys(MechS32 p_unk0x00, MechS32 p_unk0x04, MechU16 p_key)
 // FUNCTION: MW2MATROX 0x10042ec0
 // FUNCTION: MW23DFX 0x10037880
 // FUNCTION: MW2ATI 0x10036440
+// FUNCTION: MW2S3 0x100126d0
 void RunGameKey(MechS32 p_key)
 {
 	Mech* mech;

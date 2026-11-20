@@ -34,6 +34,7 @@ typedef MechS32 (*DrawFaceHook)(Face* p_face, Vertex* p_vertices, MechS32 p_flag
 // FUNCTION: MW2MATROX 0x10076e20
 // FUNCTION: MW23DFX 0x1002b140
 // FUNCTION: MW2ATI 0x1002ac80
+// FUNCTION: MW2S3 0x1002c7a0
 ProjectedVertex* GetViewVertex(Vertex* p_vertex)
 {
 	MechFloat dx;
@@ -70,6 +71,7 @@ ProjectedVertex* GetViewVertex(Vertex* p_vertex)
 // FUNCTION: MW2MATROX 0x10076f41
 // FUNCTION: MW23DFX 0x1002b200
 // FUNCTION: MW2ATI 0x1002ad40
+// FUNCTION: MW2S3 0x1002c850
 ProjectedVertex* ClipEdgeToNearPlane(Vertex* p_a, Vertex* p_b)
 {
 	MechFloat x0;
@@ -178,6 +180,7 @@ ProjectedVertex* ClipEdgeToNearPlane(Vertex* p_a, Vertex* p_b)
 // FUNCTION: MW2MATROX 0x100773f0
 // FUNCTION: MW23DFX 0x1002b730
 // FUNCTION: MW2ATI 0x1002b270
+// FUNCTION: MW2S3 0x1002cbd0
 ProjectedVertex* ProjectVertex(ProjectedVertex* p_vertex)
 {
 	MechS32 screenX;
@@ -293,6 +296,7 @@ MechS32 GetFaceShade(Face* p_face, Vertex* p_vertices)
 // FUNCTION: MW2MATROX 0x1007770c
 // FUNCTION: MW23DFX 0x1002b9b0
 // FUNCTION: MW2ATI 0x1002b370
+// FUNCTION: MW2S3 0x1002cca0
 void QueueFace(Face* p_face, Vertex* p_vertices)
 {
 	MechS8 clipped;
@@ -640,6 +644,7 @@ ProjectedVertex* ClipProjectedEdge(ProjectedVertex* p_a, ProjectedVertex* p_b, M
 // FUNCTION: MW2MATROX 0x10078432
 // FUNCTION: MW23DFX 0x1002c770
 // FUNCTION: MW2ATI 0x1002bc10
+// FUNCTION: MW2S3 0x1002d770
 MechS32 ProjectPolygon(Vertex* p_vertices, MechU32 p_count, MechS32 p_unk0x08)
 {
 #ifdef MW2_PROJECT_NEAR_CLIP

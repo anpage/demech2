@@ -319,6 +319,10 @@ typedef char MechChar;
 /* The textures are the animations' frames as they are, 16-bit texels (FUN_10051dfe), and their
    average colors are computed from them */
 #define MW2_FRAME_TEXELS
+/* The "Filter" registry setting, passed to the renderer */
+#define MW2_TEXTURE_FILTER
+/* The graphics page lists the texture filter, third */
+#define MW2_TEXTURE_FILTER_ITEM
 /* VFX3D and VFXREND, VFX's polygon fillers and renderer, aren't linked: the A3D renderer draws every
    polygon, and FirstRender has no code block to make writable */
 #define MW2_NO_VFXREND

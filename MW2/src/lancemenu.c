@@ -27,6 +27,7 @@ MechS32 g_lanceOrders[8] = {7, 7, 7, 7, 7, 0, 0, 0};
 // FUNCTION: MW2MATROX 0x1008e640
 // FUNCTION: MW23DFX 0x10064390
 // FUNCTION: MW2ATI 0x10061a00
+// FUNCTION: MW2S3 0x100254a0
 // FUNCTION: MW2POWERVR 0x1005c770
 MechS32 PrepareCommandComputerPage(MenuDefinition* p_menu, MenuPage* p_page)
 {

@@ -27,7 +27,26 @@ typedef struct A3DVertex {
 	MechFloat m_unk0x34; // 0x34
 	MechFloat m_unk0x38; // 0x38
 } A3DVertex;
-#elif defined(MW2_ATI) || defined(MW2_S3) || defined(MW2_POWERVR)
+#elif defined(MW2_S3)
+// A vertex as the S3 edition's renderer takes it: the toolkit's S3DTK_VERTEX_TEX, which it hands to
+// the toolkit as it is: the screen position, the depth, w, the color (a byte per component, blue
+// first), the fog and the texture coordinates (not over w). The members the Matrox edition's vertex
+// has too keep its names.
+// SIZE 0x20
+typedef struct A3DVertex {
+	MechFloat m_x;       // 0x00
+	MechFloat m_y;       // 0x04
+	MechFloat m_z;       // 0x08
+	MechFloat m_w;       // 0x0c — w (1 for flat polygons)
+	MechU8 m_blue;       // 0x10
+	MechU8 m_green;      // 0x11
+	MechU8 m_red;        // 0x12
+	MechU8 m_alpha;      // 0x13
+	MechFloat m_unk0x14; // 0x14 — the fog
+	MechFloat m_u;       // 0x18
+	MechFloat m_v;       // 0x1c
+} A3DVertex;
+#elif defined(MW2_ATI) || defined(MW2_POWERVR)
 // A vertex as the ATI edition's renderer takes it: the 3D CIF's C3D_VTCF, which it hands to the CIF
 // as it is: the screen position, the depth, the texture coordinates over w, 1 / w, the color (0-255
 // per component) and the alpha. The members the Matrox edition's vertex has too keep its names.

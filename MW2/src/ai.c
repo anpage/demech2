@@ -449,6 +449,7 @@ MechS16 g_helicopterScripts[15][2] = {
 // GLOBAL: MW2MATROX 0x100bb7cc
 // GLOBAL: MW23DFX 0x1024bc24
 // GLOBAL: MW2ATI 0x1017ffa4
+// GLOBAL: MW2S3 0x10064974
 // GLOBAL: MW2POWERVR 0x101aad74
 MechS32 g_lairdoCheat = 0;
 
@@ -509,7 +510,7 @@ AiMessageFn g_aiMessageFns[8] = {
 // GLOBAL: MW2MATROX 0x100bb838
 // GLOBAL: MW23DFX 0x1024bc90
 // GLOBAL: MW2ATI 0x10180010
-// GLOBAL: MW2S3 0x100646f8
+// GLOBAL: MW2S3 0x100649e0
 // GLOBAL: MW2POWERVR 0x101aade0
 AiTransitionFn g_aiTransitionFns[5] = {
 	AiTransitionNull,
@@ -531,6 +532,7 @@ void* g_aiScripts[10];
 // GLOBAL: MW2MATROX 0x1012c374
 // GLOBAL: MW23DFX 0x101e8834
 // GLOBAL: MW2ATI 0x1011c4f4
+// GLOBAL: MW2S3 0x1014d388
 // GLOBAL: MW2POWERVR 0x101471b4
 MechS16 g_hiddenTargetCount;
 
@@ -607,6 +609,7 @@ void UpdateAI(Player* p_player)
 // FUNCTION: MW2MATROX 0x100803d1
 // FUNCTION: MW23DFX 0x10011d20
 // FUNCTION: MW2ATI 0x10012280
+// FUNCTION: MW2S3 0x100154f0
 // FUNCTION: MW2POWERVR 0x100111c0
 MechS32 RunAIRules(Player* p_player)
 {
@@ -654,6 +657,7 @@ MechS32 RunAIRules(Player* p_player)
 // FUNCTION: MW2MATROX 0x1008059c
 // FUNCTION: MW23DFX 0x10011e40
 // FUNCTION: MW2ATI 0x100123a0
+// FUNCTION: MW2S3 0x10015610
 // FUNCTION: MW2POWERVR 0x100112e0
 void CollectAIRules(Player* p_player)
 {
@@ -824,6 +828,7 @@ const MechChar* FindAIName(MechS16 p_value, AiName* p_names, MechS16 p_count)
 // FUNCTION: MW2MATROX 0x10080b91
 // FUNCTION: MW23DFX 0x10011ff0
 // FUNCTION: MW2ATI 0x10012550
+// FUNCTION: MW2S3 0x10015990
 void ClearAILog(void)
 {
 	MechS32 i;
@@ -838,6 +843,7 @@ void ClearAILog(void)
 // FUNCTION: MW2MATROX 0x10080bca
 // FUNCTION: MW23DFX 0x10012150
 // FUNCTION: MW2ATI 0x100126b0
+// FUNCTION: MW2S3 0x10015a50
 // FUNCTION: MW2POWERVR 0x100115f0
 void LogPlayerStatusLines(void)
 {
@@ -995,6 +1001,7 @@ MechU32 GetPointDistance(MechS32* p_a, MechS32* p_b)
 // FUNCTION: MW2MATROX 0x10081269
 // FUNCTION: MW23DFX 0x100125d0
 // FUNCTION: MW2ATI 0x10012b30
+// FUNCTION: MW2S3 0x10015da0
 MechS32 ChooseTeamLeader(MechS32 p_team)
 {
 	Player* member;
@@ -1033,6 +1040,7 @@ MechS32 ChooseTeamLeader(MechS32 p_team)
 // FUNCTION: MW2MATROX 0x1008131f
 // FUNCTION: MW23DFX 0x100126d0
 // FUNCTION: MW2ATI 0x10012c30
+// FUNCTION: MW2S3 0x10015e20
 // FUNCTION: MW2POWERVR 0x10011b70
 void RetargetGoals(MechS32 p_team, MechS32 p_index, MechS32 p_target)
 {
@@ -2158,6 +2166,7 @@ void EnterAIState(Player* p_player, MechU16 p_state)
 // FUNCTION: MW2MATROX 0x10083294
 // FUNCTION: MW23DFX 0x10013a50
 // FUNCTION: MW2ATI 0x10013ee0
+// FUNCTION: MW2S3 0x10017160
 // FUNCTION: MW2POWERVR 0x10012e20
 MechS16 NextTarget(Player* p_player, MechS16 p_target, MechS16 p_previous)
 {
@@ -2466,6 +2475,7 @@ void ReleaseNavPoints(Player* p_player)
 // FUNCTION: MW2MATROX 0x10083ab7
 // FUNCTION: MW23DFX 0x10013f00
 // FUNCTION: MW2ATI 0x10014390
+// FUNCTION: MW2S3 0x10017610
 void PlacePatrolNavs(Player* p_player)
 {
 	MechU32 index;
@@ -2574,6 +2584,7 @@ void PlaceFormationNav(Player* p_player)
 // FUNCTION: MW2MATROX 0x10083dca
 // FUNCTION: MW23DFX 0x10014110
 // FUNCTION: MW2ATI 0x100145a0
+// FUNCTION: MW2S3 0x10017820
 // FUNCTION: MW2POWERVR 0x100134e0
 void RecordAttack(MechS32 p_index, MechU32 p_target)
 {
@@ -2684,6 +2695,7 @@ void PostAIMessage(Player* p_player, MechS16 p_message, MechU16 p_target, MechS1
 // FUNCTION: MW2MATROX 0x10084002
 // FUNCTION: MW23DFX 0x10014290
 // FUNCTION: MW2ATI 0x10014720
+// FUNCTION: MW2S3 0x100179a0
 // FUNCTION: MW2POWERVR 0x10013660
 MechS16 OrderPlayers(Player* p_player, MechS16 p_targets, MechS16 p_state, MechS16 p_target)
 {
@@ -3114,6 +3126,7 @@ void HandleStarOrder(MechS32 p_team, AiMessage* p_order)
 // FUNCTION: MW2MATROX 0x10084aac
 // FUNCTION: MW23DFX 0x10014950
 // FUNCTION: MW2ATI 0x10014da0
+// FUNCTION: MW2S3 0x10018020
 MechS32 AssignStarTarget(MechS32 p_team, MechU16 p_target)
 {
 	MechS32 required;
@@ -3216,6 +3229,7 @@ MechS32 AssignStarTarget(MechS32 p_team, MechU16 p_target)
 // FUNCTION: MW2MATROX 0x10084e52
 // FUNCTION: MW23DFX 0x10014ba0
 // FUNCTION: MW2ATI 0x10014ff0
+// FUNCTION: MW2S3 0x10018270
 // FUNCTION: MW2POWERVR 0x10013f30
 void LeadStar(MechS32 p_team)
 {
@@ -3449,6 +3463,7 @@ void RunStarCommand(MechS32 p_command, MechS32 p_slot)
 // FUNCTION: MW2MATROX 0x1008554f
 // FUNCTION: MW23DFX 0x10014ff0
 // FUNCTION: MW2ATI 0x10015400
+// FUNCTION: MW2S3 0x10018680
 // FUNCTION: MW2POWERVR 0x10014340
 void SweepTorso(Player* p_player)
 {

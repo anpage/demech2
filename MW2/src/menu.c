@@ -84,11 +84,18 @@ undefined g_textColors[0x100];
 // GLOBAL: MW2POWERVR 0x1007dac8
 MechS32 g_openMenuCount;
 
+#ifdef MW2_S3
+// The S3 edition initializes the list's head and tail (in .data).
+// GLOBAL: MW2S3 0x10065c58
+MenuSlot* g_menuSlots = NULL;
+
+// GLOBAL: MW2S3 0x10065c5c
+MenuSlot* g_menuSlotsTail = NULL;
+#else
 // GLOBAL: MW2 0x10109c7c
 // GLOBAL: MW2MATROX 0x10125868
 // GLOBAL: MW23DFX 0x101534cc
 // GLOBAL: MW2ATI 0x100874e8
-// GLOBAL: MW2S3 0x10065c5c
 // GLOBAL: MW2POWERVR 0x1007dacc
 MenuSlot* g_menuSlotsTail;
 
@@ -96,9 +103,9 @@ MenuSlot* g_menuSlotsTail;
 // GLOBAL: MW2MATROX 0x1012585c
 // GLOBAL: MW23DFX 0x101534c0
 // GLOBAL: MW2ATI 0x100874dc
-// GLOBAL: MW2S3 0x10065c58
 // GLOBAL: MW2POWERVR 0x1007dac0
 MenuSlot* g_menuSlots;
+#endif
 
 // The key the open menu acts on this frame (0: none).
 // GLOBAL: MW2 0x10109c84
@@ -256,6 +263,7 @@ Point* ScaleMenuPointToFrame(PANE* p_frame, Point* p_src, Point* p_dst)
 // FUNCTION: MW2MATROX 0x10091772
 // FUNCTION: MW23DFX 0x10065580
 // FUNCTION: MW2ATI 0x10062b60
+// FUNCTION: MW2S3 0x10023aa0
 // FUNCTION: MW2POWERVR 0x1005d8d0
 void LayoutMenu(MenuDefinition* p_menu)
 {
@@ -743,6 +751,7 @@ void ApplyMenuKey(MechS32 p_key, MechS32 p_itemType, MechS32* p_action, MechS32*
 // FUNCTION: MW2MATROX 0x100923b4
 // FUNCTION: MW23DFX 0x10065df0
 // FUNCTION: MW2ATI 0x100633a0
+// FUNCTION: MW2S3 0x100242d0
 // FUNCTION: MW2POWERVR 0x1005e110
 void RunMenuItems(MenuDefinition* p_menu)
 {

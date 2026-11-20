@@ -333,6 +333,7 @@ MechS32 GetTerrainShapeTop(Shape* p_shape, MechScalar p_x, MechScalar p_y, MechS
 // FUNCTION: MW2MATROX 0x10052883
 // FUNCTION: MW23DFX 0x1000d6b0
 // FUNCTION: MW2ATI 0x1000de20
+// FUNCTION: MW2S3 0x1001ed70
 MechS32 TestPointAboveFaces(Shape* p_shape, MechScalar p_x, MechScalar p_y, MechScalar p_z)
 {
 	MechS32 i;

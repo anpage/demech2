@@ -145,6 +145,7 @@ DECOMP_SIZE_ASSERT(ReelEvent, 0x8)
 // GLOBAL: MW2 0x100a6d64
 // GLOBAL: MW2MATROX 0x100ae2b4
 // GLOBAL: MW23DFX 0x1024b328
+// GLOBAL: MW2S3 0x10060f34
 MechS32 g_reelMotionError = 0;
 
 // The number of entries in g_paths.
@@ -159,12 +160,14 @@ MechS32 g_pathCount = 0;
 // GLOBAL: MW2 0x100a6d6c
 // GLOBAL: MW2MATROX 0x100ae2bc
 // GLOBAL: MW23DFX 0x1024b330
+// GLOBAL: MW2S3 0x10060f3c
 MechS32 g_maxAnimNumber = 0;
 
 // The base of the animation numbers of the file being loaded.
 // GLOBAL: MW2 0x100a6d70
 // GLOBAL: MW2MATROX 0x100ae2c0
 // GLOBAL: MW23DFX 0x1024b334
+// GLOBAL: MW2S3 0x10060f40
 MechS32 g_animBase = 0;
 
 // The number of entries in g_animFiles.
@@ -223,6 +226,7 @@ MechS32 g_polygonPointCount;
 // GLOBAL: MW2 0x1010b534
 // GLOBAL: MW2MATROX 0x101d698c
 // GLOBAL: MW23DFX 0x101b0eec
+// GLOBAL: MW2S3 0x100b1cf4
 MechU8* g_polygonPointCursor;
 
 // QueueFace's counts: faces it took (5bc), faces past the back-face test (538), vertices it
@@ -266,6 +270,7 @@ Reel* g_reels[0x780];
 
 // GLOBAL: MW2 0x101097e0
 // GLOBAL: MW2MATROX 0x1014e6a0
+// GLOBAL: MW2S3 0x10181ee0
 AnimFile g_animFiles[60];
 
 // A timed callback (TimedCallbackFn) moving a thing's object through an animation. Its data is
@@ -277,6 +282,7 @@ AnimFile g_animFiles[60];
 // FUNCTION: MW2MATROX 0x1006ece0
 // FUNCTION: MW23DFX 0x1000dec0
 // FUNCTION: MW2ATI 0x1000e5b0
+// FUNCTION: MW2S3 0x10003360
 MechS32 ReelMotionTask(MechS32 p_event, MechChar* p_data, MechS32 p_clock, MechS32 p_period)
 {
 	MechS32 next;
@@ -699,6 +705,7 @@ MechS32 ScaleBySpeedLevel(MechS32 p_mode, MechS32 p_value)
 // FUNCTION: MW2MATROX 0x1006f955
 // FUNCTION: MW23DFX 0x1000e630
 // FUNCTION: MW2ATI 0x1000ed20
+// FUNCTION: MW2S3 0x10003ac0
 MechS32 LoadAnimFile(ResourceRef* p_ref)
 {
 	MechS32 result;
@@ -1149,6 +1156,7 @@ MechS32 AmbientSoundTask(MechS32 p_event, MechChar* p_data, MechS32 p_clock, Mec
 // FUNCTION: MW2MATROX 0x100704f2
 // FUNCTION: MW23DFX 0x1000ee10
 // FUNCTION: MW2ATI 0x1000f4f0
+// FUNCTION: MW2S3 0x10004250
 MechS32 PathTask(MechS32 p_event, MechChar* p_data, MechS32 p_clock, MechS32 p_period)
 {
 	MechChar rotate[64];

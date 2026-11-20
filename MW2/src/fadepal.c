@@ -241,6 +241,7 @@ void BreakUpMech(Mech* p_mech)
 // FUNCTION: MW2MATROX 0x10045571
 // FUNCTION: MW23DFX 0x1001bf90
 // FUNCTION: MW2ATI 0x1001c2c0
+// FUNCTION: MW2S3 0x1002f600
 // FUNCTION: MW2POWERVR 0x1001b0b0
 void FireJumpJetEffects(Mech* p_mech)
 {
@@ -288,6 +289,7 @@ void FireJumpJetEffects(Mech* p_mech)
 // FUNCTION: MW2MATROX 0x100456ef
 // FUNCTION: MW23DFX 0x1001c0a0
 // FUNCTION: MW2ATI 0x1001c3d0
+// FUNCTION: MW2S3 0x1002f710
 // FUNCTION: MW2POWERVR 0x1001b1c0
 void PlayMechLanding(Mech* p_mech, MechScalar p_speed)
 {

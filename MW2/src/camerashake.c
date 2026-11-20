@@ -101,6 +101,7 @@ ScalarRamp g_cameraShakeY;
 // FUNCTION: MW2MATROX 0x100591a0
 // FUNCTION: MW23DFX 0x1002d7b0
 // FUNCTION: MW2ATI 0x1002c900
+// FUNCTION: MW2S3 0x1003b1f0
 void ResetCameraShake(void)
 {
 	ClearCameraShakeKeys();
@@ -111,6 +112,7 @@ void ResetCameraShake(void)
 // FUNCTION: MW2MATROX 0x100591b0
 // FUNCTION: MW23DFX 0x1002d7c0
 // FUNCTION: MW2ATI 0x1002c910
+// FUNCTION: MW2S3 0x1003b200
 MechS32 UpdateCameraShake(void)
 {
 	MechScalar base10;

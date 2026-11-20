@@ -60,7 +60,7 @@
 // GLOBAL: MW2MATROX 0x100ae400
 // GLOBAL: MW23DFX 0x10249898
 // GLOBAL: MW2ATI 0x1017d740
-// GLOBAL: MW2S3 0x100765a8
+// GLOBAL: MW2S3 0x100616c8
 // GLOBAL: MW2POWERVR 0x101a8710
 MechS32 g_satelliteStaticState = 0;
 
@@ -68,6 +68,7 @@ MechS32 g_satelliteStaticState = 0;
 // GLOBAL: MW2 0x100a5a1c
 // GLOBAL: MW2MATROX 0x100ae404
 // GLOBAL: MW23DFX 0x1024989c
+// GLOBAL: MW2S3 0x100616cc
 void (*g_savedFrameDrawCallback)(void) = DrawScene;
 
 // The overlay settings the satellite view keeps while a cockpit view shows (SwitchCockpitView):
@@ -96,6 +97,7 @@ MechS32 g_savedShowTargetMarker = 1;
 // GLOBAL: MW2 0x100a5a2c
 // GLOBAL: MW2MATROX 0x100ae414
 // GLOBAL: MW23DFX 0x102498ac
+// GLOBAL: MW2S3 0x100616dc
 MechS32 g_hudSettingsSaved = 0;
 
 // The height the map view's shading starts at (GetMapHeightShade).
@@ -205,6 +207,7 @@ MechS32 g_mapDamageAnimShown = 0;
 // GLOBAL: MW2 0x100be410
 // GLOBAL: MW2MATROX 0x1012472c
 // GLOBAL: MW23DFX 0x1007b008
+// GLOBAL: MW2S3 0x1007caac
 static MechS32 g_staticCleanUntil;
 
 // GLOBAL: MW2 0x100be414
@@ -262,12 +265,14 @@ MechS32 g_requestedCockpitView;
 // GLOBAL: MW2MATROX 0x1012fc74
 // GLOBAL: MW23DFX 0x10244cc4
 // GLOBAL: MW2ATI 0x10178b00
+// GLOBAL: MW2S3 0x10161694
 MechS32 g_mapFollowsFreeEye;
 
 // Set to draw the satellite view without its static once (DrawSatelliteStatic).
 // GLOBAL: MW2 0x10109c74
 // GLOBAL: MW2MATROX 0x1012fce8
 // GLOBAL: MW23DFX 0x10244d38
+// GLOBAL: MW2S3 0x10161698
 MechS32 g_satelliteClean;
 
 // Places the cockpit view p_cockpit on the screen: its viewport (kept in the render-target table,
@@ -503,6 +508,7 @@ void DrawCockpitView(void)
 // FUNCTION: MW2MATROX 0x10073d46
 // FUNCTION: MW23DFX 0x10003620
 // FUNCTION: MW2ATI 0x100032b0
+// FUNCTION: MW2S3 0x10009290
 void DrawMapView(void)
 {
 	MechS32 farPlane;
@@ -623,6 +629,7 @@ void DrawMapView(void)
 // FUNCTION: MW2MATROX 0x10074024
 // FUNCTION: MW23DFX 0x10003830
 // FUNCTION: MW2ATI 0x100034c0
+// FUNCTION: MW2S3 0x100094a0
 // FUNCTION: MW2POWERVR 0x10003380
 void DrawMapContents(CockpitLayout* p_layout)
 {
@@ -673,6 +680,7 @@ void DrawMapContents(CockpitLayout* p_layout)
 // FUNCTION: MW2MATROX 0x10074102
 // FUNCTION: MW23DFX 0x10003960
 // FUNCTION: MW2ATI 0x100035f0
+// FUNCTION: MW2S3 0x100095c0
 void DrawMapUnits(CockpitLayout* p_layout)
 {
 	MechS32 i;
@@ -735,6 +743,7 @@ void DrawMapUnits(CockpitLayout* p_layout)
 // FUNCTION: MW2MATROX 0x1007432d
 // FUNCTION: MW23DFX 0x10003a60
 // FUNCTION: MW2ATI 0x100036f0
+// FUNCTION: MW2S3 0x100096c0
 // FUNCTION: MW2POWERVR 0x100035b0
 void DrawMapTarget(CockpitLayout* p_layout)
 {
@@ -864,6 +873,7 @@ void DrawMapTarget(CockpitLayout* p_layout)
 // FUNCTION: MW2MATROX 0x1007465e
 // FUNCTION: MW23DFX 0x10003c10
 // FUNCTION: MW2ATI 0x100038a0
+// FUNCTION: MW2S3 0x10009870
 void DrawMapNavPoints(CockpitLayout* p_layout)
 {
 #ifdef MW2_FLOAT_SCALARS
@@ -942,6 +952,7 @@ void DrawMapNavPoints(CockpitLayout* p_layout)
 // FUNCTION: MW2MATROX 0x1007480f
 // FUNCTION: MW23DFX 0x10003d40
 // FUNCTION: MW2ATI 0x100039d0
+// FUNCTION: MW2S3 0x100099a0
 // FUNCTION: MW2POWERVR 0x10003890
 void DrawMapFieldOfView(CockpitLayout* p_layout, MechScalar p_heading)
 {
@@ -1337,6 +1348,7 @@ MechU32 SatelliteFaceColor(Face* p_face, undefined4 p_unk0x04, MechU32 p_flags, 
 // FUNCTION: MW2MATROX 0x10075097
 // FUNCTION: MW23DFX 0x100042e0
 // FUNCTION: MW2ATI 0x10003f70
+// FUNCTION: MW2S3 0x10009f40
 #ifdef MW2_A3D
 void SatelliteDrawPolygon(MechS32 p_count, ProjectedVertex** p_points, MechU32 p_flags, MechS32 p_unk0x0c)
 #else
@@ -1418,6 +1430,41 @@ void SatelliteDrawPolygon(MechS32 p_count, MechU32* p_points, MechU32 p_flags)
 }
 
 #ifdef MW2_A3D
+#ifdef MW2_S3
+// The S3 edition's places the faces in the frame buffer (the pane's origin added) and clips them to
+// the pane's edges.
+// FUNCTION: MW2S3 0x10009fe0
+void FUN_100751a9(CockpitLayout* p_layout, MechS32 p_count, ProjectedVertex** p_points, MechU32 p_flags)
+{
+	MechU32 color;
+	MechS32 i;
+	A3DVertex* vertex;
+	ProjectedVertex* point;
+
+	vertex = g_a3dVertices;
+	for (i = 0; i < p_count; i++) {
+		point = *p_points++;
+		vertex->m_x = (MechFloat) point->m_screenX + g_currentPane.m_x0;
+		vertex->m_y = (MechFloat) point->m_screenY + g_currentPane.m_y0;
+		color = GetMapHeightShade(p_layout, point->m_z) | p_flags;
+		vertex->m_blue = g_a3dPalette[color].m_blue;
+		vertex->m_green = g_a3dPalette[color].m_green;
+		vertex->m_red = g_a3dPalette[color].m_red;
+		vertex->m_alpha = 0xff;
+		vertex++;
+	}
+
+	p_count = FUN_10067b90(p_count, 0xf, 1);
+	if (p_count > 2) {
+		if (g_renderSettings.m_gouraud) {
+			A3D_DrawPolygon(&g_currentPane, p_count, g_a3dClipped);
+		}
+		else {
+			A3D_DrawPolygon(&g_currentPane, p_count, g_a3dClipped);
+		}
+	}
+}
+#else
 // The Matrox edition's terrain faces in the satellite view: shaded by height (GetMapHeightShade)
 // in the colors p_flags picks.
 // FUNCTION: MW2MATROX 0x100751a9
@@ -1461,6 +1508,7 @@ void FUN_100751a9(CockpitLayout* p_layout, MechS32 p_count, ProjectedVertex** p_
 		A3D_DrawPolygon(&g_currentPane, p_count, vertices);
 	}
 }
+#endif
 #endif
 
 // Returns the shade (0-15) of a height p_height in the map view.
@@ -1590,6 +1638,7 @@ void PowerUpMapView(void)
 // FUNCTION: MW2MATROX 0x10075509
 // FUNCTION: MW23DFX 0x100045f0
 // FUNCTION: MW2ATI 0x10004280
+// FUNCTION: MW2S3 0x1000a250
 void DrawSatelliteStatic(void)
 {
 	RectTransition* transition;

@@ -245,6 +245,7 @@ MechS32 GetJoystickDeviceCount(void)
 // FUNCTION: MW2MATROX 0x10025f56
 // FUNCTION: MW23DFX 0x1003a690
 // FUNCTION: MW2ATI 0x10039250
+// FUNCTION: MW2S3 0x10005390
 // FUNCTION: MW2POWERVR 0x10033f50
 MechS32 FillJoystickDeviceInfo(MechS32 p_index, InputDeviceInfo* p_info)
 {
@@ -368,6 +369,7 @@ MechS32 FillJoystickDeviceInfo(MechS32 p_index, InputDeviceInfo* p_info)
 // FUNCTION: MW2MATROX 0x10026380
 // FUNCTION: MW23DFX 0x1003a9c0
 // FUNCTION: MW2ATI 0x10039580
+// FUNCTION: MW2S3 0x100056c0
 MechS32 JoystickOpenDevice(InputDeviceInfo* p_info)
 {
 	JoystickData* data;
@@ -471,6 +473,7 @@ MechS32 JoystickOpenDevice(InputDeviceInfo* p_info)
 // FUNCTION: MW2MATROX 0x1002699d
 // FUNCTION: MW23DFX 0x1003adc0
 // FUNCTION: MW2ATI 0x10039980
+// FUNCTION: MW2S3 0x10005a40
 // FUNCTION: MW2POWERVR 0x10034710
 MechS32 JoystickCloseDevice(InputDeviceInfo* p_info)
 {
@@ -799,6 +802,7 @@ BOOL ReadJoystickOemName(MechS32 p_index, MechChar* p_driverKey, MechChar* p_nam
 // FUNCTION: MW2MATROX 0x10027106
 // FUNCTION: MW23DFX 0x1003b210
 // FUNCTION: MW2ATI 0x10039dd0
+// FUNCTION: MW2S3 0x10005e90
 // FUNCTION: MW2POWERVR 0x10034c10
 void ChooseJoystickMapName(InputDeviceInfo* p_info, JOYCAPS* p_caps)
 {

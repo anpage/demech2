@@ -93,6 +93,7 @@ ManeuverEntry g_mechManeuvers[13] = {
 // GLOBAL: MW2MATROX 0x100a4c78
 // GLOBAL: MW23DFX 0x1024cee0
 // GLOBAL: MW2ATI 0x10181260
+// GLOBAL: MW2S3 0x10064e88
 // GLOBAL: MW2POWERVR 0x101ac1c0
 ManeuverEntry g_stupidManeuvers = {{0, 1, 0, 0, 0, 0, 0, 0, 0}};
 
@@ -312,6 +313,7 @@ void RunManeuver(Player* p_player, MechU16 p_target)
 // FUNCTION: MW2MATROX 0x100195d1
 // FUNCTION: MW23DFX 0x1001ee30
 // FUNCTION: MW2ATI 0x1001f100
+// FUNCTION: MW2S3 0x10018f00
 // FUNCTION: MW2POWERVR 0x1001df50
 void InitializeManeuvers(Player* p_player)
 {
@@ -437,6 +439,7 @@ void InitializeManeuvers(Player* p_player)
 // FUNCTION: MW2MATROX 0x10019969
 // FUNCTION: MW23DFX 0x1001f030
 // FUNCTION: MW2ATI 0x1001f300
+// FUNCTION: MW2S3 0x100190e0
 // FUNCTION: MW2POWERVR 0x1001e150
 MechS32 ChooseManeuver(Player* p_player)
 {
@@ -708,6 +711,7 @@ void EndManeuver(Player* p_player)
 // FUNCTION: MW2MATROX 0x1001a31b
 // FUNCTION: MW23DFX 0x1001f630
 // FUNCTION: MW2ATI 0x1001f900
+// FUNCTION: MW2S3 0x100196e0
 // FUNCTION: MW2POWERVR 0x1001e750
 #ifdef MW2_FLOAT_SCALARS
 void PlaceOffsetNav(Player* p_player, MechU32 p_target, MechS16 p_direction, MechFloat p_distance)
@@ -737,6 +741,7 @@ void PlaceOffsetNav(Player* p_player, MechU32 p_target, MechS16 p_direction, Mec
 // FUNCTION: MW2MATROX 0x1001a3c8
 // FUNCTION: MW23DFX 0x1001f6b0
 // FUNCTION: MW2ATI 0x1001f980
+// FUNCTION: MW2S3 0x10019760
 // FUNCTION: MW2POWERVR 0x1001e7d0
 #ifdef MW2_FLOAT_SCALARS
 void GetOffsetPoint(
@@ -2058,6 +2063,7 @@ Shape* GetTargetShape(MechS16 p_target)
 // FUNCTION: MW2MATROX 0x1001c1ca
 // FUNCTION: MW23DFX 0x10020ac0
 // FUNCTION: MW2ATI 0x10020d90
+// FUNCTION: MW2S3 0x1001aad0
 // FUNCTION: MW2POWERVR 0x1001fbe0
 void DodgeShot(WeaponSlot* p_slot, Mech* p_mech)
 {

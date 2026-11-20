@@ -55,6 +55,7 @@ static MechS32 TransformRow(Matrix* p_matrix, MechS32 p_row, MechS32 p_x, MechS3
 // FUNCTION: MW2MATROX 0x10001870
 // FUNCTION: MW23DFX 0x1002eb50
 // FUNCTION: MW2ATI 0x1002dca0
+// FUNCTION: MW2S3 0x100281a0
 // FUNCTION: MW2POWERVR 0x10028b20
 void TransformPoint(Matrix* p_matrix, MechScalar* p_x, MechScalar* p_y, MechScalar* p_z)
 {
@@ -152,6 +153,7 @@ void TransformPoint(Matrix* p_matrix, MechScalar* p_x, MechScalar* p_y, MechScal
 // FUNCTION: MW2MATROX 0x10001913
 // FUNCTION: MW23DFX 0x1002ebc0
 // FUNCTION: MW2ATI 0x1002dd10
+// FUNCTION: MW2S3 0x10028210
 // FUNCTION: MW2POWERVR 0x10028b90
 void RotatePoint(Matrix* p_matrix, MechScalar* p_x, MechScalar* p_y, MechScalar* p_z)
 {
@@ -492,6 +494,7 @@ MechS32 MatrixDot29(MechS32 p_ax, MechS32 p_ay, MechS32 p_az, MechS32 p_bx, Mech
 // FUNCTION: MW2MATROX 0x10001b59
 // FUNCTION: MW23DFX 0x1002ed60
 // FUNCTION: MW2ATI 0x1002deb0
+// FUNCTION: MW2S3 0x100283b0
 // FUNCTION: MW2POWERVR 0x10028d30
 void MultiplyRotations(Matrix* p_a, Matrix* p_b, Matrix* p_dst)
 {
@@ -852,6 +855,7 @@ void CopyRotation(Matrix* p_src, Matrix* p_dst)
 // FUNCTION: MW2MATROX 0x10001f5f
 // FUNCTION: MW23DFX 0x1002f070
 // FUNCTION: MW2ATI 0x1002e150
+// FUNCTION: MW2S3 0x10028640
 // FUNCTION: MW2POWERVR 0x10028fd0
 void BuildMatrixEx(
 	Matrix* p_matrix,

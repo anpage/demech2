@@ -512,6 +512,7 @@ void ComputeNormalsAndBounds(Shape* p_shape)
 // area over 16. A face of fewer than 3 vertices keeps the default (0x20000000, 0, 0).
 // FUNCTION: MW2 0x1003b0e4
 // FUNCTION: MW2MATROX 0x100284c7
+// FUNCTION: MW2S3 0x10025e80
 void ComputeFaceNormal(Face* p_face, Vertex* p_vertices)
 {
 	MechScalar length;
@@ -825,6 +826,7 @@ MechU32 GetShapeLoadFlags(Shape* p_shape)
 // FUNCTION: MW2MATROX 0x1002893e
 // FUNCTION: MW23DFX 0x100299c0
 // FUNCTION: MW2ATI 0x100295f0
+// FUNCTION: MW2S3 0x10026160
 // FUNCTION: MW2POWERVR 0x100264b0
 void SetShapeLoadFlags(Shape* p_shape, MechU32 p_flags)
 {
@@ -851,6 +853,7 @@ void DestroyShape(Shape* p_shape)
 // FUNCTION: MW2MATROX 0x1002899a
 // FUNCTION: MW23DFX 0x10029a00
 // FUNCTION: MW2ATI 0x10029630
+// FUNCTION: MW2S3 0x100261a0
 // FUNCTION: MW2POWERVR 0x100264f0
 void DestroyObjShape(Shape* p_shape)
 {

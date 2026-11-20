@@ -149,6 +149,7 @@ void ThrowDebrisPiece(MechS32 p_index)
 // FUNCTION: MW2MATROX 0x1002a703
 // FUNCTION: MW23DFX 0x10015410
 // FUNCTION: MW2ATI 0x10015820
+// FUNCTION: MW2S3 0x10024a80
 // FUNCTION: MW2POWERVR 0x10014760
 void BlowOffChunk(SceneObject* p_obj, ObjectCallback p_callback, MechU32 p_unk0x16)
 {
@@ -516,6 +517,7 @@ void ResetDebrisPiece(MechS32 p_index)
 // FUNCTION: MW2MATROX 0x1002b135
 // FUNCTION: MW23DFX 0x10015aa0
 // FUNCTION: MW2ATI 0x10015eb0
+// FUNCTION: MW2S3 0x100250e0
 // FUNCTION: MW2POWERVR 0x10014df0
 MechS32 FindDebrisPiece(SceneObject* p_obj)
 {
@@ -538,6 +540,7 @@ MechS32 FindDebrisPiece(SceneObject* p_obj)
 // FUNCTION: MW2MATROX 0x1002b194
 // FUNCTION: MW23DFX 0x10015ad0
 // FUNCTION: MW2ATI 0x10015ee0
+// FUNCTION: MW2S3 0x10025110
 void DamageChunksInRadius(MechScalar p_x, MechScalar p_y, MechScalar p_z, MechScalar p_radius, MechScalar p_damage)
 {
 	DebrisChunk* chunk;

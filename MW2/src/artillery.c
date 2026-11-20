@@ -223,6 +223,7 @@ void LateUpdateArtillery(Mech* p_mech)
 // FUNCTION: MW2MATROX 0x1002eb3a
 // FUNCTION: MW23DFX 0x10021c80
 // FUNCTION: MW2ATI 0x10021f50
+// FUNCTION: MW2S3 0x100110f0
 void ShutdownArtillery(Mech* p_mech)
 {
 	if (!p_mech) {
@@ -235,7 +236,7 @@ void ShutdownArtillery(Mech* p_mech)
 // FUNCTION: MW2MATROX 0x1002eb54
 // FUNCTION: MW23DFX 0x10021c90
 // FUNCTION: MW2ATI 0x10021f60
-// FUNCTION: MW2S3 0x10014250
+// FUNCTION: MW2S3 0x10011100
 // FUNCTION: MW2POWERVR 0x10020f90
 MechS32 CreateArtillery(MechS32 p_index, Player* p_player)
 {

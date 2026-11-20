@@ -1,0 +1,203 @@
+# MW2S3: witnesses that a function differs from the original only by compiler entropy.
+# address, function, unit, then the recipe: `pad N` symbols declared ahead of the unit, `early DECL M`
+# one global redeclared after them (spaces as ~) and M more symbols, and/or `rename old=new ...` of
+# the function's locals (`old@K`: inside the function's K-th brace block). Found by
+# tools/witness.py, checked by tools/certify.py.
+
+0x100018d0 DrawCompass hud.c pad 3
+0x10001e50 DrawHudShape hud.c pad 11
+0x100024d0 LockCacheEntry loadres.c pad 3
+0x10002680 FreeCacheEntry loadres.c pad 8
+0x10003ac0 LoadAnimFile objectanim.c pad 11
+0x10004ce0 RotateObjMatrix object.c pad 2
+0x100051b0 RaisePartDamageLevel object.c pad 3
+0x10005390 FillJoystickDeviceInfo joystick.c pad 20
+0x10005e90 ChooseJoystickMapName joystick.c pad 2
+0x100065d0 SelectEyepoint view.c pad 11
+0x10006f00 ScaleRectToScreen screenscale.c pad 19
+0x10007610 UnderlineText screenscale.c pad 4
+0x100077b0 DrawWrappedText screenscale.c pad 3
+0x10007a50 TilePane screenscale.c pad 19
+0x10007d00 GetRectEdgeAtSlope screenscale.c pad 13
+0x10007f60 IsInsideGaugeEllipse screenscale.c pad 21
+0x100089d0 SetTeamFormationByName team.c pad 3
+0x10008a90 SetTeamFormation team.c pad 4
+0x10009090 SwitchCockpitView cockpit.c pad 24
+0x100094a0 DrawMapContents cockpit.c pad 19
+0x10009530 DrawMapIcon cockpit.c pad 4
+0x100096c0 DrawMapTarget cockpit.c pad 9
+0x1000b340 FUN_10068b57 polydraw.c pad 1
+0x1000dc10 RunAutopilot mechdamage.c pad 5
+0x1000dde0 PunchInAutoHeading mechdamage.c pad 1
+0x1000df60 CalculateHeat mechdamage.c pad 8
+0x1000e290 KillMech mechdamage.c pad 1
+0x1000f5c0 FreeBwdNames bwdnames.c pad 6
+0x1000f8a0 FUN_1000f8a0 a3d.c pad 4
+0x1000fbb0 FUN_1000fbb0 a3d.c pad 7
+0x10010650 A3D_DrawPolygon a3d.c pad 3
+0x10010930 A3D_polygon_clip_XY_and_render a3d.c pad 1
+0x10012160 HandleChatKey gamekeys.c pad 23
+0x10012330 HandleGameKeys gamekeys.c pad 3
+0x10013620 DrawTargetPanel targetpanel.c pad 10
+0x10014250 CreateDoor door.c pad 2
+0x10014520 DrawScene render.c pad 15
+0x10014bc0 ScaleBarGauges bargauges.c pad 11
+0x100150c0 DrawJumpFuelBar bargauges.c pad 12
+0x10015180 DrawVerticalBar bargauges.c pad 13
+0x100154f0 RunAIRules ai.c pad 18
+0x10015610 CollectAIRules ai.c pad 2
+0x100159a0 TargetAttacker ai.c pad 16
+0x10015e20 RetargetGoals ai.c pad 11
+0x10017160 NextTarget ai.c pad 15
+0x100174a0 HasAIState ai.c pad 17
+0x10017610 PlacePatrolNavs ai.c pad 3
+0x10017820 RecordAttack ai.c pad 1
+0x100179a0 OrderPlayers ai.c pad 21
+0x10017aa0 OrderStarSlot ai.c pad 5
+0x10018680 SweepTorso ai.c pad 5
+0x100190e0 ChooseManeuver maneuvers.c pad 15
+0x1001a8b0 IsOutOfAmmo maneuvers.c pad 11
+0x1001aec0 PauseMidiSequences midi.c pad 1
+0x1001b5b0 FirstShots shots.c rename effect=zqaf i=zqad shot=zqae
+0x1001b820 UpdateAllShots shots.c rename i=zqad shot=zqae
+0x1001c1b0 GuideMissileToTarget shots.c rename distance=zqak dx=zqah dy=zqag dz=zqai p_shot=zqap player=zqaf targetX=zqao targetY=zqad targetZ=zqae thing=zqaj vx=zqal vy=zqam vz=zqan
+0x1001c510 SpawnEffectEx shots.c pad 12 rename cameraX=zqaj cameraZ=zqaa chain=zqai chainType=zqax closer=zqa2 count=zqbn current=zqam distance=zqae dx=zqah dy=zqaf dz=zqak effect=zqab flags=zqag i=zqap info=zqan p_owner=zqac p_type=zqas pieces=zqad quiet=zqal slot=zqao take=zqar volume=zqcj
+0x1001cca0 UpdateEffects shots.c pad 7 rename effect=zqag i=zqae radius=zqak release=zqad restore=zqaf x=zqah y=zqai z=zqaj
+0x1001cf10 DamageMechsInRadius shots.c pad 10 rename damage=zqak dx=zqah dy=zqai dz=zqaj i=zqag mech=zqaf p_owner=zqal player=zqad reach=zqae
+0x1001d0b0 DamageThingsInRadius shots.c rename distance=zqad dx=zqag dy=zqah dz=zqai i=zqaf p_owner=zqap radius=zqal reach=zqak shape=zqaj thing=zqae x=zqam y=zqan z=zqao
+0x1001d420 DamageGameThing shots.c rename index=zqad p_owner=zqaf p_shape=zqag thing=zqae
+0x1001d540 ScatterDebris shots.c pad 2 rename effect=zqah i=zqag object=zqae p_count=zqai piece=zqaf shown=zqad
+0x1001d670 HeatMechsNearFires shots.c pad 8 rename distance=zqai dx=zqao dy=zqap dz=zqab heat=zqae i=zqan mech=zqam player=zqaf radius=zqah reach=zqag root=zqad shape=zqaa x=zqaj y=zqak z=zqal
+0x1001d800 StartNuke shots.c rename duration=zqae effect=zqaf i=zqad p_player=zqah shape=zqag
+0x1001d910 UpdateNuke shots.c pad 16
+0x1001ec60 TestPointUnderFloor shapecollision.c pad 18
+0x1001ed70 TestPointAboveFaces shapecollision.c pad 3
+0x1001ee60 TestRayFaces shapecollision.c pad 4
+0x1001eed0 CollapseWhitespace objective.c pad 9
+0x1001f340 AnnounceObjective objective.c pad 10
+0x1001f530 AnnounceMissionResult objective.c pad 7
+0x100202c0 RestartStarMission objective.c pad 9
+0x100203b0 LoadBaseLevelShapes classtable.c pad 2
+0x10020980 ReleaseClassEntryShape classtable.c pad 2
+0x10020bd0 ReleaseObjShape classtable.c pad 1
+0x10020c20 ForgetObjShape classtable.c pad 15
+0x10020ea0 ShowFrameRate overlay.c pad 17
+0x10021970 SortDepthEntries depthsort.c pad 6
+0x10021a00 DrawShapeList depthsort.c pad 23
+0x10021af0 DrawDepthQueue depthsort.c pad 19
+0x10021c00 DrawObjTreeShapes depthsort.c pad 19
+0x10021c80 QueueObjTree depthsort.c pad 1
+0x10021f80 FirstClassFunctions players.c pad 14
+0x10021fc0 UpdateAllPlayers players.c pad 15
+0x100220a0 ShutdownAllPlayers players.c pad 16
+0x10022190 AllocPlayer players.c pad 3
+0x100223b0 GetTerrainHeight collision.c pad 11
+0x10022520 GetHighestSurface collision.c pad 3
+0x10022980 TestShapeRay collision.c pad 5
+0x100230b0 IsPointInFaceXY collision.c pad 19
+0x100233b0 IsPointInFaceYZ collision.c pad 4
+0x10023890 UpdateMotionSounds gpanim.c pad 4
+0x10023a20 ToggleMenu menu.c pad 2
+0x10023a60 FreeMenus menu.c pad 22
+0x10024190 DrawAndRunMenu menu.c pad 2
+0x100248e0 AddDebrisPiece debris.c pad 1
+0x10024a80 BlowOffChunk debris.c pad 11
+0x100250e0 FindDebrisPiece debris.c pad 16
+0x10025110 DamageChunksInRadius debris.c pad 7
+0x100254a0 PrepareCommandComputerPage lancemenu.c pad 12
+0x10025890 ComputeShapeBounds shape.c pad 4
+0x10025a40 AddModel shape.c pad 8
+0x10026160 SetShapeLoadFlags shape.c pad 12
+0x100261a0 DestroyObjShape shape.c pad 7
+0x100263b0 TransformShapeCenter shape.c pad 1
+0x10026450 ApproximateShapeDistance shape.c pad 1
+0x10027ad0 GetKeywordName bwd.c pad 6
+0x10028030 GetPrjResourceSize prjfile.c pad 8
+0x100280d0 ReadPrjResource prjfile.c pad 15
+0x10028210 RotatePoint transform.c pad 7
+0x10029070 SpawnShot weapons.c pad 5
+0x10029470 SelectNextWeaponGroup weapons.c pad 13
+0x100296d0 SetWeaponGroup weapons.c pad 1
+0x100297e0 FireWeaponGroup weapons.c pad 7
+0x10029900 UpdateWeaponLock weapons.c pad 8
+0x1002a140 HandleKeyboardMessages keyboard.c pad 1
+0x1002a5a0 RemoveSceneShape shapelists.c pad 8
+0x1002a620 EnableShapeCollision shapelists.c pad 1
+0x1002a940 LoadResourceByRef resourcename.c pad 23
+0x1002ac30 BuildRayFloat ray.c pad 2
+0x1002b470 GdiBlitFlip gdi.c pad 4
+0x1002b4e0 GdiBitBltRect gdi.c pad 21
+0x1002b560 GdiStretchBlit gdi.c pad 4
+0x1002c720 KnockMechOver mechcollision.c pad 18
+0x1002dcc0 ParseStaticPoolConfig staticmem.c pad 12
+0x1002dd00 AddStaticPoolType staticmem.c pad 6
+0x1002de90 LoadReels config.c pad 1
+0x1002ecd0 InitRefreshMode refreshmode.c pad 16
+0x1002ef60 ProfileRefreshModes refreshmode.c pad 4
+0x1002f110 SelectFastestRefreshMode refreshmode.c pad 16
+0x1002f710 PlayMechLanding fadepal.c pad 5
+0x1002feb0 FUN_10005950 directdraw.c pad 6
+0x10030f50 FindInputDevice inputmap.c pad 4
+0x100312b0 GetOrCreateInputAxis inputmap.c pad 8
+0x100315b0 AddAnalogBinding inputmap.c pad 3
+0x10031850 CheckInputConditions inputmap.c pad 4
+0x10031c30 LoadInputMap inputmap.c pad 2
+0x10032530 ReportInputDeviceError inputmap.c pad 14
+0x10032630 InitRandom random.c pad 16
+0x100331b0 LoadStarTable resource.c pad 14
+0x10033880 SetUpStarMission missionsetup.c pad 2
+0x10033fe0 FlushEventLists missionsetup.c pad 10
+0x100340e0 AddClass geocache.c pad 3
+0x10034110 FindClassById geocache.c pad 4
+0x100342c0 AllocStaticObject geocache.c pad 3
+0x10034430 BeginBlock geocache.c pad 20
+0x10034870 FirstStaticCache geocache.c pad 6
+0x100348d0 RunStaticObjectTasks geocache.c pad 6
+0x10034950 LinkStaticObjectThing geocache.c pad 6
+0x10034b50 PropagateStaticObjectStates geocache.c pad 10
+0x10034fa0 GetStaticSceneObject geocache.c pad 4
+0x10034fc0 GetStaticObjectShape geocache.c pad 6
+0x10034fe0 GetStaticObjectPosition geocache.c pad 6
+0x100350f0 DestroyObjTreeAndShapes geocache.c pad 1
+0x10035ec0 PlayPositionalSound soundfx.c pad 5
+0x100365e0 PreviewBrightnessFraction brightnessmenu.c pad 4
+0x10036d70 PollCdDrive cdaudio.c pad 12
+0x10036df0 PlayCdTrack cdaudio.c pad 4
+0x10037090 IsCdTrackOnDisc cdaudio.c pad 4
+0x10037e00 TargetNavPoint targeting.c pad 1
+0x10038470 UpdateTarget targeting.c pad 9
+0x10038770 TargetAtReticle targeting.c pad 4
+0x10038870 GetBearingAndRange targeting.c pad 4
+0x10038a20 TargetNearestEnemy targeting.c pad 14
+0x10039370 GetMechValue mekfile.c pad 3
+0x10039c90 DrawArmorBars damagepanel.c pad 10
+0x1003b200 UpdateCameraShake camerashake.c pad 5
+0x1003b8b0 RemoveTask callbacks.c pad 1
+0x1003bdc0 LoadAnim2d anim2d.c pad 1
+0x1003c290 DecideAIFire aiweapons.c pad 9
+0x1003c420 GetPlayerSlotFromNetId network.c pad 3
+0x1003c690 UpdateNetwork network.c rename from=zqag i=zqaf player=zqah slot=zqad tag=zqae text=zqai
+0x1003cb90 SendStateMsg network.c pad 5 rename i=zqag mech=zqaf player=zqad section=zqah steering=zqai thing=zqae
+0x1003d070 SendChatMsg network.c pad 3 rename i=zqad p_text=zqag p_to=zqaf size=zqae
+0x1003d2c0 ReceiveStateMsg network.c pad 7 rename damage1=zqae damage2=zqaf i=zqak levels=zqai mech=zqaj msg=zqad p_msg=zqao p_slot=zqap player=zqag section=zqal text=zqam text2=zqan thing=zqah
+0x1003dc90 ReceiveWeaponsMsg network.c rename bit=zqaf i=zqah mech=zqag msg=zqae p_msg=zqai p_slot=zqaj player=zqad
+0x1003dd30 SendCollisionMsg network.c pad 2
+0x1003e0c0 SendThingsMsg network.c rename bits=zqag count=zqaf i=zqae out=zqad
+0x1003e180 ReceiveThingsMsg network.c rename bits=zqah count=zqag i=zqaf in=zqad msgCount=zqae p_msg=zqai p_slot=zqaj
+0x1003e320 CountPlayersCallback network.c pad 2
+0x1003e4f0 StartExternalIO network.c rename desc=zqaf guid=zqae p_netLaunch=zqah result=zqag unk0x04=zqad
+0x1003ea10 ElectMaster network.c pad 8
+0x1003eba0 InitPanes palette.c pad 3
+0x1003f690 FirstEyepoint eyepoint.c pad 10
+0x10040d60 UpdateCockpit eyepoint.c pad 4
+0x10041090 DamageCockpitPanels eyepoint.c pad 7
+0x100410e0 PlayCockpitWarnings eyepoint.c pad 8
+0x10041440 InitSoundInfo soundlimits.c pad 13
+0x10041cd0 RunMenuTextBox menucontrols.c pad 20
+0x10042150 Hypot2D floatmath.c pad 2
+0x10042170 ComputeTriangleNormal floatmath.c pad 7
+0x10043ec0 UpdateLocalMech mechclass.c pad 1
+0x10044fb0 FaceOverlapsBox quadtree.c pad 6
+0x10045780 GetQuadtreeSize quadtree.c pad 14
+0x10047300 GetFaceColor faceshade.c pad 4
+0x10047670 AreTextureMapsOn faceshade.c pad 6

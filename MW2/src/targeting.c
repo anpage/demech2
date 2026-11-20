@@ -114,6 +114,7 @@ MechS32 AddNavPoint(MechU32 p_owner, MechScalar p_x, MechScalar p_y, MechScalar 
 // FUNCTION: MW2MATROX 0x100065bf
 // FUNCTION: MW23DFX 0x1001cb40
 // FUNCTION: MW2ATI 0x1001ce70
+// FUNCTION: MW2S3 0x10037aa0
 // FUNCTION: MW2POWERVR 0x1001bc60
 MechS32 RemoveNavPoint(MechU32 p_owner, MechU32 p_nav)
 {
@@ -306,6 +307,7 @@ void ResetTargeting(void)
 // FUNCTION: MW2MATROX 0x10006b1c
 // FUNCTION: MW23DFX 0x1001cea0
 // FUNCTION: MW2ATI 0x1001d1d0
+// FUNCTION: MW2S3 0x10037e00
 // FUNCTION: MW2POWERVR 0x1001bfc0
 MechS32 TargetNavPoint(MechU32 p_player, MechS32 p_nav, MechU32 p_flags)
 {
@@ -387,6 +389,7 @@ MechS32 TargetNavPoint(MechU32 p_player, MechS32 p_nav, MechU32 p_flags)
 // FUNCTION: MW2MATROX 0x10006d1a
 // FUNCTION: MW23DFX 0x1001d050
 // FUNCTION: MW2ATI 0x1001d380
+// FUNCTION: MW2S3 0x10037fb0
 MechS32 TargetGamePiece(MechS32 p_player, MechS32 p_index, MechU32 p_flags)
 {
 	MechS32 breakpoint;
@@ -488,6 +491,7 @@ MechS32 TargetGamePiece(MechS32 p_player, MechS32 p_index, MechU32 p_flags)
 // FUNCTION: MW2MATROX 0x10007012
 // FUNCTION: MW23DFX 0x1001d2d0
 // FUNCTION: MW2ATI 0x1001d600
+// FUNCTION: MW2S3 0x10038230
 // FUNCTION: MW2POWERVR 0x1001c3f0
 MechS32 TargetGameThing(MechS32 p_player, MechS32 p_index, MechU32 p_flags)
 {
@@ -853,6 +857,7 @@ void TargetAtReticle(void)
 // FUNCTION: MW2MATROX 0x10007a32
 // FUNCTION: MW23DFX 0x1001d970
 // FUNCTION: MW2ATI 0x1001dc40
+// FUNCTION: MW2S3 0x10038870
 // FUNCTION: MW2POWERVR 0x1001ca30
 void GetBearingAndRange(
 	MechScalar p_dx,
@@ -989,6 +994,7 @@ void CycleEnemyTarget(MechS32 p_step)
 // FUNCTION: MW2MATROX 0x10007c8f
 // FUNCTION: MW23DFX 0x1001db60
 // FUNCTION: MW2ATI 0x1001de30
+// FUNCTION: MW2S3 0x10038a20
 // FUNCTION: MW2POWERVR 0x1001cc20
 void TargetNearestEnemy(void)
 {
@@ -1045,6 +1051,6 @@ void TargetNearestEnemy(void)
 }
 
 // The ATI and 3Dfx editions end this object with the cockpit panels, which 1.1 has in config.c's.
-#if defined(MW2_3DFX) || defined(MW2_ATI) || defined(MW2_S3) || defined(MW2_POWERVR)
+#if defined(MW2_3DFX) || defined(MW2_ATI) || defined(MW2_POWERVR)
 #include "cockpitpanels.c"
 #endif

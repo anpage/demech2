@@ -94,6 +94,9 @@
 #ifdef MW2_MATROX
 #include <msi95.h>
 #endif
+#ifdef MW2_S3
+#include <stdio.h>
+#endif
 
 #ifdef MW2_VFX16
 #include "accel/vfx16.h"
@@ -122,6 +125,7 @@ MechS32 g_quitStage = 0;
 // GLOBAL: MW2 0x100acb20
 // GLOBAL: MW2MATROX 0x100be4c8
 // GLOBAL: MW23DFX 0x1024ac68
+// GLOBAL: MW2S3 0x10065ce8
 TimedCallback* g_detachedTasks = NULL;
 
 // GLOBAL: MW2 0x100acb24
@@ -219,6 +223,7 @@ undefined4 g_shouldToggleFullscreen = 0;
 // GLOBAL: MW2 0x100acb80
 // GLOBAL: MW2MATROX 0x100be52c
 // GLOBAL: MW23DFX 0x1024acc8
+// GLOBAL: MW2S3 0x10065d48
 MechS32 g_desktopWidth = 0;
 
 // GLOBAL: MW2 0x100acb84
@@ -730,6 +735,7 @@ int __stdcall SimMain(
 // before FirstClock (the Matrox edition before the main loop) and releases the DCs.
 // FUNCTION: MW23DFX 0x10008850
 // FUNCTION: MW2ATI 0x10009040
+// FUNCTION: MW2S3 0x100266f0
 int __stdcall SimMain(
 	HINSTANCE p_module,
 	undefined4 p_unk0x0c,
@@ -1953,6 +1959,18 @@ void SetGameResolution(char* p_driverName)
 	else {
 		g_gameWindowWidth = 640;
 		g_gameWindowHeight = 480;
+	}
+}
+#elif defined(MW2_S3)
+// The S3 edition's: the driver name is the size ("640x480"), kept if DirectDraw has it in 16 bits,
+// 320x200 otherwise.
+// FUNCTION: MW2S3 0x10027780
+void SetGameResolution(char* p_driverName)
+{
+	sscanf(p_driverName, "%dx%d", &g_gameWindowWidth, &g_gameWindowHeight);
+	if (!FUN_100059b0(g_gameWindowWidth, g_gameWindowHeight, 16)) {
+		g_gameWindowWidth = 320;
+		g_gameWindowHeight = 200;
 	}
 }
 #else

@@ -325,6 +325,7 @@ void UpdateAllShots(void)
 // FUNCTION: MW2MATROX 0x1006b033
 // FUNCTION: MW23DFX 0x10044f60
 // FUNCTION: MW2ATI 0x100427b0
+// FUNCTION: MW2S3 0x1001b8d0
 void UpdateShot(MechS32 p_index)
 {
 	MechS32 hitResult;
@@ -1144,6 +1145,7 @@ void UpdateEffects(void)
 // FUNCTION: MW2MATROX 0x1006c803
 // FUNCTION: MW23DFX 0x10046700
 // FUNCTION: MW2ATI 0x10043e30
+// FUNCTION: MW2S3 0x1001cf10
 void DamageMechsInRadius(
 	MechS32 p_owner,
 	MechScalar p_x,
@@ -1210,6 +1212,7 @@ void DamageMechsInRadius(
 // FUNCTION: MW2MATROX 0x1006c9d5
 // FUNCTION: MW23DFX 0x100468b0
 // FUNCTION: MW2ATI 0x10043fe0
+// FUNCTION: MW2S3 0x1001d0b0
 void DamageThingsInRadius(
 	MechS32 p_owner,
 	MechScalar p_x,
@@ -1466,6 +1469,7 @@ void SaveCareerRecord(void)
 // FUNCTION: MW2MATROX 0x1006cf8d
 // FUNCTION: MW23DFX 0x10046e70
 // FUNCTION: MW2ATI 0x100445a0
+// FUNCTION: MW2S3 0x1001d670
 // FUNCTION: MW2POWERVR 0x1003f310
 void HeatMechsNearFires(void)
 {

@@ -519,6 +519,7 @@ MechS8 g_sinkMenuAbort = 0;
 // GLOBAL: MW2 0x100b2598
 // GLOBAL: MW2MATROX 0x100b1fc0
 // GLOBAL: MW23DFX 0x10251170
+// GLOBAL: MW2S3 0x1006af78
 MechS32 g_analogBindingCount = 0;
 
 // GLOBAL: MW2 0x100b259c
@@ -529,6 +530,7 @@ MechS32 g_inputAxisCount = 0;
 // GLOBAL: MW2 0x100b25a0
 // GLOBAL: MW2MATROX 0x100b1fc8
 // GLOBAL: MW23DFX 0x10251178
+// GLOBAL: MW2S3 0x1006af80
 MechS32 g_discreteBindingCount = 0;
 
 // GLOBAL: MW2 0x100b25a4
@@ -1158,6 +1160,7 @@ MechS32 ReadInputMapLine(MechChar* p_buffer, MechS32 p_size, FILE* p_file)
 // FUNCTION: MW2MATROX 0x1007c26b
 // FUNCTION: MW23DFX 0x10039140
 // FUNCTION: MW2ATI 0x10037d00
+// FUNCTION: MW2S3 0x100312b0
 // FUNCTION: MW2POWERVR 0x10032a00
 InputAxis* GetOrCreateInputAxis(InputSink* p_sink)
 {
@@ -1256,6 +1259,7 @@ InputAxis* GetOrCreateInputAxis(InputSink* p_sink)
 // FUNCTION: MW2MATROX 0x1007c72f
 // FUNCTION: MW23DFX 0x10039440
 // FUNCTION: MW2ATI 0x10038000
+// FUNCTION: MW2S3 0x100315b0
 // FUNCTION: MW2POWERVR 0x10032d00
 MechS32 AddAnalogBinding(InputSink* p_sink, MechChar* p_deviceName, MechS32 p_channel)
 {
@@ -1393,6 +1397,7 @@ MechS32 CheckInputConditions(MechS32 p_count, InputCondition* p_conditions)
 // FUNCTION: MW2MATROX 0x1007cb6b
 // FUNCTION: MW23DFX 0x10039730
 // FUNCTION: MW2ATI 0x100382f0
+// FUNCTION: MW2S3 0x100318a0
 // FUNCTION: MW2POWERVR 0x10032ff0
 MechS32 ParseInputMap(FILE* p_file)
 {
@@ -1746,6 +1751,7 @@ void FirstInputs(void)
 // FUNCTION: MW2MATROX 0x1007d86f
 // FUNCTION: MW23DFX 0x1003a0a0
 // FUNCTION: MW2ATI 0x10038c60
+// FUNCTION: MW2S3 0x10032200
 // FUNCTION: MW2POWERVR 0x10033960
 void UpdateInputs(void)
 {

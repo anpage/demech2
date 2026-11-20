@@ -36,6 +36,7 @@
 // GLOBAL: MW2 0x100a23ec
 // GLOBAL: MW2MATROX 0x100a362c
 // GLOBAL: MW23DFX 0x1024e644
+// GLOBAL: MW2S3 0x100765a8
 // GLOBAL: MW2POWERVR 0x101ad9bc
 MechScalar g_trackDistance = 0;
 
@@ -44,21 +45,25 @@ MechScalar g_trackDistance = 0;
 // GLOBAL: MW2 0x100a23f0
 // GLOBAL: MW2MATROX 0x100a3630
 // GLOBAL: MW23DFX 0x1024e648
+// GLOBAL: MW2S3 0x100765ac
 MechScalar g_trackMinDistance = 0;
 
 // GLOBAL: MW2 0x100a23f4
 // GLOBAL: MW2MATROX 0x100a3634
 // GLOBAL: MW23DFX 0x1024e64c
+// GLOBAL: MW2S3 0x100765b0
 MechScalar g_trackMaxDistance = 0;
 
 // GLOBAL: MW2 0x100a23f8
 // GLOBAL: MW2MATROX 0x100a3638
 // GLOBAL: MW23DFX 0x1024e650
+// GLOBAL: MW2S3 0x100765b4
 MechScalar g_trackHeight = 0;
 
 // GLOBAL: MW2 0x100a23fc
 // GLOBAL: MW2MATROX 0x100a363c
 // GLOBAL: MW23DFX 0x1024e654
+// GLOBAL: MW2S3 0x100765b8
 MechScalar g_trackTurn = FIXED_LITERAL(0xb40000, 180.0f);
 
 // GLOBAL: MW2 0x100a2400
@@ -242,6 +247,7 @@ MechScalar g_ordinanceSavedView[7];
 // GLOBAL: MW2 0x10176f2c
 // GLOBAL: MW2MATROX 0x102182e0
 // GLOBAL: MW23DFX 0x1015efd0
+// GLOBAL: MW2S3 0x1008439c
 MechScalar g_trackMaxHeight;
 
 // The track view's eased offsets from the mech and its eased heading and pitch.
@@ -272,6 +278,7 @@ WrappedRamp g_trackHeading;
 // GLOBAL: MW2 0x10176f74
 // GLOBAL: MW2MATROX 0x10218344
 // GLOBAL: MW23DFX 0x1015f034
+// GLOBAL: MW2S3 0x100843e4
 MechScalar g_trackMinHeight;
 
 // The cockpit view's tilt, eased toward g_sinkPilotTilt.
@@ -626,6 +633,7 @@ MechS32 RestoreView(Eyepoint* p_eyepoint, MechScalar* p_view)
 // FUNCTION: MW2MATROX 0x10009362
 // FUNCTION: MW23DFX 0x1002e070
 // FUNCTION: MW2ATI 0x1002d1c0
+// FUNCTION: MW2S3 0x1003fb90
 // FUNCTION: MW2POWERVR 0x10027fe0
 void CycleTrackedPlayer(MechS32 p_next, MechS32 p_home)
 {
@@ -666,6 +674,7 @@ void CycleTrackedPlayer(MechS32 p_next, MechS32 p_home)
 // FUNCTION: MW2MATROX 0x10009431
 // FUNCTION: MW23DFX 0x1002e0f0
 // FUNCTION: MW2ATI 0x1002d240
+// FUNCTION: MW2S3 0x1003fc10
 // FUNCTION: MW2POWERVR 0x10028060
 void GetPlayerEyeView(
 	MechScalar* p_pitch,
@@ -754,6 +763,7 @@ void UpdateOrdinanceView(void)
 // FUNCTION: MW2MATROX 0x10009653
 // FUNCTION: MW23DFX 0x1002e280
 // FUNCTION: MW2ATI 0x1002d3d0
+// FUNCTION: MW2S3 0x1003fda0
 void UpdateTrackView(MechScalar p_distance, MechScalar p_height, MechScalar p_tilt, MechScalar p_turn)
 {
 	MechScalar y;
@@ -1085,6 +1095,7 @@ void UpdateDropView(void)
 // FUNCTION: MW2MATROX 0x10009e0a
 // FUNCTION: MW23DFX 0x1002e8a0
 // FUNCTION: MW2ATI 0x1002d9f0
+// FUNCTION: MW2S3 0x100403c0
 // FUNCTION: MW2POWERVR 0x10028810
 void UpdateFreeEyeView(
 	MechScalar p_climb,
@@ -1226,3 +1237,8 @@ void TurnBillboards(void)
 		}
 	}
 }
+
+// The S3 edition ends this object with the cockpit panels, which 1.1 has in config.c's.
+#ifdef MW2_S3
+#include "cockpitpanels.c"
+#endif

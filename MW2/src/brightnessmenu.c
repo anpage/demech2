@@ -29,6 +29,7 @@ MechS32 GetBrightnessFraction(MechS32 p_arg)
 // FUNCTION: MW2MATROX 0x100171eb
 // FUNCTION: MW23DFX 0x100641d0
 // FUNCTION: MW2ATI 0x10061880
+// FUNCTION: MW2S3 0x100365e0
 // FUNCTION: MW2POWERVR 0x1005c5f0
 void PreviewBrightnessFraction(MechS32 p_arg, MechS32 p_value)
 {

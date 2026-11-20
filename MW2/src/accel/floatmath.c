@@ -84,6 +84,7 @@ MechScalar FixedSin(MechScalar p_angle)
 // FUNCTION: MW2MATROX 0x1007ef93
 // FUNCTION: MW23DFX 0x10030120
 // FUNCTION: MW2ATI 0x1002f180
+// FUNCTION: MW2S3 0x10041ec0
 // FUNCTION: MW2POWERVR 0x10029c00
 MechScalar FixedAtan2(MechScalar p_x, MechScalar p_z)
 {
@@ -148,6 +149,7 @@ MechScalar FixedAtan2(MechScalar p_x, MechScalar p_z)
 // FUNCTION: MW2MATROX 0x1007f15b
 // FUNCTION: MW23DFX 0x100302c0
 // FUNCTION: MW2ATI 0x1002f320
+// FUNCTION: MW2S3 0x10042030
 // FUNCTION: MW2POWERVR 0x10029da0
 MechS32 InitSlopeTables(void)
 {
@@ -227,6 +229,7 @@ MechScalar ApproximateVectorLength(MechScalar p_x, MechScalar p_y, MechScalar p_
 // FUNCTION: MW2MATROX 0x1007f336
 // FUNCTION: MW23DFX 0x100303f0
 // FUNCTION: MW2ATI 0x1002f450
+// FUNCTION: MW2S3 0x10042150
 // FUNCTION: MW2POWERVR 0x10029ed0
 MechScalar Hypot2D(MechScalar p_x, MechScalar p_y)
 {
@@ -243,6 +246,7 @@ MechScalar Hypot2D(MechScalar p_x, MechScalar p_y)
 // FUNCTION: MW2MATROX 0x1007f368
 // FUNCTION: MW23DFX 0x10030410
 // FUNCTION: MW2ATI 0x1002f470
+// FUNCTION: MW2S3 0x10042170
 // FUNCTION: MW2POWERVR 0x10029ef0
 MechS32 ComputeTriangleNormal(
 	MechScalar p_x0,

@@ -10,6 +10,7 @@ MW2/include/muldiv.h MulDiv64 copy:MW2/src/muldiv.c
 MW2/include/namehash.h HashName copy:MW2/src/namehash.c
 MW2/src/approxlen.c ApproximateVectorLength eax-result
 MW2/src/ati/a3d.c A3D_TEXTURE_fill reviewed: the texel copy, its parameters spilled to the stack in an /Ox unit for it, the product taken by a one-operand imul from their slots, rep movsd, and the end stored back from edi
+MW2/src/s3/a3d.c A3D_TEXTURE_fill reviewed: the ATI edition's texel copy (ati/a3d.c), the same bytes in the S3 edition: its parameters spilled to the stack in an /Ox unit for it, the product taken by a one-operand imul from their slots, rep movsd, and the end stored back from edi
 MW2/src/crossdiv.c CrossDiv div64
 MW2/src/debugbreak.c DebugBreakpoint insn:int3
 MW2/src/fixeddiv.c FixedDiv16 div64

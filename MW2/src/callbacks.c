@@ -68,6 +68,7 @@ TimedCallback* CreateDetachedTask(TimedCallback** p_list, TimedCallbackFn p_fn, 
 // FUNCTION: MW2MATROX 0x1002738f
 // FUNCTION: MW23DFX 0x10008300
 // FUNCTION: MW2ATI 0x10008b40
+// FUNCTION: MW2S3 0x1003b8b0
 // FUNCTION: MW2POWERVR 0x100078b0
 void RemoveTask(TimedCallback** p_list, TimedCallback* p_callback)
 {

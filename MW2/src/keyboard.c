@@ -196,6 +196,7 @@ void KeyboardRecordKeyState(WPARAM p_virtualKey, MechU32 p_lParam, BOOL p_presse
 // GLOBAL: MW2MATROX 0x100ad840
 // GLOBAL: MW23DFX 0x102510e0
 // GLOBAL: MW2ATI 0x101853f0
+// GLOBAL: MW2S3 0x100669f0
 // GLOBAL: MW2POWERVR 0x101b0590
 InputDriverModule g_keyboardDriver = {
 	GetKeyboardDeviceCount,

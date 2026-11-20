@@ -24,9 +24,16 @@
 #include "accel/vfx16.h"
 #endif
 
+// The S3 edition starts this object with the textured-polygon drawer, which the ATI edition has in
+// bandpoly.c's.
+#ifdef MW2_S3
+#include "bandtexture.c"
+#endif
+
 // GLOBAL: MW2 0x100a00cc
 // GLOBAL: MW2MATROX 0x100a61f8
 // GLOBAL: MW23DFX 0x1024e450
+// GLOBAL: MW2S3 0x10075df4
 // GLOBAL: MW2POWERVR 0x101ad76c
 MechS32 g_paneIndex = -1;
 
@@ -294,6 +301,7 @@ void UpdatePaletteFade(void)
 // FUNCTION: MW2MATROX 0x1002d865
 // FUNCTION: MW23DFX 0x1002ad50
 // FUNCTION: MW2ATI 0x1002a970
+// FUNCTION: MW2S3 0x1003eda0
 MechS32 StartPaletteFade(MechS32 p_palette, MechS32 p_duration, MechS32 p_mode)
 {
 	MechU8* to;

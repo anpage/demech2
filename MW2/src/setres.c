@@ -101,6 +101,7 @@ void ChooseArtResolution(GameWindowGeometry* p_geometry)
 // FUNCTION: MW2 0x1005d44e
 // FUNCTION: MW2MATROX 0x1008c195
 // FUNCTION: MW2ATI 0x100023b0
+// FUNCTION: MW2S3 0x10044a50
 // FUNCTION: MW2POWERVR 0x10002390
 void ChooseArtResolution(GameWindowGeometry* p_geometry)
 {

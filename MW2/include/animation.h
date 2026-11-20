@@ -31,7 +31,11 @@ extern "C"
 	extern Animation g_animations[0x200];
 #ifdef MW2_A3D
 	extern MechS32 g_unk0x100aa1d0;
+#ifdef MW2_S3
+	extern MechU8 g_unk0x10184700[3];
+#else
 	extern MechFloat g_unk0x10184700[3];
+#endif
 #endif
 
 #ifdef MW2_A3D

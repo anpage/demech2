@@ -59,6 +59,7 @@ MechS32 g_targetPanelMode = 1;
 // GLOBAL: MW2 0x100ba4c0
 // GLOBAL: MW2MATROX 0x100a4a50
 // GLOBAL: MW23DFX 0x1024d050
+// GLOBAL: MW2S3 0x10062ae8
 MechS32 g_announceTargetSide = 0;
 
 #ifdef MW2_LOD_PAR
@@ -75,18 +76,21 @@ MechS32 g_targetLodParRead = 0;
 // GLOBAL: MW2 0x100ba4c4
 // GLOBAL: MW2MATROX 0x100a4a5c
 // GLOBAL: MW23DFX 0x1024d054
+// GLOBAL: MW2S3 0x10062aec
 MechS32 g_targetFullNameTime = 0;
 
 // The target the panel showed last.
 // GLOBAL: MW2 0x100ba4c8
 // GLOBAL: MW2MATROX 0x100a4a60
 // GLOBAL: MW23DFX 0x1024d058
+// GLOBAL: MW2S3 0x10062af0
 MechS32 g_lastPanelTarget = 0;
 
 // The target panel flickers to static while set.
 // GLOBAL: MW2 0x100ba4cc
 // GLOBAL: MW2MATROX 0x100a4a64
 // GLOBAL: MW23DFX 0x1024d05c
+// GLOBAL: MW2S3 0x10062af4
 MechS32 g_targetPanelStatic = 0;
 
 // The name the target panel shows for an unknown installation: 16 bytes in every edition, each
@@ -95,6 +99,7 @@ MechS32 g_targetPanelStatic = 0;
 // GLOBAL: MW2MATROX 0x10212d40
 // GLOBAL: MW23DFX 0x101de7a0
 // GLOBAL: MW2ATI 0x10112460
+// GLOBAL: MW2S3 0x1014d9f0
 // GLOBAL: MW2POWERVR 0x1013d120
 MechChar g_anonymousInstallationName[16];
 
@@ -104,6 +109,7 @@ MechChar g_anonymousInstallationName[16];
 // FUNCTION: MW2MATROX 0x10017e50
 // FUNCTION: MW23DFX 0x10020e40
 // FUNCTION: MW2ATI 0x10021110
+// FUNCTION: MW2S3 0x10013150
 void DrawTargetPanelText(CockpitPanel* p_panel)
 {
 	MechS32 index;
@@ -322,6 +328,7 @@ void DrawTargetPanelText(CockpitPanel* p_panel)
 // FUNCTION: MW2MATROX 0x10018683
 // FUNCTION: MW23DFX 0x10021300
 // FUNCTION: MW2ATI 0x100215d0
+// FUNCTION: MW2S3 0x10013620
 void DrawTargetPanel(CockpitPanel* p_panel)
 {
 	MechS32 index;

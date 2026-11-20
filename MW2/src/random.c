@@ -11,11 +11,13 @@
 // GLOBAL: MW2 0x100ae74c
 // GLOBAL: MW2MATROX 0x100a4570
 // GLOBAL: MW23DFX 0x10259914
+// GLOBAL: MW2S3 0x10072eb4
 MechS32 g_randomIndex = 0;
 
 // GLOBAL: MW2 0x100ae750
 // GLOBAL: MW2MATROX 0x100a4574
 // GLOBAL: MW23DFX 0x10259918
+// GLOBAL: MW2S3 0x10072eb8
 MechS32 g_normalRandomIndex = 0;
 
 // A second pair of indices, so a second stream of callers doesn't disturb the first.
@@ -42,6 +44,7 @@ MechS32 g_normalRandomInts[127];
 // GLOBAL: MW2MATROX 0x10215b20
 // GLOBAL: MW23DFX 0x10159a50
 // GLOBAL: MW2ATI 0x1008da50
+// GLOBAL: MW2S3 0x100ab330
 // GLOBAL: MW2POWERVR 0x10084030
 MechS32 g_randomInts[127];
 
@@ -49,6 +52,7 @@ MechS32 g_randomInts[127];
 // FUNCTION: MW2MATROX 0x1000bef0
 // FUNCTION: MW23DFX 0x1003d880
 // FUNCTION: MW2ATI 0x1003b660
+// FUNCTION: MW2S3 0x10032630
 // FUNCTION: MW2POWERVR 0x100364c0
 void InitRandom(MechU32 p_seed)
 {

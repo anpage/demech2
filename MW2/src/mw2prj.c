@@ -89,6 +89,7 @@ char* g_resTagTable = "TABL";
 // GLOBAL: MW2MATROX 0x100a5a6c
 // GLOBAL: MW23DFX 0x10259710
 // GLOBAL: MW2ATI 0x1018da10
+// GLOBAL: MW2S3 0x10061734
 // GLOBAL: MW2POWERVR 0x101b8cac
 char* g_resTagPoly = "POLY";
 
@@ -101,6 +102,7 @@ char* g_resTagText = "TEXT";
 // GLOBAL: MW2MATROX 0x100a5a74
 // GLOBAL: MW23DFX 0x10259728
 // GLOBAL: MW2ATI 0x1018da28
+// GLOBAL: MW2S3 0x1006173c
 char* g_resTagAnim = "ANIM";
 
 // GLOBAL: MW2 0x100a86a8
@@ -115,6 +117,7 @@ char* g_resTagMgeo = "MGEO";
 // GLOBAL: MW2MATROX 0x100a5a7c
 // GLOBAL: MW23DFX 0x1025973c
 // GLOBAL: MW2ATI 0x1018da3c
+// GLOBAL: MW2S3 0x10061744
 char* g_resTagHud = "HUD";
 
 // GLOBAL: MW2 0x100a86b0
@@ -160,6 +163,7 @@ char* g_resTagAit = "AIT";
 // GLOBAL: MW2MATROX 0x100a5a98
 // GLOBAL: MW23DFX 0x1025977c
 // GLOBAL: MW2ATI 0x1018da7c
+// GLOBAL: MW2S3 0x10061760
 char* g_resTagMek = "MEK";
 
 // GLOBAL: MW2 0x100a86cc
@@ -249,6 +253,7 @@ char* g_resExtXxt = ".xxt";
 // GLOBAL: MW2MATROX 0x100a5adc
 // GLOBAL: MW23DFX 0x10259840
 // GLOBAL: MW2ATI 0x1018db40
+// GLOBAL: MW2S3 0x100617a4
 char* g_resExt3di = ".3di";
 
 // GLOBAL: MW2 0x100a8710
@@ -263,6 +268,7 @@ char* g_resExtMgi = ".mgi";
 // GLOBAL: MW2MATROX 0x100a5ae4
 // GLOBAL: MW23DFX 0x10259858
 // GLOBAL: MW2ATI 0x1018db58
+// GLOBAL: MW2S3 0x100617ac
 char* g_resExtHdi = ".hdi";
 
 // GLOBAL: MW2 0x100a8718
@@ -297,6 +303,7 @@ char* g_resExtAit = ".ait";
 // GLOBAL: MW2MATROX 0x100a5afc
 // GLOBAL: MW23DFX 0x102598a0
 // GLOBAL: MW2ATI 0x1018dba0
+// GLOBAL: MW2S3 0x100617c4
 char* g_resExtMek = ".mek";
 
 // GLOBAL: MW2 0x100a8730

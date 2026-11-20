@@ -99,6 +99,7 @@ ThrottleGauge g_throttleGauge = {{0x1e7a, 0x8dc9}, 0, 0, 0, 0, 0, 0};
 // GLOBAL: MW2MATROX 0x100bbdb0
 // GLOBAL: MW23DFX 0x1024c878
 // GLOBAL: MW2ATI 0x10180bf8
+// GLOBAL: MW2S3 0x10064180
 // GLOBAL: MW2POWERVR 0x101abad0
 Point g_heatBarPosition = {0, 0x3333};
 
@@ -148,6 +149,7 @@ Point g_jumpFuelBarSize = {0xdf2e, 0x5555};
 // FUNCTION: MW2MATROX 0x10089040
 // FUNCTION: MW23DFX 0x1001c250
 // FUNCTION: MW2ATI 0x1001c580
+// FUNCTION: MW2S3 0x10014bc0
 void ScaleBarGauges(void)
 {
 	CockpitPanel* panel;
@@ -180,6 +182,7 @@ void ScaleBarGauges(void)
 // FUNCTION: MW2MATROX 0x10089195
 // FUNCTION: MW23DFX 0x1001c350
 // FUNCTION: MW2ATI 0x1001c680
+// FUNCTION: MW2S3 0x10014cc0
 // FUNCTION: MW2POWERVR 0x1001b470
 void DrawHeatBar(PANE* p_target)
 {
@@ -441,6 +444,7 @@ void DrawJumpFuelBar(PANE* p_target)
 // FUNCTION: MW2MATROX 0x10089791
 // FUNCTION: MW23DFX 0x1001c810
 // FUNCTION: MW2ATI 0x1001cb40
+// FUNCTION: MW2S3 0x10015180
 void DrawVerticalBar(PANE* p_target, MechS32 p_x, MechS32 p_y, MechS32 p_width, MechS32 p_height, MechS32 p_color)
 {
 	MechS32 half;

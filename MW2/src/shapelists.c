@@ -116,6 +116,7 @@ void AddSceneShape(Shape* p_shape)
 // FUNCTION: MW2MATROX 0x1000374b
 // FUNCTION: MW23DFX 0x1000dbe0
 // FUNCTION: MW2ATI 0x1000e2d0
+// FUNCTION: MW2S3 0x1002a5a0
 // FUNCTION: MW2POWERVR 0x1000ced0
 void RemoveSceneShape(Shape* p_shape)
 {

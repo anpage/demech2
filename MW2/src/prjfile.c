@@ -17,6 +17,7 @@ DECOMP_SIZE_ASSERT(PrjFile, 0x14a)
 // GLOBAL: MW2 0x100ae734
 // GLOBAL: MW2MATROX 0x100a4580
 // GLOBAL: MW23DFX 0x102598fc
+// GLOBAL: MW2S3 0x1006626c
 PrjAllocFn g_prjAlloc = NULL;
 
 // GLOBAL: MW2 0x100ae738
@@ -311,6 +312,7 @@ MechS32 LoadPrjIndexes(MechS32 p_file)
 // FUNCTION: MW2MATROX 0x1000c935
 // FUNCTION: MW23DFX 0x1003d580
 // FUNCTION: MW2ATI 0x1003b4f0
+// FUNCTION: MW2S3 0x10028030
 // FUNCTION: MW2POWERVR 0x10036350
 MechS32 GetPrjResourceSize(MechS32 p_file, const MechChar* p_type, MechU16 p_id)
 {
@@ -391,6 +393,7 @@ MechS32 ReadPrjAt(void* p_buffer, MechS32 p_file, MechS32 p_offset, MechU32 p_le
 // FUNCTION: MW2MATROX 0x1000cbee
 // FUNCTION: MW23DFX 0x1003d720
 // FUNCTION: MW2ATI 0x1003b590
+// FUNCTION: MW2S3 0x100280d0
 // FUNCTION: MW2POWERVR 0x100363f0
 MechS32 ReadPrjResource(MechS32 p_file, const MechChar* p_type, MechU16 p_id, void* p_buffer)
 {

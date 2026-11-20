@@ -85,6 +85,7 @@ void FreePaletteCycle(PaletteCycle* p_cycle)
 // FUNCTION: MW2MATROX 0x100506f5
 // FUNCTION: MW23DFX 0x100613c0
 // FUNCTION: MW2ATI 0x1005ea70
+// FUNCTION: MW2S3 0x10047a80
 // FUNCTION: MW2POWERVR 0x100597e0
 MechS32 InitPaletteFade(
 	PaletteFade* p_fade,

@@ -103,6 +103,7 @@ MechChar g_gamePath[0x100];
 // GLOBAL: MW2MATROX 0x1015e8b0
 // GLOBAL: MW23DFX 0x101de8e0
 // GLOBAL: MW2ATI 0x101125a0
+// GLOBAL: MW2S3 0x1008ac10
 MechS32 g_hudLayoutValues[3];
 
 // Loads seven values from resource p_ref.
@@ -169,6 +170,7 @@ MechS32 LoadMgdFile(
 // FUNCTION: MW2MATROX 0x1000ae34
 // FUNCTION: MW23DFX 0x100401c0
 // FUNCTION: MW2ATI 0x1003df20
+// FUNCTION: MW2S3 0x1002de90
 MechS32 LoadReels(ResourceRef* p_ref)
 {
 	MechS32 ids[32];
@@ -266,6 +268,7 @@ MechS32 LoadReels(ResourceRef* p_ref)
 // FUNCTION: MW2MATROX 0x1000b1c6
 // FUNCTION: MW23DFX 0x100403a0
 // FUNCTION: MW2ATI 0x1003e100
+// FUNCTION: MW2S3 0x1002e070
 MechS32 LoadHudFile(ResourceRef* p_ref)
 {
 	MechS32 size;
@@ -646,6 +649,7 @@ MechS32 SaveSndCfg(MechChar* p_name, SoundConfig* p_cfg)
 // FUNCTION: MW2MATROX 0x1000bb8e
 // FUNCTION: MW23DFX 0x10040a60
 // FUNCTION: MW2ATI 0x1003e680
+// FUNCTION: MW2S3 0x1002e5f0
 void SaveScreenshot(void)
 {
 	MechS32 count;

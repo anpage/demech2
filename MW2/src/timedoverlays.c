@@ -83,6 +83,7 @@ TimedOverlay g_timedOverlays[2] = {
 // FUNCTION: MW2MATROX 0x10078690
 // FUNCTION: MW23DFX 0x10002e40
 // FUNCTION: MW2ATI 0x10002b20
+// FUNCTION: MW2S3 0x1003f2d0
 // FUNCTION: MW2POWERVR 0x100028d0
 void LayoutMessageBoxes(void)
 {
@@ -136,6 +137,7 @@ void LayoutMessageBoxes(void)
 // FUNCTION: MW2MATROX 0x10078804
 // FUNCTION: MW23DFX 0x10002f20
 // FUNCTION: MW2ATI 0x10002c00
+// FUNCTION: MW2S3 0x1003f3b0
 // FUNCTION: MW2POWERVR 0x100029b0
 MechS32 ShowInGameMessage(MechChar* p_text, MechS32 p_font, MechS32 p_duration, MechS32 p_priority)
 {

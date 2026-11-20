@@ -366,6 +366,7 @@ MechS32 QueueSpeech(SpeechLine* p_line, SpeechLine* p_suffix, MechS32 p_priority
 // FUNCTION: MW2MATROX 0x1008b9a7
 // FUNCTION: MW23DFX 0x100313d0
 // FUNCTION: MW2ATI 0x100301c0
+// FUNCTION: MW2S3 0x10037380
 // FUNCTION: MW2POWERVR 0x1002ac40
 void AdvanceSpeechQueue(void)
 {
@@ -563,6 +564,7 @@ void FlushSpeechQueue(MechS32 p_keep)
 // FUNCTION: MW2MATROX 0x1008be95
 // FUNCTION: MW23DFX 0x10031700
 // FUNCTION: MW2ATI 0x100304f0
+// FUNCTION: MW2S3 0x100376b0
 // FUNCTION: MW2POWERVR 0x1002af70
 SpeechEntry* FreeSpeechEntry(SpeechEntry* p_entry)
 {

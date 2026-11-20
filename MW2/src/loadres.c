@@ -32,6 +32,7 @@ ResourceCacheEntry** g_cacheTable = NULL;
 // GLOBAL: MW2MATROX 0x100aa890
 // GLOBAL: MW23DFX 0x1024d7f0
 // GLOBAL: MW2ATI 0x10181b70
+// GLOBAL: MW2S3 0x100605c4
 // GLOBAL: MW2POWERVR 0x101acc00
 MechS32 g_cacheDumpNumber = 0;
 
@@ -90,6 +91,7 @@ void UnlockCacheEntry(ResourceCacheEntry* p_item)
 // FUNCTION: MW2MATROX 0x10055903
 // FUNCTION: MW23DFX 0x10023fd0
 // FUNCTION: MW2ATI 0x10024240
+// FUNCTION: MW2S3 0x100024d0
 // FUNCTION: MW2POWERVR 0x100234c0
 void LockCacheEntry(ResourceCacheEntry* p_item)
 {
@@ -235,6 +237,7 @@ ResourceCacheEntry* FindCacheEntry(MechS32 p_id, const char* p_type)
 // FUNCTION: MW2MATROX 0x10055bf3
 // FUNCTION: MW23DFX 0x10024190
 // FUNCTION: MW2ATI 0x100243f0
+// FUNCTION: MW2S3 0x10002680
 // FUNCTION: MW2POWERVR 0x10023670
 void FreeCacheEntry(ResourceCacheEntry* p_item)
 {
@@ -289,6 +292,7 @@ void FreeCacheEntry(ResourceCacheEntry* p_item)
 // FUNCTION: MW2MATROX 0x10055d8e
 // FUNCTION: MW23DFX 0x100242a0
 // FUNCTION: MW2ATI 0x10024500
+// FUNCTION: MW2S3 0x10002790
 // FUNCTION: MW2POWERVR 0x10023780
 void DumpResourceCache(void)
 {
@@ -343,6 +347,7 @@ void FUN_1001a158(void)
 // FUNCTION: MW2MATROX 0x10055f02
 // FUNCTION: MW23DFX 0x100243d0
 // FUNCTION: MW2ATI 0x10024620
+// FUNCTION: MW2S3 0x100028b0
 // FUNCTION: MW2POWERVR 0x100238a0
 void UnlockCachedResource(MechS32 p_id, const char* p_type)
 {
@@ -364,6 +369,7 @@ void UnlockCachedResource(MechS32 p_id, const char* p_type)
 // FUNCTION: MW2MATROX 0x10055f3e
 // FUNCTION: MW23DFX 0x100243f0
 // FUNCTION: MW2ATI 0x10024640
+// FUNCTION: MW2S3 0x100028d0
 // FUNCTION: MW2POWERVR 0x100238c0
 void* LoadCachedResource(MechS32 p_file, MechS32 p_id, const char* p_type, undefined4 p_unk0x0c)
 {

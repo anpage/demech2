@@ -14,6 +14,7 @@
 // FUNCTION: MW2MATROX 0x10027a60
 // FUNCTION: MW23DFX 0x10029060
 // FUNCTION: MW2ATI 0x10028d20
+// FUNCTION: MW2S3 0x10025890
 void ComputeShapeBounds(Shape* p_shape)
 {
 	MechDouble dz;

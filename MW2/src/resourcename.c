@@ -73,6 +73,7 @@ MechS32 FindResourceIdByName(MechS32 p_table, MechChar* p_name)
 // FUNCTION: MW2MATROX 0x10073632
 // FUNCTION: MW23DFX 0x10025f70
 // FUNCTION: MW2ATI 0x10025ce0
+// FUNCTION: MW2S3 0x1002a940
 // FUNCTION: MW2POWERVR 0x10024ee0
 void* LoadResourceByRef(
 	ResourceRef* p_ref,

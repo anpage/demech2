@@ -60,6 +60,7 @@ SoundInfo g_soundInfo[1200];
 // FUNCTION: MW2MATROX 0x10086090
 // FUNCTION: MW23DFX 0x10032530
 // FUNCTION: MW2ATI 0x10031330
+// FUNCTION: MW2S3 0x100353f0
 // FUNCTION: MW2POWERVR 0x1002bdb0
 MechS32 InitializeDigitalAudio(MechU32 p_numSamples)
 {
@@ -220,6 +221,7 @@ void ServeSamples(void)
 // FUNCTION: MW2MATROX 0x100866b2
 // FUNCTION: MW23DFX 0x100328e0
 // FUNCTION: MW2ATI 0x100316e0
+// FUNCTION: MW2S3 0x100357a0
 // FUNCTION: MW2POWERVR 0x1002c160
 MechS32 PlaySample(
 	MechS32 p_delay,
@@ -296,6 +298,7 @@ MechS32 PlaySample(
 // plays it only once, 0x1000 loops.
 // FUNCTION: MW2 0x1007e1cf
 // FUNCTION: MW2MATROX 0x1008689b
+// FUNCTION: MW2S3 0x100358f0
 MechS32 StartSample(MechS32 p_id, void* p_data, MechU16 p_flags, MechS16 p_slot, MechS32* p_userData)
 {
 	HSAMPLE sample;
@@ -439,6 +442,7 @@ MechS32 StartSample(MechS32 p_id, void* p_data, MechU16 p_flags, MechS16 p_slot,
 // next (-1 for none), 4 heap data to free.
 // FUNCTION: MW2 0x1007e80e
 // FUNCTION: MW2MATROX 0x10086eda
+// FUNCTION: MW2S3 0x10035d00
 void AILCALLBACK SampleEosCallback(HSAMPLE p_sample)
 {
 	MechS32 id;
@@ -553,6 +557,7 @@ MechS32 PlaySoundRandomRate(
 // FUNCTION: MW2MATROX 0x10087158
 // FUNCTION: MW23DFX 0x10032ad0
 // FUNCTION: MW2ATI 0x100318d0
+// FUNCTION: MW2S3 0x10035ec0
 // FUNCTION: MW2POWERVR 0x1002c350
 MechS32 PlayPositionalSound(MechScalar p_dx, MechScalar p_dy, MechScalar p_dz, MechS32 p_sound, MechS32 p_half)
 {
@@ -692,6 +697,7 @@ MechS32 RandomSampleRate(void)
 // FUNCTION: MW2MATROX 0x10087358
 // FUNCTION: MW23DFX 0x10032c70
 // FUNCTION: MW2ATI 0x10031a70
+// FUNCTION: MW2S3 0x10036060
 void StopSamples(MechS32 p_all)
 {
 	MechS32 i;

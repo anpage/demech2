@@ -73,6 +73,7 @@ Point g_htalLabelTPosition = {0x5050, 0x199a};
 // GLOBAL: MW2MATROX 0x100ac6f8
 // GLOBAL: MW23DFX 0x1024c610
 // GLOBAL: MW2ATI 0x10180990
+// GLOBAL: MW2S3 0x10074040
 // GLOBAL: MW2POWERVR 0x101ab838
 Point g_htalLabelAPosition = {0x9697, 0x199a};
 
@@ -80,6 +81,7 @@ Point g_htalLabelAPosition = {0x9697, 0x199a};
 // GLOBAL: MW2MATROX 0x100ac700
 // GLOBAL: MW23DFX 0x1024c618
 // GLOBAL: MW2ATI 0x10180998
+// GLOBAL: MW2S3 0x10074048
 // GLOBAL: MW2POWERVR 0x101ab840
 Point g_htalLabelLPosition = {0xd2d3, 0x199a};
 
@@ -88,6 +90,7 @@ Point g_htalLabelLPosition = {0xd2d3, 0x199a};
 // GLOBAL: MW2MATROX 0x100ac708
 // GLOBAL: MW23DFX 0x1024c620
 // GLOBAL: MW2ATI 0x101809a0
+// GLOBAL: MW2S3 0x10074050
 // GLOBAL: MW2POWERVR 0x101ab848
 MechScalar g_maxSectionArmor = 0;
 
@@ -96,6 +99,7 @@ MechScalar g_maxSectionArmor = 0;
 // GLOBAL: MW2MATROX 0x100ac710
 // GLOBAL: MW23DFX 0x1024c628
 // GLOBAL: MW2ATI 0x101809a8
+// GLOBAL: MW2S3 0x10074058
 PANE g_outlineRect = {NULL, 0, 0, 0, 0};
 
 // The outline's sixteen parts: rectangles in the outline shape's pixels (LoadHudFile reads them)
@@ -104,6 +108,7 @@ PANE g_outlineRect = {NULL, 0, 0, 0, 0};
 // GLOBAL: MW2MATROX 0x100ac728
 // GLOBAL: MW23DFX 0x1024c640
 // GLOBAL: MW2ATI 0x101809c0
+// GLOBAL: MW2S3 0x10074070
 PANE g_outlinePartRects[16] = {0};
 
 // Where each part's shape is drawn from, relative to its rectangle.
@@ -118,6 +123,7 @@ Point g_outlinePartOffsets[16] = {0};
 // GLOBAL: MW2MATROX 0x100ac8e8
 // GLOBAL: MW23DFX 0x1024c800
 // GLOBAL: MW2ATI 0x10180b80
+// GLOBAL: MW2S3 0x10074230
 MechS32 g_frameOutlineParts = 0;
 
 // The armor bars' labels.
@@ -175,6 +181,7 @@ MechU8 g_outlineRemap[0x100];
 // GLOBAL: MW2MATROX 0x100c2638
 // GLOBAL: MW23DFX 0x1007c380
 // GLOBAL: MW2ATI 0x10071380
+// GLOBAL: MW2S3 0x1007db60
 // GLOBAL: MW2POWERVR 0x1006f380
 Point g_armorBarSize;
 
@@ -184,6 +191,7 @@ Point g_armorBarSize;
 // FUNCTION: MW2MATROX 0x10059940
 // FUNCTION: MW23DFX 0x1001b230
 // FUNCTION: MW2ATI 0x1001b5c0
+// FUNCTION: MW2S3 0x100396f0
 void InitDamagePanel(void)
 {
 	MechS32 color;
@@ -297,6 +305,7 @@ void InitDamagePanel(void)
 // FUNCTION: MW2MATROX 0x10059e60
 // FUNCTION: MW23DFX 0x1001b620
 // FUNCTION: MW2ATI 0x1001b9b0
+// FUNCTION: MW2S3 0x10039a80
 void DrawDamageOutline(Mech* p_mech, PANE* p_target)
 {
 	MechS32 rear;
@@ -408,6 +417,7 @@ void DrawDamageOutline(Mech* p_mech, PANE* p_target)
 // FUNCTION: MW2MATROX 0x1005a18b
 // FUNCTION: MW23DFX 0x1001b890
 // FUNCTION: MW2ATI 0x1001bc20
+// FUNCTION: MW2S3 0x10039c90
 // FUNCTION: MW2POWERVR 0x1001ab40
 void DrawArmorBars(Mech* p_mech, PANE* p_target)
 {

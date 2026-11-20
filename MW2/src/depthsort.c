@@ -115,6 +115,7 @@ MechS32 g_shapesConsidered;
 // FUNCTION: MW2MATROX 0x100232f0
 // FUNCTION: MW23DFX 0x10029f00
 // FUNCTION: MW2ATI 0x10029b30
+// FUNCTION: MW2S3 0x10021880
 MechS32 QueueShapeLod(Shape* p_shape, MechScalar p_depth)
 {
 	Model* model;
@@ -360,6 +361,7 @@ void DrawShapeList(Shape* p_root)
 // FUNCTION: MW2MATROX 0x100236a0
 // FUNCTION: MW23DFX 0x1002a170
 // FUNCTION: MW2ATI 0x10029da0
+// FUNCTION: MW2S3 0x10021af0
 void DrawDepthQueue(void)
 {
 	MechS32 i;

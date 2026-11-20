@@ -65,6 +65,7 @@ MechScalar g_gravityScale = FIXED_RAW(0x10000);
 // GLOBAL: MW2 0x100ba608
 // GLOBAL: MW2MATROX 0x100bbbb0
 // GLOBAL: MW23DFX 0x1024a990
+// GLOBAL: MW2S3 0x10073258
 MechS32 g_unk0x100ba608 = 0;
 
 // GLOBAL: MW2 0x100ba60c
@@ -107,6 +108,7 @@ MechS32 g_startTimeOfDay = 43200;
 // GLOBAL: MW2MATROX 0x100bbbc8
 // GLOBAL: MW23DFX 0x1024a9a8
 // GLOBAL: MW2ATI 0x1017ee00
+// GLOBAL: MW2S3 0x10073270
 MechS32 g_temperature = 25;
 
 // Set on a planet without a breathable atmosphere: the local player can't eject (the cockpit says
@@ -162,6 +164,7 @@ MechS32 g_infraredOn;
 // FUNCTION: MW2MATROX 0x10085c80
 // FUNCTION: MW23DFX 0x10007870
 // FUNCTION: MW2ATI 0x100081d0
+// FUNCTION: MW2S3 0x10035170
 // FUNCTION: MW2POWERVR 0x10006f50
 void FirstEnvironment(void)
 {

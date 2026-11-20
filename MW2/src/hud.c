@@ -297,6 +297,7 @@ void DrawHud(
 // FUNCTION: MW2MATROX 0x1001caef
 // FUNCTION: MW23DFX 0x100222e0
 // FUNCTION: MW2ATI 0x100225b0
+// FUNCTION: MW2S3 0x100010b0
 void DrawAltimeter(Mech* p_mech, MechS32 p_x, MechS32 p_y)
 {
 	CockpitPanel* gauge;
@@ -600,6 +601,7 @@ MechS32 DrawCrosshair(Mech* p_mech, MechScalar p_bearing, MechScalar p_pitch, Me
 // FUNCTION: MW2MATROX 0x1001d3c9
 // FUNCTION: MW23DFX 0x10022830
 // FUNCTION: MW2ATI 0x10022af0
+// FUNCTION: MW2S3 0x100015f0
 void DrawTargetMarker(Mech* p_mech)
 {
 	MechS32 index;
@@ -656,6 +658,7 @@ void DrawTargetMarker(Mech* p_mech)
 // FUNCTION: MW2MATROX 0x1001d551
 // FUNCTION: MW23DFX 0x10022960
 // FUNCTION: MW2ATI 0x10022c20
+// FUNCTION: MW2S3 0x10001720
 void DrawCompassMarkers(
 	Mech* p_mech,
 	MechS32 p_x,
@@ -747,6 +750,7 @@ void DrawCompassMarkers(
 // FUNCTION: MW2MATROX 0x1001d7b6
 // FUNCTION: MW23DFX 0x10022b10
 // FUNCTION: MW2ATI 0x10022dd0
+// FUNCTION: MW2S3 0x100018d0
 void DrawCompass(MechS32 p_x, MechS32 p_y, MechScalar p_heading, MechScalar p_twist)
 {
 	CockpitPanel* gauge;
@@ -845,6 +849,7 @@ MechS32 ProjectAimPoint(Mech* p_mech, MechS32* p_x, MechS32* p_y)
 // FUNCTION: MW2MATROX 0x1001d9cd
 // FUNCTION: MW23DFX 0x10022cc0
 // FUNCTION: MW2ATI 0x10022f80
+// FUNCTION: MW2S3 0x10001a80
 void DrawPlayerBrackets(Player* p_player, MechS32 p_side)
 {
 	MechS32 topLeft;
@@ -941,6 +946,7 @@ void DrawPlayerBrackets(Player* p_player, MechS32 p_side)
 // FUNCTION: MW2MATROX 0x1001dc23
 // FUNCTION: MW23DFX 0x10022ea0
 // FUNCTION: MW2ATI 0x10023160
+// FUNCTION: MW2S3 0x10001c50
 void DrawObjectBrackets(struct SceneObject* p_object, MechS32 p_side)
 {
 #ifndef MW2_3DFX
@@ -1046,6 +1052,7 @@ void DrawObjectBrackets(struct SceneObject* p_object, MechS32 p_side)
 // FUNCTION: MW2MATROX 0x1001dee6
 // FUNCTION: MW23DFX 0x100230c0
 // FUNCTION: MW2ATI 0x10023380
+// FUNCTION: MW2S3 0x10001e50
 // FUNCTION: MW2POWERVR 0x100225c0
 void DrawHudShape(MechS32 p_x, MechS32 p_y, MechS32 p_id)
 {

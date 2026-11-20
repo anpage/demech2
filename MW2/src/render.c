@@ -46,7 +46,12 @@
 // The draw mode the game starts in: none in 1.1, the first in the Matrox edition, which doesn't
 // fall back to the others (InitRefreshMode's p_allowFallback).
 #ifdef MW2_DEFAULT_DRAW_MODE
+#ifdef MW2_S3
+// The S3 edition's starts in the third.
+#define INITIAL_DRAW_MODE 2
+#else
 #define INITIAL_DRAW_MODE 0
+#endif
 #define INITIAL_DRAW_MODE_FALLBACK 0
 #else
 #define INITIAL_DRAW_MODE -1
@@ -64,12 +69,14 @@ MechS32 g_drawModeIndex = INITIAL_DRAW_MODE;
 // GLOBAL: MW2 0x100a2450
 // GLOBAL: MW2MATROX 0x100a4a00
 // GLOBAL: MW23DFX 0x102498e0
+// GLOBAL: MW2S3 0x10064068
 MechS32 g_initDrawModeParam2 = INITIAL_DRAW_MODE_FALLBACK;
 
 // GLOBAL: MW2 0x100a2454
 // GLOBAL: MW2MATROX 0x100a4a04
 // GLOBAL: MW23DFX 0x102498e4
 // GLOBAL: MW2ATI 0x1017d78c
+// GLOBAL: MW2S3 0x1006406c
 MechS32 g_showBoundingSpheres = 0;
 
 // The banner's file name, instead of sbannr (ShowBanner).
@@ -424,6 +431,7 @@ void SecondRender(void)
 // FUNCTION: MW2MATROX 0x1001774e
 // FUNCTION: MW23DFX 0x10004b30
 // FUNCTION: MW2ATI 0x100047c0
+// FUNCTION: MW2S3 0x10014520
 void DrawScene(void)
 {
 	MechScalar saved;

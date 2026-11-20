@@ -205,6 +205,7 @@ StaticPoolSize* ReadStaticMemoryTable(char* p_mission)
 // FUNCTION: MW2MATROX 0x100857c3
 // FUNCTION: MW23DFX 0x100410e0
 // FUNCTION: MW2ATI 0x1003ec90
+// FUNCTION: MW2S3 0x100187e0
 // FUNCTION: MW2POWERVR 0x100399f0
 MechS32 CountMissionStream(BwdStream* p_stream)
 {
