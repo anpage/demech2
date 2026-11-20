@@ -150,9 +150,10 @@ void RotateTexturePoint(MechFloat p_cos, MechFloat p_sin, MechFloat* p_u, MechFl
 #endif
 // MW2MATROX's (0x10050dbc) is another function: it draws through the Matrox edition's renderer.
 // MW23DFX's (0x1002c880) draws through its own renderer, in Glide's texture coordinates, and
-// clips the polygon to the pane edges p_unk0x18 selects. MW2ATI's (0x1002bd20) draws through its own
-// renderer too: the 3Dfx edition's without MW2.MIP, a vertex at a time, its texture coordinates
-// fractions of the texture.
+// clips the polygon to the pane edges p_unk0x18 selects. MW2ATI's (0x1002bd20), six months older,
+// draws through its own renderer too, a vertex at a time, its texture coordinates fractions of the
+// texture: the 3Dfx edition's has the same steps in loops of their own, with MW2.MIP and Glide's
+// 0-255 coordinates.
 // FUNCTION: MW2 0x10068d10
 // FUNCTION: MW2MATROX 0x10050dbc
 // FUNCTION: MW23DFX 0x1002c880
@@ -600,8 +601,8 @@ MechS32 DrawAnimatedPolygon(
 		useLuma = FALSE;
 	}
 
-	// The texture coordinates are fractions of the texture; the original tests the render settings'
-	// member at 0x54 where the 3Dfx edition tests m_affineTextures.
+	// The texture coordinates are fractions of the texture. The original tests the render settings'
+	// member at 0x54 here; the 3Dfx edition's tests m_affineTextures (0x4c) in its place.
 	vertex = g_a3dVertices;
 	for (i = 0; i < p_count; i++) {
 		point = *p_points++;
@@ -1352,8 +1353,8 @@ MechS32 FUN_10051ea2(MechS32 p_index, ProjectedVertex** p_points, MechS32 p_coun
 #endif
 #ifdef MW2_SKY_GROUND_CLIPPED_HELPERS
 // Draws the polygon of p_count projected points with animation p_index + 0x100's texture (the
-// ground's), clipped to the pane, subdivided for its perspective (FUN_100674c0's mode 2) in the
-// 3Dfx edition, perspective-corrected by the ATI edition's renderer. Returns 0.
+// ground's), clipped to the pane, perspective-corrected by the ATI edition's renderer, subdivided
+// for its perspective (FUN_100674c0's mode 2) in the 3Dfx edition. Returns 0.
 // FUNCTION: MW23DFX 0x1002d460
 // FUNCTION: MW2ATI 0x1002c630
 MechS32 FUN_10051c07(MechS32 p_index, ProjectedVertex** p_points, MechS32 p_count)
@@ -1374,7 +1375,7 @@ MechS32 FUN_10051c07(MechS32 p_index, ProjectedVertex** p_points, MechS32 p_coun
 		p_points++;
 		vertex->m_x = point->m_screenX;
 		vertex->m_y = point->m_screenY;
-		// The 3Dfx edition's 1 / w is 2000 / z, the ATI edition's the projection's scale over z.
+		// The ATI edition's 1 / w is the projection's scale over z, the 3Dfx edition's 2000 / z.
 #ifdef MW2_3DFX
 		w = 2000.0f / point->m_z;
 #else

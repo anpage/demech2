@@ -1004,7 +1004,7 @@ void TargetNearestEnemy(void)
 	}
 }
 
-// The 3Dfx and ATI editions end this object with the cockpit panels, which 1.1 has in config.c's.
+// The ATI and 3Dfx editions end this object with the cockpit panels, which 1.1 has in config.c's.
 #if defined(MW2_3DFX) || defined(MW2_ATI)
 #include "cockpitpanels.c"
 #endif

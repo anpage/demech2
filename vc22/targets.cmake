@@ -435,12 +435,13 @@ function(demech2_add_mw23dfx)
 endfunction()
 
 # MW2_ATI.DLL (linked 1996-04-11 by LINK 2.55): the simulator of the ATI 3D Rage edition, drawing
-# through ATI's 3D CIF (ati3dcif.dll) on DirectDraw surfaces. Its registry key is 1.0's
-# ("Software\\Activision\\MechWarrior 2\\1.0"), five months before 1.1, but its C is the
-# accelerated editions' (the float conversion, the 16-bit VFXA port, the A3D interface), built like
-# the 3Dfx edition's: VC++ 2.2, optimized with __fastcall the default (/Gr), int3 between the
-# functions, and 2.2's LIBC (no TLS or critical section imports). MW2_ACCEL and MW2_ATI are
-# defined. The flags and the units' order are the 3Dfx edition's until probes settle them; its
+# through ATI's 3D CIF (ati3dcif.dll) on DirectDraw surfaces: the oldest edition, its registry key
+# 1.0's ("Software\\Activision\\MechWarrior 2\\1.0"), five months before 1.1. Its C already has
+# what the later accelerated editions share (the float conversion, the 16-bit VFXA port, the A3D
+# interface), built the way the 3Dfx edition was six months later: VC++ 2.2, optimized with
+# __fastcall the default (/Gr), int3 between the functions, and 2.2's LIBC (no TLS or critical
+# section imports). MW2_ACCEL and MW2_ATI are defined. The flags and the units' order are the 3Dfx
+# edition's until probes settle them; its
 # display back end is DirectDraw's (directdraw.c), and ati/a3d.c its renderer, over the 3D CIF.
 function(demech2_add_mw2ati)
   set(od

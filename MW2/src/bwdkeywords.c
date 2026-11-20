@@ -6,7 +6,7 @@
 
 // The BWD version this build reads: a mission stream's REV record must be at least this.
 #if defined(MW2_3DFX) || defined(MW2_ATI)
-// The 3Dfx and ATI editions' has no terminator: the keyword names follow it directly.
+// The ATI and 3Dfx editions' has no terminator: the keyword names follow it directly.
 // GLOBAL: MW23DFX 0x1025a0a0
 // GLOBAL: MW2ATI 0x1018e398
 MechChar g_bwdVersion[4] = "1.22";

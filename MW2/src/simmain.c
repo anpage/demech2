@@ -681,15 +681,15 @@ int __stdcall SimMain(
 #define SIM_BACKEND_FILL DdrawFill
 #endif
 
-// The 3Dfx and ATI editions' SimMain. It keeps 1.1's window, asks SetGameResolution (800x600 with
-// the 3Dfx edition's registry setting), reads the render settings before FirstClock where the
-// Matrox edition reads them before the main loop, and the 3Dfx edition releases the DCs it tests
-// the palette with. Like the Matrox edition's, it computes the bitmaps' average colours after
-// loading the world, updates the players every frame before a network launch, which starts when
-// the go state is 7. It keeps 1.1's refresh mode fallback loop, filling through the edition's
-// display back end (Glide, DirectDraw). The ATI edition reads the sky and ground and the render
-// settings right after the command line, and shuts its renderer down (A3D_shutdown) after the last
-// blit.
+// The ATI and 3Dfx editions' SimMain (the ATI edition's is six months older). Both have the window
+// 1.1 has and ask SetGameResolution (the 3Dfx edition 800x600 with its registry setting); like the
+// Matrox edition's, they compute the bitmaps' average colours after loading the world and update
+// the players every frame before a network launch, which starts when the go state is 7; and they
+// have the refresh mode fallback loop 1.1 has, filling through the edition's display back end
+// (DirectDraw, Glide). The ATI edition reads the sky and ground and the render settings right after
+// the command line, tests the palette through DCs it doesn't release, as 1.1 does, and shuts its
+// renderer down (A3D_shutdown) after the last blit; the 3Dfx edition reads the render settings
+// before FirstClock (the Matrox edition before the main loop) and releases the DCs.
 // FUNCTION: MW23DFX 0x10008850
 // FUNCTION: MW2ATI 0x10009040
 int __stdcall SimMain(
@@ -1576,7 +1576,7 @@ LRESULT CALLBACK SimWindowProc(HWND p_hWnd, UINT p_msg, WPARAM p_wParam, LPARAM 
 	return DefWindowProc(p_hWnd, p_msg, p_wParam, p_lParam);
 }
 #elif defined(MW2_3DFX) || defined(MW2_ATI)
-// The 3Dfx and ATI editions' window procedure. On WM_ACTIVATEAPP it has none of 1.1's switching
+// The ATI and 3Dfx editions' window procedure. On WM_ACTIVATEAPP it has none of 1.1's switching
 // between full screen and the desktop: it only restores or minimizes a full-screen window and
 // resets the palette.
 // FUNCTION: MW23DFX 0x10009400
