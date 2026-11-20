@@ -445,13 +445,21 @@ jobs:
         env:
           RELEASE_URL: https://github.com/anpage/demech2/releases/download/continuous
           PR_BODY: ${{ github.event.pull_request.body }}
+          GH_TOKEN: ${{ github.token }}
         run: |
           # Every function's state: byte-identical, proven by its witness record, or unproven
           # (tools/certify.py, from the certify job's objects). The gate fails a PR in which a
           # function that main has byte-identical or proven is neither any more, unless the PR's
           # description lists it: a line "Gate exception: <TARGET> <function> <reason>". The
-          # failure is reported by the last step, after the PR comment is written.
-          printf '%s\n' "$PR_BODY" >gate-exceptions.txt
+          # failure is reported by the last step, after the PR comment is written. A push to
+          # main gates against the states published before it, so it takes the exceptions of
+          # the pull request it merged.
+          if [ "$GITHUB_EVENT_NAME" = push ]; then
+            gh api "repos/$GITHUB_REPOSITORY/commits/$GITHUB_SHA/pulls" \
+              --jq '[.[] | select(.merged_at != null)][0].body // ""' >gate-exceptions.txt || : >gate-exceptions.txt
+          else
+            printf '%s\n' "$PR_BODY" >gate-exceptions.txt
+          fi
           status=0
           for entry in $TARGET_ENTRIES; do
             target="${entry%%:*}"
