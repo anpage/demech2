@@ -73,6 +73,7 @@ void InitRandom(MechU32 p_seed)
 // FUNCTION: MW2 0x100736b3
 // FUNCTION: MW2MATROX 0x1000bfdf
 // FUNCTION: MW23DFX 0x1003d910
+// FUNCTION: MW2ATI 0x1003b6f0
 MechS32 RandomIntBelow(MechS32 p_max)
 {
 	MechS32 value;
@@ -86,6 +87,7 @@ MechS32 RandomIntBelow(MechS32 p_max)
 // FUNCTION: MW2 0x100736f5
 // FUNCTION: MW2MATROX 0x1000c021
 // FUNCTION: MW23DFX 0x1003d940
+// FUNCTION: MW2ATI 0x1003b720
 MechS32 RandomNormal(void)
 {
 	MechS32 value;

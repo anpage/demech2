@@ -1916,6 +1916,7 @@ void SetGameResolution(char* p_driverName)
 #else
 // FUNCTION: MW2 0x10067e23
 // FUNCTION: MW2MATROX 0x10090f1b
+// FUNCTION: MW2ATI 0x1000a060
 void SetGameResolution(char* p_driverName)
 {
 	if (_strcmpi(p_driverName, "MCGA.DLL") == 0) {
@@ -1923,8 +1924,17 @@ void SetGameResolution(char* p_driverName)
 		g_gameWindowHeight = 200;
 	}
 	else if (_strcmpi(p_driverName, "VESA480.DLL") == 0) {
+#ifdef MW2_RES_512X384
+		g_gameWindowWidth = 512;
+		g_gameWindowHeight = 384;
+		if (!FUN_100059b0(512, 384, 16)) {
+			g_gameWindowWidth = 640;
+			g_gameWindowHeight = 480;
+		}
+#else
 		g_gameWindowWidth = 640;
 		g_gameWindowHeight = 480;
+#endif
 	}
 	else if (_strcmpi(p_driverName, "VESA768.DLL") == 0) {
 		g_gameWindowWidth = 1024;

@@ -110,6 +110,7 @@ void DrawBandPolygon(MechU32 p_flags, MechS32 p_count, MechU32* p_points, MechS3
 // FUNCTION: MW2 0x100107de
 // FUNCTION: MW2MATROX 0x100459b0
 // FUNCTION: MW23DFX 0x1002a8e0
+// FUNCTION: MW2ATI 0x1002a530
 #ifdef MW2_A3D
 MechS32 DrawBand(
 	MechU32 p_color,

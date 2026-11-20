@@ -1498,6 +1498,7 @@ void StartNuke(Player* p_player)
 // FUNCTION: MW2 0x1006c5e7
 // FUNCTION: MW2MATROX 0x1006d239
 // FUNCTION: MW23DFX 0x10047130
+// FUNCTION: MW2ATI 0x10044860
 void UpdateNuke(void)
 {
 	if (g_nukeTimeLeft <= 0) {

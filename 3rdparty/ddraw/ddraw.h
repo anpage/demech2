@@ -215,6 +215,13 @@ extern "C"
 #define DDSD_CAPS 0x00000001L
 #define DDSD_HEIGHT 0x00000002L
 #define DDSD_WIDTH 0x00000004L
+#define DDSD_PIXELFORMAT 0x00001000L
+
+#define DDPF_PALETTEINDEXED8 0x00000020L
+#define DDPF_RGB 0x00000040L
+
+// EnumDisplayModes' callbacks return it to go on enumerating.
+#define DDENUMRET_OK 1
 #define DDSD_BACKBUFFERCOUNT 0x00000020L
 
 #define DDSCAPS_BACKBUFFER 0x00000004L
@@ -381,6 +388,7 @@ extern "C"
 #define IDirectDraw_Release(p) (p)->lpVtbl->Release(p)
 #define IDirectDraw_CreatePalette(p, a, b, c, d) (p)->lpVtbl->CreatePalette(p, a, b, c, d)
 #define IDirectDraw_CreateSurface(p, a, b, c) (p)->lpVtbl->CreateSurface(p, a, b, c)
+#define IDirectDraw_EnumDisplayModes(p, a, b, c, d) (p)->lpVtbl->EnumDisplayModes(p, a, b, c, d)
 #define IDirectDraw_GetCaps(p, a, b) (p)->lpVtbl->GetCaps(p, a, b)
 #define IDirectDraw_RestoreDisplayMode(p) (p)->lpVtbl->RestoreDisplayMode(p)
 #define IDirectDraw_SetCooperativeLevel(p, a, b) (p)->lpVtbl->SetCooperativeLevel(p, a, b)

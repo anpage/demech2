@@ -748,6 +748,7 @@ void RemoveStaticObjectTask(MechS32 p_index, TimedCallback* p_callback)
 // FUNCTION: MW2 0x1002015f
 // FUNCTION: MW2MATROX 0x100538a7
 // FUNCTION: MW23DFX 0x100250a0
+// FUNCTION: MW2ATI 0x100252a0
 void RemoveStaticObjectTasks(MechS32 p_index)
 {
 	StaticObject* entry;
@@ -759,6 +760,7 @@ void RemoveStaticObjectTasks(MechS32 p_index)
 // FUNCTION: MW2 0x10020190
 // FUNCTION: MW2MATROX 0x100538d8
 // FUNCTION: MW23DFX 0x100250c0
+// FUNCTION: MW2ATI 0x100252c0
 void SignalStaticObjectTasks(MechS32 p_index)
 {
 	StaticObject* entry;

@@ -712,6 +712,7 @@ MechS32 LoadAnimFile(ResourceRef* p_ref)
 // FUNCTION: MW2 0x10047462
 // FUNCTION: MW2MATROX 0x1006fa37
 // FUNCTION: MW23DFX 0x1000e6c0
+// FUNCTION: MW2ATI 0x1000edb0
 MechS32 GetAnimBase(void)
 {
 	return g_animBase;

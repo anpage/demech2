@@ -115,6 +115,7 @@ MechS32 g_paletteResourceIds[20];
 // FUNCTION: MW2 0x100023c0
 // FUNCTION: MW2MATROX 0x1002d560
 // FUNCTION: MW23DFX 0x1002ab20
+// FUNCTION: MW2ATI 0x1002a770
 void InitPanes(PANE* p_target)
 {
 	MechS32 i;

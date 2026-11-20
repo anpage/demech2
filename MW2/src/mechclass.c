@@ -271,6 +271,7 @@ void FirstMech(struct Player* p_player)
 // share the frame, and its jump jet terms are cast, which keeps 2.2 from regrouping the float sums.
 // FUNCTION: MW2MATROX 0x1000d29c
 // FUNCTION: MW23DFX 0x10019310
+// FUNCTION: MW2ATI 0x100196a0
 void UpdateMech(Mech* p_mech)
 {
 	MechScalar velY;

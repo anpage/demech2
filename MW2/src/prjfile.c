@@ -34,6 +34,7 @@ PrjFile g_prjFiles[1];
 // FUNCTION: MW2 0x10071ad0
 // FUNCTION: MW2MATROX 0x1000c110
 // FUNCTION: MW23DFX 0x1003d090
+// FUNCTION: MW2ATI 0x1003b050
 void SetPrjAllocator(PrjAllocFn p_alloc, PrjFreeFn p_free)
 {
 	g_prjAlloc = p_alloc;
@@ -43,6 +44,7 @@ void SetPrjAllocator(PrjAllocFn p_alloc, PrjFreeFn p_free)
 // FUNCTION: MW2 0x10071aeb
 // FUNCTION: MW2MATROX 0x1000c12b
 // FUNCTION: MW23DFX 0x1003d0a0
+// FUNCTION: MW2ATI 0x1003b060
 void* PrjAlloc(MechU32 p_size)
 {
 	return g_prjAlloc(p_size);
@@ -51,6 +53,7 @@ void* PrjAlloc(MechU32 p_size)
 // FUNCTION: MW2 0x10071b08
 // FUNCTION: MW2MATROX 0x1000c148
 // FUNCTION: MW23DFX 0x1003d0b0
+// FUNCTION: MW2ATI 0x1003b070
 void PrjFreeBlock(void* p_block)
 {
 	g_prjFree(p_block);
@@ -86,6 +89,7 @@ MechS32 WritePrjBytes(MechS32 p_fd, void* p_buffer, MechU32 p_length)
 // FUNCTION: MW2 0x10071b9e
 // FUNCTION: MW2MATROX 0x1000c1de
 // FUNCTION: MW23DFX 0x1003d110
+// FUNCTION: MW2ATI 0x1003b080
 MechS32 ReadPrjBytes(MechS32 p_fd, void* p_buffer, MechU32 p_length)
 {
 	MechU32 chunk;

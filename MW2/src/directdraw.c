@@ -44,16 +44,20 @@ __inline static HRESULT DdrawRestore(void);
 LPDIRECTDRAW g_ddraw = NULL;
 
 // GLOBAL: MW2 0x100b1cb4
+// GLOBAL: MW2ATI 0x1017e5c4
 LPDIRECTDRAWSURFACE g_ddrawPrimary = NULL;
 
 // GLOBAL: MW2 0x100b1cb8
+// GLOBAL: MW2ATI 0x1017e5c8
 LPDIRECTDRAWSURFACE g_ddrawBack = NULL;
 
 // GLOBAL: MW2 0x100b1cbc
+// GLOBAL: MW2ATI 0x1017e5cc
 LPDIRECTDRAWSURFACE g_ddrawBuffer = NULL;
 
 // The second back buffer of the 320x200 mode, which stretches the frame into it and flips.
 // GLOBAL: MW2 0x100b1cc0
+// GLOBAL: MW2ATI 0x1017e5d0
 LPDIRECTDRAWSURFACE g_ddrawStretch = NULL;
 
 // Never accessed: there is nothing to name it after.
@@ -61,13 +65,16 @@ LPDIRECTDRAWSURFACE g_ddrawStretch = NULL;
 undefined4 g_unk0x100b1cc4 = 0;
 
 // GLOBAL: MW2 0x100b1cc8
+// GLOBAL: MW2ATI 0x1017e5d8
 LPDIRECTDRAWPALETTE g_ddrawPalette = NULL;
 
 // TRUE while g_ddrawBuffer is locked for drawing.
 // GLOBAL: MW2 0x100b1ccc
+// GLOBAL: MW2ATI 0x1017e5dc
 MechS32 g_ddrawLocked = FALSE;
 
 // GLOBAL: MW2 0x100b1cd0
+// GLOBAL: MW2ATI 0x1017e5e0
 MechS32 g_ddrawInitialized = FALSE;
 
 // GLOBAL: MW2 0x100b1cd8
@@ -146,25 +153,37 @@ RefreshMode g_ddrawSystemMemoryRefreshMode = {
 };
 
 // GLOBAL: MW2 0x100c26b0
+// GLOBAL: MW2ATI 0x10178770
 RECT g_ddrawScreenRect;
 
 // GLOBAL: MW2 0x100c26c0
+// GLOBAL: MW2ATI 0x101787e4
 HRESULT g_ddrawResult;
 
 // GLOBAL: MW2 0x100c26d0
+// GLOBAL: MW2ATI 0x10178780
 DDBLTFX g_ddrawBltFx;
 
 // GLOBAL: MW2 0x100c2740
+// GLOBAL: MW2ATI 0x101788d0
 DDSURFACEDESC g_ddrawPrimaryDesc;
 
 // GLOBAL: MW2 0x100c27b0
+// GLOBAL: MW2ATI 0x10178860
 DDSURFACEDESC g_ddrawBackDesc;
 
 // GLOBAL: MW2 0x100c281c
 DDSCAPS g_ddrawCaps;
 
 // GLOBAL: MW2 0x100c2820
+// GLOBAL: MW2ATI 0x101787f0
 DDSURFACEDESC g_ddrawBufferDesc;
+
+#ifdef MW2_RES_512X384
+// The display mode FUN_100059b0 enumerates was found (FUN_10005950).
+// GLOBAL: MW2ATI 0x1017e6ac
+MechS32 g_ddrawModeFound = FALSE;
+#endif
 
 // FUNCTION: MW2 0x10077850
 // FUNCTION: MW2ATI 0x100051f0
@@ -424,6 +443,71 @@ MechS32 DdrawInit(WINDOW* p_buffer, MechS32 p_width, MechS32 p_height)
 	g_ddrawInitialized = TRUE;
 	return 0;
 }
+
+#ifdef MW2_RES_512X384
+// EnumDisplayModes' callback for FUN_100059b0: records whether p_desc is the mode p_context holds
+// (its width, height and bits per pixel).
+// FUNCTION: MW2ATI 0x10005950
+static HRESULT WINAPI FUN_10005950(LPDDSURFACEDESC p_desc, LPVOID p_context)
+{
+	MechS32* mode;
+
+	mode = (MechS32*) p_context;
+	DebugPrint(
+		"DDRAW_EnumCallBack(%d x %d x %d)\n",
+		p_desc->dwWidth,
+		p_desc->dwHeight,
+		p_desc->ddpfPixelFormat.dwRGBBitCount
+	);
+	if (p_desc->dwWidth == mode[0] && mode[1] == p_desc->dwHeight && mode[2] == p_desc->ddpfPixelFormat.dwRGBBitCount) {
+		g_ddrawModeFound = TRUE;
+	}
+
+	return DDENUMRET_OK;
+}
+
+// Returns whether DirectDraw has the full-screen mode p_width x p_height in p_bitCount bits per
+// pixel, creating the DirectDraw object for the question if there is none.
+// FUNCTION: MW2ATI 0x100059b0
+MechS32 FUN_100059b0(MechS32 p_width, MechS32 p_height, MechS32 p_bitCount)
+{
+	MechS32 mode[3];
+	MechS32 created;
+
+	created = FALSE;
+	if (!g_ddraw) {
+		created = TRUE;
+		g_ddrawResult = DirectDrawCreate(NULL, &g_ddraw, NULL);
+		if (g_ddrawResult != DD_OK) {
+			DebugPrint("DDRAW_Init DirectDrawCreate(): %d\n", g_ddrawResult);
+			return FALSE;
+		}
+	}
+
+	g_ddrawPrimaryDesc.ddpfPixelFormat.dwSize = sizeof(DDPIXELFORMAT);
+	g_ddrawPrimaryDesc.ddpfPixelFormat.dwRGBBitCount = p_bitCount;
+	g_ddrawPrimaryDesc.ddpfPixelFormat.dwFlags = DDPF_PALETTEINDEXED8;
+	g_ddrawPrimaryDesc.dwSize = sizeof(DDSURFACEDESC);
+	g_ddrawPrimaryDesc.dwFlags = DDSD_PIXELFORMAT | DDSD_WIDTH | DDSD_HEIGHT;
+	if (p_bitCount != 8) {
+		g_ddrawPrimaryDesc.ddpfPixelFormat.dwFlags = DDPF_RGB;
+	}
+
+	mode[2] = p_bitCount;
+	g_ddrawModeFound = FALSE;
+	g_ddrawPrimaryDesc.dwHeight = p_height;
+	g_ddrawPrimaryDesc.dwWidth = p_width;
+	mode[0] = p_width;
+	mode[1] = p_height;
+	g_ddrawResult = IDirectDraw_EnumDisplayModes(g_ddraw, 0, &g_ddrawPrimaryDesc, mode, FUN_10005950);
+	if (created) {
+		IDirectDraw_Release(g_ddraw);
+		g_ddraw = NULL;
+	}
+
+	return g_ddrawModeFound;
+}
+#endif
 
 // FUNCTION: MW2 0x100781c0
 // FUNCTION: MW2ATI 0x10005ab0

@@ -20,7 +20,7 @@
 0x10004f90 GdiSetPaletteWithBrightness gdi.c pad 20
 0x10004ff0 GdiBlendPalettes gdi.c pad 20
 0x100051e0 GdiAcquireFramebuffer gdi.c pad 20
-0x10006260 DdrawFill directdraw.c pad 7
+0x10006260 DdrawFill directdraw.c pad 16
 0x10006790 ScaleRectToScreen screenscale.c pad 22
 0x10006840 ScaleRectToFrame screenscale.c pad 13
 0x10006bc0 CenterRectOnScreen screenscale.c pad 6
@@ -125,7 +125,6 @@
 0x10026410 ReleaseClassEntryShape classtable.c pad 2
 0x10026450 GetClassObject classtable.c pad 10
 0x10026660 ReleaseObjShape classtable.c pad 67
-0x10027460 LoadSkyGroundSettings polydraw.c pad 17
 0x10028ba0 IsAboveHorizon horizon.c pad 2
 0x10028d20 ComputeShapeBounds shape.c pad 1
 0x10028ed0 ComputeFaceNormal shape.c pad 6
@@ -139,6 +138,8 @@
 0x10029eb0 DrawObjTreeShapes depthsort.c pad 26
 0x1002a0c0 GetFaceColor faceshade.c pad 10
 0x1002a430 AreTextureMapsOn faceshade.c pad 2
+0x1002a530 DrawBand bandpoly.c pad 7
+0x1002a770 InitPanes palette.c pad 10
 0x1002a860 ApplyPaletteResource palette.c pad 2
 0x1002bc10 ProjectPolygon queueface.c pad 3
 0x1002c480 FUN_10051dfe animation.c pad 14
@@ -153,6 +154,7 @@
 0x1002f180 FixedAtan2 floatmath.c pad 12
 0x1002f390 ApproximateVectorLength floatmath.c pad 13
 0x1002f450 Hypot2D floatmath.c pad 1
+0x1002f5f0 InitSoundInfo soundlimits.c pad 8
 0x1002fed0 IsCdTrackOnDisc cdaudio.c pad 11
 0x100304f0 FreeSpeechEntry speech.c pad 4
 0x10031330 InitializeDigitalAudio soundfx.c pad 17
@@ -189,6 +191,7 @@
 0x1003a520 DrawDebugOverlays overlay.c pad 184
 0x1003afe0 PreloadResource mw2prj.c pad 3
 0x1003b4f0 GetPrjResourceSize prjfile.c pad 11
+0x1003b590 ReadPrjResource prjfile.c pad 1
 0x1003d620 FreeBwdNames bwdnames.c pad 12
 0x1003d660 SetUpStarMission missionsetup.c pad 17
 0x1003dbd0 FindEventList missionsetup.c pad 7
@@ -215,6 +218,7 @@
 0x10044470 ScatterDebris shots.c pad 1
 0x100445a0 HeatMechsNearFires shots.c pad 1 rename distance=zqaf dx=zqam dy=zqan dz=zqab heat=zqad i=zqae mech=zqap player=zqag radius=zqao reach=zqaa root=zqak shape=zqac x=zqai y=zqaj z=zqal
 0x10044750 StartNuke shots.c rename duration=zqai effect=zqak i=zqaj p_player=zqam shape=zqal
+0x10044860 UpdateNuke shots.c pad 9
 0x1005ea70 InitPaletteFade palfade.c pad 5
 0x10061880 PreviewBrightnessFraction brightnessmenu.c pad 6
 0x10062610 RunMenuTextBox menucontrols.c pad 8
@@ -222,6 +226,6 @@
 0x10062b60 LayoutMenu menu.c pad 1
 0x10062da0 LoadMenuResources menu.c pad 24
 0x10062ec0 DeactivateMenu menu.c pad 1
-0x10063db0 FUN_10063db0 a3d.c pad 3
-0x10063e20 FUN_10063e20 a3d.c pad 13
-0x10063eb0 FUN_10063eb0 a3d.c pad 10
+0x10063e20 FUN_10063e20 a3d.c pad 9
+0x10063eb0 FUN_10063eb0 a3d.c pad 6
+0x10064200 FUN_10064200 a3d.c pad 6

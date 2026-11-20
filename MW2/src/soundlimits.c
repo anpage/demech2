@@ -45,6 +45,7 @@ SoundTableEntry g_soundTable[0x8c] = {
 // FUNCTION: MW2 0x10013370
 // FUNCTION: MW2MATROX 0x1000be30
 // FUNCTION: MW23DFX 0x10030590
+// FUNCTION: MW2ATI 0x1002f5f0
 void InitSoundInfo(void)
 {
 	MechU32 i;
