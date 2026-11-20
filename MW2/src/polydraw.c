@@ -1053,9 +1053,9 @@ void FUN_10068b57(MechS32 p_count, ProjectedVertex** p_points, MechU32 p_color)
 		vertex->m_red = 0;
 		vertex->m_green = 0;
 		vertex->m_blue = 0;
-		vertex->m_unk0x1c = 0;
-		vertex->m_unk0x20 = 0;
-		vertex->m_unk0x24 = 0;
+		vertex->m_modRed = 0;
+		vertex->m_modGreen = 0;
+		vertex->m_modBlue = 0;
 		vertex->m_w = 1.0f;
 #endif
 		vertex->m_x = point->m_screenX;

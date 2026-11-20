@@ -302,8 +302,7 @@
 0x10059940 InitDamagePanel damagepanel.c rename color=zqaa height1=zqal height2=zqai i=zqao max=zqac mech=zqak min=zqab panel=zqan section=zqad shape=zqap width1=zqam width2=zqaj
 0x10059e60 DrawDamageOutline damagepanel.c rename color=zqan front=zqaj i=zqap index=zqao level=zqal rear=zqam remap=zqai scale=zqak section=zqaa shape=zqab
 0x1005a18b DrawArmorBars damagepanel.c rename armor=zqam color=zqai font=zqak full=zqaj i=zqal section=zqan width=zqao
-0x10065710 FUN_10065710 a3d.c pad 6
-0x10066d30 A3D_Init a3d.c pad 1
+0x10065710 FUN_10065710 a3d.c pad 5
 0x10067260 FUN_10067260 a3d.c pad 2
 0x10067300 FUN_10067300 a3d.c pad 2
 0x10067b1f KeyboardPollKeyCode keyboard.c rename keyCode=zqai msg=zqaj
@@ -522,7 +521,7 @@
 0x1008e963 GetSlotAiState lancemenu.c rename ai=zqal index=zqaj player=zqak state=zqai
 0x1008ea05 InstallGoalSuffix lancemenu.c rename choices=zqaj old=zqai
 0x1008ebbc GetSlotGoalName lancemenu.c rename goal=zqai index=zqaj player=zqak target=zqal
-0x1008fb5a SimMain simmain.c early int~g_realClock 0 rename cmdLine=zqap hasPalette=zqab i=zqam missionName=zqak msg=zqac palette=zqaa quitLatched=zqan result=zqal seed=zqao unk0x24=zqai unk0x28=zqaj
+0x1008fb5a SimMain simmain.c pad 1 rename cmdLine=zqap hasPalette=zqab i=zqam missionName=zqak msg=zqac palette=zqaa quitLatched=zqan result=zqal seed=zqao unk0x24=zqai unk0x28=zqaj
 0x10090fd0 ReloadPlayerMech mechreload.c pad 10 rename flags=zqaj mech=zqai
 0x1009138b RememberMechSegments mechreload.c rename id=zqai obj=zqaj
 0x10091772 LayoutMenu menu.c rename background=zqai dx=zqak origin=zqal scale=zqaj shape=zqam size=zqan target=zqao

@@ -38,12 +38,6 @@ typedef struct A3DPaletteEntry {
 	MechU32 m_blue;     // 0x1c
 } A3DPaletteEntry;
 
-// The display msiInit returns.
-typedef struct A3DDisplay {
-	undefined m_unk0x00[0x50]; // 0x00
-	MechU32 m_unk0x50;         // 0x50 — the texture cache's size
-} A3DDisplay;
-
 // A block of the texture heap, on two lists: all blocks (m_unk0x00, m_unk0x04) and the used or the
 // free blocks (m_unk0x08, m_unk0x0c; the free ones in address order).
 struct A3DHeapBlock {
@@ -96,7 +90,7 @@ undefined4 g_unk0x100ac92c = 0x14;
 
 // MSI95.DLL's display (msiInit's).
 // GLOBAL: MW2MATROX 0x100ac930
-A3DDisplay* g_unk0x100ac930 = NULL;
+T_msiInfo* g_unk0x100ac930 = NULL;
 
 // GLOBAL: MW2MATROX 0x100ac934
 WNDPROC g_unk0x100ac934 = NULL;
@@ -132,38 +126,26 @@ MechS32 g_unk0x100ac9e0 = 0;
 MechS32 g_unk0x100ac9e4 = 0;
 
 // GLOBAL: MW2MATROX 0x100ac9e8
-undefined4 g_unk0x100ac9e8[0x16] = {1, 0x40, 0x40, 0xf, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0x80008000, 0, 0, 1, 0, 0, 0};
+T_msiParameters g_unk0x100ac9e8 = {
+	{1, 0x40, 0x40, 0xf, NULL, NULL, 0, {NULL, NULL, 0}, FALSE, FALSE, FALSE, FALSE, TRUE, 0x8000, 0x8000, 0, 0},
+	{FALSE, msiCMP_NEVER, FALSE},
+	{FALSE, FALSE}
+};
 
 // GLOBAL: MW2MATROX 0x100aca40
-undefined4 g_unk0x100aca40[0x16] = {0, 0, 0, 0xf, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0};
+T_msiParameters g_unk0x100aca40 = {
+	{FALSE, 0, 0, 0xf, NULL, NULL, 0, {NULL, NULL, 0}, FALSE, FALSE, FALSE, FALSE, FALSE, 0, 0, 0, 0},
+	{FALSE, msiCMP_NEVER, FALSE},
+	{FALSE, FALSE}
+};
 
 // The parameters FUN_100659f0 passes msiSetParameters.
 // GLOBAL: MW2MATROX 0x100aca98
-undefined4 g_unk0x100aca98[0xc] = {1, 0, 0, 0xf, 0, 0, 0, 0, 0, 0, 0, 0};
-
-// GLOBAL: MW2MATROX 0x100acac8
-undefined4 g_unk0x100acac8 = 0;
-
-// GLOBAL: MW2MATROX 0x100acacc
-undefined4 g_unk0x100acacc = 0;
-
-// GLOBAL: MW2MATROX 0x100acad0
-undefined4 g_unk0x100acad0 = 0;
-
-// GLOBAL: MW2MATROX 0x100acad4
-undefined2 g_unk0x100acad4 = 0;
-
-// GLOBAL: MW2MATROX 0x100acad6
-undefined2 g_unk0x100acad6 = 0;
-
-// GLOBAL: MW2MATROX 0x100acad8
-undefined2 g_unk0x100acad8 = 0;
-
-// GLOBAL: MW2MATROX 0x100acada
-undefined2 g_unk0x100acada = 0;
-
-// GLOBAL: MW2MATROX 0x100acadc
-undefined4 g_unk0x100acadc[5] = {0, 1, 0, 0, 0};
+T_msiParameters g_unk0x100aca98 = {
+	{TRUE, 0, 0, 0xf, NULL, NULL, 0, {NULL, NULL, 0}, FALSE, FALSE, FALSE, FALSE, FALSE, 0, 0, 0, 0},
+	{FALSE, msiCMP_NEVER, FALSE},
+	{FALSE, FALSE}
+};
 
 // GLOBAL: MW2MATROX 0x100acaf0
 A3DHeapBlock* g_unk0x100acaf0 = NULL;
@@ -663,37 +645,37 @@ __inline static void VRAM_copyfromheap(A3DTexture* p_item, A3DHeapBlock* p_block
 {
 	MechU32 level;
 
-	g_unk0x100aca98[5] = (undefined4) g_unk0x100acb20;
-	g_unk0x100aca98[3] = p_item->m_format;
+	g_unk0x100aca98.msiTexture.pHeap = g_unk0x100acb20;
+	g_unk0x100aca98.msiTexture.Planes = p_item->m_format;
 	for (level = 0; level < p_item->m_levels; level++) {
-		g_unk0x100aca98[1] = p_item->m_width / (1 << level);
-		g_unk0x100aca98[2] = p_item->m_height / (1 << level);
-		g_unk0x100aca98[4] = (undefined4) (p_item->m_heapBlock->m_unk0x20 + p_item->m_offsets[level]);
-		g_unk0x100aca98[6] = p_item->m_offsets[level] + p_block->m_address;
+		g_unk0x100aca98.msiTexture.Width = p_item->m_width / (1 << level);
+		g_unk0x100aca98.msiTexture.Height = p_item->m_height / (1 << level);
+		g_unk0x100aca98.msiTexture.pMem = p_item->m_heapBlock->m_unk0x20 + p_item->m_offsets[level];
+		g_unk0x100aca98.msiTexture.CacheOffset = p_item->m_offsets[level] + p_block->m_address;
 		switch (p_item->m_format) {
 		case 4:
 		case 8:
-			g_unk0x100aca98[7] = (undefined4) (p_item->m_heapBlock->m_unk0x20 + p_item->m_paletteOffsets[level]);
-			g_unk0x100aca98[8] = (undefined4) g_unk0x100acb20;
-			g_unk0x100aca98[9] = p_item->m_paletteOffsets[level] + p_block->m_address;
+			g_unk0x100aca98.msiTexture.msiLUT.pMem = p_item->m_heapBlock->m_unk0x20 + p_item->m_paletteOffsets[level];
+			g_unk0x100aca98.msiTexture.msiLUT.pHeap = g_unk0x100acb20;
+			g_unk0x100aca98.msiTexture.msiLUT.CacheOffset = p_item->m_paletteOffsets[level] + p_block->m_address;
 			break;
 		case 0xf:
 		case 0x10:
 		case 0x18:
 		case 0x20:
-			g_unk0x100aca98[7] = 0;
-			g_unk0x100aca98[8] = 0;
-			g_unk0x100aca98[9] = 0;
+			g_unk0x100aca98.msiTexture.msiLUT.pMem = NULL;
+			g_unk0x100aca98.msiTexture.msiLUT.pHeap = NULL;
+			g_unk0x100aca98.msiTexture.msiLUT.CacheOffset = 0;
 			break;
 		}
-		if (g_unk0x100aca98[6] & 0x1f) {
+		if (g_unk0x100aca98.msiTexture.CacheOffset & 0x1f) {
 			DebugPrint("VRAM_copyfromheap(): Unaligned VRAM raster  cache address!\n");
 		}
-		if (g_unk0x100aca98[9] & 0x1f) {
+		if (g_unk0x100aca98.msiTexture.msiLUT.CacheOffset & 0x1f) {
 			DebugPrint("VRAM_copyfromheap(): Unaligned VRAM palette cache address!\n");
 		}
 		g_unk0x100ac9d0 = -1;
-		msiSetParameters(g_unk0x100aca98);
+		msiSetParameters(&g_unk0x100aca98);
 	}
 }
 
@@ -1222,7 +1204,8 @@ void FUN_1005ce20(void)
 		g_unk0x100acb4c = 0;
 
 		heapUsed = 100 - (MechS32) ((MechDouble) g_unk0x100acb18 / (g_unk0x100ac91c << 12) * 100.0);
-		vramUsed = 100 - (MechS32) ((MechDouble) g_unk0x100acafc / (MechS32) g_unk0x100ac930->m_unk0x50 * 100.0);
+		vramUsed =
+			100 - (MechS32) ((MechDouble) g_unk0x100acafc / (MechS32) g_unk0x100ac930->msiTexture.MemSize * 100.0);
 		sprintf(
 			buffer,
 			"HEAP Used:%i%% (%i left)     VRAM Used:%i%%  (%i left)\n",
@@ -1760,7 +1743,7 @@ A3DTexture* HEAPCACHE_loaditem(MechS32 p_id, MechS32 p_paletted, MechU32 p_level
 		g_unk0x100ac9d0 = -1;
 		g_unk0x100acb2c++;
 		msiSetParameters(NULL);
-		msiSetParameters((void*) -1);
+		msiSetParameters((T_msiParameters*) -1);
 		while (!item->m_heapBlock) {
 			oldest = g_unk0x100acb40;
 			if (oldest) {
@@ -1878,7 +1861,7 @@ A3DHeapBlock* FUN_1005e770(A3DTexture* p_item, MechU32 p_size, MechS32 p_defrag,
 				g_unk0x100ac9d0 = -1;
 				g_unk0x100acb2c++;
 				msiSetParameters(NULL);
-				msiSetParameters((void*) -1);
+				msiSetParameters((T_msiParameters*) -1);
 			}
 			found = HEAP_defrag(size);
 		}
@@ -2358,7 +2341,7 @@ void FUN_1005f6e0(void)
 	g_unk0x100acb58++;
 	if (g_unk0x100ac904) {
 		g_unk0x100ac9d0 = -1;
-		msiSetParameters((void*) -1);
+		msiSetParameters((T_msiParameters*) -1);
 		g_unk0x100ac904 = 0;
 	}
 }
@@ -2503,7 +2486,7 @@ void FUN_1005f8a0(PANE* p_pane, MechS32 p_color)
 
 	if (g_unk0x100ac9d0 != 1) {
 		g_unk0x100ac9d0 = 1;
-		msiSetParameters(g_unk0x100aca40);
+		msiSetParameters(&g_unk0x100aca40);
 		g_unk0x100ac904 = 0;
 	}
 
@@ -2700,7 +2683,7 @@ void A3D_DrawPolygon(PANE* p_pane, MechU32 p_count, A3DVertex* p_vertices)
 	if (p_count >= 3) {
 		if (g_unk0x100ac9d0 != 1) {
 			g_unk0x100ac9d0 = 1;
-			msiSetParameters(g_unk0x100aca40);
+			msiSetParameters(&g_unk0x100aca40);
 			g_unk0x100ac904 = 0;
 		}
 
@@ -2787,65 +2770,67 @@ void A3D_map_polygon(PANE* p_pane, MechU32 p_count, A3DVertex* p_vertices, A3DTe
 		scale = 1 << p_texture->m_level;
 		g_unk0x100ac9d0 = 2;
 		if (transparent) {
-			g_unk0x100acad0 = 1;
+			g_unk0x100aca98.msiTexture.Transparency = 1;
 			switch (p_texture->m_format) {
 			case 4:
 				if (p_texture->m_transparent) {
-					g_unk0x100acad4 = 0;
-					g_unk0x100acad6 = 0xf;
+					g_unk0x100aca98.msiTexture.KeyingColor = 0;
+					g_unk0x100aca98.msiTexture.KeyingColorMask = 0xf;
 				}
 				else {
-					g_unk0x100acad4 = 0;
-					g_unk0x100acad0 = 0;
-					g_unk0x100acad6 = 0;
+					g_unk0x100aca98.msiTexture.KeyingColor = 0;
+					g_unk0x100aca98.msiTexture.Transparency = 0;
+					g_unk0x100aca98.msiTexture.KeyingColorMask = 0;
 				}
 				break;
 			case 8:
 				if (p_texture->m_transparent) {
-					g_unk0x100acad4 = 0;
-					g_unk0x100acad6 = 0xff;
+					g_unk0x100aca98.msiTexture.KeyingColor = 0;
+					g_unk0x100aca98.msiTexture.KeyingColorMask = 0xff;
 				}
 				else {
-					g_unk0x100acad4 = 0;
-					g_unk0x100acad0 = 0;
-					g_unk0x100acad6 = 0;
+					g_unk0x100aca98.msiTexture.KeyingColor = 0;
+					g_unk0x100aca98.msiTexture.Transparency = 0;
+					g_unk0x100aca98.msiTexture.KeyingColorMask = 0;
 				}
 				break;
 			case 0xf:
-				g_unk0x100acad4 = 0;
-				g_unk0x100acad6 = 0x8000;
+				g_unk0x100aca98.msiTexture.KeyingColor = 0;
+				g_unk0x100aca98.msiTexture.KeyingColorMask = 0x8000;
 				break;
 			case 0x10:
-				g_unk0x100acad4 = 0;
-				g_unk0x100acad0 = 0;
-				g_unk0x100acad6 = 0;
+				g_unk0x100aca98.msiTexture.KeyingColor = 0;
+				g_unk0x100aca98.msiTexture.Transparency = 0;
+				g_unk0x100aca98.msiTexture.KeyingColorMask = 0;
 				break;
 			}
 		}
 		else {
-			g_unk0x100acad4 = 0;
-			g_unk0x100acad0 = 0;
-			g_unk0x100acad6 = 0;
+			g_unk0x100aca98.msiTexture.KeyingColor = 0;
+			g_unk0x100aca98.msiTexture.Transparency = 0;
+			g_unk0x100aca98.msiTexture.KeyingColorMask = 0;
 		}
 
-		g_unk0x100acac8 = shade;
-		g_unk0x100aca98[1] = p_texture->m_width / scale;
-		g_unk0x100aca98[2] = p_texture->m_height / scale;
-		g_unk0x100aca98[3] = p_texture->m_format;
-		g_unk0x100aca98[4] = 0;
-		g_unk0x100aca98[5] = 0;
-		g_unk0x100aca98[6] = p_texture->m_offsets[p_texture->m_level] + p_texture->m_vramBlock->m_address;
+		g_unk0x100aca98.msiTexture.Modulate = shade;
+		g_unk0x100aca98.msiTexture.Width = p_texture->m_width / scale;
+		g_unk0x100aca98.msiTexture.Height = p_texture->m_height / scale;
+		g_unk0x100aca98.msiTexture.Planes = p_texture->m_format;
+		g_unk0x100aca98.msiTexture.pMem = NULL;
+		g_unk0x100aca98.msiTexture.pHeap = NULL;
+		g_unk0x100aca98.msiTexture.CacheOffset =
+			p_texture->m_offsets[p_texture->m_level] + p_texture->m_vramBlock->m_address;
 		if (p_texture->m_format >= 0xf) {
-			g_unk0x100aca98[7] = 0;
-			g_unk0x100aca98[8] = 0;
-			g_unk0x100aca98[9] = 0;
+			g_unk0x100aca98.msiTexture.msiLUT.pMem = NULL;
+			g_unk0x100aca98.msiTexture.msiLUT.pHeap = NULL;
+			g_unk0x100aca98.msiTexture.msiLUT.CacheOffset = 0;
 		}
 		else {
-			g_unk0x100aca98[7] = 0;
-			g_unk0x100aca98[8] = 0;
-			g_unk0x100aca98[9] = p_texture->m_paletteOffsets[p_texture->m_level] + p_texture->m_vramBlock->m_address;
+			g_unk0x100aca98.msiTexture.msiLUT.pMem = NULL;
+			g_unk0x100aca98.msiTexture.msiLUT.pHeap = NULL;
+			g_unk0x100aca98.msiTexture.msiLUT.CacheOffset =
+				p_texture->m_paletteOffsets[p_texture->m_level] + p_texture->m_vramBlock->m_address;
 		}
-		msiSetParameters(g_unk0x100aca98);
+		msiSetParameters(&g_unk0x100aca98);
 		g_unk0x100ac904 = 0;
 	}
 
@@ -2884,9 +2869,9 @@ void A3D_map_polygon(PANE* p_pane, MechU32 p_count, A3DVertex* p_vertices, A3DTe
 		for (i = 0; i < p_count; i++) {
 			polygon[i].m_z = 0.0f;
 			polygon[i].m_w = 1.0f;
-			polygon[i].m_unk0x1c = polygon[i].m_red;
-			polygon[i].m_unk0x20 = polygon[i].m_green;
-			polygon[i].m_unk0x24 = polygon[i].m_blue;
+			polygon[i].m_modRed = polygon[i].m_red;
+			polygon[i].m_modGreen = polygon[i].m_green;
+			polygon[i].m_modBlue = polygon[i].m_blue;
 		}
 
 		minU = (MechS32) polygon[0].m_u;
@@ -2962,65 +2947,67 @@ void A3D_polygon_clip_XY_and_render(
 		scale = 1 << p_texture->m_level;
 		g_unk0x100ac9d0 = 3;
 		if (transparent) {
-			g_unk0x100acad0 = 1;
+			g_unk0x100aca98.msiTexture.Transparency = 1;
 			switch (p_texture->m_format) {
 			case 4:
 				if (p_texture->m_transparent) {
-					g_unk0x100acad4 = 0;
-					g_unk0x100acad6 = 0xf;
+					g_unk0x100aca98.msiTexture.KeyingColor = 0;
+					g_unk0x100aca98.msiTexture.KeyingColorMask = 0xf;
 				}
 				else {
-					g_unk0x100acad4 = 0;
-					g_unk0x100acad0 = 0;
-					g_unk0x100acad6 = 0;
+					g_unk0x100aca98.msiTexture.KeyingColor = 0;
+					g_unk0x100aca98.msiTexture.Transparency = 0;
+					g_unk0x100aca98.msiTexture.KeyingColorMask = 0;
 				}
 				break;
 			case 8:
 				if (p_texture->m_transparent) {
-					g_unk0x100acad4 = 0;
-					g_unk0x100acad6 = 0xff;
+					g_unk0x100aca98.msiTexture.KeyingColor = 0;
+					g_unk0x100aca98.msiTexture.KeyingColorMask = 0xff;
 				}
 				else {
-					g_unk0x100acad4 = 0;
-					g_unk0x100acad0 = 0;
-					g_unk0x100acad6 = 0;
+					g_unk0x100aca98.msiTexture.KeyingColor = 0;
+					g_unk0x100aca98.msiTexture.Transparency = 0;
+					g_unk0x100aca98.msiTexture.KeyingColorMask = 0;
 				}
 				break;
 			case 0xf:
-				g_unk0x100acad4 = 0;
-				g_unk0x100acad6 = 0x8000;
+				g_unk0x100aca98.msiTexture.KeyingColor = 0;
+				g_unk0x100aca98.msiTexture.KeyingColorMask = 0x8000;
 				break;
 			case 0x10:
-				g_unk0x100acad4 = 0;
-				g_unk0x100acad0 = 0;
-				g_unk0x100acad6 = 0;
+				g_unk0x100aca98.msiTexture.KeyingColor = 0;
+				g_unk0x100aca98.msiTexture.Transparency = 0;
+				g_unk0x100aca98.msiTexture.KeyingColorMask = 0;
 				break;
 			}
 		}
 		else {
-			g_unk0x100acad4 = 0;
-			g_unk0x100acad0 = 0;
-			g_unk0x100acad6 = 0;
+			g_unk0x100aca98.msiTexture.KeyingColor = 0;
+			g_unk0x100aca98.msiTexture.Transparency = 0;
+			g_unk0x100aca98.msiTexture.KeyingColorMask = 0;
 		}
 
-		g_unk0x100acac8 = 1;
-		g_unk0x100aca98[1] = p_texture->m_width / scale;
-		g_unk0x100aca98[2] = p_texture->m_height / scale;
-		g_unk0x100aca98[3] = p_texture->m_format;
-		g_unk0x100aca98[4] = 0;
-		g_unk0x100aca98[5] = 0;
-		g_unk0x100aca98[6] = p_texture->m_offsets[p_texture->m_level] + p_texture->m_vramBlock->m_address;
+		g_unk0x100aca98.msiTexture.Modulate = 1;
+		g_unk0x100aca98.msiTexture.Width = p_texture->m_width / scale;
+		g_unk0x100aca98.msiTexture.Height = p_texture->m_height / scale;
+		g_unk0x100aca98.msiTexture.Planes = p_texture->m_format;
+		g_unk0x100aca98.msiTexture.pMem = NULL;
+		g_unk0x100aca98.msiTexture.pHeap = NULL;
+		g_unk0x100aca98.msiTexture.CacheOffset =
+			p_texture->m_offsets[p_texture->m_level] + p_texture->m_vramBlock->m_address;
 		if (p_texture->m_format >= 0xf) {
-			g_unk0x100aca98[7] = 0;
-			g_unk0x100aca98[8] = 0;
-			g_unk0x100aca98[9] = 0;
+			g_unk0x100aca98.msiTexture.msiLUT.pMem = NULL;
+			g_unk0x100aca98.msiTexture.msiLUT.pHeap = NULL;
+			g_unk0x100aca98.msiTexture.msiLUT.CacheOffset = 0;
 		}
 		else {
-			g_unk0x100aca98[7] = 0;
-			g_unk0x100aca98[8] = 0;
-			g_unk0x100aca98[9] = p_texture->m_paletteOffsets[p_texture->m_level] + p_texture->m_vramBlock->m_address;
+			g_unk0x100aca98.msiTexture.msiLUT.pMem = NULL;
+			g_unk0x100aca98.msiTexture.msiLUT.pHeap = NULL;
+			g_unk0x100aca98.msiTexture.msiLUT.CacheOffset =
+				p_texture->m_paletteOffsets[p_texture->m_level] + p_texture->m_vramBlock->m_address;
 		}
-		msiSetParameters(g_unk0x100aca98);
+		msiSetParameters(&g_unk0x100aca98);
 		g_unk0x100ac904 = 0;
 	}
 
@@ -3060,17 +3047,17 @@ void A3D_polygon_clip_XY_and_render(
 			for (i = 0; i < p_count; i++) {
 				polygon[i].m_z = 0.0f;
 				polygon[i].m_w = 1.0f;
-				polygon[i].m_unk0x1c = polygon[i].m_red;
-				polygon[i].m_unk0x20 = polygon[i].m_green;
-				polygon[i].m_unk0x24 = polygon[i].m_blue;
+				polygon[i].m_modRed = polygon[i].m_red;
+				polygon[i].m_modGreen = polygon[i].m_green;
+				polygon[i].m_modBlue = polygon[i].m_blue;
 			}
 		}
 		else {
 			for (i = 0; i < p_count; i++) {
 				polygon[i].m_u = polygon[i].m_u / polygon[i].m_w;
-				polygon[i].m_unk0x1c = polygon[i].m_red;
-				polygon[i].m_unk0x20 = polygon[i].m_green;
-				polygon[i].m_unk0x24 = polygon[i].m_blue;
+				polygon[i].m_modRed = polygon[i].m_red;
+				polygon[i].m_modGreen = polygon[i].m_green;
+				polygon[i].m_modBlue = polygon[i].m_blue;
 				polygon[i].m_v = polygon[i].m_v / polygon[i].m_w;
 			}
 		}
@@ -3143,31 +3130,33 @@ void A3D_GroundSkyPolyPlot(
 	g_unk0x100ac9d0 = 4;
 	g_unk0x100ac9d8 = -1;
 	p_texture->m_level = 0;
-	g_unk0x100acad8 = 0;
-	g_unk0x100acad0 = 0;
-	g_unk0x100acada = 0;
-	g_unk0x100acacc = 0;
-	g_unk0x100acac8 = 1;
-	g_unk0x100acad4 = 0;
-	g_unk0x100acad6 = 0;
-	g_unk0x100aca98[1] = p_texture->m_width;
-	g_unk0x100aca98[2] = p_texture->m_height;
-	g_unk0x100aca98[3] = p_texture->m_format;
-	g_unk0x100aca98[4] = 0;
-	g_unk0x100aca98[5] = 0;
-	g_unk0x100aca98[6] = p_texture->m_offsets[p_texture->m_level] + p_texture->m_vramBlock->m_address;
+	g_unk0x100aca98.msiTexture.KeyingAlpha = 0;
+	g_unk0x100aca98.msiTexture.Transparency = 0;
+	g_unk0x100aca98.msiTexture.KeyingAlphaMask = 0;
+	g_unk0x100aca98.msiTexture.Decal = 0;
+	g_unk0x100aca98.msiTexture.Modulate = 1;
+	g_unk0x100aca98.msiTexture.KeyingColor = 0;
+	g_unk0x100aca98.msiTexture.KeyingColorMask = 0;
+	g_unk0x100aca98.msiTexture.Width = p_texture->m_width;
+	g_unk0x100aca98.msiTexture.Height = p_texture->m_height;
+	g_unk0x100aca98.msiTexture.Planes = p_texture->m_format;
+	g_unk0x100aca98.msiTexture.pMem = NULL;
+	g_unk0x100aca98.msiTexture.pHeap = NULL;
+	g_unk0x100aca98.msiTexture.CacheOffset =
+		p_texture->m_offsets[p_texture->m_level] + p_texture->m_vramBlock->m_address;
 	if (p_texture->m_format >= 0xf) {
-		g_unk0x100aca98[7] = 0;
-		g_unk0x100aca98[8] = 0;
-		g_unk0x100aca98[9] = 0;
+		g_unk0x100aca98.msiTexture.msiLUT.pMem = NULL;
+		g_unk0x100aca98.msiTexture.msiLUT.pHeap = NULL;
+		g_unk0x100aca98.msiTexture.msiLUT.CacheOffset = 0;
 	}
 	else {
-		g_unk0x100aca98[7] = 0;
-		g_unk0x100aca98[8] = 0;
-		g_unk0x100aca98[9] = p_texture->m_paletteOffsets[p_texture->m_level] + p_texture->m_vramBlock->m_address;
+		g_unk0x100aca98.msiTexture.msiLUT.pMem = NULL;
+		g_unk0x100aca98.msiTexture.msiLUT.pHeap = NULL;
+		g_unk0x100aca98.msiTexture.msiLUT.CacheOffset =
+			p_texture->m_paletteOffsets[p_texture->m_level] + p_texture->m_vramBlock->m_address;
 	}
 	if (!p_mip) {
-		msiSetParameters(g_unk0x100aca98);
+		msiSetParameters(&g_unk0x100aca98);
 		g_unk0x100ac904 = 0;
 	}
 
@@ -3553,9 +3542,9 @@ void FUN_100659f0(A3DPolyVertex* p_a, A3DPolyVertex* p_b, A3DPolyVertex* p_c, A3
 		triangle[i].m_red = (MechFloat) vertices[i]->m_red;
 		triangle[i].m_green = (MechFloat) vertices[i]->m_green;
 		triangle[i].m_blue = (MechFloat) vertices[i]->m_blue;
-		triangle[i].m_unk0x1c = triangle[i].m_red;
-		triangle[i].m_unk0x20 = triangle[i].m_green;
-		triangle[i].m_unk0x24 = triangle[i].m_blue;
+		triangle[i].m_modRed = triangle[i].m_red;
+		triangle[i].m_modGreen = triangle[i].m_green;
+		triangle[i].m_modBlue = triangle[i].m_blue;
 		triangle[i].m_u = (MechFloat) (vertices[i]->m_u / vertices[i]->m_w);
 		triangle[i].m_v = (MechFloat) (vertices[i]->m_v / vertices[i]->m_w);
 		if (p_mip) {
@@ -3578,13 +3567,15 @@ void FUN_100659f0(A3DPolyVertex* p_a, A3DPolyVertex* p_b, A3DPolyVertex* p_c, A3
 		}
 		if (level != (MechU32) g_unk0x100ac9d8) {
 			scale = 1 << level;
-			g_unk0x100aca98[1] = p_texture->m_width / scale;
+			g_unk0x100aca98.msiTexture.Width = p_texture->m_width / scale;
 			g_unk0x100ac9d8 = level;
 			p_texture->m_level = level;
-			g_unk0x100aca98[2] = p_texture->m_height / scale;
-			g_unk0x100aca98[6] = p_texture->m_offsets[p_texture->m_level] + p_texture->m_vramBlock->m_address;
-			g_unk0x100aca98[9] = p_texture->m_paletteOffsets[p_texture->m_level] + p_texture->m_vramBlock->m_address;
-			msiSetParameters(g_unk0x100aca98);
+			g_unk0x100aca98.msiTexture.Height = p_texture->m_height / scale;
+			g_unk0x100aca98.msiTexture.CacheOffset =
+				p_texture->m_offsets[p_texture->m_level] + p_texture->m_vramBlock->m_address;
+			g_unk0x100aca98.msiTexture.msiLUT.CacheOffset =
+				p_texture->m_paletteOffsets[p_texture->m_level] + p_texture->m_vramBlock->m_address;
+			msiSetParameters(&g_unk0x100aca98);
 		}
 	}
 
@@ -3965,7 +3956,7 @@ void FUN_10066fd0(void)
 	g_unk0x100acaf0 = NULL;
 	g_unk0x100acaf4 = NULL;
 	g_unk0x100acb04 = 0;
-	g_unk0x100acafc = g_unk0x100ac930->m_unk0x50;
+	g_unk0x100acafc = g_unk0x100ac930->msiTexture.MemSize;
 	DebugPrint("Texture Cache Size = %i\n", g_unk0x100acafc);
 
 	g_unk0x100acaf4 = HeapAlloc(g_primaryHeap, HEAP_NO_SERIALIZE, 0x20);

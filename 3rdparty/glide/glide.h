@@ -3,9 +3,12 @@
 
 // GLIDE.DLL, 3Dfx Interactive's API for the Voodoo Graphics, in the Glide 1.x version the 3Dfx
 // edition imports (glide.def): our own declarations of the functions it calls and of the types and
-// constants they and Texus (3rdparty/texus) take, not the SDK's header. Names follow Glide's;
-// values are the Voodoo Graphics' (Glide 2's header has the same ones). The layouts the game only
-// passes around (GrHwConfiguration, GrState) are sized from its buffers.
+// constants they and Texus (3rdparty/texus) take, not the SDK's header. Names, signatures and values
+// follow 3Dfx's glide.h (checked against the SDK's, which has every function the game imports but
+// guAlphaSource and guColorCombineFunction, in its glideutl.h). The layouts the game only passes
+// around are sized from its buffers: GrState is the SDK's 312 bytes; GrHwConfiguration is larger
+// than the SDK's (0x94 bytes, with the later SST-96 and AT3D boards), which describes another
+// version of the structure than the edition's Glide 1.x.
 #include "3dfx.h"
 
 #ifdef __cplusplus
