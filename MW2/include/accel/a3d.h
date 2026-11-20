@@ -202,10 +202,41 @@ extern "C"
 #endif
 
 #ifdef MW2_ATI
-	// The ATI edition's renderer, over ATI's 3D CIF (ati/a3d.c). Not decompiled yet.
+	// The ATI edition's renderer, over ATI's 3D CIF (ati/a3d.c). Its textures are VFX's: a WINDOW of
+	// 16-bit texels, converted into a DirectDraw surface the CIF registers.
 
-	// Takes the "Filter" registry setting (SimMain's settings and the graphics page).
+	// A texture as A3D_polygon_clip_XY_and_render takes it: a table of row pointers (only the first is set, the
+	// pixels) and the size.
+	// SIZE 0xc
+	typedef struct A3DTextureRows {
+		MechU16** m_rows; // 0x0
+		MechS32 m_width;  // 0x4
+		MechS32 m_height; // 0x8
+	} A3DTextureRows;
+
+	// Takes the "Filter" registry setting (SimMain's settings and the graphics page): 1 filters
+	// magnified textures, 2 minified ones too, anything else neither.
 	void FUN_100648a0(MechS32 p_filter);
+	// Draws a textured polygon of p_count vertices on p_pane (DrawAnimatedPolygon's, with p_flags 1
+	// for its shades and 2 for its translucency).
+	void A3D_map_polygon(PANE* p_pane, MechU32 p_count, A3DVertex* p_vertices, WINDOW* p_texture, MechU32 p_flags);
+	// Draws the textured polygon p_vertices of p_count vertices on p_pane, its texture p_texture with
+	// mip levels when p_mip: p_flags 1 is translucent, 0x400 or 0x600 perspective-corrected. The last
+	// two arguments aren't read.
+	void A3D_polygon_clip_XY_and_render(
+		PANE* p_pane,
+		MechU32 p_count,
+		A3DVertex* p_vertices,
+		MechU32 p_flags,
+		MechS32 p_mip,
+		A3DTextureRows* p_texture,
+		undefined4 p_unk0x18,
+		undefined4 p_unk0x1c
+	);
+	// Ends the CIF's rendering, if it is rendering.
+	void FUN_10063d30(void);
+	// Closes the textures, the CIF's context and the CIF.
+	void A3D_shutdown(void);
 
 // The texture filter setting (MW2_TEXTURE_FILTER), passed to the renderer.
 #define A3D_SET_TEXTURE_FILTER(p_filter) FUN_100648a0(p_filter)

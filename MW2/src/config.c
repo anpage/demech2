@@ -65,7 +65,7 @@ enum FilePermission {
 };
 
 // The cockpit panels: 1.1 has them here, the Matrox edition at the end of staticmem.c's object
-// and the 3Dfx and ATI editions at the end of targeting.c's.
+// and the ATI and 3Dfx editions at the end of targeting.c's.
 #ifndef MW2_ACCEL
 #include "cockpitpanels.c"
 #endif

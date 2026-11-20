@@ -642,7 +642,7 @@ ProjectedVertex* ClipProjectedEdge(ProjectedVertex* p_a, ProjectedVertex* p_b, M
 MechS32 ProjectPolygon(Vertex* p_vertices, MechU32 p_count, MechS32 p_unk0x08)
 {
 #ifdef MW2_PROJECT_NEAR_CLIP
-	// The 3Dfx and ATI editions' clips the polygon to the near plane the way 1.1's QueueFace does,
+	// The ATI and 3Dfx editions' clips the polygon to the near plane the way 1.1's QueueFace does,
 	// and projects the vertices in front of it and the crossings.
 	MechU32 i;
 	Vertex* vertex;

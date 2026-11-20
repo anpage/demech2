@@ -87,6 +87,7 @@ MechS32 DrawAnimatedPolygon(
 		MechS32 p_unk0x20
 	);
 #elif defined(MW2_ATI)
+	MechU16* FUN_10051dfe(MechS32 p_index, MechS16* p_width, MechS16* p_height);
 	MechS32 FUN_10051c07(MechS32 p_index, struct ProjectedVertex** p_points, MechS32 p_count);
 	MechS32 FUN_10051ea2(MechS32 p_index, struct ProjectedVertex** p_points, MechS32 p_count);
 #else

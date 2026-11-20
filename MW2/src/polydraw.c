@@ -189,6 +189,7 @@ MechFloat g_groundRed;
 // The polygon the Matrox edition's clipper leaves.
 // GLOBAL: MW2MATROX 0x1015d600
 // GLOBAL: MW23DFX 0x101b0f10
+// GLOBAL: MW2ATI 0x100e4ef0
 A3DVertex g_a3dClipped[16];
 
 // GLOBAL: MW2MATROX 0x1015d900
@@ -199,6 +200,7 @@ MechFloat g_skyScrollSpeed;
 // The polygon the Matrox edition hands its renderer.
 // GLOBAL: MW2MATROX 0x1015d910
 // GLOBAL: MW23DFX 0x101b12e0
+// GLOBAL: MW2ATI 0x100e5180
 A3DVertex g_a3dVertices[16];
 
 // The point count of g_a3dClipped.
@@ -209,6 +211,7 @@ MechU32 g_a3dClippedCount;
 // The palette's colors as the renderer takes them (0-255 per component).
 // GLOBAL: MW2MATROX 0x1015dcb0
 // GLOBAL: MW23DFX 0x101528c0
+// GLOBAL: MW2ATI 0x10086880
 MechFloat g_paletteRgb[256][3];
 
 void FUN_10068856(
@@ -236,6 +239,7 @@ void FUN_100692db(Eyepoint* p_eyepoint);
 // is left, or 0 without p_edges. The Matrox edition doesn't call it.
 // FUNCTION: MW2MATROX 0x10067b90
 // FUNCTION: MW23DFX 0x10026a30
+// FUNCTION: MW2ATI 0x100266f0
 MechS32 FUN_10067b90(MechU32 p_count, MechU32 p_edges, MechS32 p_unk0x08)
 {
 	A3DVertex** in;
@@ -668,6 +672,7 @@ void DrawScenePolygon(MechS32 p_count, MechU32* p_points, MechU32 p_flags)
 // Draws a polygon in the color p_red, p_green, p_blue, lit by each vertex's light.
 // FUNCTION: MW2MATROX 0x10068856
 // FUNCTION: MW23DFX 0x10027240
+// FUNCTION: MW2ATI 0x10026ef0
 void FUN_10068856(
 	MechS32 p_count,
 	ProjectedVertex** p_points,
@@ -692,8 +697,8 @@ void FUN_10068856(
 		vertex++;
 	}
 
-#ifdef MW2_3DFX
-	// The 3Dfx edition's clips the polygon to the pane's edges in p_unk0x14 first.
+#ifdef MW2_CLIP_TO_PANE_EDGES
+	// The ATI and 3Dfx editions' clip the polygon to the pane's edges in p_unk0x14 first.
 	if (p_unk0x14) {
 		p_count = FUN_10067b90(p_count, p_unk0x14, 1);
 		if (p_count > 2) {
@@ -711,6 +716,7 @@ void FUN_10068856(
 // Draws a polygon in palette color p_color, lit by each vertex's light if p_lit is set.
 // FUNCTION: MW2MATROX 0x100688fe
 // FUNCTION: MW23DFX 0x100272e0
+// FUNCTION: MW2ATI 0x10026f90
 void FUN_100688fe(MechS32 p_count, ProjectedVertex** p_points, MechU32 p_color, MechS32 p_unk0x0c, MechS32 p_lit)
 {
 	ProjectedVertex* point;
@@ -722,8 +728,8 @@ void FUN_100688fe(MechS32 p_count, ProjectedVertex** p_points, MechU32 p_color, 
 		point = *p_points++;
 		vertex->m_x = point->m_screenX;
 		vertex->m_y = point->m_screenY;
-		// The 3Dfx edition stores the color's components red first, the Matrox edition blue first.
-#ifdef MW2_3DFX
+		// The ATI and 3Dfx editions store the color's components red first, the Matrox edition blue first.
+#if defined(MW2_3DFX) || defined(MW2_ATI)
 		vertex->m_red = g_paletteRgb[p_color][0];
 		vertex->m_green = g_paletteRgb[p_color][1];
 		vertex->m_blue = g_paletteRgb[p_color][2];
@@ -741,8 +747,8 @@ void FUN_100688fe(MechS32 p_count, ProjectedVertex** p_points, MechU32 p_color, 
 		vertex++;
 	}
 
-#ifdef MW2_3DFX
-	// The 3Dfx edition's clips the polygon to the pane's edges in p_unk0x0c first.
+#ifdef MW2_CLIP_TO_PANE_EDGES
+	// The ATI and 3Dfx editions' clip the polygon to the pane's edges in p_unk0x0c first.
 	if (p_unk0x0c) {
 		p_count = FUN_10067b90(p_count, p_unk0x0c, p_lit != 0);
 		if (p_count > 2) {
@@ -762,6 +768,7 @@ void FUN_100688fe(MechS32 p_count, ProjectedVertex** p_points, MechU32 p_color, 
 // edition's after clipping it to the pane edges p_unk0x0c names).
 // FUNCTION: MW2MATROX 0x100689f5
 // FUNCTION: MW23DFX 0x100273c0
+// FUNCTION: MW2ATI 0x10027070
 void FUN_100689f5(MechS32 p_count, ProjectedVertex** p_points, MechU32 p_color, MechS32 p_unk0x0c)
 {
 	MechFloat light;
@@ -790,8 +797,8 @@ void FUN_100689f5(MechS32 p_count, ProjectedVertex** p_points, MechU32 p_color, 
 	}
 
 	if (p_unk0x0c) {
-#ifdef MW2_3DFX
-		// The 3Dfx edition's clips the polygon to the pane's edges in p_unk0x0c first.
+#ifdef MW2_CLIP_TO_PANE_EDGES
+		// The ATI and 3Dfx editions' clip the polygon to the pane's edges in p_unk0x0c first.
 		p_count = FUN_10067b90(p_count, p_unk0x0c, 1);
 		if (p_count > 2) {
 			A3D_DrawPolygon(&g_currentPane, p_count, g_a3dClipped);
@@ -813,6 +820,7 @@ void FUN_100689f5(MechS32 p_count, ProjectedVertex** p_points, MechU32 p_color, 
 // Draws the outline of a polygon in palette color p_color.
 // FUNCTION: MW2MATROX 0x10068b57
 // FUNCTION: MW23DFX 0x10027490
+// FUNCTION: MW2ATI 0x10027140
 void FUN_10068b57(MechS32 p_count, ProjectedVertex** p_points, MechU32 p_color)
 {
 	ProjectedVertex* point;
@@ -825,8 +833,8 @@ void FUN_10068b57(MechS32 p_count, ProjectedVertex** p_points, MechU32 p_color)
 		vertex->m_x = 0;
 		vertex->m_y = 0;
 		vertex->m_z = 1.0f;
-		// The 3Dfx edition clears the color blue first.
-#ifdef MW2_3DFX
+		// The ATI and 3Dfx editions clear the color blue first.
+#if defined(MW2_3DFX) || defined(MW2_ATI)
 		vertex->m_blue = 0;
 		vertex->m_green = 0;
 		vertex->m_red = 0;
@@ -842,8 +850,8 @@ void FUN_10068b57(MechS32 p_count, ProjectedVertex** p_points, MechU32 p_color)
 #endif
 		vertex->m_x = point->m_screenX;
 		vertex->m_y = point->m_screenY;
-		// The 3Dfx edition stores the color's components red first, as in FUN_100688fe.
-#ifdef MW2_3DFX
+		// The ATI and 3Dfx editions store the color's components red first, as in FUN_100688fe.
+#if defined(MW2_3DFX) || defined(MW2_ATI)
 		vertex->m_red = g_paletteRgb[p_color][0];
 		vertex->m_green = g_paletteRgb[p_color][1];
 		vertex->m_blue = g_paletteRgb[p_color][2];
@@ -855,8 +863,8 @@ void FUN_10068b57(MechS32 p_count, ProjectedVertex** p_points, MechU32 p_color)
 		vertex++;
 	}
 
-#ifdef MW2_3DFX
-	// The 3Dfx edition's clips the outline to the pane and closes it.
+#ifdef MW2_CLIP_TO_PANE_EDGES
+	// The ATI and 3Dfx editions' clip the outline to the pane and close it.
 	p_count = FUN_10067b90(p_count, 0xf, 0);
 	if (p_count > 2) {
 		g_a3dClipped[p_count] = g_a3dClipped[0];
@@ -949,7 +957,7 @@ void LoadSkyGroundSettings(const MechChar* p_mission)
 }
 
 // Draws the textured sky's four quads (g_skyCorners).
-// The 3Dfx and ATI editions draw the polygon even when ProjectPolygon leaves no points.
+// The ATI and 3Dfx editions draw the polygon even when ProjectPolygon leaves no points.
 // FUNCTION: MW2MATROX 0x10068e33
 void FUN_10068e33(Eyepoint* p_eyepoint)
 {
@@ -1048,7 +1056,7 @@ void FUN_10068e33(Eyepoint* p_eyepoint)
 }
 
 // Draws the sky as one quad, its texture scrolled by g_skyScrollSpeed.
-// The 3Dfx and ATI editions draw the polygon even when ProjectPolygon leaves no points.
+// The ATI and 3Dfx editions draw the polygon even when ProjectPolygon leaves no points.
 // FUNCTION: MW2MATROX 0x10069172
 void FUN_10069172(Eyepoint* p_eyepoint)
 {
@@ -1080,7 +1088,7 @@ void FUN_10069172(Eyepoint* p_eyepoint)
 }
 
 // Draws the ground as one quad, its texture repeated every g_groundTile.
-// The 3Dfx and ATI editions draw the polygon even when ProjectPolygon leaves no points.
+// The ATI and 3Dfx editions draw the polygon even when ProjectPolygon leaves no points.
 // FUNCTION: MW2MATROX 0x100692db
 void FUN_100692db(Eyepoint* p_eyepoint)
 {
@@ -1226,8 +1234,8 @@ void DrawSkyAndGround(Eyepoint* p_eyepoint)
 	g_paletteRgb[g_groundColor][1] = g_groundGreen;
 	g_paletteRgb[g_groundColor][2] = g_groundBlue;
 	VFX_lookaside_write16(g_groundColor, PIXEL_RGB16(g_groundRed, g_groundGreen, g_groundBlue));
-	// The 3Dfx edition stores the color's components red first, as in FUN_100688fe.
-#ifdef MW2_3DFX
+	// The ATI and 3Dfx editions store the color's components red first, as in FUN_100688fe.
+#if defined(MW2_3DFX) || defined(MW2_ATI)
 	band[0].m_red = g_paletteRgb[g_skyColor][0];
 	band[0].m_green = g_paletteRgb[g_skyColor][1];
 	band[0].m_blue = g_paletteRgb[g_skyColor][2];

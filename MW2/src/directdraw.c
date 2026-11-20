@@ -40,6 +40,7 @@ __inline static HRESULT DdrawUnlock(void);
 __inline static HRESULT DdrawRestore(void);
 
 // GLOBAL: MW2 0x100b1cb0
+// GLOBAL: MW2ATI 0x1017e5c0
 LPDIRECTDRAW g_ddraw = NULL;
 
 // GLOBAL: MW2 0x100b1cb4

@@ -10,6 +10,9 @@
 #include "types.h"
 #include "vfx3d.h"
 #include "window.h"
+#ifdef MW2_ATI
+#include "bandpoly.h"
+#endif
 #ifdef MW2_A3D
 #include "accel/a3d.h"
 #include "accel/texturepoly.h"
@@ -70,6 +73,7 @@ MechS32 g_animSetIsSequence = 0;
 // (StartPaletteFade): whether it is on, and its color.
 // GLOBAL: MW2MATROX 0x100aa1d0
 // GLOBAL: MW23DFX 0x1024e494
+// GLOBAL: MW2ATI 0x101827a8
 MechS32 g_unk0x100aa1d0 = 0;
 #endif
 
@@ -123,6 +127,7 @@ MechFloat g_unk0x10184700[3];
 
 // GLOBAL: MW2 0x100e9210
 // GLOBAL: MW23DFX 0x10160d00
+// GLOBAL: MW2ATI 0x10094cf0
 WINDOW g_animFrameBuffer;
 
 #ifdef MW2_A3D
@@ -145,12 +150,14 @@ void RotateTexturePoint(MechFloat p_cos, MechFloat p_sin, MechFloat* p_u, MechFl
 #endif
 // MW2MATROX's (0x10050dbc) is another function: it draws through the Matrox edition's renderer.
 // MW23DFX's (0x1002c880) draws through its own renderer, in Glide's texture coordinates, and
-// clips the polygon to the pane edges p_unk0x18 selects. MW2ATI's (0x1002bd20) draws through its own
-// renderer too: the 3Dfx edition's without MW2.MIP, in the ATI renderer's vertices.
+// clips the polygon to the pane edges p_unk0x18 selects. MW2ATI's (0x1002bd20), six months older,
+// draws through its own renderer too, a vertex at a time, its texture coordinates fractions of the
+// texture: the 3Dfx edition's has the same steps in loops of their own, with MW2.MIP and Glide's
+// 0-255 coordinates.
 // FUNCTION: MW2 0x10068d10
 // FUNCTION: MW2MATROX 0x10050dbc
 // FUNCTION: MW23DFX 0x1002c880
-// STUB: MW2ATI 0x1002bd20
+// FUNCTION: MW2ATI 0x1002bd20
 #ifdef MW2_A3D
 MechS32 DrawAnimatedPolygon(
 	MechS32 p_index,
@@ -520,8 +527,157 @@ MechS32 DrawAnimatedPolygon(
 
 	return 1;
 #elif defined(MW2_ATI)
-	STUB(0x1002bd20);
-	return 0;
+	Animation* anim;
+	AnimFrame* frame;
+	MechU16* data;
+	MechS16 width;
+	MechS16 height;
+	MechU32 flags;
+	MechS32 rotate;
+	MechS32 useLuma;
+	MechS32 i;
+	MechFloat offset;
+	MechFloat angle;
+	MechFloat cosine;
+	MechFloat sine;
+	MechFloat w;
+	ProjectedVertex* point;
+	A3DVertex* vertex;
+
+	flags = 0;
+	if (p_unk0x1c) {
+		flags = 2;
+	}
+
+	if (p_count < 3) {
+		return 0;
+	}
+
+	if (p_index == 0x8c) {
+		rotate = TRUE;
+		angle = p_unk0x1c * 0.017453292f;
+		offset = p_scale / 100000.0f;
+		cosine = cos(angle);
+		sine = sin(angle);
+		p_unk0x1c = 0;
+		p_scale = 0;
+		p_index += 0x100;
+	}
+	else {
+		rotate = FALSE;
+		if (!p_scale) {
+			p_index += 0x100;
+		}
+	}
+
+	anim = &g_animations[p_index];
+	if (anim->m_mode == 0 || anim->m_flags < 0) {
+		return 0;
+	}
+
+	frame = &g_animFrames[anim->m_set][anim->m_frame];
+	if (frame->m_resourceId < 1) {
+		return 0;
+	}
+
+	frame->m_useCount++;
+	data = frame->m_data;
+	if (!data) {
+		data = LoadCachedResource(g_mw2PrjHandle, frame->m_resourceId, g_resTagCel, 0);
+		if (!data) {
+			return 0;
+		}
+
+		frame->m_data = data;
+	}
+
+	width = data[0];
+	height = data[1];
+	data += 2;
+	if (!(anim->m_flags & 4) && p_luma > -1 && p_luma < 15) {
+		useLuma = TRUE;
+	}
+	else {
+		useLuma = FALSE;
+	}
+
+	// The texture coordinates are fractions of the texture. The original tests the render settings'
+	// member at 0x54 here; the 3Dfx edition's tests m_affineTextures (0x4c) in its place.
+	vertex = g_a3dVertices;
+	for (i = 0; i < p_count; i++) {
+		point = *p_points++;
+		vertex->m_x = point->m_screenX;
+		vertex->m_y = point->m_screenY;
+		if (p_direct && !g_renderSettings.m_frameDrawCallback) {
+			w = g_eyepoint->m_projectScaleX / point->m_z;
+			vertex->m_w = w;
+			vertex->m_u = point->m_u * w / width;
+			vertex->m_v = w * point->m_v / height;
+		}
+		else if (!p_scale) {
+			vertex->m_w = 1.0f;
+			vertex->m_u = point->m_u / width;
+			vertex->m_v = point->m_v / height;
+			if (rotate) {
+				vertex->m_u += offset;
+				RotateTexturePoint(cosine, sine, &vertex->m_u, &vertex->m_v);
+			}
+		}
+		else {
+			vertex->m_u = point->m_u;
+			vertex->m_v = point->m_v;
+			vertex->m_w = 1.0f;
+		}
+
+		if (g_unk0x100aa1d0) {
+			flags |= 1;
+			vertex->m_blue = g_unk0x10184700[2];
+			vertex->m_green = g_unk0x10184700[1];
+			vertex->m_red = g_unk0x10184700[0];
+		}
+		else if ((p_direct || useLuma) && p_luma != (MechS32) 0x80000000) {
+			vertex->m_blue = vertex->m_green = vertex->m_red = point->m_light * 255;
+		}
+		else {
+			vertex->m_blue = 255.0f;
+			vertex->m_green = 255.0f;
+			vertex->m_red = 255.0f;
+		}
+
+		vertex++;
+	}
+
+	if (p_unk0x18) {
+		p_count = FUN_10067b90(p_count, p_unk0x18, 0xd);
+		if (p_count < 3) {
+			return 0;
+		}
+	}
+
+	if (p_direct) {
+		FUN_1002a480(
+			&g_currentPane,
+			data,
+			width,
+			height,
+			p_count,
+			p_unk0x18 ? g_a3dClipped : g_a3dVertices,
+			0,
+			0,
+			p_unk0x1c
+		);
+		return 1;
+	}
+
+	if (useLuma) {
+		flags |= 1;
+	}
+
+	g_animFrameBuffer.m_xMax = width - 1;
+	g_animFrameBuffer.m_yMax = height - 1;
+	g_animFrameBuffer.m_buffer = (undefined*) data;
+	A3D_map_polygon(&g_currentPane, p_count, p_unk0x18 ? g_a3dClipped : g_a3dVertices, &g_animFrameBuffer, flags);
+	return 1;
 #else
 	MechS16 height;
 	MechS32 i;
@@ -906,10 +1062,11 @@ void FreeAnimations(void)
 }
 
 #ifdef MW2_A3D
-#ifdef MW2_3DFX
+#ifdef MW2_FRAME_TEXELS
 // Returns the pixels of animation p_index's current frame (its CEL resource, from the cache), and
 // its size; NULL if it has none.
 // FUNCTION: MW23DFX 0x1002d2b0
+// FUNCTION: MW2ATI 0x1002c480
 MechU16* FUN_10051dfe(MechS32 p_index, MechS16* p_width, MechS16* p_height)
 {
 	MechU16* data;
@@ -944,7 +1101,7 @@ MechU16* FUN_10051dfe(MechS32 p_index, MechS16* p_width, MechS16* p_height)
 // FUNCTION: MW2ATI 0x1002c500
 MechS32 FUN_100519b0(MechS32 p_index, MechFloat* p_red, MechFloat* p_green, MechFloat* p_blue)
 {
-#ifdef MW2_3DFX
+#ifdef MW2_FRAME_TEXELS
 	MechU16* pixels;
 	MechU16* end;
 	MechU16 pixel;
@@ -1194,10 +1351,12 @@ MechS32 FUN_10051ea2(MechS32 p_index, ProjectedVertex** p_points, MechS32 p_coun
 }
 
 #endif
-#ifdef MW2_3DFX
+#ifdef MW2_SKY_GROUND_CLIPPED_HELPERS
 // Draws the polygon of p_count projected points with animation p_index + 0x100's texture (the
-// ground's), clipped to the pane, subdivided for its perspective (FUN_100674c0's mode 2). Returns 0.
+// ground's), clipped to the pane, perspective-corrected by the ATI edition's renderer, subdivided
+// for its perspective (FUN_100674c0's mode 2) in the 3Dfx edition. Returns 0.
 // FUNCTION: MW23DFX 0x1002d460
+// FUNCTION: MW2ATI 0x1002c630
 MechS32 FUN_10051c07(MechS32 p_index, ProjectedVertex** p_points, MechS32 p_count)
 {
 	MechU16* pixels;
@@ -1216,7 +1375,12 @@ MechS32 FUN_10051c07(MechS32 p_index, ProjectedVertex** p_points, MechS32 p_coun
 		p_points++;
 		vertex->m_x = point->m_screenX;
 		vertex->m_y = point->m_screenY;
+		// The ATI edition's 1 / w is the projection's scale over z, the 3Dfx edition's 2000 / z.
+#ifdef MW2_3DFX
 		w = 2000.0f / point->m_z;
+#else
+		w = g_eyepoint->m_projectScaleX / point->m_z;
+#endif
 		vertex->m_w = w;
 		vertex->m_u = point->m_u * w;
 		vertex->m_v = point->m_v * w;
@@ -1239,15 +1403,20 @@ MechS32 FUN_10051c07(MechS32 p_index, ProjectedVertex** p_points, MechS32 p_coun
 		return 0;
 	}
 
+#ifdef MW2_3DFX
 	g_unk0x1024e634 = 2;
 	FUN_1002d760(&g_currentPane, pixels, width, height, p_count, g_a3dClipped, 1, 0, 0);
 	g_unk0x1024e634 = 0;
+#else
+	FUN_1002a480(&g_currentPane, pixels, width, height, p_count, g_a3dClipped, 1, 0, 0);
+#endif
 	return 0;
 }
 
-// FUN_10051c07 for the sky: its texture coordinates scaled to Glide's 0-255, drawn unclipped when
-// the clipper leaves it whole, in FUN_100674c0's mode 1.
+// FUN_10051c07 for the sky: drawn unclipped when the clipper leaves it whole, in FUN_100674c0's
+// mode 1 and its texture coordinates scaled to Glide's 0-255 in the 3Dfx edition.
 // FUNCTION: MW23DFX 0x1002d590
+// FUNCTION: MW2ATI 0x1002c740
 MechS32 FUN_10051ea2(MechS32 p_index, ProjectedVertex** p_points, MechS32 p_count)
 {
 	MechU16* pixels;
@@ -1267,11 +1436,18 @@ MechS32 FUN_10051ea2(MechS32 p_index, ProjectedVertex** p_points, MechS32 p_coun
 		p_points++;
 		vertex->m_x = point->m_screenX;
 		vertex->m_y = point->m_screenY;
+#ifdef MW2_3DFX
 		w = 2000.0f / point->m_z;
 		vertex->m_tmuW = w;
 		vertex->m_w = w;
 		vertex->m_u = point->m_u * w * 255.0f;
 		vertex->m_v = point->m_v * w * 255.0f;
+#else
+		w = g_eyepoint->m_projectScaleX / point->m_z;
+		vertex->m_w = w;
+		vertex->m_u = point->m_u * w;
+		vertex->m_v = point->m_v * w;
+#endif
 		if (g_unk0x100aa1d0) {
 			vertex->m_blue = g_unk0x10184700[2];
 			vertex->m_green = g_unk0x10184700[1];
@@ -1291,6 +1467,7 @@ MechS32 FUN_10051ea2(MechS32 p_index, ProjectedVertex** p_points, MechS32 p_coun
 		return 0;
 	}
 
+#ifdef MW2_3DFX
 	g_unk0x1024e634 = 1;
 	if (!count) {
 		FUN_1002d760(&g_currentPane, pixels, width, height, p_count, g_a3dVertices, 1, 0, 0);
@@ -1300,22 +1477,14 @@ MechS32 FUN_10051ea2(MechS32 p_index, ProjectedVertex** p_points, MechS32 p_coun
 	}
 
 	g_unk0x1024e634 = 0;
-	return 0;
-}
+#else
+	if (!count) {
+		FUN_1002a480(&g_currentPane, pixels, width, height, p_count, g_a3dVertices, 1, 0, 0);
+	}
+	else {
+		FUN_1002a480(&g_currentPane, pixels, width, height, count, g_a3dClipped, 1, 0, 0);
+	}
 #endif
-#ifdef MW2_ATI
-// The ATI edition's: the 3Dfx edition's, in its renderer's vertices, drawn through it.
-// STUB: MW2ATI 0x1002c630
-MechS32 FUN_10051c07(MechS32 p_index, ProjectedVertex** p_points, MechS32 p_count)
-{
-	STUB(0x1002c630);
-	return 0;
-}
-
-// STUB: MW2ATI 0x1002c740
-MechS32 FUN_10051ea2(MechS32 p_index, ProjectedVertex** p_points, MechS32 p_count)
-{
-	STUB(0x1002c740);
 	return 0;
 }
 #endif
