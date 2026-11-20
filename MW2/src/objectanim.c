@@ -679,6 +679,7 @@ MechS32 ScaleBySpeedLevel(MechS32 p_mode, MechS32 p_value)
 // FUNCTION: MW2 0x10047380
 // FUNCTION: MW2MATROX 0x1006f955
 // FUNCTION: MW23DFX 0x1000e630
+// FUNCTION: MW2ATI 0x1000ed20
 MechS32 LoadAnimFile(ResourceRef* p_ref)
 {
 	MechS32 result;
@@ -711,6 +712,7 @@ MechS32 LoadAnimFile(ResourceRef* p_ref)
 // FUNCTION: MW2 0x10047462
 // FUNCTION: MW2MATROX 0x1006fa37
 // FUNCTION: MW23DFX 0x1000e6c0
+// FUNCTION: MW2ATI 0x1000edb0
 MechS32 GetAnimBase(void)
 {
 	return g_animBase;

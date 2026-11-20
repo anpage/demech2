@@ -280,8 +280,8 @@ MechS32 GetFaceShade(Face* p_face, Vertex* p_vertices)
 	return shade;
 }
 
-#ifdef MW2_3DFX
-// The 3Dfx edition compiled QueueFace without optimization (/Od, with /Gr's convention).
+#if defined(MW2_ATI) || defined(MW2_3DFX)
+// The ATI and 3Dfx editions compiled QueueFace without optimization (/Od, with /Gr's convention).
 #pragma optimize("", off)
 #endif
 
@@ -292,6 +292,7 @@ MechS32 GetFaceShade(Face* p_face, Vertex* p_vertices)
 // vertices' depths. The vertices take their shades from the light, scaled by the shape's damage.
 // FUNCTION: MW2MATROX 0x1007770c
 // FUNCTION: MW23DFX 0x1002b9b0
+// FUNCTION: MW2ATI 0x1002b370
 void QueueFace(Face* p_face, Vertex* p_vertices)
 {
 	MechS8 clipped;
@@ -526,7 +527,7 @@ void QueueFace(Face* p_face, Vertex* p_vertices)
 		g_queueHasRoom = 0;
 	}
 }
-#ifdef MW2_3DFX
+#if defined(MW2_ATI) || defined(MW2_3DFX)
 #pragma optimize("", on)
 #endif
 

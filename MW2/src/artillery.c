@@ -217,6 +217,7 @@ void LateUpdateArtillery(Mech* p_mech)
 // FUNCTION: MW2 0x1005a61d
 // FUNCTION: MW2MATROX 0x1002eb3a
 // FUNCTION: MW23DFX 0x10021c80
+// FUNCTION: MW2ATI 0x10021f50
 void ShutdownArtillery(Mech* p_mech)
 {
 	if (!p_mech) {

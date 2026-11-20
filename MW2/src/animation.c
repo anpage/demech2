@@ -814,6 +814,7 @@ void AdvanceAnimations(void)
 // FUNCTION: MW2 0x10069124
 // FUNCTION: MW2MATROX 0x100513ed
 // FUNCTION: MW23DFX 0x1002cf10
+// FUNCTION: MW2ATI 0x1002c210
 MechS32 AddAnimFrame(MechS32 p_resourceId, MechS32 p_set)
 {
 	MechS32 found;
@@ -1019,9 +1020,12 @@ void FUN_10069586(void)
 // FUNCTION: MW2 0x10069591
 // FUNCTION: MW2MATROX 0x10051880
 // FUNCTION: MW23DFX 0x1002d210
+// FUNCTION: MW2ATI 0x1002c470
 void FUN_10069591(void)
 {
-#ifdef MW2_3DFX
+#if defined(MW2_ATI)
+	FUN_10063d30();
+#elif defined(MW2_3DFX)
 	FUN_100667f0();
 #endif
 }
@@ -1205,6 +1209,7 @@ MechS32 FUN_100519b0(MechS32 p_index, MechFloat* p_red, MechFloat* p_green, Mech
 // Returns the average color of animation p_index's current frame (CalcAverageBitmapColors).
 // FUNCTION: MW2MATROX 0x10051ba1
 // FUNCTION: MW23DFX 0x1002d410
+// FUNCTION: MW2ATI 0x1002c5e0
 void FUN_10051ba1(MechS32 p_index, MechFloat* p_red, MechFloat* p_green, MechFloat* p_blue)
 {
 	AnimFrame* frame;

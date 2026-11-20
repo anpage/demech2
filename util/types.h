@@ -284,6 +284,8 @@ typedef char MechChar;
 /* The textures are the animations' frames as they are, 16-bit texels (FUN_10051dfe), and their
    average colors are computed from them */
 #define MW2_FRAME_TEXELS
+/* VESA480.DLL is 512x384 when DirectDraw has the mode in 16 bits (FUN_100059b0), 640x480 otherwise */
+#define MW2_RES_512X384
 #endif
 
 /* Boolean typedefs (MechBool / MechBool8 ...) are added when a match proves

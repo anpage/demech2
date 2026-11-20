@@ -275,6 +275,7 @@ void UpdateAllShots(void)
 // FUNCTION: MW2 0x1006a533
 // FUNCTION: MW2MATROX 0x1006b033
 // FUNCTION: MW23DFX 0x10044f60
+// FUNCTION: MW2ATI 0x100427b0
 void UpdateShot(MechS32 p_index)
 {
 	MechS32 hitResult;
@@ -726,6 +727,7 @@ void SpawnLaunchEffect(MechS32 p_type, Player* p_player)
 // FUNCTION: MW2 0x1006b1fb
 // FUNCTION: MW2MATROX 0x1006bdd0
 // FUNCTION: MW23DFX 0x10045d00
+// FUNCTION: MW2ATI 0x10043430
 void SpawnEffectEx(
 	MechS32 p_owner,
 	MechS32 p_type,
@@ -1000,6 +1002,7 @@ void SpawnEffectEx(
 // FUNCTION: MW2 0x1006b99a
 // FUNCTION: MW2MATROX 0x1006c584
 // FUNCTION: MW23DFX 0x10046490
+// FUNCTION: MW2ATI 0x10043bc0
 void UpdateEffects(void)
 {
 	MechS32 release;
@@ -1080,6 +1083,7 @@ void UpdateEffects(void)
 // FUNCTION: MW2 0x1006bc13
 // FUNCTION: MW2MATROX 0x1006c803
 // FUNCTION: MW23DFX 0x10046700
+// FUNCTION: MW2ATI 0x10043e30
 void DamageMechsInRadius(
 	MechS32 p_owner,
 	MechScalar p_x,
@@ -1340,6 +1344,7 @@ void DamageGameThing(
 // FUNCTION: MW2 0x1006c237
 // FUNCTION: MW2MATROX 0x1006ce62
 // FUNCTION: MW23DFX 0x10046d40
+// FUNCTION: MW2ATI 0x10044470
 void ScatterDebris(MechScalar p_x, MechScalar p_y, MechScalar p_z, MechS32 p_count)
 {
 	MechS32 shown;
@@ -1388,6 +1393,7 @@ void SaveCareerRecord(void)
 // FUNCTION: MW2 0x1006c362
 // FUNCTION: MW2MATROX 0x1006cf8d
 // FUNCTION: MW23DFX 0x10046e70
+// FUNCTION: MW2ATI 0x100445a0
 void HeatMechsNearFires(void)
 {
 	Shape* root;
@@ -1492,6 +1498,7 @@ void StartNuke(Player* p_player)
 // FUNCTION: MW2 0x1006c5e7
 // FUNCTION: MW2MATROX 0x1006d239
 // FUNCTION: MW23DFX 0x10047130
+// FUNCTION: MW2ATI 0x10044860
 void UpdateNuke(void)
 {
 	if (g_nukeTimeLeft <= 0) {

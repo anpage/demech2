@@ -277,6 +277,7 @@ void SetObjRotationMatrix(SceneObject* p_obj, Matrix* p_matrix)
 // FUNCTION: MW2 0x1000179f
 // FUNCTION: MW2MATROX 0x100412b1
 // FUNCTION: MW23DFX 0x1000f940
+// FUNCTION: MW2ATI 0x1000ff90
 void RotateObjMatrix(SceneObject* p_obj, Matrix* p_matrix)
 {
 	MultiplyRotations(&p_obj->m_local, p_matrix, &p_obj->m_local);

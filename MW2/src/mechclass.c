@@ -271,6 +271,7 @@ void FirstMech(struct Player* p_player)
 // share the frame, and its jump jet terms are cast, which keeps 2.2 from regrouping the float sums.
 // FUNCTION: MW2MATROX 0x1000d29c
 // FUNCTION: MW23DFX 0x10019310
+// FUNCTION: MW2ATI 0x100196a0
 void UpdateMech(Mech* p_mech)
 {
 	MechScalar velY;
@@ -1184,6 +1185,7 @@ void UpdateMech(Mech* p_mech)
 // FUNCTION: MW2 0x100180cd
 // FUNCTION: MW2MATROX 0x1000e721
 // FUNCTION: MW23DFX 0x1001a180
+// FUNCTION: MW2ATI 0x1001a530
 void LateUpdateMech(Mech* p_mech)
 {
 	MechScalar throttle;
@@ -1773,6 +1775,7 @@ void LateUpdateMech(Mech* p_mech)
 // FUNCTION: MW2 0x10019368
 // FUNCTION: MW2MATROX 0x1000fb2d
 // FUNCTION: MW23DFX 0x1001adf0
+// FUNCTION: MW2ATI 0x1001b1a0
 void UpdateLocalMech(Mech* p_mech)
 {
 	MechScalar dx;
@@ -1956,6 +1959,7 @@ MechS32 CreateMech(MechS32 p_index, Player* p_player)
 // FUNCTION: MW2 0x10019881
 // FUNCTION: MW2MATROX 0x10010043
 // FUNCTION: MW23DFX 0x1001b170
+// FUNCTION: MW2ATI 0x1001b520
 void InitMechArrays(struct Mech* p_mech)
 {
 	AmmoBin* bin;

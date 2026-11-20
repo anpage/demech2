@@ -98,6 +98,7 @@ void ReleaseWeaponTriggers(Mech* p_mech)
 // FUNCTION: MW2 0x100447e1
 // FUNCTION: MW2MATROX 0x1002b581
 // FUNCTION: MW23DFX 0x100437a0
+// FUNCTION: MW2ATI 0x10040ff0
 void UpdateWeaponFireState(Mech* p_mech)
 {
 	MechScalar dy;
@@ -313,6 +314,7 @@ void UpdateWeaponFireState(Mech* p_mech)
 // FUNCTION: MW2 0x1004506c
 // FUNCTION: MW2MATROX 0x1002be15
 // FUNCTION: MW23DFX 0x10043cc0
+// FUNCTION: MW2ATI 0x10041510
 MechS32 SpawnShot(Player* p_player, WeaponSlot* p_slot)
 {
 	MechS32 result;
@@ -469,6 +471,7 @@ void SelectNextWeaponInGroup(Mech* p_mech, MechS32 p_wrap)
 // FUNCTION: MW2 0x10045567
 // FUNCTION: MW2MATROX 0x1002c30d
 // FUNCTION: MW23DFX 0x10044030
+// FUNCTION: MW2ATI 0x10041880
 void SelectNextWeapon(Mech* p_mech)
 {
 	MechS32 done;
@@ -590,6 +593,7 @@ MechS32 SelectWeaponGroup(Mech* p_mech, MechS32 p_group)
 // FUNCTION: MW2 0x10045919
 // FUNCTION: MW2MATROX 0x1002c6bf
 // FUNCTION: MW23DFX 0x100441f0
+// FUNCTION: MW2ATI 0x10041a40
 MechS32 IsSelectedWeaponReady(Mech* p_mech)
 {
 	MechS32 result;
@@ -611,6 +615,7 @@ MechS32 IsSelectedWeaponReady(Mech* p_mech)
 // FUNCTION: MW2 0x1004597b
 // FUNCTION: MW2MATROX 0x1002c721
 // FUNCTION: MW23DFX 0x10044220
+// FUNCTION: MW2ATI 0x10041a70
 MechS32 JettisonAmmo(Mech* p_mech)
 {
 	MechChar text[40];
@@ -661,6 +666,7 @@ void LoadWeaponSounds(void)
 // FUNCTION: MW2 0x10045b14
 // FUNCTION: MW2MATROX 0x1002c8ba
 // FUNCTION: MW23DFX 0x10044330
+// FUNCTION: MW2ATI 0x10041b70
 void SetWeaponGroup(Mech* p_mech, MechS32 p_index, MechS32 p_group)
 {
 	WeaponSlot* slot;
@@ -702,6 +708,7 @@ void CycleLocalWeaponGroup(void)
 // FUNCTION: MW2 0x10045bc8
 // FUNCTION: MW2MATROX 0x1002c96e
 // FUNCTION: MW23DFX 0x100443a0
+// FUNCTION: MW2ATI 0x10041bf0
 void FireRemoteWeapons(Mech* p_mech)
 {
 	WeaponSlot* slot;
@@ -796,6 +803,7 @@ void AddNextWeaponToGroup(Mech* p_mech)
 // FUNCTION: MW2 0x10045eac
 // FUNCTION: MW2MATROX 0x1002cc52
 // FUNCTION: MW23DFX 0x10044560
+// FUNCTION: MW2ATI 0x10041db0
 void UpdateWeaponLock(Mech* p_mech)
 {
 	MechScalar dz;

@@ -85,4 +85,9 @@ extern "C"
 // FUNCTION: MW2ATI 0x10031210
 // SampleEosCallback
 
+// The ATI edition places these out of soundfx.c's order, so they are annotated here, by name.
+
+// FUNCTION: MW2ATI 0x10030df0
+// StartSample
+
 #endif // SOUNDFX_H

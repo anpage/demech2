@@ -245,6 +245,7 @@ void FirstClock(void)
 // FUNCTION: MW2 0x1007ce2c
 // FUNCTION: MW2MATROX 0x1001e9bc
 // FUNCTION: MW23DFX 0x10007ff0
+// FUNCTION: MW2ATI 0x10008810
 void NextClock(void)
 {
 	if (!g_ticksTimerInitialized) {

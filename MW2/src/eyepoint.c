@@ -552,6 +552,7 @@ MechS32 RestoreView(Eyepoint* p_eyepoint, MechScalar* p_view)
 // FUNCTION: MW2 0x100115f4
 // FUNCTION: MW2MATROX 0x10009362
 // FUNCTION: MW23DFX 0x1002e070
+// FUNCTION: MW2ATI 0x1002d1c0
 void CycleTrackedPlayer(MechS32 p_next, MechS32 p_home)
 {
 	MechS32 step;
@@ -675,6 +676,7 @@ void UpdateOrdinanceView(void)
 // FUNCTION: MW2 0x100118bc
 // FUNCTION: MW2MATROX 0x10009653
 // FUNCTION: MW23DFX 0x1002e280
+// FUNCTION: MW2ATI 0x1002d3d0
 void UpdateTrackView(MechScalar p_distance, MechScalar p_height, MechScalar p_tilt, MechScalar p_turn)
 {
 	MechScalar y;
@@ -999,6 +1001,7 @@ void UpdateDropView(void)
 // FUNCTION: MW2 0x10011f9a
 // FUNCTION: MW2MATROX 0x10009e0a
 // FUNCTION: MW23DFX 0x1002e8a0
+// FUNCTION: MW2ATI 0x1002d9f0
 void UpdateFreeEyeView(
 	MechScalar p_climb,
 	MechScalar p_speed,

@@ -229,6 +229,7 @@ MechS32 HasTeamReachedTarget(MechU8* p_target, MechS32 p_team)
 // FUNCTION: MW2 0x1001ad5b
 // FUNCTION: MW2MATROX 0x1001f0f8
 // FUNCTION: MW23DFX 0x10009b80
+// FUNCTION: MW2ATI 0x1000a3b0
 MechS32 IsTeamNearTarget(MechU8* p_target, MechS32 p_team)
 {
 	MechU16 index;
@@ -368,6 +369,7 @@ MechS32 IsTeamNearTarget(MechU8* p_target, MechS32 p_team)
 // FUNCTION: MW2 0x1001b0cb
 // FUNCTION: MW2MATROX 0x1001f428
 // FUNCTION: MW23DFX 0x10009d60
+// FUNCTION: MW2ATI 0x1000a590
 MechS32 AnnounceObjective(MechS32 p_star, MechS32 p_objective, MechS32 p_state)
 {
 	MechChar text[100];
@@ -408,6 +410,7 @@ MechS32 AnnounceObjective(MechS32 p_star, MechS32 p_objective, MechS32 p_state)
 // FUNCTION: MW2 0x1001b21a
 // FUNCTION: MW2MATROX 0x1001f577
 // FUNCTION: MW23DFX 0x10009e70
+// FUNCTION: MW2ATI 0x1000a6a0
 void ChooseNetworkWinner(void)
 {
 	MissionObjective* objective;
@@ -520,6 +523,7 @@ MechS32 AnnounceMissionResult(MechS32 p_star, MechS32 p_status)
 // FUNCTION: MW2 0x1001b580
 // FUNCTION: MW2MATROX 0x1001f8dd
 // FUNCTION: MW23DFX 0x1000a080
+// FUNCTION: MW2ATI 0x1000a8b0
 MechS32 TestObjectiveCondition(MechS32 p_star, MechS32 p_objective, MechS32 p_condition)
 {
 	MissionObjective* objective;
@@ -545,6 +549,7 @@ MechS32 TestObjectiveCondition(MechS32 p_star, MechS32 p_objective, MechS32 p_co
 // FUNCTION: MW2 0x1001b66c
 // FUNCTION: MW2MATROX 0x1001f9c9
 // FUNCTION: MW23DFX 0x1000a110
+// FUNCTION: MW2ATI 0x1000a940
 MechS32 ObjectiveConditionsHold(MechS32 p_star, MechS32 p_objective)
 {
 	MechS32 all;
@@ -596,6 +601,7 @@ MechS32 ObjectiveConditionsHold(MechS32 p_star, MechS32 p_objective)
 // FUNCTION: MW2 0x1001b79a
 // FUNCTION: MW2MATROX 0x1001faf7
 // FUNCTION: MW23DFX 0x1000a1d0
+// FUNCTION: MW2ATI 0x1000aa00
 void UpdateObjective(MechS32 p_star, MechS32 p_objective)
 {
 	MechS32 done;
@@ -956,6 +962,7 @@ void UpdateObjective(MechS32 p_star, MechS32 p_objective)
 // FUNCTION: MW2 0x1001c69e
 // FUNCTION: MW2MATROX 0x10020a02
 // FUNCTION: MW23DFX 0x1000a9b0
+// FUNCTION: MW2ATI 0x1000b1e0
 void UpdateObjectives(void)
 {
 	MechS32 i;
@@ -1099,6 +1106,7 @@ MechS32 EndTheMission2(void)
 // FUNCTION: MW2 0x1001cc5c
 // FUNCTION: MW2MATROX 0x10020fde
 // FUNCTION: MW23DFX 0x1000acd0
+// FUNCTION: MW2ATI 0x1000b500
 void RestartStarMission(MechS32 p_star)
 {
 	MissionObjective* objective;
@@ -1129,6 +1137,7 @@ void RestartStarMission(MechS32 p_star)
 // FUNCTION: MW2 0x1001cdd1
 // FUNCTION: MW2MATROX 0x10021086
 // FUNCTION: MW23DFX 0x1000ad40
+// FUNCTION: MW2ATI 0x1000b570
 void FUN_1001cdd1(void)
 {
 	return;

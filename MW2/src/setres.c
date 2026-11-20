@@ -92,6 +92,7 @@ void ChooseArtResolution(GameWindowGeometry* p_geometry)
 // Picks the art resolution (g_artResolution) closest to the window's.
 // FUNCTION: MW2 0x1005d44e
 // FUNCTION: MW2MATROX 0x1008c195
+// FUNCTION: MW2ATI 0x100023b0
 void ChooseArtResolution(GameWindowGeometry* p_geometry)
 {
 	MechS32 best;

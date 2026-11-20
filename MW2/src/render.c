@@ -376,6 +376,7 @@ void SecondRender(void)
 // FUNCTION: MW2 0x10012afe
 // FUNCTION: MW2MATROX 0x1001774e
 // FUNCTION: MW23DFX 0x10004b30
+// FUNCTION: MW2ATI 0x100047c0
 void DrawScene(void)
 {
 	MechScalar saved;

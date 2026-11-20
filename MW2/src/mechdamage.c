@@ -88,6 +88,7 @@ static MechS32 g_criticalHeatWarningTime;
 // FUNCTION: MW2 0x100079d0
 // FUNCTION: MW2MATROX 0x10010250
 // FUNCTION: MW23DFX 0x10015c00
+// FUNCTION: MW2ATI 0x10016010
 void RunAutopilot(Mech* p_mech)
 {
 	MechS32 index;
@@ -189,6 +190,7 @@ void PunchInAutoHeading(Mech* p_mech)
 // FUNCTION: MW2 0x10007d06
 // FUNCTION: MW2MATROX 0x1001059a
 // FUNCTION: MW23DFX 0x10015e10
+// FUNCTION: MW2ATI 0x10016220
 void DestroyMech(MechS32 p_killer, Mech* p_mech)
 {
 	WeaponSlot* weapon;
@@ -245,6 +247,7 @@ void DestroyMech(MechS32 p_killer, Mech* p_mech)
 // FUNCTION: MW2 0x10007e86
 // FUNCTION: MW2MATROX 0x10010727
 // FUNCTION: MW23DFX 0x10015f50
+// FUNCTION: MW2ATI 0x10016360
 void CalculateHeat(Mech* p_mech)
 {
 #ifdef MW2_FLOAT_SCALARS
@@ -370,6 +373,7 @@ void CalculateHeat(Mech* p_mech)
 // FUNCTION: MW2 0x1000832b
 // FUNCTION: MW2MATROX 0x10010bd8
 // FUNCTION: MW23DFX 0x10016280
+// FUNCTION: MW2ATI 0x10016690
 void KillMech(MechS32 p_killer, Mech* p_mech)
 {
 	MechS32 leader;
@@ -630,6 +634,7 @@ void DestroySection(MechS32 p_attacker, Mech* p_mech, MechU32 p_section)
 // FUNCTION: MW2 0x10008c0f
 // FUNCTION: MW2MATROX 0x100114bd
 // FUNCTION: MW23DFX 0x100167b0
+// FUNCTION: MW2ATI 0x10016bc0
 void DestroyCriticalSlot(MechS32 p_attacker, Mech* p_mech, MechU32 p_section, MechS32 p_slot, MechS32 p_recursing)
 {
 	MechS32 id;

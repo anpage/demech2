@@ -56,6 +56,7 @@ HSEQUENCE g_midiSequences[8];
 // FUNCTION: MW2 0x10021460
 // FUNCTION: MW2MATROX 0x10043b60
 // FUNCTION: MW23DFX 0x10032fa0
+// FUNCTION: MW2ATI 0x10031da0
 void StopMidiSequences(void)
 {
 	HSEQUENCE sequence;
@@ -86,6 +87,7 @@ void StopMidiSequences(void)
 // FUNCTION: MW2 0x1002152b
 // FUNCTION: MW2MATROX 0x10043c2b
 // FUNCTION: MW23DFX 0x10033010
+// FUNCTION: MW2ATI 0x10031e10
 void PauseMidiSequences(void)
 {
 	HSEQUENCE sequence;
@@ -108,6 +110,7 @@ void PauseMidiSequences(void)
 // FUNCTION: MW2 0x100215a4
 // FUNCTION: MW2MATROX 0x10043ca4
 // FUNCTION: MW23DFX 0x10033050
+// FUNCTION: MW2ATI 0x10031e60
 void ResumeMidiSequences(void)
 {
 	HSEQUENCE sequence;
@@ -263,6 +266,7 @@ MechS16 AnyMidiPlaying(void)
 // FUNCTION: MW2 0x10021956
 // FUNCTION: MW2MATROX 0x10044056
 // FUNCTION: MW23DFX 0x10033340
+// FUNCTION: MW2ATI 0x10031fe0
 void SetMidiVolume(MechS16 p_volume)
 {
 	MechS32 i;
@@ -283,6 +287,7 @@ void SetMidiVolume(MechS16 p_volume)
 // FUNCTION: MW2 0x100219ea
 // FUNCTION: MW2MATROX 0x100440ea
 // FUNCTION: MW23DFX 0x100333a0
+// FUNCTION: MW2ATI 0x10032040
 void ApplyMidiVolume(void)
 {
 }
@@ -292,6 +297,7 @@ void ApplyMidiVolume(void)
 // FUNCTION: MW2 0x100219f5
 // FUNCTION: MW2MATROX 0x100440f5
 // FUNCTION: MW23DFX 0x100333b0
+// FUNCTION: MW2ATI 0x10032050
 MechS32 FUN_100219f5(MechS32 p_delay, MechS32 p_bearing, MechS32 p_id, MechU32 p_volume, MechS32 p_pan, MechS32 p_flags)
 {
 	return 0;
@@ -302,6 +308,7 @@ MechS32 FUN_100219f5(MechS32 p_delay, MechS32 p_bearing, MechS32 p_id, MechU32 p
 // FUNCTION: MW2 0x10021a07
 // FUNCTION: MW2MATROX 0x10044107
 // FUNCTION: MW23DFX 0x100333c0
+// FUNCTION: MW2ATI 0x10032060
 void StartEngineNote(void)
 {
 #ifdef MW2_NO_ENGINE_NOTE

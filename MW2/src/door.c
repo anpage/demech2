@@ -238,6 +238,7 @@ void LateUpdateDoor(Mech* p_mech)
 // FUNCTION: MW2 0x10068758
 // FUNCTION: MW2MATROX 0x10088eba
 // FUNCTION: MW23DFX 0x10022190
+// FUNCTION: MW2ATI 0x10022460
 void ShutdownDoor(Mech* p_mech)
 {
 	if (!p_mech) {

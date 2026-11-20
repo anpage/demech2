@@ -278,6 +278,7 @@ MechS32 AddClass(MechS32 p_id, Shape* p_class)
 // FUNCTION: MW2 0x1001f564
 // FUNCTION: MW2MATROX 0x10052c04
 // FUNCTION: MW23DFX 0x10024860
+// FUNCTION: MW2ATI 0x10024a90
 Shape* FindClassById(MechS32 p_id)
 {
 	Shape* result;
@@ -394,6 +395,7 @@ MechS32 FindStarIdxById(MechS32 p_id)
 // FUNCTION: MW2 0x1001f7eb
 // FUNCTION: MW2MATROX 0x10052e8b
 // FUNCTION: MW23DFX 0x10024a20
+// FUNCTION: MW2ATI 0x10024c50
 MechS32 AllocStaticObject(undefined4 p_id)
 {
 	MechS32 result = -1;
@@ -502,6 +504,7 @@ MechS32 PlaceStaticObject(
 // FUNCTION: MW2 0x1001fa05
 // FUNCTION: MW2MATROX 0x100530a5
 // FUNCTION: MW23DFX 0x10024ba0
+// FUNCTION: MW2ATI 0x10024dc0
 void BeginBlock(BwdBlockRecord* p_record)
 {
 	StaticBlock* block;
@@ -587,6 +590,7 @@ void BeginBlock(BwdBlockRecord* p_record)
 // FUNCTION: MW2 0x1001fe41
 // FUNCTION: MW2MATROX 0x100534fb
 // FUNCTION: MW23DFX 0x10024e50
+// FUNCTION: MW2ATI 0x10025070
 void HandleElseBlock(void)
 {
 }
@@ -714,6 +718,7 @@ void AttachTaskToObj(MechS32 p_index, TimedCallbackFn p_fn, MechS32 p_period, Me
 // FUNCTION: MW2 0x100200bd
 // FUNCTION: MW2MATROX 0x10053804
 // FUNCTION: MW23DFX 0x10025040
+// FUNCTION: MW2ATI 0x10025260
 void RunStaticObjectTasks(void)
 {
 	MechS32 i;
@@ -743,6 +748,7 @@ void RemoveStaticObjectTask(MechS32 p_index, TimedCallback* p_callback)
 // FUNCTION: MW2 0x1002015f
 // FUNCTION: MW2MATROX 0x100538a7
 // FUNCTION: MW23DFX 0x100250a0
+// FUNCTION: MW2ATI 0x100252a0
 void RemoveStaticObjectTasks(MechS32 p_index)
 {
 	StaticObject* entry;
@@ -754,6 +760,7 @@ void RemoveStaticObjectTasks(MechS32 p_index)
 // FUNCTION: MW2 0x10020190
 // FUNCTION: MW2MATROX 0x100538d8
 // FUNCTION: MW23DFX 0x100250c0
+// FUNCTION: MW2ATI 0x100252c0
 void SignalStaticObjectTasks(MechS32 p_index)
 {
 	StaticObject* entry;
@@ -807,6 +814,7 @@ void LinkStaticObjectThing(MechS32 p_index, MechS32 p_replacement, MechS32 p_thi
 // FUNCTION: MW2 0x10020292
 // FUNCTION: MW2MATROX 0x100539da
 // FUNCTION: MW23DFX 0x10025180
+// FUNCTION: MW2ATI 0x10025350
 MechS32 DestroyStaticObject(MechS32 p_index)
 {
 	Matrix matrix;
@@ -903,6 +911,7 @@ void DestroyThingObject(GameThing* p_thing)
 // FUNCTION: MW2 0x100204e8
 // FUNCTION: MW2MATROX 0x10053c30
 // FUNCTION: MW23DFX 0x10025310
+// FUNCTION: MW2ATI 0x100254e0
 void PropagateStaticObjectStates(void)
 {
 	GameThing* thing;
@@ -950,6 +959,7 @@ void PropagateStaticObjectStates(void)
 // FUNCTION: MW2 0x10020684
 // FUNCTION: MW2MATROX 0x10053dcd
 // FUNCTION: MW23DFX 0x10025410
+// FUNCTION: MW2ATI 0x100255e0
 MechS32 AreStaticObjectsComplete(void)
 {
 	MechS32 i;
@@ -1115,6 +1125,7 @@ void UnloadStaticObject(MechS32 p_index)
 // FUNCTION: MW2 0x10020bdd
 // FUNCTION: MW2MATROX 0x10054327
 // FUNCTION: MW23DFX 0x10025760
+// FUNCTION: MW2ATI 0x10025930
 struct SceneObject* GetStaticSceneObject(MechS32 p_index)
 {
 	struct SceneObject* result;
@@ -1130,6 +1141,7 @@ struct SceneObject* GetStaticSceneObject(MechS32 p_index)
 // FUNCTION: MW2 0x10020c26
 // FUNCTION: MW2MATROX 0x10054371
 // FUNCTION: MW23DFX 0x10025780
+// FUNCTION: MW2ATI 0x10025950
 Shape* GetStaticObjectShape(MechS32 p_index)
 {
 	Shape* result;
@@ -1377,6 +1389,7 @@ void LoadQuadtreeBoxes(QuadtreeNode* p_node, MechU8* p_data, MechS32 p_size)
 // FUNCTION: MW2 0x10021314
 // FUNCTION: MW2MATROX 0x10054b2f
 // FUNCTION: MW23DFX 0x10025ca0
+// FUNCTION: MW2ATI 0x10025a10
 MechS32 FreeStaticObjectTree(MechU32 p_index)
 {
 	MechS32 result;
@@ -1409,6 +1422,7 @@ MechS32 FreeStaticObjectTree(MechU32 p_index)
 // FUNCTION: MW2 0x100213cf
 // FUNCTION: MW2MATROX 0x10054beb
 // FUNCTION: MW23DFX 0x10025d10
+// FUNCTION: MW2ATI 0x10025a80
 void DestroyObjTreeAndShapes(struct SceneObject* p_obj)
 {
 	ShapeCallback callback;

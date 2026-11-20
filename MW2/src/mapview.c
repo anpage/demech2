@@ -177,6 +177,7 @@ void EndMapView(void)
 // FUNCTION: MW2 0x10042206
 // FUNCTION: MW2MATROX 0x1001e414
 // FUNCTION: MW23DFX 0x10001220
+// FUNCTION: MW2ATI 0x10001220
 MechS32 CullMapViewShape(Shape* p_shape)
 {
 	MechScalar y;

@@ -115,6 +115,7 @@ MechS32 g_paletteResourceIds[20];
 // FUNCTION: MW2 0x100023c0
 // FUNCTION: MW2MATROX 0x1002d560
 // FUNCTION: MW23DFX 0x1002ab20
+// FUNCTION: MW2ATI 0x1002a770
 void InitPanes(PANE* p_target)
 {
 	MechS32 i;
@@ -131,6 +132,7 @@ void InitPanes(PANE* p_target)
 // FUNCTION: MW2 0x1000242f
 // FUNCTION: MW2MATROX 0x1002d5cf
 // FUNCTION: MW23DFX 0x1002ab50
+// FUNCTION: MW2ATI 0x1002a7a0
 void SelectPane(MechS32 p_index)
 {
 	PANE* target;
@@ -255,6 +257,7 @@ void UpdatePaletteFade(void)
 // FUNCTION: MW2 0x10002687
 // FUNCTION: MW2MATROX 0x1002d865
 // FUNCTION: MW23DFX 0x1002ad50
+// FUNCTION: MW2ATI 0x1002a970
 MechS32 StartPaletteFade(MechS32 p_palette, MechS32 p_duration, MechS32 p_mode)
 {
 	MechU8* to;
