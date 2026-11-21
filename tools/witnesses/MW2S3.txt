@@ -30,6 +30,7 @@
 0x10009530 DrawMapIcon cockpit.c pad 4
 0x100096c0 DrawMapTarget cockpit.c pad 9
 0x1000aa90 DrawScenePolygon polydraw.c pad 1
+0x1000b180 FUN_100689f5 polydraw.c pad 5 early int~g_unk0x100aa1d0 16
 0x1000b8f0 FUN_100692db polydraw.c pad 8
 0x1000dc10 RunAutopilot mechdamage.c pad 5
 0x1000dde0 PunchInAutoHeading mechdamage.c pad 1
