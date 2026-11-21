@@ -39,11 +39,12 @@ after the function's own, scope by scope, each scope's in the hash's order (they
 scope), or else, where their names are unique, among the function's own. With more locals than
 buckets, locals share buckets in their order of declaration: as early as it allows first, then the
 other ways it allows, fewest shared buckets first, each compiled until one gives the original.
-Optimized units are searched by padding alone.
+Optimized units are searched by padding alone, and by one global redeclared early.
 
-One global redeclared early (`--early N`, unoptimized units, after the paddings): which side of a
-comparison goes in a register, and which operand of a commutative operation loads first, follows the
-symbols' positions. Padding shifts every global of a unit at once, so a function whose comparisons
+One global redeclared early (`--early N`, after the paddings): which side of a comparison goes in a
+register, and which operand of a commutative operation loads first, follows the symbols' positions;
+in optimized units, so do the ties of register allocation (the S3 edition's FUN_100689f5, whose
+g_unk0x100aa1d0 and vertex pointer swap ebx and edi). Padding shifts every global of a unit at once, so a function whose comparisons
 with two globals need different paddings has no witness by padding. For each global such a function
 names, the unit is compiled with that global redeclared ahead of it (`extern int g_playerCount;`,
 its type spelled in base types and struct tags, since no header is in yet), among up to N typedefs
@@ -877,13 +878,14 @@ class Search:
         with up to --early typedefs before it and after it. Padding shifts every global of a unit at
         once, this one alone, so it reaches the functions whose comparisons with different globals
         need different paddings. The globals in the operand-order rewrites tools/audit.py finds come
-        first. Unoptimized units only."""
+        first. In an optimized unit a variant counts only where the function is byte-identical (no
+        renaming)."""
         table = Globals(self.target_name)
         limit = self.args.early
         queues = {}  # unit name -> [(the globals moved, job's early)], the nearest first
         names = {}
         for unit_name, entries in pending.items():
-            if not entries or optimized(by_name[unit_name]):
+            if not entries:
                 continue
             unit = by_name[unit_name]
             flipped = self.flipped_globals(unit, base[unit_name], entries)
