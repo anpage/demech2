@@ -331,7 +331,7 @@ void InitializeManeuvers(Player* p_player)
 		p_player->m_piloting = 1;
 	}
 
-#ifdef MW2_3DFX
+#ifdef MW2_CONDITIONAL_EXPRESSIONS
 	p_player->m_skillFlag0 = p_player->m_piloting <= 3;
 #else
 	if (p_player->m_piloting <= 3) {
@@ -342,7 +342,7 @@ void InitializeManeuvers(Player* p_player)
 	}
 #endif
 
-#ifdef MW2_3DFX
+#ifdef MW2_CONDITIONAL_EXPRESSIONS
 	p_player->m_skillFlag1 = p_player->m_piloting <= 3;
 #else
 	if (p_player->m_piloting <= 3) {
@@ -353,7 +353,7 @@ void InitializeManeuvers(Player* p_player)
 	}
 #endif
 
-#ifdef MW2_3DFX
+#ifdef MW2_CONDITIONAL_EXPRESSIONS
 	p_player->m_skillFlag2 = p_player->m_piloting <= 2;
 #else
 	if (p_player->m_piloting <= 2) {
@@ -371,7 +371,7 @@ void InitializeManeuvers(Player* p_player)
 		p_player->m_skillFlag3 = 0;
 	}
 
-#ifdef MW2_3DFX
+#ifdef MW2_CONDITIONAL_EXPRESSIONS
 	p_player->m_skillFlag4 = p_player->m_piloting <= 4;
 #else
 	if (p_player->m_piloting <= 4) {
@@ -389,7 +389,7 @@ void InitializeManeuvers(Player* p_player)
 		p_player->m_skillFlag5 = 0;
 	}
 
-#ifdef MW2_3DFX
+#ifdef MW2_CONDITIONAL_EXPRESSIONS
 	p_player->m_skillFlag6 = p_player->m_piloting <= 5;
 #else
 	if (p_player->m_piloting <= 5) {
@@ -2069,13 +2069,13 @@ void DodgeShot(WeaponSlot* p_slot, Mech* p_mech)
 {
 	MechScalar maxAngle;
 	MechS32 index;
-#ifndef MW2_3DFX
+#ifndef MW2_BLOCK_SCOPED_LOCALS
 	MechScalar pitch;
 #endif
 	MechS32 kind;
 	Player* target;
 	MechU32 id;
-#ifndef MW2_3DFX
+#ifndef MW2_BLOCK_SCOPED_LOCALS
 	MechScalar bearing;
 #endif
 	MechScalar x;
@@ -2084,14 +2084,14 @@ void DodgeShot(WeaponSlot* p_slot, Mech* p_mech)
 	MechS32 sx;
 	MechScalar z;
 	MechS32 sy;
-#ifndef MW2_3DFX
+#ifndef MW2_BLOCK_SCOPED_LOCALS
 	Shape* hit;
 #endif
 	MechScalar heading;
 	MechS16 step;
 	MechS16 j;
 	MechS16 side;
-#ifndef MW2_3DFX
+#ifndef MW2_BLOCK_SCOPED_LOCALS
 	Ray ray;
 #endif
 
@@ -2130,9 +2130,9 @@ void DodgeShot(WeaponSlot* p_slot, Mech* p_mech)
 		y = g_players[index]->m_position.m_y;
 		z = g_players[index]->m_position.m_z;
 		if (ProjectWorldPoint(&x, &y, &z)) {
-#ifdef MW2_3DFX
-			// The 3Dfx edition declares the angles here and the probe ray in the dodge's block, where
-			// its locals share their slots.
+#ifdef MW2_BLOCK_SCOPED_LOCALS
+			// The ATI, S3, PowerVR and 3Dfx editions declare the angles here and the probe ray in the
+			// dodge's block, where their locals share their slots.
 			MechScalar pitch;
 			MechScalar bearing;
 
@@ -2153,13 +2153,13 @@ void DodgeShot(WeaponSlot* p_slot, Mech* p_mech)
 
 	if (target && CanJump(target, 0x41)) {
 		if (RandomIntBelow(3)) {
-#ifdef MW2_3DFX
+#ifdef MW2_DODGE_SIDE_FIRST
 			Shape* hit;
 			Ray ray;
 
 #endif
 			heading = GetHeadingTo(target, p_mech->m_player->m_index);
-#if defined(MW2_FLOAT_SCALARS) && !defined(MW2_3DFX)
+#if defined(MW2_FLOAT_SCALARS) && !defined(MW2_DODGE_SIDE_FIRST)
 			step = heading / 90;
 #elif !defined(MW2_FLOAT_SCALARS)
 			step = FixedDiv16(heading, 0x5a0000) >> 16;
@@ -2171,8 +2171,8 @@ void DodgeShot(WeaponSlot* p_slot, Mech* p_mech)
 				side = 1;
 			}
 
-#ifdef MW2_3DFX
-			// The 3Dfx edition picks the side before it divides the heading.
+#ifdef MW2_DODGE_SIDE_FIRST
+			// The ATI, S3, PowerVR and 3Dfx editions pick the side before they divide the heading.
 			step = heading / 90;
 #endif
 

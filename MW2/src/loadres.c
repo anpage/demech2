@@ -380,7 +380,7 @@ void* LoadCachedResource(MechS32 p_file, MechS32 p_id, const char* p_type, undef
 	FILE* file;
 	MechChar message[100];
 	FILE* file2;
-#ifndef MW2_3DFX
+#ifndef MW2_ONE_RESOURCE_MESSAGE
 	MechChar message2[100];
 #endif
 
@@ -448,8 +448,7 @@ void* LoadCachedResource(MechS32 p_file, MechS32 p_id, const char* p_type, undef
 
 		Error(0x20, "Non-existant resource (type: %s  id: %i)\n", p_type, p_id);
 		if (g_missionTimerStopped) {
-#ifdef MW2_3DFX
-			// The 3Dfx edition formats both messages in one buffer.
+#ifdef MW2_ONE_RESOURCE_MESSAGE
 			sprintf(message, "Non-existant resource (type: %s  id: %i)\n", p_type, p_id);
 			ShowInGameMessage(message, 1, 0x712, 100);
 #else
@@ -494,6 +493,7 @@ void FreeCachedResource(MechS32 p_id, const char* p_type)
 // FUNCTION: MW2 0x1001a521
 // FUNCTION: MW2MATROX 0x100562c0
 // FUNCTION: MW23DFX 0x10024690
+// FUNCTION: MW2S3 0x10002b70
 void FUN_1001a521(undefined4 p_unk0x00)
 {
 }

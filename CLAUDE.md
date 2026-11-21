@@ -81,7 +81,7 @@ reccmp-reccmp --target MECH2 --silent --nolib --total 21
 reccmp-reccmp --target MW2MATROX --silent --nolib --total 1597
 reccmp-reccmp --target MW23DFX --silent --nolib --total 1574
 reccmp-reccmp --target MW2ATI --silent --nolib --total 1427
-reccmp-reccmp --target MW2S3 --silent --nolib --total 1393
+reccmp-reccmp --target MW2S3 --silent --nolib --total 1396
 reccmp-reccmp --target MW2POWERVR --silent --nolib --total 1423
 
 # Compare global variable data values
@@ -606,7 +606,7 @@ The S3 ViRGE edition (`MW2_S3.DLL`, linked 1996-07-12) and the PowerVR edition (
 - **The S3 edition** draws through S3's toolkit (`MW2/src/s3/a3d.c`, over `3rdparty/s3dtk`, checked against the toolkit's `S3DTK.H` of 1997): the ATI renderer's design (cached states, triangle fans, textures in DirectDraw surfaces with LRU reuse), its vertex the toolkit's `S3DTK_VERTEX_TEX`, its other calls through the renderer's function list. It links VFXA and the 16-bit port but neither VFX3D nor VFXREND (`MW2_NO_VFXREND`); its `directdraw.c` hands each unlocked frame to the renderer, and `ResetTicks` pops in its save order (`ticks.asm`). Its client code places polygons at the pane's origin with byte colours (`g_a3dPalette`), a layer of its own in `polydraw.c`, `cockpit.c` and `animation.c`. `bandtexture.c` is its copy of the ATI edition's textured-polygon drawer, which opens `palette.c`'s object: including a fragment of `bandpoly.c` instead changed `DrawBand` in the 2.2 editions (next item).
 - **The PowerVR edition** draws through VideoLogic's SGL scene graph (`MW2/src/powervr/a3d.c`, over `3rdparty/sgl`): the models are SGL meshes, the objects SGL lists with transforms, the animation frames cached textures, in three views (the 3D view and two cockpit panels' insets). SGL owns DirectDraw (`directdraw.c` has no surfaces of its own) and calls the game back with the locked frame, where `FUN_10007db0` (`simmain.c`) draws the cockpit, the menus and the overlays. Its graphics page has fog and smooth shading; the PowerVR members of `Animation`, `AnimFrame`, `SceneObject`, `Shape` and `Model` hold the SGL objects.
 - **Annotations** were ported by bytes from the ATI and 3Dfx originals, the C runtime from the rebuilds (`tools/port_annotations.py --rebuild`), the rest paired with `tools/edition.py --target MW2S3` / `MW2POWERVR`. The cautions of the ATI edition's port apply.
-- **Checks:** `tools/check_units.py` and `tools/check_imports.py` pass for both; their links drop unreferenced functions (`/OPT:REF`), as the ATI edition's do. So a function the original calls but the source doesn't call yet is left out of the link, and reccmp reports it missing: the S3 edition's own sky and ground (its `DrawSkyAndGround` and `FUN_100692db`, which compile the ATI edition's code so far) are what call `FUN_1000bcc0`, `FUN_1001e300` and `FUN_10010470`.
+- **Checks:** `tools/check_units.py` and `tools/check_imports.py` pass for both; their links drop unreferenced functions (`/OPT:REF`), as the ATI edition's do. So a function the original calls but the source doesn't call yet is left out of the link, and reccmp reports it missing ("Failed to find function symbol"): the caller's source isn't the edition's yet.
 
 ## Ghidra ↔ Source
 

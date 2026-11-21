@@ -7,6 +7,10 @@
 
 #include <stddef.h>
 
+#ifdef MW2_POWERVR
+#include "accel/a3d.h"
+#endif
+
 DECOMP_SIZE_ASSERT(ShapeListHead, 0x18)
 
 // The shape lists, each a ShapeListHead posing as a shape: the scene's shapes (drawn; its head
@@ -241,6 +245,11 @@ void HideShape(Shape* p_shape)
 
 	UnlinkShape(p_shape);
 	LinkShape(p_shape, (Shape*) &g_hiddenShapeHead);
+#ifdef MW2_POWERVR
+	if (FUN_10062960(p_shape)) {
+		FUN_1005f3f0(p_shape->m_list);
+	}
+#endif
 }
 
 // FUNCTION: MW2 0x1006daa0
@@ -266,6 +275,11 @@ void ShowShape(Shape* p_shape)
 
 	UnlinkShape(p_shape);
 	LinkShape(p_shape, (Shape*) &g_sceneShapeHead);
+#ifdef MW2_POWERVR
+	if (FUN_10062960(p_shape)) {
+		FUN_1005f450(p_shape->m_list);
+	}
+#endif
 }
 
 // Frees the shapes of all three lists.

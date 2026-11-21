@@ -32,6 +32,9 @@
 #endif
 
 #ifdef MW2_POWERVR
+// The renderer is open (powervr/a3d.c): LoadClassEntryShape converts the shapes it loads then.
+extern MechS32 g_a3dInitialized;
+
 DECOMP_SIZE_ASSERT(ClassEntry, 0x58)
 #else
 DECOMP_SIZE_ASSERT(ClassEntry, 0x44)
@@ -341,18 +344,46 @@ MechS32 LoadClassEntryShape(MechS32 p_index, MechS32 p_level, void* p_buffer)
 	struct SceneObject* obj;
 	MechS32 placed;
 	Shape* shape;
+#ifdef MW2_POWERVR
+	MechS32* list;
+#endif
 
 	size = 0;
 	offset = 0;
 	flags = 0;
 	entry = &g_classTable[p_index];
+#if defined(MW2_POWERVR)
+	// The renderer keeps each level's list: a level converted before is shown again.
+	if (entry->m_released || (entry->m_loadedLevel == p_level && entry->m_lists[p_level] > 0)) {
+		return TRUE;
+	}
+#elif defined(MW2_SKIP_LOADED_LEVEL_WITH_RELEASED)
+	if (entry->m_released || entry->m_loadedLevel == p_level) {
+		return TRUE;
+	}
+#else
 	if (entry->m_released) {
 		return TRUE;
 	}
+#endif
 
 #ifdef MW2_SKIP_LOADED_LEVEL
 	if (entry->m_loadedLevel == p_level) {
 		return TRUE;
+	}
+#endif
+#ifdef MW2_POWERVR
+	if (entry->m_loadedLevel >= 0 && entry->m_lists[entry->m_loadedLevel] > 0) {
+		FUN_1005f3f0(entry->m_lists[entry->m_loadedLevel]);
+	}
+
+	list = &entry->m_lists[p_level];
+	if (*list > 0) {
+		FUN_1005f450(*list);
+		entry->m_loadedLevel = p_level;
+		if (entry->m_shape) {
+			return TRUE;
+		}
 	}
 #endif
 
@@ -361,7 +392,11 @@ MechS32 LoadClassEntryShape(MechS32 p_index, MechS32 p_level, void* p_buffer)
 			return TRUE;
 		}
 
+#ifdef MW2_POWERVR
+		flags = GetShapeState(entry->m_shape) & ~0x2000;
+#else
 		flags = GetShapeState(entry->m_shape);
+#endif
 		DestroyObjShape(entry->m_shape);
 		entry->m_shape = NULL;
 	}
@@ -427,6 +462,21 @@ MechS32 LoadClassEntryShape(MechS32 p_index, MechS32 p_level, void* p_buffer)
 		SetShapeOwner(entry->m_shape, entry->m_owner);
 		SetShapePartId(entry->m_shape, entry->m_partId);
 		AddSceneShape(entry->m_shape);
+#ifdef MW2_POWERVR
+		if (g_a3dInitialized) {
+			if (*list == -1) {
+				FUN_10062160(entry->m_shape, -1);
+				if (FUN_10062960(entry->m_shape)) {
+					*list = entry->m_shape->m_list;
+				}
+
+				entry->m_shape->m_list = -1;
+			}
+
+			FUN_10061750(entry->m_shape);
+		}
+
+#endif
 		if (kind == 0x70) {
 			HideShape(entry->m_shape);
 			DisableShapeCollision(entry->m_shape);

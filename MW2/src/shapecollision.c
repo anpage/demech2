@@ -5,6 +5,9 @@
 #include "decomp.h"
 #include "face.h"
 #include "fixedfloat.h"
+#ifdef MW2_COLLISION_TRANSFORMS_MODELS
+#include "object.h"
+#endif
 #include "quadtree.h"
 #include "ray.h"
 #include "shape.h"
@@ -266,6 +269,11 @@ MechS32 TestPointUnderFloor(Shape* p_shape, MechScalar p_x, MechScalar p_y, Mech
 
 	i = 0;
 	done = FALSE;
+#ifdef MW2_COLLISION_TRANSFORMS_MODELS
+	if (p_shape->m_transformCount != p_shape->m_model->m_transformCount) {
+		TransformShapeModel(p_shape);
+	}
+#endif
 	while (!done) {
 		face = (Face*) ((MechU8*) p_shape->m_model + p_shape->m_model->m_faceOffset) + i;
 		if (face->m_normal[1] > 0 && IsPointInFaceXZ(face, (Vertex*) (p_shape->m_model + 1), p_x, p_z)) {
@@ -347,6 +355,11 @@ MechS32 TestPointAboveFaces(Shape* p_shape, MechScalar p_x, MechScalar p_y, Mech
 
 	i = 0;
 	done = FALSE;
+#ifdef MW2_COLLISION_TRANSFORMS_MODELS
+	if (p_shape->m_transformCount != p_shape->m_model->m_transformCount) {
+		TransformShapeModel(p_shape);
+	}
+#endif
 	vertices = (Vertex*) (p_shape->m_model + 1);
 	while (!done) {
 		face = (Face*) ((MechU8*) p_shape->m_model + p_shape->m_model->m_faceOffset) + i;
@@ -411,6 +424,12 @@ MechS32 TestRayFaces(Shape* p_shape, Ray* p_ray)
 		return 0;
 	}
 
+#ifdef MW2_COLLISION_TRANSFORMS_MODELS
+	if (p_shape->m_transformCount != model->m_transformCount) {
+		TransformShapeModel(p_shape);
+	}
+
+#endif
 	vertices = (Vertex*) (model + 1);
 	for (i = 0; i < model->m_faceCount; i++) {
 		face = (Face*) ((MechU8*) model + model->m_faceOffset) + i;

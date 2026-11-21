@@ -191,6 +191,8 @@ typedef char MechChar;
 #define MW2_DEPTH_ENTRY_TAG
 /* 640x400: SimMain sets it instead of SetGameResolution, and the art follows */
 #define MW2_RES_640X400
+/* ChooseArtResolution takes art resolution 1 for a 512x384 window */
+#define MW2_ART_RESOLUTION_512X384
 /* LoadClassLevel records the player's detail level itself */
 #define MW2_DETAIL_LEVEL_IN_LOADER
 /* LoadClassEntryShape returns early when the entry is loaded at the level */
@@ -212,6 +214,12 @@ typedef char MechChar;
 #endif
 
 #ifdef MW2_3DFX
+/* ProjectVertex projects y after it tests x against the view's sides */
+#define MW2_PROJECT_Y_AFTER_X
+/* InitSlopeTables computes each slope once, for its cosine and its sine */
+#define MW2_SLOPE_ONCE
+/* HorizonYAtX keeps the horizon's y a float, converting it to an integer only for the return */
+#define MW2_HORIZON_FLOAT_Y
 /* SimMain reads the sky and ground settings (LoadSkyGroundSettings) just before FirstClock */
 #define MW2_SKY_SETTINGS_BEFORE_CLOCK
 /* SimMain reads the render settings (FUN_1008fad0) just before FirstClock */
@@ -257,7 +265,24 @@ typedef char MechChar;
 /* Artefact: the edition's headers define FixedMul16, FixedDiv16, MulDiv64, HashName and DebugBreakpoint
    __inline (its /Ox expands them in every caller), and MemCopy and MemSet are C */
 #define MW2_INLINE_HELPERS
-/* The debug log's own formats (the sky's colours on one line, the armor and the jump thrust as %f) */
+/* Artefact: the edition's source declares some of UpdateMech's, LateUpdateMech's, DodgeShot's and the HUD
+   brackets' locals in the blocks that use them, where VC++ 2.2 and 4.1 let them share the frame (1.1's and
+   the Matrox edition's declare them at the top) */
+#define MW2_BLOCK_SCOPED_LOCALS
+/* UpdateMech's air drag divides by the length once, then scales both axes by it */
+#define MW2_DRAG_DIVIDED_ONCE
+/* Artefact: LateUpdateMech's torso recentring records the heading without testing isLocal again (it
+   holds there) */
+#define MW2_RECENTER_NO_RETEST
+/* Artefact: DodgeShot picks the side before it divides the heading */
+#define MW2_DODGE_SIDE_FIRST
+/* Artefact: MoveMechWithCollisions sums the bounce's dot product in three statements and negates the
+   speed before it quarters it (2.2 and 4.1 then keep each term's doubling and fold the sign) */
+#define MW2_BOUNCE_DOT_STATEMENTS
+/* Artefact: the edition's source reads an AI target id's two bytes themselves
+   (missionobjective.h's OBJECTIVE_TARGET_KIND), where 1.1's and the Matrox edition's shift the word */
+#define MW2_OBJECTIVE_TARGET_BYTES
+/* The debug log prints the sky's and the ground's colours on one line */
 #define MW2_DEBUG_LOG_FORMATS
 /* ProjectPolygon clips to the near plane itself, as 1.1's QueueFace does, not through the renderer */
 #define MW2_PROJECT_NEAR_CLIP
@@ -269,9 +294,42 @@ typedef char MechChar;
 /* The textures are the animations' frames as they are, 16-bit texels (FUN_10051dfe), and their
    average colors are computed from them */
 #define MW2_FRAME_TEXELS
+/* Artefact: RestoreBrightness passes the brightness to PreviewBrightness through its store */
+#define MW2_BRIGHTNESS_STORE_CHAINED
+/* Artefact: the edition's source writes some flags and choices as expressions (`m_up = angle <= 180`,
+   `x = c ? a : b`) where 1.1's and the Matrox edition's /Od code shows if and else (GetRectNeedleAt,
+   HandleDebugKey, InitializeManeuvers' skill flags, ReelMotionTask's jump flag) */
+#define MW2_CONDITIONAL_EXPRESSIONS
+/* HideCacheInfo blanks its line without sprintf's two stray arguments */
+#define MW2_HIDE_CACHE_INFO_NO_ARGS
+/* Artefact: LoadCachedResource formats both of its messages in one buffer */
+#define MW2_ONE_RESOURCE_MESSAGE
+/* Artefact: RunAIWeapons scales the torso tilt by -0xf00, where the others negate the product */
+#define MW2_TILT_NEGATIVE_FACTOR
+/* LoadMechConfig logs the armor and the jump thrust as %f */
+#define MW2_MEK_LOG_FLOATS
+/* Artefact: UpdateShot assigns the ground's height inside its comparison */
+#define MW2_GROUND_HEIGHT_IN_TEST
 #endif
 
 #ifdef MW2_ATI
+/* DrawSkyAndGround goes through the horizon's cases when it draws neither the sky nor the ground */
+#define MW2_SKY_GROUND_ALL_CASES
+/* DrawSkyAndGround sets the sky and ground palette entries */
+#define MW2_SKY_GROUND_COLORS
+/* QueueFace copies the face's normal into locals for its backface test, summing the z term first */
+#define MW2_QUEUEFACE_NORMAL_LOCALS
+/* ProjectVertex projects y after it tests x against the view's sides */
+#define MW2_PROJECT_Y_AFTER_X
+/* The wireframe outline clears flag bits 12, 14 and 15 */
+#define MW2_OUTLINE_CLEARS_FLAGS
+/* InitSlopeTables computes each slope once, for its cosine and its sine */
+#define MW2_SLOPE_ONCE
+/* HorizonYAtX keeps the horizon's y a float, converting it to an integer only for the return */
+#define MW2_HORIZON_FLOAT_Y
+/* VFX3D's VFX_flat_polygon fills its spans with the destination aligned, as 1.1's modified VFX does,
+   where its other routines are VFX as released (the assembly gets it from cmake/editions.cmake) */
+#define MW2_VFX3D_ALIGNED_FILL
 /* JoystickOpenDevice probes with joyGetPosEx alone, on an uncleared JOYINFOEX */
 #define MW2_JOYSTICK_OPEN_POSEX
 /* The 16-bit pixels and the palette: RGB555 */
@@ -296,6 +354,21 @@ typedef char MechChar;
 /* Artefact: the edition's headers define FixedMul16, FixedDiv16, MulDiv64, HashName and DebugBreakpoint
    __inline (its /Ox expands them in every caller), and MemCopy and MemSet are C */
 #define MW2_INLINE_HELPERS
+/* Artefact: the edition's source declares some of UpdateMech's, LateUpdateMech's, DodgeShot's and the HUD
+   brackets' locals in the blocks that use them, where VC++ 2.2 and 4.1 let them share the frame (1.1's and
+   the Matrox edition's declare them at the top) */
+#define MW2_BLOCK_SCOPED_LOCALS
+/* Artefact: LateUpdateMech's torso recentring records the heading without testing isLocal again (it
+   holds there) */
+#define MW2_RECENTER_NO_RETEST
+/* Artefact: DodgeShot picks the side before it divides the heading */
+#define MW2_DODGE_SIDE_FIRST
+/* Artefact: MoveMechWithCollisions sums the bounce's dot product in three statements and negates the
+   speed before it quarters it (2.2 and 4.1 then keep each term's doubling and fold the sign) */
+#define MW2_BOUNCE_DOT_STATEMENTS
+/* Artefact: the edition's source reads an AI target id's two bytes themselves
+   (missionobjective.h's OBJECTIVE_TARGET_KIND), where 1.1's and the Matrox edition's shift the word */
+#define MW2_OBJECTIVE_TARGET_BYTES
 /* The polygon drawers clip to the pane's edges themselves (FUN_10067b90), and the outline is closed */
 #define MW2_CLIP_TO_PANE_EDGES
 /* The textures are the animations' frames as they are, 16-bit texels (FUN_10051dfe), and their
@@ -303,12 +376,64 @@ typedef char MechChar;
 #define MW2_FRAME_TEXELS
 /* VESA480.DLL is 512x384 when DirectDraw has the mode in 16 bits (FUN_100059b0), 640x480 otherwise */
 #define MW2_RES_512X384
+/* ChooseArtResolution takes art resolution 1 for a 512x384 window */
+#define MW2_ART_RESOLUTION_512X384
+/* Key 0x3e asks for power down in power state 7 too, where 1.1 ignores it */
+#define MW2_NO_STATE_7_POWER_TEST
 /* DdrawPaletteFade computes the fade's steps into g_paletteColors without setting DirectDraw's
    palette */
 #define MW2_FADE_STEPS_ONLY
+/* Artefact: RestoreBrightness passes the brightness to PreviewBrightness through its store */
+#define MW2_BRIGHTNESS_STORE_CHAINED
+/* The DirectDraw back end's palette writes record the colors and compute the entries, but set no
+   DirectDraw palette (the display is 16-bit) */
+#define MW2_DDRAW_PALETTE_UNSET
+/* DdrawInit sets a 16-bit display mode */
+#define MW2_DDRAW_MODE_16BIT
+/* DdrawInit clears the frame with DdrawFill(0, 0, width, height), not to width - 1 and height - 1 */
+#define MW2_DDRAW_FILL_SIZE
+/* Artefact: DdrawInit's DDCAPS is DirectX 1's, 0xac bytes (the edition was built with DirectX 1's headers) */
+#define MW2_DDRAW_CAPS_DX1
+/* DdrawCreateSurfaces sets no DDSD_CAPS in its surface descriptions */
+#define MW2_DDRAW_NO_CAPS_FLAG
+/* DdrawCreateSurfaces makes the primary surface of the larger modes only the second way: with one back
+   buffer when it flips, without video memory in refresh mode 3, and not at all in mode 2 */
+#define MW2_DDRAW_FALLBACK_SURFACES_ONLY
+/* Artefact: the edition's source writes some flags and choices as expressions (`m_up = angle <= 180`,
+   `x = c ? a : b`) where 1.1's and the Matrox edition's /Od code shows if and else (GetRectNeedleAt,
+   HandleDebugKey, InitializeManeuvers' skill flags, ReelMotionTask's jump flag) */
+#define MW2_CONDITIONAL_EXPRESSIONS
+/* HideCacheInfo blanks its line without sprintf's two stray arguments */
+#define MW2_HIDE_CACHE_INFO_NO_ARGS
+/* FindSession and StopExternalIO return 0 where the others fall off the end */
+#define MW2_NET_RETURN_ZERO
+/* NetSend and NetReceive log nothing */
+#define MW2_NO_NET_DEBUG_PRINTS
+/* Artefact: LoadCachedResource formats both of its messages in one buffer */
+#define MW2_ONE_RESOURCE_MESSAGE
+/* Artefact: RunAIWeapons scales the torso tilt by -0xf00, where the others negate the product */
+#define MW2_TILT_NEGATIVE_FACTOR
+/* No hit feedback for the local player while its flag 2 is set */
+#define MW2_HIT_FEEDBACK_FLAG_CHECK
+/* LoadMechConfig logs the armor and the jump thrust as %f */
+#define MW2_MEK_LOG_FLOATS
+/* The debug log prints the sky's and the ground's colours on one line */
+#define MW2_DEBUG_LOG_FORMATS
+/* Artefact: UpdateShot assigns the ground's height inside its comparison */
+#define MW2_GROUND_HEIGHT_IN_TEST
 #endif
 
 #ifdef MW2_S3
+/* QueueFace copies the face's normal into locals for its backface test, summing the z term first */
+#define MW2_QUEUEFACE_NORMAL_LOCALS
+/* ProjectPolygon leaves no points, at once, when every vertex is nearer than the near plane */
+#define MW2_PROJECT_ALL_NEAR_EMPTY
+/* ProjectVertex projects y after it tests x against the view's sides */
+#define MW2_PROJECT_Y_AFTER_X
+/* InitSlopeTables computes each slope once, for its cosine and its sine */
+#define MW2_SLOPE_ONCE
+/* HorizonYAtX keeps the horizon's y a float, converting it to an integer only for the return */
+#define MW2_HORIZON_FLOAT_Y
 /* The S3 edition starts with the ATI edition's features but its back end's, until its binary
    settles each one. */
 /* JoystickOpenDevice's probe sets its JOYINFOEX's size without clearing it */
@@ -317,8 +442,8 @@ typedef char MechChar;
 #define MW2_SKY_SETTINGS_BEFORE_CLOCK
 /* SimMain reads the render settings (FUN_1008fad0) once the refresh mode is set */
 #define MW2_RENDER_SETTINGS_AFTER_MODES
-/* DrawTriangle, DrawQuad and DrawPentagon draw through the palette polygon (FUN_1000d960), not
-   g_renderSettings' drawer */
+/* DrawTriangle, DrawQuad and DrawPentagon draw through the palette polygon (FUN_1000d960), clipped to
+   the pane's four edges, not g_renderSettings' drawer */
 #define MW2_SHAPES_PALETTE_POLYGON
 /* SimMain releases the DC it tests for StartSupAnim */
 #define MW2_SUPANIM_DC_RELEASED
@@ -340,6 +465,20 @@ typedef char MechChar;
 /* Artefact: the edition's headers define FixedMul16, FixedDiv16, MulDiv64, HashName and DebugBreakpoint
    __inline (its /Ox expands them in every caller), and MemCopy and MemSet are C */
 #define MW2_INLINE_HELPERS
+/* Artefact: the edition's source declares some of UpdateMech's, LateUpdateMech's, DodgeShot's and the HUD
+   brackets' locals in the blocks that use them, where VC++ 2.2 and 4.1 let them share the frame (1.1's and
+   the Matrox edition's declare them at the top) */
+#define MW2_BLOCK_SCOPED_LOCALS
+/* UpdateMech's air drag divides by the length once, then scales both axes by it */
+#define MW2_DRAG_DIVIDED_ONCE
+/* Artefact: DodgeShot picks the side before it divides the heading */
+#define MW2_DODGE_SIDE_FIRST
+/* Artefact: MoveMechWithCollisions sums the bounce's dot product in three statements and negates the
+   speed before it quarters it (2.2 and 4.1 then keep each term's doubling and fold the sign) */
+#define MW2_BOUNCE_DOT_STATEMENTS
+/* Artefact: the edition's source reads an AI target id's two bytes themselves
+   (missionobjective.h's OBJECTIVE_TARGET_KIND), where 1.1's and the Matrox edition's shift the word */
+#define MW2_OBJECTIVE_TARGET_BYTES
 /* The polygon drawers clip to the pane's edges themselves (FUN_10067b90), and the outline is closed */
 #define MW2_CLIP_TO_PANE_EDGES
 /* The textures are the animations' frames as they are, 16-bit texels (FUN_10051dfe), and their
@@ -349,15 +488,93 @@ typedef char MechChar;
 #define MW2_TEXTURE_FILTER
 /* The graphics page lists the texture filter, third */
 #define MW2_TEXTURE_FILTER_ITEM
+/* LoadClassEntryShape returns early when the entry is loaded at the level, in the test of a released
+   entry (||) */
+#define MW2_SKIP_LOADED_LEVEL_WITH_RELEASED
+/* Artefact: ApplyCollisionDamage's damage times the masses' ratio isn't grouped (the edition divides the
+   masses first) */
+#define MW2_COLLISION_DAMAGE_UNGROUPED
+/* The grid object is never shown: SetGridObject clears its set and shown flags once it has hidden it,
+   and ShowGridObject only hides it */
+#define MW2_GRID_OBJECT_HIDDEN
 /* VFX3D and VFXREND, VFX's polygon fillers and renderer, aren't linked: the A3D renderer draws every
    polygon, and FirstRender has no code block to make writable */
 #define MW2_NO_VFXREND
+/* ChooseArtResolution takes the first size whose width reaches the window's, and records the last
+   before it that fits inside the window */
+#define MW2_ART_RESOLUTION_FIT
 /* DdrawPaletteFade computes the fade's steps into g_paletteColors without setting DirectDraw's
    palette */
 #define MW2_FADE_STEPS_ONLY
+/* Artefact: RestoreBrightness passes the brightness to PreviewBrightness through its store */
+#define MW2_BRIGHTNESS_STORE_CHAINED
+/* The DirectDraw back end's palette writes record the colors and compute the entries, but set no
+   DirectDraw palette (the display is 16-bit) */
+#define MW2_DDRAW_PALETTE_UNSET
+/* DdrawBlit's BltFast doesn't wait for the blitter (DDBLTFAST_NOCOLORKEY, not DDBLTFAST_WAIT) */
+#define MW2_BLIT_NO_WAIT
+/* DdrawInit sets a 16-bit display mode */
+#define MW2_DDRAW_MODE_16BIT
+/* DdrawInit clears the frame with DdrawFill(0, 0, width, height), not to width - 1 and height - 1 */
+#define MW2_DDRAW_FILL_SIZE
+/* ResetTicks restores ebx and ecx in the order it saved them (ticks.asm), where the others swap them */
+#define MW2_RESET_TICKS_SAVE_ORDER
+/* Artefact: the edition's source writes some flags and choices as expressions (`m_up = angle <= 180`,
+   `x = c ? a : b`) where 1.1's and the Matrox edition's /Od code shows if and else (GetRectNeedleAt,
+   HandleDebugKey, InitializeManeuvers' skill flags, ReelMotionTask's jump flag) */
+#define MW2_CONDITIONAL_EXPRESSIONS
+/* HideCacheInfo blanks its line without sprintf's two stray arguments */
+#define MW2_HIDE_CACHE_INFO_NO_ARGS
+/* An animation frame's average color is its texels' mean components times 8, less 12 (FUN_100519b0) */
+#define MW2_DARKER_AVERAGE_COLORS
+/* The satellite view clips its polygons and bands to all four pane edges (SatelliteDrawPolygon) */
+#define MW2_SATELLITE_CLIP_ALL_EDGES
+/* The wireframe outline clears flag bits 12, 14 and 15 */
+#define MW2_OUTLINE_CLEARS_FLAGS
+/* DrawQueuedPolygon flushes the renderer (FUN_10069591) between a wireframe polygon's fill and its
+   outline */
+#define MW2_OUTLINE_FLUSH
+/* DrawQueuedPolygon passes 0xff for a filled polygon's edges, not 0xf */
+#define MW2_QUEUED_POLYGON_EDGES_0XFF
+/* DrawScenePolygon's lit polygons (0x1000) set only bit 3 of their color's shade (| 8), not all four
+   (| 0xf): the middle of the color's ramp, which the light then scales */
+#define MW2_LIT_POLYGON_SHADE_BIT3
+/* FindSession and StopExternalIO return 0 where the others fall off the end */
+#define MW2_NET_RETURN_ZERO
+/* NetSend and NetReceive log nothing */
+#define MW2_NO_NET_DEBUG_PRINTS
+/* Artefact: LoadCachedResource formats both of its messages in one buffer */
+#define MW2_ONE_RESOURCE_MESSAGE
+/* Artefact: RunAIWeapons scales the torso tilt by -0xf00, where the others negate the product */
+#define MW2_TILT_NEGATIVE_FACTOR
+/* No hit feedback for the local player while its flag 2 is set */
+#define MW2_HIT_FEEDBACK_FLAG_CHECK
+/* LoadMechConfig logs the armor and the jump thrust as %f */
+#define MW2_MEK_LOG_FLOATS
+/* A weapon recycles at once while bit 1 of the unlimited ammo setting is set (the "flag" cheat's 3) */
+#define MW2_CHEAT_RECYCLE
+/* A held weapon is released at once while bit 1 of the unlimited ammo setting is set */
+#define MW2_CHEAT_RECYCLE_HELD
+/* Artefact: UpdateShot assigns the ground's height inside its comparison */
+#define MW2_GROUND_HEIGHT_IN_TEST
+/* FirstEnvironment starts the day at a phase's time for phases 1 to 3 only (0 keeps the time it has) */
+#define MW2_TIME_OF_DAY_PHASES_1_TO_3
+/* SimMain fills the frame with the ground's colour lit by the renderer's light (g_unk0x10184700) once
+   the go state has bit 2, textured ground or not */
+#define MW2_LIT_GROUND_FILL
+/* SimMain releases the DC it tests the palette through */
+#define MW2_PALETTE_DC_RELEASED
+/* SimMain doesn't call A3D_shutdown after its last Blit */
+#define MW2_NO_SIMMAIN_A3D_SHUTDOWN
+/* The "flag" cheat ("Flag's Invincible!"): invulnerable, unlimited ammo, no heat, jets and their fuel */
+#define MW2_FLAG_CHEAT
+/* Key 0x3d is key 0x3e's case: neither asks for power down in power state 7 */
+#define MW2_POWER_KEYS_ONE_CASE
 #endif
 
 #ifdef MW2_POWERVR
+/* InitSlopeTables computes each slope once, for its cosine and its sine */
+#define MW2_SLOPE_ONCE
 /* The PowerVR edition starts with the ATI edition's features but its back end's, until its binary
    settles each one. */
 /* The 16-bit pixels and the palette: RGB555 */
@@ -367,6 +584,9 @@ typedef char MechChar;
 /* The sky and ground drawers clip the polygon to the pane themselves: their callers draw it even
    when ProjectPolygon leaves no points */
 #define MW2_SKY_GROUND_CLIPPED_HELPERS
+/* VFX3D's VFX_flat_polygon fills its spans with the destination aligned, as 1.1's modified VFX does,
+   where its other routines are VFX as released (the assembly gets it from cmake/editions.cmake) */
+#define MW2_VFX3D_ALIGNED_FILL
 /* Message boxes' backgrounds are shape 0x4f, not 0x4c */
 #define MW2_MESSAGE_BACKGROUND_SHAPES
 /* The torso pan's range is -90 to 90 */
@@ -378,6 +598,20 @@ typedef char MechChar;
 /* Artefact: the edition's headers define FixedMul16, FixedDiv16, MulDiv64, HashName and DebugBreakpoint
    __inline (its /Ox expands them in every caller), and MemCopy and MemSet are C */
 #define MW2_INLINE_HELPERS
+/* Artefact: the edition's source declares some of UpdateMech's, LateUpdateMech's, DodgeShot's and the HUD
+   brackets' locals in the blocks that use them, where VC++ 2.2 and 4.1 let them share the frame (1.1's and
+   the Matrox edition's declare them at the top) */
+#define MW2_BLOCK_SCOPED_LOCALS
+/* UpdateMech's air drag divides by the length once, then scales both axes by it */
+#define MW2_DRAG_DIVIDED_ONCE
+/* Artefact: DodgeShot picks the side before it divides the heading */
+#define MW2_DODGE_SIDE_FIRST
+/* Artefact: MoveMechWithCollisions sums the bounce's dot product in three statements and negates the
+   speed before it quarters it (2.2 and 4.1 then keep each term's doubling and fold the sign) */
+#define MW2_BOUNCE_DOT_STATEMENTS
+/* Artefact: the edition's source reads an AI target id's two bytes themselves
+   (missionobjective.h's OBJECTIVE_TARGET_KIND), where 1.1's and the Matrox edition's shift the word */
+#define MW2_OBJECTIVE_TARGET_BYTES
 /* The polygon drawers clip to the pane's edges themselves (FUN_10067b90), and the outline is closed */
 #define MW2_CLIP_TO_PANE_EDGES
 /* The textures are the animations' frames as they are, 16-bit texels (FUN_10051dfe), and their
@@ -385,6 +619,8 @@ typedef char MechChar;
 #define MW2_FRAME_TEXELS
 /* The game starts with no draw mode (-1, as in 1.1), though without 1.1's fallback to the others */
 #define MW2_NO_INITIAL_DRAW_MODE
+/* ChooseArtResolution takes art resolution 1 for a 512x384 window */
+#define MW2_ART_RESOLUTION_512X384
 /* The time of day's phase is a function of the time (FUN_10006f10), which also gives SimMain the
    palette of the current one (FUN_10006f30) */
 #define MW2_TIME_OF_DAY_LOOKUP
@@ -406,9 +642,62 @@ typedef char MechChar;
 /* Cheat codes that tune the renderer: the fog's density, the ground's and the sky's tiles and the sky's
    scrolling speed */
 #define MW2_TUNING_CHEATS
+/* The face tests of the shape collision (TestPointUnderFloor, TestPointAboveFaces, TestRayFaces)
+   transform the shape's model themselves when it is older than the shape's transform: the renderer
+   (SGL) doesn't transform the models the depth sort did */
+#define MW2_COLLISION_TRANSFORMS_MODELS
+/* Key 0x3d is key 0x3e's case: neither asks for power down in power state 7 */
+#define MW2_POWER_KEYS_ONE_CASE
+/* Key 0x5b takes no screenshot */
+#define MW2_NO_SCREENSHOT_KEY
+/* Key 0xa7 goes to RunGameKey's default case, where the others switch the wireframe view on and off
+   with it */
+#define MW2_NO_WIREFRAME_KEY
+/* The target panel renders no view of its target (nor loads its detail level): it only wipes the pane,
+   unless the cockpit's power state is 2, and outlines it */
+#define MW2_RENDERER_TARGET_VIEW
 /* SpawnEffectEx leaves an effect's object unrotated (it takes the rotation all the same), and moves one
    that hit a thing toward the eye by its shape's radius */
 #define MW2_UNROTATED_EFFECTS
+/* Artefact: RestoreBrightness passes the brightness to PreviewBrightness through its store */
+#define MW2_BRIGHTNESS_STORE_CHAINED
+/* The DirectDraw back end's palette writes record the colors and compute the entries, but set no
+   DirectDraw palette (the display is 16-bit) */
+#define MW2_DDRAW_PALETTE_UNSET
+/* ApplyPaletteResource writes the lookaside table's pixels with red shifted by 10, as for RGB565 */
+#define MW2_LOOKASIDE_RED_SHIFT_10
+/* The renderer takes no palette: ApplyPaletteResource doesn't pass it to A3D_SetPalette */
+#define MW2_A3D_NO_PALETTE
+/* ResetTicks restores ebx and ecx in the order it saved them (ticks.asm), where the others swap them */
+#define MW2_RESET_TICKS_SAVE_ORDER
+/* HashName rotates the whole 32-bit hash after each character, not its low word */
+#define MW2_HASH_NAME_ROL32
+/* Artefact: the edition's source writes some flags and choices as expressions (`m_up = angle <= 180`,
+   `x = c ? a : b`) where 1.1's and the Matrox edition's /Od code shows if and else (GetRectNeedleAt,
+   HandleDebugKey, InitializeManeuvers' skill flags, ReelMotionTask's jump flag) */
+#define MW2_CONDITIONAL_EXPRESSIONS
+/* HideCacheInfo blanks its line without sprintf's two stray arguments */
+#define MW2_HIDE_CACHE_INFO_NO_ARGS
+/* The damaged map view flickers its gauge without drawing the view's damage animation
+   (DrawDamagedMapView) */
+#define MW2_NO_MAP_DAMAGE_ANIM
+/* FindSession and StopExternalIO return 0 where the others fall off the end */
+#define MW2_NET_RETURN_ZERO
+/* NetSend and NetReceive log nothing */
+#define MW2_NO_NET_DEBUG_PRINTS
+/* Artefact: LoadCachedResource formats both of its messages in one buffer */
+#define MW2_ONE_RESOURCE_MESSAGE
+/* Artefact: RunAIWeapons scales the torso tilt by -0xf00, where the others negate the product */
+#define MW2_TILT_NEGATIVE_FACTOR
+/* No hit feedback for the local player while its flag 2 is set */
+#define MW2_HIT_FEEDBACK_FLAG_CHECK
+/* LoadMechConfig logs the armor and the jump thrust as %f */
+#define MW2_MEK_LOG_FLOATS
+/* A weapon recycles at once while bit 1 of the unlimited ammo setting is set (the "flag" cheat's 3) */
+#define MW2_CHEAT_RECYCLE
+/* HandleMessages stops skipping mouse messages when its PeekMessage finds nothing, and handles the
+   last one it had */
+#define MW2_MOUSE_PEEK_BREAKS
 #endif
 
 /* Boolean typedefs (MechBool / MechBool8 ...) are added when a match proves

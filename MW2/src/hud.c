@@ -215,6 +215,7 @@ static MechScalar g_compassScale;
 // GLOBAL: MW23DFX 0x1007c3f0
 // GLOBAL: MW2ATI 0x100713f0
 // GLOBAL: MW2S3 0x1007c510
+// GLOBAL: MW2POWERVR 0x1006f41c
 static MechS32 g_compassTapeAbove;
 
 // GLOBAL: MW2 0x100be5c4
@@ -1027,7 +1028,7 @@ void DrawPlayerBrackets(Player* p_player, MechS32 p_side)
 	MechScalar x;
 	MechScalar y;
 	MechScalar z;
-#ifndef MW2_3DFX
+#ifndef MW2_BLOCK_SCOPED_LOCALS
 	MechScalar size;
 	Point point;
 #endif
@@ -1036,7 +1037,7 @@ void DrawPlayerBrackets(Player* p_player, MechS32 p_side)
 	y = p_player->m_position.m_y;
 	z = p_player->m_position.m_z;
 	if (!ProjectWorldPoint(&x, &y, &z)) {
-#ifdef MW2_3DFX
+#ifdef MW2_BLOCK_SCOPED_LOCALS
 		Point point;
 
 #endif
@@ -1058,7 +1059,7 @@ void DrawPlayerBrackets(Player* p_player, MechS32 p_side)
 		DrawHudShape(point.m_x, point.m_y, topLeft);
 	}
 	else {
-#ifdef MW2_3DFX
+#ifdef MW2_BLOCK_SCOPED_LOCALS
 		MechScalar size;
 
 #endif
@@ -1115,7 +1116,7 @@ void DrawPlayerBrackets(Player* p_player, MechS32 p_side)
 // FUNCTION: MW2S3 0x10001c50
 void DrawObjectBrackets(struct SceneObject* p_object, MechS32 p_side)
 {
-#ifndef MW2_3DFX
+#ifndef MW2_BLOCK_SCOPED_LOCALS
 	MechScalar maxSize;
 #endif
 	MechS32 topLeft;
@@ -1128,7 +1129,7 @@ void DrawObjectBrackets(struct SceneObject* p_object, MechS32 p_side)
 	MechScalar y;
 	MechScalar z;
 	MechScalar size;
-#ifndef MW2_3DFX
+#ifndef MW2_BLOCK_SCOPED_LOCALS
 	Point point;
 #endif
 
@@ -1138,7 +1139,7 @@ void DrawObjectBrackets(struct SceneObject* p_object, MechS32 p_side)
 
 	size = GetShapeBounds(p_object->m_shape, &x, &y, &z);
 	if (!ProjectWorldPoint(&x, &y, &z)) {
-#ifdef MW2_3DFX
+#ifdef MW2_BLOCK_SCOPED_LOCALS
 		Point point;
 
 #endif
@@ -1160,7 +1161,7 @@ void DrawObjectBrackets(struct SceneObject* p_object, MechS32 p_side)
 		DrawHudShape(point.m_x, point.m_y, topLeft);
 	}
 	else {
-#ifdef MW2_3DFX
+#ifdef MW2_BLOCK_SCOPED_LOCALS
 		MechScalar maxSize;
 
 #endif

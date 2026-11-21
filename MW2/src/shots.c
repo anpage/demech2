@@ -529,7 +529,7 @@ void UpdateShot(MechS32 p_index)
 		}
 	}
 	else if (y < 0) {
-#ifdef MW2_3DFX
+#ifdef MW2_GROUND_HEIGHT_IN_TEST
 		if ((groundY = GetTerrainHeight(x, y, z)) > y) {
 #else
 		groundY = GetTerrainHeight(x, y, z);

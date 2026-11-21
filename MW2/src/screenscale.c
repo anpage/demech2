@@ -774,7 +774,7 @@ Point* GetRectNeedleAt(PANE* p_target, MechScalar p_angle, Point* p_out)
 		quadrant.m_bits.m_left = 0;
 	}
 
-#ifdef MW2_3DFX
+#ifdef MW2_CONDITIONAL_EXPRESSIONS
 	quadrant.m_bits.m_up = p_angle <= FIXED_CONST(180);
 #else
 	if (p_angle <= FIXED_CONST(180)) {
@@ -1066,7 +1066,7 @@ Point* GetEllipseNeedleAt(PANE* p_target, MechScalar p_angle, Point* p_out)
 		quadrant.m_bits.m_left = 0;
 	}
 
-#ifdef MW2_3DFX
+#ifdef MW2_CONDITIONAL_EXPRESSIONS
 	quadrant.m_bits.m_up = p_angle <= FIXED_CONST(180);
 #else
 	if (p_angle <= FIXED_CONST(180)) {
@@ -1081,7 +1081,7 @@ Point* GetEllipseNeedleAt(PANE* p_target, MechScalar p_angle, Point* p_out)
 	dx = FixedCos(p_angle);
 	dy = FixedSin(p_angle);
 	dy = dy * g_eyepoint->m_pixelAspect;
-#ifdef MW2_3DFX
+#ifdef MW2_CONDITIONAL_EXPRESSIONS
 	quadrant.m_bits.m_steep = !FIXED_IS_NONZERO(dx);
 #else
 	if (!FIXED_IS_NONZERO(dx)) {

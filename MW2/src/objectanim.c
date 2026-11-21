@@ -145,6 +145,7 @@ DECOMP_SIZE_ASSERT(ReelEvent, 0x8)
 // GLOBAL: MW2 0x100a6d64
 // GLOBAL: MW2MATROX 0x100ae2b4
 // GLOBAL: MW23DFX 0x1024b328
+// GLOBAL: MW2ATI 0x1017f6a8
 // GLOBAL: MW2S3 0x10060f34
 MechS32 g_reelMotionError = 0;
 
@@ -160,14 +161,18 @@ MechS32 g_pathCount = 0;
 // GLOBAL: MW2 0x100a6d6c
 // GLOBAL: MW2MATROX 0x100ae2bc
 // GLOBAL: MW23DFX 0x1024b330
+// GLOBAL: MW2ATI 0x1017f6b0
 // GLOBAL: MW2S3 0x10060f3c
+// GLOBAL: MW2POWERVR 0x101aa424
 MechS32 g_maxAnimNumber = 0;
 
 // The base of the animation numbers of the file being loaded.
 // GLOBAL: MW2 0x100a6d70
 // GLOBAL: MW2MATROX 0x100ae2c0
 // GLOBAL: MW23DFX 0x1024b334
+// GLOBAL: MW2ATI 0x1017f6b4
 // GLOBAL: MW2S3 0x10060f40
+// GLOBAL: MW2POWERVR 0x101aa428
 MechS32 g_animBase = 0;
 
 // The number of entries in g_animFiles.
@@ -266,11 +271,15 @@ Path g_paths[0x40];
 // GLOBAL: MW2MATROX 0x1014e880
 // GLOBAL: MW23DFX 0x10206100
 // GLOBAL: MW2ATI 0x10139dc0
+// GLOBAL: MW2S3 0x101800e0
+// GLOBAL: MW2POWERVR 0x10164a80
 Reel* g_reels[0x780];
 
 // GLOBAL: MW2 0x101097e0
 // GLOBAL: MW2MATROX 0x1014e6a0
+// GLOBAL: MW2ATI 0x10139be0
 // GLOBAL: MW2S3 0x10181ee0
+// GLOBAL: MW2POWERVR 0x101648a0
 AnimFile g_animFiles[60];
 
 // A timed callback (TimedCallbackFn) moving a thing's object through an animation. Its data is
@@ -524,7 +533,7 @@ MechS32 ReelMotionTask(MechS32 p_event, MechChar* p_data, MechS32 p_clock, MechS
 
 				if (motion->m_reel->m_events[frame].m_flags & 0x100) {
 					target = motion->m_reel->m_events[frame].m_values[2];
-#ifdef MW2_3DFX
+#ifdef MW2_CONDITIONAL_EXPRESSIONS
 					jump |= motion->m_player->m_nextMotionState == -1;
 #else
 					if (motion->m_player->m_nextMotionState == -1) {

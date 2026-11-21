@@ -1084,6 +1084,13 @@ MechS32 AreStaticObjectsComplete(void)
 	}
 }
 
+#ifdef MW2_POWERVR
+// powervr/a3d.c's: the renderer is open, and its conversions of a shape and of an object tree.
+extern MechS32 g_a3dInitialized;
+void FUN_10062160(struct Shape* p_shape, MechS32 p_material);
+void FUN_10062af0(struct SceneObject* p_obj, MechS32 p_parent);
+#endif
+
 // Loads cache entry p_index's shape and places it: a shape-only entry (-2) in block p_block's
 // frame, otherwise on its object. Returns TRUE while the shape is loaded, FALSE if it can't be or
 // shouldn't be: a hidden entry (0x800), or a destroyed game thing's (without explosion chunks).
@@ -1208,6 +1215,18 @@ MechS32 LoadStaticObject(MechS32 p_index, MechS32 p_block)
 	if (kind == 5) {
 		BuildShapeQuadtree(entry->m_shape);
 	}
+
+#ifdef MW2_POWERVR
+	// The PowerVR edition's hands the object's tree, or the shape, to its renderer once it is open.
+	if (g_a3dInitialized) {
+		if (entry->m_object) {
+			FUN_10062af0(entry->m_object, -1);
+		}
+		else {
+			FUN_10062160(entry->m_shape, -1);
+		}
+	}
+#endif
 
 	return TRUE;
 }

@@ -123,7 +123,6 @@ MW23DFX 0x10032000 StartSample 59d009ecc4d6 the original keeps flags in a 2-byte
 MW23DFX 0x10032c70 StopSamples 44e13b1898bd register allocation (an address's base and index swapped, lea against add, another register for one value) the audit's webs don't map
 MW23DFX 0x10032cc0 UpdateAmbientSound 3e7c117559ba the original saves another set of callee-saved registers (a push/pop more or less), so the instruction counts differ
 MW23DFX 0x10036470 HandleDebugKey 28581852e427 mirrored comparisons whose loads are in swapped registers, plus register allocation the audit's webs don't reproduce
-MW23DFX 0x100383d0 KeyboardPoll 395059084ca0 the original keeps the key-state copy as a loop, which /Ow unrolls in the rebuild (plain /Ox doesn't)
 MW23DFX 0x10039c90 LoadGamekeyMap 0e5d939f5e2a register allocation (an address's base and index swapped, lea against add, another register for one value) the audit's webs don't map
 MW23DFX 0x1003a0a0 UpdateInputs 4189797d2eb1 register allocation (an address's base and index swapped, lea against add, another register for one value) the audit's webs don't map
 MW23DFX 0x1003c630 DrawPaletteGrid 61a542994296 register allocation (an address's base and index swapped, lea against add, another register for one value) the audit's webs don't map
@@ -148,487 +147,335 @@ MW23DFX 0x10066e70 FUN_10066e70 b52be62747e7 the original reads texture-list add
 MW23DFX 0x100674c0 FUN_100674c0 d665cfaefbbc register allocation: the original spills p_count to a frame slot of its own (0xb9c against 0xb98) and keeps the loop counters in other registers; the control flow is the original's (each case calls grDrawPolygonVertexList, which 2.2 merges into one shared call)
 MW23DFX 0x10067d00 FUN_10067d00 c7b888834cbf first[] and second[] swap places in the frame; everything else matches, and declaration order doesn't change it
 MW23DFX 0x10067ef0 A3D_EdgeCrossing 3fb16d4501b3 in case 2 the original loads p_out and p_edge after the FDIV check's branches, in case 1 before; both editions do this, and no source form found gives it
-MW2ATI 0x10001000 BeginMapView af23034671dd undiagnosed
-MW2ATI 0x10001220 CullMapViewShape 26be71ee54b9 undiagnosed
-MW2ATI 0x100014b0 ProjectMapPoint f66af19cf571 undiagnosed
-MW2ATI 0x100023b0 ChooseArtResolution 001c8b6f372d undiagnosed
-MW2ATI 0x100024f0 InitRefreshMode f9479e870eab undiagnosed
-MW2ATI 0x10002b20 LayoutMessageBoxes 8038baa5483e undiagnosed
-MW2ATI 0x10002c00 ShowInGameMessage 5fc3f1746eb1 undiagnosed
-MW2ATI 0x100032b0 DrawMapView e13ca0540757 undiagnosed
-MW2ATI 0x100039d0 DrawMapFieldOfView f74a067d11b2 undiagnosed
-MW2ATI 0x10004020 FUN_100751a9 fef0b305d7a9 undiagnosed
-MW2ATI 0x10004280 DrawSatelliteStatic 510353bf74f7 undiagnosed
-MW2ATI 0x100052e0 DdrawCreateSurfaces 11e2b689ca75 undiagnosed
-MW2ATI 0x10005600 DdrawInit 6920fe218105 undiagnosed
-MW2ATI 0x100059b0 FUN_100059b0 be09b7897f1e undiagnosed
-MW2ATI 0x100063a0 DdrawWritePaletteEntries c4f21f50e59b undiagnosed
-MW2ATI 0x10006430 DdrawWritePaletteGamma d60600db1fa7 undiagnosed
-MW2ATI 0x100066b0 DdrawLockBuffer bc1730c12b4d undiagnosed
-MW2ATI 0x10006c30 ScaleRectAboutCenter 686acf212047 undiagnosed
-MW2ATI 0x100072e0 TilePane 72ad44e4f1da undiagnosed
-MW2ATI 0x10007490 GetRectNeedleAt d8b167851e50 undiagnosed
-MW2ATI 0x100079f0 GetEllipseNeedleAt 77a64169bd23 undiagnosed
-MW2ATI 0x100085e0 PrintMono 47cea519f9c6 undiagnosed
-MW2ATI 0x10008bc0 SignalTask ba7489e74b59 undiagnosed
-MW2ATI 0x10009040 SimMain 798a04c0f235 undiagnosed
-MW2ATI 0x1000a1c0 DoFirstObjtv 06842f45f04c undiagnosed
-MW2ATI 0x1000a3b0 IsTeamNearTarget 5b3ffdbda07e undiagnosed
-MW2ATI 0x1000a590 AnnounceObjective 4fb5181b8c1c undiagnosed
-MW2ATI 0x1000aa00 UpdateObjective 6137e546c746 undiagnosed
-MW2ATI 0x1000bd50 MoveMechWithCollisions 94c95b6e998e undiagnosed
-MW2ATI 0x1000d280 ClassifyQuadtreePoint 9d2b404f10ab undiagnosed
-MW2ATI 0x1000e5b0 ReelMotionTask 776c26c2a3b3 undiagnosed
-MW2ATI 0x1000ed20 LoadAnimFile ccf7e7304cef undiagnosed
-MW2ATI 0x1000f4f0 PathTask 2c40c4b3c053 undiagnosed
-MW2ATI 0x100103c0 GetObjLastChild 0d3f97dc364a undiagnosed
-MW2ATI 0x10010ff0 IsPointInFaceXZ bd1f8761b716 undiagnosed
-MW2ATI 0x10011310 IsPointInFaceXY 078a368e0b78 undiagnosed
-MW2ATI 0x10011ad0 UpdateGridObject a47da880d035 undiagnosed
-MW2ATI 0x10012c90 LogStarMissionLines f0d6d9749feb undiagnosed
-MW2ATI 0x10014ff0 LeadStar 9c90deb11311 undiagnosed
-MW2ATI 0x10016360 CalculateHeat 5a52842716bd undiagnosed
-MW2ATI 0x10016bc0 DestroyCriticalSlot cb2f2421d89b undiagnosed
-MW2ATI 0x100175d0 ApplyDamageToMech c3204048e3f7 undiagnosed
-MW2ATI 0x100196a0 UpdateMech be357ca8d10f undiagnosed
-MW2ATI 0x1001a530 LateUpdateMech 6ecdf8874f86 undiagnosed
-MW2ATI 0x1001b520 InitMechArrays 5fb94097d155 undiagnosed
-MW2ATI 0x1001b5c0 InitDamagePanel 344db3d929d6 undiagnosed
-MW2ATI 0x1001b9b0 DrawDamageOutline 4b44b3a22657 undiagnosed
-MW2ATI 0x1001ce70 RemoveNavPoint 0c60db032982 undiagnosed
-MW2ATI 0x1001cfd0 CycleTarget 05198fcf259a undiagnosed
-MW2ATI 0x1001df90 LayoutWeaponPanels 89514947336a undiagnosed
-MW2ATI 0x1001f100 InitializeManeuvers 406ed233aa9d undiagnosed
-MW2ATI 0x1001f980 GetOffsetPoint 99b52424a764 undiagnosed
-MW2ATI 0x10020d90 DodgeShot 0d3f8e52c192 undiagnosed
-MW2ATI 0x100221f0 LateUpdateDoor d0641069347d undiagnosed
-MW2ATI 0x10022760 InitHudGauges 9133638ae14e undiagnosed
-MW2ATI 0x10022f80 DrawPlayerBrackets 9640c7030fda undiagnosed
-MW2ATI 0x10023160 DrawObjectBrackets 149e71920402 undiagnosed
-MW2ATI 0x10023460 RunAIWeapons 4aabf071107b undiagnosed
-MW2ATI 0x10024000 StaticPoolAlloc 463a4f91498a undiagnosed
-MW2ATI 0x10024640 LoadCachedResource 242afb78fb65 undiagnosed
-MW2ATI 0x100249b0 AllocGeoTables bf4e238ea240 undiagnosed
-MW2ATI 0x10024ac0 FreeGeoTables fb06293857ae undiagnosed
-MW2ATI 0x10024dc0 BeginBlock ee99a200b377 undiagnosed
-MW2ATI 0x100255e0 AreStaticObjectsComplete 167870fff706 undiagnosed
-MW2ATI 0x10025620 LoadStaticObject 948bc1b97fe1 undiagnosed
-MW2ATI 0x10025a10 FreeStaticObjectTree 76a024091aef undiagnosed
-MW2ATI 0x10025af0 InitializeDrawBuffer 933f8107a5f1 undiagnosed
-MW2ATI 0x10026490 ChoosePlayerDetailLevels b0ed5c745322 undiagnosed
-MW2ATI 0x10026f90 FUN_100688fe d9787ac6c342 undiagnosed
-MW2ATI 0x10027140 FUN_10068b57 b02d34dd5c15 undiagnosed
-MW2ATI 0x10027400 ReadTextLine f8f005f0ecfa undiagnosed
-MW2ATI 0x10027560 FUN_10068e33 16a77c38254c undiagnosed
-MW2ATI 0x10027930 DrawSkyAndGround 303ece822215 undiagnosed
-MW2ATI 0x10028c40 HorizonYAtX 0cfef9942327 undiagnosed
-MW2ATI 0x100294f0 ComputeNormalsAndBounds be98907de3cd undiagnosed
-MW2ATI 0x10029670 GetShapeMemorySize 350f8a28e5a2 undiagnosed
-MW2ATI 0x100296e0 TransformModel 3931de82245e undiagnosed
-MW2ATI 0x100299e0 RayShapeDistance 776d1dccf9d9 undiagnosed
-MW2ATI 0x10029b30 QueueShapeLod a8c4dfeba6e8 undiagnosed
-MW2ATI 0x10029fa0 DrawQueuedPolygon ce85f0fcad3c undiagnosed
-MW2ATI 0x1002a480 FUN_1002a480 15510befc87b undiagnosed
-MW2ATI 0x1002ac80 GetViewVertex 2ad3f427e0b3 undiagnosed
-MW2ATI 0x1002ad40 ClipEdgeToNearPlane 459e6f5807c4 undiagnosed
-MW2ATI 0x1002b270 ProjectVertex 733d43f8d45f undiagnosed
-MW2ATI 0x1002b370 QueueFace 045793604ef7 undiagnosed
-MW2ATI 0x1002bd20 DrawAnimatedPolygon 1a3b75e1e105 undiagnosed
-MW2ATI 0x1002c150 AdvanceAnimations a10898acd076 undiagnosed
-MW2ATI 0x1002c630 FUN_10051c07 c64fa6a83277 undiagnosed
-MW2ATI 0x1002c740 FUN_10051ea2 cb483e9bb7bb undiagnosed
-MW2ATI 0x1002c880 CalcAverageBitmapColors 32a34cac171e undiagnosed
-MW2ATI 0x1002d1c0 CycleTrackedPlayer 0c71a36000c4 undiagnosed
-MW2ATI 0x1002dca0 TransformPoint 037efc379bb9 undiagnosed
-MW2ATI 0x1002deb0 MultiplyRotations 3ccbf7296e6d undiagnosed
-MW2ATI 0x1002e150 BuildMatrixEx 5eec60e613a9 undiagnosed
-MW2ATI 0x1002e820 UpdateProjection abea4fdeb8d3 undiagnosed
-MW2ATI 0x1002ea50 ProjectWorldPoint d682c446704d undiagnosed
-MW2ATI 0x1002ec00 CullSceneShape 0a45e2143d91 undiagnosed
-MW2ATI 0x1002ee20 CullShapeToFrustum 995e35919f88 undiagnosed
-MW2ATI 0x1002f320 InitSlopeTables fad7c1a95312 undiagnosed
-MW2ATI 0x1002f470 ComputeTriangleNormal 2616397d7c38 undiagnosed
-MW2ATI 0x10030c20 DoAudio 5e4c5056c826 undiagnosed
-MW2ATI 0x10030df0 StartSample f31c42e41e27 undiagnosed
-MW2ATI 0x10031a70 StopSamples 9ef7b25200c8 undiagnosed
-MW2ATI 0x10034150 ReceiveGoMsg 1a1e6d043c07 undiagnosed
-MW2ATI 0x10034570 FindSession d65f23753f74 undiagnosed
-MW2ATI 0x10034a00 StopExternalIO 8237dc04895b undiagnosed
-MW2ATI 0x10035030 HandleDebugKey 393349d36257 undiagnosed
-MW2ATI 0x10036440 RunGameKey ede968031326 undiagnosed
-MW2ATI 0x10036f90 KeyboardPoll 5c48fae37e9c undiagnosed
-MW2ATI 0x10037a30 FindInputButton 11ddd8043154 undiagnosed
-MW2ATI 0x10037b20 FindInputAxis 3ce780dd17f4 undiagnosed
-MW2ATI 0x10038150 ParseInputConditions 426d8211129d undiagnosed
-MW2ATI 0x100382f0 ParseInputMap e068599a401d undiagnosed
-MW2ATI 0x10038c60 UpdateInputs c5f8fc66c8c1 undiagnosed
-MW2ATI 0x100390b0 NetSend fc9307392d7e undiagnosed
-MW2ATI 0x100391a0 NetReceive db37b6a9066e undiagnosed
-MW2ATI 0x1003a600 DrawPaletteGrid c036fd62ea39 undiagnosed
-MW2ATI 0x1003a9e0 HideCacheInfo e258c18171f6 undiagnosed
-MW2ATI 0x1003b380 FindPrjType 28e6ec8faf3b undiagnosed
-MW2ATI 0x1003bb70 BwdExecuteStream 91b06a5c76f9 undiagnosed
-MW2ATI 0x1003d540 AddBwdName 02d4eada0e64 undiagnosed
-MW2ATI 0x1003df20 LoadReels e6e7a9b62906 undiagnosed
-MW2ATI 0x1003ec90 CountMissionStream 1a1469d99bcc undiagnosed
-MW2ATI 0x1003efc0 LoadMechConfig b8e6f8f4e74b undiagnosed
-MW2ATI 0x1003f830 GetMechValue dbb934d53996 undiagnosed
-MW2ATI 0x1003fce0 LoadShapeRecord 27eb0978e00d undiagnosed
-MW2ATI 0x100409b0 RunIncludedStream d01e92d30c4a undiagnosed
-MW2ATI 0x10040ac0 CreateObjectNode 292cefc63453 undiagnosed
-MW2ATI 0x10041db0 UpdateWeaponLock c472356c45b3 undiagnosed
-MW2ATI 0x10042310 SpawnLaunchFx 3adfe80af7a5 undiagnosed
-MW2ATI 0x100427b0 UpdateShot 3b29327262ce undiagnosed
-MW2ATI 0x10043430 SpawnEffectEx 6f449a368bf4 undiagnosed
-MW2ATI 0x1004493c VFX_flat_polygon 3d5a158f691c undiagnosed
-MW2ATI 0x10061910 RestoreBrightness 2dd226fb5ca6 undiagnosed
-MW2ATI 0x10061930 AbortMissionAction 84f3a5aa3ac6 undiagnosed
-MW2ATI 0x10061990 FleeToWindowsAction f22b2a08f514 undiagnosed
-MW2ATI 0x10061df0 RunMenuSlider a86859d6c4cd undiagnosed
-MW2ATI 0x100621d0 RunMenuStatus d04d281f6ec3 undiagnosed
-MW2ATI 0x10062400 RunMenuChoice af14dafc1dea undiagnosed
-MW2ATI 0x10062f70 FirstMenu e8a68870d963 undiagnosed
-MW2ATI 0x100633a0 RunMenuItems 9e72f2940c17 undiagnosed
-MW2ATI 0x10063d50 A3D_SetPalette 081991f82cb6 undiagnosed
-MW2ATI 0x100640e0 FUN_100640e0 ca9a972509dc undiagnosed
-MW2ATI 0x10064340 FUN_10064340 762e82b6dee5 undiagnosed
-MW2ATI 0x100643b0 FUN_100643b0 8eda4bd52ee6 undiagnosed
-MW2ATI 0x10064650 FUN_10064650 afbae6d79a6d undiagnosed
-MW2ATI 0x10064780 FUN_10064780 5008cee1012d undiagnosed
-MW2ATI 0x10064930 A3D_DrawPolygon addc6ef2b89c undiagnosed
-MW2ATI 0x100649e0 A3D_map_polygon 429c738f6894 undiagnosed
-MW2ATI 0x10064b60 A3D_polygon_clip_XY_and_render 24af69c0bfaf undiagnosed
-MW2ATI 0x10064eb0 A3D_EdgeCrossing b0b413bbd7ae undiagnosed
-MW2S3 0x10001260 InitHudGauges 5935a7d0b360 undiagnosed
-MW2S3 0x10001720 DrawCompassMarkers ff57e014e024 undiagnosed
-MW2S3 0x10001a80 DrawPlayerBrackets 067c84891d5d undiagnosed
-MW2S3 0x10001c50 DrawObjectBrackets 3d047ab9a814 undiagnosed
-MW2S3 0x10001f30 BeginMapView 996b0980d110 undiagnosed
-MW2S3 0x10002130 CullMapViewShape 50e93694b623 undiagnosed
-MW2S3 0x10002390 ProjectMapPoint aade55eb1b66 undiagnosed
-MW2S3 0x100028d0 LoadCachedResource d2e440dae51d undiagnosed
-MW2S3 0x10003230 InitializeDrawBuffer 5bcb3bf39eee undiagnosed
-MW2S3 0x10003360 ReelMotionTask 4a1eec807b73 undiagnosed
-MW2S3 0x10003b60 ColorCycleTask 0dbaaa773654 undiagnosed
-MW2S3 0x10005110 GetObjLastChild 0d3f97dc364a undiagnosed
-MW2S3 0x10005a40 JoystickCloseDevice 66ba350d5f57 undiagnosed
-MW2S3 0x10006000 SetGridObject db784ddb0bfc undiagnosed
-MW2S3 0x10006190 UpdateGridObject 528edd3b505d undiagnosed
-MW2S3 0x100062f0 ShowGridObject ddb1b0a8f1af undiagnosed
-MW2S3 0x100067b0 UpdateProjection 2ee3fbbadce4 undiagnosed
-MW2S3 0x100069b0 ProjectWorldPoint 30dc460d9c19 undiagnosed
-MW2S3 0x10006b40 CullSceneShape bc5020c2bba7 undiagnosed
-MW2S3 0x10006d30 CullShapeToFrustum 250cfecca07d undiagnosed
-MW2S3 0x100073a0 ScaleRectAboutCenter 686acf212047 undiagnosed
-MW2S3 0x100076b0 BoxText f4592f6f1a43 undiagnosed
-MW2S3 0x10007bf0 GetRectNeedleAt e85056975dba undiagnosed
-MW2S3 0x100080b0 GetEllipseNeedleAt a266bafde36a undiagnosed
-MW2S3 0x10008320 PrintMonoLine ca34f4cc711c undiagnosed
-MW2S3 0x10008370 PrintMono cfe473b31132 undiagnosed
-MW2S3 0x10009290 DrawMapView a0b8ab176b13 undiagnosed
-MW2S3 0x100095c0 DrawMapUnits de5d11616732 undiagnosed
-MW2S3 0x10009870 DrawMapNavPoints 121b7e24225b undiagnosed
-MW2S3 0x100099a0 DrawMapFieldOfView 6111bfa5b0a2 undiagnosed
-MW2S3 0x10009f40 SatelliteDrawPolygon 401045ed0f12 undiagnosed
-MW2S3 0x10009fe0 FUN_100751a9 b645236efec1 undiagnosed
-MW2S3 0x1000a250 DrawSatelliteStatic 0b4dc029f14b undiagnosed
-MW2S3 0x1000a5e0 FUN_10067b90 3d5168c48824 undiagnosed
-MW2S3 0x1000aa90 DrawScenePolygon a4272b39d204 undiagnosed
-MW2S3 0x1000b440 LoadSkyGroundSettings 1fc0eedb2128 undiagnosed
-MW2S3 0x1000b590 FUN_10068e33 2f0c6d4852ce undiagnosed
-MW2S3 0x1000b790 FUN_10069172 b1384cd0dd00 undiagnosed
-MW2S3 0x1000b8f0 FUN_100692db 39653a3f3dc0 undiagnosed
-MW2S3 0x1000be20 DrawSkyAndGround 602ae98d7670 undiagnosed
-MW2S3 0x1000d8a0 DrawPentagon 63529fc90279 undiagnosed
-MW2S3 0x1000daf0 DrawQuad 06fbe48f1dd0 undiagnosed
-MW2S3 0x1000db90 DrawTriangle 5de1a9c544c9 undiagnosed
-MW2S3 0x1000e7c0 DestroyCriticalSlot 1662d19a80f6 undiagnosed
-MW2S3 0x1000f1b0 ApplyDamageToMech b752fec087b5 undiagnosed
-MW2S3 0x1000f4e0 AddBwdName f257b6b71d67 undiagnosed
-MW2S3 0x1000f870 A3D_SetPalette a3170817f414 undiagnosed
-MW2S3 0x1000fa10 FUN_1000fa10 75125f9234ea undiagnosed
-MW2S3 0x1000fcf0 FUN_1000fcf0 a5d1950dce47 undiagnosed
-MW2S3 0x10010010 FUN_10010010 af17d9b48e10 undiagnosed
-MW2S3 0x100107a0 A3D_map_polygon 2e22dba76263 undiagnosed
-MW2S3 0x10011280 HandleDebugKey 3e5838b0d492 undiagnosed
-MW2S3 0x10011b90 HandleCheatInput 29cfe1e5a06d undiagnosed
-MW2S3 0x100126d0 RunGameKey 37078389d387 undiagnosed
-MW2S3 0x10013150 DrawTargetPanelText 5f562dbc3add undiagnosed
-MW2S3 0x10013fe0 LateUpdateDoor a38a812be3e0 undiagnosed
-MW2S3 0x10014cc0 DrawHeatBar 9fa58c3d22da undiagnosed
-MW2S3 0x10015a50 LogPlayerStatusLines 68558b48dbe3 undiagnosed
-MW2S3 0x10016050 AiMessageProx 74c76c99b1ab undiagnosed
-MW2S3 0x10018270 LeadStar 2ee45c716755 undiagnosed
-MW2S3 0x100187e0 CountMissionStream 6eff3f218d23 undiagnosed
-MW2S3 0x10018f00 InitializeManeuvers 9e637392380f undiagnosed
-MW2S3 0x10019760 GetOffsetPoint 0481b87efe11 undiagnosed
-MW2S3 0x1001aad0 DodgeShot 5f8064de2596 undiagnosed
-MW2S3 0x1001ae50 StopMidiSequences 9016b1f6667d undiagnosed
-MW2S3 0x1001af50 InitializeMidi ebae7d766222 undiagnosed
-MW2S3 0x1001b8d0 UpdateShot 5b76c18a6c1d undiagnosed
-MW2S3 0x1001d9f0 RotateTexturePoint 34551eace544 undiagnosed
-MW2S3 0x1001da40 DrawAnimatedPolygon 64a434594930 undiagnosed
-MW2S3 0x1001e270 FUN_10069591 e1e384e4e8e1 undiagnosed
-MW2S3 0x1001e300 FUN_1001e300 1c487018f076 undiagnosed
-MW2S3 0x1001e400 FUN_100519b0 776e541eaf99 undiagnosed
-MW2S3 0x1001e540 FUN_10051c07 d618bf93057b undiagnosed
-MW2S3 0x1001e6b0 FUN_10051ea2 beb19c81da75 undiagnosed
-MW2S3 0x1001e7f0 CalcAverageBitmapColors cb796d2eff74 undiagnosed
-MW2S3 0x1001ef70 DoFirstObjtv 12a10773f498 undiagnosed
-MW2S3 0x1001f160 IsTeamNearTarget 86114fd2384f undiagnosed
-MW2S3 0x1001f7b0 UpdateObjective a6067efcd119 undiagnosed
-MW2S3 0x100206c0 LoadClassEntryShape 9efb901bedd6 undiagnosed
-MW2S3 0x10020c60 InitGammaTable cda587c9f2fa undiagnosed
-MW2S3 0x10020d30 DrawDebugOverlays 9c6417bc426a undiagnosed
-MW2S3 0x10020e10 DrawPaletteGrid 472434191a7b undiagnosed
-MW2S3 0x10021200 HideCacheInfo dcedc4284a09 undiagnosed
-MW2S3 0x10021880 QueueShapeLod 7d8639d02e67 undiagnosed
-MW2S3 0x10021cf0 DrawQueuedPolygon a54eb139d03d undiagnosed
-MW2S3 0x10022000 LateUpdateAllPlayers d05fe73cc36e undiagnosed
-MW2S3 0x10022b60 IntersectRayFace 68c8fb13d76a undiagnosed
-MW2S3 0x10022db0 IsPointInFaceXZ 1163d36baed8 undiagnosed
-MW2S3 0x10023ea0 FirstMenu 814510e8e907 undiagnosed
-MW2S3 0x100242d0 RunMenuItems 3bf7b6aed823 undiagnosed
-MW2S3 0x10025e20 ComputeNormalsAndBounds a968f51060ce undiagnosed
-MW2S3 0x10025e80 ComputeFaceNormal 0183f3c383bb undiagnosed
-MW2S3 0x100261e0 GetShapeMemorySize f8f93dc1e408 undiagnosed
-MW2S3 0x10026250 TransformModel 2a01f62055af undiagnosed
-MW2S3 0x100266f0 SimMain d949c257f2db undiagnosed
-MW2S3 0x10027ec0 FindPrjType 223256d99fcb undiagnosed
-MW2S3 0x100281a0 TransformPoint 0ef45a9478f6 undiagnosed
-MW2S3 0x100283b0 MultiplyRotations 86e578391dc0 undiagnosed
-MW2S3 0x10028640 BuildMatrixEx c6afb174805a undiagnosed
-MW2S3 0x10028ac0 ScaleVectorToLength bdcff3b54130 undiagnosed
-MW2S3 0x10028b40 UpdateWeaponFireState 695c3199f3c7 undiagnosed
-MW2S3 0x10029330 SelectNextWeaponInGroup cd08c6e5d19e undiagnosed
-MW2S3 0x10029e60 SpawnLaunchFx 5fb7fdf4325c undiagnosed
-MW2S3 0x1002a080 KeyboardPoll 613d5e8b6ab7 undiagnosed
-MW2S3 0x1002b1a0 AbortMissionAction f68261d1befd undiagnosed
-MW2S3 0x1002b200 FleeToWindowsAction 3f6b377a7a96 undiagnosed
-MW2S3 0x1002b900 MoveMechWithCollisions 038bfef87661 undiagnosed
-MW2S3 0x1002c100 CollideWithBuildings b3244bed7cdc undiagnosed
-MW2S3 0x1002c450 ApplyCollisionDamage 02f7f72c0ee9 undiagnosed
-MW2S3 0x1002c7a0 GetViewVertex ba33aeb2e574 undiagnosed
-MW2S3 0x1002c850 ClipEdgeToNearPlane 2cc8aea052fc undiagnosed
-MW2S3 0x1002cbd0 ProjectVertex 9343ce9f6274 undiagnosed
-MW2S3 0x1002cca0 QueueFace 8b92735cc6e1 undiagnosed
-MW2S3 0x1002d770 ProjectPolygon 10e5d9b6d292 undiagnosed
-MW2S3 0x1002db80 StaticPoolAlloc 3d72d19b8bb5 undiagnosed
-MW2S3 0x1002e5f0 SaveScreenshot 576bc2cd4ea3 undiagnosed
-MW2S3 0x1002f600 FireJumpJetEffects d9b956b00cb5 undiagnosed
-MW2S3 0x1002ff10 FUN_100059b0 2b6eb79f8051 undiagnosed
-MW2S3 0x10030130 DdrawBlit 93289666fb43 undiagnosed
-MW2S3 0x10030fe0 FindInputButton 30501b2931e8 undiagnosed
-MW2S3 0x100310d0 FindInputAxis 5fa445003db0 undiagnosed
-MW2S3 0x10031700 ParseInputConditions 2650b219072f undiagnosed
-MW2S3 0x100318a0 ParseInputMap ac4e7d91d8d8 undiagnosed
-MW2S3 0x10032200 UpdateInputs 992f0797cfff undiagnosed
-MW2S3 0x10033280 RunIncludedStream e92e60cae258 undiagnosed
-MW2S3 0x10033390 CreateObjectNode c7ce8ead7b2b undiagnosed
-MW2S3 0x10034030 AllocGeoTables fde0a6f606bf undiagnosed
-MW2S3 0x10034c50 AreStaticObjectsComplete 480d4a747c92 undiagnosed
-MW2S3 0x10034c90 LoadStaticObject 0eb05a3e0715 undiagnosed
-MW2S3 0x10035170 FirstEnvironment d2e762786a72 undiagnosed
-MW2S3 0x100357a0 PlaySample 8c5d32b2e961 undiagnosed
-MW2S3 0x100358f0 StartSample 055847ad7439 undiagnosed
-MW2S3 0x10036060 StopSamples 270988e0c5c6 undiagnosed
-MW2S3 0x10036670 RestoreBrightness 11b5e57248bb undiagnosed
-MW2S3 0x10036690 NetSend 5ee9580b1208 undiagnosed
-MW2S3 0x10036780 NetReceive c2517297496f undiagnosed
-MW2S3 0x10037100 QueueSpeech 8f083b8476f6 undiagnosed
-MW2S3 0x10037aa0 RemoveNavPoint 6d50896fe098 undiagnosed
-MW2S3 0x10037c00 CycleTarget ef573d801c5e undiagnosed
-MW2S3 0x10037fb0 TargetGamePiece 3761a5d6c1c6 undiagnosed
-MW2S3 0x10038b10 LoadMechConfig 965af5c2c99a undiagnosed
-MW2S3 0x100396f0 InitDamagePanel 70b724ff16e7 undiagnosed
-MW2S3 0x10039a80 DrawDamageOutline f220083a74b9 undiagnosed
-MW2S3 0x1003a840 DrawNetworkPanel e7154b2e6397 undiagnosed
-MW2S3 0x1003b930 SignalTask 172d4e6f17b3 undiagnosed
-MW2S3 0x1003c180 RunAIWeapons 5b524a849a1a undiagnosed
-MW2S3 0x1003e420 FindSession a5e723551923 undiagnosed
-MW2S3 0x1003e8d0 StopExternalIO 5aa1c2f4c538 undiagnosed
-MW2S3 0x1003eaf0 FUN_1002a480 401753ce4568 undiagnosed
-MW2S3 0x1003eda0 StartPaletteFade 49407ea475bd undiagnosed
-MW2S3 0x1003f090 DrawBand dce7f225f841 undiagnosed
-MW2S3 0x1003f2d0 LayoutMessageBoxes 34415e40bcca undiagnosed
-MW2S3 0x1003f3b0 ShowInGameMessage 9b11335f9018 undiagnosed
-MW2S3 0x1003fb90 CycleTrackedPlayer 8ac57a7fe369 undiagnosed
-MW2S3 0x100406e0 LayoutWeaponPanels 86552bf45520 undiagnosed
-MW2S3 0x100413c0 HorizonYAtX afb6811e857d undiagnosed
-MW2S3 0x100414b0 RunMenuSlider 0ea6e8b6bec0 undiagnosed
-MW2S3 0x10041890 RunMenuStatus 87eabadd204b undiagnosed
-MW2S3 0x10041ac0 RunMenuChoice eda9e61f6733 undiagnosed
-MW2S3 0x10041d60 InitSinAtanTables 1572e6979b45 undiagnosed
-MW2S3 0x10041ec0 FixedAtan2 abecb039c0ba undiagnosed
-MW2S3 0x10042030 InitSlopeTables e36d83226841 undiagnosed
-MW2S3 0x10042490 UpdateMech 67fe3cba7c6c undiagnosed
-MW2S3 0x10043250 LateUpdateMech f18ddde81a6e undiagnosed
-MW2S3 0x10044240 InitMechArrays 5fb94097d155 undiagnosed
-MW2S3 0x10044840 DoAudio 00dae72bfc75 undiagnosed
-MW2S3 0x10044a50 ChooseArtResolution 53fa96972712 undiagnosed
-MW2S3 0x10044b60 BuildShapeQuadtree 2c6e20b0db3f undiagnosed
-MW2S3 0x10045120 ClassifyQuadtreePoint e8b632b5ad80 undiagnosed
-MW2S3 0x100457e0 BwdExecuteStream c2edbb4e4cb8 undiagnosed
-MW2S3 0x10047da0 LoadShapeRecord ca9cf34696e6 undiagnosed
-MW2POWERVR 0x10001000 BeginMapView 470116057896 undiagnosed
-MW2POWERVR 0x10001200 CullMapViewShape 41c900e0731f undiagnosed
-MW2POWERVR 0x10001490 ProjectMapPoint 3267431afaad undiagnosed
-MW2POWERVR 0x10002390 ChooseArtResolution ca38b39c2b91 undiagnosed
-MW2POWERVR 0x100024d0 InitRefreshMode 34acdaf10b98 undiagnosed
-MW2POWERVR 0x100029b0 ShowInGameMessage 806187df5570 undiagnosed
-MW2POWERVR 0x10003130 DrawMapView e4c6732f7c99 undiagnosed
-MW2POWERVR 0x100034b0 DrawMapUnits d9ebceba4d50 undiagnosed
-MW2POWERVR 0x10003760 DrawMapNavPoints ee0fce8efc35 undiagnosed
-MW2POWERVR 0x10003d50 DrawSatelliteStatic 1949cf59bbeb undiagnosed
-MW2POWERVR 0x10003e70 DrawDamagedMapView 56ab0f11a8e4 undiagnosed
-MW2POWERVR 0x100049a0 DdrawStop 2610091bc55b undiagnosed
-MW2POWERVR 0x10004a10 DdrawDestroySurfaces 36e7bfaf3834 undiagnosed
-MW2POWERVR 0x10004ae0 DdrawFlip e6a04ac2808b undiagnosed
-MW2POWERVR 0x10004bc0 DdrawBlit c400d8054818 undiagnosed
-MW2POWERVR 0x10004cc0 DdrawBlitFlip 45aa1089b0ca undiagnosed
-MW2POWERVR 0x10004de0 DdrawStretchBlit 1393a924ecec undiagnosed
-MW2POWERVR 0x10004f00 DdrawBlitRect 261740d91e2c undiagnosed
-MW2POWERVR 0x100053a0 DdrawLockBuffer 634e6a074cdf undiagnosed
-MW2POWERVR 0x10005490 DdrawUnlock 1d39bc9da097 undiagnosed
-MW2POWERVR 0x10005970 ScaleRectAboutCenter 686acf212047 undiagnosed
-MW2POWERVR 0x10005c80 BoxText 2f7959e03f96 undiagnosed
-MW2POWERVR 0x10006020 TilePane 6ec21c2d2353 undiagnosed
-MW2POWERVR 0x100061d0 GetRectNeedleAt 3cc89139de78 undiagnosed
-MW2POWERVR 0x10006730 GetEllipseNeedleAt 93247408a6b9 undiagnosed
-MW2POWERVR 0x10007350 PrintMono 23f78d4af4c3 undiagnosed
-MW2POWERVR 0x10007930 SignalTask c6a24504db08 undiagnosed
-MW2POWERVR 0x10007a40 FindSoundFile 3a53d2b08b2d undiagnosed
-MW2POWERVR 0x10007e60 SimMain 9998c2a78ad8 undiagnosed
-MW2POWERVR 0x10008ab0 HandleMessages 9c9e8766b411 undiagnosed
-MW2POWERVR 0x10008d80 DoFirstObjtv 9e3dca874cb4 undiagnosed
-MW2POWERVR 0x10008f70 IsTeamNearTarget db8e7c9c20ac undiagnosed
-MW2POWERVR 0x10009150 AnnounceObjective 99f77a2eb439 undiagnosed
-MW2POWERVR 0x100095c0 UpdateObjective e01a6586f4fa undiagnosed
-MW2POWERVR 0x1000a910 MoveMechWithCollisions f3eff7aa28ac undiagnosed
-MW2POWERVR 0x1000be40 ClassifyQuadtreePoint 978815ba0cd7 undiagnosed
-MW2POWERVR 0x1000c8d0 TestPointUnderFloor de543dbc7c03 undiagnosed
-MW2POWERVR 0x1000c9f0 TestPointAboveFaces a4c2a8862dd9 undiagnosed
-MW2POWERVR 0x1000cb10 TestRayFaces f19783f83a2f undiagnosed
-MW2POWERVR 0x1000cc10 ComputeModelBounds 6f12fc3fa521 undiagnosed
-MW2POWERVR 0x1000cfe0 HideShape 0f6a0b778ab7 undiagnosed
-MW2POWERVR 0x1000d030 ShowShape cfe375151ffb undiagnosed
-MW2POWERVR 0x1000d1e0 ReelMotionTask 27a0aa6968c3 undiagnosed
-MW2POWERVR 0x1000d950 LoadAnimFile 25924165de5a undiagnosed
-MW2POWERVR 0x1000d9f0 ColorCycleTask c8c4c09879e3 undiagnosed
-MW2POWERVR 0x1000e120 PathTask 42e2fa6c7343 undiagnosed
-MW2POWERVR 0x1000f250 GetObjLastChild 0d3f97dc364a undiagnosed
-MW2POWERVR 0x1000fe80 IsPointInFaceXZ e14193bf1e93 undiagnosed
-MW2POWERVR 0x100101a0 IsPointInFaceXY f8f89592006d undiagnosed
-MW2POWERVR 0x10010960 UpdateGridObject 1143a690a106 undiagnosed
-MW2POWERVR 0x10013f30 LeadStar 83b3cce757cc undiagnosed
-MW2POWERVR 0x10016510 ApplyDamageToMech 2dbdd9395825 undiagnosed
-MW2POWERVR 0x100185e0 UpdateMech 6a4419c33d9c undiagnosed
-MW2POWERVR 0x10019450 LateUpdateMech 60ce3494a714 undiagnosed
-MW2POWERVR 0x1001a440 InitMechArrays 5fb94097d155 undiagnosed
-MW2POWERVR 0x1001a4e0 InitDamagePanel 54fc1bc0b696 undiagnosed
-MW2POWERVR 0x1001a8d0 DrawDamageOutline 9d795d80f3e2 undiagnosed
-MW2POWERVR 0x1001b470 DrawHeatBar 7e18ec6daca7 undiagnosed
-MW2POWERVR 0x1001bc60 RemoveNavPoint 905d62635e2f undiagnosed
-MW2POWERVR 0x1001bdc0 CycleTarget 30493a092dd2 undiagnosed
-MW2POWERVR 0x1001c170 TargetGamePiece 108479b5f49d undiagnosed
-MW2POWERVR 0x1001c630 UpdateTarget dbda18e799a1 undiagnosed
-MW2POWERVR 0x1001df50 InitializeManeuvers ce8ab006eeec undiagnosed
-MW2POWERVR 0x1001e7d0 GetOffsetPoint f28a85057272 undiagnosed
-MW2POWERVR 0x1001fbe0 DodgeShot afd031f4e6c9 undiagnosed
-MW2POWERVR 0x10020760 DrawTargetPanel 6b91de2b37ef undiagnosed
-MW2POWERVR 0x10021220 LateUpdateDoor 4da3d50c5273 undiagnosed
-MW2POWERVR 0x10021790 InitHudGauges c25dbcdc0089 undiagnosed
-MW2POWERVR 0x100226a0 RunAIWeapons f66b9915dddd undiagnosed
-MW2POWERVR 0x10022f40 RestoreMechSegments 167b3ba2ab5f undiagnosed
-MW2POWERVR 0x10023280 StaticPoolAlloc cc17c3dc88e3 undiagnosed
-MW2POWERVR 0x100238c0 LoadCachedResource 38a1ed77615b undiagnosed
-MW2POWERVR 0x10023c30 AllocGeoTables 90ec53a5b9c2 undiagnosed
-MW2POWERVR 0x10023d40 FreeGeoTables f97ebadcaefc undiagnosed
-MW2POWERVR 0x10024890 LoadStaticObject f3918915630b undiagnosed
-MW2POWERVR 0x10024ca0 FreeStaticObjectTree 6d61ddb1e310 undiagnosed
-MW2POWERVR 0x10024d80 InitializeDrawBuffer c83eb961606d undiagnosed
-MW2POWERVR 0x10025360 LoadClassEntryShape 25c1c8dcd487 undiagnosed
-MW2POWERVR 0x10025740 ChoosePlayerDetailLevels 3c269a6a99d8 undiagnosed
-MW2POWERVR 0x10025f70 AddModel 14cb3f6947a0 undiagnosed
-MW2POWERVR 0x100260b0 CreateShape 449fe1b2c300 undiagnosed
-MW2POWERVR 0x100262c0 FreeShape f47c7096c12d undiagnosed
-MW2POWERVR 0x100263b0 ComputeNormalsAndBounds 68b8309cd2c9 undiagnosed
-MW2POWERVR 0x100265a0 TransformModel dc53bc518742 undiagnosed
-MW2POWERVR 0x100268a0 RayShapeDistance c312ba12e7d8 undiagnosed
-MW2POWERVR 0x10026b40 ApplyPaletteResource 6d444066cb19 undiagnosed
-MW2POWERVR 0x10027150 StartAnimation 4710d9da9cc9 undiagnosed
-MW2POWERVR 0x10027420 FUN_100519b0 45f58b714582 undiagnosed
-MW2POWERVR 0x10027fe0 CycleTrackedPlayer 017fe77df12e undiagnosed
-MW2POWERVR 0x100281f0 UpdateTrackView 4e9b3947089e undiagnosed
-MW2POWERVR 0x10028b20 TransformPoint 037efc379bb9 undiagnosed
-MW2POWERVR 0x10028d30 MultiplyRotations 3ccbf7296e6d undiagnosed
-MW2POWERVR 0x10028fd0 BuildMatrixEx 0756745399b2 undiagnosed
-MW2POWERVR 0x100296a0 UpdateProjection cddf29e68c49 undiagnosed
-MW2POWERVR 0x100298b0 ProjectWorldPoint 33a67bbad3c0 undiagnosed
-MW2POWERVR 0x10029da0 InitSlopeTables 015121da318f undiagnosed
-MW2POWERVR 0x10029ef0 ComputeTriangleNormal fb23ee2b2d99 undiagnosed
-MW2POWERVR 0x1002b6a0 DoAudio d9214434712a undiagnosed
-MW2POWERVR 0x1002b870 StartSample d87a00150384 undiagnosed
-MW2POWERVR 0x1002c4f0 StopSamples 2223a79b6e63 undiagnosed
-MW2POWERVR 0x1002c540 UpdateAmbientSound e76bf9ec064f undiagnosed
-MW2POWERVR 0x1002db60 SendChatMsg b80b57b27219 undiagnosed
-MW2POWERVR 0x1002ebd0 ReceiveGoMsg 2c08bb29ab72 undiagnosed
-MW2POWERVR 0x1002eff0 FindSession fcee6cb80e6e undiagnosed
-MW2POWERVR 0x1002f480 StopExternalIO 296f71763940 undiagnosed
-MW2POWERVR 0x1002fab0 HandleDebugKey 2560ea0d4379 undiagnosed
-MW2POWERVR 0x10030e80 HandleGameKeys 6729eca78feb undiagnosed
-MW2POWERVR 0x10031220 RunGameKey 273f0fdb61c9 undiagnosed
-MW2POWERVR 0x10031c90 KeyboardPoll eb652e918ef3 undiagnosed
-MW2POWERVR 0x10032730 FindInputButton ff58674f127d undiagnosed
-MW2POWERVR 0x10032820 FindInputAxis 6221ba1da546 undiagnosed
-MW2POWERVR 0x10032e50 ParseInputConditions 5a422d3fa9de undiagnosed
-MW2POWERVR 0x10032ff0 ParseInputMap cc6df3758276 undiagnosed
-MW2POWERVR 0x10033960 UpdateInputs d2dd67440308 undiagnosed
-MW2POWERVR 0x10033db0 NetSend e22dadddb711 undiagnosed
-MW2POWERVR 0x10033ea0 NetReceive 7072e03c2d35 undiagnosed
-MW2POWERVR 0x100347d0 JoystickPoll c6da385fb8ca undiagnosed
-MW2POWERVR 0x10035440 DrawPaletteGrid 8978250d8850 undiagnosed
-MW2POWERVR 0x10035820 HideCacheInfo 51392870f0ef undiagnosed
-MW2POWERVR 0x10035990 MonoPrint 8a92e3d21479 undiagnosed
-MW2POWERVR 0x100361e0 FindPrjType b12a5d94441d undiagnosed
-MW2POWERVR 0x1003677e ResetTicks 7f314b64e23e undiagnosed
-MW2POWERVR 0x100369d0 BwdExecuteStream 9ae89c3dc165 undiagnosed
-MW2POWERVR 0x100383a0 AddBwdName 99c4d5e6fe8f undiagnosed
-MW2POWERVR 0x10038f60 LoadHudFile 4ba1c51114f0 undiagnosed
-MW2POWERVR 0x100399f0 CountMissionStream 8fd5d89f9dfc undiagnosed
-MW2POWERVR 0x10039d20 LoadMechConfig 88f792455462 undiagnosed
-MW2POWERVR 0x1003a590 GetMechValue 2d8176479e24 undiagnosed
-MW2POWERVR 0x1003aa40 LoadShapeRecord 306ffd620489 undiagnosed
-MW2POWERVR 0x1003b710 RunIncludedStream 73ae7cd55b5e undiagnosed
-MW2POWERVR 0x1003b820 CreateObjectNode a2d116b6e4b1 undiagnosed
-MW2POWERVR 0x1003bd50 UpdateWeaponFireState b1b177e02302 undiagnosed
-MW2POWERVR 0x1003caf0 UpdateWeaponLock 4d622f08e9d4 undiagnosed
-MW2POWERVR 0x1003d4e0 UpdateShot 03f6fecb2a5c undiagnosed
-MW2POWERVR 0x1003f6ac VFX_flat_polygon 8f7f16e836f5 undiagnosed
-MW2POWERVR 0x1005c680 RestoreBrightness f0ffeba7c79d undiagnosed
-MW2POWERVR 0x1005c6a0 AbortMissionAction ffff562e73f6 undiagnosed
-MW2POWERVR 0x1005c700 FleeToWindowsAction 5b464a629f4b undiagnosed
-MW2POWERVR 0x1005cb60 RunMenuSlider 45682cd9b7e9 undiagnosed
-MW2POWERVR 0x1005cf40 RunMenuStatus a1dc1c94320e undiagnosed
-MW2POWERVR 0x1005d170 RunMenuChoice dd04d9e95ed5 undiagnosed
-MW2POWERVR 0x1005db10 LoadMenuResources 31b38e37e58c undiagnosed
-MW2POWERVR 0x1005dce0 FirstMenu 9c31bdc50577 undiagnosed
-MW2POWERVR 0x1005e110 RunMenuItems 2d6e97f5c839 undiagnosed
-MW2POWERVR 0x1005e970 FUN_1005e970 b405efbbe15f undiagnosed
-MW2POWERVR 0x1005eba0 FUN_1005eba0 7a46d1082ec6 undiagnosed
-MW2POWERVR 0x1005ec90 FUN_1005ec90 2ca06e7e2408 undiagnosed
-MW2POWERVR 0x1005ed90 FUN_1005ed90 766bb42fe11f undiagnosed
-MW2POWERVR 0x1005efe0 FUN_1005efe0 11039e09064e undiagnosed
-MW2POWERVR 0x1005f0b0 FUN_1005f0b0 ddadf60b1859 undiagnosed
-MW2POWERVR 0x1005f7f0 FUN_1005f7f0 caea47b6588b undiagnosed
-MW2POWERVR 0x10060320 FUN_10060320 b118038b6b18 undiagnosed
-MW2POWERVR 0x100609a0 FUN_100609a0 80a9ebaad53a undiagnosed
-MW2POWERVR 0x10061050 FUN_10061050 938b0d03e1ab undiagnosed
-MW2POWERVR 0x100610d0 FUN_100610d0 46a8036c15c9 undiagnosed
-MW2POWERVR 0x100611a0 FUN_100611a0 b934b02e29a8 undiagnosed
-MW2POWERVR 0x10061360 FUN_10061360 cedc79de8c2f undiagnosed
-MW2POWERVR 0x10061750 FUN_10061750 2205e752ac87 undiagnosed
-MW2POWERVR 0x10061d60 FUN_10061d60 cfa0618848aa undiagnosed
-MW2POWERVR 0x10061db0 FUN_10061db0 eae4af484204 undiagnosed
-MW2POWERVR 0x10062160 FUN_10062160 7036444837c4 undiagnosed
-MW2POWERVR 0x10062b10 FUN_10062b10 260655ffebda undiagnosed
+MW2ATI 0x10001220 CullMapViewShape 26be71ee54b9 x87 operand order and slots: dx and dy have each other's frame slots ([esp+4]/[esp+8]), each product loads its memory operand the other way round (fld a; fmul b against fld b; fmul a), and in the side's dot product 2.2 evaluates dy*X1 before dz*X2 where the original has dz*X2 first; the two are summed first either way (faddp st(2)), so the same additions on the same values; same instruction count
+MW2ATI 0x100014b0 ProjectMapPoint f66af19cf571 2.2 evaluates the dot products' products in another order than the original (fld/fmul st(n) operands, as in the 3Dfx edition), schedules y's two multiplications by the inverse scale differently (fmul [c] in place against fld [c]; fmulp, one instruction fewer in the original), and mirrors the screenY comparisons (cmp ecx, ebx; jg against cmp ebx, ecx; jl); reordering a float sum isn't a rewrite the audit has
+MW2ATI 0x100024f0 InitRefreshMode f9479e870eab the same instructions but for register allocation: the window-size tests' two comparisons mirrored (cmp ebp, eax / jl against cmp eax, ebp / jg) and p_height * p_width's imul operands in the other registers (esi/ebp swapped); no padding to 24 reaches it, and the audit's webs don't map the swapped parameters
+MW2ATI 0x10002b20 LayoutMessageBoxes 8038baa5483e register allocation: the rectangle's members go to other registers (the original copies y0 with mov edx, ebx and loads y1 later, the rebuild loads y1 into ebp up front), 80 against 81 instructions; the same loads, negation, sign select (cmp/sbb/and/inc) and stores
+MW2ATI 0x10002c00 ShowInGameMessage 5fc3f1746eb1 register allocation (the slot search's lowestPriority, latest and slot in other registers) and the priority comparisons mirrored with their loads (cmp edx, ecx/jg against cmp ecx, edx/jl), as in the 3Dfx edition; same instructions
+MW2ATI 0x100032b0 DrawMapView e13ca0540757 as in the 3Dfx edition: three frame slots permuted (heading, y, z), angle += heading loads heading first (x87 operand order), the original tests obj with cmp against a register known to hold 0 where the rebuild has test, and the range/farPlane registers and BeginMapView's argument loads in another order
+MW2ATI 0x100039d0 DrawMapFieldOfView f74a067d11b2 register allocation (the half extents in ebx/edi swapped, their pushes in the other order) and the x87 additions' operands swapped (fld [a]; fadd [b] against fld [b]; fadd [a]) with frame slots permuted; same instructions
+MW2ATI 0x10004020 FUN_100751a9 fef0b305d7a9 register allocation, as in the 3Dfx edition: the original keeps p_count in a register and spills p_layout where the rebuild keeps p_flags in a register, so the loop's or reads p_flags from the stack in the original; it also stores each palette component right after loading it; same instructions
+MW2ATI 0x10004280 DrawSatelliteStatic 4b418512b11d register allocation (layout, transition and the clock in esi/ebx/edi against edi/esi/ebx) and case 0's g_currentClock + RandomIntBelow() into the shared case-1 tail computed with lea ecx, [ebx+eax] in the rebuild, add eax, edi in the original
+MW2ATI 0x10006c30 ScaleRectAboutCenter 686acf212047 register allocation and slot packing of the expanded FixedMul16s: p_dst and its edge in esi/edi swapped, p_dst's move scheduled across push ebp, and the four products' argument temporaries and centerX/centerY in other frame slots ([esp+48]/[esp+52] against [esp+16]/[esp+20]); same instructions
+MW2ATI 0x100072e0 TilePane 72ad44e4f1da as in the 3Dfx edition: the four callee-saved registers permuted and three frame slots (tileWidth, columns, rows) permuted, the two parameter moves around push ebp in the other order
+MW2ATI 0x100085e0 PrintMono 47cea519f9c6 register allocation: i and length swap esi/edi, the loop's lea takes base and index the other way and its test is mirrored (jg against jl); the same instructions otherwise, as the 3Dfx edition's line says; no padding to 24 reaches it
+MW2ATI 0x10008bc0 SignalTask ba7489e74b59 register allocation and scheduling, as in the 3Dfx edition: the original loads m_period first and g_currentClock into edx after mov esi, edx, where the rebuild loads the clock into ecx first; same instructions
+MW2ATI 0x10009040 SimMain 798a04c0f235 register allocation: in the network wait (#470-503) the original keeps g_isNetworkGame in eax and the remote wait time (0x1017f0ac) in ebx where the rebuild has edx and eax, and reloads the same five globals in another order at the loop's head (#624-639: the round counter in edx against ebx); the frame-buffer arguments are loaded in another order (#527-578); same frame and instruction count, every other instruction identical
+MW2ATI 0x1000a3b0 IsTeamNearTarget 5b3ffdbda07e as in the 3Dfx edition: the original shares radius's frame slot with z (frame 0xc against 0x10: x, y, z and radius in blocks of their own cases), and evaluates the nav and thing distances' x and z differences in the other order (fld [esi+80]/[esi+88] swapped); the block scoping that gives the frame costs the Matrox edition its witness
+MW2ATI 0x1000a590 AnnounceObjective 4fb5181b8c1c register allocation and scheduling: the original computes the objective's offset (p_objective * 0x13f) before the star's (p_star * 0xc4f) and keeps the latter in ebx, saving and restoring ebx (76 against 73 instructions: push/pop ebx twice), where the rebuild computes the star's first and needs no fourth register; the same address and the same calls; not padding (0-40)
+MW2ATI 0x1000aa00 UpdateObjective 6137e546c746 register allocation (ebx and esi swapped for the loop's counter and pointer, #173-191, #477-507), a register it knows holds 0 (cmp al, bl where the rebuild has test al, al), scheduling of the stores at #524-530 and one alignment nop (558 against 557 instructions)
+MW2ATI 0x1000bd50 MoveMechWithCollisions 61e908f3d118 is harmless x87 allocation in the dot product: 2.2 sums the doubled terms as X + (Y + Z) where the rebuild sums (X + Y) + Z, multiplies by segX from memory and keeps the dot in two stack slots (fst st(2)); the same operations on the same values
+MW2ATI 0x1000d280 ClassifyQuadtreePoint 9d2b404f10ab frame packing: the original shares p_model's spill slot with height and keeps the vertices alone ([esp+4] against [esp+0], [esp+32] against [esp+28]), the rebuild shares it with vertices (not a one-to-one map of slots); also ebx and ebp swapped for i and faces; same instructions (as the 3Dfx edition's line)
+MW2ATI 0x1000e5b0 ReelMotionTask eb88cd7857f2 is harmless register allocation: edx/ebx and eax/ecx swapped for the event index, the frame count and the flags through the jump search, the search's bound tests mirrored in them (cmp ebp, eax; jl against cmp ecx, ebp; jg) and an address's base and index in those registers; the same 566 instructions
+MW2ATI 0x1000ed20 LoadAnimFile 1fdc21d33b3e register allocation (ebx/edi swapped for g_animFileCount and the index, the count kept in ebx through the loop) and the search loop's two tests mirrored in them (cmp ebx, edi; jg against cmp edi, ebx; jl); same instructions (g_animBase, g_maxAnimNumber and g_animFiles now annotated)
+MW2ATI 0x1000f4f0 PathTask d498cb9d9206 register allocation: the original zeroes ebx for the point index in the follower's setup block (xor ebx, ebx before the call, one instruction more) where the rebuild reuses a register it already holds zero in, ebp/edi swapped for the duration loops' counters with their bound tests mirrored (cmp eax, ebx; jg against cmp ebx, eax; jl), and one store scheduled; no other instruction differs (as the 3Dfx edition's line)
+MW2ATI 0x100103c0 GetObjLastChild 0d3f97dc364a the original compares the child with a register it knows holds 0 (xor eax, eax for the result; cmp ecx, eax) where the rebuild tests it (test ecx, ecx): a register reused for a known value, which the audit doesn't reproduce; same 13 instructions otherwise (as the 3Dfx edition's line)
+MW2ATI 0x10010ff0 IsPointInFaceXZ bd1f8761b716 register allocation (ebx holds the sides mask in the original, the vertex counter in the rebuild, ecx the other) and an address's base/index order ([ecx+edi] against [edi+ebx]), which the audit's webs don't map; same instructions (as the 3Dfx edition's line)
+MW2ATI 0x10011310 IsPointInFaceXY 078a368e0b78 only an address's base and index swapped in the two index loads (mov al, [ecx+edi] against [edi+ecx]): the same instruction, which the audit's chains rewrite doesn't reach here (the index register is reused in the block)
+MW2ATI 0x10011ad0 UpdateGridObject a47da880d035 register allocation: the rebuild uses ebp for halfX where the original reuses edi (one push/pop of ebp more), esi and edi swapped for cellX and cellZ, and the snap test mirrored in the swapped registers; same instructions otherwise (as the 3Dfx edition's line)
+MW2ATI 0x10012c90 LogStarMissionLines f0d6d9749feb cross-jumping and register allocation: the rebuild merges the four status cases' sprintf tails from the buffer's lea on (lea, push, call, add), the original only from the call (each case pushes its own lea: 217 against 213 instructions); the time-left sums are reassociated alike (start - g_missionTime + limit against limit - g_missionTime + start, the same integer); three comparisons mirrored and eax/edx swapped for m_timeLimit
+MW2ATI 0x10014ff0 LeadStar 9c90deb11311 the original compares with a register it knows holds 0 (cmp r, reg) where the rebuild tests (test r, r): a register reused for a known value, which the audit doesn't reproduce; also ecx/edx swapped for the loop counter and the member pointer, and one comparison's operands mirrored
+MW2ATI 0x10016360 CalculateHeat 5a52842716bd register allocation and scheduling, as in the 3Dfx edition: m_flags (+0x10c) read in cx where the rebuild uses ax, the player pointer in another register; the original's partial write of ax ties that web to the heat value, which the audit's webs can't map
+MW2ATI 0x10016bc0 DestroyCriticalSlot cb2f2421d89b register allocation: three callee-saved registers permuted one to one (the rebuild's ebp, edi, ebx are the original's ebx, ebp, edi), plus the alignment padding before the jump table (a nop against lea ecx, [ecx+0], and the int3 tail)
+MW2ATI 0x100196a0 UpdateMech f861224bf21c to investigate: the frame is now the original's 0x70 (MW2_BLOCK_SCOPED_LOCALS) and the ATI edition divides each drag term by the length (not MW2_DRAG_DIVIDED_ONCE: three guarded fdivs, as the original); left: the isLocal registers (#19-26, as 3Dfx), the x87 stack in the drag (the rebuild keeps a dead copy, fst st(1) ... fxch/fstp st(0), where the original doesn't: the reverse of S3/PowerVR, so entropy), and in all four jump-jet branches the original adds dragX/dragZ from memory (fadd [esp+56]; fxch; faddp st(2); fstp st(2)) where the rebuild adds the stack copy (faddp st(3); faddp st(1)): dropping the (MechFloat) casts doesn't give the original's form either; possibly the ATI edition's source writes those sums another way
+MW2ATI 0x1001b520 InitMechArrays 5fb94097d155 the original stores the immediate 0xffff where the rebuild stores it from a register that holds it (mov [ecx], si): register allocation of a known value, which the audit doesn't reproduce (as the 3Dfx edition's line)
+MW2ATI 0x1001b5c0 InitDamagePanel 344db3d929d6 as in the 3Dfx edition: the original keeps g_outlineRect.m_y0 in a register for m_y1 and stores m_x1 after computing both, where the rebuild stores m_x1 first and reloads m_y0, and it gives width1/height1 other frame slots ([esp+56] against [esp+44]): scheduling and slot assignment
+MW2ATI 0x1001b9b0 DrawDamageOutline 78c1b496aed4 is register allocation: edi and ebx swapped for the part's level and its loop state, while both sides keep 0 in ebx for the test of g_outlineVisible at #36, which ties the webs (the audit can't map them one to one); same instruction count (188
+MW2ATI 0x1001ce70 RemoveNavPoint 0c60db032982 register allocation and one schedule, as in the 3Dfx edition: the nav table copy's pointer lives in ebp where the rebuild uses edi (lea edi, [esi+...] against lea ebp, [esi+...]); same instruction count
+MW2ATI 0x1001df90 LayoutWeaponPanels 89514947336a register allocation, as in the 3Dfx edition: the panel loops' counters and pointers take other registers, and the original sets the third loop's counter (mov ebp, 3) a block earlier
+MW2ATI 0x1001f980 GetOffsetPoint 99b52424a764 scheduling: the original has a nop after *p_y = 0 (#46) and stores *p_x (fstp [edi]) after the jne on the m_y divisor, duplicated into both arms, and loads a table entry before its store in the default path; the instructions are otherwise the same (as the 3Dfx edition's line)
+MW2ATI 0x10022760 InitHudGauges 9133638ae14e scheduling, as in the 3Dfx edition: the original loads g_resTagShp and pushes it right after push 0, before the stores to g_altimeterLevelX, GroundX and TargetX; the rebuild loads it after them; same instructions
+MW2ATI 0x10024000 StaticPoolAlloc 463a4f91498a register allocation and scheduling: in the pool's bookkeeping update (#53-65) the original indexes with ebp and loads the three words in another order, storing the new end before the pop, where the rebuild indexes with edx; the same loads, subtractions and stores, same frame and instruction count
+MW2ATI 0x10024640 LoadCachedResource 4809c23e57c1 the original packs p_file's spill into the start of message (frame 0x64 against 0x68), keeps p_id in edi and p_type in ebx where the rebuild swaps them, and copies the resource size into ebp before testing it (225 against 224 instructions): stack packing and register allocation the audit doesn't reproduce, as in the 3Dfx edition
+MW2ATI 0x100249b0 AllocGeoTables bf4e238ea240 as the 3Dfx edition's, whose original and rebuild are this one's byte for byte (relocations aside): register allocation: the original tests pool 8's size in eax before copying it to edi, and compares pool 9's size with esi, which holds result = 0 (cmp eax, esi); the /Od originals pin if (size); a standalone 2.2 probe gives the rebuild's code at every padding 0-300, and with signed or separate size locals, a chained capacity assignment, swapped declarations and other comparison forms
+MW2ATI 0x10024ac0 FreeGeoTables fb06293857ae as the 3Dfx edition's, whose original and rebuild are this one's byte for byte (relocations aside): block placement: the original repeats mov ecx, g_primaryHeap in the first if's then-branch and jumps past the else path's loads, where 2.2 merges the two at one join; a 2.2 probe gives the rebuild's code at every padding 0-300, and with other types for the pointers and the heap handle
+MW2ATI 0x10024dc0 BeginBlock ee99a200b377 witness: pad 26 (tools/witness.py --target MW2ATI --unit geocache.c --pads 60): the block transform's three float sums' operand order
+MW2ATI 0x100255e0 AreStaticObjectsComplete 167870fff706 register allocation: the original keeps found in edx, i in ecx, the count in eax and the entry pointer in esi (the rebuild eax, esi, ecx, edx), and tests the count against ecx, which holds i's 0 (cmp eax, ecx), where the rebuild compares it with found's 0 in eax: a register reused for a known value, so the webs don't map one to one; same instructions otherwise; no padding 0-60 (tools/witness.py)
+MW2ATI 0x10025620 LoadStaticObject 948bc1b97fe1 as the 3Dfx edition's, whose original and rebuild are this one's byte for byte (relocations aside): register allocation (an address's base and index swapped, lea against add, another register for one value) the audit's webs don't map
+MW2ATI 0x10025a10 FreeStaticObjectTree 76a024091aef register allocation: the original keeps i in edi and result in ebp, the rebuild the other way round, and its first loop test compares g_staticObjectCount with ebp, which holds 0 in both (result's in the original, i's in the rebuild): a register reused for a known value, which the webs can't map; the loop test is mirrored (cmp eax, edi; jg against cmp ebp, eax; jl); no padding 0-60
+MW2ATI 0x10025af0 InitializeDrawBuffer 933f8107a5f1 the original rematerialises g_drawBuffer + g_drawBufferSize with a lea for g_drawBufferTop (lea eax, [edx+esi-48]) where the rebuild keeps g_drawList's sum in ecx and subtracts 0x30, which costs it ebx (a push/pop more); the same stores of the same values, in another order and registers
+MW2ATI 0x10026490 ChoosePlayerDetailLevels b0ed5c745322 register allocation (ebx/ebp/esi/edi permuted: ebx reused for g_playerCount and then g_players's walk, as in the 3Dfx edition's line), the loop tests mirrored in the swapped registers (cmp ebx, eax; jl against cmp eax, esi; jg) and the zeroing of the counter scheduled two instructions later; same instructions
+MW2ATI 0x10026f90 FUN_100688fe f00a34d2d594 scheduling and register allocation: the rebuild hoists the alpha's constant store to the loop's top and computes the palette row's address with lea/lea where the original copies p_count first (mov ebx, ecx) and scales with shl; the loads and stores are otherwise the same
+MW2ATI 0x10027140 FUN_10068b57 e86d8b6ba09a is the 3Dfx edition's: the original doesn't hoist the palette loads above the zeroing and alpha stores through the vertex pointer (scheduling under /Ow), the rebuild loads them first
+MW2ATI 0x10027400 ReadTextLine f8f005f0ecfa register allocation: the original keeps p_file in ebx, i in esi, p_buffer in ebp and the limit in edi (the rebuild esi, ebx, edi, ebp), a one-to-one permutation across the function but for the prologue's parameter moves, which it schedules differently (xor esi, esi between them); same instructions; no padding 0-40 (the 3Dfx edition's identical source has a pad 2 witness)
+MW2ATI 0x10027560 FUN_10068e33 16a77c38254c as the 3Dfx edition's, whose original is this one's byte for byte: the original increments corner (inc edi) between each corner's u and v tests and addresses the next corner with lea [edi*4+0], where the rebuild increments after the v test (lea [esi*4+4]): scheduling of the induction variable; the corner++ after both tests is pinned by the Matrox edition's /Od code; no padding 0-40
+MW2ATI 0x10027930 DrawSkyAndGround ffe87529f27c is the 3Dfx edition's: the original repeats the VFX_lookaside_read16 call and its pushes before the pane wipe in three cases where the rebuild jumps to one shared copy (block placement), keeps y1 in a register for the rect sums and associates rect.m_y0 + y1 - y0 differently, and reloads g_skyColor for the second band corner
+MW2ATI 0x100294f0 ComputeNormalsAndBounds be98907de3cd register allocation: esi and edi swapped for the model and the face counter (the same instructions in the same order otherwise), which the audit's webs don't map; no padding (0-24) flips it
+MW2ATI 0x10029670 GetShapeMemorySize 350f8a28e5a2 register allocation: ebx and edi swapped for the face counter and the face pointer (the same instructions in the same order otherwise), which the audit's webs don't map; no padding (0-24) flips it
+MW2ATI 0x100296e0 TransformModel 3931de82245e as the 3Dfx edition's, whose original and rebuild are this one's byte for byte (relocations aside): x87 operand order (loads through pointers) the audit has no rewrite for
+MW2ATI 0x100299e0 RayShapeDistance 776d1dccf9d9 as the 3Dfx edition's, whose original and rebuild are this one's byte for byte (relocations aside): the original keeps deltaZ on the FPU stack for its square (fst, fmul), the rebuild stores the three deltas and reloads (one instruction more): x87 stack allocation
+MW2ATI 0x10029b30 QueueShapeLod a8c4dfeba6e8 as the 3Dfx edition's (the same original): a register permutation (prev and model in edx/ebx against ebx/edx), an fmul's operand order (fld [model]; fmul [eyepoint+160] against the other order), and the zeroing xor on the other side of the pushes that save the registers, which the audit's scheduling doesn't allow; no padding 0-24
+MW2ATI 0x1002a480 FUN_1002a480 b3f995ff109e register allocation and scheduling of the texture rows record's stores and the call's arguments (lea/mov order, ebx against edx for the pane), same instructions
+MW2ATI 0x1002ac80 GetViewVertex 2ad3f427e0b3 as the 3Dfx edition's, whose original is this one's byte for byte: x87 stack allocation (the original multiplies dz through a copy, fmul st(1), and pops it at the end, fstp st(0); the rebuild multiplies in place) and the products' factor order; no padding 0-60
+MW2ATI 0x1002ad40 ClipEdgeToNearPlane 459e6f5807c4 as the 3Dfx edition's, whose original and rebuild are this one's byte for byte (relocations aside): a mirrored fcomp of the two depths (#45) and the x87 scheduling of the interpolations (the divisions and fmul st(N) interleaved differently); no declaration order or padding helps
+MW2ATI 0x1002b370 QueueFace e6badd016962 partly fixed (the ATI edition copies the face normal into three locals for the backface test and sums its z term first: new feature MW2_QUEUEFACE_NORMAL_LOCALS, ATI and S3; 607 against the original's 608 instructions now, 601 before); what's left: the original has one stack slot more (a 0x84 frame against 0x80), its far-plane comparison is mirrored (fld far; fcomp viewDepth) and the average depth's sum lands in the slot the backface test's dot product used, so a local the source keeps apart is shared or another declared: to investigate (the 3Dfx edition's original has the same 0x84 frame)
+MW2ATI 0x1002bd20 DrawAnimatedPolygon 0df3b62aa847 scheduling of g_unk0x10184700's color copy: the original stores each component right after loading it, the rebuild loads all three before storing, with flags |= 1 between; same instructions
+MW2ATI 0x1002c150 AdvanceAnimations a10898acd076 register allocation: g_animFrames' index lea with base and index swapped (lea ebp, [ebx+ecx] against [ecx+ebx]) and the loop's end comparison mirrored (cmp ecx, edx/jae against cmp edx, ecx/jbe); same instructions
+MW2ATI 0x1002c630 FUN_10051c07 cd9ad824c690 register allocation (the vertex pointer and the count in edi/ebx swapped, the point in eax against ebp) and two dead loads the rebuild has after the w division (mov ebp, [eax+12]; mov ebp, [eax+16], 2.2's leftovers of the int-to-float stores, which the original's FUN_10051ea2 has too): 90 against 88 instructions; nothing reads them
+MW2ATI 0x1002c740 FUN_10051ea2 cb483e9bb7bb register allocation: the vertex pointer, the point count and g_unk0x100aa1d0 in other registers (ecx/edx, edi/ebx swapped), the color copy's loads scheduled before its stores; same instructions
+MW2ATI 0x1002d1c0 CycleTrackedPlayer 0c71a36000c4 register allocation (eax and esi swapped for g_playerCount and g_trackedPlayer), the bound test mirrored in the swapped registers (cmp esi, eax; jg against jl) and one store scheduled past the next load; the same 34 instructions; no padding (0-24) flips it
+MW2ATI 0x1002dca0 TransformPoint 037efc379bb9 as the 3Dfx edition's, whose original and rebuild are this one's byte for byte (relocations aside): x87 register operands (fmul st(n)) in another stack order: x87 scheduling the audit doesn't reproduce
+MW2ATI 0x1002deb0 MultiplyRotations 3ccbf7296e6d as the 3Dfx edition's, whose original and rebuild are this one's byte for byte (relocations aside): x87 stack scheduling of the nine dot products (3 instructions fewer in the original)
+MW2ATI 0x1002e150 BuildMatrixEx 5eec60e613a9 as the 3Dfx edition's, whose original and rebuild are this one's byte for byte (relocations aside): x87 scheduling: an fmul by memory where the original uses st(2) (one instruction), and another stack slot
+MW2ATI 0x1002e820 UpdateProjection 9938751f963f is the 3Dfx edition's: register allocation and scheduling of the view rectangle's loads (the original loads bottom into edi and left into edx first, the rebuild the other way round), the same instructions as a multiset
+MW2ATI 0x1002ea50 ProjectWorldPoint d682c446704d as the 3Dfx edition's, whose original is this one's byte for byte: the three dot products' terms and the near-plane comparison come out in other x87 operand orders (the original sums the dz, dy, dx terms and compares fld z; fcomp near, the rebuild keeps g_viewNearPlane on the stack: fstp st(0) and extra fxch), reordering a float sum isn't a rewrite the audit has; no padding 0-60
+MW2ATI 0x1002ec00 CullSceneShape 0a45e2143d91 as the 3Dfx edition's, whose original is this one's byte for byte: the frame and the depth negated into a slot of its own are the original's, but 2.2 folds the two side tests' arms apart where the original merges them into one fchs/fmul/fadd (the order of the side and fov operands); no padding 0-60
+MW2ATI 0x1002ee20 CullShapeToFrustum 995e35919f88 as the 3Dfx edition's, whose original is this one's byte for byte: 2.2 folds the side tests' arms apart where the original merges them (fld [fov]; fmul [x] against fld [x]; fmul [fov]) and the dot products load their factors the other way round; no padding 0-60
+MW2ATI 0x1002f470 ComputeTriangleNormal 55e73a9546b5 as the 3Dfx edition's, whose original is this one's byte for byte and whose rebuild gives the same comparison: x87 scheduling, the products' factors kept in other stack positions; the blocks differ at #51
+MW2ATI 0x10030c20 DoAudio 5e4c5056c826 register allocation: the loop index, the player pointer and the scratch register are another permutation of ecx/edx/eax (mov dx, [eax+0x14e] against mov ax, [ecx+0x14e]) and the loop test is mirrored (cmp ecx, edi / jl against cmp edi, edx / jg); same loads, compares (the range against 150000.0f's bits) and call; no padding to 24 reaches it
+MW2ATI 0x10030df0 StartSample f31c42e41e27 the original keeps flags in a 2-byte slot of its own (mov [esp+18], ax; frame 0x14), tests p_flags directly in the loop and reloads flags only for the final m_flags[slot] store, where the rebuild substitutes p_flags for flags throughout (frame 0x10, no store); with it g_audioEngine and the loop index swap registers (ebx/ebp) and the count tests use other registers: 2.2's copy propagation, as in the 3Dfx edition's line; no padding to 24 reaches it
+MW2ATI 0x10031a70 StopSamples 9ef7b25200c8 register allocation: the original loads g_audioEngine before saving esi and keeps it in another register; the same loads, compares and calls; as in the 3Dfx edition's line; no padding to 24 reaches it
+MW2ATI 0x10038c60 UpdateInputs 0bbafba49da5 is register allocation: the device loop's counter and pointers permuted among ebx, edi and ebp, the counter's zero reused in a comparison (cmp edi, ecx against cmp ecx, ebp) and three loop tests mirrored (cmp esi, eax; jl against cmp eax, esi; jg); same instruction count
+MW2ATI 0x1003a600 DrawPaletteGrid c036fd62ea39 register allocation, as in the 3Dfx edition: x in ebx against esi (the 10 loaded into the other register first) and lea's base and index swapped for i + y; same instructions
+MW2ATI 0x1003b380 FindPrjType 28e6ec8faf3b the original returns through two epilogues (58 instructions against 52: its found arm returns si, the other loads 0xffff, each with its own pops), where the rebuild loads i into eax ahead of the test and shares one; the same values; esi/edi swapped for i and types; if/else, an early return and ?: in a probe give none that splits them
+MW2ATI 0x1003bb70 BwdExecuteStream cc2ecc9fbea1 the 10 tag tests compare the other way round: the rebuild loads the global and compares it with the type's slot (mov eax, [g]; cmp [esp+24], eax), the original loads the type and compares it with the global in memory (cmp [g], eax), and the 5 globals loaded before the loop are in another order and other registers (1620 against 1618 instructions); a normalized diff of the two shows nothing else; same frame (0xd8). Several of the globals it stores have no ATI annotation yet (g_slideSlope, g_lastPlayer, g_nextMangleBase, g_daysPerYear, g_effectCameraEnabled, g_jumpJetDrag, g_brightenDamage...)
+MW2ATI 0x1003d540 AddBwdName 02d4eada0e64 the original compares with a register it knows holds 0 (cmp r, reg) where the rebuild tests (test r, r): a register reused for a known value, which the audit doesn't reproduce
+MW2ATI 0x1003df20 LoadReels e6e7a9b62906 register allocation: esi and edi swapped throughout (the file's buffer and the offset), so the address's base and index read the other way round ([esi+edi] against [edi+esi]), which the audit's webs don't map
+MW2ATI 0x1003ec90 CountMissionStream 1a1469d99bcc the comparison's two SWAP_TAG computations evaluate in the other order (the original swaps the version tag at 0x1018e398 first, then the entry's, and mirrors the jump: jbe against jae), each with its OR terms in another order; the counters' adds alternate cx and dx where the rebuild uses ax, and the original adds [ebx+24] from memory where the rebuild loads it first (162 against 161 instructions); the same values stored
+MW2ATI 0x1003f830 GetMechValue dbb934d53996 register allocation (eax and ecx swapped for the count 0x16 and the loaded word) and one comparison mirrored (cmp ebx, edi; jl against cmp edi, ebx; jg), which the audit's webs don't map
+MW2ATI 0x1003fce0 LoadShapeRecord 27eb0978e00d the original keeps header->m_vertexCount in edi through the face loop and gets vertexCount with dec edi, where the rebuild spills it to [esp+84] (frame 0x74 against 0x70, 8 instructions more) and uses edi for extraSize; in the name and face loops the registers are permuted (eax/edx, eax/ebp), and the name copy's lea is scheduled after the pushes: register allocation and spilling, as in the 3Dfx edition's line
+MW2ATI 0x100409b0 RunIncludedStream d01e92d30c4a the original compares with a register it knows holds 0 (cmp r, reg) where the rebuild tests (test r, r): a register reused for a known value, which the audit doesn't reproduce
+MW2ATI 0x10040ac0 CreateObjectNode 292cefc63453 register allocation (esi and ebp swapped for the two movsx'd words and their uses throughout, edi/esi for one call result), one comparison mirrored, and a cmp with a register known to hold 0 where the rebuild tests: same instructions otherwise
+MW2ATI 0x10041db0 UpdateWeaponLock c472356c45b3 x87 stack allocation: the original squares dx from a copy (fld st(0); fmul st(1)) and pops the dead copy after the first range comparison (fstp st(0)), where the rebuild squares it in place (184 against 181 instructions); the same sums and comparisons; the PowerVR edition's rebuild does what this original does and its original what this rebuild does, from the same source, and the 3Dfx edition's is witnessed by padding (pad 45): the compiler's choice
+MW2ATI 0x10042310 SpawnLaunchFx 3adfe80af7a5 2.2 sums upY's products in the order the unit's symbols give, another than the original's (the two products of the second sum swapped, each with its fmul operands swapped): two computed products swapped isn't a rewrite the audit has
+MW2ATI 0x10043430 SpawnEffectEx 6f449a368bf4 slots and operand order (shots.c, /Od): the camera's distance sum loads cameraZ first and keeps it on the x87 stack (fst [cameraZ]; fmul [cameraZ]) and stores the sum before comparing it (fst; fcomp), where the rebuild stores cameraZ and loads cameraX first; with 8 typedefs ahead of the unit (witness.py --early 16, pads 0-24) the function compiles to the original's code but for stack slots, which no renaming tried reproduces (witness.py reports `slots`); the 3Dfx edition's, from the other form of the same comparison, is witnessed by renaming; to try: tools/declorder.py
+MW2ATI 0x10061930 AbortMissionAction 84f3a5aa3ac6 the original saves ebx and esi, the rebuild ebx, esi and ebp: it keeps p_page in ecx and m_selected in ebp where the original keeps p_page in esi and compares [esi+16] through edx; the same tests in the same order, register allocation (MW2's AbortMissionAction is exact from the same source); no padding (0-64)
+MW2ATI 0x10061990 FleeToWindowsAction f22b2a08f514 the original saves ebx and esi, the rebuild ebx, esi and ebp: it keeps p_page in ecx and m_selected in ebp where the original keeps p_page in esi and compares [esi+16] through edx; the same tests in the same order, register allocation; no padding (0-64)
+MW2ATI 0x10061df0 RunMenuSlider a86859d6c4cd register allocation that changes forms, as in the 3Dfx edition: the original loads p_index into edx and subtracts it from a register (mov edx, [mem]; sub ecx, edx) where the rebuild uses sub ecx, [mem], and tests m_flags in a register (test esi, 1) where the rebuild tests al: 306 against 307 instructions
+MW2ATI 0x100621d0 RunMenuStatus d04d281f6ec3 as RunMenuSlider: register allocation that changes forms (sub ecx, [mem] against a load and a register sub, m_flags tested in a full register): 181 against 183 instructions
+MW2ATI 0x10062400 RunMenuChoice af14dafc1dea as in the 3Dfx edition: m_flags loaded into a register and tested whole, p_index loaded before the subtraction, p_control and value in swapped registers and the step/apply stores scheduled around the prologue's pushes: 170 against 175 instructions
+MW2ATI 0x10062f70 FirstMenu e8a68870d963 the original compares with a register it knows holds 0 (cmp ebx, edi) where the rebuild tests (test ebx, ebx), and esi/edi swapped: a register reused for a known value, as in the 3Dfx edition
+MW2ATI 0x100633a0 RunMenuItems 9e72f2940c17 the original saves another set of callee-saved registers and compares with a register known to hold 0 (cmp eax, ebx against mov edi, eax; test edi, edi), the item loop's counters in other registers and its test mirrored, as in the 3Dfx edition: 420 against 417 instructions
+MW2ATI 0x10063d50 A3D_SetPalette 081991f82cb6 x87 scheduling: the original stores each of the three converted components as soon as it is loaded (fild; fstp [eax-12]), the rebuild keeps red on the stack until green is loaded (fild; fxch; fstp; fstp), one instruction more; same loads, stores and multiplications by 4
+MW2ATI 0x100640e0 FUN_100640e0 ca9a972509dc scheduling: the same instructions, the stores of the C3D_TMAP's fields and the bMipMap computation (cmp; sbb; inc) in another order; register-free stores the audit doesn't reorder past the rep stos block boundary
+MW2ATI 0x10064340 FUN_10064340 762e82b6dee5 register allocation and scheduling: texture and p_log swap esi/edi, and the original takes &texture->m_next in a register (lea eax, [edi+192]) to read the next texture and clear the link before storing the list head, where the rebuild reads it directly and clears the link last (allowed under /Ow: no aliasing assumed within the function); the same loads and stores
+MW2ATI 0x100643b0 FUN_100643b0 8eda4bd52ee6 register allocation: the original spills each texel to a stack word (frame 0x20, mov [esp+28], cx) where the rebuild keeps it in bx (frame 0x1c), 129 instructions against 115; the same loads, shifts, masks, sums and store per texel
+MW2ATI 0x10064650 FUN_10064650 afbae6d79a6d register allocation: the list pointer and the result swap eax/ecx and the best age esi/edi, the age comparison mirrored (cmp esi, edi against cmp edi, esi); the same loads, compares and stores
+MW2ATI 0x10064930 A3D_DrawPolygon 1520d00989f5 is p_pane and p_count in other registers (esi/edi swapped) and the pane fields loaded in another order, as in the Matrox edition's line
+MW2ATI 0x100649e0 A3D_map_polygon 3f3d459a67ce is the lea scheduled after the flags load where the original puts it before, and register allocation
+MW2ATI 0x10064b60 A3D_polygon_clip_XY_and_render 81f7a3085759 is the triangles pointer in ebx against edi and the state checks' registers
+MW2ATI 0x10064eb0 A3D_EdgeCrossing b0b413bbd7ae in case 2 the original loads p_out and p_edge after the FDIV check's branches, in case 1 before; the Matrox and 3Dfx editions show the same, and no source form found gives it (as their lines say); the same loads, x87 operations and stores
+MW2S3 0x10001260 InitHudGauges 5935a7d0b360 scheduling, as in the 3Dfx edition: the original loads g_resTagShp and pushes it right after push 0, before the stores to g_altimeterLevelX, GroundX and TargetX; same instructions
+MW2S3 0x10001720 DrawCompassMarkers ff57e014e024 operand order of integer chains in other registers: g_compassOrigin.m_y - g_compassArrowSize.m_y - g_compassTapeAbove subtracts the tape height first in the rebuild, g_compassArrowSize.m_y + g_compassOrigin.m_y + g_compassTapeBelow adds the tape height before the origin in the original, and one fmul's operands are swapped; same instructions
+MW2S3 0x10002130 CullMapViewShape 50e93694b623 x87 scheduling, operand order and slots (4.1 /Ox): the original keeps dz on the FPU stack (fst, fmul in place) where the rebuild stores it and reloads it (101 against 102 instructions), the dot products' products load their operands the other way round and in another order, and dx, dy, dz have other frame slots
+MW2S3 0x10002390 ProjectMapPoint aade55eb1b66 4.1 evaluates the dot products' products in another order than the original (fld/fmul st(n)), schedules y's multiplications differently, keeps screenX/screenY and p_screen in other registers (esi/edi/ebx permuted) and mirrors the screenY comparisons; reordering a float sum isn't a rewrite the audit has
+MW2S3 0x100028d0 LoadCachedResource 7ea1fddc3784 the original packs p_file's spill into the start of message (frame 0x64 against 0x68) and keeps the size in another register (225 against 224 instructions), stack packing the audit doesn't reproduce, as in the 3Dfx edition
+MW2S3 0x10003230 InitializeDrawBuffer 5bcb3bf39eee the original rematerialises g_drawBuffer + g_drawBufferSize with a lea for g_drawBufferTop (lea eax, [edx+esi-48]) where the rebuild keeps g_drawList's sum in ecx and subtracts 0x30, which costs it ebx (a push/pop more); the same stores of the same values, in another order and registers
+MW2S3 0x10003360 ReelMotionTask 4d0351f5fe5a is harmless register allocation: ebx/edx swapped for the event index and the events, the jump search's bound tests mirrored in them, and match kept in ecx where the original keeps it in eax, so the original reloads the event's flags for the & 4 test (mov eax, 1; mov ecx, [edx+ebx*8]; test cl, 4) where the rebuild tests the al it still has: one instruction more in the original, from the allocation alone
+MW2S3 0x10003b60 ColorCycleTask 0dbaaa773654 register allocation: the rebuild clears ebp for the face counter before the loop's count test (xor ebp, ebp; cmp eax, ebp) where the original clears esi and compares memory with it (xor esi, esi; cmp [ebx], esi), the counter then in ebp against esi (one instruction more in the rebuild); the string literals pushed for strtok (",") are the same text at the original's .data addresses
+MW2S3 0x10005110 GetObjLastChild 0d3f97dc364a the original compares the child with a register it knows holds 0 (xor eax, eax for the result; cmp ecx, eax) where the rebuild tests it (test ecx, ecx): a register reused for a known value, which the audit doesn't reproduce (as the 3Dfx edition's line)
+MW2S3 0x10005a40 JoystickCloseDevice 66ba350d5f57 block placement (4.1 /Ox): the original reloads g_heap (mov ecx, [g]) at the end of the first HeapFree's branch and jumps past the other branch's own loads of the heap and HeapFree, where the rebuild loads the heap once at the join; the same calls with the same arguments (71 against 70 instructions)
+MW2S3 0x10006190 UpdateGridObject 100d0633b526 register allocation: the rebuild uses ebp for halfX where the original reuses edi (one push/pop of ebp more), esi and edi swapped for cellX and cellZ; same instructions otherwise (as the 3Dfx edition's line)
+MW2S3 0x100067b0 UpdateProjection 0020ce4b4b9a register allocation and scheduling of the view rectangle's loads and of the scales' stores (the same instructions as a multiset
+MW2S3 0x100069b0 ProjectWorldPoint 30dc460d9c19 scheduling: the screen y's integer sum (centerY - y - offset) is computed in another order around the fild of x (sub ebp, ecx before the load of g_viewCenterY against after), the same instructions as a multiset; no rewrite moves an integer sum across the x87 loads
+MW2S3 0x10006b40 CullSceneShape bc5020c2bba7 x87 operand order: the products' factors loaded the other way round (fld [x]; fmul [g] against fld [g]; fmul [x]) in four products and one side test mirrored (je against jne), the same instructions otherwise; as the ATI and 3Dfx editions' arms
+MW2S3 0x10006d30 CullShapeToFrustum 250cfecca07d x87 operand order: four products load their factors the other way round (fld [local]; fmul [global] against fld [global]; fmul [local]), the same instructions as a multiset
+MW2S3 0x100073a0 ScaleRectAboutCenter 686acf212047 register allocation and slot packing of the expanded FixedMul16s: p_dst and its edge in esi/edi swapped, p_dst's move scheduled across push ebp, the products' argument temporaries and centerX/centerY in other frame slots; same instructions
+MW2S3 0x100076b0 BoxText f4592f6f1a43 register allocation: the text pointer, the width sum and the index in ebx/esi/edi/ebp permuted, a parameter load scheduled across the pushes, the character index's lea base and index swapped and the sum formed in another register (add ebx, esi against lea ebx, [edi+ebp]); same instructions
+MW2S3 0x10008320 PrintMonoLine ca34f4cc711c register allocation: text and cell swap ebx/ebp (the original keeps p_text in ebx, the cell pointer in ebp), and strlen's eax/ecx setup is scheduled the other way; the same instructions
+MW2S3 0x10008370 PrintMono cfe473b31132 register allocation: i and length swap esi/edi, the lea's base and index the other way and the loop test mirrored (jg against jl), as in the 3Dfx edition's line
+MW2S3 0x10009290 DrawMapView a0b8ab176b13 as in the 3Dfx edition: three frame slots permuted (heading, y, z), angle += heading loads heading first, obj tested with cmp ecx, edx against the known zero where the rebuild has test ecx, ecx, and the range/farPlane registers and BeginMapView's argument loads swapped
+MW2S3 0x100095c0 DrawMapUnits de5d11616732 register allocation: the unit count and the global loaded into eax/ecx the other way round, the scheduling of the first global load before the pushes, and the loop comparisons mirrored (cmp edi, ecx/jl against cmp eax, edi/jg); same instructions
+MW2S3 0x10009870 DrawMapNavPoints 121b7e24225b register allocation: the layout and the nav point pointer in edi/esi swapped, and the nav point count compared from memory in the rebuild (cmp [g], ebx) and from a register in the original (mov ecx, [g]; cmp ecx, ebx): 94 against 95 instructions
+MW2S3 0x100099a0 DrawMapFieldOfView 6111bfa5b0a2 register allocation (the half extents in ebx/edi swapped, their pushes in the other order) and the x87 additions' operands swapped, with frame slots permuted; same instructions
+MW2S3 0x10009fe0 FUN_100751a9 b645236efec1 register allocation, as in the 3Dfx edition: the original keeps p_count in ebp and reads p_flags from the stack each iteration (or ecx, eax), the rebuild keeps p_flags in ebp and spills p_count (frame 0xc against 8); the vertex's x and y fild/fstp scheduled across the loop head, the palette components loaded into other byte registers; same instructions
+MW2S3 0x1000a5e0 FUN_10067b90 63456157bd69 register allocation of the vertex list's initialisation (the original counts down a copy of p_count, mov eax, ebp, the rebuild ecx, which still holds it) and the return 0 placed after the loop's return (a jmp more
+MW2S3 0x1000b180 FUN_100689f5 925e8fd23dc5 register allocation (the original loads the palette's base into ebx before it saves edi; the rebuild pushes edi first): the S3 edition's own ground-grid globals, defined ahead of it in polydraw.c at their .data addresses, move the unit's symbol count, and no padding (0-120) gives the original's order; the code computes the same
+MW2S3 0x1000b440 LoadSkyGroundSettings c9881f55c444 register allocation (found in edi, p_mission in ebx, the file tested against found's 0 with cmp esi, edi where the rebuild tests it) and the scheduling of the three last constant stores (g_groundTiles first in the original
+MW2S3 0x1000b590 FUN_10068e33 2f0c6d4852ce as the 3Dfx and ATI editions' (the S3 original is theirs byte for byte): the original increments corner between each corner's u and v tests and addresses the next corner with lea [edi*4+0], where the rebuild increments after the v test (lea [esi*4+4]): scheduling of the induction variable, pinned at /Od by the Matrox edition
+MW2S3 0x1000e7c0 DestroyCriticalSlot 1662d19a80f6 register allocation and scheduling (4.1 /Ox /G5), as in the 3Dfx edition: p_mech, the section and the slot index in permuted callee-saved registers, the prologue's loads scheduled around them, and /G5 pairing nops in other places
+MW2S3 0x1000f4e0 AddBwdName f257b6b71d67 the original compares with a register it knows holds 0 (cmp r, reg) where the rebuild tests (test r, r): a register reused for a known value, which the audit doesn't reproduce
+MW2S3 0x1000f870 A3D_SetPalette a3170817f414 strength reduction: the original's walking pointer starts at the first colour's m_red (g_a3dPalette + 2, stores at [eax], [eax-4], [eax-5] after the add), the rebuild's at the colour (g_a3dPalette + 0, stores at +2, +1, +0); the same loads, shifts, stores and loop bound
+MW2S3 0x1000fa10 FUN_1000fa10 75125f9234ea register allocation: the original spills p_texture to a stack slot (sub esp, 4; mov [esp+4], ecx) and reloads it for &m_surface, keeping width and height in ebx/ebp, where the rebuild keeps p_texture in esi (99 instructions against 92); the same calls, stores and tests
+MW2S3 0x1000fcf0 FUN_1000fcf0 a5d1950dce47 register allocation and scheduling, as the ATI edition's FUN_10064340: &texture->m_next taken in a register (lea) in the original, texture and p_log swap esi/edi
+MW2S3 0x10010010 FUN_10010010 af17d9b48e10 register allocation: the same instructions with esi/edi/ebx permuted and the p_flags test scheduled first in the original
+MW2S3 0x100107a0 A3D_map_polygon 2e22dba76263 register allocation: the state checks load the context into another register (mov ecx, 0 / mov eax, 0 against the original's), otherwise the same instructions
+MW2S3 0x10013150 DrawTargetPanelText 5f562dbc3add the original loads g_targetFullNameTime a second time for its comparison with g_currentClock after testing it for zero (mov eax, [clock]; mov ecx, [g]; cmp eax, ecx), where the rebuild compares the value it already holds (336 against 335 instructions); no store or call between the two loads, so the same value; the nav flags' address computed with another register (shl eax, 2 against lea ecx, [edx*4]); standalone 4.1 /Ox /Ow probes of the condition (as written, mirrored, split into two ifs, g == 0, an unsigned cast) all give the rebuild's code, and padding 0-60 doesn't change it
+MW2S3 0x10013fe0 LateUpdateDoor c06b967b9d7f is harmless: the stack slots of dx/dy/dz in IsWithinRadius's squares ([esp+20]/[esp+24], one shift of the three), one fld/fmul pair of the sum scheduled two instructions earlier, and the operand order of one fmul (step * dy, #94); same instructions
+MW2S3 0x10014cc0 DrawHeatBar e166c4d62a20 is register allocation (4.1 /Ox): the bar's position, size and height permuted among ebx, edi, ebp and esi, one comparison mirrored, and an address's base and index swapped (lea eax, [esi+ecx+1] against lea eax, [ecx+edi+1]); same instructions
+MW2S3 0x10015a50 LogPlayerStatusLines 6ae12e77a46a register allocation and scheduling: the original loads the selected player (0x100765e8) into edi ahead of the sprintf's pushes and tests p - selected where the rebuild loads it in place and tests selected - p (the same equality, through cmp 1; sbb), swaps ebx/esi for the mech's pointers, and mirrors the loop's comparison; same frame, the same calls with the same arguments
+MW2S3 0x10016100 LogStarMissionLines 47c0cf7e4fed NEW ANNOTATION (was missing for S3, in ai.h by name): register allocation and scheduling: esi/edi swapped for the mission table pointer, a decrement scheduled before the add of 20 where the rebuild has it after, three comparisons mirrored (the loop's, the debug window's and the selected line's) and the time-left sum's operands loaded in another order (217 against 218 instructions); the same calls with the same arguments
+MW2S3 0x10018270 LeadStar 2ee45c716755 the original compares with a register it knows holds 0 (cmp r, reg) where the rebuild tests (test r, r): a register reused for a known value, which the audit doesn't reproduce; also three comparisons mirrored (jg/jl) and one comparison's loads in the other registers
+MW2S3 0x100187e0 CountMissionStream be2392b6e081 the comparison's two SWAP_TAG computations evaluate in the other order (here the rebuild swaps the version tag at 0x10060030 first and the original the entry's, the jump mirrored: jae against jbe), each with its OR terms in another order; the counters' adds use other registers; 162 against 161 instructions; the same values stored (g_bwdVersion and three counters now annotated for S3)
+MW2S3 0x10019760 GetOffsetPoint 0481b87efe11 scheduling: the original has a nop after *p_y = 0 (#46) and stores *p_x (fstp [edi]) after the jne on the m_y divisor, duplicated into both arms, and loads a table entry before its store in the default path; the instructions are otherwise the same (as the 3Dfx edition's line)
+MW2S3 0x1001da40 DrawAnimatedPolygon 2c404d7cbff1 register allocation and scheduling: g_animFrames[set][frame]'s index loads set and frame in the other order, flags in eax against edi with the color copy scheduled around it, width and height in ebx/ebp swapped, and the vertex loop's test mirrored (cmp esi, eax/jg against cmp eax, esi/jl); same instructions and frame
+MW2S3 0x1001e400 FUN_100519b0 3f30ae416ffb lea ecx, [eax-12] in the rebuild against mov ecx, eax; sub ecx, 0xc, and the alignment nop placed elsewhere: 83 against 84 instructions, the same divisions and stores
+MW2S3 0x1001e540 FUN_10051c07 70fa80cacc73 scheduling: the original loads the vertex pointer (mov edx, g_a3dVertices) before the first point and has an alignment nop before the loop: 118 against 119 instructions
+MW2S3 0x1001f160 IsTeamNearTarget 86114fd2384f as in the 3Dfx edition: the original shares radius's frame slot with z (frame 0xc against 0x10), and evaluates the distances' x and z differences in the other order (fld [esi+80]/[esi+88] swapped)
+MW2S3 0x1001f7b0 UpdateObjective a6067efcd119 register reuse and scheduling (4.1 /Ox): the rebuild passes AnnounceObjective the star it still holds in ecx where the original reloads it from the stack (mov ecx, [esp+24]; 560 against 559 instructions), loads the clock difference's operands in the other order, and mirrors two comparisons (cmp ecx, eax / cmp [g], ecx against their mirrors)
+MW2S3 0x10020c60 InitGammaTable cda587c9f2fa register allocation: the loop counters and the table pointer are another permutation of ebx/esi/edi; the same x87 operations and stores
+MW2S3 0x10020d30 DrawDebugOverlays a4c268e3fb79 the cache dump's g_nextCacheDump < g_currentClock comparison mirrored with its loads in eax/ecx swapped, and the g_nextCacheDump store scheduled before g_mw2PrjHandle's load; same instructions
+MW2S3 0x10020e10 DrawPaletteGrid 472434191a7b register allocation: x and y's registers set in the other order (mov edi, 10; mov esi, edi against mov esi, 10; mov edi, esi), xor ebx, ebx scheduled, and i + y's lea base and index swapped; same instructions
+MW2S3 0x10021880 QueueShapeLod 7d8639d02e67 register allocation: model, the loop counter and the vertex pointer in a one-to-one permutation of ebx, edx and esi (movsx ebx/edx, [edi+4]), the same instructions; the audit's webs don't map it across the loop's two counters
+MW2S3 0x10022000 LateUpdateAllPlayers d05fe73cc36e register allocation: the original keeps the player count in edx and the update function in ebx where the rebuild swaps them, schedules the count's first load before the pushes, and mirrors the loop's comparison (cmp edx, esi; jg against cmp esi, ebx; jl); same instructions otherwise
+MW2S3 0x10022b60 IntersectRayFace 68c8fb13d76a x87 scheduling under 4.1: the original loads the denominator's and the plane's products in another order (fld [esi+40]*ny before [esi+44]; the vertex's y product and the ray's y product before the fchs/faddp), the same instructions (the 2.2 editions compile this source exactly)
+MW2S3 0x10022db0 IsPointInFaceXZ 1163d36baed8 register allocation (ebx holds the sides mask in the original, the vertex counter in the rebuild, ecx the other) and an address's base/index order ([ecx+edi] against [edi+ebx]), which the audit's webs don't map; same instructions (as the 3Dfx edition's line)
+MW2S3 0x10023ea0 FirstMenu 814510e8e907 the original compares with a register it knows holds 0 (cmp ebx, edi) where the rebuild tests (test ebx, ebx), with esi/edi swapped: a register reused for a known value, as in the 3Dfx edition
+MW2S3 0x100242d0 RunMenuItems 3bf7b6aed823 the original compares with a register known to hold 0 (cmp eax, ebx) where the rebuild copies and tests (mov edi, eax; test edi, edi), as in the 3Dfx edition; otherwise the same instructions
+MW2S3 0x10025e20 ComputeNormalsAndBounds a968f51060ce register allocation: esi and edi swapped for the model and the face counter (the same instructions in the same order otherwise), which the audit's webs don't map
+MW2S3 0x10025e80 ComputeFaceNormal 0183f3c383bb frame packing and register allocation under 4.1: the same 0x20 frame with the spilled values one slot over ([esp+4] against [esp+0], the normal's sums [esp+40]/[esp+44] swapped), the vertex counter kept in a spill slot by the original (with a nop before the loop) where the rebuild keeps it in edi, and the vertex index's load scheduled before the face pointer's; the same 200 instructions
+MW2S3 0x100261e0 GetShapeMemorySize f8f93dc1e408 register allocation: ebx and edi swapped for the face counter and the face pointer (the same instructions in the same order otherwise), which the audit's webs don't map
+MW2S3 0x10026250 TransformModel 2a01f62055af x87 operand order: one product loads its factors the other way round (fld [r+16]; fmul [r+32] against fld [r+32]; fmul [r+16]), each through its own pointer
+MW2S3 0x100266f0 SimMain c727e223c6e5 register allocation and scheduling: in the network wait (#479-513) the original loads the remote wait time (0x10065cf4) before the frame slot the rebuild loads first, keeps the real clock in ecx where the rebuild has ebx, and mirrors the comparison (cmp ecx, eax; jle against cmp eax, ebx; jge); the backend pointer and g_windowActive are in the other registers (#583-633) and the round counter in ebx against ecx (#667-674); same frame and instruction count
+MW2S3 0x10027ec0 FindPrjType 223256d99fcb the original returns through two epilogues (58 instructions against 52: its found arm returns si, the other loads 0xffff, each with its own pops), where the rebuild loads i into eax ahead of the test and shares one; the same values; esi/edi swapped for i and types; if/else, an early return and ?: in a probe give none that splits them
+MW2S3 0x100281a0 TransformPoint 0ef45a9478f6 x87 stack scheduling: two fmul st(n) on other stack positions (st(5), st(5) against st(4), st(6)), the same instructions otherwise
+MW2S3 0x100283b0 MultiplyRotations 86e578391dc0 x87 stack scheduling of the nine dot products: the rebuild keeps two factors on the stack where the original reloads them (fmul [S]), 144 against 141 instructions; as the ATI and 3Dfx editions'
+MW2S3 0x10028640 BuildMatrixEx c6afb174805a x87 scheduling: fmul st(1) and fmulp against fmul by memory, and the constants' loads ordered differently, 241 against 239 instructions; as the ATI and 3Dfx editions'
+MW2S3 0x10028ac0 ScaleVectorToLength bdcff3b54130 x87 stack allocation: 4.1 squares the three components in another order (z, x, y against y, x, z) and adds them as (z*z + x*x) + y*y where the rebuild adds (y*y + x*x) + z*z, then keeps copies of the scale and pops them (28 against 23 instructions); the same source is exact in the PowerVR edition and witnessed in the ATI edition, and no padding (0-48) changes it
+MW2S3 0x10029330 SelectNextWeaponInGroup cd08c6e5d19e register allocation: the original keeps the loop counter in edi and the group in ebx (indexing with ebp) where the rebuild has ebx, edi and ebx, sets the counter before the address arithmetic, and mirrors one comparison (cmp edx, esi against cmp esi, edx); same instructions otherwise
+MW2S3 0x10029e60 SpawnLaunchFx 33054f7dd755 4.1 sums upY's products in the order the unit's symbols give, another than the original's (the two products of the second sum swapped, each with its fmul operands swapped): two computed products swapped isn't a rewrite the audit has
+MW2S3 0x1002b1a0 AbortMissionAction f68261d1befd the original saves ebx and esi, the rebuild ebx, esi and ebp: it keeps p_page in ecx and m_selected in ebp where the original keeps p_page in esi and compares [esi+16] through edx; the same tests in the same order, register allocation (MW2's AbortMissionAction is exact from the same source); the ATI edition's is the same
+MW2S3 0x1002b200 FleeToWindowsAction 3f6b377a7a96 the original saves ebx and esi, the rebuild ebx, esi and ebp: it keeps p_page in ecx and m_selected in ebp where the original keeps p_page in esi and compares [esi+16] through edx; the same tests in the same order, register allocation; the ATI edition's is the same
+MW2S3 0x1002b900 MoveMechWithCollisions 970046219302 is x87 scheduling of x1 = p_dx + x0 and the next two sums (the original keeps all three on the stack and stores them after the loads of the mech's position, the rebuild stores them through other slots; 300 against 297 instructions), as in the 3Dfx edition's line
+MW2S3 0x1002c100 CollideWithBuildings b3244bed7cdc register allocation (the mech in esi against edi, the shape in ebx against esi, so the epilogue's store and pops interleave differently) and the products reach * normal and bounce * normal loading the local first in the original; the same 206 instructions (as the 3Dfx edition's line)
+MW2S3 0x1002c7a0 GetViewVertex ba33aeb2e574 x87 stack allocation: the original multiplies through stack copies (fxch st(4), fmul [g]) where the rebuild uses fmulp; as the ATI and 3Dfx editions'
+MW2S3 0x1002c850 ClipEdgeToNearPlane 2cc8aea052fc as the ATI and 3Dfx editions': a mirrored fcomp of the two depths and the x87 scheduling of the interpolations (fmul st(n) and fxch interleaved differently); no padding 0-60
+MW2S3 0x1002cca0 QueueFace 2a786cabe748 partly fixed (MW2_QUEUEFACE_NORMAL_LOCALS); what's left: the S3 edition's QueueFace is longer (717 against about 580 instructions, a 0x98 frame against 0x80): after the backface test it copies the first vertex's y and z into pairs of locals (chained assignments, [ebp-0x38]/[ebp-0x28] and [ebp-0x20]/[ebp-0x34]) before the depth loop, code the source doesn't have: to investigate
+MW2S3 0x1002db80 StaticPoolAlloc 3d72d19b8bb5 register allocation and scheduling: in the pool's bookkeeping update (#53-65) the original indexes with ebp and loads the three words in another order, storing the new end before the pop, where the rebuild indexes with edx; the same loads, subtractions and stores, same frame and instruction count
+MW2S3 0x1002e5f0 SaveScreenshot 576bc2cd4ea3 register allocation: eax/ecx swapped for the screenshot counter, and ebx/edi for the pixel pointer and the pixel count, whose three globals load in another order (the width and height multiplied the same way); same instructions otherwise
+MW2S3 0x1002f600 FireJumpJetEffects d9b956b00cb5 register allocation: player and fired swap ebx/edi, and the original adds g_deltaTime to the m_jumpFuel it has in eax (add eax, [g_deltaTime]) where the rebuild keeps m_jumpFuel in ecx and loads g_deltaTime into eax (one instruction more); the same compares and calls
+MW2S3 0x1002ff10 FUN_100059b0 20d392cb8e94 register allocation (as the ATI edition's): p_width and p_height swap ebx/ebp and the stores of the description and the mode array are scheduled otherwise (4.1's /Ox)
+MW2S3 0x10032200 UpdateInputs 5ed8f92b005a is register allocation (4.1 /Ox): the binding and axis pointers in ebp/edi against esi/ebp, the counters' zero in another register, and the loop tests mirrored; same instruction count
+MW2S3 0x10033280 RunIncludedStream e92e60cae258 the original compares with a register it knows holds 0 (cmp r, reg) where the rebuild tests (test r, r): a register reused for a known value, which the audit doesn't reproduce
+MW2S3 0x10033390 CreateObjectNode c7ce8ead7b2b register allocation (esi and ebp swapped for the two movsx'd words and their uses throughout, edi/esi for one call result), one comparison mirrored, and a cmp with a register known to hold 0 where the rebuild tests: same instructions otherwise
+MW2S3 0x10034030 AllocGeoTables fde0a6f606bf as the 3Dfx edition's (the same original): register allocation; the original compares pool 9's size with the register that holds result's 0 (cmp eax, esi) where the rebuild tests it (test eax, eax): a register reused for a known value; the same instructions otherwise
+MW2S3 0x10034c50 AreStaticObjectsComplete 480d4a747c92 register allocation and a mirrored loop test (the original keeps g_staticObjectCount in eax and tests i < count with jl, the rebuild count > i with jg), the same instructions otherwise; the audit doesn't map the webs across the known-zero register the loop starts from
+MW2S3 0x10034c90 LoadStaticObject 0eb05a3e0715 register allocation, and one reload of entry->m_thing after the stores to g_shapeOwnerSet and g_shapeOwnerKind (mov ecx, [ebx+24]) that the rebuild keeps in a register, as in the PowerVR edition's original; the ATI and 3Dfx editions' originals keep it: to investigate
+MW2S3 0x100357a0 PlaySample 8c5d32b2e961 a mirrored comparison: p_delay > g_deltaTime compares as cmp [g_deltaTime], edi / jge in the original and cmp edi, [g_deltaTime] / jle in the rebuild; the audit can't mirror it because the flags also feed the adc that follows; the same instructions
+MW2S3 0x100358f0 StartSample 055847ad7439 the original keeps flags in a 2-byte slot of its own (frame 0x14) and tests p_flags directly in the loop, reloading flags only for the final m_flags[slot] store, where the rebuild substitutes p_flags throughout (frame 0x10): 4.1's copy propagation, as the 3Dfx edition's line says for 2.2; the rest is registers
+MW2S3 0x10036060 StopSamples 270988e0c5c6 register allocation: g_audioEngine loaded before the push of esi and kept in another register, as in the 3Dfx edition's line
+MW2S3 0x10037100 QueueSpeech 8f083b8476f6 register allocation: the queue entry pointer and the counter swap ecx/edi, and one comparison is mirrored (cmp ebx, eax / jg against cmp eax, ebx / jl); the same loads, stores and calls
+MW2S3 0x10037aa0 RemoveNavPoint 6d50896fe098 register allocation and one schedule, as in the 3Dfx edition: the nav table copy's pointer lives in ebp where the rebuild uses edi (lea edi, [esi+...] against lea ebp, [esi+...]), the copy's moves are scheduled around it, and two comparisons are mirrored
+MW2S3 0x10037fb0 TargetGamePiece 3761a5d6c1c6 register allocation and scheduling: the shape's flags word read in dx where the rebuild uses ax, the stack flag word in edx against eax, the two globals tested at #93-95 and #109-111 loaded in another order around the test; same instruction count (225), same calls and stores
+MW2S3 0x10038b10 LoadMechConfig 177f39847268 register allocation and spilling: in the ammo loop (#398-431) the original keeps the section pointer in ecx across the iterations and spills the bin counter, where the rebuild spills the pointer and advances it with add where the original has lea; one frame slot more in the rebuild's places (esp+32/36), the same loads, tests and stores
+MW2S3 0x100396f0 InitDamagePanel 70b724ff16e7 as in the 3Dfx edition: other frame slots for width1/height1 and the outline's corners, and the original keeps g_outlineRect's members in registers across the stores where the rebuild stores and reloads them (230 against 231 instructions): scheduling and slot assignment
+MW2S3 0x1003a840 DrawNetworkPanel e7154b2e6397 register allocation: ebx and ebp swapped for the two values that live across the panel's lines (#29-33, #178-221); the string literals are the same text at the original's addresses
+MW2S3 0x1003b930 SignalTask 172d4e6f17b3 register allocation and scheduling, as in the 3Dfx edition: the original loads m_period first and g_currentClock into edx after mov esi, edx, where the rebuild loads the clock into ecx first; same instructions
+MW2S3 0x1003eaf0 FUN_1002a480 6a148fc9a6a7 register allocation and scheduling of the texture rows record's stores and the call's arguments, as in the ATI edition's
+MW2S3 0x1003f090 DrawBand dce7f225f841 register allocation: the original keeps the point pointer in ebp and the point list in edx, the rebuild the other way round, through the loop; the same instructions
+MW2S3 0x1003f2d0 LayoutMessageBoxes 34415e40bcca register allocation: the overlay pointer in esi/edi swapped and the rectangle's members copied between registers where the other side reloads them (mov edx, ebp in the rebuild): 81 against 80 instructions; the same sign select and stores
+MW2S3 0x1003f3b0 ShowInGameMessage 9b11335f9018 register allocation (lowestPriority, latest, i and done in other registers) and the priority comparison mirrored with its loads (cmp edx, ecx/jg against cmp ecx, ebp/jl); same instructions
+MW2S3 0x1003fb90 CycleTrackedPlayer 8ac57a7fe369 register allocation: eax and edi swapped for step and g_trackedPlayer (mov eax, -1 against mov edi, -1), one store scheduled past the next load; the same instructions (as the 3Dfx edition's line)
+MW2S3 0x100406e0 LayoutWeaponPanels 86552bf45520 register allocation and scheduling (4.1 /Ox /G5): the original keeps p_mech in ebx (reloading it from the stack in the third loop) where the rebuild keeps it in edi, the loop counters in ebp against ebx, the loop tests scheduled after the copies' address computations, and three /G5 pairing nops fewer (295 against 298 instructions); the copies and stores are the same
+MW2S3 0x100414b0 RunMenuSlider 0ea6e8b6bec0 register allocation that changes forms, as in the 3Dfx edition: the original loads p_index into edx and subtracts it from a register where the rebuild uses sub ecx, [mem]: 306 against 307 instructions
+MW2S3 0x10041890 RunMenuStatus 87eabadd204b as RunMenuSlider: sub ecx, [mem] against a load and a register sub: 181 against 183 instructions
+MW2S3 0x10041ac0 RunMenuChoice eda9e61f6733 as in the 3Dfx edition: m_flags loaded and tested whole (test bl, 1 on a loaded register against test al, 1), p_index loaded before the subtraction, p_control and value in swapped registers (ebx/edi): 171 against 172 instructions (plus the jump table and padding)
+MW2S3 0x10042490 UpdateMech 71776ee241e9 is harmless: register allocation (eax/ecx swapped for mech->m_player and g_localPlayerId in the isLocal test, #19-26, as in the 3Dfx edition's line), x87 stack allocation in the air drag (the original keeps a copy of a / c on the stack, fst st(1), and pops it after the drag terms, fxch/fstp st(0), where the rebuild multiplies in place: the same operations on the same values), the operand order of one fmul (#376) and one fld [eax+188] scheduled past a store (#782
+MW2S3 0x10043250 LateUpdateMech 42ff99e87b5b is harmless register allocation: eax/ecx swapped for g_debugSection in the debug test and for mech->m_player and its steering in the turn test (#296-320), and the push of g_debugSlot scheduled after the other argument's load; same instructions otherwise (as the 3Dfx edition's line
+MW2S3 0x10044240 InitMechArrays 5fb94097d155 the original stores the immediate 0xffff where the rebuild stores it from a register that holds it (mov [ecx], si): register allocation of a known value, which the audit doesn't reproduce (as the 3Dfx edition's line)
+MW2S3 0x10044840 DoAudio 00dae72bfc75 register allocation: the clocks, the player pointer and the loop index are another permutation of eax/ecx/edx/esi/edi and the loop test is mirrored; same loads, compares and call, as the ATI edition's
+MW2S3 0x10044b60 BuildShapeQuadtree 2c6e20b0db3f register allocation (edi/ebp/esi permuted for the vertex, the node and the model) and two of the six bound comparisons mirrored under 4.1 (fld [node]; fcomp [vertex]; test ah, 0x41 against fld [vertex]; fcomp [node]; test ah, 0x1, the condition mirrored with them); same instructions and blocks; no padding (0-24) flips them
+MW2S3 0x10045120 ClassifyQuadtreePoint e8b632b5ad80 frame packing ([esp+20] against [esp+16] for one spilled value, not a one-to-one map of slots) and ebx and ebp swapped for i and faces; same instructions (as the 3Dfx edition's line)
+MW2S3 0x100457e0 BwdExecuteStream c2edbb4e4cb8 the 10 tag tests compare the other way round: the rebuild loads the global and compares it with the type's slot, the original loads the type and compares it with the global in memory, and the globals loaded before the loop are in another order and other registers (1618 against 1615 instructions); same frame (0xd8). Some globals it addresses have no S3 annotation yet (g_playerTypes, g_cockpitGaugePanes, g_lightObject, g_hasLightObject...)
+MW2S3 0x10047da0 LoadShapeRecord ca9cf34696e6 the original keeps header->m_vertexCount in edi through the face loop and gets vertexCount with dec edi, where the rebuild spills it to [esp+84] (frame 0x74 against 0x70, 8 instructions more) and uses edi for extraSize; in the name and face loops the registers are permuted: register allocation and spilling, as in the 3Dfx edition's line
+MW2POWERVR 0x10001200 CullMapViewShape 41c900e0731f x87 scheduling, operand order and slots, as in the S3 edition: the original keeps dz on the FPU stack (fst) where the rebuild stores and reloads it (101 against 102 instructions), the products load their operands the other way round and in another order, and dx, dy, dz have other frame slots
+MW2POWERVR 0x10001490 ProjectMapPoint 3267431afaad 2.2 evaluates the dot products' products in another order than the original (fld/fmul st(n) operands), schedules y's two multiplications by the inverse scale differently (fmul in place against fld; fmulp, one instruction fewer in the original) and mirrors the screenY comparisons, as in the ATI edition; reordering a float sum isn't a rewrite the audit has
+MW2POWERVR 0x100024d0 InitRefreshMode 34acdaf10b98 register allocation: p_width and p_height are loaded into the other registers (ebp from [esp+0x20] against [esp+0x24]), so the windowed rect's stores and the screen-size tests use them the other way (one test mirrored); the same loads, stores and calls
+MW2POWERVR 0x100029b0 ShowInGameMessage 806187df5570 register allocation and the priority comparison mirrored with its loads, as in the ATI and 3Dfx editions; same instructions
+MW2POWERVR 0x10003130 DrawMapView e4c6732f7c99 as in the 3Dfx edition: three frame slots permuted (heading, y, z), angle += heading loads heading first, obj tested with cmp against a known zero where the rebuild has test, and the range/farPlane registers swapped
+MW2POWERVR 0x100034b0 DrawMapUnits d9ebceba4d50 register allocation (the count and the global in eax/ecx the other way round) and mirrored loop comparisons; same instructions
+MW2POWERVR 0x10003760 DrawMapNavPoints ee0fce8efc35 register allocation: the layout and the nav point pointer in ebx/edi against edi/esi, and the nav point count compared from a register in the rebuild (mov ecx, [g]; cmp ecx, esi) and from memory in the original (cmp [g], ebx): 95 against 94 instructions
+MW2POWERVR 0x10003d50 DrawSatelliteStatic 1e1c2d733d04 register allocation and case 0's clock sum into the shared case-1 tail (lea ecx, [ebx+eax] against add eax, edi
+MW2POWERVR 0x100049a0 DdrawStop 2610091bc55b register allocation: g_ddraw loaded into eax against ecx for one vtable call (the vtable then in ebx against eax); the same calls and stores
+MW2POWERVR 0x10004a10 DdrawDestroySurfaces 36e7bfaf3834 register allocation: the original saves ebx and takes the vtables through it, keeping 0 in esi, where the rebuild uses eax/ecx (33 instructions against 35: the push/pop of ebx); the same loads, calls and stores
+MW2POWERVR 0x10004ae0 DdrawFlip e6a04ac2808b register allocation: in the inlined DdrawRestore the rebuild reloads g_ddrawPrimary into ecx at the end of each arm, to keep it in a register across the join for the Flip call, where the original reloads it after the join (73 instructions against 70); the same calls, stores and messages
+MW2POWERVR 0x10004bc0 DdrawBlit fea481d02447 is DdrawFlip's: g_ddrawPrimary and g_ddrawBuffer reloaded into registers at the end of each arm of the inlined DdrawRestore
+MW2POWERVR 0x10004cc0 DdrawBlitFlip 45aa1089b0ca register allocation as DdrawFlip's: the surface pointers reloaded into registers at the end of the inlined DdrawRestore's arms, the original reloads them after the join (90 instructions against 88)
+MW2POWERVR 0x10004de0 DdrawStretchBlit 1393a924ecec register allocation as DdrawFlip's (98 instructions against 93)
+MW2POWERVR 0x10004f00 DdrawBlitRect 261740d91e2c register allocation as DdrawFlip's, the rebuild also saving ebp to keep a third pointer across the join (139 instructions against 131: the reloads in each arm and the push/pop of ebp)
+MW2POWERVR 0x100053a0 DdrawLockBuffer 634e6a074cdf register allocation as DdrawFlip's: g_ddrawBuffer kept in a register across the inlined DdrawRestore's join (77 instructions against 76)
+MW2POWERVR 0x10005490 DdrawUnlock 1d39bc9da097 register allocation: the rebuild takes the vtable through ebx (push/pop ebx, 19 instructions against 16), the original through eax with the surface in ecx; the same loads, call and stores
+MW2POWERVR 0x10005970 ScaleRectAboutCenter 686acf212047 register allocation and slot packing of the expanded FixedMul16s (p_dst in esi/edi swapped, its move scheduled across push ebp, temporaries in other slots); same instructions
+MW2POWERVR 0x10005c80 BoxText 2f7959e03f96 an address's base and index swapped (movsx eax, [ebp+esi-1] against [esi+ebp-1]); otherwise identical
+MW2POWERVR 0x10006020 TilePane 6ec21c2d2353 as in the 3Dfx edition: the four callee-saved registers and three frame slots (tileWidth, columns, rows) permuted, the two parameter moves around push ebp in the other order
+MW2POWERVR 0x10007350 PrintMono 23f78d4af4c3 register allocation, as the ATI and S3 editions' PrintMono
+MW2POWERVR 0x10007930 SignalTask c6a24504db08 register allocation and scheduling, as in the 3Dfx edition: the original loads m_period first and g_currentClock into edx after mov esi, edx, where the rebuild loads the clock into ecx first; same instructions
+MW2POWERVR 0x10007e60 SimMain 9998c2a78ad8 register allocation: in the network wait (#456-489) the original keeps the remote wait time (0x101a9e28) in edi, the real clock in eax and g_isNetworkGame in ecx where the rebuild has ecx, edi and eax, with the comparison mirrored (cmp edi, eax; jge against cmp edi, ecx; jle), and reloads the same five globals in another order at the loop's head (#524-528); same frame and instruction count, every other instruction identical
+MW2POWERVR 0x10008f70 IsTeamNearTarget db8e7c9c20ac as in the 3Dfx edition: the original shares radius's frame slot with z (frame 0xc against 0x10), and evaluates the distances' x and z differences in the other order (fld [esi+80]/[esi+88] swapped)
+MW2POWERVR 0x10009150 AnnounceObjective 99f77a2eb439 register allocation and scheduling, as in the ATI edition: the objective's offset computed before the star's, kept in ebx (an extra push/pop of ebx: 76 against 73 instructions); the same address and calls
+MW2POWERVR 0x100095c0 UpdateObjective e01a6586f4fa as in the ATI edition: register allocation (ebx and esi swapped for the loop's counter and pointer), a register it knows holds 0 (cmp al, bl where the rebuild has test al, al), scheduling of the stores before the AnnounceObjective call and one alignment nop (558 against 557 instructions)
+MW2POWERVR 0x1000a910 MoveMechWithCollisions 667328df59ad is harmless x87 allocation in the bounce's dot product: 2.2 sums the doubled terms as X + (Y + Z) where the rebuild sums (X + Y) + Z, multiplies by segX from memory and keeps the dot in two stack slots (fst st(2)); the same operations on the same values
+MW2POWERVR 0x1000be40 ClassifyQuadtreePoint 978815ba0cd7 frame packing: the original shares p_model's spill slot with height and keeps the vertices alone ([esp+4] against [esp+0], [esp+32] against [esp+28]), the rebuild shares it with vertices (not a one-to-one map of slots); also ebx and ebp swapped for i and faces; same instructions (as the 3Dfx edition's line)
+MW2POWERVR 0x1000d1e0 ReelMotionTask a89b591591e9 is harmless register allocation: ebx/edx and esi/edi swapped for the event index and the motion, the jump search's bound tests mirrored in them, one store scheduled past a load, and match kept in ecx where the original keeps it in eax, so the original reloads the event's flags for the & 4 test (mov eax, 1; mov ecx, [edx+ebx*8]; test cl, 4) where the rebuild tests the al it still has: one instruction more in the original, from the allocation alone
+MW2POWERVR 0x1000d950 LoadAnimFile 279dea2d7240 register allocation (edx/edi swapped for g_animFileCount and the walk pointer) and the search loop's two tests mirrored in them (cmp ebx, edx; jl against cmp edi, ebx; jg), with the count's load scheduled after the pushes; same instructions (g_animBase, g_maxAnimNumber and g_animFiles now annotated)
+MW2POWERVR 0x1000d9f0 ColorCycleTask 2113f2205b45 register allocation: the rebuild clears ebp for the face counter before the loop's count test (xor ebp, ebp; cmp eax, ebp) where the original clears esi and compares memory with it (xor esi, esi; cmp [ebx], esi), the counter then in ebp against esi (one instruction more in the rebuild); the string literals pushed for strtok (",") are the same text at the original's .data addresses (atoi now annotated)
+MW2POWERVR 0x1000e120 PathTask f2519770eb0f register allocation: ebx against ecx for the zeroed point index in the duration loop's setup, with one store scheduled past it; the same instructions (as the 3Dfx edition's line)
+MW2POWERVR 0x1000f250 GetObjLastChild 0d3f97dc364a the original compares the child with a register it knows holds 0 (xor eax, eax for the result; cmp ecx, eax) where the rebuild tests it (test ecx, ecx): a register reused for a known value, which the audit doesn't reproduce (as the 3Dfx edition's line)
+MW2POWERVR 0x1000fe80 IsPointInFaceXZ e14193bf1e93 register allocation (ebx holds the sides mask in the original, the vertex counter in the rebuild, ecx the other) and an address's base/index order ([ecx+edi] against [edi+ebx]), which the audit's webs don't map; same instructions (as the 3Dfx edition's line)
+MW2POWERVR 0x100101a0 IsPointInFaceXY f8f89592006d only an address's base and index swapped in the two index loads (mov al, [ecx+edi] against [edi+ecx]): the same instruction, which the audit's chains rewrite doesn't reach here (the index register is reused in the block)
+MW2POWERVR 0x10010960 UpdateGridObject 1143a690a106 register allocation: the rebuild uses ebp for halfX where the original reuses edi (one push/pop of ebp more), esi and edi swapped for cellX and cellZ; same instructions otherwise (as the 3Dfx edition's line)
+MW2POWERVR 0x10013f30 LeadStar 83b3cce757cc the original compares with a register it knows holds 0 (cmp r, reg) where the rebuild tests (test r, r): a register reused for a known value, which the audit doesn't reproduce; also ecx/edx swapped for the loop counter and the member pointer, and one comparison mirrored
+MW2POWERVR 0x100185e0 UpdateMech 527e8a77bb99 is harmless: register allocation (ecx/eax swapped for mech->m_player and g_localPlayerId in the isLocal test, #19-26, as in the 3Dfx edition's line) and x87 stack allocation in the air drag (the original keeps a copy of a / c on the stack, fst st(1), and pops it after the drag terms, fxch/fstp st(0), and subtracts from another stack slot; the same operations on the same values
+MW2POWERVR 0x10019450 LateUpdateMech e5a405a593e1 is harmless register allocation: ecx/eax swapped for g_debugSection, for mech->m_player and its steering (#296-320, #381-390) and for the player in the flag update (#789-798), and the push of g_debugSlot scheduled before the other argument's load; same instructions otherwise (as the 3Dfx edition's line
+MW2POWERVR 0x1001a440 InitMechArrays 5fb94097d155 the original stores the immediate 0xffff where the rebuild stores it from a register that holds it (mov [ecx], si): register allocation of a known value, which the audit doesn't reproduce (as the 3Dfx edition's line)
+MW2POWERVR 0x1001a4e0 InitDamagePanel 54fc1bc0b696 as in the 3Dfx edition: the original keeps g_outlineRect.m_y0 in a register for m_y1 and stores m_x1 after computing both, where the rebuild stores m_x1 first and reloads m_y0; width1/height1 have other frame slots ([esp+56] against [esp+44]); the original loads a global into eax before an add (mov eax, [g]; add ecx, eax against add ecx, [g])
+MW2POWERVR 0x1001b470 DrawHeatBar 7e18ec6daca7 register allocation: the bar's level and position in ebx/ecx with an address's base and index swapped (lea eax, [ebx+ecx+1] against lea eax, [ecx+ebx+1]) and one comparison mirrored (cmp eax, ebp; jl against cmp ebp, eax; jg); same instructions
+MW2POWERVR 0x1001bc60 RemoveNavPoint 905d62635e2f register allocation and one schedule, as in the 3Dfx edition: the nav table copy's pointer lives in ebp where the rebuild uses edi (lea edi, [esi+...] against lea ebp, [esi+...]); same instruction count
+MW2POWERVR 0x1001c170 TargetGamePiece 108479b5f49d register allocation and scheduling, as in the S3 edition: the shape's flags word read in dx where the rebuild uses ax, the stack flag word in edx against eax, two global loads scheduled around the test, one comparison mirrored; same instruction count (225)
+MW2POWERVR 0x1001c630 UpdateTarget dbda18e799a1 register allocation and scheduling: esi and ebx swapped for the found flag and the target index, an x87 comparison mirrored (fld [table]; fcomp [edi+192]; test ah, 0x41; jne against fld [edi+192]; fcomp [table]; test ah, 1; je) and the fld scheduled one instruction earlier; same instruction count
+MW2POWERVR 0x1001e7d0 GetOffsetPoint f28a85057272 scheduling: the original has a nop after *p_y = 0 (#46) and stores *p_x (fstp [edi]) after the jne on the m_y divisor, duplicated into both arms, and loads a table entry before its store in the default path; the instructions are otherwise the same (as the 3Dfx edition's line)
+MW2POWERVR 0x10021220 LateUpdateDoor 77fba30bf9c2 is harmless: the operand order of the three multiplications by step (fld [step]; fmul [dx] against fld [dx]; fmul [step]); same instructions; no padding (0-24) flips it
+MW2POWERVR 0x10021790 InitHudGauges f213d04884b0 scheduling, as in the 3Dfx edition: g_resTagShp loaded and pushed before the gauge position stores in the original, after them in the rebuild; same instructions (annotation g_compassTapeAbove added)
+MW2POWERVR 0x10023280 StaticPoolAlloc cc17c3dc88e3 register allocation and scheduling: in the pool's bookkeeping update (#53-65) the original indexes with ebp and loads the three words in another order, storing the new end before the pop, where the rebuild indexes with edx; the same loads, subtractions and stores, same frame and instruction count
+MW2POWERVR 0x100238c0 LoadCachedResource 8c0be7926029 the original packs p_file's spill into the start of message (frame 0x64 against 0x68) and keeps the size in another register (225 against 224 instructions), stack packing the audit doesn't reproduce, as in the 3Dfx edition
+MW2POWERVR 0x10023c30 AllocGeoTables 90ec53a5b9c2 as the 3Dfx edition's, whose original and rebuild are this one's byte for byte (relocations aside): register allocation: the original tests pool 8's size in eax before copying it to edi, and compares pool 9's size with esi, which holds result = 0 (cmp eax, esi); the /Od originals pin if (size); a standalone 2.2 probe gives the rebuild's code at every padding 0-300, and with signed or separate size locals, a chained capacity assignment, swapped declarations and other comparison forms
+MW2POWERVR 0x10023d40 FreeGeoTables f97ebadcaefc as the 3Dfx edition's, whose original and rebuild are this one's byte for byte (relocations aside): block placement: the original repeats mov ecx, g_primaryHeap in the first if's then-branch and jumps past the else path's loads, where 2.2 merges the two at one join; a 2.2 probe gives the rebuild's code at every padding 0-300, and with other types for the pointers and the heap handle
+MW2POWERVR 0x10024890 LoadStaticObject bdff4a8512dc register allocation (p_index kept on the stack, the shape's result in ebx) and one reload of entry->m_thing after the stores to g_shapeOwnerSet and g_shapeOwnerKind, which 2.2 /Ox gives without /Ow (probed) but /Ow, which the unit's other functions need (a pragma turning it off loses 25 of them), doesn't: to investigate
+MW2POWERVR 0x10024ca0 FreeStaticObjectTree 6d61ddb1e310 as the ATI edition's, whose original and rebuild are this one's byte for byte (relocations aside): register allocation (i in edi and result in ebp in the original, the other way round in the rebuild) with the first loop test against the known zero register, and the loop test mirrored; no padding 0-60
+MW2POWERVR 0x10024d80 InitializeDrawBuffer c83eb961606d the original rematerialises g_drawBuffer + g_drawBufferSize with a lea for g_drawBufferTop (lea eax, [edx+esi-48]) where the rebuild keeps g_drawList's sum in ecx and subtracts 0x30, which costs it ebx (a push/pop more); the same stores of the same values, in another order and registers
+MW2POWERVR 0x10025740 ChoosePlayerDetailLevels 11c81d8ff1d9 register allocation (ebx/ebp and esi/edi swapped for the player, the count and the level table), the distance comparisons and the loop test mirrored in them (cmp ecx, eax; jle against cmp eax, ecx; jge), and the load of the player's current level (mov eax, [ebp+28]) hoisted by the original above the level's sign test into the block before it (a load without side effects, read on both paths); same instructions
+MW2POWERVR 0x10025f70 AddModel 0aad49f36133 scheduling: the stores of the new model's header (m_faceCount, m_key, m_transformCount at +6, +0, +0x10) and the load of p_extra's sum are placed in another order among the face offset's computation; the stores are to distinct members of the block just allocated, the same instructions otherwise
+MW2POWERVR 0x100265a0 TransformModel 60b7fa505932 as the 3Dfx and ATI editions': the x87 products' factor order and the sums' term order differ, each operand loaded through its own pointer (the same instructions as a multiset); no padding 0-60
+MW2POWERVR 0x100268a0 RayShapeDistance de0532c4866b x87 operand order: the original squares and sums the three deltas in another order of their slots (the dz term first) and loads each dot product's factors the other way round, the same instructions as a multiset; reordering a float sum isn't a rewrite the audit has; no padding 0-60 (the 3Dfx edition's identical original has the same diff in another form)
+MW2POWERVR 0x10027150 StartAnimation 7da9f68bb6fa scheduling: the original loads frame->m_texture before storing the material and moves the material into ecx after the test; same instructions
+MW2POWERVR 0x10027420 FUN_100519b0 28737c5043fc register allocation: the original keeps the mask in the frame ([esp+16]) and the three sums in registers, the rebuild the mask in di and one sum in the frame (frame 0x20 against 0x1c): 168 against 167 instructions, the same masks, shifts and sums
+MW2POWERVR 0x10027fe0 CycleTrackedPlayer 017fe77df12e register allocation (eax and esi swapped for g_playerCount and g_trackedPlayer), the bound test mirrored in the swapped registers and one store scheduled past the next load; the same instructions (as the ATI edition's)
+MW2POWERVR 0x100281f0 UpdateTrackView b4c258df55d3 is the operand order of one commutative float sum, height = p_height + g_trackHeight (fld [g_trackHeight]; fadd [p_height] against fld [p_height]; fadd [g_trackHeight]), at a jump target, where the audit's commutative rewrite applies but its block check refuses it; the rest is identical; no padding (0-24) flips it
+MW2POWERVR 0x10028b20 TransformPoint 037efc379bb9 as the 3Dfx edition's, whose original and rebuild are this one's byte for byte (relocations aside): x87 register operands (fmul st(n)) in another stack order: x87 scheduling the audit doesn't reproduce
+MW2POWERVR 0x10028d30 MultiplyRotations 3ccbf7296e6d as the 3Dfx edition's, whose original and rebuild are this one's byte for byte (relocations aside): x87 stack scheduling of the nine dot products (3 instructions fewer in the original)
+MW2POWERVR 0x10028fd0 BuildMatrixEx 0756745399b2 as the 3Dfx edition's, whose original and rebuild are this one's byte for byte (relocations aside): x87 scheduling: an fmul by memory where the original uses st(2) (one instruction), and another stack slot
+MW2POWERVR 0x100296a0 UpdateProjection cddf29e68c49 as the 3Dfx edition's (the same instructions as a multiset but for a nop 2.2 inserts after the first store): register allocation and scheduling of the view rectangle's loads (the original reads them after copying p_eyepoint to esi, right in ebp and bottom... in other registers than the rebuild)
+MW2POWERVR 0x100298b0 ProjectWorldPoint 33a67bbad3c0 as the 3Dfx and ATI editions': the dot products' terms in other x87 stack orders (fmulp/faddp against fmul st(n)/fxch) and the near-plane comparison mirrored (fld z; fcomp near against the rebuild keeping near on the stack); reordering a float sum isn't a rewrite the audit has; no padding 0-60
+MW2POWERVR 0x10029ef0 ComputeTriangleNormal 4d3007363d21 x87 scheduling, as the ATI and 3Dfx editions': the products' factors kept in other stack positions (fld st(n)/fmul st(n) against the original's), same instruction count; no padding 0-60
+MW2POWERVR 0x1002b6a0 DoAudio d9214434712a register allocation, as the ATI edition's DoAudio
+MW2POWERVR 0x1002b870 StartSample d87a00150384 as the ATI edition's StartSample: flags kept in a slot of its own in the original (frame 0x14), substituted by p_flags in the rebuild (frame 0x10): 2.2's copy propagation
+MW2POWERVR 0x1002c4f0 StopSamples 2223a79b6e63 register allocation, as the ATI edition's StopSamples
+MW2POWERVR 0x1002c540 UpdateAmbientSound e76bf9ec064f register allocation: the 0 kept in ebp against edi and the slot loop's index and pointer swap eax/ecx, which moves the m_slot store before the pop of ebp; the same loads, stores and calls
+MW2POWERVR 0x10030e80 HandleGameKeys a4716216ef91 is register allocation and scheduling: g_currentClock, g_speechFlushTime and the mission-end values in other registers (ecx/edx/eax permuted), two comparisons mirrored (cmp ecx, eax; jle against cmp eax, edx; jge), and the two "Press CTRL-Q to exit..." messages' loads scheduled around the stores (identical text at two addresses); same calls and instruction count
+MW2POWERVR 0x10031220 RunGameKey 2ffc05eef50f is the switch's range: the original's ends at 0xa7, whose entry is the default case's (a case label whose code the optimizer removed, falling into default: a 2.2 probe keeps such a label in the range only when it has a dead store), where the rebuild's ends at 0xa6 and sends 0xa7 to default by the range check; every key reaches the same code (cmp ecx, 0xa7 against 0xa6, and one more index byte
+MW2POWERVR 0x10032730 FindInputAxis d177e0103aa4 (listed as FindInputButton: the annotations were swapped, now fixed) register allocation: the loop's index and byte offset in ebx/ebp swapped, their two zeroings (xor) in the other order; same instructions otherwise
+MW2POWERVR 0x10033960 UpdateInputs be46f58bed4e is register allocation as in the ATI edition: the device loop's counter and pointers permuted among ebx, edi and ebp, the counter's zero reused in a comparison, three loop tests mirrored; same instruction count
+MW2POWERVR 0x10035440 DrawPaletteGrid 8978250d8850 register allocation: x in esi against ebx and i + y's lea base and index swapped; same instructions
+MW2POWERVR 0x10035990 MonoPrint 8a92e3d21479 register allocation (the index and the end in esi/edi swapped, the character's address base and index swapped) and the loop test mirrored (jg against jl); same instructions
+MW2POWERVR 0x100361e0 FindPrjType b12a5d94441d the original returns through two epilogues (58 instructions against 52: its found arm returns si, the other loads 0xffff, each with its own pops), where the rebuild loads i into eax ahead of the test and shares one; the same values; esi/edi swapped for i and types; if/else, an early return and ?: in a probe give none that splits them
+MW2POWERVR 0x100369d0 BwdExecuteStream a9f2273972b1 the 10 tag tests compare the other way round: the rebuild loads the global and compares it with the type's slot, the original loads the type and compares it with the global in memory, and the 5 globals loaded before the loop are in another order and other registers (1620 against 1619 instructions); same frame (0xd8). Some globals and the CRT's atoi have no PowerVR annotation yet (g_playerTypes, g_cockpitGaugePanes, g_lumaResourceId...)
+MW2POWERVR 0x100383a0 AddBwdName 99c4d5e6fe8f the original compares with a register it knows holds 0 (cmp r, reg) where the rebuild tests (test r, r): a register reused for a known value, which the audit doesn't reproduce
+MW2POWERVR 0x100399f0 CountMissionStream 8fd5d89f9dfc the comparison's two SWAP_TAG computations evaluate in the other order (the original swaps the version tag at 0x101b9680 first, then the entry's, and mirrors the jump: jbe against jae), each with its OR terms in another order; the counters' adds alternate cx and dx where the rebuild uses ax; 162 against 161 instructions; the same values stored
+MW2POWERVR 0x1003aa40 LoadShapeRecord 306ffd620489 register allocation and spilling: the same frame (0x70) but other values spilled and reloaded (m_faceCount at [esp+76] in the original, the face pointer at [esp+68]/[esp+76] in the rebuild; the face count's end in [esp+16] against [esp+40]), the face walk in edi/ebp against esi/ebp, ebx/esi swapped for the result, and the name copy's lea scheduled after the pushes: 574 against 577 instructions, all moves, spills and reloads; the 3Dfx edition's line has the same cause
+MW2POWERVR 0x1003b710 RunIncludedStream 73ae7cd55b5e the original compares with a register it knows holds 0 (cmp r, reg) where the rebuild tests (test r, r): a register reused for a known value, which the audit doesn't reproduce
+MW2POWERVR 0x1003b820 CreateObjectNode a2d116b6e4b1 register allocation (esi and ebp swapped for the two movsx'd words and their uses throughout, edi/esi for one call result), one comparison mirrored, and a cmp with a register known to hold 0 where the rebuild tests: same instructions otherwise
+MW2POWERVR 0x1003caf0 UpdateWeaponLock 7fe17f46dc8d x87 stack allocation: the rebuild squares dx from a copy (fld st(2); fmul st(3)) and pops the dead copy after the first range comparison (fstp st(0)), where the original squares it in place (182 against 183 instructions); the same sums and comparisons; the ATI edition's rebuild and original do it the other way round, from the same source, and the 3Dfx edition's is witnessed by padding (pad 45): the compiler's choice
+MW2POWERVR 0x1003d040 SpawnLaunchFx e308ea9a189c 2.2 sums upY's products in the order the unit's symbols give, another than the original's (the original loads the product's operands from the other stack slots, #50: [esp+16] against [esp+20]): two computed products swapped isn't a rewrite the audit has, as in the ATI and S3 editions' lines
+MW2POWERVR 0x1005c6a0 AbortMissionAction ffff562e73f6 the original saves ebx and esi, the rebuild ebx, esi and ebp: it keeps p_page in ecx and m_selected in ebp where the original keeps p_page in esi and compares [esi+16] through edx; the same tests in the same order, register allocation (MW2's AbortMissionAction is exact from the same source); the ATI edition's is the same
+MW2POWERVR 0x1005c700 FleeToWindowsAction 5b464a629f4b the original saves ebx and esi, the rebuild ebx, esi and ebp: it keeps p_page in ecx and m_selected in ebp where the original keeps p_page in esi and compares [esi+16] through edx; the same tests in the same order, register allocation; the ATI edition's is the same
+MW2POWERVR 0x1005cb60 RunMenuSlider 45682cd9b7e9 register allocation that changes forms, as in the 3Dfx edition (sub ecx, [mem] against a load and a register sub; m_flags tested in a full register): 306 against 307 instructions
+MW2POWERVR 0x1005cf40 RunMenuStatus a1dc1c94320e as RunMenuSlider: 181 against 183 instructions
+MW2POWERVR 0x1005d170 RunMenuChoice dd04d9e95ed5 as in the 3Dfx edition: m_flags loaded and tested whole, p_index loaded before the subtraction, p_control and value in swapped registers: 170 against 175 instructions
+MW2POWERVR 0x1005db10 LoadMenuResources 31b38e37e58c an address's base and index swapped (lea edx, [eax+edi] against [edi+eax]); otherwise identical
+MW2POWERVR 0x1005dce0 FirstMenu 9c31bdc50577 the original compares with a register it knows holds 0 (cmp ebx, edi) where the rebuild tests (test ebx, ebx): a register reused for a known value, as in the 3Dfx edition
+MW2POWERVR 0x1005e110 RunMenuItems 2d6e97f5c839 the original saves another set of callee-saved registers and compares with a register known to hold 0 (cmp eax, ebx), as in the 3Dfx edition: 421 against 417 instructions
+MW2POWERVR 0x1005e970 FUN_1005e970 b405efbbe15f register allocation and x87 scheduling: the original spills p_x (frame 0x38 against 0x2c, ebp in use) and converts the viewport's float coordinates in another order; the same calls with the same arguments (197 instructions against 195)
+MW2POWERVR 0x1005eba0 FUN_1005eba0 7a46d1082ec6 the original pushes sgl_create_camera's conditional third argument straight from each arm (push 0, or fstp into the argument slot), the rebuild evaluates it into a stack temporary and pushes that (86 instructions against 81); the same computations and calls; the arms in the other order (p_far != 0.0f ? ... : 0.0f) compile the same
+MW2POWERVR 0x1005ec90 FUN_1005ec90 2ca06e7e2408 x87 scheduling: the points' coordinates are stored in another order (fld st(1); fxch against fxch; fst; fld st(0)); the same values to the same slots
+MW2POWERVR 0x1005ed90 FUN_1005ed90 766bb42fe11f x87 scheduling and stack layout, as FUN_1005ec90's (the original sets the frame up after the first fld, 157 instructions against 156)
+MW2POWERVR 0x1005efe0 FUN_1005efe0 11039e09064e stack layout and x87 scheduling: the vectors sit at other offsets (the zeroes stored to [esp+0x34] against [esp+0x1c]) and the coordinates are stored in another order (64 instructions against 63); the same values and calls
+MW2POWERVR 0x1005f0b0 FUN_1005f0b0 ddadf60b1859 stack layout and x87 scheduling, as FUN_1005efe0's
+MW2POWERVR 0x1005f7f0 FUN_1005f7f0 caea47b6588b register allocation: one comparison mirrored (cmp ebx, esi / jl against cmp esi, ebx / jg) and the blocks after it placed accordingly; the same calls
+MW2POWERVR 0x10060320 FUN_10060320 e654edfa8301 is the colour sums' operands and stores in another order and stack slots (195 instructions against 190
+MW2POWERVR 0x100609a0 FUN_100609a0 80a9ebaad53a x87 stack allocation: the original keeps the light's z on the FPU stack for the length (fld st(2)) and divides the stored z from memory (fdivr), storing the three components before comparing y with -0.3, where the rebuild reloads z and compares before storing y; the same divisions, negations and messages (295 instructions against 298)
+MW2POWERVR 0x100611a0 FUN_100611a0 25e688d9dc40 register allocation: the 0 kept in ebp against esi and p_count loaded from the stack where the rebuild keeps ecx (156 instructions against 155); one comparison mirrored; the same calls
+MW2POWERVR 0x10061360 FUN_10061360 b7a70b7f996c register allocation and stack layout: the original loads its argument before setting up a smaller frame (sub esp, 0x18 against 0x1c), one spill fewer; the same calls and messages
+MW2POWERVR 0x10061750 FUN_10061750 2205e752ac87 register allocation: one loaded field in esi against edx; the same instructions
+MW2POWERVR 0x10061db0 FUN_10061db0 865332dec69d the mesh loop's pointers as another permutation of esi/edi/ebx (the original takes the face record's address in a register with lea, the rebuild adds) and stack slots of two vectors swapped (272 instructions against 271); the same calls
+MW2POWERVR 0x10062160 FUN_10062160 7036444837c4 register allocation and stack layout, mostly: the original keeps the face's kind word in cx and tests it again (test cl, 0xf0) where the rebuild reloads it, keeps a 0xfffe local in si where the rebuild stores it to the frame (0xac against 0xa4), and walks the faces through ebx/ebp against edi; 623 instructions against 614, the same calls in the same order; not every difference was traced: to investigate
+MW2POWERVR 0x10062b10 FUN_10062b10 260655ffebda the conditional argument (g_cockpitLayoutIndex == 4 ? m_y * 0.5f : m_y): the original pushes it straight from each arm (fstp into the argument slot, or the plain dword), the rebuild evaluates it into a stack temporary (frame 0xc against 0x8) and pushes that, as in FUN_1005eba0; the rest is register allocation; the same calls in the same order

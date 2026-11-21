@@ -1125,6 +1125,15 @@ int __stdcall SimMain(
 #else
 #define SIM_BACKEND_FILL DdrawFill
 #endif
+#ifdef MW2_LIT_GROUND_FILL
+// The S3 edition fills with the ground's colour lit by its renderer's light, an RGB555 pixel.
+#define SIM_RGB555(r, g, b) ((((MechU8) (r) & ~7) << 5 | ((MechU8) (g) & ~7)) << 2 | (MechU8) (b) >> 3)
+
+// polydraw.c's, which declares them nowhere else.
+extern MechFloat g_groundBlue;
+extern MechFloat g_groundGreen;
+extern MechFloat g_groundRed;
+#endif
 
 // The ATI and 3Dfx editions' SimMain (the ATI edition's is six months older). Both have the window
 // 1.1 has and ask SetGameResolution (the 3Dfx edition 800x600 with its registry setting); like the
@@ -1456,9 +1465,25 @@ int __stdcall SimMain(
 			AdvanceAnimations();
 			UpdatePaletteFade();
 			ApplyPendingPalette();
+#ifdef MW2_LIT_GROUND_FILL
+			if ((g_goLaunch & 4) && g_windowActive && g_currentDisplayBackend->m_id == 0) {
+				SIM_BACKEND_FILL(
+					0,
+					0,
+					g_gameWindowWidth,
+					g_gameWindowHeight,
+					SIM_RGB555(
+						g_unk0x10184700[2] * g_groundRed / 255,
+						g_unk0x10184700[1] * g_groundGreen / 255,
+						g_unk0x10184700[0] * g_groundBlue / 255
+					)
+				);
+			}
+#else
 			if (g_windowActive && g_currentDisplayBackend->m_id == 0 && !g_renderSettings.m_texturedGround) {
 				SIM_BACKEND_FILL(0, 0, g_gameWindowWidth, g_gameWindowHeight, PIXEL_COLOR(g_groundColor));
 			}
+#endif
 
 			if ((g_windowActive ? g_currentDisplayBackend->m_acquireFramebuffer() : -1) == 0) {
 				g_renderSettings.m_frameDrawCallback();
@@ -1497,9 +1522,9 @@ int __stdcall SimMain(
 
 		DebugPrint("Calling Blit()\n");
 		Blit();
-#ifdef MW2_3DFX
+#if defined(MW2_3DFX)
 		FUN_10066910();
-#else
+#elif !defined(MW2_NO_SIMMAIN_A3D_SHUTDOWN)
 		A3D_shutdown();
 #endif
 		while (PeekMessage(&msg, NULL, 0, 0, PM_REMOVE)) {
@@ -2271,9 +2296,13 @@ void HandleMessages(void)
 
 	if (!g_shouldQuit && PeekMessage(&msg, NULL, 0, 0, PM_REMOVE)) {
 		while (!g_mouseOutsideClientWindow && msg.message >= WM_MOUSEFIRST && msg.message <= WM_MBUTTONDBLCLK) {
-#ifdef MW2_MOUSE_PEEK_RETURNS
+#if defined(MW2_MOUSE_PEEK_RETURNS)
 			if (!PeekMessage(&msg, NULL, 0, 0, PM_REMOVE)) {
 				return;
+			}
+#elif defined(MW2_MOUSE_PEEK_BREAKS)
+			if (!PeekMessage(&msg, NULL, 0, 0, PM_REMOVE)) {
+				break;
 			}
 #else
 			PeekMessage(&msg, NULL, 0, 0, PM_REMOVE);

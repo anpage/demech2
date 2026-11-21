@@ -595,6 +595,7 @@ void DrawTargetPanel(CockpitPanel* p_panel)
 		return;
 	}
 
+#ifndef MW2_RENDERER_TARGET_VIEW
 	if (kind == 0x200) {
 #ifdef MW2_LOD_PAR
 		if (!g_targetLodParRead) {
@@ -632,6 +633,7 @@ void DrawTargetPanel(CockpitPanel* p_panel)
 	y = player->m_targetInfo.m_position.m_y;
 	z = player->m_targetInfo.m_position.m_z;
 	heading = player->m_targetInfo.m_heading;
+#endif
 	object = GetLocalTargetObject();
 	if (!object) {
 #ifdef MW2_HUD_SHAPE_IDS
@@ -670,6 +672,13 @@ void DrawTargetPanel(CockpitPanel* p_panel)
 		return;
 	}
 
+#ifdef MW2_RENDERER_TARGET_VIEW
+	if (g_cockpitPowerState != 2) {
+		A3D_PANE_WIPE(p_panel->m_target, PIXEL_COLOR(0));
+	}
+
+	OutlinePane(p_panel->m_target, 8);
+#else
 	if (kind == 0x400) {
 		distance = GetShapeBounds(object->m_shape, &x, &y, &z) * 3;
 	}
@@ -713,6 +722,7 @@ void DrawTargetPanel(CockpitPanel* p_panel)
 	g_renderSettings = saved;
 #ifdef MW2_KEY_COLOR
 	FUN_10088280(p_panel->m_target);
+#endif
 #endif
 #else
 	if (!p_panel->m_enabled || !g_targetPanelMode) {

@@ -126,7 +126,7 @@ void BeginMapView(MechScalar* p_pose, MechS32 p_slot, MechS32 p_worldSpan, MechS
 {
 #ifdef MW2_FLOAT_SCALARS
 	g_mapViewScale = (MechFloat) p_worldSpan / (g_panes[p_slot].m_x1 - g_panes[p_slot].m_x0 + 1);
-#ifdef MW2_3DFX
+#if defined(MW2_ATI) || defined(MW2_S3) || defined(MW2_POWERVR) || defined(MW2_3DFX)
 	g_mapViewMaxX = -(g_mapViewMinX = p_worldSpan / -2.0f);
 #else
 	g_mapViewMaxX = -(g_mapViewMinX = -(p_worldSpan / 2.0f));

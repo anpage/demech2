@@ -1161,8 +1161,8 @@ void ApplyDamageToMech(MechS32 p_attacker, Mech* p_mech, MechScalar p_damage, Me
 									(MechS32) FIXED_FROM_INT(levels));
 		}
 		else {
-#ifdef MW2_3DFX
-			// The 3Dfx edition divides before it multiplies here.
+#if defined(MW2_ATI) || defined(MW2_S3) || defined(MW2_POWERVR) || defined(MW2_3DFX)
+			// The ATI, S3, PowerVR and 3Dfx editions divide before they multiply here.
 			level = 15 - (MechS32) (((section->m_internal + section->m_armor[side] / g_otherArmorPerLevel) /
 									 (MechS32) FIXED_FROM_INT(levels)) *
 									3);

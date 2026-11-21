@@ -157,7 +157,7 @@ reccmp-reccmp --target MECH2 --nolib --total 21
 reccmp-reccmp --target MW2MATROX --nolib --total 1597
 reccmp-reccmp --target MW23DFX --nolib --total 1574
 reccmp-reccmp --target MW2ATI --nolib --total 1427
-reccmp-reccmp --target MW2S3 --nolib --total 1393
+reccmp-reccmp --target MW2S3 --nolib --total 1396
 reccmp-reccmp --target MW2POWERVR --nolib --total 1423
 ```
 

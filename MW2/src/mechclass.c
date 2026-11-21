@@ -123,11 +123,17 @@ MechS32 g_manualWeaponCycle = 0;
 // GLOBAL: MW2 0x100a2bfc
 // GLOBAL: MW2MATROX 0x100a45b8
 // GLOBAL: MW23DFX 0x1024c560
+// GLOBAL: MW2ATI 0x101808e0
+// GLOBAL: MW2S3 0x10076f90
+// GLOBAL: MW2POWERVR 0x101ab754
 MechS32 g_unk0x100a2bfc = 0;
 
 // GLOBAL: MW2 0x100a2c00
 // GLOBAL: MW2MATROX 0x100a45bc
 // GLOBAL: MW23DFX 0x1024c564
+// GLOBAL: MW2ATI 0x101808e4
+// GLOBAL: MW2S3 0x10076f94
+// GLOBAL: MW2POWERVR 0x101ab758
 MechS32 g_unk0x100a2c00 = 1;
 
 // GLOBAL: MW2 0x100a2c04
@@ -189,6 +195,9 @@ MechS32 g_ejectStarted = 0;
 // GLOBAL: MW2 0x100be00c
 // GLOBAL: MW2MATROX 0x100c1e20
 // GLOBAL: MW23DFX 0x1007c338
+// GLOBAL: MW2ATI 0x10071338
+// GLOBAL: MW2S3 0x1007f000
+// GLOBAL: MW2POWERVR 0x1006f338
 MechS32 g_collisionSoundPlayed;
 
 // Puts p_player's mech back in its starting state: fresh parts for a new mech (and, for the local
@@ -295,9 +304,10 @@ void FirstMech(struct Player* p_player)
 // driven at on the ground, or under gravity, drag and jump jet thrust in the air), resolves
 // collisions with shapes and other mechs, lands it on the terrain (with falling damage), slides
 // it down slopes, then poses its objects. Every player type's update (PlayerType::m_updateFn).
-// The accelerated editions' version, in floats. The 3Dfx edition declares the second collision
-// test's results and the aim ray's locals in the blocks that use them, where VC++ 2.2 lets them
-// share the frame, and its jump jet terms are cast, which keeps 2.2 from regrouping the float sums.
+// The accelerated editions' version, in floats. The ATI, S3, PowerVR and 3Dfx editions declare the
+// second collision test's results and the aim ray's locals in the blocks that use them, where VC++
+// 2.2 and 4.1 let them share the frame, and the 3Dfx edition's jump jet terms are cast, which
+// keeps 2.2 from regrouping the float sums.
 // FUNCTION: MW2MATROX 0x1000d29c
 // FUNCTION: MW23DFX 0x10019310
 // FUNCTION: MW2ATI 0x100196a0
@@ -336,7 +346,7 @@ void UpdateMech(Mech* p_mech)
 	MechScalar b;
 	MechScalar c;
 	MechScalar topSpeed2;
-#ifndef MW2_3DFX
+#ifndef MW2_BLOCK_SCOPED_LOCALS
 	MechScalar posX2;
 	MechScalar posY2;
 	MechScalar posZ2;
@@ -350,15 +360,15 @@ void UpdateMech(Mech* p_mech)
 	MechScalar volume2;
 	MechScalar damage;
 	MechScalar slope;
-#ifndef MW2_3DFX
+#ifndef MW2_BLOCK_SCOPED_LOCALS
 	MechScalar objY;
 #endif
 	MechScalar angle;
-#ifndef MW2_3DFX
+#ifndef MW2_BLOCK_SCOPED_LOCALS
 	MechScalar objZ;
 #endif
 	MechScalar rayLength;
-#ifndef MW2_3DFX
+#ifndef MW2_BLOCK_SCOPED_LOCALS
 	Ray ray;
 	MechScalar objX;
 #endif
@@ -426,8 +436,8 @@ void UpdateMech(Mech* p_mech)
 				a = a / c;
 				b = mech->m_jumpThrust - a * topSpeed2;
 				b = b / topSpeed;
-#ifdef MW2_3DFX
-				// The 3Dfx edition divides by the length once.
+#ifdef MW2_DRAG_DIVIDED_ONCE
+				// The S3, PowerVR and 3Dfx editions divide by the length once.
 				drag = -((b + a * length) * length);
 				drag /= length;
 				dragX = drag * velX;
@@ -541,7 +551,7 @@ void UpdateMech(Mech* p_mech)
 		mech->m_player->m_collidedWith = -1;
 
 		if (MoveMechWithCollisions(mech, &hitShape, &hitPlayer, dx, dy, dz, &posX, &posY, &posZ)) {
-#ifdef MW2_3DFX
+#ifdef MW2_BLOCK_SCOPED_LOCALS
 			MechScalar posX2;
 			MechScalar posY2;
 			MechScalar posZ2;
@@ -726,7 +736,7 @@ void UpdateMech(Mech* p_mech)
 
 		pitch = FIXED_SHR(mech->m_torsoPitch.m_value, 1);
 		if (mech->m_pitchObj) {
-#ifdef MW2_3DFX
+#ifdef MW2_BLOCK_SCOPED_LOCALS
 			MechScalar objY;
 			MechScalar objZ;
 			Ray ray;
@@ -1211,8 +1221,8 @@ void UpdateMech(Mech* p_mech)
 // recentering, the MASC (which can fail), the heat, and the power state machine: starting up,
 // running, shut down, destroyed (exploding until the timer runs out) and ejecting.
 // Every player type's late update (PlayerType::m_lateUpdateFn).
-// The 3Dfx edition declares the message text in the block that shows it, where VC++ 2.2 lets it
-// share the frame with a scalar local.
+// The ATI, S3, PowerVR and 3Dfx editions declare the message text in the block that shows it, where
+// VC++ 2.2 and 4.1 let it share the frame with a scalar local.
 // FUNCTION: MW2 0x100180cd
 // FUNCTION: MW2MATROX 0x1000e721
 // FUNCTION: MW23DFX 0x1001a180
@@ -1239,7 +1249,7 @@ void LateUpdateMech(Mech* p_mech)
 	MechScalar z;
 	MechScalar y;
 	MechScalar x;
-#ifndef MW2_3DFX
+#ifndef MW2_BLOCK_SCOPED_LOCALS
 	MechChar text[40];
 #endif
 	MechScalar delta;
@@ -1603,8 +1613,8 @@ void LateUpdateMech(Mech* p_mech)
 		}
 #endif
 
-#ifdef MW2_3DFX
-		// isLocal holds here: the 3Dfx edition doesn't test it again.
+#ifdef MW2_RECENTER_NO_RETEST
+		// isLocal holds here: the ATI and 3Dfx editions don't test it again.
 		g_recenterLastHeading = mech->m_player->m_heading;
 #else
 		if (isLocal) {
@@ -1644,7 +1654,7 @@ void LateUpdateMech(Mech* p_mech)
 			if (g_mascEngaged && isLocal && g_currentClock - g_lastMascRoll > 0xb5) {
 				g_lastMascRoll = g_currentClock;
 				if (RandomIntBelow(0x3c) == 12 && !g_difficulty->m_invulnerable && mech->m_powerState == 2) {
-#ifdef MW2_3DFX
+#ifdef MW2_BLOCK_SCOPED_LOCALS
 					MechChar text[40];
 
 #endif

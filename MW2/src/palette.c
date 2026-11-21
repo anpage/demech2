@@ -251,11 +251,12 @@ void ApplyPaletteResource(MechS32 p_slot)
 #ifdef MW2_VFX16
 			for (i = 0; i < 0x100; i++) {
 				color = ((PaletteColor*) palette)[i];
-#if MW2_PIXEL_FORMAT == 555
+#if MW2_PIXEL_FORMAT == 555 && !defined(MW2_LOOKASIDE_RED_SHIFT_10)
 				// The 3Dfx edition's 16-bit pixels: RGB555 from the 6-bit components.
 				VFX_lookaside_write16(i, (color.m_red & ~1) << 9 | (color.m_green & ~1) << 4 | color.m_blue >> 1);
 #else
-				// The Matrox edition's 16-bit pixels: RGB565 from the 6-bit components.
+				// The Matrox edition's 16-bit pixels: RGB565 from the 6-bit components (the PowerVR
+				// edition's too, though its pixels are RGB555).
 				VFX_lookaside_write16(i, (color.m_red & ~1) << 10 | color.m_green << 5 | color.m_blue >> 1);
 #endif
 			}
@@ -263,7 +264,9 @@ void ApplyPaletteResource(MechS32 p_slot)
 
 #ifdef MW2_A3D
 			ResetTextColors();
+#ifndef MW2_A3D_NO_PALETTE
 			A3D_SetPalette((PaletteColor*) palette);
+#endif
 #else
 			g_currentDisplayBackend->m_setPaletteWithBrightness((PaletteColor*) palette);
 #endif
@@ -297,6 +300,15 @@ void UpdatePaletteFade(void)
 		RotatePaletteCycle(&g_paletteCycle);
 	}
 }
+
+#ifdef MW2_S3
+// The S3 edition's fade light is a byte per component, blue first (animation.c).
+#define FADE_LIGHT_RED 2
+#define FADE_LIGHT_BLUE 0
+#else
+#define FADE_LIGHT_RED 0
+#define FADE_LIGHT_BLUE 2
+#endif
 
 // FUNCTION: MW2 0x10002687
 // FUNCTION: MW2MATROX 0x1002d865
@@ -391,28 +403,28 @@ MechS32 StartPaletteFade(MechS32 p_palette, MechS32 p_duration, MechS32 p_mode)
 			switch (p_palette) {
 			case 0xc:
 				g_unk0x100aa1d0 = 1;
-				g_unk0x10184700[0] = 0.0f;
+				g_unk0x10184700[FADE_LIGHT_RED] = 0.0f;
 				g_unk0x10184700[1] = 255.0f;
-				g_unk0x10184700[2] = 8.0f;
+				g_unk0x10184700[FADE_LIGHT_BLUE] = 8.0f;
 				break;
 			case 0x11:
 				g_unk0x100aa1d0 = 1;
-				g_unk0x10184700[0] = 255.0f;
+				g_unk0x10184700[FADE_LIGHT_RED] = 255.0f;
 				g_unk0x10184700[1] = 8.0f;
-				g_unk0x10184700[2] = 8.0f;
+				g_unk0x10184700[FADE_LIGHT_BLUE] = 8.0f;
 				break;
 			case 0x10:
 				g_unk0x100aa1d0 = 1;
-				g_unk0x10184700[0] = 0.0f;
+				g_unk0x10184700[FADE_LIGHT_RED] = 0.0f;
 				g_unk0x10184700[1] = 0.0f;
-				g_unk0x10184700[2] = 0.0f;
+				g_unk0x10184700[FADE_LIGHT_BLUE] = 0.0f;
 				break;
 			default:
 				g_unk0x100aa1d0 = 0;
 #ifdef MW2_FADE_LIGHT_COLOUR
-				g_unk0x10184700[0] = 32.0f;
+				g_unk0x10184700[FADE_LIGHT_RED] = 32.0f;
 				g_unk0x10184700[1] = 32.0f;
-				g_unk0x10184700[2] = 32.0f;
+				g_unk0x10184700[FADE_LIGHT_BLUE] = 32.0f;
 #endif
 				break;
 			}

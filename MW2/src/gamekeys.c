@@ -64,6 +64,7 @@ MechS32 g_missionEndTime = 0;
 // GLOBAL: MW23DFX 0x10250510
 // GLOBAL: MW2ATI 0x10184820
 // GLOBAL: MW2S3 0x10062630
+// GLOBAL: MW2POWERVR 0x101af8e8
 MechS32 g_speechFlushTime = 0;
 
 // A game-key toggle (GetSystemSetting's setting 0x40).
@@ -81,6 +82,7 @@ MechS32 g_overrideShutdown = 0;
 // GLOBAL: MW23DFX 0x1025051c
 // GLOBAL: MW2ATI 0x1018482c
 // GLOBAL: MW2S3 0x1006263c
+// GLOBAL: MW2POWERVR 0x101af8f4
 MechS32 g_feetToTorso = 0;
 
 // GLOBAL: MW2 0x100aa2a4
@@ -238,6 +240,16 @@ void HandleCheatInput(MechS16 p_key)
 		g_localSteering.m_grantJumpJets = 1;
 		g_infiniteJumpFuel = 1;
 		ShowInGameMessage("Flag is invincible. Lemmy is a wuss.", 1, 0x16a, 0x32);
+	}
+#endif
+#ifdef MW2_FLAG_CHEAT
+	else if (TypedCodeMatches("|v{}")) { // "flag"
+		g_difficulty->m_invulnerable = 1;
+		g_difficulty->m_unlimitedAmmo = 3;
+		g_difficulty->m_heatTracking = 0;
+		g_localSteering.m_grantJumpJets = 1;
+		g_infiniteJumpFuel = 1;
+		ShowInGameMessage("Flag's Invincible!", 1, 0x16a, 0x32);
 	}
 #endif
 #ifdef MW2_LEMMY_CHEAT
@@ -935,6 +947,7 @@ void RunGameKey(MechS32 p_key)
 		}
 		break;
 	case 0x3d:
+#ifndef MW2_POWER_KEYS_ONE_CASE
 #ifdef MW2_POWER_STATE_7_KEYS
 		if (mech->m_powerState == 7) {
 			break;
@@ -948,6 +961,7 @@ void RunGameKey(MechS32 p_key)
 			g_powerRequest = -1;
 		}
 		break;
+#endif
 	case 0x3e:
 #ifdef MW2_POWER_STATE_7_KEYS
 		if (mech->m_powerState == 7) {
@@ -974,6 +988,7 @@ void RunGameKey(MechS32 p_key)
 	case 0x40:
 		g_overrideShutdown = 1;
 		break;
+#ifndef MW2_NO_WIREFRAME_KEY
 	case 0xa7:
 		if (g_renderSettings.m_wireframe != 1 && (g_players[g_localPlayerId]->m_flags & 0x2000)) {
 			g_renderSettings.m_wireframe = 1;
@@ -984,6 +999,7 @@ void RunGameKey(MechS32 p_key)
 			g_renderSettings.m_wireframe = 0;
 		}
 		break;
+#endif
 	case 0xa6:
 		SetInfrared(0, !g_infraredOn);
 		break;
@@ -1081,6 +1097,7 @@ void RunGameKey(MechS32 p_key)
 			ShowInGameMessage(text, 1, 0x16a, 0x32);
 		}
 		break;
+#ifndef MW2_NO_SCREENSHOT_KEY
 	case 0x5b:
 		PauseTimer(0x80, 1);
 #ifdef MW2_RAW_SCREENSHOTS
@@ -1101,6 +1118,7 @@ void RunGameKey(MechS32 p_key)
 #endif
 		ShowInGameMessage(text, 1, 0x16a, 0x32);
 		break;
+#endif
 	default:
 		if (g_missionTimerStopped) {
 			HandleDebugKey(p_key);

@@ -139,7 +139,7 @@ MechS32 MoveMechWithCollisions(
 					g_segmentNormalZ = normal.m_dirZ;
 				}
 
-#ifdef MW2_3DFX
+#ifdef MW2_BOUNCE_DOT_STATEMENTS
 				dot = g_segmentNormalX * 2 * ray.m_dirX;
 				dot += g_segmentNormalY * 2 * ray.m_dirY;
 				dot += g_segmentNormalZ * 2 * ray.m_dirZ;
@@ -623,8 +623,13 @@ void ApplyCollisionDamage(Mech* p_mech, Mech* p_other, MechScalar p_damage)
 		}
 		else {
 #ifdef MW2_COLLISION_DAMAGE_X2
-			// Twice the damage scaled by the masses, where 1.1 has four times.
+			// Twice the damage scaled by the masses, where 1.1 has four times. The S3 edition divides the
+			// masses first: its product isn't grouped, which 4.1 reassociates as 2.2 would.
+#ifdef MW2_COLLISION_DAMAGE_UNGROUPED
+			damage = p_damage * 2 * (MechDouble) p_other->m_tons / (p_mech->m_tons > 0 ? p_mech->m_tons : 1);
+#else
 			damage = (p_damage * 2 * (MechDouble) p_other->m_tons) / (p_mech->m_tons > 0 ? p_mech->m_tons : 1);
+#endif
 #else
 			damage = MulDiv64(p_damage << 2, p_other->m_tons, p_mech->m_tons > 0 ? p_mech->m_tons : 1);
 #endif

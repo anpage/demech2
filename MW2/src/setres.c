@@ -29,6 +29,9 @@ MechChar g_artResolutionSuffixes[4][2] = {"", "6", "k", ""};
 // The largest coordinates of the three resolutions the art comes in.
 // GLOBAL: MW2 0x100aa718
 // GLOBAL: MW2MATROX 0x100bca50
+// GLOBAL: MW2ATI 0x1017d2a0
+// GLOBAL: MW2S3 0x10077060
+// GLOBAL: MW2POWERVR 0x101a82f8
 Point g_artResolutionSizes[3] = {{319, 199}, {639, 479}, {1023, 767}};
 
 // GLOBAL: MW2 0x100e9610
@@ -96,12 +99,30 @@ void ChooseArtResolution(GameWindowGeometry* p_geometry)
 		}
 	}
 }
+#elif defined(MW2_ART_RESOLUTION_FIT)
+// Picks the art resolution (g_artResolution): the first whose width reaches the window's, and
+// g_unk0x1012c1e4, the last before it that fits inside the window.
+// FUNCTION: MW2S3 0x10044a50
+void ChooseArtResolution(GameWindowGeometry* p_geometry)
+{
+	MechS32 i;
+
+	for (i = 0; i < 3; i++) {
+		if (g_artResolutionSizes[i].m_x <= p_geometry->m_width - 1 &&
+			g_artResolutionSizes[i].m_y <= p_geometry->m_height - 1) {
+			g_unk0x1012c1e4 = i;
+		}
+		if (g_artResolutionSizes[i].m_x >= p_geometry->m_width - 1) {
+			g_artResolution = i;
+			break;
+		}
+	}
+}
 #else
 // Picks the art resolution (g_artResolution) closest to the window's.
 // FUNCTION: MW2 0x1005d44e
 // FUNCTION: MW2MATROX 0x1008c195
 // FUNCTION: MW2ATI 0x100023b0
-// FUNCTION: MW2S3 0x10044a50
 // FUNCTION: MW2POWERVR 0x10002390
 void ChooseArtResolution(GameWindowGeometry* p_geometry)
 {
@@ -122,11 +143,13 @@ void ChooseArtResolution(GameWindowGeometry* p_geometry)
 #endif
 		}
 	}
-#ifdef MW2_RES_640X400
+#ifdef MW2_ART_RESOLUTION_512X384
 
 	if (p_geometry->m_width == 512 && p_geometry->m_height == 384) {
 		g_artResolution = 1;
 	}
+#endif
+#ifdef MW2_RES_640X400
 	if (p_geometry->m_width == 640 && p_geometry->m_height == 400) {
 		g_artResolution = g_unk0x1012c1e4 = 1;
 	}
