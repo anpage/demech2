@@ -35,6 +35,7 @@
 0x1000a500 ClipRayToGround ray.c pad 2
 0x1000a560 ClipRaySlab ray.c pad 1
 0x1000a810 UpdateMotionSounds gpanim.c pad 3
+0x1000ad50 CollideWithMechs mechcollision.c pad 98
 0x1000b800 KnockMechOver mechcollision.c pad 5
 0x1000b880 BuildShapeQuadtree quadtree.c pad 12
 0x1000b970 BuildQuadtreeChild quadtree.c pad 3
