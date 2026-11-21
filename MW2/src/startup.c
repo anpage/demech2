@@ -24,6 +24,7 @@ void PrintVersion(void)
 // FUNCTION: MW23DFX 0x1000adf0
 // FUNCTION: MW2ATI 0x1000b5f0
 // FUNCTION: MW2S3 0x10041240
+// FUNCTION: MW2POWERVR 0x1000a1b0
 MechS32 StartupCheckStub(void)
 {
 	return 0;

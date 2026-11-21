@@ -133,7 +133,7 @@ static MechS32 g_a3dDevice = -1;
 
 // The sky: a list of the sky's plane, and the haze plane's under it.
 // GLOBAL: MW2POWERVR 0x101c4db4
-static MechS32 g_a3dSkyList = -1;
+MechS32 g_a3dSkyList = -1;
 
 // GLOBAL: MW2POWERVR 0x101c4db8
 static MechS32 g_a3dSkyConvex = -1;
@@ -160,7 +160,7 @@ static LPDIRECTDRAW g_a3dDirectDraw = NULL;
 static HWND g_a3dWindow = NULL;
 
 // GLOBAL: MW2POWERVR 0x101c4dd8
-static sgl_colour g_a3dWhite = {1.0f, 1.0f, 1.0f};
+sgl_colour g_a3dWhite = {1.0f, 1.0f, 1.0f};
 
 // GLOBAL: MW2POWERVR 0x101c4de8
 static sgl_colour g_a3dBlack = {0.0f, 0.0f, 0.0f};
@@ -214,7 +214,7 @@ static MechS32 g_a3dFacingTransform = -1;
 
 // The light's color (FUN_100607d0).
 // GLOBAL: MW2POWERVR 0x101c5240
-static sgl_colour g_a3dLightColour = {1.0f, 1.0f, 1.0f};
+sgl_colour g_a3dLightColour = {1.0f, 1.0f, 1.0f};
 
 // The fog's density.
 // GLOBAL: MW2POWERVR 0x101c524c
@@ -301,14 +301,14 @@ static MechS32 g_a3dSpriteList;
 
 // The fog's color.
 // GLOBAL: MW2POWERVR 0x1007ca70
-static sgl_colour g_a3dFogColour;
+sgl_colour g_a3dFogColour;
 
 // GLOBAL: MW2POWERVR 0x1007ca7c
 static MechS32 g_a3dTerrainList;
 
 // Cockpit panel 2's view.
 // GLOBAL: MW2POWERVR 0x1007ca80
-static A3DView g_a3dPanel2View;
+A3DView g_a3dPanel2View;
 
 // The vertex, light direction or color being passed.
 // GLOBAL: MW2POWERVR 0x1007cab0
@@ -1429,7 +1429,7 @@ void FUN_10060320(void)
 
 	ambient = g_eyepoint->m_ambientLight * 0.01171875f;
 	if (g_groundTile < 0.0f) {
-		FUN_10027620(c_a3dGroundAnimation, &ground[0], &ground[1], &ground[2]);
+		FUN_10051ba1(c_a3dGroundAnimation, &ground[0], &ground[1], &ground[2]);
 		g_a3dFogColour[0] = g_a3dBackground[0] = ground[0];
 		g_a3dFogColour[1] = g_a3dBackground[1] = ground[1];
 		g_a3dFogColour[2] = g_a3dBackground[2] = ground[2];
@@ -1437,9 +1437,9 @@ void FUN_10060320(void)
 	}
 
 	if (g_renderSettings.m_texturedGround && (MechFloat) fabs(g_groundTile - 1.0f) >= 1e-07f) {
-		FUN_10027620(c_a3dGroundAnimation, &ground[0], &ground[1], &ground[2]);
+		FUN_10051ba1(c_a3dGroundAnimation, &ground[0], &ground[1], &ground[2]);
 		if (g_renderSettings.m_drawSky && (MechFloat) fabs(g_skyTileU - 1.0f) >= 1e-07f) {
-			FUN_10027620(c_a3dSkyAnimation, &sky[0], &sky[1], &sky[2]);
+			FUN_10051ba1(c_a3dSkyAnimation, &sky[0], &sky[1], &sky[2]);
 			g_a3dFogColour[0] = (ground[0] + ambient + sky[0]) / 3.0f;
 			g_a3dFogColour[1] = (ground[1] + ambient + sky[1]) / 3.0f;
 			g_a3dFogColour[2] = (ground[2] + ambient + sky[2]) / 3.0f;
@@ -1454,7 +1454,7 @@ void FUN_10060320(void)
 		g_a3dBackground[2] = g_a3dFogColour[2];
 	}
 	else if (g_renderSettings.m_texturedSky && (MechFloat) fabs(g_skyTileU - 1.0f) >= 1e-07f) {
-		FUN_10027620(c_a3dSkyAnimation, &sky[0], &sky[1], &sky[2]);
+		FUN_10051ba1(c_a3dSkyAnimation, &sky[0], &sky[1], &sky[2]);
 		g_a3dFogColour[0] = (sky[0] + ambient) * 0.5f;
 		g_a3dFogColour[1] = (sky[1] + ambient) * 0.5f;
 		g_a3dFogColour[2] = (sky[2] + ambient) * 0.5f;
@@ -1798,7 +1798,7 @@ void FUN_10060fd0(MechS32 p_index, MechFloat* p_colour)
 
 	animation = &g_animations[p_index];
 	if (!p_colour) {
-		FUN_10027620(p_index, &colour[0], &colour[1], &colour[2]);
+		FUN_10051ba1(p_index, &colour[0], &colour[1], &colour[2]);
 	}
 	else {
 		colour[0] = p_colour[0];
@@ -1846,7 +1846,7 @@ void FUN_100610d0(MechS32 p_index)
 	if (animation->m_material > 0 && frame->m_texture > 0) {
 		if (p_index == c_a3dSkyAnimation || p_index == c_a3dGroundAnimation) {
 			animation->m_lit = TRUE;
-			if (!g_unk0x101ad7e4) {
+			if (!g_unk0x100aa1d0) {
 				animation->m_lit = FALSE;
 			}
 		}
@@ -1872,11 +1872,11 @@ void FUN_10061160(MechFloat* p_colour, MechS32 p_mode)
 	}
 }
 
-// Unloads a texture to make room for the entry p_index's: the least recently used one of the pixels
-// p_data that this frame doesn't need, or else the needed one of the lowest priority, whose
+// Unloads a texture to make room for the entry p_index's: the least recently used one of its size
+// (p_size) that this frame doesn't need, or else the needed one of the lowest priority, whose
 // animations then take their average color.
 // FUNCTION: MW2POWERVR 0x100611a0
-MechS32 FUN_100611a0(sgl_tex_callback_struct* p_entries, MechS32 p_count, MechS32 p_index, MechU16* p_data)
+MechS32 FUN_100611a0(sgl_tex_callback_struct* p_entries, MechS32 p_count, MechS32 p_index, MechS32 p_size)
 {
 	sgl_tex_callback_struct* entry;
 	AnimFrame* frame;
@@ -1907,7 +1907,7 @@ MechS32 FUN_100611a0(sgl_tex_callback_struct* p_entries, MechS32 p_count, MechS3
 		}
 
 		frame = &g_animFrames[set][number];
-		if (frame->m_data == p_data && entry->loaded && !entry->used_previous_render) {
+		if (frame->m_size == p_size && entry->loaded && !entry->used_previous_render) {
 			if (!entry->needed) {
 				if (oldest > frame->m_lastUsed) {
 					oldestEntry = i;
@@ -1960,8 +1960,8 @@ void __cdecl FUN_10061360(sgl_tex_callback_struct* p_entries, MechS32 p_count, M
 	sgl_tex_callback_struct* entry;
 	AnimFrame* frame;
 	sgl_intermediate_map* map;
-	MechU16* data;
-	MechS32 unk0x0c;
+	MechS32 width;
+	MechS32 height;
 	MechS32 first;
 	MechS32 result;
 	MechS32 size;
@@ -1992,7 +1992,7 @@ void __cdecl FUN_10061360(sgl_tex_callback_struct* p_entries, MechS32 p_count, M
 			continue;
 		}
 
-		map = FUN_10027350(set, number, &data, &unk0x0c);
+		map = FUN_10027350(set, number, &width, &height);
 		if (!map) {
 			DebugPrintInternal("can't get texture bits\n");
 			continue;
@@ -2024,7 +2024,7 @@ void __cdecl FUN_10061360(sgl_tex_callback_struct* p_entries, MechS32 p_count, M
 			}
 
 			if (result == c_sglErrorTextureMemoryFull) {
-				if (!FUN_100611a0(p_entries, p_count, i, data)) {
+				if (!FUN_100611a0(p_entries, p_count, i, width)) {
 					DebugPrintInternal("can't unload anything else\n");
 					failed = TRUE;
 				}
@@ -2070,7 +2070,7 @@ void FUN_10061530(void)
 	for (i = 0; i < g_playerCount; i++) {
 		player = g_players[i];
 		for (j = 0; j <= player->m_baseLevel; j++) {
-			FUN_100252a0(player->m_index, j);
+			LoadClassLevel(player->m_index, j);
 		}
 	}
 
@@ -2768,7 +2768,7 @@ void FUN_10062160(Shape* p_shape, MechS32 p_material)
 			case 0xf000:
 				DebugPrintInternal("MAPSOLID poly\n");
 				index = (face->m_color & 0xff) + 0x100;
-				FUN_10027620(index, &red, &green, &blue);
+				FUN_10051ba1(index, &red, &green, &blue);
 				FUN_1005f920(face->m_indexCount, ids, red, green, blue);
 				break;
 			default:
@@ -3130,33 +3130,5 @@ void A3D_polygon_clip_XY_and_render(
 }
 
 void A3D_shutdown(void)
-{
-}
-
-// Stand-ins for the other units' functions and global the renderer uses, which no unit defines yet
-// (the parent's to place): remove each when its unit defines it.
-
-MechS32 g_unk0x101ad7e4 = 1;
-
-void FUN_10027620(MechS32 p_index, MechFloat* p_red, MechFloat* p_green, MechFloat* p_blue)
-{
-	*p_red = *p_green = *p_blue = 0.0f;
-}
-
-sgl_intermediate_map* FUN_10027350(MechS32 p_set, MechS32 p_number, MechU16** p_data, MechS32* p_unk0x0c)
-{
-	return NULL;
-}
-
-MechS32 FUN_100273e0(MechS32 p_index, MechS32* p_width, MechS32* p_height)
-{
-	return FALSE;
-}
-
-void FUN_100259c0(void)
-{
-}
-
-void FUN_100252a0(MechS32 p_player, MechS32 p_level)
 {
 }

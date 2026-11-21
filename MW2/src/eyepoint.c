@@ -29,6 +29,11 @@
 #include "transform.h"
 #include "types.h"
 
+#ifdef MW2_POWERVR
+#include "accel/a3d.h"
+#include "powervr/a3dclient.h"
+#endif
+
 #include <stdlib.h>
 
 // The track view's distance from the mech; UpdateFreeEyeView also starts the free camera that far
@@ -542,6 +547,7 @@ MechS32 GetViewMode(void)
 // FUNCTION: MW23DFX 0x1002df60
 // FUNCTION: MW2ATI 0x1002d0b0
 // FUNCTION: MW2S3 0x1003fa80
+// FUNCTION: MW2POWERVR 0x10027e90
 void ApplyCameraFov(MechS32 p_reset)
 {
 	MechScalar fov;
@@ -562,6 +568,16 @@ void ApplyCameraFov(MechS32 p_reset)
 	if (g_eyepoint->m_fovX != fov) {
 		g_projectionDirty = 1;
 		PlaySoundEffect(0x147, 100, 0x40, 5, 0x50);
+#ifdef MW2_POWERVR
+		// The PowerVR edition's SGL camera takes the field of view too, with the eyepoint's far
+		// plane, or none in the map layout (4).
+		if (g_cockpitLayoutIndex == 4) {
+			FUN_1005ff50(g_a3dMainView.m_camera, g_eyepoint->m_fovX, 50.0f, 0.0f);
+		}
+		else {
+			FUN_1005ff50(g_a3dMainView.m_camera, g_eyepoint->m_fovX, 50.0f, g_eyepoint->m_farPlane);
+		}
+#endif
 	}
 }
 
@@ -1238,6 +1254,31 @@ void TurnBillboards(void)
 		}
 	}
 }
+
+#ifdef MW2_POWERVR
+// Turns the world's shapes of type 0x20 to the eyepoint's heading, or to a fixed angle when
+// IsSatelliteView is set; the PowerVR edition's renderer draws them as SGL objects.
+// FUNCTION: MW2POWERVR 0x10028ac0
+void FUN_10028ac0(void)
+{
+	Shape* shape;
+	SceneObject* obj;
+
+	for (shape = g_sceneShapes->m_next; shape; shape = shape->m_next) {
+		if ((shape->m_kind & 0xf0) == 0x20) {
+			obj = shape->m_object;
+			if (obj) {
+				if (IsSatelliteView()) {
+					SetObjRotation(obj, FIXED_CONST(-45), FIXED_CONST(180), 0, 0);
+				}
+				else {
+					SetObjRotation(obj, 0, g_eyepoint->m_heading, 0, 0);
+				}
+			}
+		}
+	}
+}
+#endif
 
 // The S3 edition ends this object with the cockpit panels, which 1.1 has in config.c's.
 #ifdef MW2_S3

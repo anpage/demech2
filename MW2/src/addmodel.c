@@ -19,6 +19,7 @@
 // FUNCTION: MW23DFX 0x10029460
 // FUNCTION: MW2ATI 0x10029120
 // FUNCTION: MW2S3 0x10025a40
+// FUNCTION: MW2POWERVR 0x10025f70
 Model* AddModel(
 	Shape* p_shape,
 	MechScalar p_key,
@@ -50,7 +51,11 @@ Model* AddModel(
 #endif
 	vertexBytes = p_vertexCount * sizeof(Vertex);
 	faceBytes = p_faceCount * sizeof(Face);
+#ifdef MW2_POWERVR
+	size = p_extra + vertexBytes + faceBytes + sizeof(Model);
+#else
 	size = p_extra + vertexBytes + faceBytes + 0x18;
+#endif
 	memory = HeapAlloc(g_primaryHeap, HEAP_NO_SERIALIZE, size);
 	if (!memory) {
 		return NULL;
@@ -63,6 +68,9 @@ Model* AddModel(
 	model->m_faceCount = 0;
 	model->m_transformCount = 0;
 	model->m_unk0x14 = 0;
+#ifdef MW2_POWERVR
+	model->m_list = -1;
+#endif
 	model->m_faceOffset = (MechU16) (vertexBytes + sizeof(Model));
 	*p_extraData = (Face*) ((MechU8*) model + model->m_faceOffset) + p_faceCount;
 	SelectModel(p_shape, model);

@@ -50,6 +50,7 @@ MechS32 g_chatRecipient = 0;
 // GLOBAL: MW23DFX 0x1024c00c
 // GLOBAL: MW2ATI 0x1018038c
 // GLOBAL: MW2S3 0x1007424c
+// GLOBAL: MW2POWERVR 0x101ab1c0
 MechS32 g_showObjectives = 0;
 
 // GLOBAL: MW2 0x100bcd88
@@ -145,6 +146,7 @@ MechS32 GetTextWidth(const MechChar* p_text, void* p_font)
 // FUNCTION: MW23DFX 0x100176d0
 // FUNCTION: MW2ATI 0x10017a90
 // FUNCTION: MW2S3 0x1003a100
+// FUNCTION: MW2POWERVR 0x100169d0
 void DrawObjectiveList(CockpitPanel* p_panel, Point* p_pos, void* p_font, MechU8 p_priority)
 {
 	PANE* target;
@@ -280,6 +282,7 @@ void DrawObjectiveList(CockpitPanel* p_panel, Point* p_pos, void* p_font, MechU8
 // FUNCTION: MW23DFX 0x10017b80
 // FUNCTION: MW2ATI 0x10017f40
 // FUNCTION: MW2S3 0x1003a5b0
+// FUNCTION: MW2POWERVR 0x10016e80
 void DrawObjectivesPanel(CockpitPanel* p_panel)
 {
 	StarMission* mission;
@@ -827,6 +830,7 @@ void DrawHeatRatePanel(CockpitPanel* p_panel)
 // FUNCTION: MW23DFX 0x10018730
 // FUNCTION: MW2ATI 0x10018af0
 // FUNCTION: MW2S3 0x1003b160
+// FUNCTION: MW2POWERVR 0x10017a30
 void DrawJetsPanel(CockpitPanel* p_panel)
 {
 	void* font;

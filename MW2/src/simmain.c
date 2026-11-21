@@ -796,8 +796,8 @@ int __stdcall SimMain(
 // blits: it only calls the frame draw callback while the window is active, after turning the scene's shapes of kind
 // 0x20 (FUN_10028ac0), and it has no refresh mode fallback loop. After the world is loaded it applies the time of day's
 // palette and opens the renderer (FUN_10060f00, FUN_10061530) before reading its registry settings (FUN_1008fad0, which
-// it calls again after InitRefreshMode), and the mission ends without a last wipe and blit. FUNCTION: MW2POWERVR
-// 0x10007e60
+// it calls again after InitRefreshMode), and the mission ends without a last wipe and blit.
+// FUNCTION: MW2POWERVR 0x10007e60
 int __stdcall SimMain(
 	HINSTANCE p_module,
 	undefined4 p_unk0x0c,

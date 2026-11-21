@@ -845,6 +845,7 @@ void AddNextWeaponToGroup(Mech* p_mech)
 // FUNCTION: MW23DFX 0x10044560
 // FUNCTION: MW2ATI 0x10041db0
 // FUNCTION: MW2S3 0x10029900
+// FUNCTION: MW2POWERVR 0x1003caf0
 void UpdateWeaponLock(Mech* p_mech)
 {
 	MechScalar dz;

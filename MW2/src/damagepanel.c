@@ -100,6 +100,7 @@ MechScalar g_maxSectionArmor = 0;
 // GLOBAL: MW23DFX 0x1024c628
 // GLOBAL: MW2ATI 0x101809a8
 // GLOBAL: MW2S3 0x10074058
+// GLOBAL: MW2POWERVR 0x101ab850
 PANE g_outlineRect = {NULL, 0, 0, 0, 0};
 
 // The outline's sixteen parts: rectangles in the outline shape's pixels (LoadHudFile reads them)
@@ -109,6 +110,7 @@ PANE g_outlineRect = {NULL, 0, 0, 0, 0};
 // GLOBAL: MW23DFX 0x1024c640
 // GLOBAL: MW2ATI 0x101809c0
 // GLOBAL: MW2S3 0x10074070
+// GLOBAL: MW2POWERVR 0x101ab868
 PANE g_outlinePartRects[16] = {0};
 
 // Where each part's shape is drawn from, relative to its rectangle.
@@ -124,6 +126,7 @@ Point g_outlinePartOffsets[16] = {0};
 // GLOBAL: MW23DFX 0x1024c800
 // GLOBAL: MW2ATI 0x10180b80
 // GLOBAL: MW2S3 0x10074230
+// GLOBAL: MW2POWERVR 0x101aba28
 MechS32 g_frameOutlineParts = 0;
 
 // The armor bars' labels.
@@ -307,6 +310,7 @@ void InitDamagePanel(void)
 // FUNCTION: MW23DFX 0x1001b620
 // FUNCTION: MW2ATI 0x1001b9b0
 // FUNCTION: MW2S3 0x10039a80
+// FUNCTION: MW2POWERVR 0x1001a8d0
 void DrawDamageOutline(Mech* p_mech, PANE* p_target)
 {
 	MechS32 rear;

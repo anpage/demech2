@@ -112,6 +112,7 @@ void AttachShapeBoundBox(Shape* p_shape)
 // FUNCTION: MW23DFX 0x1000d920
 // FUNCTION: MW2ATI 0x1000e010
 // FUNCTION: MW2S3 0x100252b0
+// FUNCTION: MW2POWERVR 0x1000cc10
 void ComputeModelBounds(
 	Shape* p_shape,
 	MechScalar* p_minX,

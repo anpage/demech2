@@ -7,7 +7,11 @@
 
 #include <string.h>
 
+#ifdef MW2_POWERVR
+DECOMP_SIZE_ASSERT(CockpitPanel, 0x98)
+#else
 DECOMP_SIZE_ASSERT(CockpitPanel, 0x88)
+#endif
 
 // FUNCTION: MW2 0x100746c0
 // FUNCTION: MW2MATROX 0x1001c7d0
@@ -22,6 +26,10 @@ void InitCockpitPanel(CockpitPanel* p_panel)
 	p_panel->m_lightUpTime = 0;
 	p_panel->m_weapon = -1;
 	memset(p_panel->m_name, 0, sizeof(p_panel->m_name));
+#ifdef MW2_POWERVR
+	p_panel->m_unk0x30 = 0;
+	p_panel->m_view = NULL;
+#endif
 	p_panel->m_x = 0;
 	p_panel->m_y = 0;
 	p_panel->m_width = 0;
@@ -42,6 +50,10 @@ void InitCockpitPanel(CockpitPanel* p_panel)
 	p_panel->m_draw = NULL;
 	p_panel->m_drawShutdown = NULL;
 	p_panel->m_drawStatic = NULL;
+#ifdef MW2_POWERVR
+	p_panel->m_unk0x90 = NULL;
+	p_panel->m_unk0x94 = NULL;
+#endif
 }
 
 // FUNCTION: MW2 0x100747c9
@@ -93,6 +105,7 @@ void SetCockpitPanelName(CockpitPanel* p_panel, const MechChar* p_name)
 // FUNCTION: MW23DFX 0x10023530
 // FUNCTION: MW2ATI 0x100237f0
 // FUNCTION: MW2S3 0x10037960
+// FUNCTION: MW2POWERVR 0x10022a50
 void SetCockpitPanelTarget(CockpitPanel* p_panel, PANE* p_target)
 {
 	p_panel->m_target = p_target;
@@ -107,6 +120,7 @@ void SetCockpitPanelTarget(CockpitPanel* p_panel, PANE* p_target)
 // FUNCTION: MW23DFX 0x10023560
 // FUNCTION: MW2ATI 0x10023820
 // FUNCTION: MW2S3 0x10037990
+// FUNCTION: MW2POWERVR 0x10022a80
 void SetCockpitPanelTextOrigin(CockpitPanel* p_panel, Point* p_textOrigin)
 {
 	p_panel->m_textOrigin = p_textOrigin;
@@ -117,6 +131,7 @@ void SetCockpitPanelTextOrigin(CockpitPanel* p_panel, Point* p_textOrigin)
 // FUNCTION: MW23DFX 0x10023570
 // FUNCTION: MW2ATI 0x10023830
 // FUNCTION: MW2S3 0x100379a0
+// FUNCTION: MW2POWERVR 0x10022a90
 void SetCockpitPanelTransition(CockpitPanel* p_panel, RectTransition* p_transition)
 {
 	p_panel->m_transition = p_transition;
@@ -127,6 +142,7 @@ void SetCockpitPanelTransition(CockpitPanel* p_panel, RectTransition* p_transiti
 // FUNCTION: MW23DFX 0x10023580
 // FUNCTION: MW2ATI 0x10023840
 // FUNCTION: MW2S3 0x100379b0
+// FUNCTION: MW2POWERVR 0x10022aa0
 void SetCockpitPanelRect(CockpitPanel* p_panel, MechS32 p_x, MechS32 p_y, MechS32 p_width, MechS32 p_height)
 {
 	p_panel->m_x = p_x;

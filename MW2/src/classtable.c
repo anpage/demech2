@@ -25,8 +25,17 @@
 #ifdef MW2_ACCEL
 #include <stdio.h>
 #endif
+#ifdef MW2_POWERVR
+#include "accel/a3d.h"
+#include "config.h"
+#include "network.h"
+#endif
 
+#ifdef MW2_POWERVR
+DECOMP_SIZE_ASSERT(ClassEntry, 0x58)
+#else
 DECOMP_SIZE_ASSERT(ClassEntry, 0x44)
+#endif
 
 // A player's model level as ChoosePlayerDetailLevels chooses it.
 // SIZE 0x0c
@@ -61,6 +70,7 @@ MechFloat g_lodLevel4 = 40000.0f;
 // GLOBAL: MW23DFX 0x1024dbd8
 // GLOBAL: MW2ATI 0x10181ee8
 // GLOBAL: MW2S3 0x100652f0
+// GLOBAL: MW2POWERVR 0x101acfd4
 MechS32 g_classEntryCount = 0;
 
 // GLOBAL: MW2 0x100a37d8
@@ -68,6 +78,7 @@ MechS32 g_classEntryCount = 0;
 // GLOBAL: MW23DFX 0x1024dbdc
 // GLOBAL: MW2ATI 0x10181eec
 // GLOBAL: MW2S3 0x100652f4
+// GLOBAL: MW2POWERVR 0x101acfd8
 MechS32 g_classTableReady = 0;
 
 // GLOBAL: MW2 0x1012b7e0
@@ -75,6 +86,7 @@ MechS32 g_classTableReady = 0;
 // GLOBAL: MW23DFX 0x101b16b0
 // GLOBAL: MW2ATI 0x100e5410
 // GLOBAL: MW2S3 0x100b2520
+// GLOBAL: MW2POWERVR 0x1010c3e0
 ClassEntry g_classTable[0x30c];
 
 // Loads the shapes of p_player's entries for its base level (m_baseLevel) into one pool block.
@@ -121,6 +133,7 @@ MechS32 LoadBaseLevelShapes(Player* p_player)
 // FUNCTION: MW23DFX 0x10026180
 // FUNCTION: MW2ATI 0x10025ef0
 // FUNCTION: MW2S3 0x10020450
+// FUNCTION: MW2POWERVR 0x100250f0
 MechS32 AddClassEntryLevel(
 	MechS32 p_unk0x00,
 	ClassEntryCoord p_unk0x04,
@@ -192,6 +205,7 @@ MechS32 AddClassEntryLevel(
 // FUNCTION: MW23DFX 0x10026280
 // FUNCTION: MW2ATI 0x10025ff0
 // FUNCTION: MW2S3 0x10020550
+// FUNCTION: MW2POWERVR 0x100251f0
 void ResetClassTable(void)
 {
 	ClassEntry* entry;
@@ -211,6 +225,9 @@ void ResetClassTable(void)
 		for (level = 0; level < 5; level++) {
 			entry->m_resourceIds[level] = -1;
 			entry->m_kinds[level] = 0;
+#ifdef MW2_POWERVR
+			entry->m_lists[level] = -1;
+#endif
 		}
 	}
 
@@ -224,6 +241,7 @@ void ResetClassTable(void)
 // FUNCTION: MW23DFX 0x100262f0
 // FUNCTION: MW2ATI 0x10026060
 // FUNCTION: MW2S3 0x100205c0
+// FUNCTION: MW2POWERVR 0x10025260
 void ClaimNewClassEntries(Player* p_player)
 {
 	MechS32 i;
@@ -247,6 +265,7 @@ void ClaimNewClassEntries(Player* p_player)
 // FUNCTION: MW23DFX 0x10026330
 // FUNCTION: MW2ATI 0x100260a0
 // FUNCTION: MW2S3 0x10020600
+// FUNCTION: MW2POWERVR 0x100252a0
 MechS32 LoadClassLevel(MechS32 p_owner, MechS32 p_level)
 {
 	MechS32 i;
@@ -464,6 +483,7 @@ void ReleasePendingDetailLevel(void)
 // FUNCTION: MW23DFX 0x10026730
 // FUNCTION: MW2ATI 0x10026410
 // FUNCTION: MW2S3 0x10020980
+// FUNCTION: MW2POWERVR 0x100256b0
 void ReleaseClassEntryShape(MechS32 p_index, MechS32 p_level)
 {
 	ClassEntry* entry;
@@ -473,6 +493,11 @@ void ReleaseClassEntryShape(MechS32 p_index, MechS32 p_level)
 		DestroyObjShape(entry->m_shape);
 		entry->m_shape = NULL;
 		entry->m_loadedLevel = -1;
+#ifdef MW2_POWERVR
+		if (entry->m_lists[p_level] > 0) {
+			FUN_1005f3f0(entry->m_lists[p_level]);
+		}
+#endif
 	}
 }
 
@@ -481,6 +506,7 @@ void ReleaseClassEntryShape(MechS32 p_index, MechS32 p_level)
 // FUNCTION: MW23DFX 0x10026770
 // FUNCTION: MW2ATI 0x10026450
 // FUNCTION: MW2S3 0x100209c0
+// FUNCTION: MW2POWERVR 0x10025700
 struct SceneObject* GetClassObject(MechS32 p_index)
 {
 	struct SceneObject* obj;
@@ -513,6 +539,7 @@ Shape* GetClassShape(MechS32 p_index)
 // FUNCTION: MW23DFX 0x100267b0
 // FUNCTION: MW2ATI 0x10026470
 // FUNCTION: MW2S3 0x100209e0
+// FUNCTION: MW2POWERVR 0x10025720
 void SetClassEntryPartId(MechS32 p_index, MechU16 p_value)
 {
 	ClassEntry* entry;
@@ -521,6 +548,87 @@ void SetClassEntryPartId(MechS32 p_index, MechU16 p_value)
 	entry->m_partId = p_value;
 }
 
+#ifdef MW2_POWERVR
+// Chooses each player's model level (Player::m_detailLevel) by its distance from the eyepoint alone,
+// in one pass: 0, 1, 2 or 3 within 3600, 8500 and 22500 (times the eyepoint's m_detailScale). The
+// local player's own view (GetViewMode == 0) takes level 4, and dead players 0 or 1. A player whose
+// level changes moves into the renderer's list of its level (FUN_100617f0).
+// FUNCTION: MW2POWERVR 0x10025740
+void ChoosePlayerDetailLevels(void)
+{
+	MechFloat length;
+	MechS32 range2;
+	MechFloat ez;
+	MechFloat dz;
+	MechFloat unk0x18;
+	MechFloat ey;
+	MechFloat dy;
+	MechFloat ex;
+	MechFloat dx;
+	MechFloat scale;
+	PlayerDetail* entry;
+	MechFloat heading;
+	MechS32 range0;
+	MechS32 range1;
+	Player* player;
+	BearingDistance ground;
+	MechS32 i;
+	PlayerDetail entries[60];
+
+	scale = g_eyepoint->m_detailScale;
+	range0 = scale * 3600.0f;
+	range1 = scale * 8500.0f;
+	range2 = scale * 22500.0f;
+	ex = g_eyepoint->m_x;
+	ey = g_eyepoint->m_y;
+	ez = g_eyepoint->m_z;
+	for (i = 0; i < g_playerCount; i++) {
+		player = g_players[i];
+		entry = &entries[i];
+		entry->m_player = i;
+		if (i == g_localPlayerId && !GetViewMode()) {
+			entry->m_level = 4;
+			entry->m_distance = 0;
+		}
+		else if (player->m_flags & 2) {
+			if (i == g_localPlayerId) {
+				entry->m_level = 0;
+			}
+			else {
+				entry->m_level = 1;
+			}
+		}
+		else {
+			entry->m_level = -2;
+			dx = player->m_position.m_x - ex;
+			dy = player->m_position.m_y - ey;
+			dz = player->m_position.m_z - ez;
+			GetBearingAndRange(dx, dy, dz, &heading, &length, &ground, &unk0x18);
+			entry->m_distance = length;
+			if (entry->m_distance < range0) {
+				entry->m_level = 0;
+			}
+			else if (entry->m_distance < range1) {
+				entry->m_level = 1;
+			}
+			else if (entry->m_distance < range2) {
+				entry->m_level = 2;
+			}
+			else {
+				entry->m_level = 3;
+			}
+		}
+
+		if (entry->m_level >= 0 && entry->m_level != player->m_detailLevel) {
+			if (LoadClassLevel(player->m_index, entry->m_level)) {
+				player->m_detailLevel = entry->m_level;
+			}
+
+			FUN_100617f0(player, player->m_detailLevel);
+		}
+	}
+}
+#else
 // Chooses each player's model level (Player::m_detailLevel) by its distance from the eyepoint: the
 // nearest player within range gets level 0, the next two level 1, the rest 2 or 3 by distance.
 // The local player's own view (GetViewMode == 0) takes level 4, and dead players 0 or 1.
@@ -776,6 +884,7 @@ void ChoosePlayerDetailLevels(void)
 	}
 #endif
 }
+#endif
 
 // Releases the shape of the entry whose object is p_obj.
 // FUNCTION: MW2 0x1001ddf2
@@ -783,14 +892,34 @@ void ChoosePlayerDetailLevels(void)
 // FUNCTION: MW23DFX 0x100269a0
 // FUNCTION: MW2ATI 0x10026660
 // FUNCTION: MW2S3 0x10020bd0
+// FUNCTION: MW2POWERVR 0x100258e0
 void ReleaseObjShape(struct SceneObject* p_obj)
 {
 	MechS32 i;
 	ClassEntry* entry;
+#ifdef MW2_POWERVR
+	MechS32 level;
+#endif
 
 	for (i = 0; i < g_classEntryCount; i++) {
 		entry = &g_classTable[i];
 		if (entry->m_obj == p_obj) {
+#ifdef MW2_POWERVR
+			// A network game that regenerates the players keeps the lists, the shown one hidden.
+			if (g_isNetworkGame && g_difficulty->m_regenerate) {
+				if (entry->m_loadedLevel >= 0) {
+					FUN_1005f3f0(entry->m_lists[entry->m_loadedLevel]);
+				}
+			}
+			else {
+				for (level = 0; level < 5; level++) {
+					FUN_1005f3f0(entry->m_lists[level]);
+					FUN_1005f280(entry->m_lists[level]);
+					entry->m_lists[level] = -1;
+				}
+			}
+
+#endif
 			if (entry->m_shape) {
 				DestroyObjShape(entry->m_shape);
 			}
@@ -809,6 +938,7 @@ void ReleaseObjShape(struct SceneObject* p_obj)
 // FUNCTION: MW23DFX 0x100269f0
 // FUNCTION: MW2ATI 0x100266b0
 // FUNCTION: MW2S3 0x10020c20
+// FUNCTION: MW2POWERVR 0x10025980
 void ForgetObjShape(struct SceneObject* p_obj)
 {
 	ClassEntry* entry;
@@ -824,3 +954,23 @@ void ForgetObjShape(struct SceneObject* p_obj)
 		}
 	}
 }
+
+#ifdef MW2_POWERVR
+// Keeps the SGL list of each entry's loaded shape as its level's (m_lists), and frees the shape's
+// converted models (FUN_10061750): the scene's conversion ("Load3DObjects") calls it.
+// FUNCTION: MW2POWERVR 0x100259c0
+void FUN_100259c0(void)
+{
+	MechS32 i;
+	ClassEntry* entry;
+
+	for (i = 0; i < g_classEntryCount; i++) {
+		entry = &g_classTable[i];
+		if (entry->m_loadedLevel > -1 && entry->m_shape) {
+			entry->m_lists[entry->m_loadedLevel] = entry->m_shape->m_list;
+			entry->m_shape->m_list = -1;
+			FUN_10061750(entry->m_shape);
+		}
+	}
+}
+#endif

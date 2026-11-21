@@ -80,12 +80,14 @@ MechS32 g_secondsPerDay = 86400;
 // GLOBAL: MW2MATROX 0x100bbbb8
 // GLOBAL: MW23DFX 0x1024a998
 // GLOBAL: MW2S3 0x10073260
+// GLOBAL: MW2POWERVR 0x101a9b40
 MechS32 g_daysPerYear = 365;
 
 // GLOBAL: MW2 0x100ba614
 // GLOBAL: MW2MATROX 0x100bbbbc
 // GLOBAL: MW23DFX 0x1024a99c
 // GLOBAL: MW2S3 0x10073264
+// GLOBAL: MW2POWERVR 0x101a9b44
 MechS32 g_dayOfYear = 0;
 
 // GLOBAL: MW2 0x100ba618
@@ -109,6 +111,7 @@ MechS32 g_startTimeOfDay = 43200;
 // GLOBAL: MW23DFX 0x1024a9a8
 // GLOBAL: MW2ATI 0x1017ee00
 // GLOBAL: MW2S3 0x10073270
+// GLOBAL: MW2POWERVR 0x101a9b50
 MechS32 g_temperature = 25;
 
 // Set on a planet without a breathable atmosphere: the local player can't eject (the cockpit says
@@ -160,6 +163,33 @@ MechS32 g_nextTimeOfDayUpdate;
 // GLOBAL: MW2POWERVR 0x101a2d24
 MechS32 g_infraredOn;
 
+#ifdef MW2_TIME_OF_DAY_LOOKUP
+// The phase the time of day p_time falls in: the last whose start it has reached, or the night's
+// (3) before the first.
+// FUNCTION: MW2POWERVR 0x10006f10
+MechS32 FUN_10006f10(MechS32 p_time)
+{
+	MechS32 phase;
+	MechS32 i;
+
+	phase = 3;
+	for (i = 0; i <= 3; i++) {
+		if (g_timeOfDayStarts[i] <= p_time) {
+			phase = i;
+		}
+	}
+
+	return phase;
+}
+
+// The palette of the current time of day's phase.
+// FUNCTION: MW2POWERVR 0x10006f30
+MechS32 FUN_10006f30(void)
+{
+	return g_timeOfDayPhases[FUN_10006f10(g_timeOfDay)].m_palette;
+}
+#endif
+
 // FUNCTION: MW2 0x1007d610
 // FUNCTION: MW2MATROX 0x10085c80
 // FUNCTION: MW23DFX 0x10007870
@@ -197,12 +227,16 @@ void FirstEnvironment(void)
 // FUNCTION: MW2POWERVR 0x10006fe0
 void UpdateTimeOfDay(void)
 {
+#ifndef MW2_TIME_OF_DAY_LOOKUP
 	MechS32 phase;
+#endif
 	MechS32 seconds;
 	MechS32 time;
+#ifndef MW2_TIME_OF_DAY_LOOKUP
 	MechS32 i;
 
 	phase = 3;
+#endif
 	if (g_cockpitPanels[c_panelRadar]->m_damage >= 1 && g_infraredOn == 1) {
 		SetInfrared(0, 0);
 		g_infraredOn = 0;
@@ -226,6 +260,9 @@ void UpdateTimeOfDay(void)
 		}
 
 		g_timeOfDay = time;
+#ifdef MW2_TIME_OF_DAY_LOOKUP
+		FadeToTimeOfDayPhase(FUN_10006f10(time));
+#else
 		for (i = 0; i <= 3; i++) {
 			if (g_timeOfDayStarts[i] <= g_timeOfDay) {
 				phase = i;
@@ -233,6 +270,7 @@ void UpdateTimeOfDay(void)
 		}
 
 		FadeToTimeOfDayPhase(phase);
+#endif
 	}
 }
 

@@ -81,6 +81,7 @@ MechS32 g_initDrawModeParam2 = INITIAL_DRAW_MODE_FALLBACK;
 // GLOBAL: MW23DFX 0x102498e4
 // GLOBAL: MW2ATI 0x1017d78c
 // GLOBAL: MW2S3 0x1006406c
+// GLOBAL: MW2POWERVR 0x101a87cc
 MechS32 g_showBoundingSpheres = 0;
 
 // The banner's file name, instead of sbannr (ShowBanner).
@@ -739,15 +740,3 @@ void DrawBoundingSpheres(Shape* p_root)
 		}
 	}
 }
-
-#ifdef MW2_POWERVR
-// TEMPORARY: placeholders so that the PowerVR edition links until environment.c and eyepoint.c
-// define these (powervr/a3dclient.h); remove them then.
-MechS32 FUN_10006f30(void)
-{
-	return 0;
-}
-void FUN_10028ac0(void)
-{
-}
-#endif

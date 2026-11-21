@@ -102,6 +102,7 @@ ScalarRamp g_cameraShakeY;
 // FUNCTION: MW23DFX 0x1002d7b0
 // FUNCTION: MW2ATI 0x1002c900
 // FUNCTION: MW2S3 0x1003b1f0
+// FUNCTION: MW2POWERVR 0x100276e0
 void ResetCameraShake(void)
 {
 	ClearCameraShakeKeys();

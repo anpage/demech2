@@ -265,6 +265,7 @@ RectTransition* g_cockpitPanelTransitions[c_panelCount] = {
 // GLOBAL: MW23DFX 0x1024ccdc
 // GLOBAL: MW2ATI 0x1018105c
 // GLOBAL: MW2S3 0x10076a2c
+// GLOBAL: MW2POWERVR 0x101abf8c
 MechS32 g_punchInAutoHeadingRequested = 0;
 
 // GLOBAL: MW2 0x100ae380
@@ -272,6 +273,7 @@ MechS32 g_punchInAutoHeadingRequested = 0;
 // GLOBAL: MW23DFX 0x1024cce0
 // GLOBAL: MW2ATI 0x10181060
 // GLOBAL: MW2S3 0x10076a30
+// GLOBAL: MW2POWERVR 0x101abf90
 MechS32 g_hitFadePending = 0;
 
 // The clock times the panels light up at on startup (CockpitPanel::m_lightUpTime): the weapon panels in turn.
@@ -317,6 +319,7 @@ MechS32 g_hitFadeCount = 0;
 // GLOBAL: MW23DFX 0x101de7fc
 // GLOBAL: MW2ATI 0x101124bc
 // GLOBAL: MW2S3 0x10084290
+// GLOBAL: MW2POWERVR 0x1013d17c
 MechScalar g_torsoTwistDegrees;
 
 // GLOBAL: MW2 0x100c3270
@@ -324,6 +327,7 @@ MechScalar g_torsoTwistDegrees;
 // GLOBAL: MW23DFX 0x101de7f8
 // GLOBAL: MW2ATI 0x101124b8
 // GLOBAL: MW2S3 0x10084294
+// GLOBAL: MW2POWERVR 0x1013d178
 MechScalar g_headingDegrees;
 
 // The 26 cockpit panels InitCockpitPanels allocates.
@@ -348,6 +352,7 @@ MechS32 g_cockpitPanelEnabled[c_panelCount];
 // GLOBAL: MW23DFX 0x101de868
 // GLOBAL: MW2ATI 0x10112528
 // GLOBAL: MW2S3 0x10084378
+// GLOBAL: MW2POWERVR 0x1013d1e8
 MechS32 g_cockpitPowerState;
 
 // Loads eight sounds ahead of their use.

@@ -29,6 +29,7 @@
 // FUNCTION: MW23DFX 0x1001e820
 // FUNCTION: MW2ATI 0x1001eaf0
 // FUNCTION: MW2S3 0x10036390
+// FUNCTION: MW2POWERVR 0x1001d940
 void DrawWeaponPanel(CockpitPanel* p_panel)
 {
 	Mech* mech;
@@ -129,6 +130,7 @@ void DrawWeaponPanel(CockpitPanel* p_panel)
 // FUNCTION: MW23DFX 0x1001e9a0
 // FUNCTION: MW2ATI 0x1001ec70
 // FUNCTION: MW2S3 0x10036510
+// FUNCTION: MW2POWERVR 0x1001dac0
 void DrawWeaponPanelStartup(CockpitPanel* p_panel)
 {
 	Mech* mech;

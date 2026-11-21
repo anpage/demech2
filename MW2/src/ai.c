@@ -829,6 +829,7 @@ const MechChar* FindAIName(MechS16 p_value, AiName* p_names, MechS16 p_count)
 // FUNCTION: MW23DFX 0x10011ff0
 // FUNCTION: MW2ATI 0x10012550
 // FUNCTION: MW2S3 0x10015990
+// FUNCTION: MW2POWERVR 0x10011490
 void ClearAILog(void)
 {
 	MechS32 i;

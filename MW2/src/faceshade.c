@@ -28,6 +28,7 @@ MechS32 g_backgroundColor = 0;
 // GLOBAL: MW23DFX 0x1024e414
 // GLOBAL: MW2ATI 0x10182724
 // GLOBAL: MW2S3 0x100771b0
+// GLOBAL: MW2POWERVR 0x101ad708
 MechS32 g_skyColor = 0xe0;
 
 // The ground's color (DrawSkyAndGround; the sky's is g_skyColor).
@@ -36,6 +37,7 @@ MechS32 g_skyColor = 0xe0;
 // GLOBAL: MW23DFX 0x1024e418
 // GLOBAL: MW2ATI 0x10182728
 // GLOBAL: MW2S3 0x100771b4
+// GLOBAL: MW2POWERVR 0x101ad70c
 MechS32 g_groundColor = 0xef;
 
 // The horizon map's (LoadMapBitmap, from the world stream's hrzm record).
@@ -43,6 +45,7 @@ MechS32 g_groundColor = 0xef;
 // GLOBAL: MW2MATROX 0x100a494c
 // GLOBAL: MW23DFX 0x1024e41c
 // GLOBAL: MW2S3 0x100771b8
+// GLOBAL: MW2POWERVR 0x101ad710
 MechS32 g_horizonMapColor = 0xea;
 
 // GLOBAL: MW2 0x100a5558
@@ -58,6 +61,7 @@ MechS32 g_unk0x100a5558 = -1;
 // GLOBAL: MW2MATROX 0x100a4958
 // GLOBAL: MW23DFX 0x1024e428
 // GLOBAL: MW2S3 0x100771c4
+// GLOBAL: MW2POWERVR 0x101ad71c
 MechS32 g_brightenDamage = 0;
 
 // The eyepoint's ambient light (SelectEyepoint): ComputeShade's base shade, out of 0x80.

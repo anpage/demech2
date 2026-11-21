@@ -39,6 +39,14 @@
 #include "types.h"
 #include "weapons.h"
 
+#ifdef MW2_TUNING_CHEATS
+#include "accel/a3d.h"
+#include "logwindow.h"
+#include "powervr/a3dclient.h"
+
+#include <sgl.h>
+#endif
+
 #include <ctype.h>
 #include <stdio.h>
 #include <string.h>
@@ -105,6 +113,7 @@ MechS32 g_missionTimerStopped = 0;
 // GLOBAL: MW23DFX 0x1025052c
 // GLOBAL: MW2ATI 0x1018483c
 // GLOBAL: MW2S3 0x1006264c
+// GLOBAL: MW2POWERVR 0x101af904
 MechS32 g_timeCompressionCheat = 0;
 
 // The length of the chat message being typed (HandleChatKey).
@@ -145,6 +154,7 @@ MechChar g_typedKeys[0xf];
 // GLOBAL: MW23DFX 0x101e8e10
 // GLOBAL: MW2ATI 0x1011cad0
 // GLOBAL: MW2S3 0x100abc14
+// GLOBAL: MW2POWERVR 0x10147790
 MechS32 g_frontViewForRear;
 
 // Appends a character key (key code type 7) to the typed keys. Returns whether it was one.
@@ -197,6 +207,7 @@ MechS32 TypedCodeMatches(MechChar* p_code)
 // FUNCTION: MW23DFX 0x10036d80
 // FUNCTION: MW2ATI 0x10035940
 // FUNCTION: MW2S3 0x10011b90
+// FUNCTION: MW2POWERVR 0x100303c0
 void HandleCheatInput(MechS16 p_key)
 {
 	MechS32 target;
@@ -216,6 +227,19 @@ void HandleCheatInput(MechS16 p_key)
 			ShowInGameMessage("Invulnerability OFF", 1, 0x16a, 0x32);
 		}
 	}
+#ifdef MW2_CHRIS_FLAG_CHEATS
+	else if (TypedCodeMatches("yrhsi")) { // "chris"
+		ShowInGameMessage("Hey man!", 1, 0x16a, 0x32);
+	}
+	else if (TypedCodeMatches("|v{}")) { // "flag"
+		g_difficulty->m_invulnerable = 1;
+		g_difficulty->m_unlimitedAmmo = 3;
+		g_difficulty->m_heatTracking = 0;
+		g_localSteering.m_grantJumpJets = 1;
+		g_infiniteJumpFuel = 1;
+		ShowInGameMessage("Flag is invincible. Lemmy is a wuss.", 1, 0x16a, 0x32);
+	}
+#endif
 #ifdef MW2_LEMMY_CHEAT
 	else if (TypedCodeMatches("v\x7fwwc")) { // "lemmy"
 		g_difficulty->m_invulnerable = 1;
@@ -356,6 +380,50 @@ void HandleCheatInput(MechS16 p_key)
 			ShowInGameMessage("Time expansion disabled", 1, 0x16a, 0x32);
 		}
 	}
+#ifdef MW2_TUNING_CHEATS
+	// The original multiplies and adds apart (2.2 folds x += x * 0.1f into x * 1.1f without the
+	// parentheses).
+	else if (TypedCodeMatches("|j")) { // "fp"
+		g_a3dFogDensity += (g_a3dFogDensity * 0.1f);
+		sgl_set_fog(g_a3dMainView.m_camera, g_a3dFogColour, g_a3dFogDensity);
+		DebugPrintInternal("fog = %.6f\n", g_a3dFogDensity);
+	}
+	else if (TypedCodeMatches("|w")) { // "fm"
+		g_a3dFogDensity -= (g_a3dFogDensity * 0.1f);
+		sgl_set_fog(g_a3dMainView.m_camera, g_a3dFogColour, g_a3dFogDensity);
+		DebugPrintInternal("fog = %.6f\n", g_a3dFogDensity);
+	}
+	else if (TypedCodeMatches("}j")) { // "gp"
+		g_groundTile += (g_groundTile * 0.1f);
+		FUN_1005f0b0(-10.0f, 16000000.0f, g_groundTile);
+		DebugPrintInternal("ground_tile = %.1f\n", g_groundTile);
+	}
+	else if (TypedCodeMatches("}w")) { // "gm"
+		g_groundTile -= (g_groundTile * 0.1f);
+		FUN_1005f0b0(-10.0f, 16000000.0f, g_groundTile);
+		DebugPrintInternal("ground_tile = %.1f\n", g_groundTile);
+	}
+	else if (TypedCodeMatches("ij")) { // "sp"
+		g_skyScroll += (g_skyScroll * 0.1f);
+		g_skyTileU += (g_skyTileU * 0.1f);
+		FUN_1005efe0(2000000.0f, 64000000.0f, g_skyTileU, g_skyScroll);
+		DebugPrintInternal("sky_tile = %.1f\n", g_skyTileU);
+	}
+	else if (TypedCodeMatches("iw")) { // "sm"
+		g_skyTileU -= (g_skyTileU * 0.1f);
+		FUN_1005efe0(2000000.0f, 64000000.0f, g_skyTileU, g_skyScroll);
+		DebugPrintInternal("sky_tile = %.1f\n", g_skyTileU);
+		g_skyScroll -= (g_skyScroll * 0.1f);
+	}
+	else if (TypedCodeMatches("i{j")) { // "sap"
+		g_skyScrollSpeed += (g_skyScrollSpeed * 0.2f);
+		DebugPrintInternal("anim_rate = %.6f\n", g_skyScrollSpeed / g_skyTileU);
+	}
+	else if (TypedCodeMatches("i{w")) { // "sam"
+		g_skyScrollSpeed -= (g_skyScrollSpeed * 0.2f);
+		DebugPrintInternal("anim_rate = %.1f\n", g_skyScrollSpeed / g_skyTileU);
+	}
+#endif
 }
 
 // Turns a typed character into the one its key gives with shift held (the US layout).

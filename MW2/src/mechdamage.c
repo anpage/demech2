@@ -51,6 +51,7 @@ MechS32 g_autoEject = 0;
 // GLOBAL: MW23DFX 0x1024bfc0
 // GLOBAL: MW2ATI 0x10180340
 // GLOBAL: MW2S3 0x100621c0
+// GLOBAL: MW2POWERVR 0x101ab140
 MechScalar g_otherArmorPerLevel = 4;
 
 // GLOBAL: MW2 0x100a1598
@@ -58,6 +59,7 @@ MechScalar g_otherArmorPerLevel = 4;
 // GLOBAL: MW23DFX 0x1024bfc4
 // GLOBAL: MW2ATI 0x10180344
 // GLOBAL: MW2S3 0x100621c4
+// GLOBAL: MW2POWERVR 0x101ab144
 MechScalar g_localArmorPerLevel = 4;
 
 // GLOBAL: MW2 0x100a159c
@@ -1039,6 +1041,7 @@ void DestroyCriticalSlot(MechS32 p_attacker, Mech* p_mech, MechU32 p_section, Me
 // FUNCTION: MW23DFX 0x100171d0
 // FUNCTION: MW2ATI 0x100175d0
 // FUNCTION: MW2S3 0x1000f1b0
+// FUNCTION: MW2POWERVR 0x10016510
 void ApplyDamageToMech(MechS32 p_attacker, Mech* p_mech, MechScalar p_damage, MechS32 p_section)
 {
 	MechS32 side;

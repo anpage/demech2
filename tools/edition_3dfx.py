@@ -705,13 +705,13 @@ def cmd_fix_order(args):
 
 
 
-def function_starts(image, names, data=()):
+def function_starts(image, names, data=(), callers=None):
     """Every function start in the game code: the annotated ones, the call targets of the code
     they reach, 16-aligned starts after int3 padding that no traced code covers (an 0xCC byte can
     be an operand's), the same again from those, and pointers to code nothing reaches (callbacks,
     after padding, a ret or a jmp). Tracing follows branches and jump tables, and stops at a known start.
-    data: the annotated data in .text, which pointers reach too. Returns (starts, the pointer-only
-    starts)."""
+    data: the annotated data in .text, which pointers reach too. callers, a dict, receives each
+    call target's call sites. Returns (starts, the pointer-only starts)."""
     lo, code = image.text[0], image.text_bytes
     dis = disasm()
     starts = {a for a in names if lo <= a < THUNKS}
@@ -737,6 +737,8 @@ def function_starts(image, names, data=()):
                 target = int(x.op_str, 16) if x.op_str.startswith("0x") else None
                 if x.mnemonic == "call" and target and lo <= target < THUNKS:
                     calls.add(target)
+                    if callers is not None:
+                        callers.setdefault(target, []).append(a)
                 if x.mnemonic == "jmp":
                     m = re.match(r"dword ptr \[\w+\*4 \+ (0x[0-9a-f]+)\]", x.op_str)
                     if target:
@@ -784,20 +786,30 @@ def cmd_functions(args):
     names.update({d["markers"][TARGET]: d["name"] for d in definitions() if TARGET in d["markers"]})
     image = Image(BINARY)
     data = set(original_names()) - set(names)
-    starts, extra = function_starts(image, names, data)
-    # A start only pointers reach, off the 16-byte alignment every /Gy function has, with every
-    # pointer inside the function that encloses it, is that function's own code (SimMain's
-    # exception handler, VFX_map_polygon's span routines): not a function of its own. A callback
-    # its registrar points to starts aligned (StartSample's).
+    callers = {}
+    starts, extra = function_starts(image, names, data, callers)
+    # A start off the 16-byte alignment every /Gy function has, which no code outside the function
+    # that encloses it calls or points to, is that function's own code (SimMain's exception handler
+    # and, in the S3 edition, the __finally funclet 4.1 calls, which its scope table points to as
+    # well; VFX_map_polygon's span routines): not a function of its own. A callback its registrar
+    # points to starts aligned (StartSample's). So is the return address a function pushes to call
+    # its __finally funclet, aligned or not (the PowerVR edition's SimMain).
     refs = {}
     for r in image.relocs:
         refs.setdefault(image.u32(r), []).append(r)
+    for t, sites in callers.items():
+        refs.setdefault(t, []).extend(sites)
     real = [x for x in starts if x not in extra]
     following = dict(zip(real, real[1:] + [THUNKS]))
     inner = []
     for a in starts:
         enclosing = max((x for x in real if x < a), default=None)
-        if a in extra and a % 16 and enclosing and all(enclosing <= r < following[enclosing] for r in refs.get(a, [])):
+        code = [r for r in refs.get(a, []) if image.text[0] <= r < THUNKS]
+        inside = enclosing and code and all(enclosing <= r < following[enclosing] for r in code)
+        # 2.2 runs a __finally block as mov [ebp-4], <trylevel>; push <return address>; <the
+        # block>; ret: the return address is the function's own code, aligned or not.
+        pushed = inside and all(image.read(r - 8, 4)[:3] == b"\xc7\x45\xfc" and image.read(r - 1, 1)[0] == 0x68 for r in code)
+        if a not in names and enclosing and (pushed or (a % 16 and all(enclosing <= r < following[enclosing] for r in code))):
             inner.append(a)
             print("%#x is inner code of the function at %#x, not counted" % (a, enclosing))
     starts = [a for a in starts if a not in inner]

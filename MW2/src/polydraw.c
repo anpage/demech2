@@ -187,6 +187,7 @@ MechFloat g_skyRed;
 // GLOBAL: MW2MATROX 0x1015d5e4
 // GLOBAL: MW23DFX 0x101b0efc
 // GLOBAL: MW2ATI 0x100e4edc
+// GLOBAL: MW2POWERVR 0x1010c3d4
 MechFloat g_skyScrollEnd;
 
 // GLOBAL: MW2MATROX 0x1015d5e8
@@ -1091,6 +1092,7 @@ void FUN_10068b57(MechS32 p_count, ProjectedVertex** p_points, MechU32 p_color)
 // Reads a line of at most p_size - 1 characters, with its newline, from p_file into p_buffer.
 // Returns its length plus one, or 0 at the end of the file.
 // FUNCTION: MW2MATROX 0x10068c7b
+// FUNCTION: MW2POWERVR 0x10025a10
 MechU32 ReadTextLine(FILE* p_file, MechChar* p_buffer, MechS32 p_size)
 {
 	MechU32 i;
@@ -1115,6 +1117,7 @@ MechU32 ReadTextLine(FILE* p_file, MechChar* p_buffer, MechS32 p_size)
 // defaults without the file (but in the Matrox edition not when the file has no line for the mission).
 // FUNCTION: MW2MATROX 0x10068d0f
 // FUNCTION: MW2S3 0x1000b440
+// FUNCTION: MW2POWERVR 0x10025a70
 void LoadSkyGroundSettings(const MechChar* p_mission)
 {
 	MechChar mission[4];
@@ -1133,6 +1136,18 @@ void LoadSkyGroundSettings(const MechChar* p_mission)
 #endif
 			}
 
+#ifdef MW2_POWERVR
+			// The PowerVR edition's lines end with the density of its renderer's fog.
+			sscanf(
+				line,
+				"mission=%4s tile_sky=%f tile_ground=%f anim_rate=%f fog=%f",
+				mission,
+				&g_skyTileU,
+				&g_groundTile,
+				&rate,
+				&g_a3dFogDensity
+			);
+#else
 			sscanf(
 				line,
 				"mission=%4s tile_sky=%f tile_ground=%f anim_rate=%f",
@@ -1141,6 +1156,7 @@ void LoadSkyGroundSettings(const MechChar* p_mission)
 				&g_groundTile,
 				&rate
 			);
+#endif
 			if (!strncmp(p_mission, mission, 4)) {
 				g_skyTileV = g_skyTileU * 0.2f;
 				g_skyScroll = 0;

@@ -3,11 +3,11 @@
 
 #include "types.h"
 
-// Functions only the PowerVR edition has, which its SimMain calls around the renderer, declared as
-// the call sites show them until their units define them: environment.c's (0x10006f10 is the
-// phase of a time of day, FUN_10006f30 the palette of the current one) and eyepoint.c's (turns the
-// scene's shapes of kind 0x20, as TurnBillboards does those of kinds 0x10 and 0x60). The renderer's
-// own functions are in accel/a3d.h.
+// Functions only the PowerVR edition has, which its SimMain calls around the renderer:
+// environment.c's (FUN_10006f30, the palette of the current time of day, MW2_TIME_OF_DAY_LOOKUP)
+// and eyepoint.c's (FUN_10028ac0 turns the scene's shapes of kind 0x20, as TurnBillboards does
+// those of kinds 0x10 and 0x60), declared here rather than in eyepoint.h, which would declare it
+// for every unit that includes it. The renderer's own functions are in accel/a3d.h.
 
 #ifdef __cplusplus
 extern "C"
@@ -16,6 +16,9 @@ extern "C"
 
 	MechS32 FUN_10006f30(void);
 	void FUN_10028ac0(void);
+
+	// The renderer's fog colour (an sgl_colour), which a cheat code passes back to SGL.
+	extern MechFloat g_a3dFogColour[3];
 
 #ifdef __cplusplus
 }

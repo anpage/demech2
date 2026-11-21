@@ -526,7 +526,11 @@ MechS32 LoadShapeRecord(MechU8* p_data, MechS32* p_offset, Shape** p_shape, Scen
 		}
 
 		id = MapFaceId(((WtbFace*) face)->m_id);
+#ifdef MW2_POWERVR
+		polygon = AddShapeFace(*p_shape, id, extra, count, ((WtbFace*) face)->m_indices);
+#else
 		polygon = AddShapeFace(*p_shape, id, extra);
+#endif
 		if (!polygon) {
 			g_shapeLoadError = -9;
 			return -1;
@@ -541,7 +545,9 @@ MechS32 LoadShapeRecord(MechU8* p_data, MechS32* p_offset, Shape** p_shape, Scen
 		extra += count * 4;
 		indices = ((WtbFace*) face)->m_indices;
 		for (j = 0; j < count; j++) {
+#ifndef MW2_POWERVR
 			AddShapeFaceIndex(*p_shape, polygon, indices[j]);
+#endif
 			checksum += indices[j];
 		}
 
