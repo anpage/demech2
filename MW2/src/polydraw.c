@@ -2248,6 +2248,10 @@ void DrawSkyAndGround(Eyepoint* p_eyepoint)
 }
 #endif
 
+#ifdef MW2_SHAPES_PALETTE_POLYGON
+void FUN_1000d960(MechS32 p_count, ProjectedVertex** p_points, MechU32 p_color, MechS32 p_unk0x0c);
+#endif
+
 // Draws a closed polygon of five points.
 // FUNCTION: MW2 0x1004440d
 // FUNCTION: MW2MATROX 0x1006ab1d
@@ -2287,7 +2291,11 @@ void DrawPentagon(
 	vertices[3].m_screenY = p_y3;
 	vertices[4].m_screenX = p_x4;
 	vertices[4].m_screenY = p_y4;
+#ifdef MW2_SHAPES_PALETTE_POLYGON
+	FUN_1000d960(5, points, p_flags, 0);
+#else
 	g_renderSettings.m_drawPolygon(5, points, p_flags, 0);
+#endif
 #else
 	MechU32 points[5 * 6];
 
@@ -2386,7 +2394,11 @@ void DrawQuad(
 	vertices[2].m_screenY = p_y2;
 	vertices[3].m_screenX = p_x3;
 	vertices[3].m_screenY = p_y3;
+#ifdef MW2_SHAPES_PALETTE_POLYGON
+	FUN_1000d960(4, points, p_flags, 0);
+#else
 	g_renderSettings.m_drawPolygon(4, points, p_flags, 0);
+#endif
 #else
 	MechU32 points[4 * 6];
 
@@ -2424,7 +2436,11 @@ void DrawTriangle(MechS32 p_x0, MechS32 p_y0, MechS32 p_x1, MechS32 p_y1, MechS3
 	vertices[1].m_screenY = p_y1;
 	vertices[2].m_screenX = p_x2;
 	vertices[2].m_screenY = p_y2;
+#ifdef MW2_SHAPES_PALETTE_POLYGON
+	FUN_1000d960(3, points, p_flags, 0);
+#else
 	g_renderSettings.m_drawPolygon(3, points, p_flags, 0);
+#endif
 #else
 	MechU32 points[3 * 6];
 

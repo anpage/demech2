@@ -20,6 +20,12 @@ extern "C"
 	void DrawMechViewFrame(CockpitPanel* p_panel, MechS32 p_color, MechS32 p_shapeId);
 	void DrawMechViewStartup(CockpitPanel* p_panel);
 	void DrawMechViewShutdown(CockpitPanel* p_panel);
+#ifdef MW2_POWERVR
+	// The PowerVR edition's handlers before and after the scene is rendered (CockpitPanel::m_unk0x90
+	// and m_unk0x94), which place the inset's camera and set its qualities.
+	void FUN_10010b10(CockpitPanel* p_panel);
+	void FUN_10010d50(CockpitPanel* p_panel);
+#endif
 
 #ifdef __cplusplus
 }

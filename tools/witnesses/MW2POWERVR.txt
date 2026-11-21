@@ -90,10 +90,11 @@
 0x1001b930 DrawVerticalBar bargauges.c pad 10
 0x1001c930 TargetAtReticle targeting.c pad 11
 0x1001cc20 TargetNearestEnemy targeting.c pad 1
-0x1001d7e0 PlayCockpitWarnings targeting.c pad 29
+0x1001d460 UpdateCockpit targeting.c pad 3
+0x1001d7e0 PlayCockpitWarnings targeting.c pad 25
 0x1001db60 RunManeuver maneuvers.c pad 12
 0x1001e380 FindManeuver maneuvers.c pad 9
-0x1001ff60 DrawTargetPanelText targetpanel.c pad 16
+0x1001ff60 DrawTargetPanelText targetpanel.c pad 14
 0x10020d50 LateUpdateArtillery artillery.c pad 9
 0x10020f90 CreateArtillery artillery.c pad 9
 0x100214a0 CreateDoor door.c pad 16
@@ -119,6 +120,7 @@
 0x10026530 GetShapeMemorySize shape.c pad 23
 0x10026700 TransformShapeCenter shape.c pad 7
 0x100267a0 ApproximateShapeDistance shape.c pad 7
+0x10026c40 StartPaletteFade palette.c pad 7
 0x100276f0 UpdateCameraShake camerashake.c pad 8
 0x10027850 StartCameraShakeKey camerashake.c pad 8
 0x10028b90 RotatePoint transform.c pad 2
@@ -147,8 +149,7 @@
 0x1002ee70 ReceiveSuccessMsg network.c pad 6
 0x1002f0c0 StartExternalIO network.c rename desc=zqal guid=zqai p_netLaunch=zqam result=zqak unk0x04=zqaj
 0x1002f7d0 MousePoll mouse.c pad 10
-0x10030380 TypedCodeMatches gamekeys.c pad 2
-0x10030cb0 HandleChatKey gamekeys.c pad 23
+0x10030cb0 HandleChatKey gamekeys.c pad 19
 0x100326a0 FindInputDevice inputmap.c pad 4
 0x10032a00 GetOrCreateInputAxis inputmap.c pad 16
 0x10032d00 AddAnalogBinding inputmap.c pad 16
@@ -160,15 +161,14 @@
 0x100351e0 UpdateWrappedRamp ramp.c pad 1
 0x10035360 DrawDebugOverlays overlay.c pad 24
 0x100358f0 StepSpinner overlay.c pad 12
-0x10035e40 PreloadResource mw2prj.c pad 3
+0x10035e40 PreloadResource mw2prj.c pad 1
 0x10036350 GetPrjResourceSize prjfile.c pad 11
 0x100363f0 ReadPrjResource prjfile.c pad 1
 0x10038480 FreeBwdNames bwdnames.c pad 12
 0x100384c0 SetUpStarMission missionsetup.c pad 17
 0x10038a30 FindEventList missionsetup.c pad 7
 0x10038c20 FlushEventLists missionsetup.c pad 10
-0x10038d80 LoadReels config.c pad 24
-0x10039490 SaveSndCfg config.c pad 1
+0x10038d80 LoadReels config.c pad 20
 0x10039870 GetKeywordName bwd.c pad 1
 0x1003b560 ExecuteInclude resource.c pad 17
 0x1003c670 SelectNextWeaponGroup weapons.c pad 13

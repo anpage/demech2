@@ -409,8 +409,16 @@ MechS32 StartPaletteFade(MechS32 p_palette, MechS32 p_duration, MechS32 p_mode)
 				break;
 			default:
 				g_unk0x100aa1d0 = 0;
+#ifdef MW2_FADE_LIGHT_COLOUR
+				g_unk0x10184700[0] = 32.0f;
+				g_unk0x10184700[1] = 32.0f;
+				g_unk0x10184700[2] = 32.0f;
+#endif
 				break;
 			}
+#endif
+#ifdef MW2_FADE_LIGHT_COLOUR
+			FUN_100607d0(g_unk0x10184700[0] / 32.0f, g_unk0x10184700[1] / 32.0f, g_unk0x10184700[2] / 32.0f);
 #endif
 
 			InitPaletteFade(&g_paletteFade, from, to, 0, 0x100, steps);

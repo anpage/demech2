@@ -52,6 +52,8 @@ targets:
       - common
     hash:
       sha256: c0509cefd31887301bd86ef8cca748211af224d9cce1a40cf87d2da6e942a739
+    data-sources:
+      - reccmp/mw2ati-vfx.csv
     report:
       icon: assets/dll.png
   MW2S3:
