@@ -104,6 +104,7 @@ MechChar g_gamePath[0x100];
 // GLOBAL: MW23DFX 0x101de8e0
 // GLOBAL: MW2ATI 0x101125a0
 // GLOBAL: MW2S3 0x1008ac10
+// GLOBAL: MW2POWERVR 0x1013d260
 MechS32 g_hudLayoutValues[3];
 
 // Loads seven values from resource p_ref.

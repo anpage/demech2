@@ -19,6 +19,10 @@
 #include <windows.h>
 
 #ifdef MW2_POWERVR
+#include "accel/a3d.h"
+#endif
+
+#ifdef MW2_POWERVR
 DECOMP_SIZE_ASSERT(SceneObject, 0x8c)
 #else
 DECOMP_SIZE_ASSERT(SceneObject, 0x7c)
@@ -31,6 +35,7 @@ DECOMP_SIZE_ASSERT(SceneObject, 0x7c)
 // GLOBAL: MW23DFX 0x1024b3a0
 // GLOBAL: MW2ATI 0x1017f720
 // GLOBAL: MW2S3 0x10060fac
+// GLOBAL: MW2POWERVR 0x101aa4c4
 MechU32 g_nextRenormalizeCountdown = 100;
 
 // FUNCTION: MW2 0x100012d0
@@ -98,6 +103,12 @@ SceneObject* CreateObj(SceneObject* p_parent, MechU32 p_flags)
 	obj->m_name = NULL;
 	obj->m_renormalizeCountdown = g_nextRenormalizeCountdown;
 	g_nextRenormalizeCountdown = ((g_nextRenormalizeCountdown + 7) & 0x7f) + 0x40;
+#ifdef MW2_POWERVR
+	obj->m_list = -1;
+	obj->m_translation = -1;
+	obj->m_rotation = -1;
+	obj->m_material = -1;
+#endif
 	return obj;
 }
 
@@ -136,16 +147,36 @@ SceneObject* InitObj(SceneObject* p_parent, void* p_memory)
 	obj->m_name = NULL;
 	obj->m_renormalizeCountdown = g_nextRenormalizeCountdown;
 	g_nextRenormalizeCountdown = ((g_nextRenormalizeCountdown + 7) & 0x7f) + 0x40;
+#ifdef MW2_POWERVR
+	obj->m_list = -1;
+	obj->m_translation = -1;
+	obj->m_rotation = -1;
+	obj->m_material = -1;
+#endif
 	return obj;
 }
 
+// The PowerVR edition also moves the shape's SGL list from the old shape's to the object's list.
 // FUNCTION: MW2 0x10001532
 // FUNCTION: MW2MATROX 0x10041032
 // FUNCTION: MW23DFX 0x1000f750
 // FUNCTION: MW2ATI 0x1000fe20
 // FUNCTION: MW2S3 0x10004b70
+// FUNCTION: MW2POWERVR 0x1000ea80
 void SetObjShape(SceneObject* p_obj, Shape* p_shape)
 {
+#ifdef MW2_POWERVR
+	if (p_obj->m_list > 0) {
+		if (p_obj->m_shape && p_obj->m_shape->m_list > 0) {
+			FUN_1005f390(p_obj->m_shape->m_list);
+		}
+
+		if (p_shape && p_shape->m_list > 0) {
+			FUN_1005f320(p_shape->m_list, p_obj->m_list);
+		}
+	}
+
+#endif
 	p_obj->m_shape = p_shape;
 	p_obj->m_flags |= c_objectDirty;
 }
@@ -225,41 +256,70 @@ void GetObjLocalPosition(SceneObject* p_obj, MechScalar* p_x, MechScalar* p_y, M
 	*p_z = p_obj->m_local.m_rows[3][2];
 }
 
+// The PowerVR edition also sets the object's translation transform.
 // FUNCTION: MW2 0x1000163a
 // FUNCTION: MW2MATROX 0x1004113a
 // FUNCTION: MW23DFX 0x1000f820
 // FUNCTION: MW2ATI 0x1000fec0
 // FUNCTION: MW2S3 0x10004c10
+// FUNCTION: MW2POWERVR 0x1000eb60
 void SetObjPosition(SceneObject* p_obj, MechScalar p_x, MechScalar p_y, MechScalar p_z)
 {
 	p_obj->m_local.m_rows[3][0] = p_x;
 	p_obj->m_local.m_rows[3][1] = p_y;
 	p_obj->m_local.m_rows[3][2] = p_z;
 	p_obj->m_flags |= c_objectDirty;
+#ifdef MW2_POWERVR
+	FUN_1005fb60(p_obj->m_translation, TRUE, p_x, p_y, p_z);
+#endif
 }
 
+// The PowerVR edition also moves the object's translation transform.
 // FUNCTION: MW2 0x10001667
 // FUNCTION: MW2MATROX 0x10041167
 // FUNCTION: MW23DFX 0x1000f850
 // FUNCTION: MW2ATI 0x1000fef0
 // FUNCTION: MW2S3 0x10004c40
+// FUNCTION: MW2POWERVR 0x1000eba0
 void MoveObj(SceneObject* p_obj, MechScalar p_x, MechScalar p_y, MechScalar p_z)
 {
 	p_obj->m_local.m_rows[3][0] += p_x;
 	p_obj->m_local.m_rows[3][1] += p_y;
 	p_obj->m_local.m_rows[3][2] += p_z;
 	p_obj->m_flags |= c_objectDirty;
+#ifdef MW2_POWERVR
+	FUN_1005fb60(p_obj->m_translation, FALSE, p_x, p_y, p_z);
+#endif
 }
 
+// The PowerVR edition also sets the object's translation and rotation transforms.
 // FUNCTION: MW2 0x10001694
 // FUNCTION: MW2MATROX 0x100411a6
 // FUNCTION: MW23DFX 0x1000f880
 // FUNCTION: MW2ATI 0x1000ff20
 // FUNCTION: MW2S3 0x10004c70
+// FUNCTION: MW2POWERVR 0x1000ebf0
 void SetObjTransform(SceneObject* p_obj, Matrix* p_matrix)
 {
+#ifdef MW2_POWERVR
+	MechScalar angleX;
+	MechScalar angleY;
+	MechScalar angleZ;
+
+#endif
 	p_obj->m_local = *p_matrix;
 	p_obj->m_flags |= c_objectDirty;
+#ifdef MW2_POWERVR
+	FUN_1005fb60(
+		p_obj->m_translation,
+		TRUE,
+		p_obj->m_local.m_rows[3][0],
+		p_obj->m_local.m_rows[3][1],
+		p_obj->m_local.m_rows[3][2]
+	);
+	GetObjAngles(p_obj, &angleX, &angleY, &angleZ);
+	FUN_1005fbc0(p_obj->m_rotation, 0, angleX, angleY, angleZ, TRUE);
+#endif
 }
 
 // Multiplies the object's local matrix by p_matrix, renormalizing the rotation now and then.
@@ -279,13 +339,21 @@ void TransformObj(SceneObject* p_obj, Matrix* p_matrix)
 	}
 }
 
+// The PowerVR edition also sets the object's rotation transform.
 // FUNCTION: MW2 0x10001722
 // FUNCTION: MW2MATROX 0x10041234
 // FUNCTION: MW23DFX 0x1000f8f0
 // FUNCTION: MW2ATI 0x1000ff40
 // FUNCTION: MW2S3 0x10004c90
+// FUNCTION: MW2POWERVR 0x1000ec70
 void SetObjRotationMatrix(SceneObject* p_obj, Matrix* p_matrix)
 {
+#ifdef MW2_POWERVR
+	MechScalar angleX;
+	MechScalar angleY;
+	MechScalar angleZ;
+
+#endif
 	p_obj->m_local.m_rows[0][0] = p_matrix->m_rows[0][0];
 	p_obj->m_local.m_rows[0][1] = p_matrix->m_rows[0][1];
 	p_obj->m_local.m_rows[0][2] = p_matrix->m_rows[0][2];
@@ -296,15 +364,28 @@ void SetObjRotationMatrix(SceneObject* p_obj, Matrix* p_matrix)
 	p_obj->m_local.m_rows[2][1] = p_matrix->m_rows[2][1];
 	p_obj->m_local.m_rows[2][2] = p_matrix->m_rows[2][2];
 	p_obj->m_flags |= c_objectDirty;
+#ifdef MW2_POWERVR
+	GetObjAngles(p_obj, &angleX, &angleY, &angleZ);
+	FUN_1005fbc0(p_obj->m_rotation, 0, angleX, angleY, angleZ, TRUE);
+#endif
 }
 
+// In the PowerVR edition the caller turns the rotation transform (RotateObj), and a renormalized
+// rotation sets it.
 // FUNCTION: MW2 0x1000179f
 // FUNCTION: MW2MATROX 0x100412b1
 // FUNCTION: MW23DFX 0x1000f940
 // FUNCTION: MW2ATI 0x1000ff90
 // FUNCTION: MW2S3 0x10004ce0
+// FUNCTION: MW2POWERVR 0x1000ecf0
 void RotateObjMatrix(SceneObject* p_obj, Matrix* p_matrix)
 {
+#ifdef MW2_POWERVR
+	MechScalar angleX;
+	MechScalar angleY;
+	MechScalar angleZ;
+
+#endif
 	MultiplyRotations(&p_obj->m_local, p_matrix, &p_obj->m_local);
 	p_obj->m_flags |= c_objectDirty;
 
@@ -313,31 +394,57 @@ void RotateObjMatrix(SceneObject* p_obj, Matrix* p_matrix)
 		p_obj->m_renormalizeCountdown = g_nextRenormalizeCountdown;
 		g_nextRenormalizeCountdown = ((g_nextRenormalizeCountdown + 7) & 0x7f) + 0x40;
 		NormalizeRotation(&p_obj->m_local);
+#ifdef MW2_POWERVR
+		GetObjAngles(p_obj, &angleX, &angleY, &angleZ);
+		FUN_1005fbc0(p_obj->m_rotation, 0, angleX, angleY, angleZ, TRUE);
+#endif
 	}
 }
 
+// The PowerVR edition copies the rotation itself, and sets the object's rotation transform from the
+// angles.
 // FUNCTION: MW2 0x1000180b
 // FUNCTION: MW2MATROX 0x1004131d
 // FUNCTION: MW23DFX 0x1000f990
 // FUNCTION: MW2ATI 0x1000ffe0
 // FUNCTION: MW2S3 0x10004d30
+// FUNCTION: MW2POWERVR 0x1000ed70
 void SetObjRotation(SceneObject* p_obj, MechScalar p_angleX, MechScalar p_angleY, MechScalar p_angleZ, MechU32 p_flags)
 {
 	Matrix matrix;
 
 	BuildMatrixEx(&matrix, p_angleX, p_angleY, p_angleZ, 0, 0, 0, p_flags);
+#ifdef MW2_POWERVR
+	p_obj->m_local.m_rows[0][0] = matrix.m_rows[0][0];
+	p_obj->m_local.m_rows[0][1] = matrix.m_rows[0][1];
+	p_obj->m_local.m_rows[0][2] = matrix.m_rows[0][2];
+	p_obj->m_local.m_rows[1][0] = matrix.m_rows[1][0];
+	p_obj->m_local.m_rows[1][1] = matrix.m_rows[1][1];
+	p_obj->m_local.m_rows[1][2] = matrix.m_rows[1][2];
+	p_obj->m_local.m_rows[2][0] = matrix.m_rows[2][0];
+	p_obj->m_local.m_rows[2][1] = matrix.m_rows[2][1];
+	p_obj->m_local.m_rows[2][2] = matrix.m_rows[2][2];
+	p_obj->m_flags |= c_objectDirty;
+	FUN_1005fbc0(p_obj->m_rotation, p_flags, p_angleX, p_angleY, p_angleZ, TRUE);
+#else
 	SetObjRotationMatrix(p_obj, &matrix);
+#endif
 }
 
+// The PowerVR edition turns the object's rotation transform first.
 // FUNCTION: MW2 0x1000184b
 // FUNCTION: MW2MATROX 0x1004135d
 // FUNCTION: MW23DFX 0x1000f9d0
 // FUNCTION: MW2ATI 0x10010020
 // FUNCTION: MW2S3 0x10004d70
+// FUNCTION: MW2POWERVR 0x1000ee10
 void RotateObj(SceneObject* p_obj, MechScalar p_angleX, MechScalar p_angleY, MechScalar p_angleZ, MechU32 p_flags)
 {
 	Matrix matrix;
 
+#ifdef MW2_POWERVR
+	FUN_1005fbc0(p_obj->m_rotation, p_flags, p_angleX, p_angleY, p_angleZ, FALSE);
+#endif
 	BuildMatrixEx(&matrix, p_angleX, p_angleY, p_angleZ, 0, 0, 0, p_flags);
 	RotateObjMatrix(p_obj, &matrix);
 }
@@ -630,14 +737,33 @@ Matrix* GetObjLocalMatrix(SceneObject* p_obj)
 	return &p_obj->m_local;
 }
 
+// The PowerVR edition also sets the object's translation and rotation transforms.
 // FUNCTION: MW2 0x10001de6
 // FUNCTION: MW2MATROX 0x100418f8
 // FUNCTION: MW23DFX 0x1000fcc0
 // FUNCTION: MW2ATI 0x100102e0
 // FUNCTION: MW2S3 0x10005030
+// FUNCTION: MW2POWERVR 0x1000f0f0
 void SetObjLocalMatrix(SceneObject* p_obj, Matrix* p_matrix)
 {
+#ifdef MW2_POWERVR
+	MechScalar angleX;
+	MechScalar angleY;
+	MechScalar angleZ;
+
+#endif
 	p_obj->m_local = *p_matrix;
+#ifdef MW2_POWERVR
+	FUN_1005fb60(
+		p_obj->m_translation,
+		TRUE,
+		p_obj->m_local.m_rows[3][0],
+		p_obj->m_local.m_rows[3][1],
+		p_obj->m_local.m_rows[3][2]
+	);
+	GetObjAngles(p_obj, &angleX, &angleY, &angleZ);
+	FUN_1005fbc0(p_obj->m_rotation, 0, angleX, angleY, angleZ, TRUE);
+#endif
 }
 
 // FUNCTION: MW2 0x10001e01
@@ -660,11 +786,14 @@ void SetObjWorldMatrix(SceneObject* p_obj, Matrix* p_matrix)
 }
 
 // Unlinks the object from its parent, keeping its world placement.
+// In the PowerVR edition the object's transforms take its world placement, and its list moves to the
+// scene's.
 // FUNCTION: MW2 0x10001e32
 // FUNCTION: MW2MATROX 0x10041944
 // FUNCTION: MW23DFX 0x1000fd10
 // FUNCTION: MW2ATI 0x10010310
 // FUNCTION: MW2S3 0x10005060
+// FUNCTION: MW2POWERVR 0x1000f170
 void DetachObj(SceneObject* p_obj)
 {
 	SceneObject* parent;
@@ -691,6 +820,10 @@ void DetachObj(SceneObject* p_obj)
 		}
 	}
 
+#ifdef MW2_POWERVR
+	SetObjLocalMatrix(p_obj, &p_obj->m_world);
+	FUN_1005f320(p_obj->m_list, g_a3dMainView.m_root);
+#endif
 	p_obj->m_parent = NULL;
 	p_obj->m_nextSibling = NULL;
 	p_obj->m_local = p_obj->m_world;
@@ -721,11 +854,13 @@ void AttachObj(SceneObject* p_obj, SceneObject* p_parent)
 	UpdateObj(p_parent);
 }
 
+// The PowerVR edition also deletes the object's list.
 // FUNCTION: MW2 0x10001f82
 // FUNCTION: MW2MATROX 0x10041a94
 // FUNCTION: MW23DFX 0x1000fdd0
 // FUNCTION: MW2ATI 0x10010370
 // FUNCTION: MW2S3 0x100050c0
+// FUNCTION: MW2POWERVR 0x1000f1f0
 void DestroyObjTree(SceneObject* p_obj, ShapeCallback p_callback)
 {
 	SceneObject* child;
@@ -744,6 +879,10 @@ void DestroyObjTree(SceneObject* p_obj, ShapeCallback p_callback)
 		p_callback(p_obj->m_shape);
 	}
 
+#ifdef MW2_POWERVR
+	FUN_1005f280(p_obj->m_list);
+	p_obj->m_list = -1;
+#endif
 	if (p_obj->m_flags & c_objectHeap) {
 		HeapFree(g_primaryHeap, HEAP_NO_SERIALIZE, p_obj);
 	}
@@ -886,7 +1025,11 @@ void RaisePartDamageLevel(SceneObject* p_obj, MechS32 p_level, MechU32 p_partId)
 	}
 
 	if (p_obj->m_shape && p_obj->m_shape->m_partId == p_partId) {
+#ifdef MW2_POWERVR
+		SetShapeDamageLevel(p_obj->m_shape, p_level);
+#else
 		SetShapeState(p_obj->m_shape, p_level);
+#endif
 	}
 
 	for (child = p_obj->m_firstChild; child; child = child->m_nextSibling) {
@@ -923,6 +1066,7 @@ void BlowOffPart(SceneObject* p_obj, MechU32 p_partId)
 // FUNCTION: MW23DFX 0x1000ffc0
 // FUNCTION: MW2ATI 0x10010520
 // FUNCTION: MW2S3 0x10005270
+// FUNCTION: MW2POWERVR 0x1000f3b0
 MechS32 GetObjSize(void)
 {
 	return sizeof(SceneObject);

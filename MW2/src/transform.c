@@ -1321,6 +1321,7 @@ void BuildMatrix(
 // FUNCTION: MW23DFX 0x1002f3b0
 // FUNCTION: MW2ATI 0x1002e490
 // FUNCTION: MW2S3 0x10028970
+// FUNCTION: MW2POWERVR 0x10029310
 void GetMatrixAngles(Matrix* p_matrix, MechScalar* p_angleX, MechScalar* p_angleY, MechScalar* p_angleZ)
 {
 	MechScalar pitch;
@@ -1328,7 +1329,29 @@ void GetMatrixAngles(Matrix* p_matrix, MechScalar* p_angleX, MechScalar* p_angle
 	MechScalar length;
 	MechScalar yaw;
 
-#ifdef MW2_FLOAT_SCALARS
+#ifdef MW2_MATRIX_PITCH_ASIN_ONLY
+	if (p_matrix->m_rows[1][2] <= 0.1 || p_matrix->m_rows[1][2] >= -0.1) {
+		pitch = -(asin(p_matrix->m_rows[1][2]) * 57.29577951308232);
+	}
+	else if ((length = Hypot2D(p_matrix->m_rows[0][2], p_matrix->m_rows[2][2])) > 0.003725290298462) {
+		pitch = acos(length) * 57.29577951308232;
+		if (FIXED_IS_NEGATIVE(p_matrix->m_rows[1][2])) {
+			pitch = -pitch;
+		}
+	}
+	else {
+		if (FIXED_IS_NEGATIVE(p_matrix->m_rows[1][2])) {
+			yaw = 90.0;
+		}
+		else {
+			yaw = -90.0;
+		}
+
+		pitch = 0;
+		roll = FixedAtan2(p_matrix->m_rows[0][1], p_matrix->m_rows[0][0]);
+		goto done;
+	}
+#elif defined(MW2_FLOAT_SCALARS)
 	if (p_matrix->m_rows[1][2] > 0.1 || p_matrix->m_rows[1][2] < -0.1) {
 		if ((length = Hypot2D(p_matrix->m_rows[0][2], p_matrix->m_rows[2][2])) > 0.003725290298462) {
 			pitch = acos(length) * 57.29577951308232;

@@ -271,6 +271,7 @@ typedef struct BwdAnim2dRecord {
 // GLOBAL: MW2MATROX 0x100a85c8
 // GLOBAL: MW23DFX 0x10259c74
 // GLOBAL: MW2S3 0x100770a0
+// GLOBAL: MW2POWERVR 0x101b923c
 MechS32 g_loadHudFile = 0;
 
 // The next g_shots slot a booyowthing record fills.
@@ -278,6 +279,7 @@ MechS32 g_loadHudFile = 0;
 // GLOBAL: MW2MATROX 0x100a85cc
 // GLOBAL: MW23DFX 0x10259c78
 // GLOBAL: MW2S3 0x100770a4
+// GLOBAL: MW2POWERVR 0x101b9240
 MechS32 g_nextShotRecord = 0;
 
 // The next g_effects slot an xplode record fills.
@@ -294,6 +296,7 @@ MechS32 g_nextEffectRecord = 0;
 // GLOBAL: MW2MATROX 0x10125870
 // GLOBAL: MW23DFX 0x102441b0
 // GLOBAL: MW2S3 0x100abf60
+// GLOBAL: MW2POWERVR 0x101a2b30
 MechChar g_musicName[12];
 
 // The mission's "MUS" resource.
@@ -344,6 +347,7 @@ typedef union BwdTargetId {
 // FUNCTION: MW23DFX 0x1003de10
 // FUNCTION: MW2ATI 0x1003bb70
 // FUNCTION: MW2S3 0x100457e0
+// FUNCTION: MW2POWERVR 0x100369d0
 MechS32 BwdExecuteStream(BwdStream* p_stream)
 {
 	MechS32 result;

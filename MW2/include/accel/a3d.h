@@ -434,15 +434,16 @@ extern "C"
 	// The fog's density.
 	extern MechFloat g_a3dFogDensity;
 
-	// Stand-ins a3d.c defines until their units do: an animation's average color, a frame's texture
-	// bits (p_data gets its pixels), an animation's texture loaded (its
-	// size), and two of the players' level loaders; the flag that lets the sky and the ground be lit.
-	void FUN_10027620(MechS32 p_index, MechFloat* p_red, MechFloat* p_green, MechFloat* p_blue);
-	struct sgl_intermediate_map* FUN_10027350(MechS32 p_set, MechS32 p_number, MechU16** p_data, MechS32* p_unk0x0c);
-	MechS32 FUN_100273e0(MechS32 p_index, MechS32* p_width, MechS32* p_height);
+	// The other units' functions and global the renderer calls, declared here as well as in their
+	// units' headers, or not there (the PowerVR edition's own): animation.c's average color of an
+	// animation's set and texture maps, classtable.c's level loader and the lists it keeps, and
+	// the tint flag that lets the sky and the ground be lit.
+	void FUN_10051ba1(MechS32 p_index, MechFloat* p_red, MechFloat* p_green, MechFloat* p_blue);
+	struct sgl_intermediate_map* FUN_10027350(MechS32 p_set, MechS32 p_number, MechS32* p_width, MechS32* p_height);
+	struct sgl_intermediate_map* FUN_100273e0(MechS32 p_index, MechS32* p_width, MechS32* p_height);
 	void FUN_100259c0(void);
-	void FUN_100252a0(MechS32 p_player, MechS32 p_level);
-	extern MechS32 g_unk0x101ad7e4;
+	MechS32 LoadClassLevel(MechS32 p_owner, MechS32 p_level);
+	extern MechS32 g_unk0x100aa1d0;
 
 	// polydraw.c's sky settings, which polydraw.h doesn't declare.
 	extern MechFloat g_skyTileU;

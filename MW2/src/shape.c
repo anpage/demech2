@@ -206,6 +206,7 @@ Shape* CreateShape(MechS32 p_vertexCount, MechS32 p_faceCount, MechS32 p_extra, 
 // FUNCTION: MW23DFX 0x10029640
 // FUNCTION: MW2ATI 0x10029300
 // FUNCTION: MW2S3 0x10025c30
+// FUNCTION: MW2POWERVR 0x10026170
 void AddShapeVertex(
 	Shape* p_shape,
 	MechScalar p_x,
@@ -253,6 +254,36 @@ void AddShapeVertex(
 	model->m_vertexCount++;
 }
 
+#ifdef MW2_POWERVR
+// Appends a face to the selected model, its p_count vertex indices (p_values) stored at p_indices: the
+// PowerVR edition's AddShapeFace takes the indices itself, and has no AddShapeFaceIndex.
+// FUNCTION: MW2POWERVR 0x100261f0
+Face* AddShapeFace(Shape* p_shape, MechU16 p_color, MechU8* p_indices, MechS32 p_count, MechU16* p_values)
+{
+	Model* model;
+	Face* face;
+	MechS32 i;
+	MechU32 values[8];
+
+	model = p_shape->m_model;
+	if (!model) {
+		return NULL;
+	}
+
+	face = (Face*) ((MechU8*) model + model->m_faceOffset) + model->m_faceCount;
+	face->m_indexOffset = (MechU16) (p_indices - (MechU8*) face);
+	for (i = 0; i < p_count; i++) {
+		((MechU8*) face)[face->m_indexOffset + i] = (MechU8) p_values[i];
+		values[i] = p_values[i];
+	}
+
+	face->m_color = p_color;
+	model->m_faceCount++;
+	face->m_shape = p_shape;
+	face->m_indexCount = p_count;
+	return face;
+}
+#else
 // Appends a face to the selected model, its vertex indices at p_indices.
 // FUNCTION: MW2 0x1003aab5
 // FUNCTION: MW2MATROX 0x100280e6
@@ -296,6 +327,7 @@ void AddShapeFaceIndex(Shape* p_shape, Face* p_face, MechU32 p_index)
 	((MechU8*) p_face)[p_face->m_indexOffset + p_face->m_indexCount] = (MechU8) p_index;
 	p_face->m_indexCount++;
 }
+#endif
 
 // FUNCTION: MW2 0x1003ab79
 // FUNCTION: MW2MATROX 0x100281aa
@@ -381,6 +413,18 @@ void SetShapeState(Shape* p_shape, MechS32 p_flags)
 		p_shape->m_flags = (p_shape->m_flags & ~0x7ef0) | (p_flags & 0x7ef0) | 0x8000;
 	}
 }
+
+#ifdef MW2_POWERVR
+// Sets the shape's damage level (m_flags 0xf0) alone: the PowerVR edition's RaisePartDamageLevel
+// calls it where the others set the whole state.
+// FUNCTION: MW2POWERVR 0x10026320
+void SetShapeDamageLevel(Shape* p_shape, MechU16 p_level)
+{
+	if (p_shape) {
+		p_shape->m_flags = (p_shape->m_flags & ~0xf0) | (p_level & 0xf0);
+	}
+}
+#endif
 
 // FUNCTION: MW2 0x1003acf7
 // FUNCTION: MW2MATROX 0x10028328
@@ -487,6 +531,7 @@ MechScalar GetShapeBounds(Shape* p_shape, MechScalar* p_x, MechScalar* p_y, Mech
 // FUNCTION: MW23DFX 0x100298c0
 // FUNCTION: MW2ATI 0x100294f0
 // FUNCTION: MW2S3 0x10025e20
+// FUNCTION: MW2POWERVR 0x100263b0
 void ComputeNormalsAndBounds(Shape* p_shape)
 {
 	Model* model;
@@ -880,6 +925,7 @@ void DestroyObjShape(Shape* p_shape)
 // FUNCTION: MW23DFX 0x10029a40
 // FUNCTION: MW2ATI 0x10029670
 // FUNCTION: MW2S3 0x100261e0
+// FUNCTION: MW2POWERVR 0x10026530
 MechS32 GetShapeMemorySize(Shape* p_shape)
 {
 	Model* model;

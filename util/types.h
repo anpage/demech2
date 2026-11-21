@@ -356,6 +356,25 @@ typedef char MechChar;
 #define MW2_FRAME_TEXELS
 /* The game starts with no draw mode (-1, as in 1.1), though without 1.1's fallback to the others */
 #define MW2_NO_INITIAL_DRAW_MODE
+/* The time of day's phase is a function of the time (FUN_10006f10), which also gives SimMain the
+   palette of the current one (FUN_10006f30) */
+#define MW2_TIME_OF_DAY_LOOKUP
+/* The HUD's target marker keeps where it drew (statics): each frame draws the one kept from the
+   frame before, then moves it, drawing the new one only when none was kept */
+#define MW2_HUD_MARKER_LAG
+/* The target panel writes the target's range on its bottom line, not on the line after its name */
+#define MW2_TARGET_RANGE_AT_BOTTOM
+/* GetMatrixAngles' test for a steep pitch is inverted (the arcsine unless the pitch's sine is both above
+   0.1 and below -0.1), so the pitch always comes from the arcsine */
+#define MW2_MATRIX_PITCH_ASIN_ONLY
+/* The "chris" and "flag" cheats */
+#define MW2_CHRIS_FLAG_CHEATS
+/* Cheat codes that tune the renderer: the fog's density, the ground's and the sky's tiles and the sky's
+   scrolling speed */
+#define MW2_TUNING_CHEATS
+/* SpawnEffectEx leaves an effect's object unrotated (it takes the rotation all the same), and moves one
+   that hit a thing toward the eye by its shape's radius */
+#define MW2_UNROTATED_EFFECTS
 #endif
 
 /* Boolean typedefs (MechBool / MechBool8 ...) are added when a match proves

@@ -164,6 +164,7 @@ MechChar* g_sessionName = NULL;
 // GLOBAL: MW2MATROX 0x100a2114
 // GLOBAL: MW23DFX 0x1024ffd4
 // GLOBAL: MW2S3 0x10075a9c
+// GLOBAL: MW2POWERVR 0x101af34c
 MechS16 g_clockSynced = 0;
 
 // Set when the shell launched the game with its own DirectPlay session.
@@ -830,6 +831,7 @@ void ReceiveChatMsg(NetChatMsg* p_msg, MechS32 p_slot)
 // FUNCTION: MW23DFX 0x10034730
 // FUNCTION: MW2ATI 0x10033330
 // FUNCTION: MW2S3 0x1003d2c0
+// FUNCTION: MW2POWERVR 0x1002ddb0
 void ReceiveStateMsg(NetStateMsg* p_msg, MechS32 p_slot)
 {
 	MechChar text2[40];

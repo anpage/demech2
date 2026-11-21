@@ -16,13 +16,20 @@ typedef struct AnimFrame {
 	MechFloat m_green; // 0x08
 	MechFloat m_blue;  // 0x0c
 #endif
-	MechU16* m_data; // 0x04 (0x10 in the Matrox edition) — width, height, then the pixels
 #ifdef MW2_POWERVR
-	// The PowerVR edition's frames are 0x20 bytes: the SGL cached texture made of them, and the
-	// frame it was last used in.
-	undefined4 m_unk0x14; // 0x14
-	MechS32 m_texture;    // 0x18
-	MechS32 m_lastUsed;   // 0x1c
+	// The PowerVR edition's frames are 0x20 bytes: the CEL resource is an SGL texture map, and the
+	// renderer makes a cached texture of it (the frame it was last used in follows). Its own code
+	// keeps the map's size at 0x10; the ATI edition's drawers it compiles, which its binary doesn't
+	// have, read m_data there.
+	union {
+		MechU16* m_data;
+		MechS32 m_size; // 0x10 — the map's width and height (FUN_10061870)
+	};
+	void* m_map;        // 0x14 — an sgl_intermediate_map, from the resource cache, once loaded
+	MechS32 m_texture;  // 0x18 — -1 for none
+	MechS32 m_lastUsed; // 0x1c
+#else
+	MechU16* m_data; // 0x04 (0x10 in the Matrox edition) — width, height, then the pixels
 #endif
 } AnimFrame;
 

@@ -72,7 +72,11 @@ MechS32 DrawAnimatedPolygon(
 	void SetAnimMode(MechS16 p_index, MechS16 p_mode);
 	void SetAnimFrame(MechS16 p_index, MechU16 p_frame);
 	void SetAnimDelay(MechS16 p_index, MechU16 p_delay);
+	// The PowerVR edition's header doesn't declare FUN_10069586, which it doesn't define: it has as
+	// many symbols as the others' with its frames' union (animframe.h).
+#ifndef MW2_POWERVR
 	void FUN_10069586(void);
+#endif
 	void FUN_10069591(void);
 	void FreeAnimations(void);
 #ifdef MW2_A3D

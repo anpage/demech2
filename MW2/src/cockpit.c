@@ -54,6 +54,11 @@
 #ifdef MW2_VFX16
 #include "accel/vfx16.h"
 #endif
+#ifdef MW2_POWERVR
+#include "gridobject.h"
+#include "logwindow.h"
+#include "powervr/a3dviews.h"
+#endif
 
 // The satellite view's display option, 0 or 1 (DrawSatelliteStatic).
 // GLOBAL: MW2 0x100a5a18
@@ -166,10 +171,12 @@ PANE g_cockpitGaugePanes[5] = {
 // pointer to it, where 1.1 has a table of four pointers whose last one is the point.
 // GLOBAL: MW2MATROX 0x1012fcf0
 // GLOBAL: MW23DFX 0x10244d40
+// GLOBAL: MW2POWERVR 0x101a3700
 Point g_unk0x100a5bb0;
 
 // GLOBAL: MW2MATROX 0x100ae424
 // GLOBAL: MW23DFX 0x102498bc
+// GLOBAL: MW2POWERVR 0x101a8760
 Point* g_unk0x100ae424 = &g_unk0x100a5bb0;
 #else
 // GLOBAL: MW2 0x100a5ad0
@@ -195,6 +202,17 @@ Point g_unk0x100a5bb0 = {0, 0};
 
 // GLOBAL: MW2 0x100a5bb8
 void* g_unk0x100a5bb8[4] = {g_unk0x100a5b90, g_unk0x100a5b70, g_unk0x100a5ad0, &g_unk0x100a5bb0};
+#endif
+
+#ifdef MW2_POWERVR
+// Whether the 3D view had fog, and the grid object was shown, when the satellite view turned them
+// off (SwitchCockpitView), to turn them back on when it ends.
+
+// GLOBAL: MW2POWERVR 0x101a8764
+MechS32 g_satelliteSavedFog = 0;
+
+// GLOBAL: MW2POWERVR 0x101a8768
+MechS32 g_satelliteSavedGrid = 0;
 #endif
 
 // Whether cockpit view 1 and 2's map animation shows this frame (DrawDamagedMapView).
@@ -270,6 +288,7 @@ MechS32 g_requestedCockpitView;
 // GLOBAL: MW23DFX 0x10244cc4
 // GLOBAL: MW2ATI 0x10178b00
 // GLOBAL: MW2S3 0x10161694
+// GLOBAL: MW2POWERVR 0x101a3680
 MechS32 g_mapFollowsFreeEye;
 
 // Set to draw the satellite view without its static once (DrawSatelliteStatic).
@@ -396,6 +415,119 @@ void RunMapView(void)
 	}
 }
 
+#ifdef MW2_POWERVR
+// The PowerVR edition's: as the others' below, but the satellite view is the renderer's scene seen
+// from above. Entering it (3) turns the 3D view's fog, the grid object and the ground's texture
+// off, hides the sky and pulls the camera's far plane in to none; leaving it (5) restores them. The
+// frame callback is put back when the view next moves from the satellite view to a cockpit view,
+// and restoring the overlay settings also ends the satellite view's turn as the previous view.
+// FUNCTION: MW2POWERVR 0x10002e60
+MechS32 SwitchCockpitView(void)
+{
+	MechS32 changed;
+	CockpitLayout* layout;
+	MechS32 sound;
+
+	changed = FALSE;
+	if (g_cockpitLayoutIndex <= 2 && g_previousCockpitView == 4 && g_hudSettingsSaved) {
+		g_showCrosshair = g_savedShowCrosshair;
+		g_showTargetMarker = g_savedShowTargetMarker;
+		g_hudSettingsSaved = 0;
+		g_previousCockpitView = g_cockpitLayoutIndex;
+	}
+
+	if (g_cockpitLayoutIndex == 4 && (g_localMechLost || (g_players[g_localPlayerId]->m_flags & 6))) {
+		g_requestedCockpitView = 5;
+	}
+
+	if (g_cockpitLayoutIndex != g_requestedCockpitView) {
+		changed = TRUE;
+		if (g_cockpitLayoutIndex == 4 && g_requestedCockpitView <= 2) {
+			g_renderSettings.m_frameDrawCallback = g_savedFrameDrawCallback;
+		}
+
+		switch (g_requestedCockpitView) {
+		case 0:
+			g_previousCockpitView = g_cockpitLayoutIndex;
+			g_cockpitLayoutIndex = 0;
+			break;
+		case 1:
+			g_previousCockpitView = g_cockpitLayoutIndex;
+			g_cockpitLayoutIndex = 1;
+			break;
+		case 2:
+			g_previousCockpitView = g_cockpitLayoutIndex;
+			g_cockpitLayoutIndex = 2;
+			break;
+		case 4:
+			g_previousCockpitView = g_cockpitLayoutIndex;
+			g_cockpitLayoutIndex = 4;
+			if (!g_hudSettingsSaved) {
+				g_savedShowCrosshair = g_showCrosshair;
+				g_showCrosshair = 0;
+				g_savedShowTargetMarker = g_showTargetMarker;
+				g_showTargetMarker = 0;
+				g_savedShowHud = g_showHud;
+				g_hudSettingsSaved = 1;
+			}
+			break;
+		case 3:
+			g_requestedCockpitView = 4;
+			g_savedFrameDrawCallback = g_renderSettings.m_frameDrawCallback;
+			g_renderSettings.m_frameDrawCallback = DrawCockpitView;
+			layout = g_cockpitLayouts[4];
+			sound = layout->m_sounds[0];
+			if (sound != -1) {
+				PlaySoundEffect(sound, 100, 0x40, 5, 0x50);
+			}
+
+			PlayCockpitSound(0x12, -1);
+			g_satelliteSavedFog = g_a3dMainView.m_fog;
+			if (g_satelliteSavedFog) {
+				A3D_SetQuality(&g_a3dMainView, c_a3dQualityFog, 0);
+			}
+
+			g_satelliteSavedGrid = g_gridObjectShown;
+			if (g_satelliteSavedGrid) {
+				ShowGridObject(0);
+			}
+
+			FUN_100602c0(0);
+			FUN_1005f3f0(g_a3dSkyList);
+			FUN_1005ff50(g_a3dMainView.m_camera, g_eyepoint->m_fovX, 50.0f, 0.0f);
+			break;
+		case 5:
+			g_requestedCockpitView = g_previousCockpitView;
+			layout = g_cockpitLayouts[4];
+			sound = layout->m_sounds[1];
+			if (sound != -1) {
+				PlaySoundEffect(sound, 100, 0x40, 5, 0x50);
+			}
+
+			if (g_viewMode == c_viewTrack) {
+				PlayCockpitSound(0x11, -1);
+			}
+
+			if (g_satelliteSavedFog) {
+				A3D_SetQuality(&g_a3dMainView, c_a3dQualityFog, 1);
+			}
+
+			if (g_satelliteSavedGrid) {
+				ShowGridObject(1);
+			}
+
+			FUN_100602c0(1);
+			FUN_1005f450(g_a3dSkyList);
+			FUN_1005ff50(g_a3dMainView.m_camera, g_eyepoint->m_fovX, 50.0f, g_eyepoint->m_farPlane);
+			break;
+		default:
+			break;
+		}
+	}
+
+	return changed;
+}
+#else
 // Moves to the cockpit view g_requestedCockpitView asks for: 0 to 2 directly, 3 into the satellite view
 // (4) with its own frame callback, and 5 back out to the view it was entered from. Keeps the
 // overlay settings the satellite view changes while a cockpit view shows, and leaves it when the
@@ -481,6 +613,7 @@ MechS32 SwitchCockpitView(void)
 
 	return changed;
 }
+#endif
 
 // Draws the current cockpit view (the frame callback in the satellite view): switches views as
 // asked, then draws the map, damaged while the radar panel is.
@@ -1279,9 +1412,12 @@ void LeaveSatelliteView(void)
 // FUNCTION: MW23DFX 0x10004000
 // FUNCTION: MW2ATI 0x10003c90
 // FUNCTION: MW2S3 0x10009c60
-// FUNCTION: MW2POWERVR 0x10003b5d
+// FUNCTION: MW2POWERVR 0x10003b50
 void ToggleSatelliteView(void)
 {
+#ifdef MW2_POWERVR
+	DebugPrintInternal("ToggleRadarMap\n");
+#endif
 	if (g_cockpitLayoutIndex == 4 && g_requestedCockpitView == 4) {
 		g_requestedCockpitView = 5;
 	}

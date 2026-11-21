@@ -61,6 +61,7 @@
 // GLOBAL: MW23DFX 0x1024d0d8
 // GLOBAL: MW2ATI 0x10181458
 // GLOBAL: MW2S3 0x10060558
+// GLOBAL: MW2POWERVR 0x101ac488
 MechS32 g_altimeterMarkWidth = 0xf0f;
 
 // GLOBAL: MW2 0x100a5ed4
@@ -84,6 +85,7 @@ Point g_altimeterOrigin = {0xb333, 0x8000};
 // GLOBAL: MW23DFX 0x1024d0e8
 // GLOBAL: MW2ATI 0x10181468
 // GLOBAL: MW2S3 0x10060568
+// GLOBAL: MW2POWERVR 0x101ac498
 Point g_compassOrigin = {0x8000, 0x6666};
 
 // GLOBAL: MW2 0x100a5ee8
@@ -109,6 +111,7 @@ undefined4 g_showHud = 1;
 // GLOBAL: MW23DFX 0x1024d124
 // GLOBAL: MW2ATI 0x101814a4
 // GLOBAL: MW2S3 0x100605a4
+// GLOBAL: MW2POWERVR 0x101ac4d4
 MechS32 g_showCrosshair = 1;
 
 // GLOBAL: MW2 0x100a5f20
@@ -116,6 +119,7 @@ MechS32 g_showCrosshair = 1;
 // GLOBAL: MW23DFX 0x1024d128
 // GLOBAL: MW2ATI 0x101814a8
 // GLOBAL: MW2S3 0x100605a8
+// GLOBAL: MW2POWERVR 0x101ac4d8
 MechS32 g_showTargetMarker = 1;
 
 // GLOBAL: MW2 0x100a5f24
@@ -123,6 +127,7 @@ MechS32 g_showTargetMarker = 1;
 // GLOBAL: MW23DFX 0x1024d12c
 // GLOBAL: MW2ATI 0x101814ac
 // GLOBAL: MW2S3 0x100605ac
+// GLOBAL: MW2POWERVR 0x101ac4dc
 MechS32 g_showCompass = 1;
 
 // GLOBAL: MW2 0x100a5f2c
@@ -130,7 +135,17 @@ MechS32 g_showCompass = 1;
 // GLOBAL: MW23DFX 0x1024d134
 // GLOBAL: MW2ATI 0x101814b4
 // GLOBAL: MW2S3 0x100605b4
+// GLOBAL: MW2POWERVR 0x101ac4e4
 MechS32 g_showAltimeter = 1;
+
+#ifdef MW2_HUD_MARKER_LAG
+// Set while the target marker has a place kept (DrawTargetMarker), and the kind of target it marks.
+// GLOBAL: MW2POWERVR 0x101ac4ec
+MechS32 g_hudMarkerKept = 0;
+
+// GLOBAL: MW2POWERVR 0x101ac4f0
+MechS32 g_hudMarkerKind = 0;
+#endif
 
 // The layout of the altimeter and the compass, from their shapes' extents (InitHudGauges).
 
@@ -142,6 +157,7 @@ MechS32 g_showAltimeter = 1;
 // GLOBAL: MW23DFX 0x1007c3e0
 // GLOBAL: MW2ATI 0x100713e0
 // GLOBAL: MW2S3 0x1007c4f0
+// GLOBAL: MW2POWERVR 0x1006f408
 static Point g_compassArrowSize;
 
 // GLOBAL: MW2 0x100be5a8
@@ -149,6 +165,7 @@ static Point g_compassArrowSize;
 // GLOBAL: MW23DFX 0x1007c3d8
 // GLOBAL: MW2ATI 0x100713d8
 // GLOBAL: MW2S3 0x1007c4f8
+// GLOBAL: MW2POWERVR 0x1006f400
 static MechS32 g_compassSideArrowWidth;
 
 // GLOBAL: MW2 0x100be5ac
@@ -156,6 +173,7 @@ static MechS32 g_compassSideArrowWidth;
 // GLOBAL: MW23DFX 0x1007c3dc
 // GLOBAL: MW2ATI 0x100713dc
 // GLOBAL: MW2S3 0x1007c4fc
+// GLOBAL: MW2POWERVR 0x1006f404
 static MechS32 g_compassSideArrowHeight;
 
 // GLOBAL: MW2 0x100be5b0
@@ -163,6 +181,7 @@ static MechS32 g_compassSideArrowHeight;
 // GLOBAL: MW23DFX 0x1007c3d0
 // GLOBAL: MW2ATI 0x100713d0
 // GLOBAL: MW2S3 0x1007c500
+// GLOBAL: MW2POWERVR 0x1006f3f8
 static MechS32 g_altimeterGroundX;
 
 // GLOBAL: MW2 0x100be5b4
@@ -170,6 +189,7 @@ static MechS32 g_altimeterGroundX;
 // GLOBAL: MW23DFX 0x1007c3ec
 // GLOBAL: MW2ATI 0x100713ec
 // GLOBAL: MW2S3 0x1007c504
+// GLOBAL: MW2POWERVR 0x1006f418
 static MechS32 g_altimeterTargetX;
 
 // The altimeter's scale: pixels per 16.16 unit of height.
@@ -178,6 +198,7 @@ static MechS32 g_altimeterTargetX;
 // GLOBAL: MW23DFX 0x1007c3f4
 // GLOBAL: MW2ATI 0x100713f4
 // GLOBAL: MW2S3 0x1007c508
+// GLOBAL: MW2POWERVR 0x1006f428
 static MechScalar g_altimeterScale;
 
 // The compass's scale: pixels per degree, 16.16.
@@ -186,6 +207,7 @@ static MechScalar g_altimeterScale;
 // GLOBAL: MW23DFX 0x1007c3cc
 // GLOBAL: MW2ATI 0x100713cc
 // GLOBAL: MW2S3 0x1007c50c
+// GLOBAL: MW2POWERVR 0x1006f3e4
 static MechScalar g_compassScale;
 
 // GLOBAL: MW2 0x100be5c0
@@ -200,6 +222,7 @@ static MechS32 g_compassTapeAbove;
 // GLOBAL: MW23DFX 0x1007c3c8
 // GLOBAL: MW2ATI 0x100713c8
 // GLOBAL: MW2S3 0x1007c514
+// GLOBAL: MW2POWERVR 0x1006f3dc
 static MechS32 g_altimeterLevelX;
 
 // GLOBAL: MW2 0x100be5c8
@@ -207,7 +230,65 @@ static MechS32 g_altimeterLevelX;
 // GLOBAL: MW23DFX 0x1007c3e8
 // GLOBAL: MW2ATI 0x100713e8
 // GLOBAL: MW2S3 0x1007c518
+// GLOBAL: MW2POWERVR 0x1006f410
 static MechS32 g_compassTapeBelow;
+
+#ifdef MW2_HUD_MARKER_LAG
+// Where the target marker of a nav point was drawn, and its shape.
+// GLOBAL: MW2POWERVR 0x1006f3e0
+static MechS32 g_navMarkerX;
+
+// GLOBAL: MW2POWERVR 0x1006f3f0
+static MechS32 g_navMarkerY;
+
+// GLOBAL: MW2POWERVR 0x1006f434
+static MechS32 g_navMarkerShape;
+
+// Where a player's brackets were drawn: their centre, their distance from it (negative: the arrow
+// at the screen's edge, in g_playerBracketTopLeft) and their shapes.
+// GLOBAL: MW2POWERVR 0x1006f3f4
+static MechS32 g_playerBracketX;
+
+// GLOBAL: MW2POWERVR 0x1006f430
+static MechS32 g_playerBracketY;
+
+// GLOBAL: MW2POWERVR 0x1006f3e8
+static MechScalar g_playerBracketSize;
+
+// GLOBAL: MW2POWERVR 0x1006f42c
+static MechS32 g_playerBracketTopLeft;
+
+// GLOBAL: MW2POWERVR 0x1006f3d0
+static MechS32 g_playerBracketTopRight;
+
+// GLOBAL: MW2POWERVR 0x1006f438
+static MechS32 g_playerBracketBottomLeft;
+
+// GLOBAL: MW2POWERVR 0x1006f3d4
+static MechS32 g_playerBracketBottomRight;
+
+// The same for an object's brackets.
+// GLOBAL: MW2POWERVR 0x1006f420
+static MechS32 g_objectBracketX;
+
+// GLOBAL: MW2POWERVR 0x1006f3c8
+static MechS32 g_objectBracketY;
+
+// GLOBAL: MW2POWERVR 0x1006f414
+static MechScalar g_objectBracketSize;
+
+// GLOBAL: MW2POWERVR 0x1006f3cc
+static MechS32 g_objectBracketTopLeft;
+
+// GLOBAL: MW2POWERVR 0x1006f424
+static MechS32 g_objectBracketTopRight;
+
+// GLOBAL: MW2POWERVR 0x1006f3d8
+static MechS32 g_objectBracketBottomLeft;
+
+// GLOBAL: MW2POWERVR 0x1006f3ec
+static MechS32 g_objectBracketBottomRight;
+#endif
 
 // Draws the HUD's overlays the display options enable: the compass and its target markers, the
 // crosshair, the target marker and the altimeter, at the gauge positions.
@@ -258,6 +339,7 @@ void DrawHudAt(
 // FUNCTION: MW23DFX 0x10022230
 // FUNCTION: MW2ATI 0x10022500
 // FUNCTION: MW2S3 0x10001000
+// FUNCTION: MW2POWERVR 0x10021530
 void DrawHud(
 	Mech* p_mech,
 	MechScalar p_heading,
@@ -285,6 +367,11 @@ void DrawHud(
 	if (g_showTargetMarker) {
 		DrawTargetMarker(p_mech);
 	}
+#ifdef MW2_HUD_MARKER_LAG
+	else {
+		g_hudMarkerKept = 0;
+	}
+#endif
 
 	if (g_showAltimeter) {
 		DrawAltimeter(p_mech, 8, 0x4a);
@@ -298,6 +385,7 @@ void DrawHud(
 // FUNCTION: MW23DFX 0x100222e0
 // FUNCTION: MW2ATI 0x100225b0
 // FUNCTION: MW2S3 0x100010b0
+// FUNCTION: MW2POWERVR 0x100215e0
 void DrawAltimeter(Mech* p_mech, MechS32 p_x, MechS32 p_y)
 {
 	CockpitPanel* gauge;
@@ -595,6 +683,7 @@ MechS32 DrawCrosshair(Mech* p_mech, MechScalar p_bearing, MechScalar p_pitch, Me
 	return result;
 }
 
+#ifndef MW2_HUD_MARKER_LAG
 // Marks the player's target on the screen: a player's or a game thing's mech with its side's
 // markers (DrawPlayerBrackets, DrawObjectBrackets), a nav with shape 0xe5, or 0xeb at the edge when it is
 // off the screen.
@@ -651,6 +740,79 @@ void DrawTargetMarker(Mech* p_mech)
 		DrawHudShape(point.m_x, point.m_y, offScreen);
 	}
 }
+#else
+// The PowerVR edition's: the marker drawn is the one kept from the frame before (a new kind of
+// target drops it); the nav point's is moved, and drawn only when none was kept.
+// FUNCTION: MW2POWERVR 0x10021b20
+void DrawTargetMarker(Mech* p_mech)
+{
+	MechS32 index;
+	Player* player;
+	MechScalar x;
+	MechScalar y;
+	MechScalar z;
+	MechS32 onScreen;
+	MechS32 offScreen;
+	MechS32 target;
+	Point point;
+
+	player = p_mech->m_player;
+	target = player->m_targetInfo.m_target;
+	if (!target || target & 0x1000) {
+		g_hudMarkerKept = 0;
+		return;
+	}
+
+	index = target & 0xff;
+	target &= 0xf00;
+	if (g_hudMarkerKept && target != g_hudMarkerKind) {
+		g_hudMarkerKept = 0;
+	}
+
+	g_hudMarkerKind = target;
+	switch (target) {
+	case 0x200:
+		DrawPlayerBrackets(g_players[index], GetPlayerSide(index));
+		return;
+	case 0x400:
+		DrawObjectBrackets(GetLocalTargetObject(), GetThingSide(index));
+		return;
+	case 0x100:
+		onScreen = HUD_MARKER_SHAPE(0xe5);
+		offScreen = HUD_MARKER_SHAPE(0xeb);
+		break;
+	default:
+		return;
+	}
+
+	x = player->m_targetInfo.m_position.m_x;
+	y = player->m_targetInfo.m_position.m_y;
+	z = player->m_targetInfo.m_position.m_z;
+	if (g_hudMarkerKept) {
+		DrawHudShape(g_navMarkerX, g_navMarkerY, g_navMarkerShape);
+	}
+
+	if (ProjectWorldPoint(&x, &y, &z)) {
+		g_navMarkerX = x;
+		g_navMarkerY = y;
+		g_navMarkerShape = onScreen;
+	}
+	else {
+		point.m_x = x;
+		point.m_y = y;
+		GetRectNeedleToward(&g_currentPane, &point, &point);
+		g_navMarkerX = point.m_x;
+		g_navMarkerY = point.m_y;
+		g_navMarkerShape = offScreen;
+	}
+
+	if (!g_hudMarkerKept) {
+		DrawHudShape(g_navMarkerX, g_navMarkerY, g_navMarkerShape);
+	}
+
+	g_hudMarkerKept = 1;
+}
+#endif
 
 // Draws the compass's target markers: the target's bearing p_bearing from the heading (from the
 // torso, p_twistBearing, unless the target is a nav point), and the arrows above and below while
@@ -844,6 +1006,7 @@ MechS32 ProjectAimPoint(Mech* p_mech, MechS32* p_x, MechS32* p_y)
 	return result;
 }
 
+#ifndef MW2_HUD_MARKER_LAG
 // Marks player p_player on the screen: brackets at the corners of its mech, sized by its radius
 // and depth, in its side's shapes; off the screen, an arrow at the edge.
 // The 3Dfx edition declares point and size in the blocks that use them, where VC++ 2.2 gives
@@ -1049,6 +1212,231 @@ void DrawObjectBrackets(struct SceneObject* p_object, MechS32 p_side)
 	}
 }
 
+#else
+// The PowerVR edition's (MW2_HUD_MARKER_LAG): the four brackets at p_size from (p_x, p_y).
+// FUNCTION: MW2POWERVR 0x10022020
+void DrawBrackets(
+	MechS32 p_x,
+	MechS32 p_y,
+	MechS32 p_size,
+	MechS32 p_topLeft,
+	MechS32 p_topRight,
+	MechS32 p_bottomLeft,
+	MechS32 p_bottomRight
+)
+{
+	DrawHudShape(p_x - p_size, p_y - p_size, p_topLeft);
+	DrawHudShape(p_x + p_size, p_y - p_size, p_topRight);
+	DrawHudShape(p_x - p_size, p_y + p_size, p_bottomLeft);
+	DrawHudShape(p_x + p_size, p_y + p_size, p_bottomRight);
+}
+
+// Marks player p_player like the other editions, from the frame before: the brackets (or the
+// arrow) kept are drawn, then moved, and drawn there only when none were kept.
+// FUNCTION: MW2POWERVR 0x10022090
+void DrawPlayerBrackets(Player* p_player, MechS32 p_side)
+{
+	MechScalar x;
+	MechScalar y;
+	MechScalar z;
+
+	if (g_hudMarkerKept) {
+		if (g_playerBracketSize >= 0) {
+			DrawBrackets(
+				g_playerBracketX,
+				g_playerBracketY,
+				g_playerBracketSize,
+				g_playerBracketTopLeft,
+				g_playerBracketTopRight,
+				g_playerBracketBottomLeft,
+				g_playerBracketBottomRight
+			);
+		}
+		else {
+			DrawHudShape(g_playerBracketX, g_playerBracketY, g_playerBracketTopLeft);
+		}
+	}
+
+	x = p_player->m_position.m_x;
+	y = p_player->m_position.m_y;
+	z = p_player->m_position.m_z;
+	if (!ProjectWorldPoint(&x, &y, &z)) {
+		Point point;
+
+		point.m_x = x;
+		point.m_y = y;
+		GetRectNeedleToward(&g_currentPane, &point, &point);
+		switch (p_side) {
+		case 0:
+			g_playerBracketTopLeft = HUD_MARKER_SHAPE(0xeb);
+			break;
+		case 2:
+			g_playerBracketTopLeft = HUD_MARKER_SHAPE(0xee);
+			break;
+		default:
+			g_playerBracketTopLeft = HUD_MARKER_SHAPE(0xe8);
+			break;
+		}
+
+		g_playerBracketX = point.m_x;
+		g_playerBracketY = point.m_y;
+		g_playerBracketSize = -1;
+		if (!g_hudMarkerKept) {
+			DrawHudShape(g_playerBracketX, g_playerBracketY, g_playerBracketTopLeft);
+		}
+
+		g_hudMarkerKept = 1;
+		return;
+	}
+	else {
+		g_playerBracketSize = g_eyepoint->m_projectScaleX * p_player->m_mech->m_radius / z;
+		switch (p_side) {
+		case 0:
+			g_playerBracketTopLeft = HUD_MARKER_SHAPE(0xb8);
+			g_playerBracketTopRight = HUD_MARKER_SHAPE(0xc1);
+			g_playerBracketBottomLeft = HUD_MARKER_SHAPE(0xca);
+			g_playerBracketBottomRight = HUD_MARKER_SHAPE(0xd3);
+			break;
+		case 2:
+			g_playerBracketTopLeft = HUD_MARKER_SHAPE(0xbe);
+			g_playerBracketTopRight = HUD_MARKER_SHAPE(0xc7);
+			g_playerBracketBottomLeft = HUD_MARKER_SHAPE(0xd0);
+			g_playerBracketBottomRight = HUD_MARKER_SHAPE(0xd9);
+			break;
+		case 1:
+			g_playerBracketTopLeft = HUD_MARKER_SHAPE(0xbb);
+			g_playerBracketTopRight = HUD_MARKER_SHAPE(0xc4);
+			g_playerBracketBottomLeft = HUD_MARKER_SHAPE(0xcd);
+			g_playerBracketBottomRight = HUD_MARKER_SHAPE(0xd6);
+			break;
+		}
+
+		g_playerBracketX = x;
+		g_playerBracketY = y;
+		if (!g_hudMarkerKept) {
+			DrawBrackets(
+				g_playerBracketX,
+				g_playerBracketY,
+				g_playerBracketSize,
+				g_playerBracketTopLeft,
+				g_playerBracketTopRight,
+				g_playerBracketBottomLeft,
+				g_playerBracketBottomRight
+			);
+		}
+	}
+
+	g_hudMarkerKept = 1;
+}
+
+// Marks the object p_object like DrawPlayerBrackets a player, from the frame before; no object
+// drops the marker kept.
+// FUNCTION: MW2POWERVR 0x10022300
+void DrawObjectBrackets(struct SceneObject* p_object, MechS32 p_side)
+{
+	MechScalar x;
+	MechScalar y;
+	MechScalar z;
+
+	if (!p_object || !p_object->m_shape) {
+		g_hudMarkerKept = 0;
+		return;
+	}
+
+	if (g_hudMarkerKept) {
+		if (g_objectBracketSize >= 0) {
+			DrawBrackets(
+				g_objectBracketX,
+				g_objectBracketY,
+				g_objectBracketSize,
+				g_objectBracketTopLeft,
+				g_objectBracketTopRight,
+				g_objectBracketBottomLeft,
+				g_objectBracketBottomRight
+			);
+		}
+		else {
+			DrawHudShape(g_objectBracketX, g_objectBracketY, g_objectBracketTopLeft);
+		}
+	}
+
+	g_objectBracketSize = GetShapeBounds(p_object->m_shape, &x, &y, &z);
+	if (!ProjectWorldPoint(&x, &y, &z)) {
+		Point point;
+
+		point.m_x = x;
+		point.m_y = y;
+		GetRectNeedleToward(&g_currentPane, &point, &point);
+		switch (p_side) {
+		case 0:
+			g_objectBracketTopLeft = HUD_MARKER_SHAPE(0xeb);
+			break;
+		case 2:
+			g_objectBracketTopLeft = HUD_MARKER_SHAPE(0xee);
+			break;
+		default:
+			g_objectBracketTopLeft = HUD_MARKER_SHAPE(0xe8);
+			break;
+		}
+
+		g_objectBracketX = point.m_x;
+		g_objectBracketY = point.m_y;
+		g_objectBracketSize = -1;
+		if (!g_hudMarkerKept) {
+			DrawHudShape(g_objectBracketX, g_objectBracketY, g_objectBracketTopLeft);
+		}
+
+		g_hudMarkerKept = 1;
+		return;
+	}
+	else {
+		MechScalar maxSize;
+
+		g_objectBracketSize = ((g_objectBracketSize / 2) * g_eyepoint->m_projectScaleX) / z;
+		if (g_objectBracketSize > (maxSize = (MechScalar) g_eyepoint->m_halfWidth / 2)) {
+			g_objectBracketSize = maxSize;
+		}
+
+		switch (p_side) {
+		case 0:
+			g_objectBracketTopLeft = HUD_MARKER_SHAPE(0xb8);
+			g_objectBracketTopRight = HUD_MARKER_SHAPE(0xc1);
+			g_objectBracketBottomLeft = HUD_MARKER_SHAPE(0xca);
+			g_objectBracketBottomRight = HUD_MARKER_SHAPE(0xd3);
+			break;
+		case 2:
+			g_objectBracketTopLeft = HUD_MARKER_SHAPE(0xbe);
+			g_objectBracketTopRight = HUD_MARKER_SHAPE(0xc7);
+			g_objectBracketBottomLeft = HUD_MARKER_SHAPE(0xd0);
+			g_objectBracketBottomRight = HUD_MARKER_SHAPE(0xd9);
+			break;
+		case 1:
+			g_objectBracketTopLeft = HUD_MARKER_SHAPE(0xbb);
+			g_objectBracketTopRight = HUD_MARKER_SHAPE(0xc4);
+			g_objectBracketBottomLeft = HUD_MARKER_SHAPE(0xcd);
+			g_objectBracketBottomRight = HUD_MARKER_SHAPE(0xd6);
+			break;
+		}
+
+		g_objectBracketX = x;
+		g_objectBracketY = y;
+		if (!g_hudMarkerKept) {
+			DrawBrackets(
+				g_objectBracketX,
+				g_objectBracketY,
+				g_objectBracketSize,
+				g_objectBracketTopLeft,
+				g_objectBracketTopRight,
+				g_objectBracketBottomLeft,
+				g_objectBracketBottomRight
+			);
+		}
+	}
+
+	g_hudMarkerKept = 1;
+}
+
+#endif
 // Draws frame 0 of the "SHP" resource p_id (relative to g_artResolution) at p_x, p_y of the
 // current pane.
 // FUNCTION: MW2 0x10041e98

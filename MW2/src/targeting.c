@@ -52,6 +52,7 @@ MechS32 g_navCount = 0;
 // GLOBAL: MW23DFX 0x1024c8ac
 // GLOBAL: MW2ATI 0x10180c2c
 // GLOBAL: MW2S3 0x10073ea4
+// GLOBAL: MW2POWERVR 0x101abb30
 MechS32 g_inspectResult = 0;
 
 // Set once the local player has targeted at the reticle (TargetAtReticle), cleared when they

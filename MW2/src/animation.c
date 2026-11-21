@@ -28,6 +28,9 @@
 #include <math.h>
 #include <windows.h>
 #endif
+#ifdef MW2_POWERVR
+#include <sgl.h>
+#endif
 
 // Animated textures: up to 0x200 animations, each playing one of 0x200 sets of up to 0x20 CEL
 // frames. The frames load on first use; each animation advances with the clock.
@@ -45,11 +48,21 @@ DECOMP_SIZE_ASSERT(Animation, 0x16)
 DECOMP_SIZE_ASSERT(Animation, 0x0e)
 #endif
 
+#ifdef MW2_POWERVR
+// The counts of the SGL materials (StartAnimation) and textures (AddAnimFrame) the animations made.
+// GLOBAL: MW2POWERVR 0x101ad7c4
+MechS32 g_unk0x101ad7c4 = 0;
+
+// GLOBAL: MW2POWERVR 0x101ad7c8
+MechS32 g_unk0x101ad7c8 = 0;
+#endif
+
 // GLOBAL: MW2 0x100ad288
 // GLOBAL: MW2MATROX 0x100aa1b8
 // GLOBAL: MW23DFX 0x1024e480
 // GLOBAL: MW2ATI 0x10182790
 // GLOBAL: MW2S3 0x100650a8
+// GLOBAL: MW2POWERVR 0x101ad7cc
 MechS32 g_animInitialized = -2;
 
 // GLOBAL: MW2 0x100ad28c
@@ -63,6 +76,7 @@ MechS32 g_lumaResourceId = 0;
 // GLOBAL: MW23DFX 0x1024e488
 // GLOBAL: MW2ATI 0x10182798
 // GLOBAL: MW2S3 0x100650b0
+// GLOBAL: MW2POWERVR 0x101ad7d4
 MechS32 g_currentAnimSet = 0;
 
 // GLOBAL: MW2 0x100ad294
@@ -70,6 +84,7 @@ MechS32 g_currentAnimSet = 0;
 // GLOBAL: MW23DFX 0x1024e48c
 // GLOBAL: MW2ATI 0x1018279c
 // GLOBAL: MW2S3 0x100650b4
+// GLOBAL: MW2POWERVR 0x101ad7d8
 MechS32 g_animSetUsed = 0;
 
 // GLOBAL: MW2 0x100ad298
@@ -77,6 +92,7 @@ MechS32 g_animSetUsed = 0;
 // GLOBAL: MW23DFX 0x1024e490
 // GLOBAL: MW2ATI 0x101827a0
 // GLOBAL: MW2S3 0x100650b8
+// GLOBAL: MW2POWERVR 0x101ad7dc
 MechS32 g_animSetIsSequence = 0;
 
 #ifdef MW2_A3D
@@ -86,6 +102,7 @@ MechS32 g_animSetIsSequence = 0;
 // GLOBAL: MW23DFX 0x1024e494
 // GLOBAL: MW2ATI 0x101827a8
 // GLOBAL: MW2S3 0x100650c0
+// GLOBAL: MW2POWERVR 0x101ad7e4
 MechS32 g_unk0x100aa1d0 = 0;
 #endif
 
@@ -123,6 +140,7 @@ MechS32 g_unk0x1024e634 = 0;
 // GLOBAL: MW23DFX 0x10160d20
 // GLOBAL: MW2ATI 0x10094d10
 // GLOBAL: MW2S3 0x100fb610
+// GLOBAL: MW2POWERVR 0x1008c230
 AnimFrame g_animFrames[0x200][0x20];
 
 // GLOBAL: MW2 0x100e7610
@@ -791,6 +809,7 @@ MechS32 DrawAnimatedPolygon(
 // FUNCTION: MW23DFX 0x1002ce50
 // FUNCTION: MW2ATI 0x1002c150
 // FUNCTION: MW2S3 0x1001df50
+// FUNCTION: MW2POWERVR 0x10026f30
 void AdvanceAnimations(void)
 {
 	MechS32 remainder;
@@ -801,6 +820,9 @@ void AdvanceAnimations(void)
 	MechS32 steps;
 	Animation* anim;
 	MechS32 elapsed;
+#ifdef MW2_POWERVR
+	MechS32 texture;
+#endif
 
 	now = g_currentClock;
 	for (i = 0; i < 0x200; i++) {
@@ -830,6 +852,17 @@ void AdvanceAnimations(void)
 
 				anim->m_frame = frame;
 				anim->m_lastTime = now - remainder;
+#ifdef MW2_POWERVR
+				// The PowerVR edition's material shows the new frame's texture.
+				if (anim->m_material > 0 && anim->m_mode != 0) {
+					texture = g_animFrames[anim->m_set][anim->m_frame].m_texture;
+					if (texture < 0) {
+						texture = -1;
+					}
+
+					FUN_100618b0(anim->m_material, texture);
+				}
+#endif
 			}
 		}
 	}
@@ -840,10 +873,15 @@ void AdvanceAnimations(void)
 // FUNCTION: MW23DFX 0x1002cf10
 // FUNCTION: MW2ATI 0x1002c210
 // FUNCTION: MW2S3 0x1001e010
+// FUNCTION: MW2POWERVR 0x10027030
 MechS32 AddAnimFrame(MechS32 p_resourceId, MechS32 p_set)
 {
 	MechS32 found;
 	MechS32 slot;
+#ifdef MW2_POWERVR
+	AnimFrame* frame;
+	sgl_intermediate_map* map;
+#endif
 
 	slot = 0;
 	found = FALSE;
@@ -881,7 +919,20 @@ MechS32 AddAnimFrame(MechS32 p_resourceId, MechS32 p_set)
 		g_animSetIsSequence = 0;
 	}
 
+#ifdef MW2_POWERVR
+	// The PowerVR edition loads the frame's map now, and makes a cached texture of it.
+	frame = &g_animFrames[p_set][slot];
+	frame->m_resourceId = p_resourceId;
+	map = LoadCachedResource(g_mw2PrjHandle, p_resourceId, g_resTagCel, 0);
+	if (map) {
+		frame->m_map = map;
+		frame->m_size = FUN_10061870(map);
+		frame->m_texture = FUN_1005f4b0(slot << 16 | (p_set & 0xffff), map);
+		g_unk0x101ad7c8++;
+	}
+#else
 	g_animFrames[p_set][slot].m_resourceId = p_resourceId;
+#endif
 	return 0;
 }
 
@@ -931,8 +982,14 @@ void PreloadAnimCels(void)
 // FUNCTION: MW23DFX 0x1002d060
 // FUNCTION: MW2ATI 0x1002c2d0
 // FUNCTION: MW2S3 0x1001e0d0
+// FUNCTION: MW2POWERVR 0x10027150
 MechS32 StartAnimation(MechS32 p_index, MechS32 p_set)
 {
+#ifdef MW2_POWERVR
+	AnimFrame* frame;
+	MechS32 material;
+#endif
+
 	if (p_set == -1) {
 		p_set = g_currentAnimSet;
 		g_animSetUsed = 1;
@@ -950,6 +1007,20 @@ MechS32 StartAnimation(MechS32 p_index, MechS32 p_set)
 		g_animations[p_index].m_delay = 0x2d;
 	}
 
+#ifdef MW2_POWERVR
+	// The PowerVR edition gives the animation an SGL material, with its set's first texture.
+	if (g_animations[p_index].m_material < 0) {
+		frame = &g_animFrames[g_animations[p_index].m_set][0];
+		material = FUN_1005f570();
+		g_animations[p_index].m_material = material;
+		if (frame->m_texture >= 0) {
+			FUN_100618b0(material, frame->m_texture);
+		}
+
+		g_unk0x101ad7c4++;
+	}
+
+#endif
 	return 1;
 }
 
@@ -958,6 +1029,7 @@ MechS32 StartAnimation(MechS32 p_index, MechS32 p_set)
 // FUNCTION: MW23DFX 0x1002d0e0
 // FUNCTION: MW2ATI 0x1002c350
 // FUNCTION: MW2S3 0x1001e150
+// FUNCTION: MW2POWERVR 0x10027220
 void InitAnimations(void)
 {
 	MechS32 j;
@@ -970,7 +1042,14 @@ void InitAnimations(void)
 			frame = &g_animFrames[i][j];
 			frame->m_resourceId = -1;
 			frame->m_useCount = 0;
+#ifdef MW2_POWERVR
+			frame->m_size = 0;
+			frame->m_map = NULL;
+			frame->m_texture = -1;
+			frame->m_lastUsed = 0;
+#else
 			frame->m_data = NULL;
+#endif
 		}
 	}
 
@@ -982,6 +1061,10 @@ void InitAnimations(void)
 		anim->m_mode = 0;
 		anim->m_flags = -2;
 		anim->m_lastTime = -1;
+#ifdef MW2_POWERVR
+		anim->m_material = -1;
+		anim->m_lit = FALSE;
+#endif
 	}
 
 	g_animInitialized = 0;
@@ -995,8 +1078,21 @@ void InitAnimations(void)
 // FUNCTION: MW23DFX 0x1002d150
 // FUNCTION: MW2ATI 0x1002c3c0
 // FUNCTION: MW2S3 0x1001e1c0
+// FUNCTION: MW2POWERVR 0x100272b0
 void SetAnimMode(MechS16 p_index, MechS16 p_mode)
 {
+#ifdef MW2_POWERVR
+	Animation* anim;
+
+	anim = &g_animations[p_index];
+	if (anim->m_flags != -2) {
+		anim->m_mode = p_mode;
+	}
+
+	if (anim->m_delay == 0) {
+		anim->m_delay = 0x2d;
+	}
+#else
 	if (g_animations[p_index].m_flags != -2) {
 		g_animations[p_index].m_mode = p_mode;
 	}
@@ -1004,6 +1100,7 @@ void SetAnimMode(MechS16 p_index, MechS16 p_mode)
 	if (g_animations[p_index].m_delay == 0) {
 		g_animations[p_index].m_delay = 0x2d;
 	}
+#endif
 }
 
 // FUNCTION: MW2 0x100694df
@@ -1011,6 +1108,7 @@ void SetAnimMode(MechS16 p_index, MechS16 p_mode)
 // FUNCTION: MW23DFX 0x1002d190
 // FUNCTION: MW2ATI 0x1002c400
 // FUNCTION: MW2S3 0x1001e200
+// FUNCTION: MW2POWERVR 0x100272e0
 void SetAnimFrame(MechS16 p_index, MechU16 p_frame)
 {
 	Animation* anim;
@@ -1035,17 +1133,68 @@ void SetAnimFrame(MechS16 p_index, MechU16 p_frame)
 // FUNCTION: MW23DFX 0x1002d1e0
 // FUNCTION: MW2ATI 0x1002c450
 // FUNCTION: MW2S3 0x1001e250
+// FUNCTION: MW2POWERVR 0x10027330
 void SetAnimDelay(MechS16 p_index, MechU16 p_delay)
 {
 	g_animations[p_index].m_delay = p_delay;
 }
 
+#ifdef MW2_POWERVR
+// Returns frame p_number of animation set p_set's texture map (from the resource cache, loaded on
+// first use) and its width and height; NULL if it has none.
+// FUNCTION: MW2POWERVR 0x10027350
+sgl_intermediate_map* FUN_10027350(MechS32 p_set, MechS32 p_number, MechS32* p_width, MechS32* p_height)
+{
+	AnimFrame* frame;
+	sgl_intermediate_map* map;
+	MechS32 size;
+
+	frame = &g_animFrames[p_set][p_number];
+	if (frame->m_resourceId < 1) {
+		return NULL;
+	}
+
+	if (frame->m_map) {
+		*p_width = *p_height = frame->m_size;
+		return frame->m_map;
+	}
+
+	map = LoadCachedResource(g_mw2PrjHandle, frame->m_resourceId, g_resTagCel, 0);
+	if (!map) {
+		return NULL;
+	}
+
+	size = FUN_10061870(map);
+	frame->m_map = map;
+	frame->m_size = size;
+	*p_width = *p_height = size;
+	return map;
+}
+
+// Returns the texture map of animation p_index's current frame (FUN_10027350) and its size; NULL if
+// it has none.
+// FUNCTION: MW2POWERVR 0x100273e0
+sgl_intermediate_map* FUN_100273e0(MechS32 p_index, MechS32* p_width, MechS32* p_height)
+{
+	Animation* anim;
+
+	anim = &g_animations[p_index];
+	if (anim->m_flags < 0) {
+		return NULL;
+	}
+
+	return FUN_10027350(anim->m_set, anim->m_frame, p_width, p_height);
+}
+#endif
+
+#ifndef MW2_POWERVR
 // FUNCTION: MW2 0x10069586
 // FUNCTION: MW2MATROX 0x10051875
 // FUNCTION: MW23DFX 0x1002d200
 void FUN_10069586(void)
 {
 }
+#endif
 
 // FUNCTION: MW2 0x10069591
 // FUNCTION: MW2MATROX 0x10051880
@@ -1174,6 +1323,76 @@ MechS32 FUN_1001e300(MechS32 p_index, MechFloat* p_red, MechFloat* p_green, Mech
 	return 1;
 }
 #endif
+#ifdef MW2_POWERVR
+// The PowerVR edition's average color of animation p_index's current texture map (FUN_100273e0),
+// 0-1 per component: the map's texels are 1555 or 4444 (its type, id[2]), and types 1 and 4 have a
+// single texel after a word. Returns 0 if it has none.
+// FUNCTION: MW2POWERVR 0x10027420
+MechS32 FUN_100519b0(MechS32 p_index, MechFloat* p_red, MechFloat* p_green, MechFloat* p_blue)
+{
+	sgl_intermediate_map* map;
+	MechU16* pixels;
+	MechU16* end;
+	MechU16 pixel;
+	MechU16 mask;
+	MechU16 shift;
+	MechS32 type;
+	MechS32 width;
+	MechS32 height;
+	MechU32 count;
+	MechU32 red;
+	MechU32 green;
+	MechU32 blue;
+
+	blue = 0;
+	green = 0;
+	map = FUN_100273e0(p_index, &width, &height);
+	if (!map) {
+		return 0;
+	}
+
+	pixels = map->pixels;
+	type = map->id[2];
+	if (type == 1 || type == 4) {
+		count = 1;
+		pixels++;
+	}
+	else {
+		count = height * width;
+	}
+
+	if (type == 3 || type == 4) {
+		mask = 0xf;
+		shift = 4;
+	}
+	else {
+		mask = 0x1f;
+		shift = 5;
+	}
+
+	red = 0;
+	end = pixels + count;
+	for (; pixels < end; pixels++) {
+		pixel = *pixels >> shift;
+		blue += *pixels & mask;
+		green += pixel & mask;
+		red += (pixel >> shift) & mask;
+	}
+
+	if (shift == 5) {
+		*p_red = red / (count * 32.0f);
+		*p_green = green / (count * 32.0f);
+		*p_blue = blue / (count * 32.0f);
+	}
+	else {
+		*p_red = red / (count * 16.0f);
+		*p_green = green / (count * 16.0f);
+		*p_blue = blue / (count * 16.0f);
+	}
+
+	return 1;
+}
+#else
 // Computes the average color of animation p_index's current texture, 0-31 per component (the
 // sums of the 5-bit components over an eighth of the pixel count); returns 0 if it has none.
 // MW23DFX takes the texture from FUN_10051dfe (the resource cache) rather than reading it.
@@ -1283,19 +1502,26 @@ MechS32 FUN_100519b0(MechS32 p_index, MechFloat* p_red, MechFloat* p_green, Mech
 
 #endif
 }
+#endif
 
-// Returns the average color of animation p_index's current frame (CalcAverageBitmapColors).
+// Returns the average color of animation p_index's current frame (CalcAverageBitmapColors); the
+// PowerVR edition's, of its set's first frame.
 // FUNCTION: MW2MATROX 0x10051ba1
 // FUNCTION: MW23DFX 0x1002d410
 // FUNCTION: MW2ATI 0x1002c5e0
 // FUNCTION: MW2S3 0x1001e4f0
+// FUNCTION: MW2POWERVR 0x10027620
 void FUN_10051ba1(MechS32 p_index, MechFloat* p_red, MechFloat* p_green, MechFloat* p_blue)
 {
 	AnimFrame* frame;
 	Animation* anim;
 
 	anim = &g_animations[p_index];
+#ifdef MW2_POWERVR
+	frame = &g_animFrames[anim->m_set][0];
+#else
 	frame = &g_animFrames[anim->m_set][anim->m_frame];
+#endif
 	*p_red = frame->m_red;
 	*p_green = frame->m_green;
 	*p_blue = frame->m_blue;
@@ -1580,6 +1806,7 @@ MechS32 FUN_10051ea2(MechS32 p_index, ProjectedVertex** p_points, MechS32 p_coun
 // FUNCTION: MW23DFX 0x1002d6e0
 // FUNCTION: MW2ATI 0x1002c880
 // FUNCTION: MW2S3 0x1001e7f0
+// FUNCTION: MW2POWERVR 0x10027660
 void CalcAverageBitmapColors(void)
 {
 	MechFloat blue;
@@ -1591,7 +1818,7 @@ void CalcAverageBitmapColors(void)
 
 	for (i = 0; i < 0x200; i++) {
 		anim = &g_animations[i];
-#ifndef MW2_3DFX
+#if !defined(MW2_3DFX) && !defined(MW2_POWERVR)
 		if (!anim) {
 			continue;
 		}

@@ -616,6 +616,7 @@ void StartPalettes(MechS32 p_dissolve)
 // FUNCTION: MW23DFX 0x1002b130
 // FUNCTION: MW2ATI 0x1002ac70
 // FUNCTION: MW2S3 0x1003f080
+// FUNCTION: MW2POWERVR 0x10026f20
 MechS32 GetPaletteFadeSteps(void)
 {
 	return g_paletteFadeSteps;

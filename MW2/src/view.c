@@ -502,6 +502,7 @@ void SelectEyepoint(Eyepoint* p_eyepoint)
 // FUNCTION: MW23DFX 0x1002f740
 // FUNCTION: MW2ATI 0x1002e820
 // FUNCTION: MW2S3 0x100067b0
+// FUNCTION: MW2POWERVR 0x100296a0
 void UpdateProjection(Eyepoint* p_eyepoint)
 {
 #ifdef MW2_FLOAT_SCALARS
@@ -545,9 +546,9 @@ void UpdateProjection(Eyepoint* p_eyepoint)
 	}
 
 	a = (MechS32) (fov * 16.0f);
-#ifdef MW2_3DFX
-	// The 3Dfx edition multiplies the field of view by the aspect first, here and in scaleY (the
-	// Matrox edition's /Od code multiplies halfWidth by fov first).
+#if defined(MW2_POWERVR) || defined(MW2_3DFX)
+	// The PowerVR and 3Dfx editions multiply the field of view by the aspect first, here and in
+	// scaleY (the Matrox edition's /Od code multiplies halfWidth by fov first).
 	eyepoint->m_fovY = fovY = (halfWidth * (fov * aspect)) / halfHeight;
 #else
 	eyepoint->m_fovY = fovY = halfWidth * fov * aspect / halfHeight;
@@ -563,7 +564,7 @@ void UpdateProjection(Eyepoint* p_eyepoint)
 	eyepoint->m_frustumScaleX = g_slopeSines[a] * fov + g_slopeCosines[a];
 	eyepoint->m_frustumScaleY = g_slopeSines[c] * fovY + g_slopeCosines[c];
 	scaleX = halfWidth * fov;
-#ifdef MW2_3DFX
+#if defined(MW2_POWERVR) || defined(MW2_3DFX)
 	scaleY = halfWidth * (fov * aspect);
 #else
 	scaleY = halfWidth * fov * aspect;

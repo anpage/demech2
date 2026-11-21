@@ -10,7 +10,11 @@ typedef struct CockpitPanel CockpitPanel;
 
 /* One of the 26 cockpit panels InitCockpitPanels allocates (g_cockpitPanels): a named rectangle
    of a pane with a table of methods. InitCockpitPanel sets the defaults, and InitCockpitPanels
-   installs the drawing handlers, which UpdateCockpit calls by the local mech's power state. */
+   installs the drawing handlers, which UpdateCockpit calls by the local mech's power state. The
+   PowerVR edition's are 0x98 bytes: a panel with a 3D inset has a view of the renderer's after its
+   name, and two more handlers at the end, so that the members after the name are 8 bytes further
+   on there. The view is a void*: a struct A3DView tag declared here, ahead of the units that
+   include this header without accel/a3d.h, moves their code. */
 // SIZE 0x88
 struct CockpitPanel {
 	CockpitPanel* m_self;  // 0x00
@@ -19,7 +23,13 @@ struct CockpitPanel {
 	MechS32 m_lightUpTime; // 0x08 — the clock time the panel lights up at on startup
 	MechS32 m_weapon;      // 0x0c — the weapon a weapon panel shows, -1: none
 	MechChar m_name[0x20]; // 0x10
-	PANE* m_target;        // 0x30
+#ifdef MW2_POWERVR
+	// In the PowerVR edition these two put every member after them 8 bytes further on than the
+	// offsets given, which are the other editions'.
+	MechS32 m_unk0x30; // 0x30 — set once the view's camera is placed
+	void* m_view;      // 0x34 — the renderer's A3DView of the panel's inset, or NULL
+#endif
+	PANE* m_target;                                      // 0x30
 	struct Point* m_textOrigin;                          // 0x34 — where its text goes
 	struct RectTransition* m_transition;                 // 0x38
 	MechS32 m_lastPowerState;                            // 0x3c — the power state it last drew in (g_cockpitPowerState)
@@ -43,6 +53,10 @@ struct CockpitPanel {
 	void (*m_draw)();         // 0x7c — while it runs (2)
 	void (*m_drawShutdown)(); // 0x80 — in the other states
 	void (*m_drawStatic)();   // 0x84 — the panel as static; nothing calls it through here
+#ifdef MW2_POWERVR
+	void (*m_unk0x90)(CockpitPanel*); // 0x90 — before the scene is rendered: fills or places the view
+	void (*m_unk0x94)(CockpitPanel*); // 0x94 — after: undoes or completes what m_unk0x90 set
+#endif
 };
 
 // The cockpit panels, by index in g_cockpitPanels.

@@ -52,7 +52,11 @@ extern "C"
 {
 #endif
 
+	// The PowerVR edition's header declares neither AddShapeFaceIndex nor GetNewShapeFlags, which
+	// it doesn't define: it has as many symbols as the others' ahead of its units' code.
+#ifndef MW2_POWERVR
 	MechU32 GetNewShapeFlags(void);
+#endif
 	MechU32 SetNewShapeFlags(MechU32 p_flags);
 	void SelectFirstModel(Shape* p_shape);
 	void SelectModel(Shape* p_shape, Model* p_model);
@@ -91,12 +95,21 @@ extern "C"
 #else
 void AddShapeVertex(Shape* p_shape, MechS32 p_x, MechS32 p_y, MechS32 p_z, undefined4 p_u, undefined4 p_v);
 #endif
-	struct Face* AddShapeFace(Shape* p_shape, MechU16 p_color, MechU8* p_indices);
+#ifdef MW2_POWERVR
+	struct Face* AddShapeFace(Shape* p_shape, MechU16 p_color, MechU8* p_indices, MechS32 p_count, MechU16* p_values);
+#else
+struct Face* AddShapeFace(Shape* p_shape, MechU16 p_color, MechU8* p_indices);
+#endif
+#ifndef MW2_POWERVR
 	void AddShapeFaceIndex(Shape* p_shape, struct Face* p_face, MechU32 p_index);
+#endif
 	void FreeModel(Model* p_model);
 	void RemoveSelectedModel(Shape* p_shape);
 	void FreeShape(Shape* p_shape);
 	void SetShapeState(Shape* p_shape, MechS32 p_flags);
+#ifdef MW2_POWERVR
+	void SetShapeDamageLevel(Shape* p_shape, MechU16 p_level);
+#endif
 	MechU32 GetShapeState(Shape* p_shape);
 	void SetShapeKind(Shape* p_shape, MechS32 p_kind);
 	void SetShapePartId(Shape* p_shape, MechU16 p_partId);

@@ -41,6 +41,9 @@
 #ifdef MW2_VFX16
 #include "accel/vfx16.h"
 #endif
+#ifdef MW2_POWERVR
+#include "powervr/a3dpanel.h"
+#endif
 #ifdef MW2_LOD_PAR
 #include "render.h"
 #include "view.h"
@@ -53,6 +56,7 @@ MechS32 IsPlayerInView(Player* p_player);
 // GLOBAL: MW23DFX 0x1024d04c
 // GLOBAL: MW2ATI 0x101813cc
 // GLOBAL: MW2S3 0x10062ae4
+// GLOBAL: MW2POWERVR 0x101ac35c
 MechS32 g_targetPanelMode = 1;
 
 // Set to announce the target's side with the next name the target panel shows.
@@ -60,6 +64,7 @@ MechS32 g_targetPanelMode = 1;
 // GLOBAL: MW2MATROX 0x100a4a50
 // GLOBAL: MW23DFX 0x1024d050
 // GLOBAL: MW2S3 0x10062ae8
+// GLOBAL: MW2POWERVR 0x101ac360
 MechS32 g_announceTargetSide = 0;
 
 #ifdef MW2_LOD_PAR
@@ -77,6 +82,7 @@ MechS32 g_targetLodParRead = 0;
 // GLOBAL: MW2MATROX 0x100a4a5c
 // GLOBAL: MW23DFX 0x1024d054
 // GLOBAL: MW2S3 0x10062aec
+// GLOBAL: MW2POWERVR 0x101ac368
 MechS32 g_targetFullNameTime = 0;
 
 // The target the panel showed last.
@@ -84,6 +90,7 @@ MechS32 g_targetFullNameTime = 0;
 // GLOBAL: MW2MATROX 0x100a4a60
 // GLOBAL: MW23DFX 0x1024d058
 // GLOBAL: MW2S3 0x10062af0
+// GLOBAL: MW2POWERVR 0x101ac36c
 MechS32 g_lastPanelTarget = 0;
 
 // The target panel flickers to static while set.
@@ -91,7 +98,22 @@ MechS32 g_lastPanelTarget = 0;
 // GLOBAL: MW2MATROX 0x100a4a64
 // GLOBAL: MW23DFX 0x1024d05c
 // GLOBAL: MW2S3 0x10062af4
+// GLOBAL: MW2POWERVR 0x101ac364
 MechS32 g_targetPanelStatic = 0;
+
+#ifdef MW2_POWERVR
+// The list of the target panel's view that holds the target (FUN_10020450).
+// GLOBAL: MW2POWERVR 0x101ac370
+MechS32 g_targetViewList = -1;
+
+// The detail level the target's mech had before the panel loaded level 0 for it, to restore.
+// GLOBAL: MW2POWERVR 0x101ac374
+MechS32 g_targetSavedDetailLevel = -1;
+
+// The root of the target's object tree, which the panel's view shows.
+// GLOBAL: MW2POWERVR 0x101ac378
+SceneObject* g_targetViewObject = NULL;
+#endif
 
 // The name the target panel shows for an unknown installation: 16 bytes in every edition, each
 // with other globals after it.
@@ -104,12 +126,14 @@ MechS32 g_targetPanelStatic = 0;
 MechChar g_anonymousInstallationName[16];
 
 // Writes the target panel's text: the locked target's name (its short name when it changes, its
-// name after a while), coloured by its side, and its distance.
+// name after a while), coloured by its side, and its distance (MW2_TARGET_RANGE_AT_BOTTOM: on the
+// panel's bottom line).
 // FUNCTION: MW2 0x1007b930
 // FUNCTION: MW2MATROX 0x10017e50
 // FUNCTION: MW23DFX 0x10020e40
 // FUNCTION: MW2ATI 0x10021110
 // FUNCTION: MW2S3 0x10013150
+// FUNCTION: MW2POWERVR 0x1001ff60
 void DrawTargetPanelText(CockpitPanel* p_panel)
 {
 	MechS32 index;
@@ -120,6 +144,9 @@ void DrawTargetPanelText(CockpitPanel* p_panel)
 	Mech* mech;
 	MechChar text[64];
 	void* font;
+#ifdef MW2_TARGET_RANGE_AT_BOTTOM
+	MechS32 top;
+#endif
 
 	color = 0xe;
 	if (!p_panel->m_enabled) {
@@ -300,6 +327,10 @@ void DrawTargetPanelText(CockpitPanel* p_panel)
 #endif
 #ifdef MW2_FLOAT_SCALARS
 	meters = FIXED_TO_INT(mech->m_player->m_targetInfo.m_range) / 100;
+#ifdef MW2_TARGET_RANGE_AT_BOTTOM
+	top = p_panel->m_target->m_y0;
+	p_panel->m_target->m_y0 = p_panel->m_target->m_y1 - VFX_font_height16(font);
+#endif
 	if (meters > 1000) {
 		km = meters / 1000.0f;
 #else
@@ -307,13 +338,25 @@ void DrawTargetPanelText(CockpitPanel* p_panel)
 	if (meters > 1000) {
 		km = meters / 1000.0;
 #endif
+#ifdef MW2_TARGET_RANGE_AT_BOTTOM
+		sprintf(text, "%2.2fk", km);
+#else
 		sprintf(text, "\n%2.2fk", km);
+#endif
 		DrawWrappedText(p_panel->m_target, text, font);
 	}
 	else {
+#ifdef MW2_TARGET_RANGE_AT_BOTTOM
+		sprintf(text, "%3ldm", meters);
+#else
 		sprintf(text, "\n%3ldm", meters);
+#endif
 		DrawWrappedText(p_panel->m_target, text, font);
 	}
+
+#ifdef MW2_TARGET_RANGE_AT_BOTTOM
+	p_panel->m_target->m_y0 = top;
+#endif
 
 	UnlockCachedResource(HUD_ART_RESOLUTION + 1, g_resTagFont);
 	g_lastPanelTarget = mech->m_player->m_targetInfo.m_target;
@@ -322,6 +365,133 @@ void DrawTargetPanelText(CockpitPanel* p_panel)
 #endif
 }
 
+#ifdef MW2_POWERVR
+// The target panel's m_unk0x90, before the scene is rendered: puts the locked target's object tree
+// (its mech at detail level 0) in the panel's view, the camera behind it as DrawTargetPanel places
+// it but closer (twice an installation's bounds, two and a half times a mech's radius), glowing in
+// wireframe mode and textured in mode 2.
+// FUNCTION: MW2POWERVR 0x10020450
+void FUN_10020450(CockpitPanel* p_panel)
+{
+	MechS32 kind;
+	Mech* mech;
+	Player* player;
+	Player* targetPlayer;
+	MechScalar x;
+	MechScalar y;
+	MechScalar z;
+	MechScalar heading;
+	MechScalar distance;
+	MechScalar dx;
+	MechScalar dz;
+	MechScalar view[7];
+	SceneObject* object;
+
+	g_targetSavedDetailLevel = -1;
+	if (!p_panel->m_enabled || !g_targetPanelMode || !p_panel->m_view) {
+		return;
+	}
+
+	if (p_panel->m_damage == 1) {
+		if (g_targetPanelStatic) {
+			return;
+		}
+	}
+	else if (p_panel->m_damage > 2) {
+		return;
+	}
+
+	mech = g_players[g_localPlayerId]->m_mech;
+	player = mech->m_player;
+	kind = player->m_targetInfo.m_target & 0xf00;
+	if (!kind || (player->m_targetInfo.m_target & 0x1000) || kind == 0x100) {
+		return;
+	}
+
+	if (g_cockpitPowerState != 2) {
+		return;
+	}
+
+	g_targetViewObject = GetLocalTargetObject();
+	if (!g_targetViewObject || !g_targetViewObject->m_shape) {
+		return;
+	}
+
+	if (kind == 0x200) {
+		targetPlayer = g_players[mech->m_player->m_targetInfo.m_target & 0xff];
+		g_targetSavedDetailLevel = targetPlayer->m_detailLevel;
+		LoadClassLevel(targetPlayer->m_index, 0);
+		targetPlayer->m_detailLevel = 0;
+	}
+
+	x = player->m_targetInfo.m_position.m_x;
+	y = player->m_targetInfo.m_position.m_y;
+	z = player->m_targetInfo.m_position.m_z;
+	heading = player->m_targetInfo.m_heading;
+	if (kind == 0x400) {
+		distance = GetShapeBounds(g_targetViewObject->m_shape, &x, &y, &z) * 2;
+	}
+	else {
+		distance = g_players[player->m_targetInfo.m_target & 0xff]->m_mech->m_radius * 2.5f;
+	}
+
+	dx = -(FixedSin(heading) * distance);
+	view[0] = x + dx;
+	view[1] = y;
+	dz = -(FixedCos(heading) * distance);
+	view[2] = z + dz;
+	FUN_1005fb60(((A3DView*) p_panel->m_view)->m_transform, 1, view[0], view[1], view[2]);
+	FUN_1005fbc0(((A3DView*) p_panel->m_view)->m_transform, 0, 0, heading, 0, 0);
+	if (g_targetViewList <= 0) {
+		g_targetViewList = FUN_1005f200(((A3DView*) p_panel->m_view)->m_root);
+	}
+	else {
+		FUN_1005f2a0(g_targetViewList);
+	}
+
+	object = g_targetViewObject;
+	while (object->m_parent) {
+		object = object->m_parent;
+	}
+
+	g_targetViewObject = object;
+	FUN_10061c60(g_targetViewObject, g_targetPanelMode);
+	FUN_1005f2c0(g_targetViewList, g_targetViewObject->m_list);
+	p_panel->m_unk0x30 = 1;
+	FUN_10060770((A3DView*) p_panel->m_view, 0, g_targetPanelMode == 2, 0, 0);
+	if (g_targetPanelMode == 1) {
+		FUN_10061160(g_a3dWhite, 1);
+	}
+}
+
+// The target panel's m_unk0x94, after the scene is rendered: the materials back from wireframe
+// mode, and the target's mech back to its detail level.
+// FUNCTION: MW2POWERVR 0x100206e0
+void FUN_100206e0(CockpitPanel* p_panel)
+{
+	MechU32 target;
+	Player* targetPlayer;
+
+	if (!g_targetViewObject) {
+		return;
+	}
+
+	if (g_targetPanelMode == 1) {
+		FUN_10061c60(g_targetViewObject, 2);
+		FUN_10061160(g_a3dLightColour, 0);
+	}
+
+	target = g_players[g_localPlayerId]->m_mech->m_player->m_targetInfo.m_target;
+	if ((target & 0xf00) == 0x200) {
+		targetPlayer = g_players[target & 0xff];
+		if (targetPlayer->m_detailLevel != g_targetSavedDetailLevel) {
+			LoadClassLevel(targetPlayer->m_index, g_targetSavedDetailLevel);
+			targetPlayer->m_detailLevel = g_targetSavedDetailLevel;
+		}
+	}
+}
+
+#endif
 // Draws the target panel: the locked target through a camera behind it, a nav point's icon, or
 // static while the panel is damaged (m_damage).
 // FUNCTION: MW2 0x1007c126
@@ -697,6 +867,7 @@ MechS32 IsPlayerInView(Player* p_player)
 // FUNCTION: MW23DFX 0x10021710
 // FUNCTION: MW2ATI 0x100219e0
 // FUNCTION: MW2S3 0x10013a30
+// FUNCTION: MW2POWERVR 0x10020a10
 void DrawTargetStatic(CockpitPanel* p_panel)
 {
 	if (!p_panel->m_enabled) {
@@ -714,6 +885,7 @@ void DrawTargetStatic(CockpitPanel* p_panel)
 // FUNCTION: MW23DFX 0x10021730
 // FUNCTION: MW2ATI 0x10021a00
 // FUNCTION: MW2S3 0x10013a50
+// FUNCTION: MW2POWERVR 0x10020a30
 void DrawTargetPanelStartup(CockpitPanel* p_panel)
 {
 	PANE* rect;
@@ -756,6 +928,7 @@ void DrawTargetPanelStartup(CockpitPanel* p_panel)
 // FUNCTION: MW23DFX 0x100217f0
 // FUNCTION: MW2ATI 0x10021ac0
 // FUNCTION: MW2S3 0x10013b10
+// FUNCTION: MW2POWERVR 0x10020af0
 void DrawTargetPanelShutdown(CockpitPanel* p_panel)
 {
 	PANE* rect;

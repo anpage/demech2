@@ -93,6 +93,7 @@ Player* g_launchEffectPlayer = NULL;
 // GLOBAL: MW2MATROX 0x100ae0b8
 // GLOBAL: MW23DFX 0x1025a6a8
 // GLOBAL: MW2S3 0x1006508c
+// GLOBAL: MW2POWERVR 0x101b9ce0
 MechS32 g_effectCameraEnabled = 1;
 
 // The player whose shot hit something last.
@@ -788,6 +789,7 @@ void SpawnLaunchEffect(MechS32 p_type, Player* p_player)
 // FUNCTION: MW23DFX 0x10045d00
 // FUNCTION: MW2ATI 0x10043430
 // FUNCTION: MW2S3 0x1001c510
+// FUNCTION: MW2POWERVR 0x1003e160
 void SpawnEffectEx(
 	MechS32 p_owner,
 	MechS32 p_type,
@@ -822,6 +824,9 @@ void SpawnEffectEx(
 	MechS32 take;
 	Effect* effect;
 	MechScalar dx;
+#ifdef MW2_UNROTATED_EFFECTS
+	MechScalar scale;
+#endif
 
 	effect = NULL;
 	info = NULL;
@@ -976,7 +981,16 @@ void SpawnEffectEx(
 				g_launchEffectPlayer = NULL;
 			}
 			else {
+#ifdef MW2_UNROTATED_EFFECTS
+				if (flags & c_impactThing) {
+					scale = effect->m_object->m_shape->m_radius / ApproximateVectorLength(dx, dy, dz);
+					p_x += dx * scale;
+					p_y += dy * scale;
+					p_z += dz * scale;
+				}
+#else
 				SetObjRotation(effect->m_object, p_rotX, p_rotY, p_rotZ, 0);
+#endif
 				SetObjPosition(effect->m_object, p_x, p_y, p_z);
 			}
 
@@ -1215,7 +1229,7 @@ void DamageMechsInRadius(
 // FUNCTION: MW23DFX 0x100468b0
 // FUNCTION: MW2ATI 0x10043fe0
 // FUNCTION: MW2S3 0x1001d0b0
-// FUNCTION: MW2POWERVR 0x1003ed70
+// FUNCTION: MW2POWERVR 0x1003ed50
 void DamageThingsInRadius(
 	MechS32 p_owner,
 	MechScalar p_x,

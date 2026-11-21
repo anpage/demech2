@@ -107,6 +107,7 @@ static MechS32 g_gridSnapDistance;
 // FUNCTION: MW23DFX 0x100113f0
 // FUNCTION: MW2ATI 0x10011950
 // FUNCTION: MW2S3 0x10006000
+// FUNCTION: MW2POWERVR 0x100107e0
 void SetGridObject(SceneObject* p_obj)
 {
 	MechS32 depth;

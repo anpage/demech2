@@ -15,7 +15,7 @@ struct Shape;
 #define ClassEntryCoord undefined4
 #endif
 
-// SIZE 0x44
+// SIZE 0x44 (0x58 in the PowerVR edition)
 // An entry of g_classTable: a shape a player's mech uses, with up to five levels of detail.
 typedef struct ClassEntry {
 	MechS32 m_owner;           // 0x00 — a player index; -1 free, -2 until ClaimNewClassEntries
@@ -30,6 +30,11 @@ typedef struct ClassEntry {
 	ClassEntryCoord m_z;       // 0x34
 	MechU16 m_kinds[5];        // 0x38 — by level; the shape kind in bits 4-7
 	MechS16 m_released;        // 0x42
+#ifdef MW2_POWERVR
+	// The PowerVR edition's entries are 0x58 bytes, with the SGL list of each level's shape, kept
+	// while another level is shown (-1 not converted yet).
+	MechS32 m_lists[5]; // 0x44
+#endif
 } ClassEntry;
 
 #endif // CLASSENTRY_H

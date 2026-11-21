@@ -15,6 +15,10 @@ extern "C"
 	extern MechChar g_anonymousInstallationName[16];
 
 	void DrawTargetPanelText(struct CockpitPanel* p_panel);
+#ifdef MW2_POWERVR
+	void FUN_10020450(struct CockpitPanel* p_panel);
+	void FUN_100206e0(struct CockpitPanel* p_panel);
+#endif
 	void DrawTargetPanel(struct CockpitPanel* p_panel);
 	void DrawTargetStatic(struct CockpitPanel* p_panel);
 	void DrawTargetPanelStartup(struct CockpitPanel* p_panel);

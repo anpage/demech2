@@ -63,12 +63,14 @@ DECOMP_SIZE_ASSERT(Mech, 0x10e)
 // GLOBAL: MW2MATROX 0x100a4598
 // GLOBAL: MW23DFX 0x1024c540
 // GLOBAL: MW2S3 0x10076f70
+// GLOBAL: MW2POWERVR 0x101ab734
 MechScalar g_jumpJetDrag = 100000;
 
 // GLOBAL: MW2 0x100a2be0
 // GLOBAL: MW2MATROX 0x100a459c
 // GLOBAL: MW23DFX 0x1024c544
 // GLOBAL: MW2S3 0x10076f74
+// GLOBAL: MW2POWERVR 0x101ab738
 MechScalar g_slideSlope = FIXED_RAW(0x2000);
 
 // The "mightymouse" cheat: infinite jump jet fuel.
@@ -77,6 +79,7 @@ MechScalar g_slideSlope = FIXED_RAW(0x2000);
 // GLOBAL: MW23DFX 0x1024c548
 // GLOBAL: MW2ATI 0x101808c8
 // GLOBAL: MW2S3 0x10076f78
+// GLOBAL: MW2POWERVR 0x101ab73c
 MechS32 g_infiniteJumpFuel = 0;
 
 // Set by a game key: run JettisonAmmo on the local mech next tick.
@@ -149,6 +152,7 @@ MechS32 g_powerRequest = 0;
 // GLOBAL: MW2MATROX 0x100a45cc
 // GLOBAL: MW23DFX 0x1024c574
 // GLOBAL: MW2S3 0x10076fa4
+// GLOBAL: MW2POWERVR 0x101ab768
 MechScalar g_recenterLastHeading = 0;
 
 // GLOBAL: MW2 0x100a2c10
@@ -163,6 +167,7 @@ MechS32 g_mechPoweredUp = 0;
 // GLOBAL: MW2 0x100a2c14
 // GLOBAL: MW2MATROX 0x100a45d0
 // GLOBAL: MW23DFX 0x1024c578
+// GLOBAL: MW2POWERVR 0x101ab76c
 MechS32 g_lastMascRoll = 0;
 
 // GLOBAL: MW2 0x100a2c18
@@ -297,6 +302,7 @@ void FirstMech(struct Player* p_player)
 // FUNCTION: MW23DFX 0x10019310
 // FUNCTION: MW2ATI 0x100196a0
 // FUNCTION: MW2S3 0x10042490
+// FUNCTION: MW2POWERVR 0x100185e0
 void UpdateMech(Mech* p_mech)
 {
 	MechScalar velY;

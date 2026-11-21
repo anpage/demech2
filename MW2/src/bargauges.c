@@ -446,6 +446,7 @@ void DrawJumpFuelBar(PANE* p_target)
 // FUNCTION: MW23DFX 0x1001c810
 // FUNCTION: MW2ATI 0x1001cb40
 // FUNCTION: MW2S3 0x10015180
+// FUNCTION: MW2POWERVR 0x1001b930
 void DrawVerticalBar(PANE* p_target, MechS32 p_x, MechS32 p_y, MechS32 p_width, MechS32 p_height, MechS32 p_color)
 {
 	MechS32 half;
@@ -488,6 +489,7 @@ void DrawVerticalBar(PANE* p_target, MechS32 p_x, MechS32 p_y, MechS32 p_width, 
 // FUNCTION: MW23DFX 0x1001c960
 // FUNCTION: MW2ATI 0x1001cc90
 // FUNCTION: MW2S3 0x100152d0
+// FUNCTION: MW2POWERVR 0x1001ba80
 void DrawHorizontalBar(PANE* p_target, MechS32 p_x, MechS32 p_y, MechS32 p_width, MechS32 p_height, MechS32 p_color)
 {
 	MechS32 half;
