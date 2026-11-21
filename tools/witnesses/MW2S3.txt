@@ -12,7 +12,7 @@
 0x10004ce0 RotateObjMatrix object.c pad 2
 0x100051b0 RaisePartDamageLevel object.c pad 3
 0x10005390 FillJoystickDeviceInfo joystick.c pad 20
-0x10005e90 ChooseJoystickMapName joystick.c pad 2
+0x10005e90 ChooseJoystickMapName joystick.c pad 29
 0x100065d0 SelectEyepoint view.c pad 11
 0x10006f00 ScaleRectToScreen screenscale.c pad 19
 0x10007610 UnderlineText screenscale.c pad 4

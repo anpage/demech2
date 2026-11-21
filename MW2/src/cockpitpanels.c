@@ -641,11 +641,19 @@ void InitCockpitPanels(void)
 	g_cockpitPanels[c_panelMechView]->m_drawStatic = DrawMechViewStatic;
 	g_cockpitPanels[c_panelMechView]->m_drawStartup = DrawMechViewStartup;
 	g_cockpitPanels[c_panelMechView]->m_drawShutdown = DrawMechViewShutdown;
+#ifdef MW2_POWERVR
+	g_cockpitPanels[c_panelMechView]->m_unk0x90 = FUN_10010b10;
+	g_cockpitPanels[c_panelMechView]->m_unk0x94 = FUN_10010d50;
+#endif
 	g_cockpitPanels[c_panelTarget]->m_draw = DrawTargetPanel;
 	g_cockpitPanels[c_panelTarget]->m_drawStatic = DrawTargetStatic;
 	g_cockpitPanels[c_panelTargetText]->m_draw = DrawTargetPanelText;
 	g_cockpitPanels[c_panelTarget]->m_drawStartup = DrawTargetPanelStartup;
 	g_cockpitPanels[c_panelTarget]->m_drawShutdown = DrawTargetPanelShutdown;
+#ifdef MW2_POWERVR
+	g_cockpitPanels[c_panelTarget]->m_unk0x90 = FUN_10020450;
+	g_cockpitPanels[c_panelTarget]->m_unk0x94 = FUN_100206e0;
+#endif
 	g_cockpitPanels[c_panelObjectives]->m_draw = DrawObjectivesPanel;
 	g_cockpitPanels[c_panelNetwork]->m_draw = DrawNetworkPanel;
 	g_cockpitPanels[c_panelAutopilot]->m_draw = DrawAutopilotPanel;

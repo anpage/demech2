@@ -164,7 +164,6 @@ MW2ATI 0x10005600 DdrawInit 6920fe218105 undiagnosed
 MW2ATI 0x100059b0 FUN_100059b0 be09b7897f1e undiagnosed
 MW2ATI 0x100063a0 DdrawWritePaletteEntries c4f21f50e59b undiagnosed
 MW2ATI 0x10006430 DdrawWritePaletteGamma d60600db1fa7 undiagnosed
-MW2ATI 0x100064d0 DdrawPaletteFade fe51c3dbb0c6 undiagnosed
 MW2ATI 0x100066b0 DdrawLockBuffer bc1730c12b4d undiagnosed
 MW2ATI 0x10006c30 ScaleRectAboutCenter 686acf212047 undiagnosed
 MW2ATI 0x100072e0 TilePane 72ad44e4f1da undiagnosed
@@ -312,7 +311,6 @@ MW2S3 0x10003230 InitializeDrawBuffer 5bcb3bf39eee undiagnosed
 MW2S3 0x10003360 ReelMotionTask 4a1eec807b73 undiagnosed
 MW2S3 0x10003b60 ColorCycleTask 0dbaaa773654 undiagnosed
 MW2S3 0x10005110 GetObjLastChild 0d3f97dc364a undiagnosed
-MW2S3 0x100056c0 JoystickOpenDevice 5777955616f2 undiagnosed
 MW2S3 0x10005a40 JoystickCloseDevice 66ba350d5f57 undiagnosed
 MW2S3 0x10006000 SetGridObject db784ddb0bfc undiagnosed
 MW2S3 0x10006190 UpdateGridObject 528edd3b505d undiagnosed
@@ -341,9 +339,9 @@ MW2S3 0x1000b590 FUN_10068e33 2f0c6d4852ce undiagnosed
 MW2S3 0x1000b790 FUN_10069172 b1384cd0dd00 undiagnosed
 MW2S3 0x1000b8f0 FUN_100692db 39653a3f3dc0 undiagnosed
 MW2S3 0x1000be20 DrawSkyAndGround 602ae98d7670 undiagnosed
-MW2S3 0x1000d8a0 DrawPentagon 78aa8f3a8e3e undiagnosed
-MW2S3 0x1000daf0 DrawQuad e6df35c68b32 undiagnosed
-MW2S3 0x1000db90 DrawTriangle 79cf8ffc69a4 undiagnosed
+MW2S3 0x1000d8a0 DrawPentagon 63529fc90279 undiagnosed
+MW2S3 0x1000daf0 DrawQuad 06fbe48f1dd0 undiagnosed
+MW2S3 0x1000db90 DrawTriangle 5de1a9c544c9 undiagnosed
 MW2S3 0x1000e7c0 DestroyCriticalSlot 1662d19a80f6 undiagnosed
 MW2S3 0x1000f1b0 ApplyDamageToMech b752fec087b5 undiagnosed
 MW2S3 0x1000f4e0 AddBwdName f257b6b71d67 undiagnosed
@@ -395,7 +393,7 @@ MW2S3 0x10025e20 ComputeNormalsAndBounds a968f51060ce undiagnosed
 MW2S3 0x10025e80 ComputeFaceNormal 0183f3c383bb undiagnosed
 MW2S3 0x100261e0 GetShapeMemorySize f8f93dc1e408 undiagnosed
 MW2S3 0x10026250 TransformModel 2a01f62055af undiagnosed
-MW2S3 0x100266f0 SimMain 173b8e9eeb70 undiagnosed
+MW2S3 0x100266f0 SimMain d949c257f2db undiagnosed
 MW2S3 0x10027ec0 FindPrjType 223256d99fcb undiagnosed
 MW2S3 0x100281a0 TransformPoint 0ef45a9478f6 undiagnosed
 MW2S3 0x100283b0 MultiplyRotations 86e578391dc0 undiagnosed
@@ -534,7 +532,6 @@ MW2POWERVR 0x1001bc60 RemoveNavPoint 905d62635e2f undiagnosed
 MW2POWERVR 0x1001bdc0 CycleTarget 30493a092dd2 undiagnosed
 MW2POWERVR 0x1001c170 TargetGamePiece 108479b5f49d undiagnosed
 MW2POWERVR 0x1001c630 UpdateTarget dbda18e799a1 undiagnosed
-MW2POWERVR 0x1001d1c0 InitCockpitPanels 0c93725137db undiagnosed
 MW2POWERVR 0x1001df50 InitializeManeuvers ce8ab006eeec undiagnosed
 MW2POWERVR 0x1001e7d0 GetOffsetPoint f28a85057272 undiagnosed
 MW2POWERVR 0x1001fbe0 DodgeShot afd031f4e6c9 undiagnosed
@@ -559,7 +556,6 @@ MW2POWERVR 0x100263b0 ComputeNormalsAndBounds 68b8309cd2c9 undiagnosed
 MW2POWERVR 0x100265a0 TransformModel dc53bc518742 undiagnosed
 MW2POWERVR 0x100268a0 RayShapeDistance c312ba12e7d8 undiagnosed
 MW2POWERVR 0x10026b40 ApplyPaletteResource 6d444066cb19 undiagnosed
-MW2POWERVR 0x10026c40 StartPaletteFade 087d9724a9a4 undiagnosed
 MW2POWERVR 0x10027150 StartAnimation 4710d9da9cc9 undiagnosed
 MW2POWERVR 0x10027420 FUN_100519b0 45f58b714582 undiagnosed
 MW2POWERVR 0x10027fe0 CycleTrackedPlayer 017fe77df12e undiagnosed
@@ -594,12 +590,11 @@ MW2POWERVR 0x100347d0 JoystickPoll c6da385fb8ca undiagnosed
 MW2POWERVR 0x10035440 DrawPaletteGrid 8978250d8850 undiagnosed
 MW2POWERVR 0x10035820 HideCacheInfo 51392870f0ef undiagnosed
 MW2POWERVR 0x10035990 MonoPrint 8a92e3d21479 undiagnosed
-MW2POWERVR 0x10035d80 FirstResource 8392b3fd477e undiagnosed
 MW2POWERVR 0x100361e0 FindPrjType b12a5d94441d undiagnosed
 MW2POWERVR 0x1003677e ResetTicks 7f314b64e23e undiagnosed
 MW2POWERVR 0x100369d0 BwdExecuteStream 9ae89c3dc165 undiagnosed
 MW2POWERVR 0x100383a0 AddBwdName 99c4d5e6fe8f undiagnosed
-MW2POWERVR 0x10038f60 LoadHudFile b0a74ee1a416 undiagnosed
+MW2POWERVR 0x10038f60 LoadHudFile 4ba1c51114f0 undiagnosed
 MW2POWERVR 0x100399f0 CountMissionStream 8fd5d89f9dfc undiagnosed
 MW2POWERVR 0x10039d20 LoadMechConfig 88f792455462 undiagnosed
 MW2POWERVR 0x1003a590 GetMechValue 2d8176479e24 undiagnosed

@@ -13,3 +13,12 @@ MW2MATROX extra ddraw.dll!DirectDrawCreate
 MW2MATROX order 0x1005e2c0  # HEAPCACHE_loaditem (a3d.c, /Ox): the original keeps HeapFree in esi
 MW23DFX order 0x10032fa0  # StopMidiSequences: the original keeps AIL_stop_sequence in esi, the build AIL_release_sequence_handle (the witness's padding gives the original's)
 MW23DFX order 0x10033340  # SetMidiVolume: the two load AIL_set_sequence_volume and AIL_sequence_status into esi and edi the other way round
+MW2ATI order 0x10031da0  # StopMidiSequences: the original keeps AIL_sequence_status in a register, the build AIL_release_sequence_handle (the witness's padding gives the original's)
+MW2ATI order 0x10031e10  # PauseMidiSequences: the original keeps AIL_sequence_status in a register, the build AIL_stop_sequence
+MW2ATI order 0x10031e60  # ResumeMidiSequences: the original keeps AIL_sequence_status in a register, the build AIL_resume_sequence
+MW2S3 order 0x1001ae50  # StopMidiSequences: the original keeps AIL_stop_sequence in a register, the build AIL_sequence_status
+MW2S3 order 0x1001aec0  # PauseMidiSequences: the original keeps AIL_stop_sequence in a register, the build AIL_sequence_status (the witness's padding gives the original's)
+MW2S3 order 0x1001b090  # SetMidiVolume: the original keeps AIL_set_sequence_volume in a register, the build AIL_sequence_status
+MW2POWERVR order 0x1002c820  # StopMidiSequences: the original keeps AIL_sequence_status in a register, the build AIL_release_sequence_handle (the witness's padding gives the original's)
+MW2POWERVR order 0x1002c890  # PauseMidiSequences: the original keeps AIL_sequence_status in a register, the build AIL_stop_sequence
+MW2POWERVR order 0x1002c8e0  # ResumeMidiSequences: the original keeps AIL_sequence_status in a register, the build AIL_resume_sequence

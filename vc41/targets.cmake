@@ -204,7 +204,9 @@ function(demech2_add_mw2s3)
       "${DEMECH2_SOURCE_DIR}/MW2/MW2.def"
     COMPILE_OPTIONS "$<$<COMPILE_LANGUAGE:C,CXX>:/ML;/G5;/Gr;/Gy;/DMW2_ACCEL;/DMW2_S3>"
       "$<$<COMPILE_LANGUAGE:ASM_MASM>:${s3_masm_defines}>"
-    LINK_OPTIONS /DEBUG /INCREMENTAL:no
+    # /OPT:REF, which /DEBUG would otherwise turn off: the original's link dropped the /Gy functions
+    # nothing calls (1.1's GDI DIB section, MIDI sequence and CD volume code), and their imports.
+    LINK_OPTIONS /DEBUG /OPT:REF /INCREMENTAL:no
     LIBRARIES kernel32.lib user32.lib gdi32.lib advapi32.lib winmm.lib dplay ddraw wail32 s3dtk
   )
   target_include_directories(mw2s3 SYSTEM PRIVATE "${DEMECH2_SOURCE_DIR}/3rdparty/s3dtk")

@@ -352,11 +352,20 @@ char* g_mw2PrjPath = NULL;
 MechS32 FirstResource(void)
 {
 	MechS32 result;
+#ifdef MW2_PRJ_PATH_FREED
+	MechS32 duplicated;
+#endif
 
 	result = TRUE;
+#ifdef MW2_PRJ_PATH_FREED
+	duplicated = FALSE;
+#endif
 	SetPrjAllocator(Mw2PrjAlloc, Mw2PrjFree);
 	InitializeResourceCache();
 	if (!g_mw2PrjPath) {
+#ifdef MW2_PRJ_PATH_FREED
+		duplicated = TRUE;
+#endif
 		g_mw2PrjPath = (MechChar*) _mbsdup((unsigned char*) BuildGamePath("mw2.prj"));
 	}
 
@@ -369,6 +378,14 @@ MechS32 FirstResource(void)
 		result = FALSE;
 	}
 
+#ifdef MW2_PRJ_PATH_FREED
+	// The PowerVR edition frees the path it duplicated (from the C runtime's heap) on the game's
+	// heap, and keeps pointing at it.
+	if (duplicated) {
+		HeapFree(g_primaryHeap, HEAP_NO_SERIALIZE, g_mw2PrjPath);
+	}
+
+#endif
 	return result;
 }
 

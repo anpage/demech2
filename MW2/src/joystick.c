@@ -436,7 +436,9 @@ MechS32 JoystickOpenDevice(InputDeviceInfo* p_info)
 		}
 	}
 	else {
+#ifndef MW2_JOYSTICK_PROBE_SIZE_ONLY
 		memset(&infoEx, 0, sizeof(infoEx));
+#endif
 		infoEx.dwSize = sizeof(infoEx);
 		if (joyGetPosEx(data->m_id, &infoEx) == JOYERR_UNPLUGGED) {
 			return 1;

@@ -1133,8 +1133,9 @@ int __stdcall SimMain(
 // have the refresh mode fallback loop 1.1 has, filling through the edition's display back end
 // (DirectDraw, Glide). The ATI edition reads the sky and ground and the render settings right after
 // the command line, tests the palette through DCs it doesn't release, as 1.1 does, and shuts its
-// renderer down (A3D_shutdown) after the last blit; the 3Dfx edition reads the render settings
-// before FirstClock (the Matrox edition before the main loop) and releases the DCs.
+// renderer down (A3D_shutdown) after the last blit; the S3 edition releases the first DC; the 3Dfx
+// edition reads the render settings before FirstClock (the Matrox edition before the main loop) and
+// releases both.
 // FUNCTION: MW23DFX 0x10008850
 // FUNCTION: MW2ATI 0x10009040
 // FUNCTION: MW2S3 0x100266f0
@@ -1156,8 +1157,10 @@ int __stdcall SimMain(
 	undefined4 flags[2];
 	MechS32 seed;
 	MechS32 quitLatched;
-#ifdef MW2_3DFX
+#ifdef MW2_SUPANIM_DC_RELEASED
 	HDC supAnimDc;
+#endif
+#ifdef MW2_PALETTE_DC_RELEASED
 	HDC paletteDc;
 #endif
 
@@ -1247,15 +1250,17 @@ int __stdcall SimMain(
 		}
 	}
 
-#ifdef MW2_3DFX
+#ifdef MW2_SKY_SETTINGS_BEFORE_CLOCK
 	LoadSkyGroundSettings(missionName);
+#endif
+#ifdef MW2_RENDER_SETTINGS_BEFORE_CLOCK
 	FUN_1008fad0();
 #endif
 	DebugPrint("FirstClock()\n");
 	__try {
 		FirstClock();
 		DebugPrint("StartSupAnim()\n");
-#ifdef MW2_3DFX
+#ifdef MW2_SUPANIM_DC_RELEASED
 		supAnimDc = GetDC(g_gameWindow);
 		StartSupAnim(GetDeviceCaps(supAnimDc, NUMCOLORS) == -1 || g_windowMode == c_windowModeFullscreen);
 		ReleaseDC(g_gameWindow, supAnimDc);
@@ -1344,7 +1349,7 @@ int __stdcall SimMain(
 
 		DebugPrint("StopSupAnim()\n");
 		StopSupAnim();
-#ifdef MW2_3DFX
+#ifdef MW2_PALETTE_DC_RELEASED
 		paletteDc = GetDC(g_gameWindow);
 		if (GetDeviceCaps(paletteDc, NUMCOLORS) == -1 || g_windowMode == c_windowModeFullscreen) {
 #else
@@ -1363,7 +1368,7 @@ int __stdcall SimMain(
 			}
 		}
 
-#ifdef MW2_3DFX
+#ifdef MW2_PALETTE_DC_RELEASED
 		ReleaseDC(g_gameWindow, paletteDc);
 #endif
 		g_drawModeReady = 1;
@@ -1379,6 +1384,9 @@ int __stdcall SimMain(
 			Error(0x50, "Error profiling video modes.");
 		}
 
+#ifdef MW2_RENDER_SETTINGS_AFTER_MODES
+		FUN_1008fad0();
+#endif
 		while (ShowCursor(FALSE) >= 0) {
 		}
 

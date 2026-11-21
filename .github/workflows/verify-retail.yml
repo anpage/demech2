@@ -247,13 +247,8 @@ jobs:
           # game code or library, must use the imports the original's does
           # (tools/check_imports.py). The known findings are data: they come
           # from the PR's checkout, like the sources.
-          # Not for MW2ATI, MW2S3 and MW2POWERVR yet: the code they compile from 1.1 (the GDI
-          # back end, the MIDI) imports what the originals don't.
           for entry in $RETAIL_ENTRIES; do
             target="${entry%%:*}"
-            if [ "$target" = MW2ATI ] || [ "$target" = MW2S3 ] || [ "$target" = MW2POWERVR ]; then
-              continue
-            fi
             python ../tools/check_imports.py --target "$target" --expected tools/check_imports_expected.txt
           done
 

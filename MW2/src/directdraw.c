@@ -1118,9 +1118,10 @@ MechS32 DdrawWritePaletteGamma(PaletteColor* p_palette)
 }
 #endif
 
-#ifdef MW2_S3
-// The S3 edition's computes the fade's steps without setting the palette (its display is 16-bit):
-// only g_paletteColors takes the last step.
+#ifdef MW2_FADE_STEPS_ONLY
+// The ATI edition's computes the fade's steps without setting the palette (its display is 16-bit):
+// only g_paletteColors takes the last step. The S3 edition kept it.
+// FUNCTION: MW2ATI 0x100064d0
 // FUNCTION: MW2S3 0x10030af0
 MechS32 DdrawPaletteFade(PaletteColor* p_palette, MechS32 p_steps)
 {
@@ -1159,7 +1160,6 @@ MechS32 DdrawPaletteFade(PaletteColor* p_palette, MechS32 p_steps)
 #else
 // Fades the palette from g_paletteColors to p_palette in p_steps steps, a step every 16 ms.
 // FUNCTION: MW2 0x10078d38
-// FUNCTION: MW2ATI 0x100064d0
 // FUNCTION: MW2POWERVR 0x100051c0
 MechS32 DdrawPaletteFade(PaletteColor* p_palette, MechS32 p_steps)
 {

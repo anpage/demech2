@@ -160,8 +160,6 @@ typedef char MechChar;
 /* Restarting a star mission keeps its objectives' targets' listed flags */
 #define MW2_RESTART_KEEPS_LISTED
 
-/* JoystickOpenDevice probes with joyGetPosEx alone, on an uncleared JOYINFOEX */
-#define MW2_JOYSTICK_OPEN_POSEX
 /* JoystickPoll neither clears its JOYINFOEX nor sets its size */
 #define MW2_JOYINFOEX_UNCLEARED
 /* UpdateInputs compares an axis' rate pointer with its position's address */
@@ -177,6 +175,8 @@ typedef char MechChar;
 #endif
 
 #ifdef MW2_MATROX
+/* JoystickOpenDevice probes with joyGetPosEx alone, on an uncleared JOYINFOEX */
+#define MW2_JOYSTICK_OPEN_POSEX
 /* The 16-bit pixels and the palette: RGB565 */
 #define MW2_PIXEL_FORMAT 565
 /* Key colour fills and 0xfffe wipes for the renderer's overlay, ClipRectToPane */
@@ -212,6 +212,16 @@ typedef char MechChar;
 #endif
 
 #ifdef MW2_3DFX
+/* SimMain reads the sky and ground settings (LoadSkyGroundSettings) just before FirstClock */
+#define MW2_SKY_SETTINGS_BEFORE_CLOCK
+/* SimMain reads the render settings (FUN_1008fad0) just before FirstClock */
+#define MW2_RENDER_SETTINGS_BEFORE_CLOCK
+/* SimMain releases the DC it tests for StartSupAnim */
+#define MW2_SUPANIM_DC_RELEASED
+/* SimMain releases the DC it tests the palette through */
+#define MW2_PALETTE_DC_RELEASED
+/* JoystickOpenDevice probes with joyGetPosEx alone, on an uncleared JOYINFOEX */
+#define MW2_JOYSTICK_OPEN_POSEX
 /* The 16-bit pixels and the palette: RGB555 */
 #define MW2_PIXEL_FORMAT 555
 /* The "Res800x600" setting: 800x600, the menus scaled, animation 0 tiled */
@@ -262,6 +272,8 @@ typedef char MechChar;
 #endif
 
 #ifdef MW2_ATI
+/* JoystickOpenDevice probes with joyGetPosEx alone, on an uncleared JOYINFOEX */
+#define MW2_JOYSTICK_OPEN_POSEX
 /* The 16-bit pixels and the palette: RGB555 */
 #define MW2_PIXEL_FORMAT 555
 /* ProjectPolygon clips to the near plane itself, as 1.1's QueueFace does, not through the renderer */
@@ -291,11 +303,25 @@ typedef char MechChar;
 #define MW2_FRAME_TEXELS
 /* VESA480.DLL is 512x384 when DirectDraw has the mode in 16 bits (FUN_100059b0), 640x480 otherwise */
 #define MW2_RES_512X384
+/* DdrawPaletteFade computes the fade's steps into g_paletteColors without setting DirectDraw's
+   palette */
+#define MW2_FADE_STEPS_ONLY
 #endif
 
 #ifdef MW2_S3
 /* The S3 edition starts with the ATI edition's features but its back end's, until its binary
    settles each one. */
+/* JoystickOpenDevice's probe sets its JOYINFOEX's size without clearing it */
+#define MW2_JOYSTICK_PROBE_SIZE_ONLY
+/* SimMain reads the sky and ground settings (LoadSkyGroundSettings) just before FirstClock */
+#define MW2_SKY_SETTINGS_BEFORE_CLOCK
+/* SimMain reads the render settings (FUN_1008fad0) once the refresh mode is set */
+#define MW2_RENDER_SETTINGS_AFTER_MODES
+/* DrawTriangle, DrawQuad and DrawPentagon draw through the palette polygon (FUN_1000d960), not
+   g_renderSettings' drawer */
+#define MW2_SHAPES_PALETTE_POLYGON
+/* SimMain releases the DC it tests for StartSupAnim */
+#define MW2_SUPANIM_DC_RELEASED
 /* The 16-bit pixels and the palette: RGB555 */
 #define MW2_PIXEL_FORMAT 555
 /* ProjectPolygon clips to the near plane itself, as 1.1's QueueFace does, not through the renderer */
@@ -326,6 +352,9 @@ typedef char MechChar;
 /* VFX3D and VFXREND, VFX's polygon fillers and renderer, aren't linked: the A3D renderer draws every
    polygon, and FirstRender has no code block to make writable */
 #define MW2_NO_VFXREND
+/* DdrawPaletteFade computes the fade's steps into g_paletteColors without setting DirectDraw's
+   palette */
+#define MW2_FADE_STEPS_ONLY
 #endif
 
 #ifdef MW2_POWERVR
@@ -359,6 +388,11 @@ typedef char MechChar;
 /* The time of day's phase is a function of the time (FUN_10006f10), which also gives SimMain the
    palette of the current one (FUN_10006f30) */
 #define MW2_TIME_OF_DAY_LOOKUP
+/* A palette fade sets the renderer's light to the fade's tint over 32 (FUN_100607d0), white when it
+   has none */
+#define MW2_FADE_LIGHT_COLOUR
+/* FirstResource frees the MW2.PRJ path it duplicated, on the game's heap */
+#define MW2_PRJ_PATH_FREED
 /* The HUD's target marker keeps where it drew (statics): each frame draws the one kept from the
    frame before, then moves it, drawing the new one only when none was kept */
 #define MW2_HUD_MARKER_LAG

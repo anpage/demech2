@@ -633,7 +633,9 @@ function(demech2_add_mw2ati)
       "${DEMECH2_SOURCE_DIR}/MW2/MW2.def"
     COMPILE_OPTIONS "$<$<COMPILE_LANGUAGE:C,CXX>:/ML;/G5;/Gr;/Gy;/DMW2_ACCEL;/DMW2_ATI>"
       "$<$<COMPILE_LANGUAGE:ASM_MASM>:${ati_masm_defines}>"
-    LINK_OPTIONS /DEBUG /INCREMENTAL:no
+    # /OPT:REF, which /DEBUG would otherwise turn off: the original's link dropped the /Gy functions
+    # nothing calls (1.1's GDI DIB section, MIDI sequence and CD volume code), and their imports.
+    LINK_OPTIONS /DEBUG /OPT:REF /INCREMENTAL:no
     LIBRARIES kernel32.lib user32.lib gdi32.lib advapi32.lib winmm.lib dplay ddraw wail32 ati3dcif
   )
   target_include_directories(mw2ati SYSTEM PRIVATE "${DEMECH2_SOURCE_DIR}/3rdparty/ati3dcif")
@@ -836,7 +838,9 @@ function(demech2_add_mw2powervr)
       "${DEMECH2_SOURCE_DIR}/MW2/MW2.def"
     COMPILE_OPTIONS "$<$<COMPILE_LANGUAGE:C,CXX>:/ML;/G5;/Gr;/Gy;/DMW2_ACCEL;/DMW2_POWERVR>"
       "$<$<COMPILE_LANGUAGE:ASM_MASM>:${powervr_masm_defines}>"
-    LINK_OPTIONS /DEBUG /INCREMENTAL:no
+    # /OPT:REF, which /DEBUG would otherwise turn off: the original's link dropped the /Gy functions
+    # nothing calls (1.1's GDI DIB section, MIDI sequence and CD volume code), and their imports.
+    LINK_OPTIONS /DEBUG /OPT:REF /INCREMENTAL:no
     LIBRARIES kernel32.lib user32.lib gdi32.lib advapi32.lib winmm.lib dplay ddraw wail32 sgl
   )
   target_include_directories(mw2powervr SYSTEM PRIVATE "${DEMECH2_SOURCE_DIR}/3rdparty/sgl")
