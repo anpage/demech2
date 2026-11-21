@@ -24,9 +24,10 @@ struct CockpitPanel {
 	MechS32 m_weapon;      // 0x0c — the weapon a weapon panel shows, -1: none
 	MechChar m_name[0x20]; // 0x10
 #ifdef MW2_POWERVR
+	// In the PowerVR edition these two put every member after them 8 bytes further on than the
+	// offsets given, which are the other editions'.
 	MechS32 m_unk0x30; // 0x30 — set once the view's camera is placed
 	void* m_view;      // 0x34 — the renderer's A3DView of the panel's inset, or NULL
-	// The PowerVR edition's members are 8 bytes further on from here (offsets as in the others).
 #endif
 	PANE* m_target;                                      // 0x30
 	struct Point* m_textOrigin;                          // 0x34 — where its text goes
