@@ -219,7 +219,7 @@ extern "C" MechS32 __stdcall Launcher(NetLaunchInfo* p_info)
 	p_info->m_unk0x14 = 0;
 
 	if (g_unk0x1001ce10->m_unk0x0c & 2) {
-		FUN_10010920(g_unk0x1001ce10->m_playerIds);
+		LoadResults(g_unk0x1001ce10->m_playerIds);
 	}
 
 	if (g_unk0x10023184) {
@@ -1236,8 +1236,13 @@ MechS32 FUN_10005023(MechS32 p_state)
 			break;
 		case 9:
 			if (!g_unk0x10023138[g_unk0x10023108]) {
-				g_unk0x10023138[g_unk0x10023108] =
-					CreateDialogParam(g_hInstance, MAKEINTRESOURCE(0xc8), g_unk0x10023160, (DLGPROC) FUN_100105ee, 0);
+				g_unk0x10023138[g_unk0x10023108] = CreateDialogParam(
+					g_hInstance,
+					MAKEINTRESOURCE(0xc8),
+					g_unk0x10023160,
+					(DLGPROC) ResultsDialogProc,
+					0
+				);
 				if (!g_unk0x10023138[g_unk0x10023108]) {
 					result = FALSE;
 				}
