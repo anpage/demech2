@@ -126,6 +126,7 @@ void DrawWeaponPanel(CockpitPanel* p_panel)
 // Draws a panel's name once the clock passes p_panel->m_lightUpTime, if the local mech has the
 // weapon p_panel->m_weapon.
 // FUNCTION: MW2 0x100334d3
+// FUNCTION: MW2GBL 0x1004c287
 // FUNCTION: MW2MATROX 0x10055785
 // FUNCTION: MW23DFX 0x1001e9a0
 // FUNCTION: MW2ATI 0x1001ec70

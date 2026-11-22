@@ -74,31 +74,40 @@ MechS32 g_drawBufferSize = 0x140;
 MechU8* g_drawBufferMemory = NULL;
 #else
 // GLOBAL: MW2 0x100ba5cc
+// GLOBAL: MW2GBL 0x1009b030
 MechS32 g_drawBufferSize = 0x80;
 
 // GLOBAL: MW2 0x100ba5d0
+// GLOBAL: MW2GBL 0x1009b034
 MechU8* g_drawBufferMemory = NULL;
 
 // GLOBAL: MW2 0x100c1a68
+// GLOBAL: MW2GBL 0x1017f008
 MechS32 g_depthListCapacity;
 
 // GLOBAL: MW2 0x100c1a6c
+// GLOBAL: MW2GBL 0x1017f00c
 MechU8* g_drawBuffer;
 
 // GLOBAL: MW2 0x100c1a70
+// GLOBAL: MW2GBL 0x1017f010
 MechU8* g_drawBufferTop;
 
 // GLOBAL: MW2 0x100c2280
+// GLOBAL: MW2GBL 0x1017f820
 DepthEntry* g_drawList;
 
 // GLOBAL: MW2 0x100c2698
+// GLOBAL: MW2GBL 0x1017fc38
 MechU8* g_drawBufferBottom;
 
 // GLOBAL: MW2 0x100c269c
+// GLOBAL: MW2GBL 0x1017fc3c
 DepthEntry* g_depthQueue;
 #endif
 
 // GLOBAL: MW2 0x1010b5ac
+// GLOBAL: MW2GBL 0x100e9a5c
 // GLOBAL: MW2MATROX 0x101d6968
 // GLOBAL: MW23DFX 0x101b0ec8
 // GLOBAL: MW2ATI 0x100e4ea8
@@ -107,6 +116,7 @@ DepthEntry* g_depthQueue;
 MechS32 g_queueHasRoom;
 
 // FUNCTION: MW2 0x1007d120
+// FUNCTION: MW2GBL 0x10001000
 // FUNCTION: MW2MATROX 0x100216a0
 // FUNCTION: MW23DFX 0x10025d60
 // FUNCTION: MW2ATI 0x10025ad0
@@ -121,6 +131,7 @@ void ShutdownDrawBuffer(void)
 }
 
 // FUNCTION: MW2 0x1007d150
+// FUNCTION: MW2GBL 0x10001030
 // FUNCTION: MW2MATROX 0x100216d0
 // FUNCTION: MW23DFX 0x10025d80
 // FUNCTION: MW2ATI 0x10025af0
@@ -163,6 +174,7 @@ void InitializeDrawBuffer(MechS32 p_kilobytes, MechS32 p_entries)
 }
 
 // FUNCTION: MW2 0x1007d220
+// FUNCTION: MW2GBL 0x10001100
 // FUNCTION: MW2MATROX 0x100217b3
 // FUNCTION: MW23DFX 0x10025e20
 // FUNCTION: MW2ATI 0x10025b90
@@ -175,6 +187,7 @@ void ResetDrawBuffer(void)
 
 // The Matrox edition's is C, for its 0x3c-byte records.
 // FUNCTION: MW2 0x1007d248
+// FUNCTION: MW2GBL 0x10001128
 // FUNCTION: MW2MATROX 0x100217db
 // FUNCTION: MW23DFX 0x10025e40
 // FUNCTION: MW2ATI 0x10025bb0
@@ -227,6 +240,7 @@ done:
 
 // The Matrox edition's takes 0x10-byte records.
 // FUNCTION: MW2 0x1007d296
+// FUNCTION: MW2GBL 0x10001176
 // FUNCTION: MW2MATROX 0x10021827
 // FUNCTION: MW23DFX 0x10025e70
 // FUNCTION: MW2ATI 0x10025be0

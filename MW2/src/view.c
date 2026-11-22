@@ -31,6 +31,7 @@
 
 // The level of detail: 1 high, 2 low (TOGGLE_LOD_QUALITY); it divides Eyepoint::m_detailScale.
 // GLOBAL: MW2 0x100a712c
+// GLOBAL: MW2GBL 0x1009baf0
 // GLOBAL: MW2MATROX 0x100a5968
 // GLOBAL: MW23DFX 0x1024e6a4
 // GLOBAL: MW2ATI 0x101829b4
@@ -49,18 +50,23 @@ MechS32 g_lodScaleLoaded = 0;
 #endif
 
 // GLOBAL: MW2 0x100ea820
+// GLOBAL: MW2GBL 0x1015de44
 MechS32 g_viewNear;
 
 // GLOBAL: MW2 0x100ea824
+// GLOBAL: MW2GBL 0x1015de48
 MechS32 g_viewShiftX;
 
 // GLOBAL: MW2 0x100ea828
+// GLOBAL: MW2GBL 0x1015de4c
 MechS32 g_viewShiftY;
 
 // GLOBAL: MW2 0x100ea82c
+// GLOBAL: MW2GBL 0x1015de50
 MechS32 g_viewFar;
 
 // GLOBAL: MW2 0x100ea830
+// GLOBAL: MW2GBL 0x1015de54
 // GLOBAL: MW2MATROX 0x101d68e4
 // GLOBAL: MW23DFX 0x1015ef8c
 // GLOBAL: MW2ATI 0x10092f7c
@@ -69,6 +75,7 @@ MechS32 g_viewFar;
 MechS32 g_viewLeft;
 
 // GLOBAL: MW2 0x100ea834
+// GLOBAL: MW2GBL 0x1015de58
 // GLOBAL: MW2MATROX 0x101d684c
 // GLOBAL: MW23DFX 0x1015eef4
 // GLOBAL: MW2ATI 0x10092ee4
@@ -77,6 +84,7 @@ MechS32 g_viewLeft;
 MechS32 g_viewCenterX;
 
 // GLOBAL: MW2 0x100ea838
+// GLOBAL: MW2GBL 0x1015de5c
 // GLOBAL: MW2MATROX 0x101d6850
 // GLOBAL: MW23DFX 0x1015eef8
 // GLOBAL: MW2ATI 0x10092ee8
@@ -85,6 +93,7 @@ MechS32 g_viewCenterX;
 MechS32 g_viewHalfHeight;
 
 // GLOBAL: MW2 0x100ea83c
+// GLOBAL: MW2GBL 0x1015de60
 // GLOBAL: MW2MATROX 0x101d6854
 // GLOBAL: MW23DFX 0x1015eefc
 // GLOBAL: MW2ATI 0x10092eec
@@ -93,6 +102,7 @@ MechS32 g_viewHalfHeight;
 MechS32 g_viewHalfWidth;
 
 // GLOBAL: MW2 0x100ea840
+// GLOBAL: MW2GBL 0x1015de64
 // GLOBAL: MW2MATROX 0x101d6864
 // GLOBAL: MW23DFX 0x1015ef0c
 // GLOBAL: MW2ATI 0x10092efc
@@ -101,6 +111,7 @@ MechS32 g_viewHalfWidth;
 MechS32 g_viewBottom;
 
 // GLOBAL: MW2 0x100ea844
+// GLOBAL: MW2GBL 0x1015de68
 // GLOBAL: MW2MATROX 0x101d685c
 // GLOBAL: MW23DFX 0x1015ef04
 // GLOBAL: MW2ATI 0x10092ef4
@@ -109,6 +120,7 @@ MechS32 g_viewBottom;
 MechScalar g_viewProjectScaleX;
 
 // GLOBAL: MW2 0x100ea848
+// GLOBAL: MW2GBL 0x1015de6c
 // GLOBAL: MW2MATROX 0x101d6860
 // GLOBAL: MW23DFX 0x1015ef08
 // GLOBAL: MW2ATI 0x10092ef8
@@ -117,6 +129,7 @@ MechScalar g_viewProjectScaleX;
 MechScalar g_viewProjectScaleY;
 
 // GLOBAL: MW2 0x100ea84c
+// GLOBAL: MW2GBL 0x1015de70
 // GLOBAL: MW2MATROX 0x101d68a4
 // GLOBAL: MW23DFX 0x1015ef4c
 // GLOBAL: MW2ATI 0x10092f3c
@@ -125,6 +138,7 @@ MechScalar g_viewProjectScaleY;
 MechS32 g_viewRight;
 
 // GLOBAL: MW2 0x100ea850
+// GLOBAL: MW2GBL 0x1015de74
 // GLOBAL: MW2MATROX 0x101d6890
 // GLOBAL: MW23DFX 0x1015ef38
 // GLOBAL: MW2ATI 0x10092f28
@@ -133,9 +147,11 @@ MechS32 g_viewRight;
 MechS32 g_viewTop;
 
 // GLOBAL: MW2 0x100ea854
+// GLOBAL: MW2GBL 0x1015de78
 MechS32 g_viewLeftScaled;
 
 // GLOBAL: MW2 0x100ea858
+// GLOBAL: MW2GBL 0x1015de7c
 // GLOBAL: MW2MATROX 0x101d689c
 // GLOBAL: MW23DFX 0x1015ef44
 // GLOBAL: MW2ATI 0x10092f34
@@ -144,9 +160,11 @@ MechS32 g_viewLeftScaled;
 MechS32 g_viewCenterY;
 
 // GLOBAL: MW2 0x100ea85c
+// GLOBAL: MW2GBL 0x1015de80
 MechS32 g_viewBottomScaled;
 
 // GLOBAL: MW2 0x100ea860
+// GLOBAL: MW2GBL 0x1015de84
 // GLOBAL: MW2MATROX 0x101d68a8
 // GLOBAL: MW23DFX 0x1015ef50
 // GLOBAL: MW2ATI 0x10092f40
@@ -155,6 +173,7 @@ MechS32 g_viewBottomScaled;
 MechScalar g_viewFarPlane;
 
 // GLOBAL: MW2 0x100ea864
+// GLOBAL: MW2GBL 0x1015de88
 // GLOBAL: MW2MATROX 0x101d68c0
 // GLOBAL: MW23DFX 0x1015ef68
 // GLOBAL: MW2ATI 0x10092f58
@@ -163,6 +182,7 @@ MechScalar g_viewFarPlane;
 MechScalar g_viewProjX0;
 
 // GLOBAL: MW2 0x100ea868
+// GLOBAL: MW2GBL 0x1015de8c
 // GLOBAL: MW2MATROX 0x101d68c4
 // GLOBAL: MW23DFX 0x1015ef6c
 // GLOBAL: MW2ATI 0x10092f5c
@@ -171,6 +191,7 @@ MechScalar g_viewProjX0;
 MechScalar g_viewProjX1;
 
 // GLOBAL: MW2 0x100ea86c
+// GLOBAL: MW2GBL 0x1015de90
 // GLOBAL: MW2MATROX 0x101d68c8
 // GLOBAL: MW23DFX 0x1015ef70
 // GLOBAL: MW2ATI 0x10092f60
@@ -179,6 +200,7 @@ MechScalar g_viewProjX1;
 MechScalar g_viewProjX2;
 
 // GLOBAL: MW2 0x100ea870
+// GLOBAL: MW2GBL 0x1015de94
 // GLOBAL: MW2MATROX 0x101d68cc
 // GLOBAL: MW23DFX 0x1015ef74
 // GLOBAL: MW2ATI 0x10092f64
@@ -187,6 +209,7 @@ MechScalar g_viewProjX2;
 MechScalar g_viewProjY0;
 
 // GLOBAL: MW2 0x100ea874
+// GLOBAL: MW2GBL 0x1015de98
 // GLOBAL: MW2MATROX 0x101d68d0
 // GLOBAL: MW23DFX 0x1015ef78
 // GLOBAL: MW2ATI 0x10092f68
@@ -195,6 +218,7 @@ MechScalar g_viewProjY0;
 MechScalar g_viewProjY1;
 
 // GLOBAL: MW2 0x100ea878
+// GLOBAL: MW2GBL 0x1015de9c
 // GLOBAL: MW2MATROX 0x101d68d4
 // GLOBAL: MW23DFX 0x1015ef7c
 // GLOBAL: MW2ATI 0x10092f6c
@@ -203,6 +227,7 @@ MechScalar g_viewProjY1;
 MechScalar g_viewProjY2;
 
 // GLOBAL: MW2 0x100ea87c
+// GLOBAL: MW2GBL 0x1015dea0
 // GLOBAL: MW2MATROX 0x101d68d8
 // GLOBAL: MW23DFX 0x1015ef80
 // GLOBAL: MW2ATI 0x10092f70
@@ -211,6 +236,7 @@ MechScalar g_viewProjY2;
 MechScalar g_viewProjZ0;
 
 // GLOBAL: MW2 0x100ea880
+// GLOBAL: MW2GBL 0x1015dea4
 // GLOBAL: MW2MATROX 0x101d68dc
 // GLOBAL: MW23DFX 0x1015ef84
 // GLOBAL: MW2ATI 0x10092f74
@@ -219,6 +245,7 @@ MechScalar g_viewProjZ0;
 MechScalar g_viewProjZ1;
 
 // GLOBAL: MW2 0x100ea884
+// GLOBAL: MW2GBL 0x1015dea8
 // GLOBAL: MW2MATROX 0x101d68e0
 // GLOBAL: MW23DFX 0x1015ef88
 // GLOBAL: MW2ATI 0x10092f78
@@ -227,12 +254,15 @@ MechScalar g_viewProjZ1;
 MechScalar g_viewProjZ2;
 
 // GLOBAL: MW2 0x100ea888
+// GLOBAL: MW2GBL 0x1015deac
 MechS32 g_viewProjectScaleX16;
 
 // GLOBAL: MW2 0x100ea88c
+// GLOBAL: MW2GBL 0x1015deb0
 MechS32 g_viewProjectScaleY16;
 
 // GLOBAL: MW2 0x100ea890
+// GLOBAL: MW2GBL 0x1015deb4
 // GLOBAL: MW2MATROX 0x101d6874
 // GLOBAL: MW23DFX 0x1015ef1c
 // GLOBAL: MW2ATI 0x10092f0c
@@ -241,6 +271,7 @@ MechS32 g_viewProjectScaleY16;
 MechScalar g_viewRotX0;
 
 // GLOBAL: MW2 0x100ea894
+// GLOBAL: MW2GBL 0x1015deb8
 // GLOBAL: MW2MATROX 0x101d6878
 // GLOBAL: MW23DFX 0x1015ef20
 // GLOBAL: MW2ATI 0x10092f10
@@ -249,6 +280,7 @@ MechScalar g_viewRotX0;
 MechScalar g_viewRotX1;
 
 // GLOBAL: MW2 0x100ea898
+// GLOBAL: MW2GBL 0x1015debc
 // GLOBAL: MW2MATROX 0x101d687c
 // GLOBAL: MW23DFX 0x1015ef24
 // GLOBAL: MW2ATI 0x10092f14
@@ -257,6 +289,7 @@ MechScalar g_viewRotX1;
 MechScalar g_viewRotX2;
 
 // GLOBAL: MW2 0x100ea89c
+// GLOBAL: MW2GBL 0x1015dec0
 // GLOBAL: MW2MATROX 0x101d6880
 // GLOBAL: MW23DFX 0x1015ef28
 // GLOBAL: MW2ATI 0x10092f18
@@ -265,6 +298,7 @@ MechScalar g_viewRotX2;
 MechScalar g_viewRotY0;
 
 // GLOBAL: MW2 0x100ea8a0
+// GLOBAL: MW2GBL 0x1015dec4
 // GLOBAL: MW2MATROX 0x101d6884
 // GLOBAL: MW23DFX 0x1015ef2c
 // GLOBAL: MW2ATI 0x10092f1c
@@ -273,6 +307,7 @@ MechScalar g_viewRotY0;
 MechScalar g_viewRotY1;
 
 // GLOBAL: MW2 0x100ea8a4
+// GLOBAL: MW2GBL 0x1015dec8
 // GLOBAL: MW2MATROX 0x101d6888
 // GLOBAL: MW23DFX 0x1015ef30
 // GLOBAL: MW2ATI 0x10092f20
@@ -281,6 +316,7 @@ MechScalar g_viewRotY1;
 MechScalar g_viewRotY2;
 
 // GLOBAL: MW2 0x100ea8a8
+// GLOBAL: MW2GBL 0x1015decc
 // GLOBAL: MW2MATROX 0x101d688c
 // GLOBAL: MW23DFX 0x1015ef34
 // GLOBAL: MW2ATI 0x10092f24
@@ -289,6 +325,7 @@ MechScalar g_viewRotY2;
 MechScalar g_viewRotZ0;
 
 // GLOBAL: MW2 0x100ea8ac
+// GLOBAL: MW2GBL 0x1015ded0
 // GLOBAL: MW2MATROX 0x101d6894
 // GLOBAL: MW23DFX 0x1015ef3c
 // GLOBAL: MW2ATI 0x10092f2c
@@ -297,6 +334,7 @@ MechScalar g_viewRotZ0;
 MechScalar g_viewRotZ1;
 
 // GLOBAL: MW2 0x100ea8b0
+// GLOBAL: MW2GBL 0x1015ded4
 // GLOBAL: MW2MATROX 0x101d6898
 // GLOBAL: MW23DFX 0x1015ef40
 // GLOBAL: MW2ATI 0x10092f30
@@ -305,6 +343,7 @@ MechScalar g_viewRotZ1;
 MechScalar g_viewRotZ2;
 
 // GLOBAL: MW2 0x100ea8b4
+// GLOBAL: MW2GBL 0x1015ded8
 // GLOBAL: MW2MATROX 0x101d686c
 // GLOBAL: MW23DFX 0x1015ef14
 // GLOBAL: MW2ATI 0x10092f04
@@ -313,6 +352,7 @@ MechScalar g_viewRotZ2;
 MechScalar g_viewEyeY;
 
 // GLOBAL: MW2 0x100ea8b8
+// GLOBAL: MW2GBL 0x1015dedc
 // GLOBAL: MW2MATROX 0x101d6868
 // GLOBAL: MW23DFX 0x1015ef10
 // GLOBAL: MW2ATI 0x10092f00
@@ -321,6 +361,7 @@ MechScalar g_viewEyeY;
 MechScalar g_viewEyeX;
 
 // GLOBAL: MW2 0x100ea8bc
+// GLOBAL: MW2GBL 0x1015dee0
 // GLOBAL: MW2MATROX 0x101d6870
 // GLOBAL: MW23DFX 0x1015ef18
 // GLOBAL: MW2ATI 0x10092f08
@@ -329,6 +370,7 @@ MechScalar g_viewEyeX;
 MechScalar g_viewEyeZ;
 
 // GLOBAL: MW2 0x100ea8c0
+// GLOBAL: MW2GBL 0x1015dee4
 // GLOBAL: MW2MATROX 0x101d68b4
 // GLOBAL: MW23DFX 0x1015ef5c
 // GLOBAL: MW2ATI 0x10092f4c
@@ -337,6 +379,7 @@ MechScalar g_viewEyeZ;
 MechScalar g_viewLightZ;
 
 // GLOBAL: MW2 0x100ea8c4
+// GLOBAL: MW2GBL 0x1015dee8
 // GLOBAL: MW2MATROX 0x101d68ac
 // GLOBAL: MW23DFX 0x1015ef54
 // GLOBAL: MW2ATI 0x10092f44
@@ -345,6 +388,7 @@ MechScalar g_viewLightZ;
 MechScalar g_viewLightX;
 
 // GLOBAL: MW2 0x100ea8c8
+// GLOBAL: MW2GBL 0x1015deec
 // GLOBAL: MW2MATROX 0x101d68b0
 // GLOBAL: MW23DFX 0x1015ef58
 // GLOBAL: MW2ATI 0x10092f48
@@ -353,9 +397,11 @@ MechScalar g_viewLightX;
 MechScalar g_viewLightY;
 
 // GLOBAL: MW2 0x100ea8cc
+// GLOBAL: MW2GBL 0x1015def0
 MechS32 g_viewTopScaled;
 
 // GLOBAL: MW2 0x100ea8d0
+// GLOBAL: MW2GBL 0x1015def4
 // GLOBAL: MW2MATROX 0x101d68bc
 // GLOBAL: MW23DFX 0x1015ef64
 // GLOBAL: MW2ATI 0x10092f54
@@ -364,6 +410,7 @@ MechS32 g_viewTopScaled;
 MechScalar g_viewNearPlane;
 
 // GLOBAL: MW2 0x100ea8d4
+// GLOBAL: MW2GBL 0x1015def8
 MechS32 g_viewRightScaled;
 
 #ifdef MW2_FLOAT_SCALARS
@@ -394,6 +441,7 @@ MechFloat g_viewLightScale;
 // Makes p_eyepoint the current eyepoint and copies what the renderer uses each frame out of it:
 // its rotation (also scaled by the projection factors), position, view rectangle and shading.
 // FUNCTION: MW2 0x1004b980
+// FUNCTION: MW2GBL 0x10009a60
 // FUNCTION: MW2MATROX 0x10029070
 // FUNCTION: MW23DFX 0x1002f560
 // FUNCTION: MW2ATI 0x1002e640
@@ -498,6 +546,7 @@ void SelectEyepoint(Eyepoint* p_eyepoint)
 // MW2MATROX: floats, without the projection offset and the 16-bit scales; the detail scale is
 // also scaled by LOD.PAR's LOD_SCALE, read the first time.
 // FUNCTION: MW2 0x1004bc2e
+// FUNCTION: MW2GBL 0x10009d0e
 // FUNCTION: MW2MATROX 0x100292cc
 // FUNCTION: MW23DFX 0x1002f740
 // FUNCTION: MW2ATI 0x1002e820
@@ -686,6 +735,7 @@ void UpdateProjection(Eyepoint* p_eyepoint)
 }
 
 // FUNCTION: MW2 0x1004bf61
+// FUNCTION: MW2GBL 0x1000a041
 // FUNCTION: MW2MATROX 0x10029608
 // FUNCTION: MW23DFX 0x1002f900
 // FUNCTION: MW2ATI 0x1002e9e0
@@ -699,6 +749,7 @@ void SetNearPlane(Eyepoint* p_eyepoint, MechScalar p_value)
 }
 
 // FUNCTION: MW2 0x1004bf8a
+// FUNCTION: MW2GBL 0x1000a06a
 // FUNCTION: MW2MATROX 0x10029627
 // FUNCTION: MW23DFX 0x1002f910
 // FUNCTION: MW2ATI 0x1002e9f0
@@ -721,6 +772,7 @@ void SetFarPlane(Eyepoint* p_eyepoint, MechScalar p_value)
 // Builds the eyepoint's view matrix (its rotation transposed, and its position) from its
 // position and rotation.
 // FUNCTION: MW2 0x1004bfe8
+// FUNCTION: MW2GBL 0x1000a0c8
 // FUNCTION: MW2MATROX 0x10029646
 // FUNCTION: MW23DFX 0x1002f920
 // FUNCTION: MW2ATI 0x1002ea00
@@ -746,6 +798,7 @@ void UpdateViewMatrix(Eyepoint* p_eyepoint)
 }
 
 // FUNCTION: MW2 0x1004c05c
+// FUNCTION: MW2GBL 0x1000a13c
 // FUNCTION: MW2MATROX 0x100296b7
 // FUNCTION: MW23DFX 0x1002f970
 void ResetEyepointView(Eyepoint* p_eyepoint)
@@ -760,6 +813,7 @@ void ResetEyepointView(Eyepoint* p_eyepoint)
 
 // Sets the eyepoint's view from a transform.
 // FUNCTION: MW2 0x1004c093
+// FUNCTION: MW2GBL 0x1000a173
 // FUNCTION: MW2MATROX 0x100296da
 // FUNCTION: MW23DFX 0x1002f990
 void SetEyepointTransform(Eyepoint* p_eyepoint, Matrix* p_matrix)
@@ -772,6 +826,7 @@ void SetEyepointTransform(Eyepoint* p_eyepoint, Matrix* p_matrix)
 
 // Gets the eyepoint's view as a transform.
 // FUNCTION: MW2 0x1004c0d8
+// FUNCTION: MW2GBL 0x1000a1b8
 // FUNCTION: MW2MATROX 0x1002971c
 // FUNCTION: MW23DFX 0x1002f9c0
 void GetEyepointTransform(Eyepoint* p_eyepoint, Matrix* p_matrix)
@@ -788,6 +843,7 @@ void GetEyepointTransform(Eyepoint* p_eyepoint, Matrix* p_matrix)
 // The Matrox edition's original sums each dot product's terms in its own order (y's and z's from
 // the dz term) and compares the near plane with the depth from the other side.
 // FUNCTION: MW2 0x1004c11d
+// FUNCTION: MW2GBL 0x1000a1fd
 // FUNCTION: MW2MATROX 0x1002975e
 // FUNCTION: MW23DFX 0x1002f9f0
 // FUNCTION: MW2ATI 0x1002ea50
@@ -882,6 +938,7 @@ MechS32 ProjectWorldPoint(MechScalar* p_x, MechScalar* p_y, MechScalar* p_z)
 // The 3Dfx edition negates the depth once for both side tests (fchs, then fadd): the source
 // parenthesizes the negation, which keeps VC++ 2.2 from folding it into an fsub.
 // FUNCTION: MW2 0x1004c2ef
+// FUNCTION: MW2GBL 0x1000a3cf
 // FUNCTION: MW2MATROX 0x10029957
 // FUNCTION: MW23DFX 0x1002fba0
 // FUNCTION: MW2ATI 0x1002ec00
@@ -1097,6 +1154,7 @@ MechS32 CullShapeToFrustum(Shape* p_shape)
 }
 
 // FUNCTION: MW2 0x1004c779
+// FUNCTION: MW2GBL 0x1000a859
 // FUNCTION: MW2MATROX 0x10029e62
 // FUNCTION: MW23DFX 0x1002ff70
 // FUNCTION: MW2ATI 0x1002efd0
@@ -1111,6 +1169,7 @@ MechS32 CullHiddenShape(MechU16* p_flags)
 }
 
 // FUNCTION: MW2 0x1004c7a6
+// FUNCTION: MW2GBL 0x1000a886
 // FUNCTION: MW2MATROX 0x10029e8f
 // FUNCTION: MW23DFX 0x1002ff80
 // FUNCTION: MW2ATI 0x1002efe0
@@ -1122,6 +1181,7 @@ MechS32 IsLodQualityHigh(undefined4 p_unk0x00)
 }
 
 // FUNCTION: MW2 0x1004c7cf
+// FUNCTION: MW2GBL 0x1000a8af
 // FUNCTION: MW2MATROX 0x10029eb8
 // FUNCTION: MW23DFX 0x1002ff90
 // FUNCTION: MW2ATI 0x1002eff0

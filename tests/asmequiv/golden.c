@@ -60,7 +60,7 @@
 #define MAX_ROUTINES 128
 
 // Functions and globals only their own units use: recordstacks.c's, ticks.asm's, sndunpack.asm's,
-// transform.c's, shapegeom.c's, objectanim.c's and VFXA's.
+// transform.c's, shapegeom.c's, faceprojection.c's and VFXA's.
 void OrthogonalizeMatrixColumn(Matrix* p_matrix, MechS32 p_column);
 MechS32 DivDifference17(MechS32 p_a, MechS32 p_b, MechS32 p_value);
 extern MechU8* g_drawBufferTop;

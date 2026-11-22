@@ -29,6 +29,7 @@ void SetDisplayDetail(MechS32 p_arg, MechS32 p_displayDetail);
 void SetObjectDensity(MechS32 p_arg, MechS32 p_objectDensity);
 
 // GLOBAL: MW2 0x100b1438
+// GLOBAL: MW2GBL 0x100a4210
 // GLOBAL: MW2MATROX 0x100b1140
 // GLOBAL: MW23DFX 0x10264eb0
 // GLOBAL: MW2ATI 0x101991a8
@@ -37,6 +38,7 @@ void SetObjectDensity(MechS32 p_arg, MechS32 p_objectDensity);
 MechChar g_combatVariablesItem[] = "Combat Variables";
 
 // GLOBAL: MW2 0x100b1450
+// GLOBAL: MW2GBL 0x100a4228
 // GLOBAL: MW2MATROX 0x100b1158
 // GLOBAL: MW23DFX 0x10264ec8
 // GLOBAL: MW2ATI 0x101991c0
@@ -45,6 +47,7 @@ MechChar g_combatVariablesItem[] = "Combat Variables";
 MechChar g_combatVariablesTitle[] = "COMBAT VARIABLES";
 
 // GLOBAL: MW2 0x100b1468
+// GLOBAL: MW2GBL 0x100a4240
 // GLOBAL: MW2MATROX 0x100b1170
 // GLOBAL: MW23DFX 0x10264ee0
 // GLOBAL: MW2ATI 0x101991d8
@@ -53,6 +56,7 @@ MechChar g_combatVariablesTitle[] = "COMBAT VARIABLES";
 MechChar g_objectTextmapsItem[] = "Object textmaps";
 
 // GLOBAL: MW2 0x100b1478
+// GLOBAL: MW2GBL 0x100a4250
 // GLOBAL: MW2MATROX 0x100b1180
 // GLOBAL: MW23DFX 0x10264ef0
 // GLOBAL: MW2ATI 0x101991e8
@@ -61,6 +65,7 @@ MechChar g_objectTextmapsItem[] = "Object textmaps";
 MechChar g_terrainTextmapsItem[] = "Terrain textmaps";
 
 // GLOBAL: MW2 0x100b1490
+// GLOBAL: MW2GBL 0x100a4268
 // GLOBAL: MW2MATROX 0x100b1198
 // GLOBAL: MW23DFX 0x10264f08
 // GLOBAL: MW2ATI 0x10199200
@@ -69,6 +74,7 @@ MechChar g_terrainTextmapsItem[] = "Terrain textmaps";
 MechChar g_displayDetailItem[] = "Display detail";
 
 // GLOBAL: MW2 0x100b14a0
+// GLOBAL: MW2GBL 0x100a4278
 // GLOBAL: MW2MATROX 0x100b11a8
 // GLOBAL: MW23DFX 0x10264f18
 // GLOBAL: MW2ATI 0x10199210
@@ -77,6 +83,7 @@ MechChar g_displayDetailItem[] = "Display detail";
 MechChar g_objectDensityItem[] = "Object density";
 
 // GLOBAL: MW2 0x100b14b0
+// GLOBAL: MW2GBL 0x100a4288
 // GLOBAL: MW2MATROX 0x100b11b8
 // GLOBAL: MW23DFX 0x10264f28
 // GLOBAL: MW2ATI 0x10199220
@@ -100,6 +107,7 @@ MechChar g_perspectiveText[] = "Perspective";
 MenuChoices g_affinePerspectiveChoices = {NULL, 2, {g_affineText, g_perspectiveText}};
 
 // GLOBAL: MW2 0x100b1528
+// GLOBAL: MW2GBL 0x100a4300
 // GLOBAL: MW2MATROX 0x100b1230
 // GLOBAL: MW23DFX 0x10264fa0
 // GLOBAL: MW2ATI 0x10199298
@@ -109,6 +117,7 @@ MenuControl g_objectTextmapsControl =
 	{2, 0, &g_offOnChoices, 0, NULL, GetObjectTextmaps, NULL, SetObjectTextmaps, NULL};
 
 // GLOBAL: MW2 0x100b1550
+// GLOBAL: MW2GBL 0x100a4328
 // GLOBAL: MW2MATROX 0x100b1258
 // GLOBAL: MW23DFX 0x10264fc8
 // GLOBAL: MW2ATI 0x101992c0
@@ -118,6 +127,7 @@ MenuControl g_terrainTextmapsControl =
 	{2, 0, &g_offOnChoices, 0, NULL, GetTerrainTextmaps, NULL, SetTerrainTextmaps, NULL};
 
 // GLOBAL: MW2 0x100b1578
+// GLOBAL: MW2GBL 0x100a4350
 // GLOBAL: MW2MATROX 0x100b1280
 // GLOBAL: MW23DFX 0x10264ff0
 // GLOBAL: MW2ATI 0x101992e8
@@ -126,6 +136,7 @@ MenuControl g_terrainTextmapsControl =
 MenuControl g_displayDetailControl = {2, 0, &g_lowHighChoices, 0, NULL, GetDisplayDetail, NULL, SetDisplayDetail, NULL};
 
 // GLOBAL: MW2 0x100b15a0
+// GLOBAL: MW2GBL 0x100a4378
 // GLOBAL: MW2MATROX 0x100b12a8
 // GLOBAL: MW23DFX 0x10265018
 // GLOBAL: MW2ATI 0x10199310
@@ -134,6 +145,7 @@ MenuControl g_displayDetailControl = {2, 0, &g_lowHighChoices, 0, NULL, GetDispl
 MenuControl g_objectDensityControl = {2, 0, &g_lowHighChoices, 0, NULL, GetObjectDensity, NULL, SetObjectDensity, NULL};
 
 // GLOBAL: MW2 0x100b15c8
+// GLOBAL: MW2GBL 0x100a43a0
 // GLOBAL: MW2MATROX 0x100b12d0
 // GLOBAL: MW23DFX 0x10265040
 // GLOBAL: MW2ATI 0x10199338
@@ -160,6 +172,7 @@ MenuPage g_combatVariablesPage = {
 };
 #else
 // GLOBAL: MW2 0x100b15f0
+// GLOBAL: MW2GBL 0x100a43c8
 // GLOBAL: MW2MATROX 0x100b12f8
 // GLOBAL: MW23DFX 0x10265068
 // GLOBAL: MW2ATI 0x10199360
@@ -181,6 +194,7 @@ MenuPage g_combatVariablesPage = {
 #endif
 
 // FUNCTION: MW2 0x10076af0
+// FUNCTION: MW2GBL 0x1002ca60
 // FUNCTION: MW2MATROX 0x10078cc0
 // FUNCTION: MW23DFX 0x10065240
 // FUNCTION: MW2ATI 0x100628b0
@@ -192,6 +206,7 @@ void FirstPerfSetting(void)
 }
 
 // FUNCTION: MW2 0x10076b07
+// FUNCTION: MW2GBL 0x1002ca77
 // FUNCTION: MW2MATROX 0x10078cd7
 // FUNCTION: MW23DFX 0x10065250
 // FUNCTION: MW2ATI 0x100628c0
@@ -213,6 +228,7 @@ MechS32 ApplyPerfSettings(MenuDefinition* p_menu, MenuPage* p_page)
 }
 
 // FUNCTION: MW2 0x10076b9a
+// FUNCTION: MW2GBL 0x1002cb0a
 // FUNCTION: MW2MATROX 0x10078d6a
 // FUNCTION: MW23DFX 0x100652c0
 // FUNCTION: MW2ATI 0x10062930
@@ -224,6 +240,7 @@ MechS32 GetObjectTextmaps(MechS32 p_arg)
 }
 
 // FUNCTION: MW2 0x10076be0
+// FUNCTION: MW2GBL 0x1002cb50
 // FUNCTION: MW2MATROX 0x10078db0
 // FUNCTION: MW23DFX 0x100652f0
 // FUNCTION: MW2ATI 0x10062960
@@ -237,6 +254,7 @@ void SetObjectTextmaps(MechS32 p_arg, MechS32 p_objectTextmaps)
 }
 
 // FUNCTION: MW2 0x10076c19
+// FUNCTION: MW2GBL 0x1002cb89
 // FUNCTION: MW2MATROX 0x10078de9
 // FUNCTION: MW23DFX 0x10065320
 // FUNCTION: MW2ATI 0x10062990
@@ -248,6 +266,7 @@ MechS32 GetTerrainTextmaps(MechS32 p_arg)
 }
 
 // FUNCTION: MW2 0x10076c57
+// FUNCTION: MW2GBL 0x1002cbc7
 // FUNCTION: MW2MATROX 0x10078e27
 // FUNCTION: MW23DFX 0x10065340
 // FUNCTION: MW2ATI 0x100629b0
@@ -261,6 +280,7 @@ void SetTerrainTextmaps(MechS32 p_arg, MechS32 p_terrainTextmaps)
 }
 
 // FUNCTION: MW2 0x10076c8b
+// FUNCTION: MW2GBL 0x1002cbfb
 // FUNCTION: MW2MATROX 0x10078e5b
 // FUNCTION: MW23DFX 0x10065360
 // FUNCTION: MW2ATI 0x100629d0
@@ -272,6 +292,7 @@ MechS32 GetDisplayDetail(MechS32 p_arg)
 }
 
 // FUNCTION: MW2 0x10076ccf
+// FUNCTION: MW2GBL 0x1002cc3f
 // FUNCTION: MW2MATROX 0x10078e9f
 // FUNCTION: MW23DFX 0x10065390
 // FUNCTION: MW2ATI 0x10062a00
@@ -285,6 +306,7 @@ void SetDisplayDetail(MechS32 p_arg, MechS32 p_displayDetail)
 }
 
 // FUNCTION: MW2 0x10076d06
+// FUNCTION: MW2GBL 0x1002cc76
 // FUNCTION: MW2MATROX 0x10078ed6
 // FUNCTION: MW23DFX 0x100653b0
 // FUNCTION: MW2ATI 0x10062a20
@@ -296,6 +318,7 @@ MechS32 GetObjectDensity(MechS32 p_arg)
 }
 
 // FUNCTION: MW2 0x10076d1e
+// FUNCTION: MW2GBL 0x1002cc8e
 // FUNCTION: MW2MATROX 0x10078eee
 // FUNCTION: MW23DFX 0x100653c0
 // FUNCTION: MW2ATI 0x10062a30

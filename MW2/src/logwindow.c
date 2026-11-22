@@ -12,6 +12,7 @@
 // 0xb0000, 80 by 25), the debugger, a message box or a log file, as g_debugOutputMode selects.
 
 // GLOBAL: MW2 0x100a5730
+// GLOBAL: MW2GBL 0x100b1c18
 // GLOBAL: MW2MATROX 0x100ae138
 // GLOBAL: MW23DFX 0x1024a9c8
 // GLOBAL: MW2ATI 0x1017ee20
@@ -20,6 +21,7 @@
 MechS32 g_debugOutputMode = 0;
 
 // GLOBAL: MW2 0x100a5734
+// GLOBAL: MW2GBL 0x100b1c1c
 // GLOBAL: MW2MATROX 0x100ae13c
 // GLOBAL: MW23DFX 0x1024a9cc
 // GLOBAL: MW2ATI 0x1017ee24
@@ -28,6 +30,7 @@ MechS32 g_debugOutputMode = 0;
 HWND g_debugWindow = NULL;
 
 // GLOBAL: MW2 0x100a5738
+// GLOBAL: MW2GBL 0x100b1c20
 // GLOBAL: MW2MATROX 0x100ae140
 // GLOBAL: MW23DFX 0x1024a9d0
 // GLOBAL: MW2ATI 0x1017ee28
@@ -36,6 +39,7 @@ HWND g_debugWindow = NULL;
 UINT g_debugMessageBoxType = MB_ICONINFORMATION;
 
 // GLOBAL: MW2 0x100a573c
+// GLOBAL: MW2GBL 0x100b1c24
 // GLOBAL: MW2MATROX 0x100ae144
 // GLOBAL: MW23DFX 0x1024a9d4
 // GLOBAL: MW2ATI 0x1017ee2c
@@ -44,6 +48,7 @@ UINT g_debugMessageBoxType = MB_ICONINFORMATION;
 FILE* g_debugLogFile = NULL;
 
 // GLOBAL: MW2 0x100a5740
+// GLOBAL: MW2GBL 0x100b1c28
 // GLOBAL: MW2MATROX 0x100ae148
 // GLOBAL: MW23DFX 0x1024a9d8
 // GLOBAL: MW2ATI 0x1017ee30
@@ -52,6 +57,7 @@ FILE* g_debugLogFile = NULL;
 MechChar g_debugLogName[0x100] = "debug.log";
 
 // GLOBAL: MW2 0x100a5840
+// GLOBAL: MW2GBL 0x100b1d28
 // GLOBAL: MW2MATROX 0x100ae248
 // GLOBAL: MW23DFX 0x1024aad8
 // GLOBAL: MW2ATI 0x1017ef30
@@ -71,6 +77,7 @@ MechChar g_monoHexDigits[16] = "0123456789abcdef";
 
 // Scrolls the monochrome screen up a line.
 // FUNCTION: MW2 0x1003a1c0
+// FUNCTION: MW2GBL 0x1004b4c0
 // FUNCTION: MW2MATROX 0x1006e750
 // FUNCTION: MW23DFX 0x10007c70
 // FUNCTION: MW2ATI 0x10008550
@@ -83,6 +90,7 @@ void ScrollMonoDisplay(void)
 
 // Clears the characters of the monochrome screen's last line, keeping their attributes.
 // FUNCTION: MW2 0x1003a1e2
+// FUNCTION: MW2GBL 0x1004b4e2
 // FUNCTION: MW2MATROX 0x1006e772
 // FUNCTION: MW23DFX 0x10007c90
 // FUNCTION: MW2ATI 0x10008570
@@ -100,6 +108,7 @@ void ClearMonoLastLine(void)
 }
 
 // FUNCTION: MW2 0x1003a21c
+// FUNCTION: MW2GBL 0x1004b51c
 // FUNCTION: MW2MATROX 0x1006e7ac
 // FUNCTION: MW23DFX 0x10007cb0
 // FUNCTION: MW2ATI 0x10008590
@@ -128,6 +137,7 @@ void PrintMonoLine(MechChar* p_text)
 }
 
 // FUNCTION: MW2 0x1003a299
+// FUNCTION: MW2GBL 0x1004b594
 // FUNCTION: MW2MATROX 0x1006e829
 // FUNCTION: MW23DFX 0x10007d00
 // FUNCTION: MW2ATI 0x100085e0
@@ -147,6 +157,7 @@ void PrintMono(MechChar* p_text)
 }
 
 // FUNCTION: MW2 0x1003a2e6
+// FUNCTION: MW2GBL 0x1004b5dc
 // FUNCTION: MW2MATROX 0x1006e876
 // FUNCTION: MW23DFX 0x10007d30
 void CreateDebugLog(void)
@@ -155,6 +166,7 @@ void CreateDebugLog(void)
 }
 
 // FUNCTION: MW2 0x1003a308
+// FUNCTION: MW2GBL 0x1004b5fe
 // FUNCTION: MW2MATROX 0x1006e898
 // FUNCTION: MW23DFX 0x10007d50
 // FUNCTION: MW2ATI 0x10008610
@@ -175,6 +187,7 @@ void AppendDebugLog(MechChar* p_text)
 }
 
 // FUNCTION: MW2 0x1003a37c
+// FUNCTION: MW2GBL 0x1004b672
 // FUNCTION: MW2MATROX 0x1006e90c
 // FUNCTION: MW23DFX 0x10007db0
 // FUNCTION: MW2ATI 0x10008670
@@ -192,6 +205,7 @@ MechS32 SetDebugOutputMode(MechS32 p_mode)
 }
 
 // FUNCTION: MW2 0x1003a3b9
+// FUNCTION: MW2GBL 0x1004b6af
 // FUNCTION: MW2MATROX 0x1006e949
 // FUNCTION: MW23DFX 0x10007dd0
 void SetDebugWindow(HWND p_window)
@@ -200,6 +214,7 @@ void SetDebugWindow(HWND p_window)
 }
 
 // FUNCTION: MW2 0x1003a3cc
+// FUNCTION: MW2GBL 0x1004b6c2
 // FUNCTION: MW2MATROX 0x1006e95c
 // FUNCTION: MW23DFX 0x10007de0
 void SetDebugMessageBoxType(UINT p_type)
@@ -208,6 +223,7 @@ void SetDebugMessageBoxType(UINT p_type)
 }
 
 // FUNCTION: MW2 0x1003a3df
+// FUNCTION: MW2GBL 0x1004b6d5
 // FUNCTION: MW2MATROX 0x1006e96f
 // FUNCTION: MW23DFX 0x10007df0
 void SetDebugMessageTitle(const MechChar* p_format, ...)
@@ -220,6 +236,7 @@ void SetDebugMessageTitle(const MechChar* p_format, ...)
 }
 
 // FUNCTION: MW2 0x1003a411
+// FUNCTION: MW2GBL 0x1004b707
 // FUNCTION: MW2MATROX 0x1006e9a1
 // FUNCTION: MW23DFX 0x10007e10
 void SetDebugLogName(const MechChar* p_path)
@@ -228,6 +245,7 @@ void SetDebugLogName(const MechChar* p_path)
 }
 
 // FUNCTION: MW2 0x1003a432
+// FUNCTION: MW2GBL 0x1004b728
 // FUNCTION: MW2MATROX 0x1006e9c2
 // FUNCTION: MW23DFX 0x10007e30
 // FUNCTION: MW2ATI 0x10008690

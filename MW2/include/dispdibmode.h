@@ -22,9 +22,11 @@ extern "C"
 // compiler emits them after its functions, each in its own 16-byte aligned section.
 
 // FUNCTION: MW2 0x1004f2d0
+// FUNCTION: MW2GBL 0x10016940
 // DisplayDibWindowMessage
 
 // FUNCTION: MW2 0x1004f330
+// FUNCTION: MW2GBL 0x100169a0
 // DisplayDibWindowCreateEx
 
 #endif // DISPDIBMODE_H

@@ -10,6 +10,7 @@
 
 // Divides p_a, shifted left by 29, by p_b.
 // FUNCTION: MW2 0x10019ab0
+// FUNCTION: MW2GBL 0x10070530
 MechS32 FixedDiv29(MechS32 p_a, MechS32 p_b)
 {
 #ifdef PORTABLE_C

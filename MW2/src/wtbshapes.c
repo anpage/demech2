@@ -25,6 +25,7 @@
 #include <string.h>
 
 // GLOBAL: MW2 0x1009de38
+// GLOBAL: MW2GBL 0x10098ca0
 // GLOBAL: MW2MATROX 0x100a0414
 // GLOBAL: MW23DFX 0x10248544
 // GLOBAL: MW2ATI 0x1017c4ec
@@ -33,6 +34,7 @@
 const MechS32 g_wtbTag = 0x4f425457;
 
 // GLOBAL: MW2 0x100ba65c
+// GLOBAL: MW2GBL 0x100af618
 // GLOBAL: MW2MATROX 0x100a55d4
 // GLOBAL: MW23DFX 0x1025a5c8
 // GLOBAL: MW2ATI 0x1018e8c0
@@ -41,6 +43,7 @@ const MechS32 g_wtbTag = 0x4f425457;
 MechS32 g_shapeLoadError = 0;
 
 // GLOBAL: MW2 0x100ba660
+// GLOBAL: MW2GBL 0x100af61c
 // GLOBAL: MW2MATROX 0x100a55d8
 // GLOBAL: MW23DFX 0x1025a5cc
 // GLOBAL: MW2ATI 0x1018e8c4
@@ -48,6 +51,7 @@ MechS32 g_shapeLoadError = 0;
 MechS32 g_unk0x100ba660 = 0;
 
 // GLOBAL: MW2 0x100ba664
+// GLOBAL: MW2GBL 0x100af620
 // GLOBAL: MW2MATROX 0x100a55dc
 // GLOBAL: MW23DFX 0x1025a5d0
 // GLOBAL: MW2ATI 0x1018e8c8
@@ -55,6 +59,7 @@ MechS32 g_unk0x100ba660 = 0;
 MechS32 g_unk0x100ba664 = 0;
 
 // GLOBAL: MW2 0x100ba668
+// GLOBAL: MW2GBL 0x100af624
 // GLOBAL: MW2MATROX 0x100a55e0
 // GLOBAL: MW23DFX 0x1025a5d4
 // GLOBAL: MW2ATI 0x1018e8cc
@@ -63,6 +68,7 @@ MechS32 g_unk0x100ba664 = 0;
 MechScalar g_shapeOffsetX = 0;
 
 // GLOBAL: MW2 0x100ba66c
+// GLOBAL: MW2GBL 0x100af628
 // GLOBAL: MW2MATROX 0x100a55e4
 // GLOBAL: MW23DFX 0x1025a5d8
 // GLOBAL: MW2ATI 0x1018e8d0
@@ -71,6 +77,7 @@ MechScalar g_shapeOffsetX = 0;
 MechScalar g_shapeOffsetY = 0;
 
 // GLOBAL: MW2 0x100ba670
+// GLOBAL: MW2GBL 0x100af62c
 // GLOBAL: MW2MATROX 0x100a55e8
 // GLOBAL: MW23DFX 0x1025a5dc
 // GLOBAL: MW2ATI 0x1018e8d4
@@ -79,6 +86,7 @@ MechScalar g_shapeOffsetY = 0;
 MechScalar g_shapeOffsetZ = 0;
 
 // GLOBAL: MW2 0x100ba674
+// GLOBAL: MW2GBL 0x100af630
 // GLOBAL: MW2MATROX 0x100a55ec
 // GLOBAL: MW23DFX 0x1025a5e0
 // GLOBAL: MW2ATI 0x1018e8d8
@@ -87,6 +95,7 @@ MechScalar g_shapeOffsetZ = 0;
 MechScalar g_shapeScaleX = 1;
 
 // GLOBAL: MW2 0x100ba678
+// GLOBAL: MW2GBL 0x100af634
 // GLOBAL: MW2MATROX 0x100a55f0
 // GLOBAL: MW23DFX 0x1025a5e4
 // GLOBAL: MW2ATI 0x1018e8dc
@@ -95,6 +104,7 @@ MechScalar g_shapeScaleX = 1;
 MechScalar g_shapeScaleY = 1;
 
 // GLOBAL: MW2 0x100ba67c
+// GLOBAL: MW2GBL 0x100af638
 // GLOBAL: MW2MATROX 0x100a55f4
 // GLOBAL: MW23DFX 0x1025a5e8
 // GLOBAL: MW2ATI 0x1018e8e0
@@ -103,6 +113,7 @@ MechScalar g_shapeScaleY = 1;
 MechScalar g_shapeScaleZ = 1;
 
 // GLOBAL: MW2 0x100ba680
+// GLOBAL: MW2GBL 0x100af63c
 // GLOBAL: MW2MATROX 0x100a55f8
 // GLOBAL: MW23DFX 0x1025a5ec
 // GLOBAL: MW2ATI 0x1018e8e4
@@ -111,11 +122,13 @@ MechScalar g_shapeScaleZ = 1;
 MechU32 g_shapeFlags = 0;
 
 // GLOBAL: MW2 0x100ba684
+// GLOBAL: MW2GBL 0x100af640
 // GLOBAL: MW2MATROX 0x100a55fc
 // GLOBAL: MW23DFX 0x1025a5f0
 MechU32 g_faceIdCount = 0;
 
 // GLOBAL: MW2 0x100ba688
+// GLOBAL: MW2GBL 0x100af644
 // GLOBAL: MW2MATROX 0x100a5600
 // GLOBAL: MW23DFX 0x1025a5f4
 // GLOBAL: MW2ATI 0x1018e8ec
@@ -126,6 +139,7 @@ MechS32 g_subShapeCollisionType = 4;
 MechS32 g_unk0x100ba68c = 0;
 
 // GLOBAL: MW2 0x100bfabc
+// GLOBAL: MW2GBL 0x100ba118
 // GLOBAL: MW2MATROX 0x100c1e94
 // GLOBAL: MW23DFX 0x1007dc34
 // GLOBAL: MW2ATI 0x10072c34
@@ -133,11 +147,13 @@ MechS32 g_unk0x100ba68c = 0;
 MechS32 g_shapeHasObject;
 
 // GLOBAL: MW2 0x100bfac0
+// GLOBAL: MW2GBL 0x100ba11c
 // GLOBAL: MW2MATROX 0x100c1e98
 // GLOBAL: MW23DFX 0x1007dc38
 MechU32* g_faceIds;
 
 // GLOBAL: MW2 0x100bfac4
+// GLOBAL: MW2GBL 0x100bb764
 // GLOBAL: MW2MATROX 0x100c1e90
 // GLOBAL: MW23DFX 0x1007dc30
 // GLOBAL: MW2ATI 0x10072c30
@@ -149,6 +165,7 @@ MechS32 g_shapeHasKey;
 // LoadStaticObject read before storing to it (entry->m_thing) and store entry->m_shape before
 // clearing m_set, as they do around a store to a struct member but not to a scalar global.
 // GLOBAL: MW2 0x100bfd40
+// GLOBAL: MW2GBL 0x100e98b0
 // GLOBAL: MW2MATROX 0x101d68f0
 // GLOBAL: MW23DFX 0x101597b0
 // GLOBAL: MW2ATI 0x1008d7c0
@@ -157,6 +174,7 @@ MechS32 g_shapeHasKey;
 ShapeOwner g_shapeOwner;
 
 // FUNCTION: MW2 0x1007f140
+// FUNCTION: MW2GBL 0x100436f0
 // FUNCTION: MW2MATROX 0x10025230
 // FUNCTION: MW23DFX 0x10042060
 void SetFaceIds(MechU32* p_ids, MechU32 p_count)
@@ -166,6 +184,7 @@ void SetFaceIds(MechU32* p_ids, MechU32 p_count)
 }
 
 // FUNCTION: MW2 0x1007f15b
+// FUNCTION: MW2GBL 0x1004370b
 // FUNCTION: MW2MATROX 0x1002524b
 // FUNCTION: MW23DFX 0x10042070
 // FUNCTION: MW2ATI 0x1003fc10
@@ -179,6 +198,7 @@ void SetShapeOffset(MechS32 p_x, MechS32 p_y, MechS32 p_z)
 }
 
 // FUNCTION: MW2 0x1007f17e
+// FUNCTION: MW2GBL 0x1004372e
 // FUNCTION: MW2MATROX 0x10025286
 // FUNCTION: MW23DFX 0x100420b0
 // FUNCTION: MW2ATI 0x1003fc50
@@ -226,6 +246,7 @@ void SetShapeScale(MechScalar p_x, MechScalar p_y, MechScalar p_z)
 }
 
 // FUNCTION: MW2 0x1007f1e6
+// FUNCTION: MW2GBL 0x10043796
 // FUNCTION: MW2MATROX 0x10025318
 // FUNCTION: MW23DFX 0x10042130
 // FUNCTION: MW2ATI 0x1003fcd0
@@ -239,6 +260,7 @@ void SetShapeFlags(MechU32 p_flags)
 // Reads the shape records from p_offset up to p_size; the first becomes the shape, the others
 // its levels of detail.
 // FUNCTION: MW2 0x1007f1f9
+// FUNCTION: MW2GBL 0x100437a9
 // FUNCTION: MW2MATROX 0x1002532b
 // FUNCTION: MW23DFX 0x100428c0
 // FUNCTION: MW2ATI 0x10040460
@@ -606,6 +628,7 @@ MechS32 LoadShapeRecord(MechU8* p_data, MechS32* p_offset, Shape** p_shape, Scen
 // Maps a face id: ids 0 and 0x14 take the team colour of g_shapeOwner while its m_set is
 // set; ids with bit 15 index g_faceIds.
 // FUNCTION: MW2 0x1007fae3
+// FUNCTION: MW2GBL 0x10044090
 // FUNCTION: MW2MATROX 0x10025e94
 MechU32 MapFaceId(MechU32 p_id)
 {

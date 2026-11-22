@@ -22,6 +22,7 @@
 #include <windows.h>
 
 // GLOBAL: MW2 0x100a589c
+// GLOBAL: MW2GBL 0x1009e050
 // GLOBAL: MW2MATROX 0x100ac62c
 // GLOBAL: MW23DFX 0x1025963c
 // GLOBAL: MW2ATI 0x1018d93c
@@ -30,6 +31,7 @@
 MechChar* g_fatalErrorTitle = "\nMW2.EXE - fatal error";
 
 // GLOBAL: MW2 0x100a58a0
+// GLOBAL: MW2GBL 0x1009e054
 // GLOBAL: MW2MATROX 0x100ac630
 // GLOBAL: MW23DFX 0x10259654
 // GLOBAL: MW2ATI 0x1018d954
@@ -39,6 +41,7 @@ MechChar* g_warningTitle = "\nMW2.EXE - warning";
 
 // The code of the last error.
 // GLOBAL: MW2 0x100a58a4
+// GLOBAL: MW2GBL 0x1009e058
 // GLOBAL: MW2MATROX 0x100ac634
 // GLOBAL: MW23DFX 0x10259658
 // GLOBAL: MW2ATI 0x1018d958
@@ -48,6 +51,7 @@ MechS32 g_errorCode = 0;
 
 // The error message; the length is unknown.
 // GLOBAL: MW2 0x100be010
+// GLOBAL: MW2GBL 0x100b8c58
 // GLOBAL: MW2MATROX 0x100c21f8
 // GLOBAL: MW23DFX 0x1007d730
 // GLOBAL: MW2ATI 0x10072730
@@ -58,6 +62,7 @@ MechChar g_errorMessage[0x400];
 // Reports error p_code, with a printf-style message: codes that are warnings are logged, the
 // others are fatal and end the game, most of them after shutting the subsystems down.
 // FUNCTION: MW2 0x1003b8c0
+// FUNCTION: MW2GBL 0x10015080
 // FUNCTION: MW2MATROX 0x10059620
 // FUNCTION: MW23DFX 0x1003ccb0
 // FUNCTION: MW2ATI 0x1003ac80
@@ -160,6 +165,7 @@ void Error(MechS32 p_code, const char* p_format, ...)
 
 // Shuts the subsystems down before the game exits on an error.
 // FUNCTION: MW2 0x1003ba07
+// FUNCTION: MW2GBL 0x100151c7
 // FUNCTION: MW2MATROX 0x10059767
 // FUNCTION: MW23DFX 0x1003cdc0
 // FUNCTION: MW2ATI 0x1003ad90
@@ -179,6 +185,7 @@ void ShutdownOnError(void)
 
 // Shows a fatal error's message, logs it, and exits.
 // FUNCTION: MW2 0x1003ba3a
+// FUNCTION: MW2GBL 0x100151fa
 // FUNCTION: MW2MATROX 0x1005979a
 // FUNCTION: MW23DFX 0x1003cdf0
 // FUNCTION: MW2ATI 0x1003adc0
@@ -208,6 +215,7 @@ void ShowFatalError(const char** p_args)
 // MW2MATROX: the inlined strlen reads g_errorMessage - 1, which reccmp names after a different
 // neighbour on each side.
 // FUNCTION: MW2 0x1003bad1
+// FUNCTION: MW2GBL 0x10015291
 // FUNCTION: MW2MATROX 0x10059831
 // FUNCTION: MW23DFX 0x1003ce80
 // FUNCTION: MW2ATI 0x1003ae50
@@ -235,6 +243,7 @@ MechChar* __cdecl FormatErrorMessage(MechChar* p_title, MechS32 p_code, const ch
 
 // Logs a warning's message and clears the error code.
 // FUNCTION: MW2 0x1003bbb1
+// FUNCTION: MW2GBL 0x10015360
 // FUNCTION: MW2MATROX 0x10059911
 // FUNCTION: MW23DFX 0x1003cf40
 // FUNCTION: MW2ATI 0x1003af10

@@ -15,6 +15,7 @@
 // The cockpit layouts' text buffers and saved viewports.
 
 // GLOBAL: MW2 0x100e9450
+// GLOBAL: MW2GBL 0x100e9680
 // GLOBAL: MW23DFX 0x10244c30
 // GLOBAL: MW2ATI 0x10178a80
 // GLOBAL: MW2S3 0x1008aa80
@@ -22,6 +23,7 @@
 MechChar g_satelliteRangeText[0x20];
 
 // GLOBAL: MW2 0x100e9490
+// GLOBAL: MW2GBL 0x100e96a0
 // GLOBAL: MW23DFX 0x10244b30
 // GLOBAL: MW2ATI 0x101789a0
 // GLOBAL: MW2S3 0x1008aaa0
@@ -29,6 +31,7 @@ MechChar g_satelliteRangeText[0x20];
 MechChar g_satelliteExtraText[0x20];
 
 // GLOBAL: MW2 0x100e94b0
+// GLOBAL: MW2GBL 0x100e96c0
 // GLOBAL: MW23DFX 0x10244bb0
 // GLOBAL: MW2ATI 0x10178a00
 // GLOBAL: MW2S3 0x1008aac0
@@ -36,6 +39,7 @@ MechChar g_satelliteExtraText[0x20];
 PANE g_satelliteSavedViewport;
 
 // GLOBAL: MW2 0x100e94d0
+// GLOBAL: MW2GBL 0x100e96e0
 // GLOBAL: MW23DFX 0x10244ab0
 // GLOBAL: MW2ATI 0x10178940
 // GLOBAL: MW2S3 0x1008aae0
@@ -43,6 +47,7 @@ PANE g_satelliteSavedViewport;
 MechChar g_smallMapRangeText[0x20];
 
 // GLOBAL: MW2 0x100e94f0
+// GLOBAL: MW2GBL 0x100e9700
 // GLOBAL: MW23DFX 0x10244b90
 // GLOBAL: MW2ATI 0x101789e0
 // GLOBAL: MW2S3 0x1008ab00
@@ -50,6 +55,7 @@ MechChar g_smallMapRangeText[0x20];
 MechChar g_smallMapExtraText[0x20];
 
 // GLOBAL: MW2 0x100e9510
+// GLOBAL: MW2GBL 0x100e9720
 // GLOBAL: MW23DFX 0x10244bf0
 // GLOBAL: MW2ATI 0x10178a40
 // GLOBAL: MW2S3 0x1008ab20
@@ -57,6 +63,7 @@ MechChar g_smallMapExtraText[0x20];
 MechChar g_readoutText[0x20];
 
 // GLOBAL: MW2 0x100e9530
+// GLOBAL: MW2GBL 0x100e9740
 // GLOBAL: MW23DFX 0x10244b50
 // GLOBAL: MW2ATI 0x101789c0
 // GLOBAL: MW2S3 0x1008ab40
@@ -64,6 +71,7 @@ MechChar g_readoutText[0x20];
 PANE g_largeMapSavedViewport;
 
 // GLOBAL: MW2 0x100e9550
+// GLOBAL: MW2GBL 0x100e9760
 // GLOBAL: MW23DFX 0x10244c10
 // GLOBAL: MW2ATI 0x10178a60
 // GLOBAL: MW2S3 0x1008ab60
@@ -71,6 +79,7 @@ PANE g_largeMapSavedViewport;
 MechChar g_largeMapRangeText[0x20];
 
 // GLOBAL: MW2 0x100e9570
+// GLOBAL: MW2GBL 0x100e9780
 // GLOBAL: MW23DFX 0x10244af0
 // GLOBAL: MW2ATI 0x10178960
 // GLOBAL: MW2S3 0x1008ab80
@@ -78,6 +87,7 @@ MechChar g_largeMapRangeText[0x20];
 MechChar g_bearingText[0x20];
 
 // GLOBAL: MW2 0x100e9590
+// GLOBAL: MW2GBL 0x100e97a0
 // GLOBAL: MW23DFX 0x10244bd0
 // GLOBAL: MW2ATI 0x10178a20
 // GLOBAL: MW2S3 0x1008aba0
@@ -85,6 +95,7 @@ MechChar g_bearingText[0x20];
 PANE g_smallMapSavedViewport;
 
 // GLOBAL: MW2 0x100e95d0
+// GLOBAL: MW2GBL 0x100e97c0
 // GLOBAL: MW23DFX 0x10244b10
 // GLOBAL: MW2ATI 0x10178980
 // GLOBAL: MW2S3 0x1008abc0
@@ -100,6 +111,7 @@ MechChar g_largeMapExtraText[0x20];
 MechChar g_readoutLabel[4] = "x";
 #else
 // GLOBAL: MW2 0x100aabb0
+// GLOBAL: MW2GBL 0x100b0098
 // GLOBAL: MW2MATROX 0x100bcdd0
 // GLOBAL: MW23DFX 0x1024a228
 // GLOBAL: MW2ATI 0x1017e070
@@ -108,6 +120,7 @@ MechChar g_readoutLabel[8] = "x";
 #endif
 
 // GLOBAL: MW2 0x100aabb8
+// GLOBAL: MW2GBL 0x100b00a0
 // GLOBAL: MW2MATROX 0x100bcdd8
 // GLOBAL: MW23DFX 0x1024a230
 // GLOBAL: MW2ATI 0x1017e078
@@ -116,6 +129,7 @@ MechChar g_readoutLabel[8] = "x";
 CockpitReadout g_readout = {1, 0, -1, g_readoutLabel, g_readoutText, {0x28f, 0x28f}};
 
 // GLOBAL: MW2 0x100aabd4
+// GLOBAL: MW2GBL 0x100b00bc
 // GLOBAL: MW2MATROX 0x100bcdf4
 // GLOBAL: MW23DFX 0x1024a24c
 // GLOBAL: MW2ATI 0x1017e094
@@ -124,6 +138,7 @@ CockpitReadout g_readout = {1, 0, -1, g_readoutLabel, g_readoutText, {0x28f, 0x2
 CockpitReadout* g_cockpitReadout = &g_readout;
 
 // GLOBAL: MW2 0x100aabd8
+// GLOBAL: MW2GBL 0x100b00c0
 // GLOBAL: MW2MATROX 0x100bcdf8
 // GLOBAL: MW23DFX 0x1024a250
 // GLOBAL: MW2ATI 0x1017e098
@@ -132,6 +147,7 @@ CockpitReadout* g_cockpitReadout = &g_readout;
 MechChar g_smallMapExtraLabel[4] = "x";
 
 // GLOBAL: MW2 0x100aabdc
+// GLOBAL: MW2GBL 0x100b00c4
 // GLOBAL: MW2MATROX 0x100bcdfc
 // GLOBAL: MW23DFX 0x1024a254
 // GLOBAL: MW2ATI 0x1017e09c
@@ -144,6 +160,7 @@ MechChar g_smallMapRangeLabel[4] = "R: ";
 MechChar g_smallMapBearingLabel[12] = "Bearing: ";
 
 // GLOBAL: MW2 0x100aabec
+// GLOBAL: MW2GBL 0x100b00d4
 // GLOBAL: MW2MATROX 0x100bce0c
 // GLOBAL: MW23DFX 0x1024a264
 // GLOBAL: MW2ATI 0x1017e0ac
@@ -152,6 +169,7 @@ MechChar g_smallMapBearingLabel[12] = "Bearing: ";
 MechChar g_largeMapExtraLabel[4] = "x";
 
 // GLOBAL: MW2 0x100aabf0
+// GLOBAL: MW2GBL 0x100b00d8
 // GLOBAL: MW2MATROX 0x100bce10
 // GLOBAL: MW23DFX 0x1024a268
 // GLOBAL: MW2ATI 0x1017e0b0
@@ -164,6 +182,7 @@ MechChar g_largeMapRangeLabel[8] = "R: ";
 MechChar g_largeMapBearingLabel[12] = "Bearing: ";
 
 // GLOBAL: MW2 0x100aac04
+// GLOBAL: MW2GBL 0x100b00ec
 // GLOBAL: MW2MATROX 0x100bce24
 // GLOBAL: MW23DFX 0x1024a27c
 // GLOBAL: MW2ATI 0x1017e0c4
@@ -172,6 +191,7 @@ MechChar g_largeMapBearingLabel[12] = "Bearing: ";
 MechChar g_satelliteExtraLabel[4] = "x";
 
 // GLOBAL: MW2 0x100aac08
+// GLOBAL: MW2GBL 0x100b00f0
 // GLOBAL: MW2MATROX 0x100bce28
 // GLOBAL: MW23DFX 0x1024a280
 // GLOBAL: MW2ATI 0x1017e0c8
@@ -180,6 +200,7 @@ MechChar g_satelliteExtraLabel[4] = "x";
 MechChar g_satelliteRangeLabel[8] = "Range: ";
 
 // GLOBAL: MW2 0x100aac10
+// GLOBAL: MW2GBL 0x100b00f8
 // GLOBAL: MW2MATROX 0x100bce30
 // GLOBAL: MW23DFX 0x1024a288
 // GLOBAL: MW2ATI 0x1017e0d0
@@ -188,6 +209,7 @@ MechChar g_satelliteRangeLabel[8] = "Range: ";
 MechChar g_bearingLabel[12] = "Bearing: ";
 
 // GLOBAL: MW2 0x100aac1c
+// GLOBAL: MW2GBL 0x100b0104
 // GLOBAL: MW2MATROX 0x100bce3c
 // GLOBAL: MW23DFX 0x1024a294
 // GLOBAL: MW2ATI 0x1017e0dc
@@ -196,6 +218,7 @@ MechChar g_bearingLabel[12] = "Bearing: ";
 MechChar g_metersUnit[4] = "m";
 
 // GLOBAL: MW2 0x100aac20
+// GLOBAL: MW2GBL 0x100b0108
 // GLOBAL: MW2MATROX 0x100bce40
 // GLOBAL: MW23DFX 0x1024a298
 // GLOBAL: MW2ATI 0x1017e0e0
@@ -221,6 +244,7 @@ MechS32 g_smallMapColors[7][3] = {
 };
 #else
 // GLOBAL: MW2 0x100aac28
+// GLOBAL: MW2GBL 0x100b0110
 MechS32 g_smallMapColors[7][3] = {
 	{0xac, 0xac, 0xac},
 	{0x7c, 0x79, 0x7f},
@@ -249,6 +273,7 @@ MechS32 g_largeMapColors[7][3] = {
 };
 #else
 // GLOBAL: MW2 0x100aac80
+// GLOBAL: MW2GBL 0x100b0168
 MechS32 g_largeMapColors[7][3] = {
 	{0xac, 0xac, 0xac},
 	{0x7c, 0x79, 0x7f},
@@ -277,6 +302,7 @@ MechS32 g_satelliteColors[7][3] = {
 };
 #else
 // GLOBAL: MW2 0x100aacd8
+// GLOBAL: MW2GBL 0x100b01c0
 MechS32 g_satelliteColors[7][3] = {
 	{0xac, 0xac, 0xac},
 	{0x7c, 0x79, 0x7f},
@@ -289,6 +315,7 @@ MechS32 g_satelliteColors[7][3] = {
 #endif
 
 // GLOBAL: MW2 0x100aad30
+// GLOBAL: MW2GBL 0x100b0218
 // GLOBAL: MW2MATROX 0x100bcf50
 // GLOBAL: MW23DFX 0x1024a3a8
 // GLOBAL: MW2ATI 0x1017e1f0
@@ -297,6 +324,7 @@ MechS32 g_satelliteColors[7][3] = {
 MechS32 g_mapColors[13] = {0xe, 0xa, 6, 0xf, 0xb, 0xf5, 2, 3, 0xf9, 0xff, 0xf0, 1, 2};
 
 // GLOBAL: MW2 0x100aad68
+// GLOBAL: MW2GBL 0x100b0250
 // GLOBAL: MW2MATROX 0x100bcf88
 // GLOBAL: MW23DFX 0x1024a3e0
 // GLOBAL: MW2ATI 0x1017e228
@@ -305,6 +333,7 @@ MechS32 g_mapColors[13] = {0xe, 0xa, 6, 0xf, 0xb, 0xf5, 2, 3, 0xf9, 0xff, 0xf0, 
 MechS32 g_smallMapAnims[5] = {-1, -1, -1, -1, -1};
 
 // GLOBAL: MW2 0x100aad80
+// GLOBAL: MW2GBL 0x100b0268
 // GLOBAL: MW2MATROX 0x100bcfa0
 // GLOBAL: MW23DFX 0x1024a3f8
 // GLOBAL: MW2ATI 0x1017e240
@@ -313,6 +342,7 @@ MechS32 g_smallMapAnims[5] = {-1, -1, -1, -1, -1};
 MechS32 g_largeMapAnims[5] = {-1, -1, -1, -1, -1};
 
 // GLOBAL: MW2 0x100aad98
+// GLOBAL: MW2GBL 0x100b0280
 // GLOBAL: MW2MATROX 0x100bcfb8
 // GLOBAL: MW23DFX 0x1024a410
 // GLOBAL: MW2ATI 0x1017e258
@@ -321,6 +351,7 @@ MechS32 g_largeMapAnims[5] = {-1, -1, -1, -1, -1};
 MechS32 g_satelliteAnims[5] = {-1, -1, -1, -1, -1};
 
 // GLOBAL: MW2 0x100aadb0
+// GLOBAL: MW2GBL 0x100b0298
 // GLOBAL: MW23DFX 0x1024a428
 // GLOBAL: MW2ATI 0x1017e270
 // GLOBAL: MW2S3 0x10074770
@@ -328,6 +359,7 @@ MechS32 g_satelliteAnims[5] = {-1, -1, -1, -1, -1};
 PANE g_smallMapTransitionFirst = {NULL, 0x8000, 0x8000, 0x8000, 0x8000};
 
 // GLOBAL: MW2 0x100aadc8
+// GLOBAL: MW2GBL 0x100b02b0
 // GLOBAL: MW23DFX 0x1024a440
 // GLOBAL: MW2ATI 0x1017e288
 // GLOBAL: MW2S3 0x10074788
@@ -335,6 +367,7 @@ PANE g_smallMapTransitionFirst = {NULL, 0x8000, 0x8000, 0x8000, 0x8000};
 PANE g_smallMapTransitionSecond = {NULL, 0, 0, 0x10000, 0x10000};
 
 // GLOBAL: MW2 0x100aade0
+// GLOBAL: MW2GBL 0x100b02c8
 // GLOBAL: MW23DFX 0x1024a458
 // GLOBAL: MW2ATI 0x1017e2a0
 // GLOBAL: MW2S3 0x100747a0
@@ -342,6 +375,7 @@ PANE g_smallMapTransitionSecond = {NULL, 0, 0, 0x10000, 0x10000};
 PANE g_smallMapTransitionRect = {NULL, 0, 0, 0, 0};
 
 // GLOBAL: MW2 0x100aadf8
+// GLOBAL: MW2GBL 0x100b02e0
 // GLOBAL: MW23DFX 0x1024a470
 // GLOBAL: MW2ATI 0x1017e2b8
 // GLOBAL: MW2S3 0x100747b8
@@ -349,6 +383,7 @@ PANE g_smallMapTransitionRect = {NULL, 0, 0, 0, 0};
 RectTransitionState g_mapTransitionState = {0, 0, 0};
 
 // GLOBAL: MW2 0x100aae08
+// GLOBAL: MW2GBL 0x100b02f0
 // GLOBAL: MW23DFX 0x1024a480
 // GLOBAL: MW2ATI 0x1017e2c8
 // GLOBAL: MW2S3 0x100747c8
@@ -357,6 +392,7 @@ RectTransitionDef g_smallMapTransitionDef =
 	{0xb5, &g_smallMapTransitionFirst, &g_smallMapTransitionSecond, &g_smallMapTransitionRect};
 
 // GLOBAL: MW2 0x100aae18
+// GLOBAL: MW2GBL 0x100b0300
 // GLOBAL: MW23DFX 0x1024a490
 // GLOBAL: MW2ATI 0x1017e2d8
 // GLOBAL: MW2S3 0x100747d8
@@ -364,6 +400,7 @@ RectTransitionDef g_smallMapTransitionDef =
 RectTransition g_smallMapTransition = {&g_mapTransitionState, &g_smallMapTransitionDef};
 
 // GLOBAL: MW2 0x100aae20
+// GLOBAL: MW2GBL 0x100b0308
 // GLOBAL: MW23DFX 0x1024a498
 // GLOBAL: MW2ATI 0x1017e2e0
 // GLOBAL: MW2S3 0x100747e0
@@ -371,6 +408,7 @@ RectTransition g_smallMapTransition = {&g_mapTransitionState, &g_smallMapTransit
 PANE g_largeMapTransitionFirst = {NULL, 0x8000, 0x8000, 0x8000, 0x8000};
 
 // GLOBAL: MW2 0x100aae38
+// GLOBAL: MW2GBL 0x100b0320
 // GLOBAL: MW23DFX 0x1024a4b0
 // GLOBAL: MW2ATI 0x1017e2f8
 // GLOBAL: MW2S3 0x100747f8
@@ -378,6 +416,7 @@ PANE g_largeMapTransitionFirst = {NULL, 0x8000, 0x8000, 0x8000, 0x8000};
 PANE g_largeMapTransitionSecond = {NULL, 0, 0, 0x10000, 0x10000};
 
 // GLOBAL: MW2 0x100aae50
+// GLOBAL: MW2GBL 0x100b0338
 // GLOBAL: MW23DFX 0x1024a4c8
 // GLOBAL: MW2ATI 0x1017e310
 // GLOBAL: MW2S3 0x10074810
@@ -385,6 +424,7 @@ PANE g_largeMapTransitionSecond = {NULL, 0, 0, 0x10000, 0x10000};
 PANE g_largeMapTransitionRect = {NULL, 0, 0, 0, 0};
 
 // GLOBAL: MW2 0x100aae68
+// GLOBAL: MW2GBL 0x100b0350
 // GLOBAL: MW23DFX 0x1024a4e0
 // GLOBAL: MW2ATI 0x1017e328
 // GLOBAL: MW2S3 0x10074828
@@ -393,6 +433,7 @@ RectTransitionDef g_largeMapTransitionDef =
 	{0xb5, &g_largeMapTransitionFirst, &g_largeMapTransitionSecond, &g_largeMapTransitionRect};
 
 // GLOBAL: MW2 0x100aae78
+// GLOBAL: MW2GBL 0x100b0360
 // GLOBAL: MW23DFX 0x1024a4f0
 // GLOBAL: MW2ATI 0x1017e338
 // GLOBAL: MW2S3 0x10074838
@@ -400,6 +441,7 @@ RectTransitionDef g_largeMapTransitionDef =
 RectTransition g_largeMapTransition = {&g_mapTransitionState, &g_largeMapTransitionDef};
 
 // GLOBAL: MW2 0x100aae80
+// GLOBAL: MW2GBL 0x100b0368
 // GLOBAL: MW23DFX 0x1024a4f8
 // GLOBAL: MW2ATI 0x1017e340
 // GLOBAL: MW2S3 0x10074840
@@ -407,6 +449,7 @@ RectTransition g_largeMapTransition = {&g_mapTransitionState, &g_largeMapTransit
 PANE g_satelliteTransitionFirst = {NULL, 0x599a, 0x599a, 0xa666, 0xa666};
 
 // GLOBAL: MW2 0x100aae98
+// GLOBAL: MW2GBL 0x100b0380
 // GLOBAL: MW23DFX 0x1024a510
 // GLOBAL: MW2ATI 0x1017e358
 // GLOBAL: MW2S3 0x10074858
@@ -414,6 +457,7 @@ PANE g_satelliteTransitionFirst = {NULL, 0x599a, 0x599a, 0xa666, 0xa666};
 PANE g_satelliteTransitionSecond = {NULL, 0, 0, 0x10000, 0x10000};
 
 // GLOBAL: MW2 0x100aaeb0
+// GLOBAL: MW2GBL 0x100b0398
 // GLOBAL: MW23DFX 0x1024a528
 // GLOBAL: MW2ATI 0x1017e370
 // GLOBAL: MW2S3 0x10074870
@@ -421,6 +465,7 @@ PANE g_satelliteTransitionSecond = {NULL, 0, 0, 0x10000, 0x10000};
 PANE g_satelliteTransitionRect = {NULL, 0, 0, 0, 0};
 
 // GLOBAL: MW2 0x100aaec8
+// GLOBAL: MW2GBL 0x100b03b0
 // GLOBAL: MW23DFX 0x1024a540
 // GLOBAL: MW2ATI 0x1017e388
 // GLOBAL: MW2S3 0x10074888
@@ -428,6 +473,7 @@ PANE g_satelliteTransitionRect = {NULL, 0, 0, 0, 0};
 RectTransitionState g_satelliteTransitionState = {0, 0, 0};
 
 // GLOBAL: MW2 0x100aaed8
+// GLOBAL: MW2GBL 0x100b03c0
 // GLOBAL: MW23DFX 0x1024a550
 // GLOBAL: MW2ATI 0x1017e398
 // GLOBAL: MW2S3 0x10074898
@@ -436,6 +482,7 @@ RectTransitionDef g_satelliteTransitionDef =
 	{0x21f, &g_satelliteTransitionFirst, &g_satelliteTransitionSecond, &g_satelliteTransitionRect};
 
 // GLOBAL: MW2 0x100aaee8
+// GLOBAL: MW2GBL 0x100b03d0
 // GLOBAL: MW23DFX 0x1024a560
 // GLOBAL: MW2ATI 0x1017e3a8
 // GLOBAL: MW2S3 0x100748a8
@@ -443,6 +490,7 @@ RectTransitionDef g_satelliteTransitionDef =
 RectTransition g_satelliteTransition = {&g_satelliteTransitionState, &g_satelliteTransitionDef};
 
 // GLOBAL: MW2 0x100aaef0
+// GLOBAL: MW2GBL 0x100b03d8
 // GLOBAL: MW23DFX 0x1024a568
 // GLOBAL: MW2ATI 0x1017e3b0
 // GLOBAL: MW2S3 0x100748b0
@@ -450,6 +498,7 @@ RectTransition g_satelliteTransition = {&g_satelliteTransitionState, &g_satellit
 PANE g_smallMapViewport = {NULL, 0x51f, 0x51f, 0x428f, 0x570a};
 
 // GLOBAL: MW2 0x100aaf08
+// GLOBAL: MW2GBL 0x100b03f0
 // GLOBAL: MW2MATROX 0x100bd128
 // GLOBAL: MW23DFX 0x1024a580
 // GLOBAL: MW2ATI 0x1017e3c8
@@ -494,6 +543,7 @@ CockpitLayout g_smallMapLayout = {
 };
 
 // GLOBAL: MW2 0x100aaf98
+// GLOBAL: MW2GBL 0x100b0480
 // GLOBAL: MW23DFX 0x1024a610
 // GLOBAL: MW2ATI 0x1017e458
 // GLOBAL: MW2S3 0x10074958
@@ -501,6 +551,7 @@ CockpitLayout g_smallMapLayout = {
 PANE g_largeMapViewport = {NULL, 0x2148, 0, 0xdeb8, 0x10000};
 
 // GLOBAL: MW2 0x100aafb0
+// GLOBAL: MW2GBL 0x100b0498
 // GLOBAL: MW2MATROX 0x100bd1d0
 // GLOBAL: MW23DFX 0x1024a628
 // GLOBAL: MW2ATI 0x1017e470
@@ -545,6 +596,7 @@ CockpitLayout g_largeMapLayout = {
 };
 
 // GLOBAL: MW2 0x100ab040
+// GLOBAL: MW2GBL 0x100b0528
 // GLOBAL: MW23DFX 0x1024a6b8
 // GLOBAL: MW2ATI 0x1017e500
 // GLOBAL: MW2S3 0x10074a00
@@ -552,6 +604,7 @@ CockpitLayout g_largeMapLayout = {
 PANE g_satelliteViewport = {NULL, 0, 0, 0x10000, 0x10000};
 
 // GLOBAL: MW2 0x100ab058
+// GLOBAL: MW2GBL 0x100b0540
 // GLOBAL: MW2MATROX 0x100bd278
 // GLOBAL: MW23DFX 0x1024a6d0
 // GLOBAL: MW2ATI 0x1017e518
@@ -594,6 +647,7 @@ CockpitLayout g_satelliteLayout = {
 
 // The layout of each cockpit view, NULL where it has none.
 // GLOBAL: MW2 0x100ab0e8
+// GLOBAL: MW2GBL 0x100b05d0
 // GLOBAL: MW2MATROX 0x100bd308
 // GLOBAL: MW23DFX 0x1024a760
 // GLOBAL: MW2ATI 0x1017e5a8

@@ -4,6 +4,22 @@
 # unexplained). tools/audit.py --check fails on an unexplained function
 # without a line, on a hash that no longer matches, and on a line whose function no longer needs it.
 
+MW2GBL 0x1000c481 VFX_shape_transform 95cd0e9273a0 GBL's VFXA object is laid out differently from 1.1's: this routine's calls into the object land at other offsets, so a routine before them changed size; to investigate
+MW2GBL 0x1000dc9b VFX_pane_scroll adb2c6fcfc6d GBL's VFXA object is laid out differently from 1.1's: this routine's calls into the object land at other offsets, so a routine before them changed size; to investigate
+MW2GBL 0x1000de98 VFX_ellipse_draw e986baaae7a1 GBL's VFXA object is laid out differently from 1.1's: this routine's calls into the object land at other offsets, so a routine before them changed size; to investigate
+MW2GBL 0x1000e1d9 VFX_ellipse_fill 4e43f165dd89 GBL's VFXA object is laid out differently from 1.1's: this routine's calls into the object land at other offsets, so a routine before them changed size; to investigate
+MW2GBL 0x1000f656 VFX_string_draw d71f6e7baa72 GBL's VFXA object is laid out differently from 1.1's: this routine's calls into the object land at other offsets, so a routine before them changed size; to investigate
+MW2GBL 0x1001a740 FindGameCdDrive 0f2fb90bd165 GBL looks for its own driver on the CD (" :\\GBL_HERC.DRV")
+MW2GBL 0x1003ad17 TestSegmentCollision 04013bd60985 a comparison's operands in the other order, which no padding or early redeclaration gives; to investigate (tools/declorder.py)
+MW2GBL 0x1003c010 ShowMessage 66bbf249e9cd GBL's message box title is "Ghost Bear's Legacy Message"
+MW2GBL 0x1004b98b SetTeamFormation 49acddf949ba reads g_localStar, whose GBL value differs (its annotation is left out: datacmp); to investigate
+MW2GBL 0x10069aeb VFX_polygon_render d015d5ab80c2 GBL's VFXREND keeps poly_vectors at another place in its object than 1.1's; to investigate
+MW2GBL 0x10069be0 VFX_polygon_clip_XY_and_render f430f4184857 GBL's VFXREND keeps poly_vectors at another place in its object than 1.1's; to investigate
+MW2GBL 0x1006ad70 ScaleBarGauges 37ff5d8058da reads g_cockpitPanels 16 bytes further in: GBL's CockpitPanels has 16 more bytes ahead of these members; to investigate
+MW2GBL 0x1007b743 CountMissionStream c76166226513 compares a tag in another byte order (shr 24 where 1.1 shifts by 8); to investigate
+MW2GBL 0x1007efe1 InitHudGauges 8b3ff9798455 reads g_cockpitPanels 16 bytes further in: GBL's CockpitPanels has 16 more bytes ahead of these members; to investigate
+MW2GBL 0x1007f88b DrawCompass dbe8b082118c reads g_cockpitPanels 16 bytes further in: GBL's CockpitPanels has 16 more bytes ahead of these members; to investigate
+MW2GBL 0x1008002e ChooseArtResolution 95f913e4b442 reads a table whose GBL annotation is left out (datacmp), and loads it into another register; to investigate
 MW2MATROX 0x10001b59 MultiplyRotations b93b7f6a221d the x87 sums of products are added in another term order (a flattened float chain), and the slot map then fails (a22 and a20 overlap): reordering a float sum isn't a rewrite the audit has
 MW2MATROX 0x10001f5f BuildMatrixEx a6d36e87fa9f the x87 products' and sums' operands are in another order (fmul/fadd of chains): reordering a float chain isn't a rewrite the audit has
 MW2MATROX 0x1000d29c UpdateMech 7e2ac1b29f12 the term order of the flattened x87 chains (accelY += m_jumpThrust + drag; dragX and dragZ added to accelX and accelZ) follows the locals' declaration order, now the one tools/declorder.py finds (only slots at pad 5); what's left is slots no renaming reaches: the block-scope midpointStep of IntegrateMidpoint (expanded three times) would have to come before targetZ (tools/witness.py, with pad 4), and a nested scope's locals are allocated after the function's own

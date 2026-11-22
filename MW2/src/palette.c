@@ -31,6 +31,7 @@
 #endif
 
 // GLOBAL: MW2 0x100a00cc
+// GLOBAL: MW2GBL 0x100a0488
 // GLOBAL: MW2MATROX 0x100a61f8
 // GLOBAL: MW23DFX 0x1024e450
 // GLOBAL: MW2S3 0x10075df4
@@ -38,6 +39,7 @@
 MechS32 g_paneIndex = -1;
 
 // GLOBAL: MW2 0x100a00d0
+// GLOBAL: MW2GBL 0x100a048c
 // GLOBAL: MW2MATROX 0x100a61fc
 // GLOBAL: MW23DFX 0x1024e454
 // GLOBAL: MW2ATI 0x10182764
@@ -46,6 +48,7 @@ MechS32 g_paneIndex = -1;
 MechS32 g_currentPalette = 0x10;
 
 // GLOBAL: MW2 0x100a00d4
+// GLOBAL: MW2GBL 0x100a0490
 // GLOBAL: MW2MATROX 0x100a6200
 // GLOBAL: MW23DFX 0x1024e458
 // GLOBAL: MW2ATI 0x10182768
@@ -54,6 +57,7 @@ MechS32 g_currentPalette = 0x10;
 MechS32 g_palettePending = 0;
 
 // GLOBAL: MW2 0x100a00d8
+// GLOBAL: MW2GBL 0x100a0494
 // GLOBAL: MW2MATROX 0x100a6204
 // GLOBAL: MW23DFX 0x1024e45c
 // GLOBAL: MW2ATI 0x1018276c
@@ -62,6 +66,7 @@ MechS32 g_palettePending = 0;
 MechS32 g_basePalette = 0;
 
 // GLOBAL: MW2 0x100a00dc
+// GLOBAL: MW2GBL 0x100a0498
 // GLOBAL: MW2MATROX 0x100a6208
 // GLOBAL: MW23DFX 0x1024e460
 // GLOBAL: MW2ATI 0x10182770
@@ -70,6 +75,7 @@ MechS32 g_basePalette = 0;
 MechS32 g_settledPalette = 0x10;
 
 // GLOBAL: MW2 0x100a00e0
+// GLOBAL: MW2GBL 0x100a049c
 // GLOBAL: MW2MATROX 0x100a620c
 // GLOBAL: MW23DFX 0x1024e464
 // GLOBAL: MW2ATI 0x10182774
@@ -78,6 +84,7 @@ MechS32 g_settledPalette = 0x10;
 MechS32 g_paletteFadeTarget = -1;
 
 // GLOBAL: MW2 0x100a00e4
+// GLOBAL: MW2GBL 0x100a04a0
 // GLOBAL: MW2MATROX 0x100a6210
 // GLOBAL: MW23DFX 0x1024e468
 // GLOBAL: MW2ATI 0x10182778
@@ -86,6 +93,7 @@ MechS32 g_paletteFadeTarget = -1;
 MechS32 g_paletteFadeBack = -1;
 
 // GLOBAL: MW2 0x100a00e8
+// GLOBAL: MW2GBL 0x100a04a4
 // GLOBAL: MW2MATROX 0x100a6214
 // GLOBAL: MW23DFX 0x1024e46c
 // GLOBAL: MW2ATI 0x1018277c
@@ -94,6 +102,7 @@ MechS32 g_paletteFadeBack = -1;
 MechS32 g_paletteFadeBackSteps = 0;
 
 // GLOBAL: MW2 0x100a00ec
+// GLOBAL: MW2GBL 0x100a04a8
 // GLOBAL: MW2MATROX 0x100a6218
 // GLOBAL: MW23DFX 0x1024e470
 // GLOBAL: MW2ATI 0x10182780
@@ -102,6 +111,7 @@ MechS32 g_paletteFadeBackSteps = 0;
 MechS32 g_paletteFadeSteps = 0;
 
 // GLOBAL: MW2 0x100a00f0
+// GLOBAL: MW2GBL 0x100a04ac
 // GLOBAL: MW2MATROX 0x100a621c
 // GLOBAL: MW23DFX 0x1024e474
 // GLOBAL: MW2ATI 0x10182784
@@ -110,11 +120,13 @@ MechS32 g_paletteFadeSteps = 0;
 MechS32 g_paletteCycling = 0;
 
 // GLOBAL: MW2 0x100a00f4
+// GLOBAL: MW2GBL 0x100a04b0
 // GLOBAL: MW2MATROX 0x100a6220
 // GLOBAL: MW23DFX 0x1024e478
 MechS32 g_paletteCycleResource = -1;
 
 // GLOBAL: MW2 0x100bcd20
+// GLOBAL: MW2GBL 0x100b90e8
 // GLOBAL: MW2MATROX 0x100c1ff8
 // GLOBAL: MW23DFX 0x1007c6b8
 // GLOBAL: MW2ATI 0x100716b8
@@ -123,6 +135,7 @@ MechS32 g_paletteCycleResource = -1;
 static PaletteFade g_paletteFade;
 
 // GLOBAL: MW2 0x100bcd40
+// GLOBAL: MW2GBL 0x100b9108
 // GLOBAL: MW2MATROX 0x100c2018
 // GLOBAL: MW23DFX 0x1007c6d8
 // GLOBAL: MW2ATI 0x100716d8
@@ -131,6 +144,7 @@ static PaletteFade g_paletteFade;
 static PaletteCycle g_paletteCycle;
 
 // GLOBAL: MW2 0x10181a60
+// GLOBAL: MW2GBL 0x10137af0
 // GLOBAL: MW2MATROX 0x101d4af0
 // GLOBAL: MW23DFX 0x101b0d70
 // GLOBAL: MW2ATI 0x100e4d60
@@ -139,6 +153,7 @@ static PaletteCycle g_paletteCycle;
 PANE g_panes[11];
 
 // GLOBAL: MW2 0x10181b40
+// GLOBAL: MW2GBL 0x10137bd0
 // GLOBAL: MW2MATROX 0x101d4aa0
 // GLOBAL: MW23DFX 0x101b0d20
 // GLOBAL: MW2ATI 0x100e4d10
@@ -147,6 +162,7 @@ PANE g_panes[11];
 MechS32 g_paletteResourceIds[20];
 
 // FUNCTION: MW2 0x100023c0
+// FUNCTION: MW2GBL 0x1001e180
 // FUNCTION: MW2MATROX 0x1002d560
 // FUNCTION: MW23DFX 0x1002ab20
 // FUNCTION: MW2ATI 0x1002a770
@@ -166,6 +182,7 @@ void InitPanes(PANE* p_target)
 }
 
 // FUNCTION: MW2 0x1000242f
+// FUNCTION: MW2GBL 0x1001e1ef
 // FUNCTION: MW2MATROX 0x1002d5cf
 // FUNCTION: MW23DFX 0x1002ab50
 // FUNCTION: MW2ATI 0x1002a7a0
@@ -196,6 +213,7 @@ void SelectPane(MechS32 p_index)
 }
 
 // FUNCTION: MW2 0x100024f0
+// FUNCTION: MW2GBL 0x1001e2b0
 // FUNCTION: MW2MATROX 0x1002d678
 // FUNCTION: MW23DFX 0x1002abd0
 void GetViewCenter(Eyepoint* p_eyepoint, MechS32* p_x, MechS32* p_y)
@@ -215,6 +233,7 @@ void GetViewCenter(Eyepoint* p_eyepoint, MechS32* p_x, MechS32* p_y)
 }
 
 // FUNCTION: MW2 0x10002546
+// FUNCTION: MW2GBL 0x1001e306
 // FUNCTION: MW2MATROX 0x1002d6be
 // FUNCTION: MW23DFX 0x1002ac00
 // FUNCTION: MW2ATI 0x1002a820
@@ -230,6 +249,7 @@ void ApplyPendingPalette(void)
 }
 
 // FUNCTION: MW2 0x1000258d
+// FUNCTION: MW2GBL 0x1001e34d
 // FUNCTION: MW2MATROX 0x1002d705
 // FUNCTION: MW23DFX 0x1002ac40
 // FUNCTION: MW2ATI 0x1002a860
@@ -276,6 +296,7 @@ void ApplyPaletteResource(MechS32 p_slot)
 }
 
 // FUNCTION: MW2 0x10002600
+// FUNCTION: MW2GBL 0x1001e3c0
 // FUNCTION: MW2MATROX 0x1002d7de
 // FUNCTION: MW23DFX 0x1002acf0
 // FUNCTION: MW2ATI 0x1002a910
@@ -311,6 +332,7 @@ void UpdatePaletteFade(void)
 #endif
 
 // FUNCTION: MW2 0x10002687
+// FUNCTION: MW2GBL 0x1001e447
 // FUNCTION: MW2MATROX 0x1002d865
 // FUNCTION: MW23DFX 0x1002ad50
 // FUNCTION: MW2ATI 0x1002a970
@@ -450,6 +472,7 @@ MechS32 StartPaletteFade(MechS32 p_palette, MechS32 p_duration, MechS32 p_mode)
 }
 
 // FUNCTION: MW2 0x1000288e
+// FUNCTION: MW2GBL 0x1001e64e
 // FUNCTION: MW2MATROX 0x1002db4c
 // FUNCTION: MW23DFX 0x1002af60
 // FUNCTION: MW2ATI 0x1002ab80
@@ -461,6 +484,7 @@ MechS32 StartPaletteFlash(MechS32 p_offset, MechS32 p_duration, MechS32 p_mode)
 }
 
 // FUNCTION: MW2 0x100028b7
+// FUNCTION: MW2GBL 0x1001e677
 // FUNCTION: MW2MATROX 0x1002db75
 // FUNCTION: MW23DFX 0x1002af80
 void StartPaletteCycle(undefined4 p_first, MechS32 p_count)
@@ -486,6 +510,7 @@ void StartPaletteCycle(undefined4 p_first, MechS32 p_count)
 }
 
 // FUNCTION: MW2 0x10002971
+// FUNCTION: MW2GBL 0x1001e738
 // FUNCTION: MW2MATROX 0x1002dc2f
 // FUNCTION: MW23DFX 0x1002b010
 void StopPaletteCycle(void)
@@ -502,6 +527,7 @@ void StopPaletteCycle(void)
 }
 
 // FUNCTION: MW2 0x100029c8
+// FUNCTION: MW2GBL 0x1001e78f
 // FUNCTION: MW2MATROX 0x1002dc86
 // FUNCTION: MW23DFX 0x1002b050
 // FUNCTION: MW2ATI 0x1002aba0
@@ -519,6 +545,7 @@ MechS32 SetPaletteResourceId(MechS32 p_id, MechS32 p_slot)
 }
 
 // FUNCTION: MW2 0x10002a24
+// FUNCTION: MW2GBL 0x1001e7eb
 // FUNCTION: MW2MATROX 0x1002dce2
 // FUNCTION: MW23DFX 0x1002b090
 // FUNCTION: MW2ATI 0x1002abe0
@@ -535,6 +562,7 @@ void FadeToBasePalette(MechS32 p_palette, MechS32 p_duration)
 }
 
 // FUNCTION: MW2 0x10002a5a
+// FUNCTION: MW2GBL 0x1001e821
 // FUNCTION: MW2MATROX 0x1002dd18
 // FUNCTION: MW23DFX 0x1002b0b0
 void SetBasePalette(MechS32 p_palette)
@@ -547,6 +575,7 @@ void SetBasePalette(MechS32 p_palette)
 // over 0x10f ticks first. It passes the result of the slot test, not the slot's resource id,
 // to the loader, so it always loads PAL resource 1 (SimMain has the same test).
 // FUNCTION: MW2 0x10002a75
+// FUNCTION: MW2GBL 0x1001e83c
 // FUNCTION: MW2MATROX 0x1002dd33
 // FUNCTION: MW23DFX 0x1002b0c0
 // FUNCTION: MW2ATI 0x1002ac00
@@ -632,6 +661,7 @@ void StartPalettes(MechS32 p_dissolve)
 }
 
 // FUNCTION: MW2 0x10002c76
+// FUNCTION: MW2GBL 0x1001ea3d
 // FUNCTION: MW2MATROX 0x1002ddd8
 // FUNCTION: MW23DFX 0x1002b130
 // FUNCTION: MW2ATI 0x1002ac70

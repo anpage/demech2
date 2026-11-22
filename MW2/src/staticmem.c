@@ -16,6 +16,7 @@ DECOMP_SIZE_ASSERT(StaticPool, 0x14)
 DECOMP_SIZE_ASSERT(StaticPoolGroup, 0x0c)
 
 // GLOBAL: MW2 0x100a6ddc
+// GLOBAL: MW2GBL 0x100a4520
 // GLOBAL: MW2MATROX 0x100b1450
 // GLOBAL: MW23DFX 0x1024d7c4
 // GLOBAL: MW2ATI 0x10181b44
@@ -24,6 +25,7 @@ DECOMP_SIZE_ASSERT(StaticPoolGroup, 0x0c)
 MechS32 g_staticPoolGroupCount = 0;
 
 // GLOBAL: MW2 0x100a6de0
+// GLOBAL: MW2GBL 0x100a4524
 // GLOBAL: MW2MATROX 0x100b1454
 // GLOBAL: MW23DFX 0x1024d7c8
 // GLOBAL: MW2ATI 0x10181b48
@@ -32,6 +34,7 @@ MechS32 g_staticPoolGroupCount = 0;
 MechS32 g_staticPoolCount = 0;
 
 // GLOBAL: MW2 0x100be5e0
+// GLOBAL: MW2GBL 0x100b9180
 // GLOBAL: MW2MATROX 0x101249b8
 // GLOBAL: MW23DFX 0x1007c678
 // GLOBAL: MW2ATI 0x10071678
@@ -40,6 +43,7 @@ MechS32 g_staticPoolCount = 0;
 StaticPoolGroup g_staticPoolGroups[5];
 
 // GLOBAL: MW2 0x100be620
+// GLOBAL: MW2GBL 0x100b91c0
 // GLOBAL: MW2MATROX 0x10124738
 // GLOBAL: MW23DFX 0x1007c3f8
 // GLOBAL: MW2ATI 0x100713f8
@@ -127,6 +131,7 @@ MechS32 InitStaticMem(char* p_mission)
 
 // Takes a block from the pool of a tag, logging the call to mw2.log.
 // FUNCTION: MW2 0x10049afb
+// FUNCTION: MW2GBL 0x1002cf08
 // FUNCTION: MW2MATROX 0x1007916a
 // FUNCTION: MW23DFX 0x10023d40
 // FUNCTION: MW2ATI 0x10024000
@@ -170,6 +175,7 @@ void* StaticPoolAlloc(MechU32 p_size, BwdTag p_tag)
 
 // Frees the groups' blocks.
 // FUNCTION: MW2 0x10049c55
+// FUNCTION: MW2GBL 0x1002d062
 // FUNCTION: MW2MATROX 0x100792c2
 // FUNCTION: MW23DFX 0x10023e40
 void FreeStaticMem(void)
@@ -187,6 +193,7 @@ void FreeStaticMem(void)
 
 // Orders pools by size, largest first (for qsort).
 // FUNCTION: MW2 0x10049cc7
+// FUNCTION: MW2GBL 0x1002d0d3
 // FUNCTION: MW2MATROX 0x10079334
 // FUNCTION: MW23DFX 0x10023e90
 // FUNCTION: MW2ATI 0x10024100
@@ -213,6 +220,7 @@ int __cdecl CompareStaticPools(const void* p_a, const void* p_b)
 }
 
 // FUNCTION: MW2 0x10049d1f
+// FUNCTION: MW2GBL 0x1002d12b
 // FUNCTION: MW2MATROX 0x1007938c
 // FUNCTION: MW23DFX 0x10023ec0
 // FUNCTION: MW2ATI 0x10024130
@@ -225,6 +233,7 @@ void ResetStaticPools(void)
 // Adds the pool sizes of the mission's static memory table (seven tag and size pairs).
 // Returns whether the mission has the table.
 // FUNCTION: MW2 0x10049d2a
+// FUNCTION: MW2GBL 0x1002d136
 // FUNCTION: MW2MATROX 0x10079397
 // FUNCTION: MW23DFX 0x10023ed0
 // FUNCTION: MW2ATI 0x10024140
@@ -254,6 +263,7 @@ MechS32 ParseStaticPoolConfig(char* p_mission)
 // Adds room for a tag, making its pool on first use. Returns whether the pool still fits in a
 // group.
 // FUNCTION: MW2 0x10049da3
+// FUNCTION: MW2GBL 0x1002d1af
 // FUNCTION: MW2MATROX 0x10079410
 // FUNCTION: MW23DFX 0x10023f10
 // FUNCTION: MW2ATI 0x10024180

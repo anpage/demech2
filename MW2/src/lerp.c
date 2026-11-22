@@ -11,6 +11,7 @@
 // Interpolates linearly: the y at p_x on the line through (p_x0, p_y0) and (p_x1, p_y1), measured
 // from whichever end has the larger x.
 // FUNCTION: MW2 0x100349f0
+// FUNCTION: MW2GBL 0x1003a7d0
 MechS32 Lerp(MechS32 p_x0, MechS32 p_x1, MechS32 p_x, MechS32 p_y0, MechS32 p_y1)
 {
 #ifdef PORTABLE_C

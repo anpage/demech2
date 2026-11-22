@@ -1,8 +1,9 @@
-/* The cockpit panels: their layout, set-up, per-frame update and warnings. Not a unit of its own:
-   1.1 has these in config.c's object, ahead of its other functions, the Matrox edition at the end
-   of staticmem.c's, the S3 edition at the end of eyepoint.c's, and the 3Dfx edition at the end of
-   targeting.c's, so config.c includes this file in 1.1's build, staticmem.c in the Matrox
-   edition's, eyepoint.c in the S3 edition's and targeting.c in the 3Dfx edition's. */
+/* The cockpit panels: their layout, set-up, per-frame update and warnings. Not a unit of its own
+   but in GBL: 1.1 has these in config.c's object, ahead of its other functions, the Matrox edition
+   at the end of staticmem.c's, the S3 edition at the end of eyepoint.c's, and the 3Dfx edition at
+   the end of targeting.c's, so config.c includes this file in 1.1's build, staticmem.c in the
+   Matrox edition's, eyepoint.c in the S3 edition's and targeting.c in the 3Dfx edition's. GBL has
+   them in an object of their own, after timedoverlays.c's, and builds this file as a unit. */
 #include "ammobin.h"
 #include "anim2d.h"
 #include "approxlen.h"
@@ -134,6 +135,7 @@ Point g_cockpitPanelTextOrigins[c_panelCount] = {{0, 0},           {0, 0},
 RectTransitionState g_targetTransitionState = {0, 0, 0};
 
 // GLOBAL: MW2 0x100ae240
+// GLOBAL: MW2GBL 0x1009b480
 // GLOBAL: MW2MATROX 0x100b1760
 // GLOBAL: MW23DFX 0x1024cba0
 // GLOBAL: MW2ATI 0x10180f20
@@ -183,6 +185,7 @@ RectTransitionDef g_targetTransitionDef =
 RectTransition g_targetTransition = {&g_targetTransitionState, &g_targetTransitionDef};
 
 // GLOBAL: MW2 0x100ae2b0
+// GLOBAL: MW2GBL 0x1009b4f0
 // GLOBAL: MW2MATROX 0x100b17d0
 // GLOBAL: MW23DFX 0x1024cc10
 // GLOBAL: MW2ATI 0x10180f90
@@ -191,6 +194,7 @@ RectTransition g_targetTransition = {&g_targetTransitionState, &g_targetTransiti
 PANE g_mechViewTransitionFirst = {NULL, 0x8000, 0x8000, 0x8000, 0x8000};
 
 // GLOBAL: MW2 0x100ae2c8
+// GLOBAL: MW2GBL 0x1009b508
 // GLOBAL: MW2MATROX 0x100b17e8
 // GLOBAL: MW23DFX 0x1024cc28
 // GLOBAL: MW2ATI 0x10180fa8
@@ -199,6 +203,7 @@ PANE g_mechViewTransitionFirst = {NULL, 0x8000, 0x8000, 0x8000, 0x8000};
 PANE g_mechViewTransitionSecond = {NULL, 0, 0, 0x10000, 0x10000};
 
 // GLOBAL: MW2 0x100ae2e0
+// GLOBAL: MW2GBL 0x1009b520
 // GLOBAL: MW2MATROX 0x100b1800
 // GLOBAL: MW23DFX 0x1024cc40
 // GLOBAL: MW2ATI 0x10180fc0
@@ -207,6 +212,7 @@ PANE g_mechViewTransitionSecond = {NULL, 0, 0, 0x10000, 0x10000};
 PANE g_mechViewTransitionRect = {NULL, 0, 0, 0, 0};
 
 // GLOBAL: MW2 0x100ae2f8
+// GLOBAL: MW2GBL 0x1009b538
 // GLOBAL: MW2MATROX 0x100b1818
 // GLOBAL: MW23DFX 0x1024cc58
 // GLOBAL: MW2ATI 0x10180fd8
@@ -216,6 +222,7 @@ RectTransitionDef g_mechViewTransitionDef =
 	{0xb5, &g_mechViewTransitionFirst, &g_mechViewTransitionSecond, &g_mechViewTransitionRect};
 
 // GLOBAL: MW2 0x100ae308
+// GLOBAL: MW2GBL 0x1009b548
 // GLOBAL: MW2MATROX 0x100b1828
 // GLOBAL: MW23DFX 0x1024cc68
 // GLOBAL: MW2ATI 0x10180fe8
@@ -261,6 +268,7 @@ RectTransition* g_cockpitPanelTransitions[c_panelCount] = {
 
 // Set when UpdateCockpit should run PunchInAutoHeading on its next frame.
 // GLOBAL: MW2 0x100ae37c
+// GLOBAL: MW2GBL 0x1009b5cc
 // GLOBAL: MW2MATROX 0x100b189c
 // GLOBAL: MW23DFX 0x1024ccdc
 // GLOBAL: MW2ATI 0x1018105c
@@ -269,6 +277,7 @@ RectTransition* g_cockpitPanelTransitions[c_panelCount] = {
 MechS32 g_punchInAutoHeadingRequested = 0;
 
 // GLOBAL: MW2 0x100ae380
+// GLOBAL: MW2GBL 0x1009b5d0
 // GLOBAL: MW2MATROX 0x100b18a0
 // GLOBAL: MW23DFX 0x1024cce0
 // GLOBAL: MW2ATI 0x10181060
@@ -288,24 +297,28 @@ undefined4 g_cockpitPanelLightUpTimes[c_panelCount] = {0x16a, 0xb5,  0xb5,  0x21
 
 // The local mech's state (Mech::m_powerState) when PlayCockpitWarnings last ran.
 // GLOBAL: MW2 0x100ae3f0
+// GLOBAL: MW2GBL 0x1009b650
 // GLOBAL: MW2MATROX 0x100b1910
 // GLOBAL: MW23DFX 0x1024cd50
 // GLOBAL: MW2S3 0x10076aa0
 MechS32 g_lastWarningPowerState = 0;
 
 // GLOBAL: MW2 0x100ae3f4
+// GLOBAL: MW2GBL 0x1009b654
 // GLOBAL: MW2MATROX 0x100b1914
 // GLOBAL: MW23DFX 0x1024cd54
 // GLOBAL: MW2S3 0x10076aa4
 MechS32 g_lockedTonePlayed = 0;
 
 // GLOBAL: MW2 0x100ae3f8
+// GLOBAL: MW2GBL 0x1009b658
 // GLOBAL: MW2MATROX 0x100b1918
 // GLOBAL: MW23DFX 0x1024cd58
 // GLOBAL: MW2S3 0x10076aa8
 MechS32 g_lockingTonePlayed = 0;
 
 // GLOBAL: MW2 0x100ae3fc
+// GLOBAL: MW2GBL 0x1009b65c
 // GLOBAL: MW2MATROX 0x100b191c
 // GLOBAL: MW23DFX 0x1024cd5c
 // GLOBAL: MW2ATI 0x101810dc
@@ -315,6 +328,7 @@ MechS32 g_hitFadeCount = 0;
 // The local player's heading and torso twist, in whole degrees (UpdateCockpit).
 
 // GLOBAL: MW2 0x100c326c
+// GLOBAL: MW2GBL 0x1015defc
 // GLOBAL: MW2MATROX 0x1012f964
 // GLOBAL: MW23DFX 0x101de7fc
 // GLOBAL: MW2ATI 0x101124bc
@@ -323,6 +337,7 @@ MechS32 g_hitFadeCount = 0;
 MechScalar g_torsoTwistDegrees;
 
 // GLOBAL: MW2 0x100c3270
+// GLOBAL: MW2GBL 0x1015df00
 // GLOBAL: MW2MATROX 0x1012f960
 // GLOBAL: MW23DFX 0x101de7f8
 // GLOBAL: MW2ATI 0x101124b8
@@ -332,6 +347,7 @@ MechScalar g_headingDegrees;
 
 // The 26 cockpit panels InitCockpitPanels allocates.
 // GLOBAL: MW2 0x100c3280
+// GLOBAL: MW2GBL 0x1015df10
 // GLOBAL: MW2MATROX 0x1012f970
 // GLOBAL: MW23DFX 0x101de800
 // GLOBAL: MW2ATI 0x101124c0
@@ -341,6 +357,7 @@ CockpitPanel* g_cockpitPanels[c_panelCount];
 
 // Which of the panels are enabled when they are set up.
 // GLOBAL: MW2 0x100c32f0
+// GLOBAL: MW2GBL 0x1015df90
 // GLOBAL: MW2MATROX 0x1012f9e0
 // GLOBAL: MW23DFX 0x101de870
 // GLOBAL: MW2ATI 0x10112530
@@ -348,6 +365,7 @@ CockpitPanel* g_cockpitPanels[c_panelCount];
 MechS32 g_cockpitPanelEnabled[c_panelCount];
 
 // GLOBAL: MW2 0x100c3358
+// GLOBAL: MW2GBL 0x1015e008
 // GLOBAL: MW2MATROX 0x1012f9d8
 // GLOBAL: MW23DFX 0x101de868
 // GLOBAL: MW2ATI 0x10112528
@@ -357,6 +375,7 @@ MechS32 g_cockpitPowerState;
 
 // Loads eight sounds ahead of their use.
 // FUNCTION: MW2 0x1006f480
+// FUNCTION: MW2GBL 0x10003d30
 // FUNCTION: MW2MATROX 0x100794d0
 // FUNCTION: MW23DFX 0x1001dc50
 // FUNCTION: MW2ATI 0x1001df20
@@ -962,6 +981,7 @@ void PlayCockpitWarnings(Mech* p_mech)
 }
 
 // FUNCTION: MW2 0x1007079d
+// FUNCTION: MW2GBL 0x1000505f
 // FUNCTION: MW2MATROX 0x1007a818
 // FUNCTION: MW23DFX 0x1001e800
 // FUNCTION: MW2ATI 0x1001ead0

@@ -21,6 +21,7 @@
 // The dropship animation of the loading screen ("sup anim"), drawn by an AIL timer.
 
 // GLOBAL: MW2 0x100a0150
+// GLOBAL: MW2GBL 0x100b2d50
 // GLOBAL: MW2MATROX 0x100a8650
 // GLOBAL: MW23DFX 0x1024a850
 // GLOBAL: MW2ATI 0x1017eca8
@@ -29,6 +30,7 @@
 HTIMER g_supAnimTimer = -1;
 
 // GLOBAL: MW2 0x100a0154
+// GLOBAL: MW2GBL 0x100b2d54
 // GLOBAL: MW2MATROX 0x100a8654
 // GLOBAL: MW23DFX 0x1024a854
 // GLOBAL: MW2ATI 0x1017ecac
@@ -37,6 +39,7 @@ HTIMER g_supAnimTimer = -1;
 void* g_supAnimBackdrop = NULL;
 
 // GLOBAL: MW2 0x100a0158
+// GLOBAL: MW2GBL 0x100b2d58
 // GLOBAL: MW2MATROX 0x100a8658
 // GLOBAL: MW23DFX 0x1024a858
 // GLOBAL: MW2ATI 0x1017ecb0
@@ -45,6 +48,7 @@ void* g_supAnimBackdrop = NULL;
 void* g_supAnimShape = NULL;
 
 // GLOBAL: MW2 0x100a015c
+// GLOBAL: MW2GBL 0x100b2d5c
 // GLOBAL: MW2MATROX 0x100a865c
 // GLOBAL: MW23DFX 0x1024a85c
 // GLOBAL: MW2ATI 0x1017ecb4
@@ -55,6 +59,7 @@ MechS32 g_supAnimFrameCount = 0;
 // The command line's overrides of the backdrop and dropship file names (ProcessCmdLineArgs).
 
 // GLOBAL: MW2 0x100a0160
+// GLOBAL: MW2GBL 0x100b2d60
 // GLOBAL: MW2MATROX 0x100a8660
 // GLOBAL: MW23DFX 0x1024a860
 // GLOBAL: MW2ATI 0x1017ecb8
@@ -63,6 +68,7 @@ MechS32 g_supAnimFrameCount = 0;
 MechChar* g_supAnimBackdropName = NULL;
 
 // GLOBAL: MW2 0x100a0164
+// GLOBAL: MW2GBL 0x100b2d64
 // GLOBAL: MW2MATROX 0x100a8664
 // GLOBAL: MW23DFX 0x1024a864
 // GLOBAL: MW2ATI 0x1017ecbc
@@ -97,6 +103,7 @@ PaletteColor g_supAnimPalette[16] = {
 };
 
 // GLOBAL: MW2 0x100a0198
+// GLOBAL: MW2GBL 0x100b2d98
 // GLOBAL: MW2MATROX 0x100a8698
 // GLOBAL: MW23DFX 0x1024a898
 // GLOBAL: MW2ATI 0x1017ecf0
@@ -105,6 +112,7 @@ PaletteColor g_supAnimPalette[16] = {
 MechS32 g_supAnimFrame = 0;
 
 // GLOBAL: MW2 0x100bcd50
+// GLOBAL: MW2GBL 0x100bb388
 // GLOBAL: MW2MATROX 0x100c2068
 // GLOBAL: MW23DFX 0x1007b058
 // GLOBAL: MW2ATI 0x10070058
@@ -113,6 +121,7 @@ MechS32 g_supAnimFrame = 0;
 MechS32 g_supAnimY;
 
 // GLOBAL: MW2 0x100bcd54
+// GLOBAL: MW2GBL 0x100bb38c
 // GLOBAL: MW2MATROX 0x100c2064
 // GLOBAL: MW23DFX 0x1007b054
 // GLOBAL: MW2ATI 0x10070054
@@ -121,6 +130,7 @@ MechS32 g_supAnimY;
 MechS32 g_supAnimX;
 
 // GLOBAL: MW2 0x100bcd58
+// GLOBAL: MW2GBL 0x100bb390
 // GLOBAL: MW2MATROX 0x100c2038
 // GLOBAL: MW23DFX 0x1007b028
 // GLOBAL: MW2ATI 0x10070028
@@ -129,6 +139,7 @@ MechS32 g_supAnimX;
 PANE g_supAnimTarget;
 
 // GLOBAL: MW2 0x100bcd70
+// GLOBAL: MW2GBL 0x100bb3a8
 // GLOBAL: MW2MATROX 0x100c2050
 // GLOBAL: MW23DFX 0x1007b040
 // GLOBAL: MW2ATI 0x10070040
@@ -260,6 +271,7 @@ void StartSupAnim(MechS32 p_slowFade)
 // Draws the backdrop and the next frame of the dropship, and presents them. AIL calls it as a
 // timer callback, which takes an argument this one doesn't pop (1.1).
 // FUNCTION: MW2 0x10003f3d
+// FUNCTION: MW2GBL 0x10053cba
 // FUNCTION: MW2MATROX 0x1004a9b0
 // FUNCTION: MW23DFX 0x10007730
 // FUNCTION: MW2ATI 0x10008090
@@ -292,6 +304,7 @@ void SupAnimTimerCallback(void)
 
 // Releases the timer and frees the backdrop and the dropship.
 // FUNCTION: MW2 0x10004031
+// FUNCTION: MW2GBL 0x10053dae
 // FUNCTION: MW2MATROX 0x1004aaa6
 // FUNCTION: MW23DFX 0x10007800
 // FUNCTION: MW2ATI 0x10008160

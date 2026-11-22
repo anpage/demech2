@@ -73,7 +73,7 @@ The build configuration for each binary (comparison builds use Visual C++ 4.1's 
 | Target           | Language                   | `cl` flags                                        | CRT                     | Link                             |
 | ---------------- | -------------------------- | ------------------------------------------------- | ----------------------- | -------------------------------- |
 | `MW2.DLL`        | C                          | `/Od /Oi /G5`                                     | `/MTd` (static debug)   | `/DLL /DEBUG /INCREMENTAL:no`    |
-| `MW2_GBL.DLL`    | C                          | `/Od /G5`                                         | `/MTd` (static debug)   | `/DLL /DEBUG /OPT:REF /INCREMENTAL:no` |
+| `MW2_GBL.DLL`    | C                          | `/Od /Oi /G5`                                     | `/MTd` (static debug)   | `/DLL /DEBUG /OPT:REF /INCREMENTAL:no` |
 | `MW2SHELL.DLL`   | C++ (some C files)         | `/Od /Oi /G5 /Ob1 /GX` (C files: no `/GX`)        | `/MT` (static)          | `/DLL`                           |
 | `NETMECHW.DLL`   | C and C++ (Visual C++ 2.2) | `/Od /Oi /Z7` (no `/GX`)                          | `/MT` (static)          | `/DLL`, `/DEBUG /INCREMENTAL:no` |
 | `MECH2.EXE`      | C (Visual C++ 2.2)         | `/Od /Oi /G5 /Z7`                                 | `/ML` (single-threaded) | incremental EXE, `/DEBUG`        |

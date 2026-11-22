@@ -60,6 +60,7 @@ static MechS32 TransformRow(Matrix* p_matrix, MechS32 p_row, MechS32 p_x, MechS3
 // Transforms p_model's vertices (their positions into m_worldX-m_worldZ) and face normals by
 // p_matrix. The products are an __asm block.
 // FUNCTION: MW2 0x10039a30
+// FUNCTION: MW2GBL 0x1003f240
 // FUNCTION: MW2MATROX 0x10028adb
 // FUNCTION: MW23DFX 0x10029ab0
 // FUNCTION: MW2ATI 0x100296e0
@@ -274,6 +275,7 @@ void TransformModel(Model* p_model, Matrix* p_matrix)
 // Transforms the shape's position (m_modelCenterX-Z) by p_matrix into m_centerX-Z, and bumps its
 // transform count (m_transformCount). The products are an __asm block.
 // FUNCTION: MW2 0x10039b94
+// FUNCTION: MW2GBL 0x1003f3a4
 // FUNCTION: MW2MATROX 0x10028cf4
 // FUNCTION: MW23DFX 0x10029c10
 // FUNCTION: MW2ATI 0x10029840
@@ -374,6 +376,7 @@ void TransformShapeCenter(struct Shape* p_shape, Matrix* p_matrix)
 
 // Transforms a shape and each of its models by p_matrix.
 // FUNCTION: MW2 0x10039c36
+// FUNCTION: MW2GBL 0x1003f446
 // FUNCTION: MW2MATROX 0x10028db4
 // FUNCTION: MW23DFX 0x10029c80
 // FUNCTION: MW2ATI 0x100298b0
@@ -394,6 +397,7 @@ void TransformShape(struct Shape* p_shape, Matrix* p_matrix)
 // Solves the plane p_normalX * x + p_normalY * y + p_normalZ * z + p_distance = 0 for y at
 // (p_dx, p_dz): (p_normalX * p_dx + p_normalZ * p_dz + p_distance) / p_normalY, in 64 bits.
 // FUNCTION: MW2 0x10039c96
+// FUNCTION: MW2GBL 0x1003f4a6
 MechS32 SolvePlaneY(
 	MechS32 p_normalX,
 	MechS32 p_normalY,
@@ -434,6 +438,7 @@ MechS32 SolvePlaneY(
 // Returns an approximate distance from (p_x, p_y, p_z) to the shape's center, (4 * the largest +
 // the others) / 4 of the offsets, or 0x7fffffff outside its bounding sphere.
 // FUNCTION: MW2 0x10039ccc
+// FUNCTION: MW2GBL 0x1003f4dc
 // FUNCTION: MW2MATROX 0x10028e14
 // FUNCTION: MW23DFX 0x10029cb0
 // FUNCTION: MW2ATI 0x100298e0
@@ -591,6 +596,7 @@ done:;
 // trigonometry, in accel/floatmath.c.
 #ifndef MW2_FLOAT_SCALARS
 // FUNCTION: MW2 0x10039dda
+// FUNCTION: MW2GBL 0x1003f5ea
 MechS32 ComputeTriangleNormal(
 	MechScalar p_x0,
 	MechScalar p_y0,
@@ -894,6 +900,7 @@ normalize:
 #ifndef MW2_FLOAT_SCALARS
 // Returns p_value / (p_a - p_b) in 15.17 fixed point, or 0 if p_a and p_b are equal.
 // FUNCTION: MW2 0x1003a05d
+// FUNCTION: MW2GBL 0x1003f86d
 MechS32 DivDifference17(MechS32 p_a, MechS32 p_b, MechS32 p_value)
 {
 #ifdef PORTABLE_C
@@ -929,6 +936,7 @@ done:
 // Returns how far along p_ray it passes closest to the shape's center, less the radius, or
 // 0x7fffffff when it misses the bounding sphere or ends first; 10 when the ray starts inside it.
 // FUNCTION: MW2 0x1003a096
+// FUNCTION: MW2GBL 0x1003f8a6
 // FUNCTION: MW2MATROX 0x10028f0e
 // FUNCTION: MW23DFX 0x10029db0
 // FUNCTION: MW2ATI 0x100299e0

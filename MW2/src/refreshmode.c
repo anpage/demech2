@@ -81,6 +81,7 @@ RefreshMode* g_refreshModes[6] = {
 };
 
 // GLOBAL: MW2 0x100b1770
+// GLOBAL: MW2GBL 0x100a4a60
 // GLOBAL: MW2MATROX 0x100b1a78
 // GLOBAL: MW23DFX 0x102492e0
 // GLOBAL: MW2ATI 0x1017d2e0
@@ -89,6 +90,7 @@ RefreshMode* g_refreshModes[6] = {
 DisplayBackend* g_currentDisplayBackend = NULL;
 
 // GLOBAL: MW2 0x100b1774
+// GLOBAL: MW2GBL 0x100a4a64
 // GLOBAL: MW2MATROX 0x100b1a7c
 // GLOBAL: MW23DFX 0x102492e4
 // GLOBAL: MW2ATI 0x1017d2e4
@@ -98,6 +100,7 @@ RefreshMode* g_currentRefreshMode = NULL;
 
 // The fastest refresh mode found by the profiling, the one to return to from windowed mode.
 // GLOBAL: MW2 0x100b1778
+// GLOBAL: MW2GBL 0x100a4a68
 // GLOBAL: MW2MATROX 0x100b1a80
 // GLOBAL: MW23DFX 0x102492e8
 // GLOBAL: MW2ATI 0x1017d2e8
@@ -105,6 +108,7 @@ RefreshMode* g_currentRefreshMode = NULL;
 RefreshMode* g_fastestRefreshMode = NULL;
 
 // GLOBAL: MW2 0x100b177c
+// GLOBAL: MW2GBL 0x100a4a6c
 // GLOBAL: MW2MATROX 0x100b1a84
 // GLOBAL: MW23DFX 0x102492ec
 // GLOBAL: MW2ATI 0x1017d2ec
@@ -114,6 +118,7 @@ MechS32 g_refreshModeFallback = FALSE;
 
 // The last refresh mode the profiling tries.
 // GLOBAL: MW2 0x100b1780
+// GLOBAL: MW2GBL 0x100a4a70
 // GLOBAL: MW2MATROX 0x100b1a88
 // GLOBAL: MW23DFX 0x102492f0
 // GLOBAL: MW2ATI 0x1017d2f0
@@ -122,6 +127,7 @@ MechS32 g_lastProfiledRefreshMode = 4;
 
 // The buffer the active refresh mode renders into.
 // GLOBAL: MW2 0x100b1784
+// GLOBAL: MW2GBL 0x100a4a74
 // GLOBAL: MW2MATROX 0x100b1a8c
 // GLOBAL: MW23DFX 0x102492f4
 // GLOBAL: MW2ATI 0x1017d2f4
@@ -130,6 +136,7 @@ MechS32 g_lastProfiledRefreshMode = 4;
 WINDOW* g_refreshModeBuffer = NULL;
 
 // GLOBAL: MW2 0x100b1788
+// GLOBAL: MW2GBL 0x100a4a78
 // GLOBAL: MW2MATROX 0x100b1a90
 // GLOBAL: MW23DFX 0x102492f8
 // GLOBAL: MW2ATI 0x1017d2f8
@@ -140,6 +147,7 @@ PaletteColor g_paletteColors[0x100] = {0};
 // The DIB bits of the GDI and DisplayDib back ends, restored into g_refreshModeBuffer by
 // m_acquireFramebuffer.
 // GLOBAL: MW2 0x100b1a88
+// GLOBAL: MW2GBL 0x100a4d78
 // GLOBAL: MW2MATROX 0x100b1d90
 // GLOBAL: MW23DFX 0x102495f8
 // GLOBAL: MW2ATI 0x1017d5f8
@@ -148,6 +156,7 @@ PaletteColor g_paletteColors[0x100] = {0};
 undefined* g_dibBits = NULL;
 
 // GLOBAL: MW2 0x100b1aa4
+// GLOBAL: MW2GBL 0x100a4d94
 // GLOBAL: MW2MATROX 0x100b1dac
 // GLOBAL: MW23DFX 0x10249614
 // GLOBAL: MW2ATI 0x1017d614
@@ -156,6 +165,7 @@ undefined* g_dibBits = NULL;
 MechS32 g_windowMode = 0;
 
 // GLOBAL: MW2 0x100b1aa8
+// GLOBAL: MW2GBL 0x100a4d98
 // GLOBAL: MW2MATROX 0x100b1db0
 // GLOBAL: MW23DFX 0x10249618
 // GLOBAL: MW2ATI 0x1017d618
@@ -163,7 +173,20 @@ MechS32 g_windowMode = 0;
 // GLOBAL: MW2POWERVR 0x101a8670
 MechS32 g_refreshModeInactive = 1;
 
+// The other editions define these three in simmain.c.
+#ifdef MW2_GBL
+// GLOBAL: MW2GBL 0x100a4d9c
+undefined4 g_shouldToggleFullscreen = 0;
+
+// GLOBAL: MW2GBL 0x100a4da0
+MechS32 g_desktopWidth = 0;
+
+// GLOBAL: MW2GBL 0x100a4da4
+MechS32 g_desktopHeight = 0;
+#endif
+
 // GLOBAL: MW2 0x100b1aac
+// GLOBAL: MW2GBL 0x100a4da8
 // GLOBAL: MW2MATROX 0x100b1db4
 // GLOBAL: MW23DFX 0x1024961c
 // GLOBAL: MW2ATI 0x1017d61c
@@ -172,6 +195,7 @@ MechS32 g_refreshModeInactive = 1;
 MechS32 g_profileFrame = 0;
 
 // GLOBAL: MW2 0x100bf1c8
+// GLOBAL: MW2GBL 0x100b9440
 // GLOBAL: MW2MATROX 0x101249f8
 // GLOBAL: MW23DFX 0x1007b000
 // GLOBAL: MW2ATI 0x10070000
@@ -180,6 +204,7 @@ static LARGE_INTEGER g_profileStart;
 
 // The window's position and size in windowed mode (SetWindowPos arguments, not corners).
 // GLOBAL: MW2 0x100c2890
+// GLOBAL: MW2GBL 0x10132d70
 // GLOBAL: MW2MATROX 0x1012f950
 // GLOBAL: MW23DFX 0x102453b0
 // GLOBAL: MW2ATI 0x101791d0
@@ -188,6 +213,7 @@ static LARGE_INTEGER g_profileStart;
 RECT g_windowedRect;
 
 // GLOBAL: MW2 0x100c28a0
+// GLOBAL: MW2GBL 0x10132d80
 // GLOBAL: MW2MATROX 0x1012f520
 // GLOBAL: MW23DFX 0x10244f80
 // GLOBAL: MW2ATI 0x10178da0
@@ -197,6 +223,7 @@ DrawBitmapInfo g_bitmapInfo;
 
 // The frame's size in pixels, p_width * p_height of InitRefreshMode.
 // GLOBAL: MW2 0x100c2cc8
+// GLOBAL: MW2GBL 0x101331a8
 // GLOBAL: MW2MATROX 0x1012f510
 // GLOBAL: MW23DFX 0x10244f78
 // GLOBAL: MW2ATI 0x10178d98
@@ -205,6 +232,7 @@ DrawBitmapInfo g_bitmapInfo;
 MechS32 g_refreshModePixelCount;
 
 // GLOBAL: MW2 0x100c2ce4
+// GLOBAL: MW2GBL 0x101331ac
 // GLOBAL: MW2MATROX 0x1012f50c
 // GLOBAL: MW23DFX 0x10244f74
 // GLOBAL: MW2ATI 0x10178d94
@@ -213,6 +241,7 @@ MechS32 g_refreshModePixelCount;
 MechS32 g_refreshModeWidth;
 
 // GLOBAL: MW2 0x100c2ce8
+// GLOBAL: MW2GBL 0x101331b0
 // GLOBAL: MW2MATROX 0x1012f508
 // GLOBAL: MW23DFX 0x10244f50
 // GLOBAL: MW2ATI 0x10178d90
@@ -334,6 +363,7 @@ MechS32 InitRefreshMode(
 }
 
 // FUNCTION: MW2 0x10077069
+// FUNCTION: MW2GBL 0x1002f247
 // FUNCTION: MW2MATROX 0x1007b0e5
 // FUNCTION: MW23DFX 0x10002840
 // FUNCTION: MW2ATI 0x10002750
@@ -354,6 +384,7 @@ void ShutdownRefreshMode(void)
 // Called once a frame while the refresh modes are profiled: times four frames of the current mode,
 // then moves to the next one; after the last, SelectFastestRefreshMode picks the fastest.
 // FUNCTION: MW2 0x100770a8
+// FUNCTION: MW2GBL 0x1002f286
 // FUNCTION: MW2MATROX 0x1007b124
 // FUNCTION: MW23DFX 0x10002870
 // FUNCTION: MW2ATI 0x10002780
@@ -428,6 +459,7 @@ void ProfileRefreshModes(void)
 
 // Switches to the available refresh mode with the shortest profile time.
 // FUNCTION: MW2 0x100772a4
+// FUNCTION: MW2GBL 0x1002f482
 // FUNCTION: MW2MATROX 0x1007b31f
 // FUNCTION: MW23DFX 0x10002a20
 // FUNCTION: MW2ATI 0x10002930
@@ -538,6 +570,7 @@ void ToggleFullScreen(void)
 
 // A top-down 8-bit DIB of p_width x p_height.
 // FUNCTION: MW2 0x100775b4
+// FUNCTION: MW2GBL 0x1002f792
 // FUNCTION: MW2MATROX 0x1007b63a
 // FUNCTION: MW23DFX 0x10002c70
 // FUNCTION: MW2ATI 0x100029b0
@@ -561,6 +594,7 @@ void InitBitmapInfo(MechS32 p_width, MechS32 p_height)
 // Restyles the game window for p_backend's window mode, and sets g_windowMode: a mode that
 // covers the whole screen counts as fullscreen.
 // FUNCTION: MW2 0x1007762f
+// FUNCTION: MW2GBL 0x1002f80d
 // FUNCTION: MW2MATROX 0x1007b6b5
 // FUNCTION: MW23DFX 0x10002cc0
 // FUNCTION: MW2ATI 0x10002a00

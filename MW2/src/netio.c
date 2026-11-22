@@ -11,6 +11,7 @@
 // The consecutive failed sends and receives: each one after the first waits before the next.
 
 // GLOBAL: MW2 0x100a0030
+// GLOBAL: MW2GBL 0x100ae7c4
 // GLOBAL: MW2MATROX 0x100bbde0
 // GLOBAL: MW23DFX 0x102590b4
 // GLOBAL: MW2ATI 0x1018d3c4
@@ -19,6 +20,7 @@
 MechS32 g_sendRetries = 0;
 
 // GLOBAL: MW2 0x100a0034
+// GLOBAL: MW2GBL 0x100ae7c8
 // GLOBAL: MW2MATROX 0x100bbde4
 // GLOBAL: MW23DFX 0x102590b8
 // GLOBAL: MW2ATI 0x1018d3c8
@@ -28,6 +30,7 @@ MechS32 g_recvRetries = 0;
 // The result of the last broadcast, or 5 after a failed one: a send after a failure goes out
 // guaranteed.
 // GLOBAL: MW2 0x100bcd18
+// GLOBAL: MW2GBL 0x100b9d7c
 // GLOBAL: MW2MATROX 0x101252e8
 // GLOBAL: MW23DFX 0x1007d410
 // GLOBAL: MW2ATI 0x10072410
@@ -37,6 +40,7 @@ static HRESULT g_sendResult;
 
 // Sends a message to every player of the session. The 3Dfx edition logs nothing here.
 // FUNCTION: MW2 0x10001000
+// FUNCTION: MW2GBL 0x100404d0
 // FUNCTION: MW2MATROX 0x10089b00
 // FUNCTION: MW23DFX 0x1003a4f0
 // FUNCTION: MW2ATI 0x100390b0
@@ -98,6 +102,7 @@ void NetSend(MechU8* p_msg, MechU32 p_size)
 
 // Sends a message to one player.
 // FUNCTION: MW2 0x1000119a
+// FUNCTION: MW2GBL 0x1004066a
 // FUNCTION: MW2MATROX 0x10089c9a
 // FUNCTION: MW23DFX 0x1003a5c0
 // FUNCTION: MW2ATI 0x10039180
@@ -111,6 +116,7 @@ void NetSendTo(DPID p_to, void* p_msg, MechU32 p_size)
 // Receives the next message into g_netRecvBuffer. Returns the sender, or -1 when there is none.
 // The 3Dfx edition logs only the bad packets.
 // FUNCTION: MW2 0x100011c9
+// FUNCTION: MW2GBL 0x10040699
 // FUNCTION: MW2MATROX 0x10089cc9
 // FUNCTION: MW23DFX 0x1003a5e0
 // FUNCTION: MW2ATI 0x100391a0

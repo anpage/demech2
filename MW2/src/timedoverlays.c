@@ -23,6 +23,7 @@
 DECOMP_SIZE_ASSERT(TimedOverlay, 0x24)
 
 // GLOBAL: MW2 0x100adee0
+// GLOBAL: MW2GBL 0x1009b0b0
 // GLOBAL: MW23DFX 0x10249820
 // GLOBAL: MW2ATI 0x1017d6c8
 // GLOBAL: MW2S3 0x10076530
@@ -34,6 +35,7 @@ PANE g_topMessagePane = {&g_mainPixelBuffer, 0, 0, 0x10000, 0x10000};
 undefined4 g_unk0x100adef4 = 0;
 
 // GLOBAL: MW2 0x100adef8
+// GLOBAL: MW2GBL 0x1009b0c8
 // GLOBAL: MW23DFX 0x10249838
 // GLOBAL: MW2ATI 0x1017d6e0
 // GLOBAL: MW2S3 0x10076548
@@ -45,6 +47,7 @@ PANE g_bottomMessagePane = {&g_mainPixelBuffer, 0, 0, 0x10000, 0x10000};
 undefined4 g_unk0x100adf0c = 0;
 
 // GLOBAL: MW2 0x100c3360
+// GLOBAL: MW2GBL 0x1015e010
 // GLOBAL: MW23DFX 0x10244d50
 // GLOBAL: MW2ATI 0x10178b90
 // GLOBAL: MW2S3 0x100844d0
@@ -52,6 +55,7 @@ undefined4 g_unk0x100adf0c = 0;
 static MechChar g_bottomMessageText[0x100];
 
 // GLOBAL: MW2 0x100c3460
+// GLOBAL: MW2GBL 0x1015e110
 // GLOBAL: MW23DFX 0x10244e50
 // GLOBAL: MW2ATI 0x10178c90
 // GLOBAL: MW2S3 0x100845d0
@@ -66,6 +70,7 @@ static MechChar g_topMessageText[0x100];
 #endif
 
 // GLOBAL: MW2 0x100adf10
+// GLOBAL: MW2GBL 0x1009b0e0
 // GLOBAL: MW2MATROX 0x100b10f8
 // GLOBAL: MW23DFX 0x10249850
 // GLOBAL: MW2ATI 0x1017d6f8
@@ -80,6 +85,7 @@ TimedOverlay g_timedOverlays[2] = {
 // shapes, moves them to the top (the first) and bottom (the second) edge, and centers the
 // text vertically.
 // FUNCTION: MW2 0x1006ee60
+// FUNCTION: MW2GBL 0x10003710
 // FUNCTION: MW2MATROX 0x10078690
 // FUNCTION: MW23DFX 0x10002e40
 // FUNCTION: MW2ATI 0x10002b20
@@ -134,6 +140,7 @@ void LayoutMessageBoxes(void)
 // Shows p_text in a free message box for p_duration ticks, or replaces the one of the lowest
 // priority not above p_priority (of those, the one that expires last). Returns 1 if shown.
 // FUNCTION: MW2 0x1006efd4
+// FUNCTION: MW2GBL 0x10003884
 // FUNCTION: MW2MATROX 0x10078804
 // FUNCTION: MW23DFX 0x10002f20
 // FUNCTION: MW2ATI 0x10002c00
@@ -199,6 +206,7 @@ MechS32 ShowInGameMessage(MechChar* p_text, MechS32 p_font, MechS32 p_duration, 
 }
 
 // FUNCTION: MW2 0x1006f179
+// FUNCTION: MW2GBL 0x10003a29
 // FUNCTION: MW2MATROX 0x100789a9
 // FUNCTION: MW23DFX 0x10003010
 // FUNCTION: MW2ATI 0x10002cf0
@@ -245,6 +253,7 @@ void DrawTimedOverlays(void)
 // Draws text in a box sized to it, on a tiled background shape (p_background, -1 for none),
 // at p_x, p_y or centered on the screen along an axis where that is negative.
 // FUNCTION: MW2 0x1006f28f
+// FUNCTION: MW2GBL 0x10003b3f
 // FUNCTION: MW2MATROX 0x10078ace
 // FUNCTION: MW23DFX 0x100030c0
 // FUNCTION: MW2ATI 0x10002da0
@@ -305,6 +314,7 @@ void DrawTextBox(MechS32 p_background, MechS32 p_font, MechChar* p_text, MechS32
 
 // Draws a TEXT resource, stored with each character negated (mod 256), as DrawTextBox does.
 // FUNCTION: MW2 0x1006f3ea
+// FUNCTION: MW2GBL 0x10003c98
 // FUNCTION: MW2MATROX 0x10078c33
 // FUNCTION: MW23DFX 0x10003200
 void DrawTextResourceBox(MechS32 p_background, MechS32 p_font, MechS32 p_id, MechS32 p_x, MechS32 p_y)

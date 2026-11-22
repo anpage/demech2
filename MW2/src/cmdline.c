@@ -28,6 +28,7 @@
 // /S and /X clear p_flags[1]. Returns FALSE without a command line (not launched by MECH2.EXE).
 // MW2MATROX: /E deletes mw2debug.txt with remove.
 // FUNCTION: MW2 0x1001ee80
+// FUNCTION: MW2GBL 0x10037290
 // FUNCTION: MW2MATROX 0x10021140
 // FUNCTION: MW23DFX 0x10038820
 // FUNCTION: MW2ATI 0x100373e0

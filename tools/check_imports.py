@@ -14,8 +14,10 @@ what they leave:
 - function: a function matched in both images, game code or library, whose code doesn't use the
   same imports. A use is a relocated field that holds an import slot's address
   (`call dword ptr [slot]`, `mov esi, dword ptr [slot]`) or a call or jump to an import's `jmp`
-  thunk. The original's function runs to the next annotated function; a library function, which
-  the original may follow with functions no annotation names, runs as far as the build's does.
+  thunk. The original's function runs to the next annotated function, or to the first function
+  start before it (a `ret`, any padding and another /Od frame: a target annotated in part has
+  functions no annotation names yet); a library function, which the original may follow with functions no
+  annotation names, runs as far as the build's does.
 - order: a function that uses the same imports, but not in the same order or not as often. In
   unoptimized code that is two calls swapped (their bytes are the same but for the slot). In
   optimized code it is also an import's address kept in a register in one image and read from
@@ -40,6 +42,7 @@ from reccmp.project.detect import (
     argparse_parse_project_target,
 )
 from reccmp.types import EntityType, ImageId
+
 
 # Ignore all compare-db messages.
 logging.getLogger("reccmp.compare").addHandler(logging.NullHandler())
@@ -80,6 +83,20 @@ class Imports:
             return self.image.read(address, size) or b""
         except Exception:  # outside the image's sections
             return b""
+
+    def function_end(self, start: int, limit: int) -> int:
+        """Where the original's function at start ends, at limit at the latest: the first `ret`
+        (and any padding) followed by another function's /Od frame."""
+        code = self.read(start, limit - start)
+        for i in range(3, len(code) - 2):
+            if code[i : i + 3] != b"\x55\x8b\xec":
+                continue
+            j = i
+            while j > 3 and code[j - 1] in (0xCC, 0x90):
+                j -= 1
+            if code[j - 1] == 0xC3 or code[j - 3] == 0xC2:
+                return start + i
+        return limit
 
     def dword(self, address: int):
         data = self.read(address, 4)
@@ -171,6 +188,8 @@ def main():
             end = following
         if end - entity.orig_addr > 0x10000:  # the last annotated function: no further than the build's
             end = entity.orig_addr + size
+        if not entity.get("library"):
+            end = original.function_end(entity.orig_addr, end)
         wanted = original.uses(entity.orig_addr, end)
         found = build.uses(entity.recomp_addr, entity.recomp_addr + size)
         checked += 1

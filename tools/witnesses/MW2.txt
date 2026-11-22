@@ -269,7 +269,7 @@
 0x10048c50 GetViewVertex objectanim.c rename deltaX=zqag deltaY=zqah deltaZ=zqai result=zqaf u=zqad v=zqae
 0x10048d46 ClipEdgeToNearPlane objectanim.c rename a=zqah b=zqai result=zqak u0=zqaf u1=zqag v0=zqaj v1=zqal x0=zqam x1=zqan y0=zqao y1=zqap z0=zqad z1=zqae
 0x10048faf GetFaceShade objectanim.c rename nx=zqah ny=zqai nz=zqaj shade=zqag vertex=zqak x=zqad y=zqae z=zqaf
-0x10049155 QueueFace objectanim.c pad 63 rename andCodes=zqah clipped=zqam count=zqai cursor=zqaa depth=zqag first=zqan firstClipped=zqap index=zqak normalY=zqaf orCodes=zqaj points=zqac poly=zqal previous=zqao previousClipped=zqab stride=zqad vertex=zqae
+0x10049155 QueueFace objectanim.c early int~g_depthEntryCount 0 rename andCodes=zqah clipped=zqam count=zqai cursor=zqaa depth=zqag first=zqan firstClipped=zqap index=zqak normalY=zqaf orCodes=zqaj points=zqac poly=zqal previous=zqao previousClipped=zqab stride=zqad vertex=zqae
 0x10049715 UpdateWrappedRamp ramp.c pad 15
 0x10049805 SetWrappedRampTarget ramp.c pad 2
 0x100498b0 InitStaticMem staticmem.c pad 5 rename best=zqah group=zqag i=zqad j=zqaf pool=zqae
@@ -547,8 +547,8 @@
 0x1007c71e DrawTargetPanelStartup targetpanel.c rename rect=zqad savedTarget=zqag savedView=zqaf transition=zqae
 0x1007c81c DrawTargetPanelShutdown targetpanel.c rename rect=zqad savedTarget=zqag savedView=zqaf transition=zqae
 0x1007c9e3 InitSlopeTables clock.c rename cosine=zqae i=zqad
-0x1007cb3d BuildMatrixFromDirection clock.c rename pitch=zqad yaw=zqae
-0x1007ccc2 ScaleVectorToLength clock.c pad 2
+0x1007cb3d BuildMatrixFromDirection clock.c pad 7 rename pitch=zqad yaw=zqae
+0x1007ccc2 ScaleVectorToLength clock.c pad 1
 0x1007d6bb UpdateTimeOfDay environment.c pad 12 rename i=zqad phase=zqag seconds=zqaf time=zqae
 0x1007d88a SetInfrared environment.c pad 1
 0x1007d931 QuadrupleMechCooling environment.c pad 11 rename i=zqad mech=zqae

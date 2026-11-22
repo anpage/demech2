@@ -17,6 +17,7 @@ DECOMP_SIZE_ASSERT(ShapeListHead, 0x18)
 // also starts the collision list), the hidden ones (flag 0x1000: counted, not drawn), and the
 // detached ones, drawn on their own (the sky objects SecondRender finds).
 // GLOBAL: MW2 0x100ad5e8
+// GLOBAL: MW2GBL 0x100adba0
 // GLOBAL: MW2MATROX 0x100a20e8
 // GLOBAL: MW23DFX 0x1024b320
 // GLOBAL: MW2ATI 0x1017f6a0
@@ -25,6 +26,7 @@ DECOMP_SIZE_ASSERT(ShapeListHead, 0x18)
 Shape* g_sceneShapes = NULL;
 
 // GLOBAL: MW2 0x100ad5ec
+// GLOBAL: MW2GBL 0x100adba4
 // GLOBAL: MW2MATROX 0x100a20ec
 // GLOBAL: MW23DFX 0x1024b324
 // GLOBAL: MW2ATI 0x1017f6a4
@@ -33,6 +35,7 @@ Shape* g_sceneShapes = NULL;
 Shape* g_hiddenShapes = NULL;
 
 // GLOBAL: MW2 0x100bef10
+// GLOBAL: MW2GBL 0x100b9d18
 // GLOBAL: MW2MATROX 0x100c1c68
 // GLOBAL: MW23DFX 0x1007c2c8
 // GLOBAL: MW2ATI 0x100712c8
@@ -41,6 +44,7 @@ Shape* g_hiddenShapes = NULL;
 ShapeListHead g_sceneShapeHead;
 
 // GLOBAL: MW2 0x100bef28
+// GLOBAL: MW2GBL 0x100b9d30
 // GLOBAL: MW2MATROX 0x100c1c50
 // GLOBAL: MW23DFX 0x1007c2b0
 // GLOBAL: MW2ATI 0x100712b0
@@ -49,6 +53,7 @@ ShapeListHead g_sceneShapeHead;
 ShapeListHead g_hiddenShapeHead;
 
 // GLOBAL: MW2 0x100bef40
+// GLOBAL: MW2GBL 0x100b9d48
 // GLOBAL: MW2MATROX 0x100c1c80
 // GLOBAL: MW23DFX 0x1007c2e0
 // GLOBAL: MW2ATI 0x100712e0
@@ -57,6 +62,7 @@ ShapeListHead g_hiddenShapeHead;
 ShapeListHead g_detachedShapeHead;
 
 // FUNCTION: MW2 0x1006d680
+// FUNCTION: MW2GBL 0x1003c0b0
 // FUNCTION: MW2MATROX 0x100035d0
 // FUNCTION: MW23DFX 0x1000db10
 // FUNCTION: MW2ATI 0x1000e200
@@ -80,6 +86,7 @@ void InitShapeLists(void)
 // Links a new shape into the scene, or the hidden list for flag 0x1000, and into the collision
 // list unless it has collision type 4 (none) or flag 0x800.
 // FUNCTION: MW2 0x1006d732
+// FUNCTION: MW2GBL 0x1003c162
 // FUNCTION: MW2MATROX 0x10003682
 // FUNCTION: MW23DFX 0x1000db80
 // FUNCTION: MW2ATI 0x1000e270
@@ -117,6 +124,7 @@ void AddSceneShape(Shape* p_shape)
 }
 
 // FUNCTION: MW2 0x1006d7fb
+// FUNCTION: MW2GBL 0x1003c22b
 // FUNCTION: MW2MATROX 0x1000374b
 // FUNCTION: MW23DFX 0x1000dbe0
 // FUNCTION: MW2ATI 0x1000e2d0
@@ -141,6 +149,7 @@ void RemoveSceneShape(Shape* p_shape)
 }
 
 // FUNCTION: MW2 0x1006d88a
+// FUNCTION: MW2GBL 0x1003c2bb
 // FUNCTION: MW2MATROX 0x100037db
 // FUNCTION: MW23DFX 0x1000dc30
 // FUNCTION: MW2ATI 0x1000e320
@@ -157,6 +166,7 @@ void DetachShape(Shape* p_shape)
 }
 
 // FUNCTION: MW2 0x1006d8d1
+// FUNCTION: MW2GBL 0x1003c302
 // FUNCTION: MW2MATROX 0x10003822
 // FUNCTION: MW23DFX 0x1000dc60
 // FUNCTION: MW2ATI 0x1000e350
@@ -191,6 +201,7 @@ void EnableShapeCollision(Shape* p_shape)
 }
 
 // FUNCTION: MW2 0x1006d989
+// FUNCTION: MW2GBL 0x1003c3ba
 // FUNCTION: MW2MATROX 0x100038da
 // FUNCTION: MW23DFX 0x1000dca0
 // FUNCTION: MW2ATI 0x1000e390
@@ -223,6 +234,7 @@ void DisableShapeCollision(Shape* p_shape)
 }
 
 // FUNCTION: MW2 0x1006da2d
+// FUNCTION: MW2GBL 0x1003c45e
 // FUNCTION: MW2MATROX 0x1000397e
 // FUNCTION: MW23DFX 0x1000dcf0
 // FUNCTION: MW2ATI 0x1000e3e0
@@ -253,6 +265,7 @@ void HideShape(Shape* p_shape)
 }
 
 // FUNCTION: MW2 0x1006daa0
+// FUNCTION: MW2GBL 0x1003c4d1
 // FUNCTION: MW2MATROX 0x100039f1
 // FUNCTION: MW23DFX 0x1000dd30
 // FUNCTION: MW2ATI 0x1000e420
@@ -284,6 +297,7 @@ void ShowShape(Shape* p_shape)
 
 // Frees the shapes of all three lists.
 // FUNCTION: MW2 0x1006db28
+// FUNCTION: MW2GBL 0x1003c559
 // FUNCTION: MW2MATROX 0x10003a79
 // FUNCTION: MW23DFX 0x1000dd70
 // FUNCTION: MW2ATI 0x1000e460
@@ -316,6 +330,7 @@ void FreeSceneShapes(void)
 
 // Unlinks the shape from its list.
 // FUNCTION: MW2 0x1006dbe2
+// FUNCTION: MW2GBL 0x1003c613
 // FUNCTION: MW2MATROX 0x10003b33
 // FUNCTION: MW23DFX 0x1000de00
 // FUNCTION: MW2ATI 0x1000e4f0
@@ -336,6 +351,7 @@ void UnlinkShape(Shape* p_shape)
 
 // Links the shape in at the front of p_list.
 // FUNCTION: MW2 0x1006dc3b
+// FUNCTION: MW2GBL 0x1003c66c
 // FUNCTION: MW2MATROX 0x10003b8c
 // FUNCTION: MW23DFX 0x1000de30
 // FUNCTION: MW2ATI 0x1000e520
@@ -355,6 +371,7 @@ void LinkShape(Shape* p_shape, Shape* p_list)
 // Shows the shapes of kind 0xc0 (the object density setting) with their collisions, or hides
 // them without.
 // FUNCTION: MW2 0x1006dc7d
+// FUNCTION: MW2GBL 0x1003c6ae
 // FUNCTION: MW2MATROX 0x10003bce
 // FUNCTION: MW23DFX 0x1000de50
 // FUNCTION: MW2ATI 0x1000e540

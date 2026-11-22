@@ -10,6 +10,7 @@
 
 // Scales the difference p_screen - p_center by 4 * p_depth, as a 64-bit product shifted right by p_shift.
 // FUNCTION: MW2 0x10034990
+// FUNCTION: MW2GBL 0x1003a770
 MechS32 UnprojectCoordinate(MechS32 p_screen, MechS32 p_center, MechS32 p_depth, MechS32 p_shift)
 {
 #ifdef PORTABLE_C
