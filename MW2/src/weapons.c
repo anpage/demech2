@@ -55,6 +55,7 @@ Shape* g_aimedShape = NULL;
 
 // The fire button fires only the selected weapon; cleared, it fires them all.
 // GLOBAL: MW2 0x100a6d38
+// GLOBAL: MW2GBL 0x100b006c
 // GLOBAL: MW2MATROX 0x100a61cc
 // GLOBAL: MW23DFX 0x1025a668
 // GLOBAL: MW2S3 0x10066288
@@ -73,7 +74,7 @@ MechS32 g_singleWeaponFire = 1;
 // GLOBAL: MW2ATI 0x1008d480
 // GLOBAL: MW2S3 0x100abcd0
 // GLOBAL: MW2POWERVR 0x10083a60
-MechS32 g_remoteWeaponsFired[10];
+MechS32 g_remoteWeaponsFired[WEAPON_SLOT_COUNT];
 
 // GLOBAL: MW2 0x101099f0
 // GLOBAL: MW2GBL 0x100e9820
@@ -82,9 +83,10 @@ MechS32 g_remoteWeaponsFired[10];
 // GLOBAL: MW2ATI 0x1008d4b0
 // GLOBAL: MW2S3 0x100abd00
 // GLOBAL: MW2POWERVR 0x10083a90
-MechS32 g_localWeaponsFired[10];
+MechS32 g_localWeaponsFired[WEAPON_SLOT_COUNT];
 
 // FUNCTION: MW2 0x10044740
+// FUNCTION: MW2GBL 0x100471b0
 // FUNCTION: MW2MATROX 0x1002b4e0
 // FUNCTION: MW23DFX 0x10043760
 // FUNCTION: MW2ATI 0x10040fb0
@@ -95,14 +97,14 @@ void ReleaseWeaponTriggers(Mech* p_mech)
 	WeaponSlot* slot;
 	MechS32 i;
 
-	for (i = 0; i < 10; i++) {
+	for (i = 0; i < WEAPON_SLOT_COUNT; i++) {
 		slot = &p_mech->m_weapons[i];
 		if (slot->m_state == c_weaponFiring || slot->m_state == c_weaponHeld) {
 			slot->m_state = c_weaponReady;
 		}
 	}
 
-	for (i = 0; i < 10; i++) {
+	for (i = 0; i < WEAPON_SLOT_COUNT; i++) {
 		g_localWeaponsFired[i] = 0;
 		g_remoteWeaponsFired[i] = 0;
 	}
@@ -212,7 +214,7 @@ void UpdateWeaponFireState(Mech* p_mech)
 		}
 	}
 
-	for (i = 0; i < 10; i++) {
+	for (i = 0; i < WEAPON_SLOT_COUNT; i++) {
 		slot = &p_mech->m_weapons[i];
 		if (slot->m_type < 0) {
 			continue;
@@ -474,9 +476,9 @@ void SelectNextWeaponInGroup(Mech* p_mech, MechS32 p_wrap)
 	selected = p_mech->m_selectedWeapon;
 	group = p_mech->m_weapons[p_mech->m_selectedWeapon].m_group;
 	index = selected;
-	for (i = 1; i < 10; i++) {
+	for (i = 1; i < WEAPON_SLOT_COUNT; i++) {
 		index++;
-		index %= 10;
+		index %= WEAPON_SLOT_COUNT;
 		slot = &p_mech->m_weapons[index];
 		if (slot->m_type < 0) {
 			continue;
@@ -514,7 +516,7 @@ void SelectNextWeapon(Mech* p_mech)
 
 	while (!done) {
 		p_mech->m_selectedWeapon++;
-		p_mech->m_selectedWeapon %= 10;
+		p_mech->m_selectedWeapon %= WEAPON_SLOT_COUNT;
 		if (p_mech->m_weapons[p_mech->m_selectedWeapon].m_type < 0) {
 			continue;
 		}
@@ -527,7 +529,7 @@ void SelectNextWeapon(Mech* p_mech)
 			p_mech->m_selectedWeapon = 0;
 		}
 
-		if (p_mech->m_weapons[p_mech->m_selectedWeapon].m_state != c_weaponEmpty || ++tries == 10) {
+		if (p_mech->m_weapons[p_mech->m_selectedWeapon].m_state != c_weaponEmpty || ++tries == WEAPON_SLOT_COUNT) {
 			done = TRUE;
 		}
 	}
@@ -557,9 +559,9 @@ void SelectNextWeaponGroup(Mech* p_mech)
 
 	current = p_mech->m_weapons[p_mech->m_selectedWeapon].m_group;
 	group = current + 1;
-	group %= 10;
+	group %= WEAPON_SLOT_COUNT;
 	while (group != current && !found) {
-		for (i = 0; i < 10 && !found; i++) {
+		for (i = 0; i < WEAPON_SLOT_COUNT && !found; i++) {
 			if (p_mech->m_weapons[i].m_type < 0) {
 				continue;
 			}
@@ -573,7 +575,7 @@ void SelectNextWeaponGroup(Mech* p_mech)
 		}
 
 		group++;
-		group %= 10;
+		group %= WEAPON_SLOT_COUNT;
 	}
 }
 
@@ -606,7 +608,7 @@ MechS32 SelectWeaponGroup(Mech* p_mech, MechS32 p_group)
 		return 1;
 	}
 
-	for (i = 0; i < 10 && !found; i++) {
+	for (i = 0; i < WEAPON_SLOT_COUNT && !found; i++) {
 		if (p_mech->m_weapons[i].m_type < 0) {
 			continue;
 		}
@@ -624,6 +626,7 @@ MechS32 SelectWeaponGroup(Mech* p_mech, MechS32 p_group)
 
 // Returns 1 if the selected weapon is ready, 0 if not, -1 without one.
 // FUNCTION: MW2 0x10045919
+// FUNCTION: MW2GBL 0x10048564
 // FUNCTION: MW2MATROX 0x1002c6bf
 // FUNCTION: MW23DFX 0x100441f0
 // FUNCTION: MW2ATI 0x10041a40
@@ -721,6 +724,7 @@ void SetWeaponGroup(Mech* p_mech, MechS32 p_index, MechS32 p_group)
 
 // Moves the local player's selected weapon to p_group.
 // FUNCTION: MW2 0x10045b56
+// FUNCTION: MW2GBL 0x100487a5
 // FUNCTION: MW2MATROX 0x1002c8fc
 // FUNCTION: MW23DFX 0x10044350
 // FUNCTION: MW2ATI 0x10041ba0
@@ -764,7 +768,7 @@ void FireRemoteWeapons(Mech* p_mech)
 	WeaponDef* def;
 	MechS32 i;
 
-	for (i = 0; i < 10; i++) {
+	for (i = 0; i < WEAPON_SLOT_COUNT; i++) {
 		if (g_remoteWeaponsFired[i]) {
 			g_remoteWeaponsFired[i] = 0;
 			slot = &p_mech->m_weapons[i];
@@ -829,6 +833,7 @@ void FireWeaponGroup(void)
 
 // Moves the next weapon into the selected one's group.
 // FUNCTION: MW2 0x10045e25
+// FUNCTION: MW2GBL 0x10048a62
 // FUNCTION: MW2MATROX 0x1002cbcb
 // FUNCTION: MW23DFX 0x10044520
 // FUNCTION: MW2ATI 0x10041d70

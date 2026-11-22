@@ -194,7 +194,10 @@ extern "C"
 // FUNCTION: MW2POWERVR 0x100121d0
 // FindNearestTarget
 
-// GBL places this after FirstAI, out of ai.c's order, so it is annotated here, by name.
+// GBL places these after FirstAI, out of ai.c's order, so they are annotated here, by name.
+
+// FUNCTION: MW2GBL 0x1007672e
+// UpdateAI
 
 // FUNCTION: MW2GBL 0x1007687f
 // RunAIRules

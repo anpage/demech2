@@ -272,8 +272,8 @@ demech2_add_dll(mw2
 )
 
 # MW2_GBL.DLL: Ghost Bear's Legacy's simulator (the MW2.DLL of its 1.1 patch, GBLPATCH.EXE, linked
-# 1996-10-18 by LINK 3.10, four weeks after 1.1's), built like MW2.DLL; its source calls every function
-# /Oi would expand but abs and fabs (util/types.h). MW2_GBL is defined. Its units are 1.1's, in
+# 1996-10-18 by LINK 3.10, four weeks after 1.1's), built like MW2.DLL but without /Oi
+# (DEMECH2_NO_INTRINSICS), abs and fabs expanded all the same (util/types.h). MW2_GBL is defined. Its units are 1.1's, in
 # its own order (MW2/sources_gbl.cmake). It was linked without /DEBUG (it has no debug directory),
 # so LINK dropped the functions nothing calls (/OPT:REF, which the comparison build's /DEBUG would
 # otherwise turn off), and the C runtime's they bring in: 1.1's HeapWalk, locale and console
@@ -295,6 +295,7 @@ if (MSVC_FOR_DECOMP)
     LINK_OPTIONS /DEBUG /OPT:REF /INCREMENTAL:no
     LIBRARIES winmm.lib wail32 ddraw dplay kernel32.lib user32.lib gdi32.lib advapi32.lib
   )
+  set_property(TARGET mw2gbl PROPERTY DEMECH2_NO_INTRINSICS TRUE)
 endif()
 
 # MW2_S3.DLL, the S3 ViRGE edition's simulator, was built with VC++ 4.1 like MW2.DLL but optimized:

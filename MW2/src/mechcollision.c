@@ -432,6 +432,7 @@ MechS32 CollideWithMechs(Mech* p_mech, MechScalar* p_x, MechScalar* p_y, MechSca
 // it overlaps and bounces its velocity away. A shape of kind 0x50 isn't solid: it only gets a
 // push and a sound. Returns 1 on a collision, with *p_hit the shape.
 // FUNCTION: MW2 0x10076295
+// FUNCTION: MW2GBL 0x10028475
 // FUNCTION: MW2MATROX 0x1007649e
 // FUNCTION: MW23DFX 0x1000be60
 // FUNCTION: MW2ATI 0x1000c5d0
@@ -566,6 +567,7 @@ MechS32 CollideWithBuildings(Mech* p_mech, MechScalar* p_x, MechScalar* p_y, Mec
 // Damages p_mech and p_other by their collision, when the difficulty has collision damage and
 // they met faster than 200000.
 // FUNCTION: MW2 0x100765f8
+// FUNCTION: MW2GBL 0x100287d8
 // FUNCTION: MW2MATROX 0x1007685c
 // FUNCTION: MW23DFX 0x1000c160
 // FUNCTION: MW2ATI 0x1000c8d0
@@ -599,6 +601,7 @@ void DamageMechsInCollision(Mech* p_mech, Mech* p_other)
 // down) the legs, scaled by the other mech's mass, from above both side torsos at half, and
 // otherwise the section facing the normal. p_other is NULL for a building or the ground.
 // FUNCTION: MW2 0x1007669e
+// FUNCTION: MW2GBL 0x1002887e
 // FUNCTION: MW2MATROX 0x10076927
 // FUNCTION: MW23DFX 0x1000c1f0
 // FUNCTION: MW2ATI 0x1000c960
@@ -679,6 +682,7 @@ void ApplyCollisionDamage(Mech* p_mech, Mech* p_other, MechScalar p_damage)
 // Damages p_mech for hitting p_shape (NULL: the ground) faster than 200000, and the shape too
 // when it can be damaged. In a network game, a shape of kind 0xb0 destroys both legs and itself.
 // FUNCTION: MW2 0x100768a8
+// FUNCTION: MW2GBL 0x10028a88
 // FUNCTION: MW2MATROX 0x10076bc3
 // FUNCTION: MW23DFX 0x1000c3c0
 // FUNCTION: MW2ATI 0x1000cb30
@@ -733,6 +737,7 @@ void DamageMechHittingShape(Mech* p_mech, Shape* p_shape)
 // Knocks p_mech over: plays its fall (unless another machine of a network game controls it),
 // marks it fallen and plays the crash sound.
 // FUNCTION: MW2 0x10076a23
+// FUNCTION: MW2GBL 0x10028c03
 // FUNCTION: MW2MATROX 0x10076d51
 // FUNCTION: MW23DFX 0x1000c4d0
 // FUNCTION: MW2ATI 0x1000cc40

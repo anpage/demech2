@@ -149,8 +149,8 @@ MechS32 LoadMechConfig(Mech* p_mech, MechChar* p_name, MechS32 p_id, MechChar* p
 	}
 
 	p_mech->m_flags = 0;
-	if (header->m_weaponCount > 10) {
-		header->m_weaponCount = 10;
+	if (header->m_weaponCount > WEAPON_SLOT_COUNT) {
+		header->m_weaponCount = WEAPON_SLOT_COUNT;
 	}
 
 	sprintf(text, "\n\n chassis: %s  config: %s  ", p_name, p_config);
@@ -317,7 +317,7 @@ MechS32 LoadMechConfig(Mech* p_mech, MechChar* p_name, MechS32 p_id, MechChar* p
 			slot++;
 			weapon++;
 			i++;
-		} while (i < header->m_weaponCount && i < 10);
+		} while (i < header->m_weaponCount && i < WEAPON_SLOT_COUNT);
 	}
 
 	ammo = ammos;
@@ -472,7 +472,7 @@ MechU16 GetMechValue(MekHeader* p_header, MechSection* p_sections, MekWeapon* p_
 		value += (MechU16) p_sections->m_internal;
 	}
 
-	for (i = 0; i < p_header->m_weaponCount && i < 10; i++, p_weapons++) {
+	for (i = 0; i < p_header->m_weaponCount && i < WEAPON_SLOT_COUNT; i++, p_weapons++) {
 		value += g_weaponValues[p_weapons->m_type / 100];
 	}
 

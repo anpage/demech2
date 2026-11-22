@@ -80,6 +80,7 @@ MechS32 g_overrideShutdown = 0;
 
 // Set by game key 0x11.
 // GLOBAL: MW2 0x100aa2a0
+// GLOBAL: MW2GBL 0x1009daf0
 // GLOBAL: MW2MATROX 0x100a7cc8
 // GLOBAL: MW23DFX 0x1025051c
 // GLOBAL: MW2ATI 0x1018482c

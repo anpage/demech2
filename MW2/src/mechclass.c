@@ -54,7 +54,11 @@
 
 #include <stdio.h>
 
+#if defined(MW2_EXTERNAL_HEAT) && defined(MW2_MECH_SECOND_FLAGS)
+DECOMP_SIZE_ASSERT(Mech, 0x114)
+#else
 DECOMP_SIZE_ASSERT(Mech, 0x10e)
+#endif
 
 // Set from the world stream's planet record when positive: the jump jets' drag divisor, and the
 // ground slope (16.16) past which a mech on it slides.
@@ -77,6 +81,7 @@ MechScalar g_slideSlope = FIXED_RAW(0x2000);
 
 // The "mightymouse" cheat: infinite jump jet fuel.
 // GLOBAL: MW2 0x100a2be4
+// GLOBAL: MW2GBL 0x100b59d8
 // GLOBAL: MW2MATROX 0x100a45a0
 // GLOBAL: MW23DFX 0x1024c548
 // GLOBAL: MW2ATI 0x101808c8
@@ -86,6 +91,7 @@ MechS32 g_infiniteJumpFuel = 0;
 
 // Set by a game key: run JettisonAmmo on the local mech next tick.
 // GLOBAL: MW2 0x100a2be8
+// GLOBAL: MW2GBL 0x100b59dc
 // GLOBAL: MW2MATROX 0x100a45a4
 // GLOBAL: MW23DFX 0x1024c54c
 // GLOBAL: MW2ATI 0x101808cc
@@ -95,6 +101,7 @@ MechS32 g_jettisonAmmoRequested = 0;
 
 // Set by the MASC game key: toggle the local mech's MASC next tick.
 // GLOBAL: MW2 0x100a2bec
+// GLOBAL: MW2GBL 0x100b59e0
 // GLOBAL: MW2MATROX 0x100a45a8
 // GLOBAL: MW23DFX 0x1024c550
 // GLOBAL: MW2ATI 0x101808d0
@@ -116,6 +123,7 @@ MechS32 g_mascEngaged = 0;
 MechS32 g_unk0x100a2bf4 = 0;
 
 // GLOBAL: MW2 0x100a2bf8
+// GLOBAL: MW2GBL 0x100b59ec
 // GLOBAL: MW2MATROX 0x100a45b4
 // GLOBAL: MW23DFX 0x1024c55c
 // GLOBAL: MW2S3 0x10076f8c
@@ -124,6 +132,7 @@ MechS32 g_manualWeaponCycle = 0;
 
 // Set when the local mech lands while g_unk0x100a2c00 is on (UpdateMech).
 // GLOBAL: MW2 0x100a2bfc
+// GLOBAL: MW2GBL 0x100b59f0
 // GLOBAL: MW2MATROX 0x100a45b8
 // GLOBAL: MW23DFX 0x1024c560
 // GLOBAL: MW2ATI 0x101808e0
@@ -132,6 +141,7 @@ MechS32 g_manualWeaponCycle = 0;
 MechS32 g_unk0x100a2bfc = 0;
 
 // GLOBAL: MW2 0x100a2c00
+// GLOBAL: MW2GBL 0x100b59f4
 // GLOBAL: MW2MATROX 0x100a45bc
 // GLOBAL: MW23DFX 0x1024c564
 // GLOBAL: MW2ATI 0x101808e4
@@ -150,6 +160,7 @@ MechS32 g_localMechLost = 0;
 
 // A power request for the local mech: 1 powers it up, -1 shuts it down.
 // GLOBAL: MW2 0x100a2c08
+// GLOBAL: MW2GBL 0x100b59fc
 // GLOBAL: MW2MATROX 0x100a45c4
 // GLOBAL: MW23DFX 0x1024c56c
 // GLOBAL: MW2ATI 0x101808ec
@@ -159,6 +170,7 @@ MechS32 g_powerRequest = 0;
 
 // The local player's heading at the last tick, while the torso recenters (LateUpdateMech).
 // GLOBAL: MW2 0x100a2c0c
+// GLOBAL: MW2GBL 0x100b5a00
 // GLOBAL: MW2MATROX 0x100a45cc
 // GLOBAL: MW23DFX 0x1024c574
 // GLOBAL: MW2S3 0x10076fa4
@@ -176,6 +188,7 @@ MechS32 g_mechPoweredUp = 0;
 
 // The clock at the last MASC malfunction roll (LateUpdateMech).
 // GLOBAL: MW2 0x100a2c14
+// GLOBAL: MW2GBL 0x100b5a08
 // GLOBAL: MW2MATROX 0x100a45d0
 // GLOBAL: MW23DFX 0x1024c578
 // GLOBAL: MW2POWERVR 0x101ab76c
@@ -191,6 +204,7 @@ MechS32 g_lastMascRoll = 0;
 MechS32 g_localMechDestroyed = 0;
 
 // GLOBAL: MW2 0x100a2c1c
+// GLOBAL: MW2GBL 0x100b5a10
 // GLOBAL: MW2MATROX 0x100a45d8
 // GLOBAL: MW23DFX 0x1024c580
 // GLOBAL: MW2S3 0x10076fb0
@@ -199,6 +213,7 @@ MechS32 g_ejectStarted = 0;
 
 // Set once the local mech's collision sound played; cleared when it moves freely (UpdateMech).
 // GLOBAL: MW2 0x100be00c
+// GLOBAL: MW2GBL 0x100bb564
 // GLOBAL: MW2MATROX 0x100c1e20
 // GLOBAL: MW23DFX 0x1007c338
 // GLOBAL: MW2ATI 0x10071338
@@ -210,6 +225,7 @@ MechS32 g_collisionSoundPlayed;
 // player, its cockpit), the ramps, weapon and motion state, its object back on the ground and the
 // player's pose from it. With g_startOnAutopilot the local player starts on the autopilot.
 // FUNCTION: MW2 0x10016ad0
+// FUNCTION: MW2GBL 0x1006d510
 // FUNCTION: MW2MATROX 0x1000ce80
 // FUNCTION: MW23DFX 0x100190d0
 // FUNCTION: MW2ATI 0x10019460
@@ -1839,6 +1855,7 @@ void LateUpdateMech(Mech* p_mech)
 // ejection camera and then ends it. Except while destroyed or ejecting, a power request shuts the
 // mech down, or powers up a shut-down mech that isn't overheating.
 // FUNCTION: MW2 0x10019368
+// FUNCTION: MW2GBL 0x1006fdea
 // FUNCTION: MW2MATROX 0x1000fb2d
 // FUNCTION: MW23DFX 0x1001adf0
 // FUNCTION: MW2ATI 0x1001b1a0
@@ -1999,6 +2016,7 @@ void ShutdownMech(Mech* p_mech)
 
 // Allocates p_player's mech and sets it up.
 // FUNCTION: MW2 0x100197ca
+// FUNCTION: MW2GBL 0x1007024c
 // FUNCTION: MW2MATROX 0x1000ff8c
 // FUNCTION: MW23DFX 0x1001b120
 // FUNCTION: MW2ATI 0x1001b4d0
@@ -2025,14 +2043,15 @@ MechS32 CreateMech(MechS32 p_index, Player* p_player)
 	}
 
 	p_player->m_mech = mech;
-	p_player->m_mechSize = 0x10e;
+	p_player->m_mechSize = sizeof(Mech);
 	InitMechArrays(mech);
 	return TRUE;
 }
 
-// Lays out p_mech's allocation (its ten weapons, eight sections and 25 ammunition bins after it)
+// Lays out p_mech's allocation (its WEAPON_SLOT_COUNT weapons, eight sections and 25 ammunition bins after it)
 // and empties the weapons and the bins.
 // FUNCTION: MW2 0x10019881
+// FUNCTION: MW2GBL 0x10070303
 // FUNCTION: MW2MATROX 0x10010043
 // FUNCTION: MW23DFX 0x1001b170
 // FUNCTION: MW2ATI 0x1001b520
@@ -2048,13 +2067,13 @@ void InitMechArrays(struct Mech* p_mech)
 	AmmoBin* bins = NULL;
 
 	weapons = (WeaponSlot*) (p_mech + 1);
-	sections = (MechSection*) (weapons + 10);
+	sections = (MechSection*) (weapons + WEAPON_SLOT_COUNT);
 	bins = (AmmoBin*) (sections + 8);
 	p_mech->m_weapons = weapons;
 	p_mech->m_sections = sections;
 	p_mech->m_ammoBins = bins;
 	slot = p_mech->m_weapons;
-	for (i = 0; i < 10; i++) {
+	for (i = 0; i < WEAPON_SLOT_COUNT; i++) {
 		slot->m_status = -1;
 		slot->m_type = -1;
 		slot->m_state = c_weaponEmpty;
@@ -2086,9 +2105,10 @@ void InitMechArrays(struct Mech* p_mech)
 	}
 }
 
-// Returns the size of a mech's allocation: the mech, its ten weapons and eight sections, and 500
+// Returns the size of a mech's allocation: the mech, its WEAPON_SLOT_COUNT weapons and eight sections, and 500
 // bytes more.
 // FUNCTION: MW2 0x10019a0a
+// FUNCTION: MW2GBL 0x1007048c
 // FUNCTION: MW2MATROX 0x100101cd
 // FUNCTION: MW23DFX 0x1001b200
 // FUNCTION: MW2ATI 0x1001b5b0
@@ -2099,7 +2119,7 @@ MechS32 GetMechAllocSize(void)
 	MechS32 size;
 
 	size = sizeof(Mech);
-	size += 10 * sizeof(WeaponSlot);
+	size += WEAPON_SLOT_COUNT * sizeof(WeaponSlot);
 	size += 8 * sizeof(MechSection);
 	size += 25 * sizeof(AmmoBin);
 	return size;
@@ -2107,6 +2127,7 @@ MechS32 GetMechAllocSize(void)
 
 // Nothing calls it.
 // FUNCTION: MW2 0x10019a3c
+// FUNCTION: MW2GBL 0x100704be
 // FUNCTION: MW2MATROX 0x100101ff
 // FUNCTION: MW23DFX 0x1001b210
 MechS32 GetLastSelectedWeapon(Player* p_player)
@@ -2119,6 +2140,7 @@ MechS32 GetLastSelectedWeapon(Player* p_player)
 
 // Selects weapon p_weapon of p_player's mech.
 // FUNCTION: MW2 0x10019a61
+// FUNCTION: MW2GBL 0x100704e3
 // FUNCTION: MW2MATROX 0x10010224
 // FUNCTION: MW23DFX 0x1001b220
 void SetSelectedWeapon(Player* p_player, MechS32 p_weapon)
@@ -2131,6 +2153,7 @@ void SetSelectedWeapon(Player* p_player, MechS32 p_weapon)
 
 // Nothing calls it.
 // FUNCTION: MW2 0x10019a84
+// FUNCTION: MW2GBL 0x10070506
 MechS32 GetMechHeight(Player* p_player)
 {
 	Mech* mech;

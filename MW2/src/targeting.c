@@ -496,6 +496,7 @@ MechS32 TargetGamePiece(MechS32 p_player, MechS32 p_index, MechU32 p_flags)
 // Makes game thing p_index player p_player's target, like TargetGamePiece for a player. Returns 1,
 // or the same negative codes; its test of flag 0x10000 can never succeed.
 // FUNCTION: MW2 0x1005f798
+// FUNCTION: MW2GBL 0x10071072
 // FUNCTION: MW2MATROX 0x10007012
 // FUNCTION: MW23DFX 0x1001d2d0
 // FUNCTION: MW2ATI 0x1001d600
@@ -802,6 +803,7 @@ SceneObject* GetLocalTargetObject(void)
 // game thing (0x200), when TargetGamePiece or TargetGameThing allows it. When UpdateTarget rejects the
 // new target, the old one comes back, with the autopilot.
 // FUNCTION: MW2 0x10060010
+// FUNCTION: MW2GBL 0x100718d5
 // FUNCTION: MW2MATROX 0x100078ab
 // FUNCTION: MW23DFX 0x1001d870
 // FUNCTION: MW2ATI 0x1001db40
@@ -1009,6 +1011,7 @@ void CycleEnemyTarget(MechS32 p_step)
 // current one if there is none or UpdateTarget refuses it, and then clears the autopilot's
 // steering flag (PlayerSteering::m_autopilot).
 // FUNCTION: MW2 0x100603ae
+// FUNCTION: MW2GBL 0x10071c7b
 // FUNCTION: MW2MATROX 0x10007c8f
 // FUNCTION: MW23DFX 0x1001db60
 // FUNCTION: MW2ATI 0x1001de30

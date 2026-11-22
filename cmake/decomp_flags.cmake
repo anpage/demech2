@@ -4,9 +4,11 @@
 # /Od is not in CMAKE_<LANG>_FLAGS, so that a source can be compiled with other optimization
 # flags without cl overriding one with the other (D4025): a target adds it as a compile option,
 # unless it has DEMECH2_SOURCE_OPTIMIZATION set, in which case each of its sources gets /Od or its
-# own DEMECH2_OPTIMIZATION (cmake/game_dll.cmake; the Matrox edition's A3D renderer).
+# own DEMECH2_OPTIMIZATION (cmake/game_dll.cmake; the Matrox edition's A3D renderer). /Oi is a
+# compile option too, so that a target can leave it out (DEMECH2_NO_INTRINSICS: the GBL edition's
+# simulator calls memset and strlen where 1.1 expands them).
 foreach(lang C CXX)
-  set(CMAKE_${lang}_FLAGS "/DWIN32 /D_WINDOWS /W3 /Oi")
+  set(CMAKE_${lang}_FLAGS "/DWIN32 /D_WINDOWS /W3")
   set(CMAKE_${lang}_FLAGS_DEBUG "/Zi")
   set(CMAKE_${lang}_FLAGS_RELEASE "/DNDEBUG")
   set(CMAKE_${lang}_FLAGS_RELWITHDEBINFO "/Zi /DNDEBUG")
@@ -15,6 +17,7 @@ foreach(lang C CXX)
 endforeach()
 # (A directory property rather than add_compile_options, which CMake 4.5 warns about.)
 set_property(DIRECTORY APPEND PROPERTY COMPILE_OPTIONS
+  "$<$<AND:$<COMPILE_LANGUAGE:C,CXX>,$<NOT:$<BOOL:$<TARGET_PROPERTY:DEMECH2_NO_INTRINSICS>>>>:/Oi>"
   "$<$<AND:$<COMPILE_LANGUAGE:C,CXX>,$<NOT:$<BOOL:$<TARGET_PROPERTY:DEMECH2_SOURCE_OPTIMIZATION>>>>:/Od>")
 # LINK 3.10 crashes on Windows ("Internal error during Pass1", at a varying object) once
 # the object names it is given total about 4K: MW2's 100 objects as CMakeFiles\mw2.dir\...

@@ -38,7 +38,11 @@
 // MW2.PRJ.
 
 DECOMP_SIZE_ASSERT(AiRule, 0x0c)
+#if defined(MW2_PILOT_TABLE) && defined(MW2_PLAYER_SPARE_WORD)
+DECOMP_SIZE_ASSERT(Player, 0x1b8)
+#else
 DECOMP_SIZE_ASSERT(Player, 0x1aa)
+#endif
 DECOMP_SIZE_ASSERT(PlayerTargetInfo, 0x28)
 
 // A name for a value, for the AI's log.
@@ -535,7 +539,6 @@ AiMessageFn g_aiMessageFns[8] = {
 };
 
 // GLOBAL: MW2 0x100a9120
-// GLOBAL: MW2GBL 0x100b65d0
 // GLOBAL: MW2MATROX 0x100bb838
 // GLOBAL: MW23DFX 0x1024bc90
 // GLOBAL: MW2ATI 0x10180010
@@ -1160,6 +1163,7 @@ MechS16 AiMessageFalse(Player* p_player, MechS16 p_target, MechS16 p_arg)
 // M_REACH: whether p_player is within its range of p_target (p_arg hundreds, or the target's
 // range); reaching its anchor nav releases it, and a patrol moves on to the next nav.
 // FUNCTION: MW2 0x10052338
+// FUNCTION: MW2GBL 0x10077625
 // FUNCTION: MW2MATROX 0x10081476
 // FUNCTION: MW23DFX 0x10012a80
 // FUNCTION: MW2ATI 0x10012fe0
@@ -1388,6 +1392,7 @@ void LogStarMissionLines(MechS32 p_team)
 // p_distance it has no line of sight to is hidden, checked with p_check at most every 0x21f ticks
 // (m_nextDetectCheck). Nothing calls it.
 // FUNCTION: MW2 0x10052cb7
+// FUNCTION: MW2GBL 0x10077fa1
 // FUNCTION: MW2MATROX 0x10081e45
 // FUNCTION: MW23DFX 0x10012cd0
 MechS32 IsTargetDetectable(Player* p_player, MechS16 p_target, MechS16 p_distance, MechS32 p_check)
@@ -2223,6 +2228,7 @@ void EnterAIState(Player* p_player, MechU16 p_state)
 // The target after p_previous (-1 for the first) of p_target for p_player: a plain target
 // once, or each player a symbolic target names. Returns -1 after the last.
 // FUNCTION: MW2 0x10054043
+// FUNCTION: MW2GBL 0x100792ff
 // FUNCTION: MW2MATROX 0x10083294
 // FUNCTION: MW23DFX 0x10013a50
 // FUNCTION: MW2ATI 0x10013ee0
@@ -2510,6 +2516,7 @@ void SetAIState(Player* p_player, MechS16 p_state, MechS16 p_target, MechS32 p_p
 
 // Releases the nav points p_player placed, except its anchor.
 // FUNCTION: MW2 0x10054778
+// FUNCTION: MW2GBL 0x10079a34
 // FUNCTION: MW2MATROX 0x100839de
 // FUNCTION: MW23DFX 0x10013e90
 // FUNCTION: MW2ATI 0x10014320
@@ -2912,6 +2919,7 @@ MechS32 OrderStarSlot(MechS32 p_slot, MechS16 p_command)
 
 // Adds p_delta to p_value (with p_value's sign with p_sameSign), clamped to +/-0x400.
 // FUNCTION: MW2 0x10055131
+// FUNCTION: MW2GBL 0x1007a3c8
 // FUNCTION: MW2MATROX 0x100843ac
 // FUNCTION: MW23DFX 0x10014490
 // FUNCTION: MW2ATI 0x10014920
@@ -3493,6 +3501,7 @@ void LeadStar(MechS32 p_team)
 // Releases p_player's anchor nav (m_nav). As written it only does so when m_nav is 0, an index
 // without the nav type bits, so the anchor stays placed.
 // FUNCTION: MW2 0x100561ea
+// FUNCTION: MW2GBL 0x1007b432
 // FUNCTION: MW2MATROX 0x10085485
 // FUNCTION: MW23DFX 0x10014f60
 // FUNCTION: MW2ATI 0x100153b0

@@ -194,6 +194,7 @@ void ScaleBarGauges(void)
 // Draws the heat bar: a band from each end that meets in the middle as the heat rises.
 // MW2MATROX: the heat converts as the Matrox edition does (fld, __ftol).
 // FUNCTION: MW2 0x1004d175
+// FUNCTION: MW2GBL 0x1006aec5
 // FUNCTION: MW2MATROX 0x10089195
 // FUNCTION: MW23DFX 0x1001c350
 // FUNCTION: MW2ATI 0x1001c680
@@ -256,6 +257,7 @@ void DrawHeatBar(PANE* p_target)
 
 // Draws the heat rate bar.
 // FUNCTION: MW2 0x1004d310
+// FUNCTION: MW2GBL 0x1006b060
 // FUNCTION: MW2MATROX 0x10089332
 // FUNCTION: MW23DFX 0x1001c4a0
 // FUNCTION: MW2ATI 0x1001c7d0
@@ -417,6 +419,7 @@ void DrawThrottleGauge(PANE* p_target)
 
 // Draws the jump jet fuel bar.
 // FUNCTION: MW2 0x1004d660
+// FUNCTION: MW2GBL 0x1006b3b0
 // FUNCTION: MW2MATROX 0x100896bf
 // FUNCTION: MW23DFX 0x1001c750
 // FUNCTION: MW2ATI 0x1001ca80
