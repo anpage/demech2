@@ -266,7 +266,7 @@ tests an `MW2_` macro the table doesn't define, and when no target compiles a br
 
 ## Features
 
-From the table in `util/types.h` (162 features) and the 1174 conditional sites of the simulators' sources (`MW2/`, `common/`, `3rdparty/vfx`). A feature's cell is its value where it has one.
+From the table in `util/types.h` (164 features) and the 1185 conditional sites of the simulators' sources (`MW2/`, `common/`, `3rdparty/vfx`). A feature's cell is its value where it has one.
 
 ### The ATI, S3, Matrox, PowerVR and 3Dfx editions (`MW2_ACCEL`)
 
@@ -372,6 +372,7 @@ Every edition that has one of these has them all, so no binary separates one fro
 
 | Feature | 1.1 | ATI | S3 | Matrox | PowerVR | 3Dfx | Sites | What it does |
 |---|:-:|:-:|:-:|:-:|:-:|:-:|--:|---|
+| `MW2_QUEUEFACE_REUSED_LOCALS` |  | yes | yes |  |  | yes | 5 | QueueFace copies the face's normal into locals for its backface test, summing the z term first, keeps the z in depth, sums the average depth in dot, counts the depth loops down and or-s the vertices' clip codes into a signed byte |
 | `MW2_PROJECT_Y_AFTER_X` |  | yes | yes |  |  | yes | 2 | ProjectVertex projects y after it tests x against the view's sides |
 | `MW2_HORIZON_FLOAT_Y` |  | yes | yes |  |  | yes | 2 | HorizonYAtX keeps the horizon's y a float, converting it to an integer only for the return |
 | `MW2_OUTLINE_CLEARS_FLAGS` |  | yes | yes |  |  | yes | 1 | The wireframe outline clears flag bits 12, 14 and 15 |
@@ -439,26 +440,26 @@ Every edition that has one of these has them all, so no binary separates one fro
 |---|:-:|:-:|:-:|:-:|:-:|:-:|--:|---|
 | `MW2_DRAG_DIVIDED_ONCE` |  |  | yes |  | yes | yes | 1 | UpdateMech's air drag divides by the length once, then scales both axes by it |
 
-### The ATI and S3 editions (`MW2_ATI`, `MW2_S3`)
-
-| Feature | 1.1 | ATI | S3 | Matrox | PowerVR | 3Dfx | Sites | What it does |
-|---|:-:|:-:|:-:|:-:|:-:|:-:|--:|---|
-| `MW2_QUEUEFACE_NORMAL_LOCALS` |  | yes | yes |  |  |  | 2 | QueueFace copies the face's normal into locals for its backface test, summing the z term first |
-| `MW2_TEXTURE_FILTER_ITEM` |  | yes | yes |  |  |  | 1 | The graphics page lists the texture filter, third |
-| `MW2_FADE_STEPS_ONLY` |  | yes | yes |  |  |  | 1 | DdrawPaletteFade computes the fade's steps into g_paletteColors without setting DirectDraw's palette |
-| `MW2_DDRAW_MODE_16BIT` |  | yes | yes |  |  |  | 1 | DdrawInit sets a 16-bit display mode |
-| `MW2_DDRAW_FILL_SIZE` |  | yes | yes |  |  |  | 1 | DdrawInit clears the frame with DdrawFill(0, 0, width, height), not to width - 1 and height - 1 |
-
 ### The ATI and PowerVR editions (`MW2_ATI`, `MW2_POWERVR`)
 
 | Feature | 1.1 | ATI | S3 | Matrox | PowerVR | 3Dfx | Sites | What it does |
 |---|:-:|:-:|:-:|:-:|:-:|:-:|--:|---|
 | `MW2_VFX3D_ALIGNED_FILL` |  | yes |  |  | yes |  | 1 | VFX3D's VFX_flat_polygon fills its spans with the destination aligned, as 1.1's modified VFX does, where its other routines are VFX as released (the assembly gets it from cmake/editions.cmake) |
 
+### The ATI and S3 editions (`MW2_ATI`, `MW2_S3`)
+
+| Feature | 1.1 | ATI | S3 | Matrox | PowerVR | 3Dfx | Sites | What it does |
+|---|:-:|:-:|:-:|:-:|:-:|:-:|--:|---|
+| `MW2_TEXTURE_FILTER_ITEM` |  | yes | yes |  |  |  | 1 | The graphics page lists the texture filter, third |
+| `MW2_FADE_STEPS_ONLY` |  | yes | yes |  |  |  | 1 | DdrawPaletteFade computes the fade's steps into g_paletteColors without setting DirectDraw's palette |
+| `MW2_DDRAW_MODE_16BIT` |  | yes | yes |  |  |  | 1 | DdrawInit sets a 16-bit display mode |
+| `MW2_DDRAW_FILL_SIZE` |  | yes | yes |  |  |  | 1 | DdrawInit clears the frame with DdrawFill(0, 0, width, height), not to width - 1 and height - 1 |
+
 ### The ATI edition (`MW2_ATI`)
 
 | Feature | 1.1 | ATI | S3 | Matrox | PowerVR | 3Dfx | Sites | What it does |
 |---|:-:|:-:|:-:|:-:|:-:|:-:|--:|---|
+| `MW2_JUMP_JET_THRUST_FIRST` |  | yes |  |  |  |  | 4 | UpdateMech's jump jets add their thrust to accelX before the drag (the later editions add the drag and the thrust first, as for accelZ) |
 | `MW2_RES_512X384` |  | yes |  |  |  |  | 4 | VESA480.DLL is 512x384 when DirectDraw has the mode in 16 bits (FUN_100059b0), 640x480 otherwise |
 | `MW2_DDRAW_CAPS_DX1` |  | yes |  |  |  |  | 2 | *Artefact.* DdrawInit's DDCAPS is DirectX 1's, 0xac bytes (the edition was built with DirectX 1's headers) |
 | `MW2_DDRAW_NO_CAPS_FLAG` |  | yes |  |  |  |  | 3 | DdrawCreateSurfaces sets no DDSD_CAPS in its surface descriptions |
@@ -474,6 +475,7 @@ Every edition that has one of these has them all, so no binary separates one fro
 
 | Feature | 1.1 | ATI | S3 | Matrox | PowerVR | 3Dfx | Sites | What it does |
 |---|:-:|:-:|:-:|:-:|:-:|:-:|--:|---|
+| `MW2_QUEUEFACE_TEXTURE_RANGE` |  |  | yes |  |  |  | 4 | QueueFace takes the range of the face's texture coordinates, and the polygon's flags and outcodes from it |
 | `MW2_PROJECT_ALL_NEAR_EMPTY` |  |  | yes |  |  |  | 4 | ProjectPolygon leaves no points, at once, when every vertex is nearer than the near plane |
 | `MW2_JOYSTICK_PROBE_SIZE_ONLY` |  |  | yes |  |  |  | 1 | JoystickOpenDevice's probe sets its JOYINFOEX's size without clearing it |
 | `MW2_RENDER_SETTINGS_AFTER_MODES` |  |  | yes |  |  |  | 1 | SimMain reads the render settings (FUN_1008fad0) once the refresh mode is set |
@@ -597,6 +599,7 @@ Every edition that has one of these has them all, so no binary separates one fro
 - `MW2_MOUSE_PEEK_RETURNS`: `MW2/src/simmain.c`: `HandleMessages`
 - `MW2_STDCALL_TIMER_CALLBACK`: `MW2/src/supanim.c`: `SupAnimTimerCallback`, file scope
 - `MW2_DEBUG_LOG_TEXT`: `MW2/src/refreshmode.c`: file scope; `MW2/src/simmain.c`: `UpdatePauseState` (2)
+- `MW2_QUEUEFACE_REUSED_LOCALS`: `MW2/src/accel/queueface.c`: `QueueFace` (5)
 - `MW2_PROJECT_Y_AFTER_X`: `MW2/src/accel/queueface.c`: `ProjectVertex` (2)
 - `MW2_SLOPE_ONCE`: `MW2/src/accel/floatmath.c`: `InitSlopeTables` (2)
 - `MW2_HORIZON_FLOAT_Y`: `MW2/src/horizon.c`: `HorizonYAtX` (2)
@@ -638,9 +641,9 @@ Every edition that has one of these has them all, so no binary separates one fro
 - `MW2_TILT_NEGATIVE_FACTOR`: `MW2/src/aiweapons.c`: `RunAIWeapons`
 - `MW2_MEK_LOG_FLOATS`: `MW2/src/mekfile.c`: `LoadMechConfig` (2)
 - `MW2_GROUND_HEIGHT_IN_TEST`: `MW2/src/shots.c`: `UpdateShot`
-- `MW2_QUEUEFACE_NORMAL_LOCALS`: `MW2/src/accel/queueface.c`: `QueueFace` (2)
 - `MW2_VFX3D_ALIGNED_FILL`: `3rdparty/vfx/VFX3D.ASM`: file scope
 - `MW2_TEXTURE_FILTER_ITEM`: `MW2/src/accel/graphicsmenu.c`: `g_graphicsPage`
+- `MW2_JUMP_JET_THRUST_FIRST`: `MW2/src/mechclass.c`: `UpdateMech` (4)
 - `MW2_RES_512X384`: `MW2/include/directdraw.h`: file scope; `MW2/src/directdraw.c`: file scope, the definitions of `FUN_10005950`, `FUN_100059b0`; `MW2/src/simmain.c`: `SetGameResolution`
 - `MW2_FADE_STEPS_ONLY`: `MW2/src/directdraw.c`: the definition of `DdrawPaletteFade`
 - `MW2_DDRAW_PALETTE_UNSET`: `MW2/src/directdraw.c`: the definition of `DdrawWritePaletteEntries`, the definition of `DdrawWritePaletteGamma`
@@ -649,6 +652,7 @@ Every edition that has one of these has them all, so no binary separates one fro
 - `MW2_DDRAW_CAPS_DX1`: `MW2/src/directdraw.c`: `DdrawInit` (2)
 - `MW2_DDRAW_NO_CAPS_FLAG`: `MW2/src/directdraw.c`: `DdrawCreateSurfaces` (3)
 - `MW2_DDRAW_FALLBACK_SURFACES_ONLY`: `MW2/src/directdraw.c`: `DdrawCreateSurfaces`
+- `MW2_QUEUEFACE_TEXTURE_RANGE`: `MW2/src/accel/queueface.c`: `QueueFace` (4)
 - `MW2_PROJECT_ALL_NEAR_EMPTY`: `MW2/src/accel/queueface.c`: `ProjectPolygon` (4)
 - `MW2_JOYSTICK_PROBE_SIZE_ONLY`: `MW2/src/joystick.c`: `JoystickOpenDevice`
 - `MW2_RENDER_SETTINGS_AFTER_MODES`: `MW2/src/simmain.c`: `SimMain`
@@ -743,7 +747,7 @@ What tests `MW2_ACCEL`, `MW2_MATROX` or `MW2_3DFX` itself rather than a feature,
 ### `MW2_ACCEL` (83 sites)
 
 - In a function: the edition's back end, what the shared code does for it, or the same computation written another way (7): `MW2/src/aiweapons.c`: `DecideAIFire`; `MW2/src/cockpit.c`: `SatelliteFaceColor`; `MW2/src/mekfile.c`: `LoadMechConfig`; `MW2/src/ramp.c`: `SetWrappedRampTarget`, `UpdateWrappedRamp`; `MW2/src/world.c`: `BwdExecuteStream`; `MW2/src/wtbshapes.c`: `LoadShapeRecord`
-- An edition's own definition of a function, or functions only some editions' objects have (7): `MW2/src/accel/queueface.c`: the definitions of `ClipEdgeToNearPlane`, `ClipProjectedEdge`, `GetFaceShade`, `GetViewVertex`, `ProjectPolygon`, `ProjectVertex`, `QueueFace`; `MW2/src/shape.c`: the definition of `GetShapeLoadFlags`, the definition of `SelectModelByKey`, the definition of `SelectNextModel`, the definitions of `FUN_1003a859`, `FUN_1003a889`, `GetModelKey`, the definitions of `GetNewShapeFlags`, `SelectFirstModel`, `SetNewShapeFlags`, the definitions of `GetShapeFace`, `GetTransformedVertex`, `GetVertexPosition`
+- An edition's own definition of a function, or functions only some editions' objects have (7): `MW2/src/accel/queueface.c`: the definitions of `ClipEdgeToNearPlane`, `GetFaceShade`, `GetViewVertex`, `ProjectVertex`, `QueueFace`; `MW2/src/shape.c`: the definition of `GetShapeLoadFlags`, the definition of `SelectModelByKey`, the definition of `SelectNextModel`, the definitions of `FUN_1003a859`, `FUN_1003a889`, `GetModelKey`, the definitions of `GetNewShapeFlags`, `SelectFirstModel`, `SetNewShapeFlags`, the definitions of `GetShapeFace`, `GetTransformedVertex`, `GetVertexPosition`
 - A fragment included at the position of the object that holds it (21): `MW2/src/ai.c`: file scope (7); `MW2/src/clock.c`: file scope; `MW2/src/cockpit.c`: file scope (3); `MW2/src/config.c`: file scope; `MW2/src/depthsort.c`: file scope (2); `MW2/src/joystick.c`: file scope (2); `MW2/src/shape.c`: file scope (4); `MW2/src/transform.c`: file scope
 - The same definition at another address or in another section (34): `MW2/src/cockpit.c`: file scope; `MW2/src/inputmap.c`: file scope (32); `MW2/src/recordstacks.c`: file scope
 - Data and declarations that differ (10): `MW2/include/simmain.h`: file scope; `MW2/src/gdi.c`: file scope; `MW2/src/inputmap.c`: file scope (8)

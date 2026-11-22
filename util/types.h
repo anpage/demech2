@@ -214,6 +214,10 @@ typedef char MechChar;
 #endif
 
 #ifdef MW2_3DFX
+/* QueueFace copies the face's normal into locals for its backface test, summing the z term first, keeps
+   the z in depth, sums the average depth in dot, counts the depth loops down and or-s the vertices' clip
+   codes into a signed byte */
+#define MW2_QUEUEFACE_REUSED_LOCALS
 /* ProjectVertex projects y after it tests x against the view's sides */
 #define MW2_PROJECT_Y_AFTER_X
 /* InitSlopeTables computes each slope once, for its cosine and its sine */
@@ -317,8 +321,10 @@ typedef char MechChar;
 #define MW2_SKY_GROUND_ALL_CASES
 /* DrawSkyAndGround sets the sky and ground palette entries */
 #define MW2_SKY_GROUND_COLORS
-/* QueueFace copies the face's normal into locals for its backface test, summing the z term first */
-#define MW2_QUEUEFACE_NORMAL_LOCALS
+/* QueueFace copies the face's normal into locals for its backface test, summing the z term first, keeps
+   the z in depth, sums the average depth in dot, counts the depth loops down and or-s the vertices' clip
+   codes into a signed byte */
+#define MW2_QUEUEFACE_REUSED_LOCALS
 /* ProjectVertex projects y after it tests x against the view's sides */
 #define MW2_PROJECT_Y_AFTER_X
 /* The wireframe outline clears flag bits 12, 14 and 15 */
@@ -361,6 +367,9 @@ typedef char MechChar;
 /* Artefact: LateUpdateMech's torso recentring records the heading without testing isLocal again (it
    holds there) */
 #define MW2_RECENTER_NO_RETEST
+/* UpdateMech's jump jets add their thrust to accelX before the drag (the later editions add the drag
+   and the thrust first, as for accelZ) */
+#define MW2_JUMP_JET_THRUST_FIRST
 /* Artefact: DodgeShot picks the side before it divides the heading */
 #define MW2_DODGE_SIDE_FIRST
 /* Artefact: MoveMechWithCollisions sums the bounce's dot product in three statements and negates the
@@ -424,8 +433,12 @@ typedef char MechChar;
 #endif
 
 #ifdef MW2_S3
-/* QueueFace copies the face's normal into locals for its backface test, summing the z term first */
-#define MW2_QUEUEFACE_NORMAL_LOCALS
+/* QueueFace copies the face's normal into locals for its backface test, summing the z term first, keeps
+   the z in depth, sums the average depth in dot, counts the depth loops down and or-s the vertices' clip
+   codes into a signed byte */
+#define MW2_QUEUEFACE_REUSED_LOCALS
+/* QueueFace takes the range of the face's texture coordinates, and the polygon's flags and outcodes from it */
+#define MW2_QUEUEFACE_TEXTURE_RANGE
 /* ProjectPolygon leaves no points, at once, when every vertex is nearer than the near plane */
 #define MW2_PROJECT_ALL_NEAR_EMPTY
 /* ProjectVertex projects y after it tests x against the view's sides */

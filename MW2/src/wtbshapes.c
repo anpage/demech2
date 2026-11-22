@@ -144,29 +144,17 @@ MechU32* g_faceIds;
 // GLOBAL: MW2S3 0x1007f15c
 MechS32 g_shapeHasKey;
 
+// The owner whose team colour LoadShapes gives a shape's faces (MapFaceId), while m_set is set: a
+// player (m_kind 0x100) or a game thing (0x200). One object: the optimized editions reload what
+// LoadStaticObject read before storing to it (entry->m_thing) and store entry->m_shape before
+// clearing m_set, as they do around a store to a struct member but not to a scalar global.
 // GLOBAL: MW2 0x100bfd40
 // GLOBAL: MW2MATROX 0x101d68f0
 // GLOBAL: MW23DFX 0x101597b0
 // GLOBAL: MW2ATI 0x1008d7c0
 // GLOBAL: MW2S3 0x1007f3d0
 // GLOBAL: MW2POWERVR 0x10083da0
-MechS32 g_shapeOwnerSet;
-
-// GLOBAL: MW2 0x100bfd44
-// GLOBAL: MW2MATROX 0x101d68f4
-// GLOBAL: MW23DFX 0x101597b4
-// GLOBAL: MW2ATI 0x1008d7c4
-// GLOBAL: MW2S3 0x1007f3d4
-// GLOBAL: MW2POWERVR 0x10083da4
-MechS32 g_shapeOwnerKind;
-
-// GLOBAL: MW2 0x100bfd48
-// GLOBAL: MW2MATROX 0x101d68f8
-// GLOBAL: MW23DFX 0x101597b8
-// GLOBAL: MW2ATI 0x1008d7c8
-// GLOBAL: MW2S3 0x1007f3d8
-// GLOBAL: MW2POWERVR 0x10083da8
-MechS32 g_shapeOwner;
+ShapeOwner g_shapeOwner;
 
 // FUNCTION: MW2 0x1007f140
 // FUNCTION: MW2MATROX 0x10025230
@@ -615,8 +603,8 @@ MechS32 LoadShapeRecord(MechU8* p_data, MechS32* p_offset, Shape** p_shape, Scen
 	return 0;
 }
 
-// Maps a face id: ids 0 and 0x14 take the team colour of player g_shapeOwner while
-// g_shapeOwnerSet is set; ids with bit 15 index g_faceIds.
+// Maps a face id: ids 0 and 0x14 take the team colour of g_shapeOwner while its m_set is
+// set; ids with bit 15 index g_faceIds.
 // FUNCTION: MW2 0x1007fae3
 // FUNCTION: MW2MATROX 0x10025e94
 MechU32 MapFaceId(MechU32 p_id)
@@ -625,13 +613,13 @@ MechU32 MapFaceId(MechU32 p_id)
 	MechS32 offset;
 
 	offset = 0;
-	if (g_shapeOwnerSet && ((p_id & 0xff) == 0 || (p_id & 0xff) == 0x14)) {
-		if (g_shapeOwnerKind == 0x100) {
-			team = g_players[g_shapeOwner]->m_team;
+	if (g_shapeOwner.m_set && ((p_id & 0xff) == 0 || (p_id & 0xff) == 0x14)) {
+		if (g_shapeOwner.m_kind == 0x100) {
+			team = g_players[g_shapeOwner.m_id]->m_team;
 			offset = g_teams[team].m_affiliation;
 		}
-		else if (g_gameThings[g_shapeOwner].m_affiliation != -1) {
-			offset = g_gameThings[g_shapeOwner].m_affiliation;
+		else if (g_gameThings[g_shapeOwner.m_id].m_affiliation != -1) {
+			offset = g_gameThings[g_shapeOwner.m_id].m_affiliation;
 		}
 
 		p_id += offset;

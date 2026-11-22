@@ -307,7 +307,8 @@ void FirstMech(struct Player* p_player)
 // The accelerated editions' version, in floats. The ATI, S3, PowerVR and 3Dfx editions declare the
 // second collision test's results and the aim ray's locals in the blocks that use them, where VC++
 // 2.2 and 4.1 let them share the frame, and the 3Dfx edition's jump jet terms are cast, which
-// keeps 2.2 from regrouping the float sums.
+// keeps 2.2 from regrouping the float sums (the ATI edition casts accelX plus the thrust, then
+// adds the drag: MW2_JUMP_JET_THRUST_FIRST).
 // FUNCTION: MW2MATROX 0x1000d29c
 // FUNCTION: MW23DFX 0x10019310
 // FUNCTION: MW2ATI 0x100196a0
@@ -481,7 +482,11 @@ void UpdateMech(Mech* p_mech)
 					accelY = -g_gravity;
 				}
 
+#ifdef MW2_JUMP_JET_THRUST_FIRST
+				accelX = (MechFloat) (accelX - mech->m_player->m_headingCos * mech->m_jumpThrust) + dragX;
+#else
 				accelX += (MechFloat) (-(mech->m_player->m_headingCos * mech->m_jumpThrust) + dragX);
+#endif
 				accelZ += (MechFloat) (dragZ + mech->m_player->m_headingSin * mech->m_jumpThrust);
 			}
 			else if (mech->m_player->m_steering->m_jumpJetFireRight) {
@@ -492,7 +497,11 @@ void UpdateMech(Mech* p_mech)
 					accelY = -g_gravity;
 				}
 
+#ifdef MW2_JUMP_JET_THRUST_FIRST
+				accelX = (MechFloat) (accelX + mech->m_player->m_headingCos * mech->m_jumpThrust) + dragX;
+#else
 				accelX += (MechFloat) (dragX + mech->m_player->m_headingCos * mech->m_jumpThrust);
+#endif
 				accelZ += (MechFloat) (-(mech->m_player->m_headingSin * mech->m_jumpThrust) + dragZ);
 			}
 			else if (mech->m_player->m_steering->m_jumpJetFireForward) {
@@ -503,7 +512,11 @@ void UpdateMech(Mech* p_mech)
 					accelY = -g_gravity;
 				}
 
+#ifdef MW2_JUMP_JET_THRUST_FIRST
+				accelX = (MechFloat) (accelX + mech->m_player->m_headingSin * mech->m_jumpThrust) + dragX;
+#else
 				accelX += (MechFloat) (dragX + mech->m_player->m_headingSin * mech->m_jumpThrust);
+#endif
 				accelZ += (MechFloat) (dragZ + mech->m_player->m_headingCos * mech->m_jumpThrust);
 			}
 			else if (mech->m_player->m_steering->m_jumpJetFireBackward) {
@@ -514,7 +527,11 @@ void UpdateMech(Mech* p_mech)
 					accelY = -g_gravity;
 				}
 
+#ifdef MW2_JUMP_JET_THRUST_FIRST
+				accelX = (MechFloat) (accelX - mech->m_player->m_headingSin * mech->m_jumpThrust) + dragX;
+#else
 				accelX += (MechFloat) (-(mech->m_player->m_headingSin * mech->m_jumpThrust) + dragX);
+#endif
 				accelZ += (MechFloat) (-(mech->m_player->m_headingCos * mech->m_jumpThrust) + dragZ);
 			}
 		}
