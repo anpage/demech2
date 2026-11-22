@@ -16,6 +16,8 @@
 0x10003884 ShowInGameMessage timedoverlays.c rename done=zqaf i=zqag latest=zqah lowestPriority=zqad overlay=zqae result=zqaj slot=zqai
 0x10003a29 DrawTimedOverlays timedoverlays.c rename background=zqag font=zqad i=zqae overlay=zqaf
 0x10003b3f DrawTextBox timedoverlays.c rename background=zqaf centered=zqag font=zqad rect=zqae
+0x10004465 ScaleCockpitLayout cockpitpanels.c rename i=zqag rect=zqad target=zqaf transition=zqae
+0x1000491c UpdateCockpit cockpitpanels.c rename bearing=zqah distance=zqag i=zqaf pitch=zqad twistBearing=zqae
 0x100051c9 CloseMw2Log mw2log.c rename line=zqae now=zqad
 0x100055b4 GetSlotAiState lancemenu.c rename ai=zqae index=zqaf player=zqad state=zqag
 0x10005656 InstallGoalSuffix lancemenu.c rename choices=zqae old=zqad
@@ -154,8 +156,9 @@
 0x10031c51 GetOrCreateInputAxis inputmap.c pad 1 rename i=zqad name=zqag sink=zqaf suffix=zqae
 0x10032083 AddAnalogBinding inputmap.c pad 2 rename device=zqad found=zqag i=zqaf index=zqae
 0x1003227a ParseInputConditions inputmap.c rename button=zqai buttonName=zqaf device=zqad deviceName=zqag line=zqae name=zqaj sign=zqah
-0x10032442 CheckInputConditions inputmap.c pad 6
+0x10032442 CheckInputConditions inputmap.c pad 4
 0x100324e3 ParseInputMap inputmap.c rename channel=zqai channelName=zqag deviceName=zqah index=zqaf line=zqad name=zqaj sign=zqak sink=zqae suffix=zqal
+0x10032c6a LoadGamekeyMap inputmap.c rename action=zqai code=zqak file=zqaj i=zqag keyCode=zqaf keys=zqah line=zqad token=zqae
 0x10032f8d UpdateAxisFromKeys inputmap.c rename axis=zqad channel=zqag device=zqaf driven=zqae position=zqah
 0x10033a10 InitPaletteCycle palfade.c rename dst=zqaf i=zqae working=zqad
 0x10033cd9 StepPaletteFade palfade.c rename accum=zqae delta=zqag i=zqaf palette=zqad
@@ -263,6 +266,7 @@
 0x1004b594 PrintMono logwindow.c pad 8 rename i=zqad length=zqae
 0x1004b728 DebugPrintInternal logwindow.c rename args=zqae message=zqad
 0x1004b895 SetTeamFormationByName team.c pad 1
+0x1004b98b SetTeamFormation team.c pad 2
 0x1004ba56 SetTeamLeader team.c rename dx=zqah dz=zqaf i=zqae player=zqag result=zqad
 0x1004bb7e PlaceTeam team.c pad 7 rename heading=zqah i=zqaj leader=zqaf player=zqag result=zqad x=zqai z=zqae
 0x1004bcbc GetTeamSlotPosition team.c pad 3 rename leader=zqae matrix=zqaf obj=zqag slot=zqad team=zqai y=zqah
@@ -388,7 +392,10 @@
 0x1007e7e7 IsGroundLevelToward lineofsight.c rename distance=zqag height=zqai i=zqaj level=zqae pitch=zqaf stepX=zqal stepY=zqam stepZ=zqan steps=zqad unk0x10=zqah yaw=zqak
 0x1007ea29 ScreenshotWritePalette screenshot.c rename color=zqaf i=zqae numColors=zqad
 0x1007eaa9 ScreenshotWriteImage screenshot.c rename height=zqaf result=zqae width=zqad
+0x1007ed0c DrawAltimeter hud.c rename gauge=zqad height=zqae level=zqam mark=zqaj mech=zqaf shape=zqal target=zqah unused=zqak x=zqag y=zqai
+0x1007efe1 InitHudGauges hud.c rename extent=zqau height=zqae origin=zqat shape=zqad target=zqag width=zqaf
 0x1007f4fc DrawTargetMarker hud.c rename index=zqad offScreen=zqaj onScreen=zqai player=zqae point=zqal target=zqak x=zqaf y=zqag z=zqah
+0x1007f88b DrawCompass hud.c rename gauge=zqad heading=zqag offset=zqai target=zqah x=zqaf x2=zqae
 0x1007f9e9 ProjectAimPoint hud.c rename ray=zqag result=zqah x=zqad y=zqae z=zqaf
 0x100806c3 ProjectMapViewVertex mapview.c rename outcode=zqae x=zqad y=zqaf
 0x1008082c ProjectMapPoint mapview.c rename dx=zqah dy=zqai dz=zqaj visible=zqad x=zqae y=zqaf z=zqag

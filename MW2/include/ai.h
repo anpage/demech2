@@ -137,7 +137,11 @@ extern "C"
 	MechScalar AddClamped(MechScalar p_value, MechS32 p_delta, MechS32 p_sameSign);
 	void ResetStarOrders(MechS32 p_team);
 	void AssignStarObjective(MechS32 p_team);
-	MechS16 GetEngagementAIFlags(MechS32 p_value);
+#ifdef MW2_ENGAGEMENT_FLAGS_INT
+	MechS32 GetEngagementAIFlags(MechS32 p_value);
+#else
+MechS16 GetEngagementAIFlags(MechS32 p_value);
+#endif
 	void SetAIScript(struct Player* p_player, MechS16 p_slot, MechS16 p_script, MechS16 p_leader);
 	MechU16 GetObjectiveTarget(MechS32 p_team, MechS16 p_objective, MechS32 p_index);
 	MechS32 GetTeamMembers(MechS32 p_team, struct Player** p_members, MechS32 p_aliveOnly);

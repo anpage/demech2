@@ -9,7 +9,7 @@ sources, so that it can't drift from them.
 Seven editions are targets today; the table lists the editions after 1.1 in the order they were
 built. The S3 and PowerVR editions joined after the others: every one of their functions is
 annotated, but most of what they changed from the ATI edition is still undiagnosed. Ghost Bear's
-Legacy joined last: 1339 of its functions are annotated so far, ported from 1.1's.
+Legacy joined last: 1347 of its functions are annotated so far, ported from 1.1's.
 
 | | 1.1 | ATI | S3 | Matrox | PowerVR | GBL | 3Dfx |
 |---|---|---|---|---|---|---|---|
@@ -103,8 +103,9 @@ compiler with optimization.
 - **Build.** VC++ 4.1 at `/Od /G5` with `LIBCMTD`, as 1.1, but without `/Oi`: there is no inline `strlen` in its game code (1.1 has 85), it calls `memset`, `memcpy`, `strcmp` and `memcmp` where 1.1 expands them (`FindSession`, `FindIpxProviderCallback`), and `_sqrt`, `_sin` and `_atan` where 1.1 calls their `__CI` entries. It expands `abs` and `fabs` all the same, as 1.1 does; how its build did that isn't known (a `#pragma intrinsic` or other headers), and `util/types.h` reproduces it with a `#pragma intrinsic(abs, fabs)` under `MW2_GBL`. It was linked without `/DEBUG` (the DLL has no debug directory), so with LINK's default `/OPT:REF`: the functions nothing calls are gone, with the imports of the C runtime they bring in (1.1's `HeapWalk`, locale and console imports), which is most of why its code is 20 KB smaller than 1.1's.
 - **Placement.** Its object order is its own (`MW2/sources_gbl.cmake`: it shares no long run of units with 1.1's, the Matrox edition's or the 2.2 editions'), found from the functions and data it shares with 1.1, and `tools/check_units.py` passes with it. Three of its objects are parts of 1.1's: the cockpit panels (`cockpitpanels.c`, after `timedoverlays.c`), the faces' projection (`faceprojection.c`, the end of 1.1's `objectanim.c`, after `mechcollision.c`, where the Matrox edition has its float versions) and `clock.c`'s tables with the rotation's normalization (`clockmath.c`, at the end of its code); it builds those fragments as units. It defines `g_shouldToggleFullscreen`, `g_desktopWidth` and `g_desktopHeight` among `refreshmode.c`'s data, not `simmain.c`'s, and places `RunAIRules` after `FirstAI` (annotated by name in `ai.h`).
 - **Annotations** were ported by bytes from 1.1's original, then from the rebuild (`tools/port_annotations.py --rebuild`: the functions that differ from 1.1's only by the intrinsics), and the globals datacmp then reported left out: the data GBL changed (the cockpit panels' layout, the weapon definitions, the game keys' names, the local star) and the tables that point to functions not annotated yet, with the menus and back ends that point to those.
-- **Structures.** Its `Mech` (0x114 bytes) has `m_externalHeat` at 0x98, the heat the radius damage adds and `CalculateHeat` takes (`MW2_EXTERNAL_HEAT`), and a second word of flags at its end (`MW2_MECH_SECOND_FLAGS`); a mech has 14 weapon slots, not 10 (`MW2_FOURTEEN_WEAPON_SLOTS`, `WEAPON_SLOT_COUNT`). Its `Player` (0x1b8 bytes) has a word nothing uses after `m_ai` (`MW2_PLAYER_SPARE_WORD`), and a flag after `m_nextFireTime` and two values at its end that its AI setup takes from a table of pilots for a gunnery above 6 (`MW2_PILOT_TABLE`). It has four more cockpit panels, ahead of 1.1's last eight.
-- **What it changed** besides, from a first comparison with 1.1, to be settled as the edition is worked in: constants (limits `0x1a` to `0x1e`, `0xa1` to `0xa3`); about 18 functions 1.1 doesn't have: the cheat messages stored XOR-encoded and decoded at startup, a toggle between two modes of one weapon type, a MIDI volume setter, display modes in the face colours; and its window and error texts ("Ghost Bear's Legacy" for "MechWarrior2").
+- **Structures.** Its `Mech` (0x114 bytes) has `m_externalHeat` at 0x98, the heat the radius damage adds and `CalculateHeat` takes (`MW2_EXTERNAL_HEAT`), and a second word of flags at its end (`MW2_MECH_SECOND_FLAGS`); a mech has 14 weapon slots, not 10 (`MW2_FOURTEEN_WEAPON_SLOTS`, `WEAPON_SLOT_COUNT`). Its `Player` (0x1b8 bytes) has a word nothing uses after `m_ai` (`MW2_PLAYER_SPARE_WORD`), and a flag after `m_nextFireTime` and two values at its end that its AI setup takes from a table of pilots for a gunnery above 6 (`MW2_PILOT_TABLE`). Its 14 weapon slots have 14 weapon panels, seven in each column, so its panels from the target's on are 4 further (`c_panelTarget` 17, `c_panelCount` 30) and its panel tables have 30 entries.
+- **Data.** Two game keys of its own: `CHAT_MODE`, action 66, so its actions from 66 on are one higher (`MW2_CHAT_KEY`, `GAME_KEY_ACTION`), and `TOGGLE_AMS`, 169 (`MW2_AMS_KEY`). Its local star starts at 0, as the accelerated editions' does (`MW2_LOCAL_STAR_FROM_ZERO`). Its message boxes and refresh mode errors name Ghost Bear's Legacy, typos included (`MW2_GHOST_BEAR_TITLES`), and it finds its CD by `GBL_HERC.DRV` (`MW2_GBL_CD_DRIVER`). `GetEngagementAIFlags` returns an `int` (`MW2_ENGAGEMENT_FLAGS_INT`). Still to write: its weapon definitions (`WeaponDef` has 16 more bytes ahead of 1.1's members, among them a pointer to a launch function, and the table has 35 weapons, Inf SRM, Torpedo, InfSSRM and ArrowIV the new ones), its maneuver tables (static data, where 1.1 fills them at run time), and the tables of pointers to its functions that aren't annotated yet (the back ends, the menus, the AI handlers).
+- **What it changed** besides, from a first comparison with 1.1, to be settled as the edition is worked in: about 18 functions 1.1 doesn't have: the cheat messages stored XOR-encoded and decoded at startup, a toggle between two modes of one weapon type, a MIDI volume setter, display modes in the face colours; and a restructured `RunGameKey`.
 
 ## Adding an edition
 
@@ -277,7 +278,7 @@ tests an `MW2_` macro the table doesn't define, and when no target compiles a br
 
 ## Features
 
-From the table in `util/types.h` (169 features) and the 1196 conditional sites of the simulators' sources (`MW2/`, `common/`, `3rdparty/vfx`). A feature's cell is its value where it has one.
+From the table in `util/types.h` (174 features) and the 1210 conditional sites of the simulators' sources (`MW2/`, `common/`, `3rdparty/vfx`). A feature's cell is its value where it has one.
 
 ### The ATI, S3, Matrox, PowerVR and 3Dfx editions (`MW2_ACCEL`)
 
@@ -326,7 +327,6 @@ Every edition that has one of these has them all, so no binary separates one fro
 | `MW2_RADIUS_HEAD_DAMAGE_HALF` |  | yes | yes | yes | yes |  | yes | 1 | Radius (fire) damage to the head is half, not a quarter |
 | `MW2_NO_ENGINE_NOTE` |  | yes | yes | yes | yes |  | yes | 1 | StartEngineNote returns at once |
 | `MW2_LEADER_NEAR_TARGET` |  | yes | yes | yes | yes |  | yes | 3 | IsTeamNearTarget tests only the team's leader |
-| `MW2_LOCAL_STAR_FROM_ZERO` |  | yes | yes | yes | yes |  | yes | 2 | The local star starts at 0, and the player's formation goes to it |
 | `MW2_NETWORK_STAR_PLAYERS` |  | yes | yes | yes | yes |  | yes | 2 | UpdateObjective takes star N as player N in network games |
 | `MW2_RESTART_KEEPS_LISTED` |  | yes | yes | yes | yes |  | yes | 1 | Restarting a star mission keeps its objectives' targets' listed flags |
 | `MW2_JOYINFOEX_UNCLEARED` |  | yes | yes | yes | yes |  | yes | 1 | JoystickPoll neither clears its JOYINFOEX nor sets its size |
@@ -335,6 +335,12 @@ Every edition that has one of these has them all, so no binary separates one fro
 | `MW2_LEMMY_CHEAT` |  | yes | yes | yes | yes |  | yes | 1 | The "lemmy" cheat |
 | `MW2_NO_DORCS_CHEAT` |  | yes | yes | yes | yes |  | yes | 1 | 1.1's "dorcs" cheat is gone |
 | `MW2_EXTRA_DEBUG_PRINTS` |  | yes | yes | yes | yes |  | yes | 5 | Debug output both accelerated editions add |
+
+### The ATI, S3, Matrox, PowerVR, GBL and 3Dfx editions (`MW2_ACCEL`, `MW2_GBL`)
+
+| Feature | 1.1 | ATI | S3 | Matrox | PowerVR | GBL | 3Dfx | Sites | What it does |
+|---|:-:|:-:|:-:|:-:|:-:|:-:|:-:|--:|---|
+| `MW2_LOCAL_STAR_FROM_ZERO` |  | yes | yes | yes | yes | yes | yes | 2 | The local star starts at 0, and the player's formation goes to it |
 
 ### The ATI, Matrox and 3Dfx editions (`MW2_MATROX`, `MW2_3DFX`, `MW2_ATI`)
 
@@ -546,9 +552,14 @@ Every edition that has one of these has them all, so no binary separates one fro
 |---|:-:|:-:|:-:|:-:|:-:|:-:|:-:|--:|---|
 | `MW2_EXTERNAL_HEAT` |  |  |  |  |  | yes |  | 2 | Mechs take heat from outside (Mech::m_externalHeat, which the radius damage adds to and CalculateHeat adds to the frame's heat) |
 | `MW2_MECH_SECOND_FLAGS` |  |  |  |  |  | yes |  | 2 | Mechs have a second word of flags (Mech::m_unk0x112: UpdateAllShots sets bit 0) |
-| `MW2_FOURTEEN_WEAPON_SLOTS` |  |  |  |  |  | yes |  | 1 | Mechs have 14 weapon slots, not 10 (WEAPON_SLOT_COUNT) |
+| `MW2_FOURTEEN_WEAPON_SLOTS` |  |  |  |  |  | yes |  | 6 | Mechs have 14 weapon slots, not 10 (WEAPON_SLOT_COUNT) |
 | `MW2_PILOT_TABLE` |  |  |  |  |  | yes |  | 3 | An AI player whose gunnery is above 6 takes its skills from a table of pilots, with two more values and a flag the AI's fire decisions test (Player::m_unk0x160, m_unk0x1b0, m_unk0x1b4) |
 | `MW2_PLAYER_SPARE_WORD` |  |  |  |  |  | yes |  | 2 | The player has a word after its AI state that nothing reads or writes (Player::m_unk0x154) |
+| `MW2_CHAT_KEY` |  |  |  |  |  | yes |  | 1 | The CHAT_MODE game key, action 66: the later actions are one higher (GAME_KEY_ACTION) |
+| `MW2_AMS_KEY` |  |  |  |  |  | yes |  | 1 | The TOGGLE_AMS game key, action 169 |
+| `MW2_GHOST_BEAR_TITLES` |  |  |  |  |  | yes |  | 4 | The message boxes and the refresh mode errors name Ghost Bear's Legacy |
+| `MW2_GBL_CD_DRIVER` |  |  |  |  |  | yes |  | 1 | The game's CD is the drive with GBL_HERC.DRV |
+| `MW2_ENGAGEMENT_FLAGS_INT` |  |  |  |  |  | yes |  | 2 | *Representation.* GetEngagementAIFlags returns an int, not a short |
 
 ## Where each feature is tested
 
@@ -718,9 +729,14 @@ Every edition that has one of these has them all, so no binary separates one fro
 - `MW2_MOUSE_PEEK_BREAKS`: `MW2/src/simmain.c`: `HandleMessages`
 - `MW2_EXTERNAL_HEAT`: `MW2/include/mech.h`: `Mech`; `MW2/src/mechclass.c`: file scope
 - `MW2_MECH_SECOND_FLAGS`: `MW2/include/mech.h`: `Mech`; `MW2/src/mechclass.c`: file scope
-- `MW2_FOURTEEN_WEAPON_SLOTS`: `MW2/include/weaponslot.h`: file scope
+- `MW2_FOURTEEN_WEAPON_SLOTS`: `MW2/include/cockpitpanel.h`: `enum`; `MW2/include/weaponslot.h`: file scope; `MW2/src/cockpitpanels.c`: file scope (4)
 - `MW2_PILOT_TABLE`: `MW2/include/players.h`: `Player` (2); `MW2/src/ai.c`: file scope
 - `MW2_PLAYER_SPARE_WORD`: `MW2/include/players.h`: `Player`; `MW2/src/ai.c`: file scope
+- `MW2_CHAT_KEY`: `MW2/src/inputmap.c`: `g_gameKeyNames`
+- `MW2_AMS_KEY`: `MW2/src/inputmap.c`: `g_gameKeyNames`
+- `MW2_GHOST_BEAR_TITLES`: `MW2/src/debugprint.c`: `ShowMessage`; `MW2/src/refreshmode.c`: `ToggleFullScreen` (2); `MW2/src/simmain.c`: `SimMain`
+- `MW2_GBL_CD_DRIVER`: `MW2/src/gamecd.c`: `FindGameCdDrive`
+- `MW2_ENGAGEMENT_FLAGS_INT`: `MW2/include/ai.h`: file scope; `MW2/src/ai.c`: `GetEngagementAIFlags`
 
 ## Functions with a definition per edition
 

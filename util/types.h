@@ -739,6 +739,25 @@ double __cdecl fabs(double);
 #define MW2_PILOT_TABLE
 /* The player has a word after its AI state that nothing reads or writes (Player::m_unk0x154) */
 #define MW2_PLAYER_SPARE_WORD
+/* The local star starts at 0, and the player's formation goes to it */
+#define MW2_LOCAL_STAR_FROM_ZERO
+/* The CHAT_MODE game key, action 66: the later actions are one higher (GAME_KEY_ACTION) */
+#define MW2_CHAT_KEY
+/* The TOGGLE_AMS game key, action 169 */
+#define MW2_AMS_KEY
+/* The message boxes and the refresh mode errors name Ghost Bear's Legacy */
+#define MW2_GHOST_BEAR_TITLES
+/* The game's CD is the drive with GBL_HERC.DRV */
+#define MW2_GBL_CD_DRIVER
+/* Representation: GetEngagementAIFlags returns an int, not a short */
+#define MW2_ENGAGEMENT_FLAGS_INT
+#endif
+
+/* A game key action's number: with MW2_CHAT_KEY, the actions from 0x42 on are one higher. */
+#ifdef MW2_CHAT_KEY
+#define GAME_KEY_ACTION(p_action) ((p_action) >= 0x42 ? (p_action) + 1 : (p_action))
+#else
+#define GAME_KEY_ACTION(p_action) (p_action)
 #endif
 
 /* Boolean typedefs (MechBool / MechBool8 ...) are added when a match proves

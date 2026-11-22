@@ -539,6 +539,7 @@ AiMessageFn g_aiMessageFns[8] = {
 };
 
 // GLOBAL: MW2 0x100a9120
+// GLOBAL: MW2GBL 0x100b65d0
 // GLOBAL: MW2MATROX 0x100bb838
 // GLOBAL: MW23DFX 0x1024bc90
 // GLOBAL: MW2ATI 0x10180010
@@ -3061,13 +3062,18 @@ void AssignStarObjective(MechS32 p_team)
 	}
 }
 
+// GBL's returns an int.
 // FUNCTION: MW2 0x10055485
 // FUNCTION: MW2MATROX 0x10084720
 // FUNCTION: MW23DFX 0x100146e0
 // FUNCTION: MW2ATI 0x10014b70
 // FUNCTION: MW2S3 0x10017df0
 // FUNCTION: MW2POWERVR 0x10013ab0
+#ifdef MW2_ENGAGEMENT_FLAGS_INT
+MechS32 GetEngagementAIFlags(MechS32 p_value)
+#else
 MechS16 GetEngagementAIFlags(MechS32 p_value)
+#endif
 {
 	if (p_value == 1) {
 		return 2;
