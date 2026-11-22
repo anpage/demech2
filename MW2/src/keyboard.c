@@ -1,3 +1,9 @@
+// The optimized editions compiled KeyboardPoll without /Ow (which unrolls its copy of the key states):
+// VC++ 2.2 takes the pragma only ahead of a unit's first function, which windows.h's inline helpers
+// are, so it opens the unit, and KeyboardPoll restores the command line's flags after it.
+#if defined(MW2_ATI) || defined(MW2_S3) || defined(MW2_POWERVR) || defined(MW2_3DFX)
+#pragma optimize("w", off)
+#endif
 /* The keyboard object is shared with MW2SHELL.DLL (every function has the same size, and
    KeyboardReadKeyCode is byte-identical); both targets keep their own copy until one source
    matches both. */
@@ -274,7 +280,6 @@ MechS32 KeyboardCenterAxis(void)
 	return 0;
 }
 
-// The 3Dfx edition keeps the copy as a loop, which /Ow unrolls (plain /Ox doesn't).
 // FUNCTION: MW2 0x1004284c
 // FUNCTION: MW2MATROX 0x100675dc
 // FUNCTION: MW23DFX 0x100383d0
@@ -293,6 +298,9 @@ MechS32 KeyboardPoll(undefined4 p_unk0x00, undefined4 p_unk0x04, undefined4* p_k
 
 	return 0;
 }
+#if defined(MW2_ATI) || defined(MW2_S3) || defined(MW2_POWERVR) || defined(MW2_3DFX)
+#pragma optimize("", on)
+#endif
 
 // FUNCTION: MW2 0x100428a9
 // FUNCTION: MW2MATROX 0x10067639

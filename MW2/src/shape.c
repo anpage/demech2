@@ -13,6 +13,9 @@
 #ifdef MW2_AIMED_SHAPE_RESET
 #include "weapons.h"
 #endif
+#ifdef MW2_POWERVR
+#include "accel/a3d.h"
+#endif
 
 #include <math.h>
 #include <windows.h>
@@ -197,6 +200,9 @@ Shape* CreateShape(MechS32 p_vertexCount, MechS32 p_faceCount, MechS32 p_extra, 
 	shape->m_prevCollider = shape->m_nextCollider = NULL;
 	shape->m_collisionType = 4;
 	shape->m_transformCount = 0;
+#ifdef MW2_POWERVR
+	shape->m_list = -1;
+#endif
 	return shape;
 }
 
@@ -398,6 +404,9 @@ void FreeShape(Shape* p_shape)
 	}
 
 	FreeBoundBox(p_shape);
+#ifdef MW2_POWERVR
+	FUN_1005f280(p_shape->m_list);
+#endif
 	HeapFree(g_primaryHeap, HEAP_NO_SERIALIZE, p_shape);
 }
 

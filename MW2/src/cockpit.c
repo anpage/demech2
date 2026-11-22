@@ -229,12 +229,17 @@ MechS32 g_mapDamageAnimShown = 0;
 // GLOBAL: MW2 0x100be410
 // GLOBAL: MW2MATROX 0x1012472c
 // GLOBAL: MW23DFX 0x1007b008
+// GLOBAL: MW2ATI 0x10070008
 // GLOBAL: MW2S3 0x1007caac
+// GLOBAL: MW2POWERVR 0x1006e008
 static MechS32 g_staticCleanUntil;
 
 // GLOBAL: MW2 0x100be414
 // GLOBAL: MW2MATROX 0x10124730
 // GLOBAL: MW23DFX 0x1007b00c
+// GLOBAL: MW2ATI 0x1007000c
+// GLOBAL: MW2S3 0x1007cab0
+// GLOBAL: MW2POWERVR 0x1006e00c
 static MechS32 g_staticNoiseUntil;
 
 // The cockpit view before the current one (SwitchCockpitView).
@@ -295,7 +300,9 @@ MechS32 g_mapFollowsFreeEye;
 // GLOBAL: MW2 0x10109c74
 // GLOBAL: MW2MATROX 0x1012fce8
 // GLOBAL: MW23DFX 0x10244d38
+// GLOBAL: MW2ATI 0x10178b78
 // GLOBAL: MW2S3 0x10161698
+// GLOBAL: MW2POWERVR 0x101a36f8
 MechS32 g_satelliteClean;
 
 // Places the cockpit view p_cockpit on the screen: its viewport (kept in the render-target table,
@@ -1620,6 +1627,14 @@ MechU32 SatelliteFaceColor(Face* p_face, undefined4 p_unk0x04, MechU32 p_flags, 
 	return result;
 }
 
+// The pane edges the satellite view clips its polygons to: all four in the S3 edition, which
+// passes them in place of its fourth argument; none in the others.
+#ifdef MW2_SATELLITE_CLIP_ALL_EDGES
+#define SATELLITE_CLIP_EDGES 0xf
+#else
+#define SATELLITE_CLIP_EDGES 0
+#endif
+
 // The satellite view's polygon hook (RenderSettings::m_drawPolygon): terrain faces (0x4000) are
 // shaded by height, textured ones (0x3000) drawn as bands, and the rest as usual; plain faces
 // (0) twice, the second time outlined (0x2000).
@@ -1652,14 +1667,18 @@ void SatelliteDrawPolygon(MechS32 p_count, MechU32* p_points, MechU32 p_flags)
 		break;
 	case 0x3000:
 		color = (p_flags & 0xff0) >> 4;
+#ifdef MW2_SATELLITE_CLIP_ALL_EDGES
+		DrawBand(color, p_count, p_points, -1, 1, SATELLITE_CLIP_EDGES);
+#else
 		DrawBand(color, p_count, p_points, -1, 1, p_unk0x0c);
+#endif
 		break;
 	case 0:
-		DrawScenePolygon(p_count, p_points, 0, 0);
-		DrawScenePolygon(p_count, p_points, p_flags | 0x2000, 0);
+		DrawScenePolygon(p_count, p_points, 0, SATELLITE_CLIP_EDGES);
+		DrawScenePolygon(p_count, p_points, p_flags | 0x2000, SATELLITE_CLIP_EDGES);
 		break;
 	default:
-		DrawScenePolygon(p_count, p_points, p_flags, 0);
+		DrawScenePolygon(p_count, p_points, p_flags, SATELLITE_CLIP_EDGES);
 		break;
 	}
 #else
@@ -2006,7 +2025,9 @@ void DrawDamagedMapView(void)
 		DrawMapView();
 		if (g_mapDamageAnimShown) {
 			viewport = layout->m_viewport;
+#ifndef MW2_NO_MAP_DAMAGE_ANIM
 			DrawAnim2d(viewport, anim, 0, 0);
+#endif
 			if (layout->m_gauges[0]) {
 				layout->m_gauges[0](viewport, layout->m_colors[12]);
 			}

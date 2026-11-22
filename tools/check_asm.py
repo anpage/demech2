@@ -21,6 +21,7 @@ other code, as the Matrox edition's float C replaces 1.1's assembly):
   no-frame    no /Od frame (`push ebp; mov ebp, esp; [sub esp, N;] push ebx; push esi; push edi`)
   insn:M      an instruction /Od C doesn't emit (`bsr`, `loop`, `int3`, `xlatb`, `in`, `fsin`...)
   copy:PATH   the same assembly as the function of that name in PATH (an inline copy in a header)
+              as compiled with no feature defined (an edition's own instructions in it are its feature's)
   reviewed: REASON
               none of the above holds: a person read it (a register kept across statements, a
               `rep movsd` that the /Oi intrinsics also emit). Listed, never counted as verified.
@@ -137,9 +138,33 @@ def read_allowlist(tree):
     return entries
 
 
+def without_features(text):
+    """The text as compiled with no feature defined: an `#ifdef` group keeps its `#else` branch (or
+    nothing), an `#ifndef` group its first. An edition's own instructions in a copy (the PowerVR
+    edition's `rol eax` in namehash.h's HashName) are its feature's; the rest must be the original's."""
+    out, stack = [], []  # stack: whether each open group's current branch is kept
+    for line in text.split("\n"):
+        m = re.match(r"\s*#\s*(ifdef|ifndef|if|else|elif|endif)\b", line)
+        if not m:
+            if all(stack):
+                out.append(line)
+            continue
+        kind = m.group(1)
+        if kind in ("ifdef", "if"):
+            stack.append(False)
+        elif kind == "ifndef":
+            stack.append(True)
+        elif kind in ("else", "elif") and stack:
+            stack[-1] = not stack[-1] if kind == "else" else False
+        elif kind == "endif" and stack:
+            stack.pop()
+    return "\n".join(out)
+
+
 def asm_text(body):
-    """The assembly of a body, whitespace normalized: for comparing a copy."""
-    blocks = re.findall(r"__asm\s*\{(.*?)\}|__asm\s+([^\n]*)", body, re.S)
+    """The assembly of a body as compiled with no feature defined, whitespace normalized: for
+    comparing a copy."""
+    blocks = re.findall(r"__asm\s*\{(.*?)\}|__asm\s+([^\n]*)", without_features(body), re.S)
     return re.sub(r"\s+", " ", " ".join(a or b for a, b in blocks)).strip()
 
 

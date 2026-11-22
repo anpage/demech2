@@ -51,24 +51,28 @@ MechScalar g_trackDistance = 0;
 // GLOBAL: MW2MATROX 0x100a3630
 // GLOBAL: MW23DFX 0x1024e648
 // GLOBAL: MW2S3 0x100765ac
+// GLOBAL: MW2POWERVR 0x101ad9c0
 MechScalar g_trackMinDistance = 0;
 
 // GLOBAL: MW2 0x100a23f4
 // GLOBAL: MW2MATROX 0x100a3634
 // GLOBAL: MW23DFX 0x1024e64c
 // GLOBAL: MW2S3 0x100765b0
+// GLOBAL: MW2POWERVR 0x101ad9c4
 MechScalar g_trackMaxDistance = 0;
 
 // GLOBAL: MW2 0x100a23f8
 // GLOBAL: MW2MATROX 0x100a3638
 // GLOBAL: MW23DFX 0x1024e650
 // GLOBAL: MW2S3 0x100765b4
+// GLOBAL: MW2POWERVR 0x101ad9c8
 MechScalar g_trackHeight = 0;
 
 // GLOBAL: MW2 0x100a23fc
 // GLOBAL: MW2MATROX 0x100a363c
 // GLOBAL: MW23DFX 0x1024e654
 // GLOBAL: MW2S3 0x100765b8
+// GLOBAL: MW2POWERVR 0x101ad9cc
 MechScalar g_trackTurn = FIXED_LITERAL(0xb40000, 180.0f);
 
 // GLOBAL: MW2 0x100a2400
@@ -253,6 +257,7 @@ MechScalar g_ordinanceSavedView[7];
 // GLOBAL: MW2MATROX 0x102182e0
 // GLOBAL: MW23DFX 0x1015efd0
 // GLOBAL: MW2S3 0x1008439c
+// GLOBAL: MW2POWERVR 0x10089500
 MechScalar g_trackMaxHeight;
 
 // The track view's eased offsets from the mech and its eased heading and pitch.
@@ -284,6 +289,7 @@ WrappedRamp g_trackHeading;
 // GLOBAL: MW2MATROX 0x10218344
 // GLOBAL: MW23DFX 0x1015f034
 // GLOBAL: MW2S3 0x100843e4
+// GLOBAL: MW2POWERVR 0x10089564
 MechScalar g_trackMinHeight;
 
 // The cockpit view's tilt, eased toward g_sinkPilotTilt.

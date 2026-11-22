@@ -124,9 +124,9 @@ static sgl_vector g_a3dAxisY = {0.0f, 1.0f, 0.0f};
 // GLOBAL: MW2POWERVR 0x101c4d90
 static sgl_vector g_a3dAxisZ = {0.0f, 0.0f, 1.0f};
 
-// The renderer is open (FUN_10060f00).
+// The renderer is open (FUN_10060f00). geocache.c reads it too.
 // GLOBAL: MW2POWERVR 0x101c4d9c
-static MechS32 g_a3dInitialized = FALSE;
+MechS32 g_a3dInitialized = FALSE;
 
 // GLOBAL: MW2POWERVR 0x101c4db0
 static MechS32 g_a3dDevice = -1;
@@ -1428,7 +1428,7 @@ void FUN_10060320(void)
 	MechFloat ambient;
 
 	ambient = g_eyepoint->m_ambientLight * 0.01171875f;
-	if (g_groundTile < 0.0f) {
+	if (FIXED_IS_NEGATIVE(g_groundTile)) {
 		FUN_10051ba1(c_a3dGroundAnimation, &ground[0], &ground[1], &ground[2]);
 		g_a3dFogColour[0] = g_a3dBackground[0] = ground[0];
 		g_a3dFogColour[1] = g_a3dBackground[1] = ground[1];
@@ -1820,10 +1820,12 @@ void FUN_10061050(MechS32 p_set)
 {
 	Animation* animation;
 	sgl_colour colour;
+	AnimFrame* frame;
 
-	colour[0] = g_animFrames[p_set][0].m_red;
-	colour[1] = g_animFrames[p_set][0].m_green;
-	colour[2] = g_animFrames[p_set][0].m_blue;
+	frame = g_animFrames[p_set];
+	colour[0] = frame->m_red;
+	colour[1] = frame->m_green;
+	colour[2] = frame->m_blue;
 	for (animation = g_animations; animation < g_animations + 0x200; animation++) {
 		if (animation->m_set == p_set && animation->m_material >= 0) {
 			sgl_modify_material(animation->m_material, TRUE);
@@ -1841,8 +1843,8 @@ void FUN_100610d0(MechS32 p_index)
 	Animation* animation;
 	AnimFrame* frame;
 
-	frame = &g_animFrames[g_animations[p_index].m_set][g_animations[p_index].m_frame];
 	animation = &g_animations[p_index];
+	frame = &g_animFrames[animation->m_set][animation->m_frame];
 	if (animation->m_material > 0 && frame->m_texture > 0) {
 		if (p_index == c_a3dSkyAnimation || p_index == c_a3dGroundAnimation) {
 			animation->m_lit = TRUE;
@@ -2416,7 +2418,7 @@ MechS32 FUN_10061d60(MechFloat p_distance, MechFloat p_size)
 {
 	MechS32 pixels;
 
-	pixels = (MechS32) (g_gameWindowWidth * 0.5f * p_size / (g_eyepoint->m_detailScale * p_distance));
+	pixels = (MechS32) ((MechFloat) (g_gameWindowWidth * 0.5f) * (p_size / (g_eyepoint->m_detailScale * p_distance)));
 	if (!pixels) {
 		pixels = 1;
 	}
@@ -2502,7 +2504,7 @@ void FUN_10061db0(Shape* p_shape, Model* p_model)
 		halfY = (topY - bottomY) * 0.5f;
 		halfX = (topX - bottomX) * 0.5f;
 		if (topY < -10.0f) {
-			bottomY = -10.0f - topY + bottomY;
+			bottomY = (MechFloat) (-10.0f - topY) + bottomY;
 			topY = -10.0f;
 		}
 

@@ -9,6 +9,7 @@
 // The ATI and 3Dfx editions' has no terminator: the keyword names follow it directly.
 // GLOBAL: MW23DFX 0x1025a0a0
 // GLOBAL: MW2ATI 0x1018e398
+// GLOBAL: MW2S3 0x10060030
 // GLOBAL: MW2POWERVR 0x101b9680
 MechChar g_bwdVersion[4] = "1.22";
 #else

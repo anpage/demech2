@@ -295,9 +295,9 @@ void InitDamagePanel(void)
 	}
 }
 
-// The mask of the front armor's scale (the section flags' bits 4-7): the 3Dfx edition's is signed,
-// which VC++ 2.2 computes in a word.
-#ifdef MW2_3DFX
+// The mask of the front armor's scale (the section flags' bits 4-7): the ATI, S3, PowerVR and 3Dfx
+// editions' is signed, which their optimized code computes in a word.
+#if defined(MW2_ATI) || defined(MW2_S3) || defined(MW2_POWERVR) || defined(MW2_3DFX)
 #define SCALE_MASK 0xf0
 #else
 #define SCALE_MASK 0xf0U

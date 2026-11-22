@@ -195,7 +195,7 @@ ProjectedVertex* ProjectVertex(ProjectedVertex* p_vertex)
 		depth = p_vertex->m_z;
 		p_vertex->m_screenX = g_viewCenterX + (MechS32) (p_vertex->m_x / depth);
 		screenX = p_vertex->m_screenX;
-#ifndef MW2_3DFX
+#ifndef MW2_PROJECT_Y_AFTER_X
 		p_vertex->m_screenY = -(MechS32) (p_vertex->m_y / depth) + g_viewCenterY;
 		screenY = p_vertex->m_screenY;
 #endif
@@ -207,8 +207,8 @@ ProjectedVertex* ProjectVertex(ProjectedVertex* p_vertex)
 			outcode |= 1;
 		}
 
-#ifdef MW2_3DFX
-		// The 3Dfx edition's projects y after testing x.
+#ifdef MW2_PROJECT_Y_AFTER_X
+		// The ATI, S3 and 3Dfx editions' project y after testing x.
 		p_vertex->m_screenY = -(MechS32) (p_vertex->m_y / depth) + g_viewCenterY;
 		screenY = p_vertex->m_screenY;
 #endif
@@ -323,6 +323,11 @@ void QueueFace(Face* p_face, Vertex* p_vertices)
 	MechFloat dy;
 	MechFloat dz;
 	DepthEntry* entry;
+#ifdef MW2_QUEUEFACE_NORMAL_LOCALS
+	MechFloat normalX;
+	MechFloat normalY;
+	MechFloat normalZ;
+#endif
 
 	orCodes = 0;
 	andCodes = 3;
@@ -331,10 +336,20 @@ void QueueFace(Face* p_face, Vertex* p_vertices)
 	// Faces of three vertices or more face away when the eyepoint's offset from the first one has
 	// a dot product with the normal that isn't negative.
 	if (p_face->m_indexCount >= 3) {
+#ifdef MW2_QUEUEFACE_NORMAL_LOCALS
+		// The ATI and S3 editions' copy the normal into locals and sum the z term first.
+		normalX = p_face->m_normal[0];
+		normalY = p_face->m_normal[1];
+		normalZ = p_face->m_normal[2];
+		vertex = &p_vertices[((MechU8*) p_face)[p_face->m_indexOffset]];
+		dot = (vertex->m_worldZ - g_viewEyeZ) * normalZ + (vertex->m_worldX - g_viewEyeX) * normalX +
+			  (vertex->m_worldY - g_viewEyeY) * normalY;
+#else
 		vertex = &p_vertices[((MechU8*) p_face)[p_face->m_indexOffset]];
 		dot = (vertex->m_worldX - g_viewEyeX) * p_face->m_normal[0] +
 			  (vertex->m_worldY - g_viewEyeY) * p_face->m_normal[1] +
 			  (vertex->m_worldZ - g_viewEyeZ) * p_face->m_normal[2];
+#endif
 		if (!FIXED_IS_NEGATIVE(dot)) {
 			return;
 		}
@@ -653,16 +668,32 @@ MechS32 ProjectPolygon(Vertex* p_vertices, MechU32 p_count, MechS32 p_unk0x08)
 	MechU32 i;
 	Vertex* vertex;
 	Vertex* previous;
+#ifdef MW2_PROJECT_ALL_NEAR_EMPTY
+	MechU32 allNear;
+#endif
 
 	g_polygonPointCount = 0;
+#ifdef MW2_PROJECT_ALL_NEAR_EMPTY
+	allNear = TRUE;
+#endif
 	vertex = p_vertices;
 	for (i = 0; i < p_count; i++) {
 		vertex->m_depth = (vertex->m_worldX - g_viewEyeX) * g_viewProjZ0 +
 						  (vertex->m_worldY - g_viewEyeY) * g_viewProjZ1 +
 						  (vertex->m_worldZ - g_viewEyeZ) * g_viewProjZ2;
 		vertex->m_flags = vertex->m_depth < g_viewNearPlane;
+#ifdef MW2_PROJECT_ALL_NEAR_EMPTY
+		allNear &= vertex->m_flags;
+#endif
 		vertex++;
 	}
+
+#ifdef MW2_PROJECT_ALL_NEAR_EMPTY
+	// The S3 edition's leaves no points when every vertex is nearer than the near plane.
+	if (allNear == TRUE) {
+		return 0;
+	}
+#endif
 
 	vertex = p_vertices;
 	previous = &p_vertices[p_count - 1];

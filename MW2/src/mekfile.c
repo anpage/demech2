@@ -169,7 +169,7 @@ MechS32 LoadMechConfig(Mech* p_mech, MechChar* p_name, MechS32 p_id, MechChar* p
 	for (piece = 0; piece < 8; piece++) {
 		sprintf(
 			text,
-#ifdef MW2_DEBUG_LOG_FORMATS
+#ifdef MW2_MEK_LOG_FLOATS
 			"\n\npiece %d- armor: %ff %fr int: %f flags:%d\n",
 #else
 			"\n\npiece %d- armor: %df %dr int: %d flags:%d\n",
@@ -398,7 +398,7 @@ MechS32 LoadMechConfig(Mech* p_mech, MechChar* p_name, MechS32 p_id, MechChar* p
 #endif
 	}
 
-#ifdef MW2_DEBUG_LOG_FORMATS
+#ifdef MW2_MEK_LOG_FLOATS
 	sprintf(text, "\njet ddy: %f", p_mech->m_jumpThrust);
 #else
 	sprintf(text, "\njet ddy: %ld", p_mech->m_jumpThrust);

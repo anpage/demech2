@@ -28,6 +28,7 @@ MechS32 g_gridCellSize = 0;
 // GLOBAL: MW2MATROX 0x100a5950
 // GLOBAL: MW23DFX 0x1024b430
 // GLOBAL: MW2ATI 0x1017f7b0
+// GLOBAL: MW2S3 0x100612dc
 // GLOBAL: MW2POWERVR 0x101aa550
 MechS32 g_gridObjectSet = 0;
 
@@ -35,6 +36,7 @@ MechS32 g_gridObjectSet = 0;
 // GLOBAL: MW2MATROX 0x100a5954
 // GLOBAL: MW23DFX 0x1024b434
 // GLOBAL: MW2ATI 0x1017f7b4
+// GLOBAL: MW2S3 0x100612e0
 // GLOBAL: MW2POWERVR 0x101aa554
 MechS32 g_gridObjectPlaced = 0;
 
@@ -78,6 +80,7 @@ typedef struct GridCell {
 // GLOBAL: MW2MATROX 0x100c1fe8
 // GLOBAL: MW23DFX 0x1007c300
 // GLOBAL: MW2ATI 0x10071300
+// GLOBAL: MW2S3 0x1007c660
 // GLOBAL: MW2POWERVR 0x1006f300
 static GridCell g_gridCell;
 
@@ -187,6 +190,10 @@ void SetGridObject(SceneObject* p_obj)
 #endif
 	HideObjTree(p_obj);
 	DisableObjTreeCollision(p_obj);
+#ifdef MW2_GRID_OBJECT_HIDDEN
+	g_gridObjectSet = 0;
+	g_gridObjectShown = 0;
+#endif
 }
 
 // Moves the grid object (SetGridObject) to the eyepoint's cell when that changes.
@@ -271,11 +278,22 @@ void UpdateGridObject(void)
 	}
 }
 
+#ifdef MW2_GRID_OBJECT_HIDDEN
+// The S3 edition's: hides the grid object, whatever p_enable says.
+// FUNCTION: MW2S3 0x100062f0
+void ShowGridObject(MechS32 p_enable)
+{
+	if (g_gridObject) {
+		HideObjTree(g_gridObject);
+	}
+
+	g_gridObjectShown = 0;
+}
+#else
 // FUNCTION: MW2 0x1004b539
 // FUNCTION: MW2MATROX 0x100279f9
 // FUNCTION: MW23DFX 0x100116d0
 // FUNCTION: MW2ATI 0x10011c30
-// FUNCTION: MW2S3 0x100062f0
 // FUNCTION: MW2POWERVR 0x10010ac0
 void ShowGridObject(MechS32 p_enable)
 {
@@ -291,3 +309,4 @@ void ShowGridObject(MechS32 p_enable)
 		g_gridObjectShown = p_enable;
 	}
 }
+#endif

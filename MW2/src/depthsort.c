@@ -195,6 +195,11 @@ MechS32 QueueShapeLod(Shape* p_shape, MechScalar p_depth)
 	return 0;
 }
 
+#ifdef MW2_OUTLINE_FLUSH
+// animation.c's: flushes the renderer.
+void FUN_10069591(void);
+#endif
+
 #ifdef MW2_A3D
 // The Matrox edition's draws a queued polygon itself: a pixel or a line (when g_renderSettings
 // draws those), else through m_drawPolygon, first filled and outlined in wireframe mode 1.
@@ -230,12 +235,20 @@ void DrawQueuedPolygon(QueuedPolygon* p_poly)
 		);
 	}
 	else if (!g_renderSettings.m_wireframe) {
+#ifdef MW2_QUEUED_POLYGON_EDGES_0XFF
+		g_renderSettings.m_drawPolygon(count, vertices, flags, 0xff);
+#else
 		g_renderSettings.m_drawPolygon(count, vertices, flags, 0xf);
+#endif
 	}
 	else if (g_renderSettings.m_wireframe == 1) {
 		g_renderSettings.m_drawPolygon(count, vertices, 0, 0xf);
-#ifdef MW2_OUTLINE_CLEARS_FLAGS
-		// The 3Dfx edition's outline also clears bits 12, 14 and 15 of the flags.
+#if defined(MW2_OUTLINE_FLUSH)
+		// The S3 edition's flushes the renderer (FUN_10069591) between the fill and the outline.
+		FUN_10069591();
+		g_renderSettings.m_drawPolygon(count, vertices, (flags & ~0xd000) | 0x2000, p_poly->m_outcodes);
+#elif defined(MW2_OUTLINE_CLEARS_FLAGS)
+		// The ATI, S3 and 3Dfx editions' outline also clears bits 12, 14 and 15 of the flags.
 		g_renderSettings.m_drawPolygon(count, vertices, (flags & ~0xd000) | 0x2000, p_poly->m_outcodes);
 #else
 		g_renderSettings.m_drawPolygon(count, vertices, flags | 0x2000, p_poly->m_outcodes);

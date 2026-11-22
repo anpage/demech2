@@ -22,6 +22,10 @@
 #include <string.h>
 #include <windows.h>
 
+#ifdef MW2_POWERVR
+#include "accel/a3d.h"
+#endif
+
 // The player whose mech ReloadPlayerMech is reloading, or -1.
 // GLOBAL: MW2 0x100ba690
 // GLOBAL: MW2MATROX 0x100bea18
@@ -187,6 +191,7 @@ void RememberMechSegments(Mech* p_mech)
 	g_mechSegments[id] = SaveMechSegments(obj);
 }
 
+// The PowerVR edition also attaches each restored object's SGL list to its parent's.
 // FUNCTION: MW2 0x10080014
 // FUNCTION: MW2MATROX 0x10091403
 // FUNCTION: MW23DFX 0x10023a20
@@ -210,6 +215,11 @@ SceneObject* RestoreMechSegments(MechSegment* p_segment)
 		obj->m_firstChild = RestoreMechSegments(p_segment->m_firstChild);
 		obj->m_nextSibling = RestoreMechSegments(p_segment->m_nextSibling);
 		obj->m_parent = p_segment->m_parent;
+#ifdef MW2_POWERVR
+		if (obj->m_parent) {
+			FUN_1005f320(obj->m_list, obj->m_parent->m_list);
+		}
+#endif
 	}
 
 	return obj;

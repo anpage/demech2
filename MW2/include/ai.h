@@ -177,6 +177,7 @@ extern "C"
 // The 3Dfx edition's diff is register allocation, scheduling and comparison operand order only.
 // FUNCTION: MW23DFX 0x10012730
 // FUNCTION: MW2ATI 0x10012c90
+// FUNCTION: MW2S3 0x10016100
 // LogStarMissionLines
 
 // The 3Dfx edition's diff is register allocation, scheduling and comparison operand order only.

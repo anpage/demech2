@@ -153,6 +153,7 @@ AiName g_aiStateNames[13] = {
 // GLOBAL: MW2MATROX 0x100bb100
 // GLOBAL: MW23DFX 0x1024b670
 // GLOBAL: MW2ATI 0x1017f9f0
+// GLOBAL: MW2S3 0x100642a8
 // GLOBAL: MW2POWERVR 0x101aa7c0
 AiName g_aiStateShortNames[14] = {
 	{"nil", -1},
@@ -199,6 +200,7 @@ AiName g_aiTargetTypeNames[3] = {
 // GLOBAL: MW2MATROX 0x100bb1c0
 // GLOBAL: MW23DFX 0x1024b7b0
 // GLOBAL: MW2ATI 0x1017fb30
+// GLOBAL: MW2S3 0x10064368
 // GLOBAL: MW2POWERVR 0x101aa900
 AiName g_aiTargetTypeLetters[3] = {
 	{"n", c_aiTargetNav},
@@ -210,6 +212,7 @@ AiName g_aiTargetTypeLetters[3] = {
 // GLOBAL: MW2MATROX 0x100bb1d8
 // GLOBAL: MW23DFX 0x1024b7d8
 // GLOBAL: MW2ATI 0x1017fb58
+// GLOBAL: MW2S3 0x10064380
 // GLOBAL: MW2POWERVR 0x101aa928
 AiName g_shapeKindNames[3] = {
 	{"p", 0x100},
@@ -235,6 +238,7 @@ AiName g_playerTypeNames[9] = {
 // GLOBAL: MW2MATROX 0x100bb238
 // GLOBAL: MW23DFX 0x1024b8c8
 // GLOBAL: MW2ATI 0x1017fc48
+// GLOBAL: MW2S3 0x100643e0
 // GLOBAL: MW2POWERVR 0x101aaa18
 AiName g_powerStateNames[8] = {
 	{"of", 0},
@@ -251,6 +255,7 @@ AiName g_powerStateNames[8] = {
 // GLOBAL: MW2MATROX 0x100bb278
 // GLOBAL: MW23DFX 0x1024b948
 // GLOBAL: MW2ATI 0x1017fcc8
+// GLOBAL: MW2S3 0x10064420
 // GLOBAL: MW2POWERVR 0x101aaa98
 AiName g_objectiveTypeNames[15] = {
 	{"non", 0},
@@ -274,6 +279,7 @@ AiName g_objectiveTypeNames[15] = {
 // GLOBAL: MW2MATROX 0x100bb2f0
 // GLOBAL: MW23DFX 0x1024ba30
 // GLOBAL: MW2ATI 0x1017fdb0
+// GLOBAL: MW2S3 0x10064498
 // GLOBAL: MW2POWERVR 0x101aab80
 AiName g_aiBehaviorNames[14] = {
 	{"      ", -1},

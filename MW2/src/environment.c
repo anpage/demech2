@@ -206,7 +206,11 @@ void FirstEnvironment(void)
 	g_timeOfDayStarts[1] = hour * 7;
 	g_timeOfDayStarts[2] = hour * 17;
 	g_timeOfDayStarts[3] = hour * 19;
+#ifdef MW2_TIME_OF_DAY_PHASES_1_TO_3
+	if (g_timeOfDayPhase > 0 && g_timeOfDayPhase < 4) {
+#else
 	if (g_timeOfDayPhase != -1) {
+#endif
 		g_timeOfDay = g_timeOfDayStarts[g_timeOfDayPhase];
 	}
 

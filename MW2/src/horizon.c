@@ -101,7 +101,7 @@ below:
 MechS32 HorizonYAtX(MechS32 p_x, Eyepoint* p_eyepoint)
 {
 #ifdef MW2_FLOAT_SCALARS
-#ifdef MW2_3DFX
+#ifdef MW2_HORIZON_FLOAT_Y
 	MechFloat y;
 #else
 	MechS32 y;
@@ -119,8 +119,8 @@ MechS32 HorizonYAtX(MechS32 p_x, Eyepoint* p_eyepoint)
 	e = p_eyepoint->m_viewMatrix.m_rows[2][1];
 	p_x -= p_eyepoint->m_centerX;
 	y = -(((p_x * a) / b + e) * d / c);
-#ifdef MW2_3DFX
-	// The 3Dfx edition's converts y to an integer only for the return.
+#ifdef MW2_HORIZON_FLOAT_Y
+	// The ATI, S3 and 3Dfx editions' convert y to an integer only for the return.
 	return -(MechS32) y + p_eyepoint->m_centerY;
 #else
 	return -y + p_eyepoint->m_centerY;

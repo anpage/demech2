@@ -218,13 +218,21 @@ void UpdateWeaponFireState(Mech* p_mech)
 		def = &g_weaponDefs[slot->m_type];
 		switch (slot->m_state) {
 		case c_weaponRecycling:
+#ifdef MW2_CHEAT_RECYCLE
+			if (g_currentClock - slot->m_time >= def->m_recycle || (g_difficulty->m_unlimitedAmmo & 2)) {
+#else
 			if (g_currentClock - slot->m_time >= def->m_recycle) {
+#endif
 				slot->m_state = c_weaponReady;
 				slot->m_time = 0;
 			}
 			break;
 		case c_weaponHeld:
+#ifdef MW2_CHEAT_RECYCLE_HELD
+			if (g_currentClock - slot->m_time >= def->m_recycle || (g_difficulty->m_unlimitedAmmo & 2)) {
+#else
 			if (g_currentClock - slot->m_time >= def->m_recycle) {
+#endif
 				if (&p_mech->m_weapons[p_mech->m_selectedWeapon] == slot ||
 					p_mech->m_player->m_steering->m_weaponFireGroup ||
 					p_mech->m_player->m_steering->m_weaponFireGroup1 ||

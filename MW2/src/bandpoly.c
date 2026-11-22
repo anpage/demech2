@@ -27,9 +27,8 @@ Point g_bandTexCoords[4] = {{0, 0}, {0x10000, 0}, {0x10000, 0x10000}, {0, 0x1000
 #if defined(MW2_ATI) || defined(MW2_POWERVR)
 // The ATI edition's: draws the textured polygon of p_count vertices p_vertices on p_pane, its
 // texture the p_width x p_height pixels p_pixels (at most 128 texels square, as wide as it is high),
-// with levels when p_mip, translucent with p_translucent; perspective-corrected when the render
-// settings' member at 0x54 is clear (the 3Dfx edition's DrawAnimatedPolygon tests m_affineTextures,
-// at 0x4c, in its place).
+// with levels when p_mip, translucent with p_translucent; perspective-corrected unless
+// g_renderSettings.m_affineTextures is set.
 // FUNCTION: MW2ATI 0x1002a480
 void FUN_1002a480(
 	PANE* p_pane,
@@ -52,7 +51,7 @@ void FUN_1002a480(
 		flags = 1;
 	}
 
-	if (g_renderSettings.m_frameDrawCallback) {
+	if (g_renderSettings.m_affineTextures) {
 		flags |= 0x400;
 	}
 	else {

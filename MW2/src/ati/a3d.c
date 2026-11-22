@@ -861,11 +861,13 @@ C3D_HTX FUN_10064780(MechU16* p_pixels, MechU32 p_width, MechU32 p_height, MechS
 			texture = FUN_10064200(log, p_mip);
 		}
 
-		if (!texture && (texture = FUN_10064650(log, p_mip)) == NULL) {
-			return NULL;
+		if (!texture) {
+			texture = FUN_10064650(log, p_mip);
 		}
 
-		A3D_TEXTURE_fill(texture, p_pixels, p_width, p_height, p_mip, log);
+		if (texture) {
+			A3D_TEXTURE_fill(texture, p_pixels, p_width, p_height, p_mip, log);
+		}
 	}
 	else {
 		g_a3dTextureHits++;
@@ -921,6 +923,7 @@ void A3D_DrawPolygon(PANE* p_pane, MechU32 p_count, A3DVertex* p_vertices)
 		return;
 	}
 
+	p_count = (p_count - 2) * 3;
 	FUN_10063e20(p_pane->m_x0, p_pane->m_x1, p_pane->m_y0, p_pane->m_y1);
 	triangles = FUN_10063eb0(p_vertices);
 	if (!g_a3dRendering) {
@@ -937,7 +940,7 @@ void A3D_DrawPolygon(PANE* p_pane, MechU32 p_count, A3DVertex* p_vertices)
 		ATI3DCIF_ContextSetState(g_a3dContext, C3D_ERS_SHADE_MODE, &g_a3dShadeMode);
 	}
 
-	FUN_10063e00(ATI3DCIF_RenderPrimList((C3D_VLIST) triangles, p_count * 3 - 6));
+	FUN_10063e00(ATI3DCIF_RenderPrimList((C3D_VLIST) triangles, p_count));
 }
 
 // FUNCTION: MW2ATI 0x100649e0
@@ -957,6 +960,7 @@ void A3D_map_polygon(PANE* p_pane, MechU32 p_count, A3DVertex* p_vertices, WINDO
 		return;
 	}
 
+	p_count = (p_count - 2) * 3;
 	triangles = FUN_10063eb0(p_vertices);
 	if (g_a3dPerspective != C3D_ETPC_NONE) {
 		g_a3dPerspective = C3D_ETPC_NONE;
@@ -999,7 +1003,7 @@ void A3D_map_polygon(PANE* p_pane, MechU32 p_count, A3DVertex* p_vertices, WINDO
 		FUN_10063d10();
 	}
 
-	FUN_10063e00(ATI3DCIF_RenderPrimList((C3D_VLIST) triangles, p_count * 3 - 6));
+	FUN_10063e00(ATI3DCIF_RenderPrimList((C3D_VLIST) triangles, p_count));
 }
 
 // FUNCTION: MW2ATI 0x10064b60
@@ -1024,10 +1028,11 @@ void A3D_polygon_clip_XY_and_render(
 	FUN_10063e20(p_pane->m_x0, p_pane->m_x1, p_pane->m_y0, p_pane->m_y1);
 	texture = FUN_10064780(*p_texture->m_rows, p_texture->m_width, p_texture->m_height, p_mip);
 	if (!texture) {
-		DebugPrint("No texture");
+		DebugPrint("No texture\n");
 		return;
 	}
 
+	p_count = (p_count - 2) * 3;
 	triangles = FUN_10063eb0(p_vertices);
 	if (!g_a3dRendering) {
 		FUN_10063d10();
@@ -1070,7 +1075,7 @@ void A3D_polygon_clip_XY_and_render(
 		ATI3DCIF_ContextSetState(g_a3dContext, C3D_ERS_TMAP_EN, &g_a3dTextureEnable);
 	}
 
-	FUN_10063e00(ATI3DCIF_RenderPrimList((C3D_VLIST) triangles, p_count * 3 - 6));
+	FUN_10063e00(ATI3DCIF_RenderPrimList((C3D_VLIST) triangles, p_count));
 }
 
 // "A3D_shutdown()".

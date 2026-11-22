@@ -63,8 +63,8 @@ void SetBrightnessFraction(MechS32 p_arg, MechS32 p_value)
 // FUNCTION: MW2POWERVR 0x1005c680
 void RestoreBrightness(MechS32 p_arg)
 {
-#ifdef MW2_3DFX
-	// The 3Dfx edition's loads g_displayBrightness once, for the store and the call.
+#ifdef MW2_BRIGHTNESS_STORE_CHAINED
+	// The optimized editions' load g_displayBrightness once, for the store and the call.
 	PreviewBrightness(g_brightnessSetting = g_displayBrightness);
 #else
 	g_brightnessSetting = g_displayBrightness;

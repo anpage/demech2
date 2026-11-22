@@ -38,6 +38,7 @@ static ProjectFileEntry g_soundFileEntries[200];
 // GLOBAL: MW2 0x100bdd58
 // GLOBAL: MW2MATROX 0x100c1a98
 // GLOBAL: MW2S3 0x1007ed38
+// GLOBAL: MW2POWERVR 0x1006f118
 static ProjectFileEntry* g_soundFileTable[0x65];
 
 // The directory of the mission's sound files.

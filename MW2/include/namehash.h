@@ -25,7 +25,11 @@ next:
 			or bl, 0x20
 			add eax, ebx
 			inc edx
+#ifdef MW2_HASH_NAME_ROL32
+			rol eax, 1
+#else
 			rol ax, 1
+#endif
 check:
 			cmp byte ptr [edx], 0
 			jne next

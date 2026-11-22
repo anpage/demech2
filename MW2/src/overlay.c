@@ -165,11 +165,17 @@ MechS32 g_sceneInfoShown = 0;
 // GLOBAL: MW2 0x100a94e4
 // GLOBAL: MW2MATROX 0x100bcc5c
 // GLOBAL: MW23DFX 0x1025949c
+// GLOBAL: MW2ATI 0x1018d79c
+// GLOBAL: MW2S3 0x1006536c
+// GLOBAL: MW2POWERVR 0x101b8a0c
 MechS32 g_showEyePosition = 0;
 
 // GLOBAL: MW2 0x100a94e8
 // GLOBAL: MW2MATROX 0x100bcc60
 // GLOBAL: MW23DFX 0x102594a0
+// GLOBAL: MW2ATI 0x1018d7a0
+// GLOBAL: MW2S3 0x10065370
+// GLOBAL: MW2POWERVR 0x101b8a10
 MechS32 g_showEyePositionMain = 0;
 
 // GLOBAL: MW2 0x100a94ec
@@ -734,7 +740,7 @@ void HideCacheInfo(void)
 {
 	MechChar text[28];
 
-#ifdef MW2_3DFX
+#ifdef MW2_HIDE_CACHE_INFO_NO_ARGS
 	sprintf(text, "                           ");
 #else
 	sprintf(text, "                           ", 0x19, 0x19);

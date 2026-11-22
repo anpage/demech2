@@ -130,6 +130,15 @@ UV_step         dd 4 dup (?)
 
 lookaside       db 256 dup (?)
 
+; demech2: begin change. Whether VFX_flat_polygon fills as VFX was released (see below).
+VFX3D_STOCK_FILL = 0
+IFDEF MW2_VFX_STOCK
+IFNDEF MW2_VFX3D_ALIGNED_FILL
+VFX3D_STOCK_FILL = 1
+ENDIF
+ENDIF
+; demech2: end change
+
                 .CODE
 
 ;*****************************************************************************
@@ -392,8 +401,9 @@ __unclip_X:     sar eax,16              ;EAX = left endpoint (preserve sign)
 
 ; demech2: begin change. MW2 fills spans of more than 4 pixels with the destination aligned:
 ; bytes up to a dword boundary, then dwords, then the remaining bytes. The accelerated
-; editions (MW2_VFX_STOCK) fill the odd bytes first and then dwords, without aligning.
-IFDEF MW2_VFX_STOCK
+; editions (MW2_VFX_STOCK) fill the odd bytes first and then dwords, without aligning, but
+; for the ATI and PowerVR editions' (MW2_VFX3D_ALIGNED_FILL), which keep MW2's fill.
+IF VFX3D_STOCK_FILL
                 mov eax,color
 
                 mov edx,ecx
@@ -500,8 +510,9 @@ __left_clipped: sub edx,VP_R            ;DX = # of right-clipped pixels
 
 ; demech2: begin change. MW2 fills spans of more than 4 pixels with the destination aligned:
 ; bytes up to a dword boundary, then dwords, then the remaining bytes. The accelerated
-; editions (MW2_VFX_STOCK) fill the odd bytes first and then dwords, without aligning.
-IFDEF MW2_VFX_STOCK
+; editions (MW2_VFX_STOCK) fill the odd bytes first and then dwords, without aligning, but
+; for the ATI and PowerVR editions' (MW2_VFX3D_ALIGNED_FILL), which keep MW2's fill.
+IF VFX3D_STOCK_FILL
 __clip_loop:    mov eax,color
 
                 mov edx,ecx
