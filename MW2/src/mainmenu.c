@@ -21,6 +21,7 @@
 #include <stddef.h>
 
 // GLOBAL: MW2 0x100a1a90
+// GLOBAL: MW2GBL 0x100b30b0
 // GLOBAL: MW2MATROX 0x100a2448
 // GLOBAL: MW23DFX 0x10264488
 // GLOBAL: MW2ATI 0x10198780
@@ -29,6 +30,7 @@
 MechChar g_mainMenuTitle[] = "MAIN MENU";
 
 // GLOBAL: MW2 0x100a1aa0
+// GLOBAL: MW2GBL 0x100b30c0
 // GLOBAL: MW2MATROX 0x100a2458
 // GLOBAL: MW23DFX 0x10264498
 // GLOBAL: MW2ATI 0x10198790
@@ -38,10 +40,12 @@ MechChar g_abortMissionItem[] = "Abort Mission";
 
 #ifndef MW2_GRAPHICS_MENU
 // GLOBAL: MW2 0x100a1ab0
+// GLOBAL: MW2GBL 0x100b30d0
 MechChar g_monitorBrightnessItem[] = "Monitor Brightness";
 #endif
 
 // GLOBAL: MW2 0x100a1ac8
+// GLOBAL: MW2GBL 0x100b30e8
 // GLOBAL: MW2MATROX 0x100a2468
 // GLOBAL: MW23DFX 0x102644a8
 // GLOBAL: MW2ATI 0x101987a0
@@ -50,6 +54,7 @@ MechChar g_monitorBrightnessItem[] = "Monitor Brightness";
 MechChar g_fleeToWindowsItem[] = "Flee to Windows";
 
 // GLOBAL: MW2 0x100a1ad8
+// GLOBAL: MW2GBL 0x100b30f8
 // GLOBAL: MW2MATROX 0x100a2478
 // GLOBAL: MW23DFX 0x102644b8
 // GLOBAL: MW2ATI 0x101987b0
@@ -58,6 +63,7 @@ MechChar g_fleeToWindowsItem[] = "Flee to Windows";
 MechChar g_acceptText[] = "Accept (Esc to cancel)";
 
 // GLOBAL: MW2 0x100a1af0
+// GLOBAL: MW2GBL 0x100b3110
 // GLOBAL: MW2MATROX 0x100a2490
 // GLOBAL: MW23DFX 0x102644d0
 // GLOBAL: MW2ATI 0x101987c8
@@ -66,6 +72,7 @@ MechChar g_acceptText[] = "Accept (Esc to cancel)";
 MechChar g_escToExitText[] = "(Esc to exit)";
 
 // GLOBAL: MW2 0x100a1b00
+// GLOBAL: MW2GBL 0x100b3120
 // GLOBAL: MW2MATROX 0x100a24a0
 // GLOBAL: MW23DFX 0x102644e0
 // GLOBAL: MW2ATI 0x101987d8
@@ -74,6 +81,7 @@ MechChar g_escToExitText[] = "(Esc to exit)";
 MechChar g_fleeToWindowsTitle[] = "FLEE TO WINDOWS";
 
 // GLOBAL: MW2 0x100a1b10
+// GLOBAL: MW2GBL 0x100b3130
 // GLOBAL: MW2MATROX 0x100a24b0
 // GLOBAL: MW23DFX 0x102644f0
 // GLOBAL: MW2ATI 0x101987e8
@@ -83,6 +91,7 @@ MechChar g_abortMissionTitle[] = "ABORT MISSION";
 
 #ifndef MW2_GRAPHICS_MENU
 // GLOBAL: MW2 0x100a1b20
+// GLOBAL: MW2GBL 0x100b3140
 MechChar g_monitorBrightnessTitle[] = "MONITOR BRIGHTNESS";
 #endif
 
@@ -91,6 +100,7 @@ MechChar g_monitorBrightnessTitle[] = "MONITOR BRIGHTNESS";
 MechChar g_areYouSureText[] = "Are you sure?";
 
 // GLOBAL: MW2 0x100a1b48
+// GLOBAL: MW2GBL 0x100b3168
 // GLOBAL: MW2MATROX 0x100a24d0
 // GLOBAL: MW23DFX 0x10264510
 // GLOBAL: MW2ATI 0x10198808
@@ -99,6 +109,7 @@ MechChar g_areYouSureText[] = "Are you sure?";
 MechChar g_confirmCowardiceText[] = "Confirm your cowardice";
 
 // GLOBAL: MW2 0x100a1b60
+// GLOBAL: MW2GBL 0x100b3180
 // GLOBAL: MW2MATROX 0x100a24e8
 // GLOBAL: MW23DFX 0x10264528
 // GLOBAL: MW2ATI 0x10198820
@@ -119,6 +130,7 @@ MechChar g_noText[] = "No";
 MechChar g_yesText[] = "Yes";
 
 // GLOBAL: MW2 0x100a1b80
+// GLOBAL: MW2GBL 0x100b31a0
 // GLOBAL: MW2MATROX 0x100a2508
 // GLOBAL: MW23DFX 0x10264548
 // GLOBAL: MW2ATI 0x10198840
@@ -127,6 +139,7 @@ MechChar g_yesText[] = "Yes";
 MechChar g_offText[] = "Off";
 
 // GLOBAL: MW2 0x100a1b84
+// GLOBAL: MW2GBL 0x100b31a4
 // GLOBAL: MW2MATROX 0x100a250c
 // GLOBAL: MW23DFX 0x1026454c
 // GLOBAL: MW2ATI 0x10198844
@@ -135,6 +148,7 @@ MechChar g_offText[] = "Off";
 MechChar g_onText[] = "On";
 
 // GLOBAL: MW2 0x100a1b88
+// GLOBAL: MW2GBL 0x100b31a8
 // GLOBAL: MW2MATROX 0x100a2510
 // GLOBAL: MW23DFX 0x10264550
 // GLOBAL: MW2ATI 0x10198848
@@ -147,6 +161,7 @@ MechChar g_lowText[] = "Low";
 MechChar g_mediumText[] = "Medium";
 
 // GLOBAL: MW2 0x100a1b98
+// GLOBAL: MW2GBL 0x100b31b8
 // GLOBAL: MW2MATROX 0x100a2520
 // GLOBAL: MW23DFX 0x10264560
 // GLOBAL: MW2ATI 0x10198858
@@ -155,6 +170,7 @@ MechChar g_mediumText[] = "Medium";
 MechChar g_highText[] = "High";
 
 // GLOBAL: MW2 0x100a1ba0
+// GLOBAL: MW2GBL 0x100b31c0
 // GLOBAL: MW2MATROX 0x100a2528
 // GLOBAL: MW23DFX 0x10264568
 // GLOBAL: MW2ATI 0x10198860
@@ -169,6 +185,7 @@ MenuChoices g_offOnChoices = {NULL, 2, {g_offText, g_onText}};
 MenuChoices g_noYesChoices = {NULL, 2, {g_noText, g_yesText}};
 
 // GLOBAL: MW2 0x100a1c30
+// GLOBAL: MW2GBL 0x100b3250
 // GLOBAL: MW2MATROX 0x100a25b8
 // GLOBAL: MW23DFX 0x102645f8
 // GLOBAL: MW2ATI 0x101988f0
@@ -181,6 +198,7 @@ MenuChoices g_lowHighChoices = {NULL, 2, {g_lowText, g_highText}};
 MenuChoices g_offLowMediumHighChoices = {NULL, 4, {g_offText, g_lowText, g_mediumText, g_highText}};
 
 // GLOBAL: MW2 0x100a1cc0
+// GLOBAL: MW2GBL 0x100b32e0
 // GLOBAL: MW2MATROX 0x100a2648
 // GLOBAL: MW23DFX 0x10264688
 // GLOBAL: MW2ATI 0x10198980
@@ -209,6 +227,7 @@ MechS32 g_sliderShapes[8] = {
 };
 
 // GLOBAL: MW2 0x100a1ce0
+// GLOBAL: MW2GBL 0x100b3300
 // GLOBAL: MW2MATROX 0x100a2668
 // GLOBAL: MW23DFX 0x102646a8
 // GLOBAL: MW2ATI 0x101989a0
@@ -218,6 +237,7 @@ MenuControl g_confirmControl = {2, 0, NULL, 0, NULL, NULL, NULL, NULL, NULL};
 
 #ifndef MW2_GRAPHICS_MENU
 // GLOBAL: MW2 0x100a1d08
+// GLOBAL: MW2GBL 0x100b3328
 MenuControl g_brightnessControl = {
 	2,
 	0,
@@ -232,6 +252,7 @@ MenuControl g_brightnessControl = {
 #endif
 
 // GLOBAL: MW2 0x100a1d30
+// GLOBAL: MW2GBL 0x100b3350
 // GLOBAL: MW2MATROX 0x100a2690
 // GLOBAL: MW23DFX 0x102646d0
 // GLOBAL: MW2ATI 0x101989c8
@@ -249,6 +270,7 @@ MenuPage g_abortMissionPage = {
 
 #ifndef MW2_GRAPHICS_MENU
 // GLOBAL: MW2 0x100a1e88
+// GLOBAL: MW2GBL 0x100b34a8
 MenuPage g_brightnessPage = {
 	0,
 	g_monitorBrightnessTitle,
@@ -261,6 +283,7 @@ MenuPage g_brightnessPage = {
 #endif
 
 // GLOBAL: MW2 0x100a1fe0
+// GLOBAL: MW2GBL 0x100b3600
 // GLOBAL: MW2MATROX 0x100a27e8
 // GLOBAL: MW23DFX 0x10264828
 // GLOBAL: MW2ATI 0x10198b20
@@ -277,6 +300,7 @@ MenuPage g_fleePage = {
 };
 
 // GLOBAL: MW2 0x100a2138
+// GLOBAL: MW2GBL 0x100b3758
 // GLOBAL: MW2MATROX 0x100a2940
 // GLOBAL: MW23DFX 0x10264980
 // GLOBAL: MW2ATI 0x10198c78
@@ -302,6 +326,7 @@ MenuPage g_mainMenuPage = {
 };
 
 // GLOBAL: MW2 0x100a2290
+// GLOBAL: MW2GBL 0x100b38b0
 // GLOBAL: MW2MATROX 0x100a2a98
 // GLOBAL: MW23DFX 0x10264ad8
 // GLOBAL: MW2ATI 0x10198dd0
@@ -310,6 +335,7 @@ MenuPage g_mainMenuPage = {
 PANE g_mainMenuTarget = {NULL, 0x4000, 0x3333, 0x10000, 0xcccd};
 
 // GLOBAL: MW2 0x100a22a8
+// GLOBAL: MW2GBL 0x100b38c8
 // GLOBAL: MW2MATROX 0x100a2ab0
 // GLOBAL: MW23DFX 0x10264af0
 // GLOBAL: MW2ATI 0x10198de8
@@ -318,6 +344,7 @@ PANE g_mainMenuTarget = {NULL, 0x4000, 0x3333, 0x10000, 0xcccd};
 PANE g_mainMenuBackgroundTarget = {NULL, 0, 0, 0x10000, 0x10000};
 
 // GLOBAL: MW2 0x100a22c0
+// GLOBAL: MW2GBL 0x100b38e0
 // GLOBAL: MW2MATROX 0x100a2ac8
 // GLOBAL: MW23DFX 0x10264b08
 // GLOBAL: MW2ATI 0x10198e00
@@ -353,6 +380,7 @@ MenuDefinition g_mainMenu = {
 };
 
 // GLOBAL: MW2 0x10177080
+// GLOBAL: MW2GBL 0x100bf1a0
 // GLOBAL: MW2MATROX 0x10218410
 // GLOBAL: MW23DFX 0x101534f0
 // GLOBAL: MW2ATI 0x10087510

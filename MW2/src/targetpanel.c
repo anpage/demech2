@@ -52,6 +52,7 @@ MechS32 IsPlayerInView(Player* p_player);
 #endif
 
 // GLOBAL: MW2 0x100ba4bc
+// GLOBAL: MW2GBL 0x1009f0e4
 // GLOBAL: MW2MATROX 0x100a4a4c
 // GLOBAL: MW23DFX 0x1024d04c
 // GLOBAL: MW2ATI 0x101813cc
@@ -61,6 +62,7 @@ MechS32 g_targetPanelMode = 1;
 
 // Set to announce the target's side with the next name the target panel shows.
 // GLOBAL: MW2 0x100ba4c0
+// GLOBAL: MW2GBL 0x1009f0e8
 // GLOBAL: MW2MATROX 0x100a4a50
 // GLOBAL: MW23DFX 0x1024d050
 // GLOBAL: MW2S3 0x10062ae8
@@ -79,6 +81,7 @@ MechS32 g_targetLodParRead = 0;
 
 // When the target panel goes from the target's short name to its name.
 // GLOBAL: MW2 0x100ba4c4
+// GLOBAL: MW2GBL 0x1009f0ec
 // GLOBAL: MW2MATROX 0x100a4a5c
 // GLOBAL: MW23DFX 0x1024d054
 // GLOBAL: MW2S3 0x10062aec
@@ -87,6 +90,7 @@ MechS32 g_targetFullNameTime = 0;
 
 // The target the panel showed last.
 // GLOBAL: MW2 0x100ba4c8
+// GLOBAL: MW2GBL 0x1009f0f0
 // GLOBAL: MW2MATROX 0x100a4a60
 // GLOBAL: MW23DFX 0x1024d058
 // GLOBAL: MW2S3 0x10062af0
@@ -95,6 +99,7 @@ MechS32 g_lastPanelTarget = 0;
 
 // The target panel flickers to static while set.
 // GLOBAL: MW2 0x100ba4cc
+// GLOBAL: MW2GBL 0x1009f0f4
 // GLOBAL: MW2MATROX 0x100a4a64
 // GLOBAL: MW23DFX 0x1024d05c
 // GLOBAL: MW2S3 0x10062af4
@@ -118,6 +123,7 @@ SceneObject* g_targetViewObject = NULL;
 // The name the target panel shows for an unknown installation: 16 bytes in every edition, each
 // with other globals after it.
 // GLOBAL: MW2 0x100c26a0
+// GLOBAL: MW2GBL 0x1013bcb0
 // GLOBAL: MW2MATROX 0x10212d40
 // GLOBAL: MW23DFX 0x101de7a0
 // GLOBAL: MW2ATI 0x10112460
@@ -129,6 +135,7 @@ MechChar g_anonymousInstallationName[16];
 // name after a while), coloured by its side, and its distance (MW2_TARGET_RANGE_AT_BOTTOM: on the
 // panel's bottom line).
 // FUNCTION: MW2 0x1007b930
+// FUNCTION: MW2GBL 0x1001be20
 // FUNCTION: MW2MATROX 0x10017e50
 // FUNCTION: MW23DFX 0x10020e40
 // FUNCTION: MW2ATI 0x10021110
@@ -873,6 +880,7 @@ MechS32 IsPlayerInView(Player* p_player)
 #endif
 // Draws a panel as static (animation 0).
 // FUNCTION: MW2 0x1007c6df
+// FUNCTION: MW2GBL 0x1001cbc6
 // FUNCTION: MW2MATROX 0x10018db0
 // FUNCTION: MW23DFX 0x10021710
 // FUNCTION: MW2ATI 0x100219e0
@@ -891,6 +899,7 @@ void DrawTargetStatic(CockpitPanel* p_panel)
 // Draws the target panel while its transition opens it, the view resized to the transition's
 // rectangle (g_panes[7] and the panel's target) for the frame.
 // FUNCTION: MW2 0x1007c71e
+// FUNCTION: MW2GBL 0x1001cc05
 // FUNCTION: MW2MATROX 0x10018def
 // FUNCTION: MW23DFX 0x10021730
 // FUNCTION: MW2ATI 0x10021a00
@@ -934,6 +943,7 @@ void DrawTargetPanelStartup(CockpitPanel* p_panel)
 // Draws the target panel while its transition closes it, unless the view it last drew (0, 3 or
 // 4) already had it closed.
 // FUNCTION: MW2 0x1007c81c
+// FUNCTION: MW2GBL 0x1001cd03
 // FUNCTION: MW2MATROX 0x10018eed
 // FUNCTION: MW23DFX 0x100217f0
 // FUNCTION: MW2ATI 0x10021ac0

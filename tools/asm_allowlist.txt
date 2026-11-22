@@ -43,11 +43,11 @@ MW2/src/muldiv14.c ProjectRadius div64 eax-result
 MW2/src/mulnorm16.c MulNormalize16 insn:bsr
 MW2/src/mulratio.c MulRatio div64 eax-result
 MW2/src/namehash.c HashName reviewed: the hash kept in eax and the pointer in edx across the loop, rotated with rol ax, 1
-MW2/src/objectanim.c ClipEdgeToNearPlane div64
-MW2/src/objectanim.c GetFaceShade div64 insn:bsr
-MW2/src/objectanim.c GetViewVertex round
-MW2/src/objectanim.c ProjectVertex div64
-MW2/src/objectanim.c QueueFace div64 insn:loop round
+MW2/src/faceprojection.c ClipEdgeToNearPlane div64
+MW2/src/faceprojection.c GetFaceShade div64 insn:bsr
+MW2/src/faceprojection.c GetViewVertex round
+MW2/src/faceprojection.c ProjectVertex div64
+MW2/src/faceprojection.c QueueFace div64 insn:loop round
 MW2/src/recordstacks.c AllocProjectedVertex reviewed: the new top kept in eax across three statements (mov record, eax; mov g_drawBufferTop, eax; sub eax, 0xc8)
 MW2/src/recordstacks.c AllocQueuedPolygon reviewed: the new bottom kept in eax across three statements (mov record, eax; add eax, ecx; mov g_drawBufferBottom, eax)
 MW2/src/scaledelta.c UnprojectCoordinate eax-result

@@ -16,6 +16,7 @@ DECOMP_SIZE_ASSERT(WrappedRamp, 0x14)
 DECOMP_SIZE_ASSERT(EasedValue, 0x0c)
 
 // FUNCTION: MW2 0x100495b0
+// FUNCTION: MW2GBL 0x1004cb00
 // FUNCTION: MW2MATROX 0x1002dfe0
 // FUNCTION: MW23DFX 0x1003b700
 // FUNCTION: MW2ATI 0x1003a1a0
@@ -37,6 +38,7 @@ MechS32 StartRamp(Ramp* p_ramp, MechS32 p_target, MechS32 p_value, MechDouble p_
 }
 
 // FUNCTION: MW2 0x10049611
+// FUNCTION: MW2GBL 0x1004cb61
 // FUNCTION: MW2MATROX 0x1002e041
 // FUNCTION: MW23DFX 0x1003b740
 // FUNCTION: MW2ATI 0x1003a1e0
@@ -115,6 +117,7 @@ MechFloat UpdateFloatRamp(FloatRamp* p_ramp)
 #endif
 
 // FUNCTION: MW2 0x100496ab
+// FUNCTION: MW2GBL 0x1004cbfb
 // FUNCTION: MW2MATROX 0x1002e226
 // FUNCTION: MW23DFX 0x1003b8b0
 // FUNCTION: MW2ATI 0x1003a350
@@ -144,6 +147,7 @@ MechS32 StartWrappedRamp(
 
 // Moves the value the short way around the period.
 // FUNCTION: MW2 0x10049715
+// FUNCTION: MW2GBL 0x1004cc65
 // FUNCTION: MW2MATROX 0x1002e295
 // FUNCTION: MW23DFX 0x1003b900
 // FUNCTION: MW2ATI 0x1003a3a0
@@ -200,6 +204,7 @@ MechScalar UpdateWrappedRamp(WrappedRamp* p_ramp)
 
 // Sets the target, brought within half a period of zero.
 // FUNCTION: MW2 0x10049805
+// FUNCTION: MW2GBL 0x1004cd55
 // FUNCTION: MW2MATROX 0x1002e3de
 // FUNCTION: MW23DFX 0x1003b9f0
 // FUNCTION: MW2ATI 0x1003a490
@@ -234,6 +239,7 @@ MechScalar SetWrappedRampTarget(WrappedRamp* p_ramp, MechScalar p_target)
 }
 
 // FUNCTION: MW2 0x10049871
+// FUNCTION: MW2GBL 0x1004cdc1
 // FUNCTION: MW2MATROX 0x1002e471
 // FUNCTION: MW23DFX 0x1003ba60
 // FUNCTION: MW2ATI 0x1003a500

@@ -22,6 +22,7 @@
 
 // The flags a new shape starts with (CreateShape).
 // GLOBAL: MW2 0x100a5898
+// GLOBAL: MW2GBL 0x100ae85c
 // GLOBAL: MW2MATROX 0x100a5964
 // GLOBAL: MW23DFX 0x1024e400
 // GLOBAL: MW2ATI 0x10182710
@@ -37,6 +38,7 @@ MechU32 g_newShapeFlags = 0;
 
 #ifndef MW2_ACCEL
 // FUNCTION: MW2 0x1003a530
+// FUNCTION: MW2GBL 0x100407a0
 MechU32 GetNewShapeFlags(void)
 {
 	return g_newShapeFlags;
@@ -44,6 +46,7 @@ MechU32 GetNewShapeFlags(void)
 
 // Sets the flags new shapes start with; returns the previous ones.
 // FUNCTION: MW2 0x1003a545
+// FUNCTION: MW2GBL 0x100407b5
 MechU32 SetNewShapeFlags(MechU32 p_flags)
 {
 	MechU32 previous;
@@ -55,6 +58,7 @@ MechU32 SetNewShapeFlags(MechU32 p_flags)
 
 // Selects the shape's first model.
 // FUNCTION: MW2 0x1003a56b
+// FUNCTION: MW2GBL 0x100407db
 void SelectFirstModel(Shape* p_shape)
 {
 	SelectModel(p_shape, p_shape->m_models);
@@ -62,6 +66,7 @@ void SelectFirstModel(Shape* p_shape)
 #endif
 
 // FUNCTION: MW2 0x1003a589
+// FUNCTION: MW2GBL 0x100407f9
 // FUNCTION: MW2MATROX 0x10027e7e
 // FUNCTION: MW23DFX 0x10029450
 // FUNCTION: MW2ATI 0x10029110
@@ -75,6 +80,7 @@ void SelectModel(Shape* p_shape, Model* p_model)
 #ifndef MW2_ACCEL
 // Selects the next model, wrapping around to the first.
 // FUNCTION: MW2 0x1003a59d
+// FUNCTION: MW2GBL 0x1004080d
 void SelectNextModel(Shape* p_shape)
 {
 	if (!p_shape->m_model || !p_shape->m_model->m_next) {
@@ -93,6 +99,7 @@ void SelectNextModel(Shape* p_shape)
 #ifndef MW2_ACCEL
 // Selects the first model whose key is at most p_key.
 // FUNCTION: MW2 0x1003a7a2
+// FUNCTION: MW2GBL 0x10040a0e
 void SelectModelByKey(Shape* p_shape, MechS32 p_key)
 {
 	Model* model;
@@ -107,6 +114,7 @@ void SelectModelByKey(Shape* p_shape, MechS32 p_key)
 #endif
 
 // FUNCTION: MW2 0x1003a7f9
+// FUNCTION: MW2GBL 0x10040a65
 // FUNCTION: MW2MATROX 0x10027e92
 // FUNCTION: MW23DFX 0x10029580
 // FUNCTION: MW2ATI 0x10029240
@@ -126,6 +134,7 @@ void SetModelKey(Shape* p_shape, MechScalar p_key)
 
 #ifndef MW2_ACCEL
 // FUNCTION: MW2 0x1003a827
+// FUNCTION: MW2GBL 0x10040a93
 MechS32 GetModelKey(Shape* p_shape)
 {
 	Model* model;
@@ -139,6 +148,7 @@ MechS32 GetModelKey(Shape* p_shape)
 }
 
 // FUNCTION: MW2 0x1003a859
+// FUNCTION: MW2GBL 0x10040ac5
 void FUN_1003a859(Shape* p_shape, MechS32 p_unk0x14)
 {
 	Model* model;
@@ -152,6 +162,7 @@ void FUN_1003a859(Shape* p_shape, MechS32 p_unk0x14)
 }
 
 // FUNCTION: MW2 0x1003a889
+// FUNCTION: MW2GBL 0x10040af5
 MechU32 FUN_1003a889(Shape* p_shape)
 {
 	Model* model;
@@ -167,6 +178,7 @@ MechU32 FUN_1003a889(Shape* p_shape)
 
 // Allocates a shape with one model (AddModel).
 // FUNCTION: MW2 0x1003a8c1
+// FUNCTION: MW2GBL 0x10040b2d
 // FUNCTION: MW2MATROX 0x10027ec0
 // FUNCTION: MW23DFX 0x10029590
 // FUNCTION: MW2ATI 0x10029250
@@ -208,6 +220,7 @@ Shape* CreateShape(MechS32 p_vertexCount, MechS32 p_faceCount, MechS32 p_extra, 
 
 // Appends a vertex to the selected model.
 // FUNCTION: MW2 0x1003aa1d
+// FUNCTION: MW2GBL 0x10040c89
 // FUNCTION: MW2MATROX 0x1002801c
 // FUNCTION: MW23DFX 0x10029640
 // FUNCTION: MW2ATI 0x10029300
@@ -292,6 +305,7 @@ Face* AddShapeFace(Shape* p_shape, MechU16 p_color, MechU8* p_indices, MechS32 p
 #else
 // Appends a face to the selected model, its vertex indices at p_indices.
 // FUNCTION: MW2 0x1003aab5
+// FUNCTION: MW2GBL 0x10040d21
 // FUNCTION: MW2MATROX 0x100280e6
 // FUNCTION: MW23DFX 0x100296c0
 // FUNCTION: MW2ATI 0x10029380
@@ -317,6 +331,7 @@ Face* AddShapeFace(Shape* p_shape, MechU16 p_color, MechU8* p_indices)
 
 // Appends a vertex index to a face of the selected model.
 // FUNCTION: MW2 0x1003ab34
+// FUNCTION: MW2GBL 0x10040da0
 // FUNCTION: MW2MATROX 0x10028165
 // FUNCTION: MW23DFX 0x10029710
 // FUNCTION: MW2ATI 0x100293d0
@@ -336,6 +351,7 @@ void AddShapeFaceIndex(Shape* p_shape, Face* p_face, MechU32 p_index)
 #endif
 
 // FUNCTION: MW2 0x1003ab79
+// FUNCTION: MW2GBL 0x10040de5
 // FUNCTION: MW2MATROX 0x100281aa
 // FUNCTION: MW23DFX 0x10029740
 // FUNCTION: MW2ATI 0x10029400
@@ -352,6 +368,7 @@ void FreeModel(Model* p_model)
 
 // Removes the selected model from the shape's list and frees it.
 // FUNCTION: MW2 0x1003aba5
+// FUNCTION: MW2GBL 0x10040e11
 // FUNCTION: MW2MATROX 0x100281d6
 // FUNCTION: MW23DFX 0x10029760
 void RemoveSelectedModel(Shape* p_shape)
@@ -386,6 +403,7 @@ void RemoveSelectedModel(Shape* p_shape)
 
 // Frees the shape and its models.
 // FUNCTION: MW2 0x1003ac5f
+// FUNCTION: MW2GBL 0x10040ecb
 // FUNCTION: MW2MATROX 0x10028290
 // FUNCTION: MW23DFX 0x100297c0
 // FUNCTION: MW2ATI 0x10029420
@@ -411,6 +429,7 @@ void FreeShape(Shape* p_shape)
 }
 
 // FUNCTION: MW2 0x1003acbe
+// FUNCTION: MW2GBL 0x10040f2a
 // FUNCTION: MW2MATROX 0x100282ef
 // FUNCTION: MW23DFX 0x10029800
 // FUNCTION: MW2ATI 0x10029460
@@ -436,6 +455,7 @@ void SetShapeDamageLevel(Shape* p_shape, MechU16 p_level)
 #endif
 
 // FUNCTION: MW2 0x1003acf7
+// FUNCTION: MW2GBL 0x10040f63
 // FUNCTION: MW2MATROX 0x10028328
 // FUNCTION: MW23DFX 0x10029820
 // FUNCTION: MW2ATI 0x10029480
@@ -452,6 +472,7 @@ MechU32 GetShapeState(Shape* p_shape)
 }
 
 // FUNCTION: MW2 0x1003ad2d
+// FUNCTION: MW2GBL 0x10040f99
 // FUNCTION: MW2MATROX 0x1002835e
 // FUNCTION: MW23DFX 0x10029830
 // FUNCTION: MW2ATI 0x10029490
@@ -465,6 +486,7 @@ void SetShapeKind(Shape* p_shape, MechS32 p_kind)
 }
 
 // FUNCTION: MW2 0x1003ad4c
+// FUNCTION: MW2GBL 0x10040fb8
 // FUNCTION: MW2MATROX 0x1002837d
 // FUNCTION: MW23DFX 0x10029840
 // FUNCTION: MW2ATI 0x100294a0
@@ -476,6 +498,7 @@ void SetShapePartId(Shape* p_shape, MechU16 p_partId)
 }
 
 // FUNCTION: MW2 0x1003ad62
+// FUNCTION: MW2GBL 0x10040fce
 // FUNCTION: MW2MATROX 0x10028393
 // FUNCTION: MW23DFX 0x10029850
 // FUNCTION: MW2ATI 0x100294b0
@@ -487,6 +510,7 @@ void SetShapeOwner(Shape* p_shape, MechU16 p_owner)
 }
 
 // FUNCTION: MW2 0x1003ad78
+// FUNCTION: MW2GBL 0x10040fe4
 // FUNCTION: MW2MATROX 0x100283a9
 // FUNCTION: MW23DFX 0x10029860
 MechU32 GetShapeKind(Shape* p_shape)
@@ -495,6 +519,7 @@ MechU32 GetShapeKind(Shape* p_shape)
 }
 
 // FUNCTION: MW2 0x1003ad93
+// FUNCTION: MW2GBL 0x10040fff
 // FUNCTION: MW2MATROX 0x100283c4
 // FUNCTION: MW23DFX 0x10029870
 MechU32 GetShapePartId(Shape* p_shape)
@@ -503,6 +528,7 @@ MechU32 GetShapePartId(Shape* p_shape)
 }
 
 // FUNCTION: MW2 0x1003adae
+// FUNCTION: MW2GBL 0x1004101a
 // FUNCTION: MW2MATROX 0x100283df
 // FUNCTION: MW23DFX 0x10029880
 MechU32 GetShapeOwner(Shape* p_shape)
@@ -511,6 +537,7 @@ MechU32 GetShapeOwner(Shape* p_shape)
 }
 
 // FUNCTION: MW2 0x1003adc9
+// FUNCTION: MW2GBL 0x10041035
 // FUNCTION: MW2MATROX 0x100283fa
 // FUNCTION: MW23DFX 0x10029890
 // FUNCTION: MW2ATI 0x100294c0
@@ -536,6 +563,7 @@ MechScalar GetShapeBounds(Shape* p_shape, MechScalar* p_x, MechScalar* p_y, Mech
 // Computes the selected model's face normals, then the shape's center and radius (a shape
 // LoadShapeRecord has just built).
 // FUNCTION: MW2 0x1003ae1e
+// FUNCTION: MW2GBL 0x1004108a
 // FUNCTION: MW2MATROX 0x1002844f
 // FUNCTION: MW23DFX 0x100298c0
 // FUNCTION: MW2ATI 0x100294f0
@@ -567,6 +595,7 @@ void ComputeNormalsAndBounds(Shape* p_shape)
 // its longest edge and the vertex that gives the largest area with it, stopping at the first
 // area over 16. A face of fewer than 3 vertices keeps the default (0x20000000, 0, 0).
 // FUNCTION: MW2 0x1003b0e4
+// FUNCTION: MW2GBL 0x10041358
 // FUNCTION: MW2MATROX 0x100284c7
 // FUNCTION: MW2S3 0x10025e80
 void ComputeFaceNormal(Face* p_face, Vertex* p_vertices)
@@ -686,6 +715,7 @@ void ComputeFaceNormal(Face* p_face, Vertex* p_vertices)
 
 // Returns the selected model's vertex and face counts.
 // FUNCTION: MW2 0x1003b43d
+// FUNCTION: MW2GBL 0x100416b1
 // FUNCTION: MW2MATROX 0x10028825
 // FUNCTION: MW23DFX 0x10029920
 // FUNCTION: MW2ATI 0x10029550
@@ -711,6 +741,7 @@ void GetModelCounts(Shape* p_shape, MechS32* p_vertexCount, MechS32* p_faceCount
 
 // Calls p_fn for each shape of the list after p_shape.
 // FUNCTION: MW2 0x1003b48f
+// FUNCTION: MW2GBL 0x10041703
 // FUNCTION: MW2MATROX 0x10028877
 // FUNCTION: MW23DFX 0x10029950
 // FUNCTION: MW2ATI 0x10029580
@@ -736,6 +767,7 @@ void ForEachShape(Shape* p_shape, void (*p_fn)(Shape*))
 #ifndef MW2_ACCEL
 // Returns a vertex's transformed position.
 // FUNCTION: MW2 0x1003b4dd
+// FUNCTION: MW2GBL 0x10041751
 void GetTransformedVertex(Shape* p_shape, MechS32 p_index, MechS32* p_x, MechS32* p_y, MechS32* p_z)
 {
 	Model* model;
@@ -762,6 +794,7 @@ void GetTransformedVertex(Shape* p_shape, MechS32 p_index, MechS32* p_x, MechS32
 
 // Returns a vertex's position in the model.
 // FUNCTION: MW2 0x1003b55a
+// FUNCTION: MW2GBL 0x100417ce
 void GetVertexPosition(Shape* p_shape, MechS32 p_index, MechS32* p_x, MechS32* p_y, MechS32* p_z)
 {
 	Model* model;
@@ -788,6 +821,7 @@ void GetVertexPosition(Shape* p_shape, MechS32 p_index, MechS32* p_x, MechS32* p
 
 // Returns a face of the selected model and up to p_max of its vertex indices.
 // FUNCTION: MW2 0x1003b5d6
+// FUNCTION: MW2GBL 0x1004184a
 void GetShapeFace(
 	Shape* p_shape,
 	MechS32 p_index,
@@ -829,6 +863,7 @@ void GetShapeFace(
 #endif
 
 // FUNCTION: MW2 0x1003b696
+// FUNCTION: MW2GBL 0x1004190a
 // FUNCTION: MW2MATROX 0x100288c5
 // FUNCTION: MW23DFX 0x10029970
 // FUNCTION: MW2ATI 0x100295a0
@@ -849,6 +884,7 @@ void SetFaceColor(Shape* p_shape, MechS32 p_index, MechS32 p_color)
 }
 
 // FUNCTION: MW2 0x1003b6e5
+// FUNCTION: MW2GBL 0x10041959
 // FUNCTION: MW2MATROX 0x10028914
 // FUNCTION: MW23DFX 0x100299a0
 // FUNCTION: MW2ATI 0x100295d0
@@ -860,6 +896,7 @@ struct SceneObject* GetShapeObject(Shape* p_shape)
 }
 
 // FUNCTION: MW2 0x1003b6fb
+// FUNCTION: MW2GBL 0x1004196f
 // FUNCTION: MW2MATROX 0x1002892a
 // FUNCTION: MW23DFX 0x100299b0
 // FUNCTION: MW2ATI 0x100295e0
@@ -872,6 +909,7 @@ void SetShapeObject(Shape* p_shape, struct SceneObject* p_object)
 
 #ifndef MW2_ACCEL
 // FUNCTION: MW2 0x1003b70f
+// FUNCTION: MW2GBL 0x10041983
 MechU32 GetShapeLoadFlags(Shape* p_shape)
 {
 	return p_shape->m_flags & 0x10f;
@@ -879,6 +917,7 @@ MechU32 GetShapeLoadFlags(Shape* p_shape)
 #endif
 
 // FUNCTION: MW2 0x1003b72f
+// FUNCTION: MW2GBL 0x100419a3
 // FUNCTION: MW2MATROX 0x1002893e
 // FUNCTION: MW23DFX 0x100299c0
 // FUNCTION: MW2ATI 0x100295f0
@@ -891,6 +930,7 @@ void SetShapeLoadFlags(Shape* p_shape, MechU32 p_flags)
 
 // Unlinks the shape and frees it.
 // FUNCTION: MW2 0x1003b75e
+// FUNCTION: MW2GBL 0x100419d2
 // FUNCTION: MW2MATROX 0x1002896d
 // FUNCTION: MW23DFX 0x100299e0
 // FUNCTION: MW2ATI 0x10029610
@@ -906,6 +946,7 @@ void DestroyShape(Shape* p_shape)
 
 // Detaches the shape from its scene object and frees it. A ShapeCallback (DestroyObjTree).
 // FUNCTION: MW2 0x1003b78b
+// FUNCTION: MW2GBL 0x100419ff
 // FUNCTION: MW2MATROX 0x1002899a
 // FUNCTION: MW23DFX 0x10029a00
 // FUNCTION: MW2ATI 0x10029630
@@ -930,6 +971,7 @@ void DestroyObjShape(Shape* p_shape)
 
 // Returns the bytes the shape, its models and its bounding data take.
 // FUNCTION: MW2 0x1003b7cc
+// FUNCTION: MW2GBL 0x10041a40
 // FUNCTION: MW2MATROX 0x100289f3
 // FUNCTION: MW23DFX 0x10029a40
 // FUNCTION: MW2ATI 0x10029670

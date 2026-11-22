@@ -11,6 +11,7 @@
 // Returns 1 if p_x^2 + p_y^2 + p_z^2 (64-bit) is at most p_radius^2.
 #ifndef MW2_FLOAT_SCALARS
 // FUNCTION: MW2 0x10004ec0
+// FUNCTION: MW2GBL 0x1000a940
 MechS32 IsWithinRadius(MechS32 p_x, MechS32 p_y, MechS32 p_z, MechS32 p_radius)
 {
 #ifdef PORTABLE_C

@@ -31,6 +31,7 @@ DECOMP_SIZE_ASSERT(SceneObject, 0x7c)
 // The countdown the next object starts with, stepped through 64 to 191 so that objects
 // renormalize on different frames.
 // GLOBAL: MW2 0x100a00c8
+// GLOBAL: MW2GBL 0x1009ee9c
 // GLOBAL: MW2MATROX 0x100a7cb4
 // GLOBAL: MW23DFX 0x1024b3a0
 // GLOBAL: MW2ATI 0x1017f720
@@ -158,6 +159,7 @@ SceneObject* InitObj(SceneObject* p_parent, void* p_memory)
 
 // The PowerVR edition also moves the shape's SGL list from the old shape's to the object's list.
 // FUNCTION: MW2 0x10001532
+// FUNCTION: MW2GBL 0x1001946c
 // FUNCTION: MW2MATROX 0x10041032
 // FUNCTION: MW23DFX 0x1000f750
 // FUNCTION: MW2ATI 0x1000fe20
@@ -182,6 +184,7 @@ void SetObjShape(SceneObject* p_obj, Shape* p_shape)
 }
 
 // FUNCTION: MW2 0x1000154d
+// FUNCTION: MW2GBL 0x10019487
 // FUNCTION: MW2MATROX 0x1004104d
 // FUNCTION: MW23DFX 0x1000f760
 // FUNCTION: MW2ATI 0x1000fe30
@@ -193,6 +196,7 @@ Shape* GetObjShape(SceneObject* p_obj)
 }
 
 // FUNCTION: MW2 0x10001563
+// FUNCTION: MW2GBL 0x1001949d
 // FUNCTION: MW2MATROX 0x10041063
 // FUNCTION: MW23DFX 0x1000f770
 MechChar* GetObjName(SceneObject* p_obj)
@@ -201,6 +205,7 @@ MechChar* GetObjName(SceneObject* p_obj)
 }
 
 // FUNCTION: MW2 0x10001579
+// FUNCTION: MW2GBL 0x100194b3
 // FUNCTION: MW2MATROX 0x10041079
 // FUNCTION: MW23DFX 0x1000f780
 void SetObjName(SceneObject* p_obj, MechChar* p_name)
@@ -209,6 +214,7 @@ void SetObjName(SceneObject* p_obj, MechChar* p_name)
 }
 
 // FUNCTION: MW2 0x10001596
+// FUNCTION: MW2GBL 0x100194d0
 // FUNCTION: MW2MATROX 0x10041096
 // FUNCTION: MW23DFX 0x1000f7a0
 // FUNCTION: MW2ATI 0x1000fe40
@@ -220,6 +226,7 @@ void GetObjWorldAngles(SceneObject* p_obj, MechScalar* p_angleX, MechScalar* p_a
 }
 
 // FUNCTION: MW2 0x100015bc
+// FUNCTION: MW2GBL 0x100194f6
 // FUNCTION: MW2MATROX 0x100410bc
 // FUNCTION: MW23DFX 0x1000f7c0
 // FUNCTION: MW2ATI 0x1000fe60
@@ -231,6 +238,7 @@ void GetObjAngles(SceneObject* p_obj, MechScalar* p_angleX, MechScalar* p_angleY
 }
 
 // FUNCTION: MW2 0x100015e2
+// FUNCTION: MW2GBL 0x1001951c
 // FUNCTION: MW2MATROX 0x100410e2
 // FUNCTION: MW23DFX 0x1000f7e0
 // FUNCTION: MW2ATI 0x1000fe80
@@ -244,6 +252,7 @@ void GetObjPosition(SceneObject* p_obj, MechScalar* p_x, MechScalar* p_y, MechSc
 }
 
 // FUNCTION: MW2 0x1000160e
+// FUNCTION: MW2GBL 0x10019548
 // FUNCTION: MW2MATROX 0x1004110e
 // FUNCTION: MW23DFX 0x1000f800
 // FUNCTION: MW2ATI 0x1000fea0
@@ -258,6 +267,7 @@ void GetObjLocalPosition(SceneObject* p_obj, MechScalar* p_x, MechScalar* p_y, M
 
 // The PowerVR edition also sets the object's translation transform.
 // FUNCTION: MW2 0x1000163a
+// FUNCTION: MW2GBL 0x10019574
 // FUNCTION: MW2MATROX 0x1004113a
 // FUNCTION: MW23DFX 0x1000f820
 // FUNCTION: MW2ATI 0x1000fec0
@@ -276,6 +286,7 @@ void SetObjPosition(SceneObject* p_obj, MechScalar p_x, MechScalar p_y, MechScal
 
 // The PowerVR edition also moves the object's translation transform.
 // FUNCTION: MW2 0x10001667
+// FUNCTION: MW2GBL 0x100195a1
 // FUNCTION: MW2MATROX 0x10041167
 // FUNCTION: MW23DFX 0x1000f850
 // FUNCTION: MW2ATI 0x1000fef0
@@ -324,6 +335,7 @@ void SetObjTransform(SceneObject* p_obj, Matrix* p_matrix)
 
 // Multiplies the object's local matrix by p_matrix, renormalizing the rotation now and then.
 // FUNCTION: MW2 0x100016b6
+// FUNCTION: MW2GBL 0x100195f5
 // FUNCTION: MW2MATROX 0x100411c8
 // FUNCTION: MW23DFX 0x1000f8a0
 void TransformObj(SceneObject* p_obj, Matrix* p_matrix)
@@ -341,6 +353,7 @@ void TransformObj(SceneObject* p_obj, Matrix* p_matrix)
 
 // The PowerVR edition also sets the object's rotation transform.
 // FUNCTION: MW2 0x10001722
+// FUNCTION: MW2GBL 0x10019661
 // FUNCTION: MW2MATROX 0x10041234
 // FUNCTION: MW23DFX 0x1000f8f0
 // FUNCTION: MW2ATI 0x1000ff40
@@ -373,6 +386,7 @@ void SetObjRotationMatrix(SceneObject* p_obj, Matrix* p_matrix)
 // In the PowerVR edition the caller turns the rotation transform (RotateObj), and a renormalized
 // rotation sets it.
 // FUNCTION: MW2 0x1000179f
+// FUNCTION: MW2GBL 0x100196de
 // FUNCTION: MW2MATROX 0x100412b1
 // FUNCTION: MW23DFX 0x1000f940
 // FUNCTION: MW2ATI 0x1000ff90
@@ -404,6 +418,7 @@ void RotateObjMatrix(SceneObject* p_obj, Matrix* p_matrix)
 // The PowerVR edition copies the rotation itself, and sets the object's rotation transform from the
 // angles.
 // FUNCTION: MW2 0x1000180b
+// FUNCTION: MW2GBL 0x1001974a
 // FUNCTION: MW2MATROX 0x1004131d
 // FUNCTION: MW23DFX 0x1000f990
 // FUNCTION: MW2ATI 0x1000ffe0
@@ -433,6 +448,7 @@ void SetObjRotation(SceneObject* p_obj, MechScalar p_angleX, MechScalar p_angleY
 
 // The PowerVR edition turns the object's rotation transform first.
 // FUNCTION: MW2 0x1000184b
+// FUNCTION: MW2GBL 0x1001978a
 // FUNCTION: MW2MATROX 0x1004135d
 // FUNCTION: MW23DFX 0x1000f9d0
 // FUNCTION: MW2ATI 0x10010020
@@ -450,6 +466,7 @@ void RotateObj(SceneObject* p_obj, MechScalar p_angleX, MechScalar p_angleY, Mec
 }
 
 // FUNCTION: MW2 0x1000188b
+// FUNCTION: MW2GBL 0x100197ca
 // FUNCTION: MW2MATROX 0x1004139d
 // FUNCTION: MW23DFX 0x1000fa10
 // FUNCTION: MW2ATI 0x10010060
@@ -465,6 +482,7 @@ void TransformShapeModel(Shape* p_shape)
 }
 
 // FUNCTION: MW2 0x100018ca
+// FUNCTION: MW2GBL 0x10019809
 // FUNCTION: MW2MATROX 0x100413dc
 // FUNCTION: MW23DFX 0x1000fa30
 // FUNCTION: MW2ATI 0x10010080
@@ -484,6 +502,7 @@ void HideObjTree(SceneObject* p_obj)
 }
 
 // FUNCTION: MW2 0x10001926
+// FUNCTION: MW2GBL 0x10019865
 // FUNCTION: MW2MATROX 0x10041438
 // FUNCTION: MW23DFX 0x1000fa60
 // FUNCTION: MW2ATI 0x100100b0
@@ -503,6 +522,7 @@ void ShowObjTree(SceneObject* p_obj)
 }
 
 // FUNCTION: MW2 0x1000199a
+// FUNCTION: MW2GBL 0x100198d9
 // FUNCTION: MW2MATROX 0x100414ac
 // FUNCTION: MW23DFX 0x1000fa90
 // FUNCTION: MW2ATI 0x100100e0
@@ -522,6 +542,7 @@ void DisableObjTreeCollision(SceneObject* p_obj)
 }
 
 // FUNCTION: MW2 0x100019f6
+// FUNCTION: MW2GBL 0x10019935
 // FUNCTION: MW2MATROX 0x10041508
 // FUNCTION: MW23DFX 0x1000fac0
 // FUNCTION: MW2ATI 0x10010110
@@ -541,6 +562,7 @@ void EnableObjTreeCollision(SceneObject* p_obj)
 }
 
 // FUNCTION: MW2 0x10001a52
+// FUNCTION: MW2GBL 0x10019991
 // FUNCTION: MW2MATROX 0x10041564
 // FUNCTION: MW23DFX 0x1000faf0
 // FUNCTION: MW2ATI 0x10010140
@@ -560,6 +582,7 @@ void DetachObjTreeShapes(SceneObject* p_obj)
 }
 
 // FUNCTION: MW2 0x10001aae
+// FUNCTION: MW2GBL 0x100199ed
 // FUNCTION: MW2MATROX 0x100415c0
 // FUNCTION: MW23DFX 0x1000fb20
 // FUNCTION: MW2ATI 0x10010170
@@ -579,6 +602,7 @@ void SetObjTreeKind(SceneObject* p_obj, MechS32 p_kind)
 }
 
 // FUNCTION: MW2 0x10001b0c
+// FUNCTION: MW2GBL 0x10019a4b
 // FUNCTION: MW2MATROX 0x1004161e
 // FUNCTION: MW23DFX 0x1000fb50
 // FUNCTION: MW2ATI 0x100101a0
@@ -598,6 +622,7 @@ void SetObjTreeOwner(SceneObject* p_obj, MechS32 p_owner)
 }
 
 // FUNCTION: MW2 0x10001b6a
+// FUNCTION: MW2GBL 0x10019aa9
 // FUNCTION: MW2MATROX 0x1004167c
 // FUNCTION: MW23DFX 0x1000fb80
 // FUNCTION: MW2ATI 0x100101d0
@@ -617,6 +642,7 @@ void SetObjTreeCollisionType(SceneObject* p_obj, MechS32 p_collisionType)
 }
 
 // FUNCTION: MW2 0x10001bce
+// FUNCTION: MW2GBL 0x10019b0d
 // FUNCTION: MW2MATROX 0x100416e0
 // FUNCTION: MW23DFX 0x1000fbb0
 // FUNCTION: MW2ATI 0x10010200
@@ -668,6 +694,7 @@ void UpdateObjWorld(SceneObject* p_obj)
 }
 
 // FUNCTION: MW2 0x10001cf8
+// FUNCTION: MW2GBL 0x10019c3c
 // FUNCTION: MW2MATROX 0x1004180a
 // FUNCTION: MW23DFX 0x1000fc40
 // FUNCTION: MW2ATI 0x10010290
@@ -688,6 +715,7 @@ void UpdateObj(SceneObject* p_obj)
 }
 
 // FUNCTION: MW2 0x10001d63
+// FUNCTION: MW2GBL 0x10019ca7
 // FUNCTION: MW2MATROX 0x10041875
 // FUNCTION: MW23DFX 0x1000fc70
 SceneObject* GetObjRoot(SceneObject* p_obj)
@@ -700,6 +728,7 @@ SceneObject* GetObjRoot(SceneObject* p_obj)
 }
 
 // FUNCTION: MW2 0x10001d8f
+// FUNCTION: MW2GBL 0x10019cd3
 // FUNCTION: MW2MATROX 0x100418a1
 // FUNCTION: MW23DFX 0x1000fc80
 SceneObject* GetObjParent(SceneObject* p_obj)
@@ -708,6 +737,7 @@ SceneObject* GetObjParent(SceneObject* p_obj)
 }
 
 // FUNCTION: MW2 0x10001da4
+// FUNCTION: MW2GBL 0x10019ce8
 // FUNCTION: MW2MATROX 0x100418b6
 // FUNCTION: MW23DFX 0x1000fc90
 // FUNCTION: MW2ATI 0x100102c0
@@ -719,6 +749,7 @@ SceneObject* GetObjFirstChild(SceneObject* p_obj)
 }
 
 // FUNCTION: MW2 0x10001dba
+// FUNCTION: MW2GBL 0x10019cfe
 // FUNCTION: MW2MATROX 0x100418cc
 // FUNCTION: MW23DFX 0x1000fca0
 // FUNCTION: MW2ATI 0x100102d0
@@ -730,6 +761,7 @@ SceneObject* GetObjNextSibling(SceneObject* p_obj)
 }
 
 // FUNCTION: MW2 0x10001dd0
+// FUNCTION: MW2GBL 0x10019d14
 // FUNCTION: MW2MATROX 0x100418e2
 // FUNCTION: MW23DFX 0x1000fcb0
 Matrix* GetObjLocalMatrix(SceneObject* p_obj)
@@ -767,6 +799,7 @@ void SetObjLocalMatrix(SceneObject* p_obj, Matrix* p_matrix)
 }
 
 // FUNCTION: MW2 0x10001e01
+// FUNCTION: MW2GBL 0x10019d4a
 // FUNCTION: MW2MATROX 0x10041913
 // FUNCTION: MW23DFX 0x1000fce0
 // FUNCTION: MW2ATI 0x10010300
@@ -833,6 +866,7 @@ void DetachObj(SceneObject* p_obj)
 
 // Links the object under p_parent, keeping its world placement.
 // FUNCTION: MW2 0x10001ef8
+// FUNCTION: MW2GBL 0x10019e4b
 // FUNCTION: MW2MATROX 0x10041a0a
 // FUNCTION: MW23DFX 0x1000fd70
 void AttachObj(SceneObject* p_obj, SceneObject* p_parent)
@@ -856,6 +890,7 @@ void AttachObj(SceneObject* p_obj, SceneObject* p_parent)
 
 // The PowerVR edition also deletes the object's list.
 // FUNCTION: MW2 0x10001f82
+// FUNCTION: MW2GBL 0x10019ed5
 // FUNCTION: MW2MATROX 0x10041a94
 // FUNCTION: MW23DFX 0x1000fdd0
 // FUNCTION: MW2ATI 0x10010370
@@ -889,6 +924,7 @@ void DestroyObjTree(SceneObject* p_obj, ShapeCallback p_callback)
 }
 
 // FUNCTION: MW2 0x10002016
+// FUNCTION: MW2GBL 0x10019f69
 // FUNCTION: MW2MATROX 0x10041b28
 // FUNCTION: MW23DFX 0x1000fe20
 SceneObject* FindObjByName(SceneObject* p_obj, const MechChar* p_name)
@@ -910,6 +946,7 @@ SceneObject* FindObjByName(SceneObject* p_obj, const MechChar* p_name)
 }
 
 // FUNCTION: MW2 0x100020a6
+// FUNCTION: MW2GBL 0x10019ff9
 // FUNCTION: MW2MATROX 0x10041bb8
 // FUNCTION: MW23DFX 0x1000fe60
 // FUNCTION: MW2ATI 0x100103c0
@@ -934,6 +971,7 @@ SceneObject* GetObjLastChild(SceneObject* p_obj)
 
 // Returns child p_index in the order the children were added (they are prepended), or NULL.
 // FUNCTION: MW2 0x100020fa
+// FUNCTION: MW2GBL 0x1001a04d
 // FUNCTION: MW2MATROX 0x10041c0c
 // FUNCTION: MW23DFX 0x1000fe80
 // FUNCTION: MW2ATI 0x100103e0
@@ -977,6 +1015,7 @@ SceneObject* GetObjChild(SceneObject* p_obj, MechS32 p_index)
 }
 
 // FUNCTION: MW2 0x100021b6
+// FUNCTION: MW2GBL 0x1001a109
 // FUNCTION: MW2MATROX 0x10041cc8
 // FUNCTION: MW23DFX 0x1000fec0
 // FUNCTION: MW2ATI 0x10010420
@@ -1003,6 +1042,7 @@ SceneObject* FindObjByPart(SceneObject* p_obj, MechU32 p_partId)
 
 // Raises the damage level (shape flags 0xf0) of mech part p_partId's shapes to p_level (1 to 15).
 // FUNCTION: MW2 0x10002246
+// FUNCTION: MW2GBL 0x1001a199
 // FUNCTION: MW2MATROX 0x10041d58
 // FUNCTION: MW23DFX 0x1000ff00
 // FUNCTION: MW2ATI 0x10010460
@@ -1039,6 +1079,7 @@ void RaisePartDamageLevel(SceneObject* p_obj, MechS32 p_level, MechU32 p_partId)
 
 // Blows mech part p_partId's objects off the tree as debris.
 // FUNCTION: MW2 0x10002314
+// FUNCTION: MW2GBL 0x1001a267
 // FUNCTION: MW2MATROX 0x10041e26
 // FUNCTION: MW23DFX 0x1000ff70
 // FUNCTION: MW2ATI 0x100104d0
@@ -1062,6 +1103,7 @@ void BlowOffPart(SceneObject* p_obj, MechU32 p_partId)
 }
 
 // FUNCTION: MW2 0x100023a8
+// FUNCTION: MW2GBL 0x1001a2fb
 // FUNCTION: MW2MATROX 0x10041eba
 // FUNCTION: MW23DFX 0x1000ffc0
 // FUNCTION: MW2ATI 0x10010520

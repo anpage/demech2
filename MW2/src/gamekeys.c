@@ -52,6 +52,7 @@
 #include <string.h>
 
 // GLOBAL: MW2 0x100aa290
+// GLOBAL: MW2GBL 0x1009dae0
 // GLOBAL: MW2MATROX 0x100a7cb8
 // GLOBAL: MW23DFX 0x1025050c
 // GLOBAL: MW2ATI 0x1018481c
@@ -69,6 +70,7 @@ MechS32 g_speechFlushTime = 0;
 
 // A game-key toggle (GetSystemSetting's setting 0x40).
 // GLOBAL: MW2 0x100aa298
+// GLOBAL: MW2GBL 0x1009dae8
 // GLOBAL: MW2MATROX 0x100a7cc0
 // GLOBAL: MW23DFX 0x10250514
 // GLOBAL: MW2ATI 0x10184824
@@ -86,6 +88,7 @@ MechS32 g_overrideShutdown = 0;
 MechS32 g_feetToTorso = 0;
 
 // GLOBAL: MW2 0x100aa2a4
+// GLOBAL: MW2GBL 0x1009daf4
 // GLOBAL: MW2MATROX 0x100a7ccc
 // GLOBAL: MW23DFX 0x10250520
 // GLOBAL: MW2ATI 0x10184830
@@ -94,6 +97,7 @@ MechS32 g_feetToTorso = 0;
 MechS32 g_mechViewMode = 1;
 
 // GLOBAL: MW2 0x100aa2a8
+// GLOBAL: MW2GBL 0x1009daf8
 // GLOBAL: MW2MATROX 0x100a7cd0
 // GLOBAL: MW23DFX 0x10250524
 // GLOBAL: MW2ATI 0x10184834
@@ -102,6 +106,7 @@ MechS32 g_mechViewMode = 1;
 MechS32 g_missionEnded = 0;
 
 // GLOBAL: MW2 0x100aa2ac
+// GLOBAL: MW2GBL 0x1009dafc
 // GLOBAL: MW2MATROX 0x100a7cd4
 // GLOBAL: MW23DFX 0x10250528
 // GLOBAL: MW2ATI 0x10184838
@@ -120,6 +125,7 @@ MechS32 g_timeCompressionCheat = 0;
 
 // The length of the chat message being typed (HandleChatKey).
 // GLOBAL: MW2 0x100aa2b8
+// GLOBAL: MW2GBL 0x1009db08
 // GLOBAL: MW2MATROX 0x100a7ce0
 // GLOBAL: MW23DFX 0x10250534
 // GLOBAL: MW2S3 0x10062654
@@ -127,6 +133,7 @@ MechS32 g_timeCompressionCheat = 0;
 MechS32 g_chatLength = 0;
 
 // GLOBAL: MW2 0x100aa2bc
+// GLOBAL: MW2GBL 0x1009db0c
 // GLOBAL: MW2MATROX 0x100a7ce4
 // GLOBAL: MW23DFX 0x10250538
 // GLOBAL: MW2ATI 0x10184848
@@ -135,6 +142,7 @@ MechS32 g_chatLength = 0;
 MechS32 g_missionResolved = 0;
 
 // GLOBAL: MW2 0x100aa2c0
+// GLOBAL: MW2GBL 0x1009db14
 // GLOBAL: MW2MATROX 0x100a7ce8
 // GLOBAL: MW23DFX 0x1025053c
 // GLOBAL: MW2ATI 0x1018484c
@@ -144,6 +152,7 @@ MechS32 g_statusMessage = 0;
 
 // The last 15 characters typed, the newest last.
 // GLOBAL: MW2 0x100e9620
+// GLOBAL: MW2GBL 0x1015dd20
 // GLOBAL: MW2MATROX 0x101d4a80
 // GLOBAL: MW23DFX 0x10159f50
 // GLOBAL: MW2ATI 0x1008df50
@@ -152,6 +161,7 @@ MechS32 g_statusMessage = 0;
 MechChar g_typedKeys[0xf];
 
 // GLOBAL: MW2 0x100ea3e4
+// GLOBAL: MW2GBL 0x1015dd30
 // GLOBAL: MW2MATROX 0x1012c1ec
 // GLOBAL: MW23DFX 0x101e8e10
 // GLOBAL: MW2ATI 0x1011cad0
@@ -161,6 +171,7 @@ MechS32 g_frontViewForRear;
 
 // Appends a character key (key code type 7) to the typed keys. Returns whether it was one.
 // FUNCTION: MW2 0x1005b7c0
+// FUNCTION: MW2GBL 0x10013470
 // FUNCTION: MW2MATROX 0x10041ed0
 // FUNCTION: MW23DFX 0x10036d10
 // FUNCTION: MW2ATI 0x100358d0
@@ -440,6 +451,7 @@ void HandleCheatInput(MechS16 p_key)
 
 // Turns a typed character into the one its key gives with shift held (the US layout).
 // FUNCTION: MW2 0x1005bf7c
+// FUNCTION: MW2GBL 0x10013baf
 // FUNCTION: MW2MATROX 0x100426b2
 // FUNCTION: MW23DFX 0x10037280
 // FUNCTION: MW2ATI 0x10035e40
@@ -468,6 +480,7 @@ void ShiftCharacter(MechChar* p_char)
 // edits, Enter sends it (to everyone from -1), Esc cancels, F-keys e and f pick the team (-3) or
 // everyone (-2), and printable characters are added up to 40. Returns whether it took the key.
 // FUNCTION: MW2 0x1005c057
+// FUNCTION: MW2GBL 0x10013c8a
 // FUNCTION: MW2MATROX 0x1004278d
 // FUNCTION: MW23DFX 0x10037310
 // FUNCTION: MW2ATI 0x10035ed0

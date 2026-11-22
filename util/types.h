@@ -66,6 +66,13 @@ typedef char MechChar;
 #if defined(MW2_GBL) && defined(MW2_ACCEL)
 #error "MW2_GBL is no accelerated edition"
 #endif
+/* GBL's source calls every function /Oi would expand but abs and fabs: the memory and string
+   functions, and the math functions, where 1.1 goes through their __CI entries. An artefact of how
+   it was built. */
+#ifdef MW2_GBL
+#pragma function(memcpy, memset, strcat, strcpy, strlen)
+#pragma function(acos, asin, atan, atan2, cos, cosh, exp, fmod, log, log10, pow, sin, sinh, sqrt, tan, tanh)
+#endif
 
 #ifdef MW2_ACCEL
 /* Representation: the simulation's 16.16 fixed-point values are floats (MechScalar, FIXED_*) */

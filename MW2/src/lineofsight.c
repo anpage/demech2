@@ -16,6 +16,7 @@
 // to it. With p_ahead, a target behind the player (between 90 and 270 degrees off the view)
 // is never seen.
 // FUNCTION: MW2 0x1006ca60
+// FUNCTION: MW2GBL 0x1007e660
 // FUNCTION: MW2MATROX 0x1006d320
 // FUNCTION: MW23DFX 0x10015090
 // FUNCTION: MW2ATI 0x100154a0
@@ -67,6 +68,7 @@ MechS32 CanSeeTarget(Player* p_player, MechS32 p_ahead)
 // Walks the ground from (p_x, p_y, p_z) toward the player in steps of 1000 units, and tests
 // that the terrain stays within 1000 units of height 0 all the way.
 // FUNCTION: MW2 0x1006cbe7
+// FUNCTION: MW2GBL 0x1007e7e7
 MechS32 IsGroundLevelToward(Player* p_player, MechS32 p_x, MechS32 p_y, MechS32 p_z)
 {
 	MechS32 steps;

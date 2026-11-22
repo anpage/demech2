@@ -17,6 +17,7 @@
 // snaps to the nearest cell.
 
 // GLOBAL: MW2 0x100a7114
+// GLOBAL: MW2GBL 0x1009babc
 // GLOBAL: MW2MATROX 0x100a594c
 // GLOBAL: MW23DFX 0x1024b42c
 // GLOBAL: MW2ATI 0x1017f7ac
@@ -25,6 +26,7 @@
 MechS32 g_gridCellSize = 0;
 
 // GLOBAL: MW2 0x100a7118
+// GLOBAL: MW2GBL 0x1009bac0
 // GLOBAL: MW2MATROX 0x100a5950
 // GLOBAL: MW23DFX 0x1024b430
 // GLOBAL: MW2ATI 0x1017f7b0
@@ -33,6 +35,7 @@ MechS32 g_gridCellSize = 0;
 MechS32 g_gridObjectSet = 0;
 
 // GLOBAL: MW2 0x100a711c
+// GLOBAL: MW2GBL 0x1009bac4
 // GLOBAL: MW2MATROX 0x100a5954
 // GLOBAL: MW23DFX 0x1024b434
 // GLOBAL: MW2ATI 0x1017f7b4
@@ -41,6 +44,7 @@ MechS32 g_gridObjectSet = 0;
 MechS32 g_gridObjectPlaced = 0;
 
 // GLOBAL: MW2 0x100a7120
+// GLOBAL: MW2GBL 0x1009bac8
 // GLOBAL: MW2MATROX 0x100a5958
 // GLOBAL: MW23DFX 0x1024b438
 // GLOBAL: MW2ATI 0x1017f7b8
@@ -49,6 +53,7 @@ MechS32 g_gridObjectPlaced = 0;
 MechS32 g_gridObjectShown = 0;
 
 // GLOBAL: MW2 0x100a7124
+// GLOBAL: MW2GBL 0x1009bacc
 // GLOBAL: MW2MATROX 0x100a595c
 // GLOBAL: MW23DFX 0x1024b43c
 // GLOBAL: MW2ATI 0x1017f7bc
@@ -57,6 +62,7 @@ MechS32 g_gridObjectShown = 0;
 MechS32 g_gridObjectSnaps = 0;
 
 // GLOBAL: MW2 0x100a7128
+// GLOBAL: MW2GBL 0x1009bad0
 // GLOBAL: MW2MATROX 0x100a5960
 // GLOBAL: MW23DFX 0x1024b440
 // GLOBAL: MW2ATI 0x1017f7c0
@@ -77,6 +83,7 @@ typedef struct GridCell {
 #endif
 
 // GLOBAL: MW2 0x100be9e0
+// GLOBAL: MW2GBL 0x100b8af8
 // GLOBAL: MW2MATROX 0x100c1fe8
 // GLOBAL: MW23DFX 0x1007c300
 // GLOBAL: MW2ATI 0x10071300
@@ -85,6 +92,7 @@ typedef struct GridCell {
 static GridCell g_gridCell;
 
 // GLOBAL: MW2 0x100be9f0
+// GLOBAL: MW2GBL 0x100b8b08
 // GLOBAL: MW2MATROX 0x100c1ff0
 // GLOBAL: MW23DFX 0x1007c308
 // GLOBAL: MW2ATI 0x10071308
@@ -94,6 +102,7 @@ static GridCell g_gridAnchor;
 
 // How far the eyepoint may stray from the object before it snaps to another cell.
 // GLOBAL: MW2 0x100be9fc
+// GLOBAL: MW2GBL 0x100b8b14
 // GLOBAL: MW2MATROX 0x100c1fe0
 // GLOBAL: MW23DFX 0x1007c2f8
 // GLOBAL: MW2ATI 0x100712f8
@@ -106,6 +115,7 @@ static MechS32 g_gridSnapDistance;
 // nearest cell once the eyepoint strays past 9/16 of a cell (with children) or kept on the cell
 // under the eyepoint.
 // FUNCTION: MW2 0x1004b130
+// FUNCTION: MW2GBL 0x10007b30
 // FUNCTION: MW2MATROX 0x100275e0
 // FUNCTION: MW23DFX 0x100113f0
 // FUNCTION: MW2ATI 0x10011950
@@ -291,6 +301,7 @@ void ShowGridObject(MechS32 p_enable)
 }
 #else
 // FUNCTION: MW2 0x1004b539
+// FUNCTION: MW2GBL 0x10007f41
 // FUNCTION: MW2MATROX 0x100279f9
 // FUNCTION: MW23DFX 0x100116d0
 // FUNCTION: MW2ATI 0x10011c30

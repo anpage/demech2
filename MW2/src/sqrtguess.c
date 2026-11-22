@@ -11,6 +11,7 @@
 // Estimates the square root of a 16.16 fixed-point value from its highest set bit, for
 // FixedSqrt16 to refine.
 // FUNCTION: MW2 0x10016a90
+// FUNCTION: MW2GBL 0x1002d420
 MechU32 FixedSqrtGuess(MechU32 p_value)
 {
 #ifdef PORTABLE_C

@@ -30,6 +30,9 @@ targets:
       - common
     hash:
       sha256: 284f3c6abef28eb421fc7da97f52c6223bd1a956409c6cb041ebe2e95d847cb8
+    data-sources:
+      - reccmp/mw2gbl-ascii.csv
+      - reccmp/mw2gbl-vfx.csv
     report:
       icon: assets/dll.png
   MW2MATROX:

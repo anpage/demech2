@@ -10,6 +10,7 @@
 
 // Returns p_a * p_b + p_c * p_d + p_e * p_f, shifted right by 29 and rounded.
 // FUNCTION: MW2 0x10042700
+// FUNCTION: MW2GBL 0x1000aa20
 MechS32 FixedDot29(MechS32 p_a, MechS32 p_b, MechS32 p_c, MechS32 p_d, MechS32 p_e, MechS32 p_f)
 {
 #ifdef PORTABLE_C

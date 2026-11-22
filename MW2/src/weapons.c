@@ -45,6 +45,7 @@
 // target lock of guided weapons.
 
 // GLOBAL: MW2 0x100a6d34
+// GLOBAL: MW2GBL 0x100b0068
 // GLOBAL: MW2MATROX 0x100a61c8
 // GLOBAL: MW23DFX 0x1025a664
 // GLOBAL: MW2ATI 0x1018e95c
@@ -66,6 +67,7 @@ MechS32 g_singleWeaponFire = 1;
 // are 16-byte alignment.
 
 // GLOBAL: MW2 0x101099c0
+// GLOBAL: MW2GBL 0x100e97e0
 // GLOBAL: MW2MATROX 0x101d4bd0
 // GLOBAL: MW23DFX 0x10159470
 // GLOBAL: MW2ATI 0x1008d480
@@ -74,6 +76,7 @@ MechS32 g_singleWeaponFire = 1;
 MechS32 g_remoteWeaponsFired[10];
 
 // GLOBAL: MW2 0x101099f0
+// GLOBAL: MW2GBL 0x100e9820
 // GLOBAL: MW2MATROX 0x101d4c00
 // GLOBAL: MW23DFX 0x101594a0
 // GLOBAL: MW2ATI 0x1008d4b0
@@ -700,6 +703,7 @@ void LoadWeaponSounds(void)
 }
 
 // FUNCTION: MW2 0x10045b14
+// FUNCTION: MW2GBL 0x10048763
 // FUNCTION: MW2MATROX 0x1002c8ba
 // FUNCTION: MW23DFX 0x10044330
 // FUNCTION: MW2ATI 0x10041b70
@@ -733,6 +737,7 @@ void SetSelectedWeaponGroup(MechS32 p_group)
 }
 
 // FUNCTION: MW2 0x10045b9c
+// FUNCTION: MW2GBL 0x100487eb
 // FUNCTION: MW2MATROX 0x1002c942
 // FUNCTION: MW23DFX 0x10044380
 // FUNCTION: MW2ATI 0x10041bd0
@@ -941,6 +946,7 @@ void UpdateWeaponLock(Mech* p_mech)
 // Casts the player's aim ray and returns the shape it hits, if any. A hit on a mech or a
 // building sets the distance the weapons converge at.
 // FUNCTION: MW2 0x10046269
+// FUNCTION: MW2GBL 0x10048f4f
 // FUNCTION: MW2MATROX 0x1002d0b1
 // FUNCTION: MW23DFX 0x10044810
 // FUNCTION: MW2ATI 0x10042060
@@ -985,6 +991,7 @@ Shape* UpdateAimDistance(Player* p_player)
 }
 
 // FUNCTION: MW2 0x1004635c
+// FUNCTION: MW2GBL 0x10049042
 // FUNCTION: MW2MATROX 0x1002d1bc
 // FUNCTION: MW23DFX 0x100448d0
 // FUNCTION: MW2ATI 0x10042120
@@ -996,6 +1003,7 @@ MechScalar GetAimRange(Player* p_player)
 }
 
 // FUNCTION: MW2 0x10046375
+// FUNCTION: MW2GBL 0x1004905b
 // FUNCTION: MW2MATROX 0x1002d1de
 // FUNCTION: MW23DFX 0x100448e0
 // FUNCTION: MW2ATI 0x10042130
@@ -1018,6 +1026,7 @@ void GetMechAimDirection(Player* p_player, MechScalar* p_x, MechScalar* p_y, Mec
 
 // Builds the player's aim ray, 150000 long.
 // FUNCTION: MW2 0x100463e5
+// FUNCTION: MW2GBL 0x100490cb
 // FUNCTION: MW2MATROX 0x1002d253
 // FUNCTION: MW23DFX 0x10044950
 // FUNCTION: MW2ATI 0x100421a0
@@ -1043,6 +1052,7 @@ void BuildAimRay(Player* p_player, Ray* p_ray)
 
 // The direction the player aims in.
 // FUNCTION: MW2 0x10046466
+// FUNCTION: MW2GBL 0x1004914c
 // FUNCTION: MW2MATROX 0x1002d2d7
 // FUNCTION: MW23DFX 0x100449d0
 // FUNCTION: MW2ATI 0x10042220
@@ -1077,6 +1087,7 @@ void GetEyeAimDirection(Player* p_player, MechScalar* p_x, MechScalar* p_y, Mech
 }
 
 // FUNCTION: MW2 0x100464f3
+// FUNCTION: MW2GBL 0x100491d9
 // FUNCTION: MW2MATROX 0x1002d364
 // FUNCTION: MW23DFX 0x10044a50
 // FUNCTION: MW2ATI 0x100422a0
@@ -1089,6 +1100,7 @@ void GetFiringPosition(Player* p_player, MechScalar* p_x, MechScalar* p_y, MechS
 
 // Places p_obj at the player's current hardpoint.
 // FUNCTION: MW2 0x10046519
+// FUNCTION: MW2GBL 0x100491ff
 // FUNCTION: MW2MATROX 0x1002d38a
 // FUNCTION: MW23DFX 0x10044a70
 // FUNCTION: MW2ATI 0x100422c0

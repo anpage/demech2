@@ -13,6 +13,7 @@
 // The order each AI slot was given last, an index into g_orderChoices (7: none); slot 0 is the
 // whole star's.
 // GLOBAL: MW2 0x100acaf0
+// GLOBAL: MW2GBL 0x1009b790
 // GLOBAL: MW2MATROX 0x100bd320
 // GLOBAL: MW23DFX 0x10264468
 // GLOBAL: MW2ATI 0x10198760
@@ -113,6 +114,7 @@ MechS32 PrepareCommandPointPage(MenuDefinition* p_menu, MenuPage* p_page)
 }
 
 // FUNCTION: MW2 0x100661ef
+// FUNCTION: MW2GBL 0x10005531
 // FUNCTION: MW2MATROX 0x1008e8e0
 // FUNCTION: MW23DFX 0x10064510
 // FUNCTION: MW2ATI 0x10061b80
@@ -131,6 +133,7 @@ MechS32 GetLanceOrder(MechS32 p_index)
 }
 
 // FUNCTION: MW2 0x10066223
+// FUNCTION: MW2GBL 0x10005565
 // FUNCTION: MW2MATROX 0x1008e914
 // FUNCTION: MW23DFX 0x10064530
 // FUNCTION: MW2ATI 0x10061ba0
@@ -142,6 +145,7 @@ MechS32 GetFormation(MechS32 p_arg)
 }
 
 // FUNCTION: MW2 0x10066241
+// FUNCTION: MW2GBL 0x10005583
 // FUNCTION: MW2MATROX 0x1008e932
 // FUNCTION: MW23DFX 0x10064540
 // FUNCTION: MW2ATI 0x10061bb0
@@ -156,6 +160,7 @@ void SelectFormation(MechS32 p_formation, MechS32 p_value)
 
 // Returns the AI state of the player in AI slot p_index, plus one (0: none).
 // FUNCTION: MW2 0x10066272
+// FUNCTION: MW2GBL 0x100055b4
 // FUNCTION: MW2MATROX 0x1008e963
 // FUNCTION: MW23DFX 0x10064570
 // FUNCTION: MW2ATI 0x10061be0
@@ -185,6 +190,7 @@ MechS32 GetSlotAiState(MechS32 p_index)
 
 // Gives the control the page's AI slot.
 // FUNCTION: MW2 0x100662df
+// FUNCTION: MW2GBL 0x10005621
 // FUNCTION: MW2MATROX 0x1008e9d0
 // FUNCTION: MW23DFX 0x100645a0
 // FUNCTION: MW2ATI 0x10061c10
@@ -205,6 +211,7 @@ void SetControlSlot(MenuPage* p_page, MenuControl* p_control)
 
 // Installs GetSlotGoalName as the suffix of the control's choices.
 // FUNCTION: MW2 0x10066314
+// FUNCTION: MW2GBL 0x10005656
 // FUNCTION: MW2MATROX 0x1008ea05
 // FUNCTION: MW23DFX 0x100645b0
 // FUNCTION: MW2ATI 0x10061c20
@@ -235,6 +242,7 @@ void InstallGoalSuffix(MenuPage* p_page, MenuControl* p_control)
 // The orders' actions: each records the order for the menu and gives it to the slot's player
 // (OrderStarSlot).
 // FUNCTION: MW2 0x10066369
+// FUNCTION: MW2GBL 0x100056ab
 // FUNCTION: MW2MATROX 0x1008ea5a
 // FUNCTION: MW23DFX 0x100645d0
 // FUNCTION: MW2ATI 0x10061c40
@@ -251,6 +259,7 @@ void OrderAttack(MechS32 p_index, MechS32 p_value)
 }
 
 // FUNCTION: MW2 0x100663a4
+// FUNCTION: MW2GBL 0x100056e6
 // FUNCTION: MW2MATROX 0x1008ea95
 // FUNCTION: MW23DFX 0x10064600
 // FUNCTION: MW2ATI 0x10061c70
@@ -267,6 +276,7 @@ void OrderEngageAtWill(MechS32 p_index, MechS32 p_value)
 }
 
 // FUNCTION: MW2 0x100663df
+// FUNCTION: MW2GBL 0x10005721
 // FUNCTION: MW2MATROX 0x1008ead0
 // FUNCTION: MW23DFX 0x10064630
 // FUNCTION: MW2ATI 0x10061ca0
@@ -283,6 +293,7 @@ void OrderJoinFormation(MechS32 p_index, MechS32 p_value)
 }
 
 // FUNCTION: MW2 0x1006641a
+// FUNCTION: MW2GBL 0x1000575c
 // FUNCTION: MW2MATROX 0x1008eb0b
 // FUNCTION: MW23DFX 0x10064660
 // FUNCTION: MW2ATI 0x10061cd0
@@ -299,6 +310,7 @@ void OrderDefend(MechS32 p_index, MechS32 p_value)
 }
 
 // FUNCTION: MW2 0x10066455
+// FUNCTION: MW2GBL 0x10005797
 // FUNCTION: MW2MATROX 0x1008eb46
 // FUNCTION: MW23DFX 0x10064690
 // FUNCTION: MW2ATI 0x10061d00
@@ -315,6 +327,7 @@ void OrderDisengage(MechS32 p_index, MechS32 p_value)
 }
 
 // FUNCTION: MW2 0x10066490
+// FUNCTION: MW2GBL 0x100057d2
 // FUNCTION: MW2MATROX 0x1008eb81
 // FUNCTION: MW23DFX 0x100646c0
 // FUNCTION: MW2ATI 0x10061d30

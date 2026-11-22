@@ -19,16 +19,19 @@ enum ScreenshotState {
 };
 
 // GLOBAL: MW2 0x100ad498
+// GLOBAL: MW2GBL 0x100b692c
 // GLOBAL: MW2MATROX 0x100ae2b0
 // GLOBAL: MW23DFX 0x1025940c
 MechS32 g_screenshotState = c_screenshotIdle;
 
 // GLOBAL: MW2 0x100c75e0
+// GLOBAL: MW2GBL 0x100bbb60
 // GLOBAL: MW2MATROX 0x10150680
 // GLOBAL: MW23DFX 0x10159df4
 PANE* g_screenshotTarget;
 
 // FUNCTION: MW2 0x1006cdc0
+// FUNCTION: MW2GBL 0x1007e9c0
 // FUNCTION: MW2MATROX 0x1006eb20
 // FUNCTION: MW23DFX 0x1003b5e0
 MechS32 ScreenshotBegin(const MechChar* p_filename)
@@ -50,6 +53,7 @@ MechS32 ScreenshotBegin(const MechChar* p_filename)
 }
 
 // FUNCTION: MW2 0x1006ce29
+// FUNCTION: MW2GBL 0x1007ea29
 // FUNCTION: MW2MATROX 0x1006eb89
 // FUNCTION: MW23DFX 0x1003b620
 void ScreenshotWritePalette(void)
@@ -70,6 +74,7 @@ void ScreenshotWritePalette(void)
 }
 
 // FUNCTION: MW2 0x1006cea9
+// FUNCTION: MW2GBL 0x1007eaa9
 // FUNCTION: MW2MATROX 0x1006ec09
 // FUNCTION: MW23DFX 0x1003b680
 MechS32 ScreenshotWriteImage(PANE* p_target)
@@ -90,6 +95,7 @@ MechS32 ScreenshotWriteImage(PANE* p_target)
 }
 
 // FUNCTION: MW2 0x1006cf35
+// FUNCTION: MW2GBL 0x1007eb35
 // FUNCTION: MW2MATROX 0x1006ec95
 // FUNCTION: MW23DFX 0x1003b6d0
 void ScreenshotEnd(void)
@@ -100,6 +106,7 @@ void ScreenshotEnd(void)
 }
 
 // FUNCTION: MW2 0x1006cf54
+// FUNCTION: MW2GBL 0x1007eb54
 // FUNCTION: MW2MATROX 0x1006ecb4
 // FUNCTION: MW23DFX 0x1003b6e0
 MechS32 ScreenshotGetPixel(MechS32 p_x, MechS32 p_y)

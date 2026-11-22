@@ -10,6 +10,7 @@
 
 // Multiplies two 2.30 fixed-point values, rounding.
 // FUNCTION: MW2 0x10044720
+// FUNCTION: MW2GBL 0x100191e0
 MechS32 FixedMul30(MechS32 p_a, MechS32 p_b)
 {
 #ifdef PORTABLE_C

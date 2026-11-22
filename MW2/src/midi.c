@@ -15,6 +15,7 @@
 
 // The channel AIL_lock_channel gave the note (0-based), or -1.
 // GLOBAL: MW2 0x100a3948
+// GLOBAL: MW2GBL 0x100b549c
 // GLOBAL: MW2MATROX 0x100a8154
 // GLOBAL: MW23DFX 0x1024f770
 // GLOBAL: MW2ATI 0x10183a80
@@ -23,6 +24,7 @@
 MechS8 g_lockedChannel = -1;
 
 // GLOBAL: MW2 0x100a394c
+// GLOBAL: MW2GBL 0x100b54a0
 // GLOBAL: MW2MATROX 0x100a8158
 // GLOBAL: MW23DFX 0x1024f774
 // GLOBAL: MW2ATI 0x10183a84
@@ -32,6 +34,7 @@ HMDIDRIVER g_midiDriver = NULL;
 
 // Set by ShutdownMidi: the sequences are gone for good.
 // GLOBAL: MW2 0x100a3950
+// GLOBAL: MW2GBL 0x100b54a4
 // GLOBAL: MW2MATROX 0x100a815c
 // GLOBAL: MW23DFX 0x1024f778
 // GLOBAL: MW2ATI 0x10183a88
@@ -40,6 +43,7 @@ HMDIDRIVER g_midiDriver = NULL;
 MechS32 g_midiShutDown = 0;
 
 // GLOBAL: MW2 0x100a3954
+// GLOBAL: MW2GBL 0x100b54a8
 // GLOBAL: MW2MATROX 0x100a8160
 // GLOBAL: MW23DFX 0x1024f77c
 // GLOBAL: MW2ATI 0x10183a8c
@@ -49,6 +53,7 @@ MechS32 g_midiInitialized = 0;
 
 // The resource ids of the sequences' data, or 0.
 // GLOBAL: MW2 0x1010b5e0
+// GLOBAL: MW2GBL 0x100bf020
 // GLOBAL: MW2MATROX 0x101d4a70
 // GLOBAL: MW23DFX 0x1015a040
 // GLOBAL: MW2ATI 0x1008e030
@@ -58,6 +63,7 @@ MechS16 g_midiSequenceIds[8];
 
 // The sequence handles, or -1.
 // GLOBAL: MW2 0x1010b5f0
+// GLOBAL: MW2GBL 0x100bf030
 // GLOBAL: MW2MATROX 0x101d4a50
 // GLOBAL: MW23DFX 0x1015a020
 // GLOBAL: MW2ATI 0x1008e010
@@ -66,6 +72,7 @@ MechS16 g_midiSequenceIds[8];
 HSEQUENCE g_midiSequences[8];
 
 // FUNCTION: MW2 0x10021460
+// FUNCTION: MW2GBL 0x1006a410
 // FUNCTION: MW2MATROX 0x10043b60
 // FUNCTION: MW23DFX 0x10032fa0
 // FUNCTION: MW2ATI 0x10031da0
@@ -99,6 +106,7 @@ void StopMidiSequences(void)
 }
 
 // FUNCTION: MW2 0x1002152b
+// FUNCTION: MW2GBL 0x1006a4db
 // FUNCTION: MW2MATROX 0x10043c2b
 // FUNCTION: MW23DFX 0x10033010
 // FUNCTION: MW2ATI 0x10031e10
@@ -124,6 +132,7 @@ void PauseMidiSequences(void)
 }
 
 // FUNCTION: MW2 0x100215a4
+// FUNCTION: MW2GBL 0x1006a554
 // FUNCTION: MW2MATROX 0x10043ca4
 // FUNCTION: MW23DFX 0x10033050
 // FUNCTION: MW2ATI 0x10031e60
@@ -150,6 +159,7 @@ void ResumeMidiSequences(void)
 
 // Returns 1, -1 when already initialized or -5 when no MIDI device opens.
 // FUNCTION: MW2 0x1002161d
+// FUNCTION: MW2GBL 0x1006a5cd
 // FUNCTION: MW2MATROX 0x10043d1d
 // FUNCTION: MW23DFX 0x100330a0
 // FUNCTION: MW2ATI 0x10031ea0
@@ -183,6 +193,7 @@ MechS32 InitializeMidi(void)
 // p_id in a free slot. Returns 1, 0 when there is nothing to play, -8 when no slot is free or
 // -10 when Miles has no sequence handle. The slot's resource id isn't recorded.
 // FUNCTION: MW2 0x100216d3
+// FUNCTION: MW2GBL 0x1006a683
 // FUNCTION: MW2MATROX 0x10043dd3
 // FUNCTION: MW23DFX 0x10033150
 MechS32 PlayMidiSequence(undefined4 p_unk0x00, MechS16 p_id, MechS16 p_sequenceNum)
@@ -236,6 +247,7 @@ MechS32 PlayMidiSequence(undefined4 p_unk0x00, MechS16 p_id, MechS16 p_sequenceN
 }
 
 // FUNCTION: MW2 0x1002187c
+// FUNCTION: MW2GBL 0x1006a82c
 // FUNCTION: MW2MATROX 0x10043f7c
 // FUNCTION: MW23DFX 0x100332b0
 // FUNCTION: MW2ATI 0x10031f50
@@ -257,6 +269,7 @@ void ShutdownMidi(void)
 
 // Returns whether a sequence is playing; when none is, releases them all.
 // FUNCTION: MW2 0x100218bf
+// FUNCTION: MW2GBL 0x1006a86f
 // FUNCTION: MW2MATROX 0x10043fbf
 // FUNCTION: MW23DFX 0x100332e0
 // FUNCTION: MW2ATI 0x10031f80
@@ -288,6 +301,7 @@ MechS16 AnyMidiPlaying(void)
 
 // Fades the playing sequences to p_volume (0 to 127) over a second.
 // FUNCTION: MW2 0x10021956
+// FUNCTION: MW2GBL 0x1006a906
 // FUNCTION: MW2MATROX 0x10044056
 // FUNCTION: MW23DFX 0x10033340
 // FUNCTION: MW2ATI 0x10031fe0
@@ -311,6 +325,7 @@ void SetMidiVolume(MechS16 p_volume)
 }
 
 // FUNCTION: MW2 0x100219ea
+// FUNCTION: MW2GBL 0x1006a99a
 // FUNCTION: MW2MATROX 0x100440ea
 // FUNCTION: MW23DFX 0x100333a0
 // FUNCTION: MW2ATI 0x10032040
@@ -323,6 +338,7 @@ void ApplyMidiVolume(void)
 // Has the same parameters as PlayDelayedSound, which plays the sound itself when this returns
 // 0 or less.
 // FUNCTION: MW2 0x100219f5
+// FUNCTION: MW2GBL 0x1006a9a5
 // FUNCTION: MW2MATROX 0x100440f5
 // FUNCTION: MW23DFX 0x100333b0
 // FUNCTION: MW2ATI 0x10032050
@@ -336,6 +352,7 @@ MechS32 FUN_100219f5(MechS32 p_delay, MechS32 p_bearing, MechS32 p_id, MechU32 p
 // Locks a MIDI channel and starts the held note on it: program 3, pitch bend 0x1800, centered,
 // silent until UpdateEngineNote sets its volume.
 // FUNCTION: MW2 0x10021a07
+// FUNCTION: MW2GBL 0x1006a9b7
 // FUNCTION: MW2MATROX 0x10044107
 // FUNCTION: MW23DFX 0x100333c0
 // FUNCTION: MW2ATI 0x10032060
@@ -412,6 +429,7 @@ void UpdateEngineNote(MechU32 p_pitch)
 
 // Ends the held note and unlocks its channel.
 // FUNCTION: MW2 0x10021be2
+// FUNCTION: MW2GBL 0x1006ab92
 // FUNCTION: MW2MATROX 0x100442e7
 // FUNCTION: MW23DFX 0x10033490
 // FUNCTION: MW2ATI 0x10032130
@@ -432,6 +450,7 @@ void StopEngineNote(void)
 
 // Silences the held note.
 // FUNCTION: MW2 0x10021c49
+// FUNCTION: MW2GBL 0x1006abf9
 // FUNCTION: MW2MATROX 0x1004434e
 // FUNCTION: MW23DFX 0x100334e0
 // FUNCTION: MW2ATI 0x10032180
@@ -450,6 +469,7 @@ void MuteEngineNote(void)
 
 // Restores the held note's volume from the effects volume.
 // FUNCTION: MW2 0x10021c94
+// FUNCTION: MW2GBL 0x1006ac44
 // FUNCTION: MW2MATROX 0x10044399
 // FUNCTION: MW23DFX 0x10033510
 void UnmuteEngineNote(void)

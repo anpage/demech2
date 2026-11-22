@@ -38,6 +38,7 @@ DECOMP_SIZE_ASSERT(PANE, 0x14)
 DECOMP_SIZE_ASSERT(NavPoint, 0x54)
 
 // GLOBAL: MW2 0x100aaba4
+// GLOBAL: MW2GBL 0x100b5a50
 // GLOBAL: MW2MATROX 0x100a243c
 // GLOBAL: MW23DFX 0x1024c8a8
 // GLOBAL: MW2ATI 0x10180c28
@@ -48,6 +49,7 @@ MechS32 g_navCount = 0;
 // What inspecting the local player's target did (UpdateTarget): 1 inspected it, 2 too far, 3
 // already inspected by the team, 0 nothing. The target panel reports it.
 // GLOBAL: MW2 0x100aaba8
+// GLOBAL: MW2GBL 0x100b5a54
 // GLOBAL: MW2MATROX 0x100a2440
 // GLOBAL: MW23DFX 0x1024c8ac
 // GLOBAL: MW2ATI 0x10180c2c
@@ -59,6 +61,7 @@ MechS32 g_inspectResult = 0;
 // cycle targets: while it is clear, the local player's cycling skips game pieces flagged 0x10
 // and anything without flag 0x400 or 0x1000.
 // GLOBAL: MW2 0x100aabac
+// GLOBAL: MW2GBL 0x100b5a58
 // GLOBAL: MW2MATROX 0x100a2444
 // GLOBAL: MW23DFX 0x1024c8b0
 // GLOBAL: MW2ATI 0x10180c30
@@ -67,6 +70,7 @@ MechS32 g_inspectResult = 0;
 MechS32 g_reticleTargeting = 0;
 
 // GLOBAL: MW2 0x10177160
+// GLOBAL: MW2GBL 0x101350f0
 // GLOBAL: MW2MATROX 0x10212dd0
 // GLOBAL: MW23DFX 0x101e4230
 // GLOBAL: MW2ATI 0x10117ef0
@@ -77,6 +81,7 @@ NavPoint g_navTable[128];
 // Places a nav point for player p_owner at (p_x, p_y, p_z), named "!". Returns its index, or
 // -1 if the table is full.
 // FUNCTION: MW2 0x1005ec80
+// FUNCTION: MW2GBL 0x10070550
 // FUNCTION: MW2MATROX 0x100064f0
 // FUNCTION: MW23DFX 0x1001cab0
 // FUNCTION: MW2ATI 0x1001cde0
@@ -287,6 +292,7 @@ void CycleTarget(Player* p_player, MechS32 p_step, MechU32 p_flags)
 
 // Marks the local player's target (bit 0x1000).
 // FUNCTION: MW2 0x1005f284
+// FUNCTION: MW2GBL 0x10070b58
 // FUNCTION: MW2MATROX 0x10006af2
 // FUNCTION: MW23DFX 0x1001ce80
 // FUNCTION: MW2ATI 0x1001d1b0
@@ -696,6 +702,7 @@ MechS32 UpdateTarget(Player* p_player)
 
 // Returns the player the local player targets, or -1.
 // FUNCTION: MW2 0x1005fe63
+// FUNCTION: MW2GBL 0x10071728
 // FUNCTION: MW2MATROX 0x100076fe
 // FUNCTION: MW23DFX 0x1001d790
 // FUNCTION: MW2ATI 0x1001dac0
@@ -719,6 +726,7 @@ MechS32 GetLocalTargetGamePiece(void)
 
 // Returns the game thing the local player targets, or -1.
 // FUNCTION: MW2 0x1005febe
+// FUNCTION: MW2GBL 0x10071783
 // FUNCTION: MW2MATROX 0x10007759
 // FUNCTION: MW23DFX 0x1001d7c0
 MechS32 GetLocalTargetGameThing(void)
@@ -739,6 +747,7 @@ MechS32 GetLocalTargetGameThing(void)
 
 // Returns the shape of the local player's target, or NULL.
 // FUNCTION: MW2 0x1005ff19
+// FUNCTION: MW2GBL 0x100717de
 // FUNCTION: MW2MATROX 0x100077b4
 // FUNCTION: MW23DFX 0x1001d7f0
 Shape* GetLocalTargetShape(void)
@@ -756,6 +765,7 @@ Shape* GetLocalTargetShape(void)
 
 // Returns the scene object of the local player's target: a player's or a game thing's.
 // FUNCTION: MW2 0x1005ff56
+// FUNCTION: MW2GBL 0x1007181b
 // FUNCTION: MW2MATROX 0x100077f1
 // FUNCTION: MW23DFX 0x1001d810
 // FUNCTION: MW2ATI 0x1001daf0
@@ -917,6 +927,7 @@ void GetBearingAndRange(
 
 // Steps p_player's nav point by p_step; with p_ownOnly, through the navs p_player placed only.
 // FUNCTION: MW2 0x100602b2
+// FUNCTION: MW2GBL 0x10071b7f
 // FUNCTION: MW2MATROX 0x10007b93
 // FUNCTION: MW23DFX 0x1001dac0
 // FUNCTION: MW2ATI 0x1001dd90
@@ -935,6 +946,7 @@ void CycleNavTarget(Player* p_player, MechS32 p_step, MechS32 p_ownOnly)
 }
 
 // FUNCTION: MW2 0x100602ec
+// FUNCTION: MW2GBL 0x10071bb9
 // FUNCTION: MW2MATROX 0x10007bcd
 // FUNCTION: MW23DFX 0x1001dae0
 // FUNCTION: MW2ATI 0x1001ddb0
@@ -949,6 +961,7 @@ void CycleGameThingTarget(MechS32 p_step)
 }
 
 // FUNCTION: MW2 0x1006031b
+// FUNCTION: MW2GBL 0x10071be8
 // FUNCTION: MW2MATROX 0x10007bfc
 // FUNCTION: MW23DFX 0x1001db00
 // FUNCTION: MW2ATI 0x1001ddd0
@@ -963,6 +976,7 @@ void CycleGamePieceTarget(MechS32 p_step)
 }
 
 // FUNCTION: MW2 0x1006034a
+// FUNCTION: MW2GBL 0x10071c17
 // FUNCTION: MW2MATROX 0x10007c2b
 // FUNCTION: MW23DFX 0x1001db20
 // FUNCTION: MW2ATI 0x1001ddf0
@@ -977,6 +991,7 @@ void CycleFriendlyTarget(MechS32 p_step)
 }
 
 // FUNCTION: MW2 0x1006037c
+// FUNCTION: MW2GBL 0x10071c49
 // FUNCTION: MW2MATROX 0x10007c5d
 // FUNCTION: MW23DFX 0x1001db40
 // FUNCTION: MW2ATI 0x1001de10

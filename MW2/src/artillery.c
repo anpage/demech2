@@ -85,6 +85,7 @@ void FirstArtillery(Player* p_player)
 // Updates the mech's torso: clears the tick's heat, steps the twist and pitch ramps and turns the
 // torso objects (m_pitchObj by the pitch, m_torsoObj by the player's view angles with the twist).
 // FUNCTION: MW2 0x1005a203
+// FUNCTION: MW2GBL 0x10011bf3
 // FUNCTION: MW2MATROX 0x1002e6f3
 // FUNCTION: MW23DFX 0x100219e0
 // FUNCTION: MW2ATI 0x10021cb0
@@ -221,6 +222,7 @@ void LateUpdateArtillery(Mech* p_mech)
 }
 
 // FUNCTION: MW2 0x1005a61d
+// FUNCTION: MW2GBL 0x1001200d
 // FUNCTION: MW2MATROX 0x1002eb3a
 // FUNCTION: MW23DFX 0x10021c80
 // FUNCTION: MW2ATI 0x10021f50

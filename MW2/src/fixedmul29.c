@@ -10,6 +10,7 @@
 
 // p_a * p_b >> 29, rounded.
 // FUNCTION: MW2 0x10019ad0
+// FUNCTION: MW2GBL 0x1000a8e0
 MechS32 FixedMul29(MechS32 p_a, MechS32 p_b)
 {
 #ifdef PORTABLE_C

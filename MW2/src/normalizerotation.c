@@ -1,6 +1,7 @@
-/* Normalizes a rotation matrix. Not a unit of its own: 1.1 has these in clock.c's object, the
-   Matrox edition at the end of transform.c's, so clock.c includes this file in 1.1's build and
-   transform.c in the Matrox edition's. */
+/* Normalizes a rotation matrix. Not a unit of its own: 1.1 has these in clock.c's object, after
+   its tables, and GBL after the same functions in an object of their own, the Matrox edition at the
+   end of transform.c's, so clockmath.c (clock.c's tables) includes this file in 1.1's and GBL's
+   builds and transform.c in the Matrox edition's. */
 #include "clock.h"
 #include "decomp.h"
 #include "transform.h"
@@ -10,6 +11,7 @@
 
 // Normalizes the rows and columns of the rotation (2.29 fixed point).
 // FUNCTION: MW2 0x1007cbf1
+// FUNCTION: MW2GBL 0x10080cdd
 // FUNCTION: MW2MATROX 0x10002479
 // FUNCTION: MW23DFX 0x1002f500
 // FUNCTION: MW2ATI 0x1002e5e0

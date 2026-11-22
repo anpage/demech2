@@ -17,6 +17,7 @@
 
 // Returns whether the screen point (p_x, p_y) lies above the horizon of p_eyepoint's view.
 // FUNCTION: MW2 0x10071930
+// FUNCTION: MW2GBL 0x10005930
 // FUNCTION: MW2MATROX 0x1007b8d0
 // FUNCTION: MW23DFX 0x10028ee0
 // FUNCTION: MW2ATI 0x10028ba0
@@ -94,6 +95,7 @@ below:
 
 // Returns the screen y of the horizon at screen x p_x in p_eyepoint's view.
 // FUNCTION: MW2 0x100719ca
+// FUNCTION: MW2GBL 0x100059ca
 // FUNCTION: MW2MATROX 0x1007b99e
 // FUNCTION: MW23DFX 0x10028f80
 // FUNCTION: MW2ATI 0x10028c40
@@ -168,6 +170,7 @@ MechS32 HorizonYAtX(MechS32 p_x, Eyepoint* p_eyepoint)
 
 // Returns the screen x of the horizon at screen y p_y in p_eyepoint's view.
 // FUNCTION: MW2 0x10071a4c
+// FUNCTION: MW2GBL 0x10005a4c
 // FUNCTION: MW2MATROX 0x1007ba4c
 // FUNCTION: MW23DFX 0x10028ff0
 // FUNCTION: MW2ATI 0x10028cb0

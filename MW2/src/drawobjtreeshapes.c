@@ -8,6 +8,7 @@
 
 // Draws the shapes of the scene tree p_root, farthest first.
 // FUNCTION: MW2 0x10033b9e
+// FUNCTION: MW2GBL 0x10039854
 // FUNCTION: MW2MATROX 0x10023860
 // FUNCTION: MW23DFX 0x1002a280
 // FUNCTION: MW2ATI 0x10029eb0

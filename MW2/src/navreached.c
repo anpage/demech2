@@ -7,6 +7,7 @@
 // Returns whether team p_team has reached the nav point. The team test is an | where an & was
 // meant: any reached nav counts.
 // FUNCTION: MW2 0x1003e645
+// FUNCTION: MW2GBL 0x1004d993
 // FUNCTION: MW2MATROX 0x1007461a
 // FUNCTION: MW23DFX 0x10003a30
 // FUNCTION: MW2ATI 0x100036c0

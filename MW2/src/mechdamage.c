@@ -38,6 +38,7 @@
 
 // A game-key toggle (GetSystemSetting's setting 0x3c).
 // GLOBAL: MW2 0x100a1590
+// GLOBAL: MW2GBL 0x100a04b4
 // GLOBAL: MW2MATROX 0x100a4618
 // GLOBAL: MW23DFX 0x1024bfbc
 // GLOBAL: MW2ATI 0x1018033c
@@ -47,6 +48,7 @@ MechS32 g_autoEject = 0;
 
 // The armor per damage level of other players' sections (the local player's: g_localArmorPerLevel).
 // GLOBAL: MW2 0x100a1594
+// GLOBAL: MW2GBL 0x100a04b8
 // GLOBAL: MW2MATROX 0x100a461c
 // GLOBAL: MW23DFX 0x1024bfc0
 // GLOBAL: MW2ATI 0x10180340
@@ -55,6 +57,7 @@ MechS32 g_autoEject = 0;
 MechScalar g_otherArmorPerLevel = 4;
 
 // GLOBAL: MW2 0x100a1598
+// GLOBAL: MW2GBL 0x100a04bc
 // GLOBAL: MW2MATROX 0x100a4620
 // GLOBAL: MW23DFX 0x1024bfc4
 // GLOBAL: MW2ATI 0x10180344
@@ -63,12 +66,14 @@ MechScalar g_otherArmorPerLevel = 4;
 MechScalar g_localArmorPerLevel = 4;
 
 // GLOBAL: MW2 0x100a159c
+// GLOBAL: MW2GBL 0x100a04c0
 // GLOBAL: MW2MATROX 0x100a4624
 // GLOBAL: MW23DFX 0x1024bfc8
 MechS32 g_localMechHidden = 0;
 
 // The kill count the cockpit shows in a network game.
 // GLOBAL: MW2 0x100a15a0
+// GLOBAL: MW2GBL 0x100a04c4
 // GLOBAL: MW2MATROX 0x100a4628
 // GLOBAL: MW23DFX 0x1024bfcc
 // GLOBAL: MW2ATI 0x1018034c
@@ -568,6 +573,7 @@ void KillMech(MechS32 p_killer, Mech* p_mech)
 
 // Calls DestroyCriticalSlot once for each of section p_section's m_slotCount.
 // FUNCTION: MW2 0x10008938
+// FUNCTION: MW2GBL 0x1001f9c1
 // FUNCTION: MW2MATROX 0x100111e6
 // FUNCTION: MW23DFX 0x10016600
 // FUNCTION: MW2ATI 0x10016a10
@@ -1207,6 +1213,7 @@ void EjectPlayer(Mech* p_mech, MechS32 p_eject)
 
 // Toggles the local player's object between HideObjTree and ShowObjTree.
 // FUNCTION: MW2 0x10009dd2
+// FUNCTION: MW2GBL 0x10020f61
 // FUNCTION: MW2MATROX 0x1001278c
 // FUNCTION: MW23DFX 0x10017560
 void ToggleLocalMechVisible(void)

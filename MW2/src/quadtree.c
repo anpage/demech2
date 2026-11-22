@@ -17,6 +17,7 @@
 DECOMP_SIZE_ASSERT(QuadtreeNode, 0x2c)
 
 // GLOBAL: MW2 0x100a37dc
+// GLOBAL: MW2GBL 0x100b5a5c
 // GLOBAL: MW2MATROX 0x100a4834
 // GLOBAL: MW23DFX 0x1024b2f8
 // GLOBAL: MW2ATI 0x1017f678
@@ -213,6 +214,7 @@ QuadtreeNode* BuildQuadtreeChild(QuadtreeNode* p_node, MechS32 p_quadrant, Model
 
 // Allocates a quadtree node with room for p_faceCount entries, cleared.
 // FUNCTION: MW2 0x1001e429
+// FUNCTION: MW2GBL 0x100728a6
 // FUNCTION: MW2MATROX 0x10015ee6
 // FUNCTION: MW23DFX 0x1000c8c0
 // FUNCTION: MW2ATI 0x1000d030
@@ -260,6 +262,7 @@ QuadtreeNode* AllocQuadtreeNode(
 
 // Frees a quadtree.
 // FUNCTION: MW2 0x1001e50d
+// FUNCTION: MW2GBL 0x10072986
 // FUNCTION: MW2MATROX 0x10015fca
 // FUNCTION: MW23DFX 0x1000c960
 // FUNCTION: MW2ATI 0x1000d0d0
@@ -285,6 +288,7 @@ void FreeQuadtree(QuadtreeNode* p_node)
 // Returns whether face p_face of p_model overlaps the box from (p_minX, p_minZ) to
 // (p_maxX, p_maxZ), seen from above; if it does, stores the face's height range.
 // FUNCTION: MW2 0x1001e57a
+// FUNCTION: MW2GBL 0x100729f3
 // FUNCTION: MW2MATROX 0x10016037
 // FUNCTION: MW23DFX 0x1000c9a0
 // FUNCTION: MW2ATI 0x1000d110
@@ -361,6 +365,7 @@ MechS32 FaceOverlapsBox(
 // Classifies the point (p_x, p_y, p_z) against the quadtree's faces: 0 outside the tree's
 // ground area, 2 above the faces under it, 3 below one of them.
 // FUNCTION: MW2 0x1001e6dc
+// FUNCTION: MW2GBL 0x10072b55
 // FUNCTION: MW2MATROX 0x100161c7
 // FUNCTION: MW23DFX 0x1000cb10
 // FUNCTION: MW2ATI 0x1000d280
@@ -434,6 +439,7 @@ MechS32 ClassifyQuadtreePoint(QuadtreeNode* p_node, Model* p_model, MechScalar p
 
 // Returns whether p_ray hits one of the quadtree's faces, shortening it to the hit.
 // FUNCTION: MW2 0x1001e90f
+// FUNCTION: MW2GBL 0x10072d88
 // FUNCTION: MW2MATROX 0x10016422
 // FUNCTION: MW23DFX 0x1000ccf0
 // FUNCTION: MW2ATI 0x1000d460
@@ -526,6 +532,7 @@ MechS32 TestQuadtreeRay(QuadtreeNode* p_node, Model* p_model, Ray* p_ray)
 // Finds the nearest hit of p_ray among p_node's children and shortens p_ray to it. Whether any
 // child was hit.
 // FUNCTION: MW2 0x1001eb25
+// FUNCTION: MW2GBL 0x10072f9e
 // FUNCTION: MW2MATROX 0x10016662
 // FUNCTION: MW23DFX 0x1000ced0
 // FUNCTION: MW2ATI 0x1000d640
@@ -565,6 +572,7 @@ MechS32 TestQuadtreeChildrenRay(QuadtreeNode* p_node, Model* p_model, Ray* p_ray
 // Finds the upward face of the quadtree under (p_x, p_z) and stores its height at the point in
 // p_top, or 0 if there is none. Returns FALSE outside the tree's ground area.
 // FUNCTION: MW2 0x1001ebfa
+// FUNCTION: MW2GBL 0x10073073
 // FUNCTION: MW2MATROX 0x10016740
 // FUNCTION: MW23DFX 0x1000cf80
 // FUNCTION: MW2ATI 0x1000d6f0
@@ -628,6 +636,7 @@ MechS32 GetQuadtreeTop(
 }
 
 // FUNCTION: MW2 0x1001edfa
+// FUNCTION: MW2GBL 0x10073273
 // FUNCTION: MW2MATROX 0x1001695e
 // FUNCTION: MW23DFX 0x1000d160
 // FUNCTION: MW2ATI 0x1000d8d0
@@ -640,6 +649,7 @@ void DisableQuadtrees(void)
 
 // Returns the bytes a quadtree takes.
 // FUNCTION: MW2 0x1001ee0f
+// FUNCTION: MW2GBL 0x10073288
 // FUNCTION: MW2MATROX 0x10016973
 // FUNCTION: MW23DFX 0x1000d170
 // FUNCTION: MW2ATI 0x1000d8e0

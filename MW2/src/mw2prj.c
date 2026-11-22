@@ -19,6 +19,7 @@
 // two arrays. In the original this object's data (the pointers, their strings, then
 // FirstResource's literals) follows the rest of resource.c's.
 // GLOBAL: MW2 0x100a8674
+// GLOBAL: MW2GBL 0x1009baf4
 // GLOBAL: MW2MATROX 0x100a5a44
 // GLOBAL: MW23DFX 0x102596a8
 // GLOBAL: MW2ATI 0x1018d9a8
@@ -27,6 +28,7 @@
 char* g_resTagSnds = "SNDS";
 
 // GLOBAL: MW2 0x100a8678
+// GLOBAL: MW2GBL 0x1009baf8
 // GLOBAL: MW2MATROX 0x100a5a48
 // GLOBAL: MW23DFX 0x102596b0
 // GLOBAL: MW2ATI 0x1018d9b0
@@ -40,6 +42,7 @@ char* g_resTagCel = "CEL";
 char* g_resTagXyc = "XYC";
 
 // GLOBAL: MW2 0x100a8680
+// GLOBAL: MW2GBL 0x1009bb00
 // GLOBAL: MW2MATROX 0x100a5a50
 // GLOBAL: MW23DFX 0x102596c0
 // GLOBAL: MW2ATI 0x1018d9c0
@@ -48,6 +51,7 @@ char* g_resTagXyc = "XYC";
 char* g_resTagShp = "SHP";
 
 // GLOBAL: MW2 0x100a8684
+// GLOBAL: MW2GBL 0x1009bb04
 // GLOBAL: MW2MATROX 0x100a5a54
 // GLOBAL: MW23DFX 0x102596cc
 // GLOBAL: MW2ATI 0x1018d9cc
@@ -66,12 +70,14 @@ char* g_resTagMenu = "MENU";
 char* g_resTagDisp = "DISP";
 
 // GLOBAL: MW2 0x100a8690
+// GLOBAL: MW2GBL 0x1009bb10
 // GLOBAL: MW2MATROX 0x100a5a60
 // GLOBAL: MW23DFX 0x102596f0
 // GLOBAL: MW2S3 0x10061728
 char* g_resTagXmid = "XMID";
 
 // GLOBAL: MW2 0x100a8694
+// GLOBAL: MW2GBL 0x1009bb14
 // GLOBAL: MW2MATROX 0x100a5a64
 // GLOBAL: MW23DFX 0x102596f8
 // GLOBAL: MW2ATI 0x1018d9f8
@@ -80,6 +86,7 @@ char* g_resTagXmid = "XMID";
 char* g_resTagPal = "PAL";
 
 // GLOBAL: MW2 0x100a8698
+// GLOBAL: MW2GBL 0x1009bb18
 // GLOBAL: MW2MATROX 0x100a5a68
 // GLOBAL: MW23DFX 0x10259704
 // GLOBAL: MW2ATI 0x1018da04
@@ -88,6 +95,7 @@ char* g_resTagPal = "PAL";
 char* g_resTagTable = "TABL";
 
 // GLOBAL: MW2 0x100a869c
+// GLOBAL: MW2GBL 0x1009bb1c
 // GLOBAL: MW2MATROX 0x100a5a6c
 // GLOBAL: MW23DFX 0x10259710
 // GLOBAL: MW2ATI 0x1018da10
@@ -96,11 +104,13 @@ char* g_resTagTable = "TABL";
 char* g_resTagPoly = "POLY";
 
 // GLOBAL: MW2 0x100a86a0
+// GLOBAL: MW2GBL 0x1009bb20
 // GLOBAL: MW2MATROX 0x100a5a70
 // GLOBAL: MW23DFX 0x1025971c
 char* g_resTagText = "TEXT";
 
 // GLOBAL: MW2 0x100a86a4
+// GLOBAL: MW2GBL 0x1009bb24
 // GLOBAL: MW2MATROX 0x100a5a74
 // GLOBAL: MW23DFX 0x10259728
 // GLOBAL: MW2ATI 0x1018da28
@@ -108,6 +118,7 @@ char* g_resTagText = "TEXT";
 char* g_resTagAnim = "ANIM";
 
 // GLOBAL: MW2 0x100a86a8
+// GLOBAL: MW2GBL 0x1009bb28
 // GLOBAL: MW2MATROX 0x100a5a78
 // GLOBAL: MW23DFX 0x10259734
 // GLOBAL: MW2ATI 0x1018da34
@@ -116,6 +127,7 @@ char* g_resTagAnim = "ANIM";
 char* g_resTagMgeo = "MGEO";
 
 // GLOBAL: MW2 0x100a86ac
+// GLOBAL: MW2GBL 0x1009bb2c
 // GLOBAL: MW2MATROX 0x100a5a7c
 // GLOBAL: MW23DFX 0x1025973c
 // GLOBAL: MW2ATI 0x1018da3c
@@ -124,6 +136,7 @@ char* g_resTagMgeo = "MGEO";
 char* g_resTagHud = "HUD";
 
 // GLOBAL: MW2 0x100a86b0
+// GLOBAL: MW2GBL 0x1009bb30
 // GLOBAL: MW2MATROX 0x100a5a80
 // GLOBAL: MW23DFX 0x10259748
 // GLOBAL: MW2ATI 0x1018da48
@@ -142,6 +155,7 @@ char* g_resTagVpt = "VPT";
 char* g_resTagMpit = "MPIT";
 
 // GLOBAL: MW2 0x100a86bc
+// GLOBAL: MW2GBL 0x1009bb3c
 // GLOBAL: MW2MATROX 0x100a5a8c
 // GLOBAL: MW23DFX 0x10259764
 // GLOBAL: MW2ATI 0x1018da64
@@ -155,6 +169,7 @@ char* g_resTagBwd = "BWD";
 char* g_resTagVer = "VER";
 
 // GLOBAL: MW2 0x100a86c4
+// GLOBAL: MW2GBL 0x1009bb44
 // GLOBAL: MW2MATROX 0x100a5a94
 // GLOBAL: MW23DFX 0x10259774
 // GLOBAL: MW2ATI 0x1018da74
@@ -171,11 +186,13 @@ char* g_resTagAit = "AIT";
 char* g_resTagMek = "MEK";
 
 // GLOBAL: MW2 0x100a86cc
+// GLOBAL: MW2GBL 0x1009bb4c
 // GLOBAL: MW2MATROX 0x100a5a9c
 // GLOBAL: MW23DFX 0x10259788
 char* g_resTagLuma = "LUMA";
 
 // GLOBAL: MW2 0x100a86d0
+// GLOBAL: MW2GBL 0x1009bb50
 // GLOBAL: MW2MATROX 0x100a5aa0
 // GLOBAL: MW23DFX 0x10259790
 // GLOBAL: MW2ATI 0x1018da90
@@ -244,6 +261,7 @@ char* g_resExtCol = ".col";
 char* g_resExtTbl = ".tbl";
 
 // GLOBAL: MW2 0x100a8704
+// GLOBAL: MW2GBL 0x1009bb84
 // GLOBAL: MW2MATROX 0x100a5ad4
 // GLOBAL: MW23DFX 0x10259828
 char* g_resExtWtb = ".wtb";
@@ -254,6 +272,7 @@ char* g_resExtWtb = ".wtb";
 char* g_resExtXxt = ".xxt";
 
 // GLOBAL: MW2 0x100a870c
+// GLOBAL: MW2GBL 0x1009bb8c
 // GLOBAL: MW2MATROX 0x100a5adc
 // GLOBAL: MW23DFX 0x10259840
 // GLOBAL: MW2ATI 0x1018db40
@@ -261,6 +280,7 @@ char* g_resExtXxt = ".xxt";
 char* g_resExt3di = ".3di";
 
 // GLOBAL: MW2 0x100a8710
+// GLOBAL: MW2GBL 0x1009bb90
 // GLOBAL: MW2MATROX 0x100a5ae0
 // GLOBAL: MW23DFX 0x1025984c
 // GLOBAL: MW2ATI 0x1018db4c
@@ -269,6 +289,7 @@ char* g_resExt3di = ".3di";
 char* g_resExtMgi = ".mgi";
 
 // GLOBAL: MW2 0x100a8714
+// GLOBAL: MW2GBL 0x1009bb94
 // GLOBAL: MW2MATROX 0x100a5ae4
 // GLOBAL: MW23DFX 0x10259858
 // GLOBAL: MW2ATI 0x1018db58
@@ -277,6 +298,7 @@ char* g_resExtMgi = ".mgi";
 char* g_resExtHdi = ".hdi";
 
 // GLOBAL: MW2 0x100a8718
+// GLOBAL: MW2GBL 0x1009bb98
 // GLOBAL: MW2MATROX 0x100a5ae8
 // GLOBAL: MW23DFX 0x10259864
 // GLOBAL: MW2ATI 0x1018db64
@@ -333,6 +355,7 @@ char* g_resExtGif = ".gif";
 char* g_resExtTxt = ".txt";
 
 // GLOBAL: MW2 0x100a8740
+// GLOBAL: MW2GBL 0x1009bbc0
 // GLOBAL: MW2MATROX 0x100a5b10
 // GLOBAL: MW23DFX 0x102598d4
 // GLOBAL: MW2ATI 0x1018dbd4
@@ -341,6 +364,7 @@ char* g_resExtTxt = ".txt";
 MechS32 g_mw2PrjHandle = -1;
 
 // GLOBAL: MW2 0x100a8744
+// GLOBAL: MW2GBL 0x1009bbc4
 // GLOBAL: MW2MATROX 0x100a5b14
 // GLOBAL: MW23DFX 0x102598d8
 // GLOBAL: MW2ATI 0x1018dbd8
@@ -349,6 +373,7 @@ MechS32 g_mw2PrjHandle = -1;
 char* g_mw2PrjPath = NULL;
 
 // FUNCTION: MW2 0x10050780
+// FUNCTION: MW2GBL 0x1000aac0
 // FUNCTION: MW2MATROX 0x1002b360
 // FUNCTION: MW23DFX 0x1003cf70
 // FUNCTION: MW2ATI 0x1003af40
@@ -395,6 +420,7 @@ MechS32 FirstResource(void)
 }
 
 // FUNCTION: MW2 0x1005082f
+// FUNCTION: MW2GBL 0x1000ab6f
 // FUNCTION: MW2MATROX 0x1002b40f
 // FUNCTION: MW23DFX 0x1003cff0
 // FUNCTION: MW2ATI 0x1003afc0
@@ -407,6 +433,7 @@ void ShutdownMw2Prj(void)
 
 // The 3Dfx edition also writes MW2.MIP, the converted textures, on its first run.
 // FUNCTION: MW2 0x10050848
+// FUNCTION: MW2GBL 0x1000ab88
 // FUNCTION: MW2MATROX 0x1002b428
 // FUNCTION: MW23DFX 0x1003d000
 // FUNCTION: MW2ATI 0x1003afd0
@@ -423,6 +450,7 @@ void CachePreloads(void)
 }
 
 // FUNCTION: MW2 0x10050862
+// FUNCTION: MW2GBL 0x1000aba2
 // FUNCTION: MW2MATROX 0x1002b442
 // FUNCTION: MW23DFX 0x1003d020
 // FUNCTION: MW2ATI 0x1003afe0
@@ -446,6 +474,7 @@ MechS32 PreloadResource(MechS32 p_id, const char* p_type)
 }
 
 // FUNCTION: MW2 0x100508c0
+// FUNCTION: MW2GBL 0x1000ac00
 // FUNCTION: MW2MATROX 0x1002b4a0
 // FUNCTION: MW23DFX 0x1003d060
 // FUNCTION: MW2ATI 0x1003b020
@@ -457,6 +486,7 @@ void* Mw2PrjAlloc(MechU32 p_size)
 }
 
 // FUNCTION: MW2 0x100508dc
+// FUNCTION: MW2GBL 0x1000ac1c
 // FUNCTION: MW2MATROX 0x1002b4bc
 // FUNCTION: MW23DFX 0x1003d070
 // FUNCTION: MW2ATI 0x1003b030

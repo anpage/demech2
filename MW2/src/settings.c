@@ -21,6 +21,7 @@
 MechChar g_gameCtrlItem[] = "Game Ctrl";
 
 // GLOBAL: MW2 0x100aa880
+// GLOBAL: MW2GBL 0x1009e378
 // GLOBAL: MW2MATROX 0x100a8178
 // GLOBAL: MW23DFX 0x10264b88
 // GLOBAL: MW2ATI 0x10198e80
@@ -29,6 +30,7 @@ MechChar g_gameCtrlItem[] = "Game Ctrl";
 MechChar g_systemsStatusTitle[] = "SYSTEMS STATUS";
 
 // GLOBAL: MW2 0x100aa890
+// GLOBAL: MW2GBL 0x1009e388
 // GLOBAL: MW2MATROX 0x100a8188
 // GLOBAL: MW23DFX 0x10264b98
 // GLOBAL: MW2ATI 0x10198e90
@@ -37,6 +39,7 @@ MechChar g_systemsStatusTitle[] = "SYSTEMS STATUS";
 MechChar g_lightAmplificationItem[] = "Light Amplification";
 
 // GLOBAL: MW2 0x100aa8a8
+// GLOBAL: MW2GBL 0x1009e3a0
 // GLOBAL: MW2MATROX 0x100a81a0
 // GLOBAL: MW23DFX 0x10264bb0
 // GLOBAL: MW2ATI 0x10198ea8
@@ -45,6 +48,7 @@ MechChar g_lightAmplificationItem[] = "Light Amplification";
 MechChar g_imageEnhancementItem[] = "Image Emhancement";
 
 // GLOBAL: MW2 0x100aa8bc
+// GLOBAL: MW2GBL 0x1009e3b4
 // GLOBAL: MW2MATROX 0x100a81b4
 // GLOBAL: MW23DFX 0x10264bc4
 // GLOBAL: MW2ATI 0x10198ebc
@@ -58,6 +62,7 @@ MechChar g_hudItem[] = "HUD";
 MechChar g_autoThermOverrideItem[] = "Auto Therm Override";
 
 // GLOBAL: MW2 0x100aa8d8
+// GLOBAL: MW2GBL 0x1009e3d0
 // GLOBAL: MW2MATROX 0x100a81d0
 // GLOBAL: MW23DFX 0x10264be0
 // GLOBAL: MW2ATI 0x10198ed8
@@ -141,6 +146,7 @@ MenuPage g_systemsStatusPage = {
 #endif
 
 // GLOBAL: MW2 0x100aab08
+// GLOBAL: MW2GBL 0x1009e600
 // GLOBAL: MW2MATROX 0x100a8400
 // GLOBAL: MW23DFX 0x10264e10
 // GLOBAL: MW2ATI 0x10199108
@@ -149,6 +155,7 @@ MenuPage g_systemsStatusPage = {
 PANE g_systemsMenuTarget = {NULL, 0x8ccd, 0x547b, 0x10000, 0x9eb8};
 
 // GLOBAL: MW2 0x100aab20
+// GLOBAL: MW2GBL 0x1009e618
 // GLOBAL: MW2MATROX 0x100a8418
 // GLOBAL: MW23DFX 0x10264e28
 // GLOBAL: MW2ATI 0x10199120
@@ -188,6 +195,7 @@ MenuDefinition g_systemsMenu = {
 };
 
 // GLOBAL: MW2 0x100e95f0
+// GLOBAL: MW2GBL 0x1015d8f0
 // GLOBAL: MW23DFX 0x101534d0
 // GLOBAL: MW2ATI 0x100874f0
 // GLOBAL: MW2S3 0x1014d9b0

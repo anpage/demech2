@@ -13,6 +13,7 @@
 // Returns the square root of a 16.16 fixed-point value: a binary search between half and twice
 // FixedSqrtGuess's estimate, for at most 100 steps.
 // FUNCTION: MW2 0x100168f0
+// FUNCTION: MW2GBL 0x1002d270
 MechU32 FixedSqrt16(MechU32 p_value)
 {
 	MechU32 square;
@@ -54,6 +55,7 @@ MechU32 FixedSqrt16(MechU32 p_value)
 // is in accel/floatmath.c.
 #ifndef MW2_FLOAT_SCALARS
 // FUNCTION: MW2 0x100169b4
+// FUNCTION: MW2GBL 0x1002d334
 void NormalizeVectorGuarded(MechScalar* p_x, MechScalar* p_y, MechScalar* p_z)
 {
 	MechScalar length;

@@ -90,6 +90,7 @@ MechS32 g_trackedShot = -1;
 Player* g_launchEffectPlayer = NULL;
 
 // GLOBAL: MW2 0x100ad454
+// GLOBAL: MW2GBL 0x100b6914
 // GLOBAL: MW2MATROX 0x100ae0b8
 // GLOBAL: MW23DFX 0x1025a6a8
 // GLOBAL: MW2S3 0x1006508c
@@ -106,6 +107,7 @@ MechS32 g_effectCameraEnabled = 1;
 MechS32 g_lastHitShooter = -1;
 
 // GLOBAL: MW2 0x100ad45c
+// GLOBAL: MW2GBL 0x100b691c
 // GLOBAL: MW2MATROX 0x100ae0c0
 // GLOBAL: MW23DFX 0x1025a6b0
 // GLOBAL: MW2ATI 0x1018e9a8
@@ -114,6 +116,7 @@ MechS32 g_lastHitShooter = -1;
 MechS32 g_nukeTimeLeft = 0;
 
 // GLOBAL: MW2 0x100bee50
+// GLOBAL: MW2GBL 0x100bb728
 // GLOBAL: MW2MATROX 0x10124724
 // GLOBAL: MW23DFX 0x1007dc6c
 // GLOBAL: MW2ATI 0x10072c6c
@@ -131,6 +134,7 @@ MechScalar g_nukeMaxRadius;
 MechScalar g_trackedShotView[7];
 
 // GLOBAL: MW2 0x100bee74
+// GLOBAL: MW2GBL 0x100bb724
 // GLOBAL: MW2MATROX 0x10124728
 // GLOBAL: MW23DFX 0x1007dc70
 // GLOBAL: MW2ATI 0x10072c70
@@ -190,6 +194,7 @@ MechS32 g_savedAmbientLight;
 MechS32 g_savedDistanceFade;
 
 // GLOBAL: MW2 0x100e9250
+// GLOBAL: MW2GBL 0x101331c0
 // GLOBAL: MW2MATROX 0x10125880
 // GLOBAL: MW23DFX 0x102441c0
 // GLOBAL: MW2ATI 0x10177e80
@@ -1469,6 +1474,7 @@ void ScatterDebris(MechScalar p_x, MechScalar p_y, MechScalar p_z, MechS32 p_cou
 }
 
 // FUNCTION: MW2 0x1006c345
+// FUNCTION: MW2GBL 0x1007e2e6
 // FUNCTION: MW2MATROX 0x1006cf70
 // FUNCTION: MW23DFX 0x10046e50
 // FUNCTION: MW2ATI 0x10044580

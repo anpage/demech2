@@ -37,6 +37,7 @@
 // Who the chat message goes to: 0 nobody (no message is being typed), -1 everybody, or a
 // player.
 // GLOBAL: MW2 0x100a116c
+// GLOBAL: MW2GBL 0x100af6dc
 // GLOBAL: MW2MATROX 0x100a4ff4
 // GLOBAL: MW23DFX 0x1024c008
 // GLOBAL: MW2ATI 0x10180388
@@ -46,6 +47,7 @@ MechS32 g_chatRecipient = 0;
 
 // Whether the objectives panel shows.
 // GLOBAL: MW2 0x100a1170
+// GLOBAL: MW2GBL 0x100af6e0
 // GLOBAL: MW2MATROX 0x100a4ff8
 // GLOBAL: MW23DFX 0x1024c00c
 // GLOBAL: MW2ATI 0x1018038c
@@ -54,6 +56,7 @@ MechS32 g_chatRecipient = 0;
 MechS32 g_showObjectives = 0;
 
 // GLOBAL: MW2 0x100bcd88
+// GLOBAL: MW2GBL 0x100ba128
 // GLOBAL: MW2MATROX 0x100c1e70
 // GLOBAL: MW23DFX 0x1007c318
 // GLOBAL: MW2ATI 0x10071318
@@ -62,6 +65,7 @@ MechS32 g_showObjectives = 0;
 static MechChar g_ticksText[16];
 
 // GLOBAL: MW2 0x100bcd98
+// GLOBAL: MW2GBL 0x100ba138
 // GLOBAL: MW2MATROX 0x100c1e80
 // GLOBAL: MW23DFX 0x1007c328
 // GLOBAL: MW2ATI 0x10071328
@@ -71,6 +75,7 @@ static MechChar g_secondsText[16];
 
 // The chat message being typed. HandleChatKey edits it.
 // GLOBAL: MW2 0x10179e90
+// GLOBAL: MW2GBL 0x100e9860
 // GLOBAL: MW2MATROX 0x101d6990
 // GLOBAL: MW23DFX 0x101e4200
 // GLOBAL: MW2ATI 0x10117ec0
@@ -80,6 +85,7 @@ MechChar g_chatMessage[0x30];
 
 // Formats a tick count (181 per second) as hours:minutes:seconds.
 // FUNCTION: MW2 0x10004f40
+// FUNCTION: MW2GBL 0x10044690
 // FUNCTION: MW2MATROX 0x10021870
 // FUNCTION: MW23DFX 0x100175a0
 // FUNCTION: MW2ATI 0x10017960
@@ -100,6 +106,7 @@ MechChar* FormatTicks(MechS32 p_ticks)
 
 // Formats a count of seconds as hours:minutes:seconds.
 // FUNCTION: MW2 0x10004ff5
+// FUNCTION: MW2GBL 0x10044745
 // FUNCTION: MW2MATROX 0x10021941
 // FUNCTION: MW23DFX 0x10017630
 // FUNCTION: MW2ATI 0x100179f0
@@ -120,6 +127,7 @@ MechChar* FormatSeconds(MechS32 p_seconds)
 
 // Returns the width of p_text in p_font.
 // FUNCTION: MW2 0x1000507d
+// FUNCTION: MW2GBL 0x100447cd
 // FUNCTION: MW2MATROX 0x100219c9
 // FUNCTION: MW23DFX 0x100176a0
 // FUNCTION: MW2ATI 0x10017a60
@@ -278,6 +286,7 @@ void DrawObjectiveList(CockpitPanel* p_panel, Point* p_pos, void* p_font, MechU8
 // mission ended.
 // MW2MATROX: the original's longer displacements shift the jump table's offsets.
 // FUNCTION: MW2 0x100056f0
+// FUNCTION: MW2GBL 0x10044e24
 // FUNCTION: MW2MATROX 0x100220de
 // FUNCTION: MW23DFX 0x10017b80
 // FUNCTION: MW2ATI 0x10017f40
@@ -357,6 +366,7 @@ void DrawObjectivesPanel(CockpitPanel* p_panel)
 // game waits for the other players; then the chat message being typed, with its recipients and
 // a cursor.
 // FUNCTION: MW2 0x10005add
+// FUNCTION: MW2GBL 0x10045211
 // FUNCTION: MW2MATROX 0x100224b9
 // FUNCTION: MW23DFX 0x10017e10
 // FUNCTION: MW2ATI 0x100181d0
@@ -557,6 +567,7 @@ void DrawNetworkPanel(CockpitPanel* p_panel)
 
 // Shows the local player's kill count in a network game.
 // FUNCTION: MW2 0x100060b6
+// FUNCTION: MW2GBL 0x100457ea
 // FUNCTION: MW2MATROX 0x10022b98
 // FUNCTION: MW23DFX 0x10018330
 // FUNCTION: MW2ATI 0x100186f0
@@ -702,6 +713,7 @@ void DrawSpeedPanel(CockpitPanel* p_panel)
 
 // Labels the MASC panel while MASC is available.
 // FUNCTION: MW2 0x100063cd
+// FUNCTION: MW2GBL 0x10045b01
 // FUNCTION: MW2MATROX 0x10022ef9
 // FUNCTION: MW23DFX 0x10018570
 // FUNCTION: MW2ATI 0x10018930
@@ -790,6 +802,7 @@ void DrawHeatPanel(CockpitPanel* p_panel)
 
 // Labels the heat rate panel and draws its bar.
 // FUNCTION: MW2 0x100065c3
+// FUNCTION: MW2GBL 0x10045cf7
 // FUNCTION: MW2MATROX 0x10023131
 // FUNCTION: MW23DFX 0x100186c0
 // FUNCTION: MW2ATI 0x10018a80
