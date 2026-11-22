@@ -140,6 +140,7 @@ MechS32 g_requestedViewMode = 0;
 
 // Set when a mech starts under the autopilot (mechclass.c); nothing reads it.
 // GLOBAL: MW2 0x100a2418
+// GLOBAL: MW2GBL 0x100b3978
 // GLOBAL: MW2MATROX 0x100a3658
 // GLOBAL: MW23DFX 0x1024e670
 // GLOBAL: MW2ATI 0x10182980

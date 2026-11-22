@@ -345,6 +345,7 @@ void OrderShutdown(MechS32 p_index, MechS32 p_value)
 
 // Returns the name of the goal of the control's AI player: a nav, a player or a game thing.
 // FUNCTION: MW2 0x100664cb
+// FUNCTION: MW2GBL 0x1000580d
 // FUNCTION: MW2MATROX 0x1008ebbc
 // FUNCTION: MW23DFX 0x100646f0
 // FUNCTION: MW2ATI 0x10061d60

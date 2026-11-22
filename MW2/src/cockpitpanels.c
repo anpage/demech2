@@ -425,13 +425,13 @@ void LayoutWeaponPanels(Mech* p_mech)
 	MechS32 right;
 
 	alternate = TRUE;
-	for (i = 0; i < 10; i++) {
+	for (i = 0; i < WEAPON_SLOT_COUNT; i++) {
 		p_mech->m_weapons[i].m_index = i;
 	}
 
 	slot = p_mech->m_weapons;
 	rightStart = 8;
-	for (i = 0; i < 10; i++) {
+	for (i = 0; i < WEAPON_SLOT_COUNT; i++) {
 		if (slot->m_hardpoint == 4 || slot->m_hardpoint == 1 || slot->m_hardpoint == 6) {
 			rightStart++;
 		}
@@ -443,7 +443,7 @@ void LayoutWeaponPanels(Mech* p_mech)
 
 	slot = p_mech->m_weapons;
 	left = 3;
-	for (i = 0; i < 10; i++) {
+	for (i = 0; i < WEAPON_SLOT_COUNT; i++) {
 		if (slot->m_hardpoint == 5 || slot->m_hardpoint == 3 || slot->m_hardpoint == 7) {
 			g_cockpitPanels[left]->m_setName(g_cockpitPanels[left], g_weaponDefs[slot->m_type].m_name);
 			g_cockpitPanels[left]->m_setWeapon(g_cockpitPanels[left], i);
@@ -463,7 +463,7 @@ void LayoutWeaponPanels(Mech* p_mech)
 
 	slot = p_mech->m_weapons;
 	right = 8;
-	for (i = 0; i < 10; i++) {
+	for (i = 0; i < WEAPON_SLOT_COUNT; i++) {
 		if (slot->m_hardpoint == 4 || slot->m_hardpoint == 1 || slot->m_hardpoint == 6) {
 			g_cockpitPanels[right]->m_setName(g_cockpitPanels[right], g_weaponDefs[slot->m_type].m_name);
 			g_cockpitPanels[right]->m_setWeapon(g_cockpitPanels[right], i);
@@ -483,7 +483,7 @@ void LayoutWeaponPanels(Mech* p_mech)
 
 	slot = p_mech->m_weapons;
 	panel = left;
-	for (i = 0; i < 10; i++) {
+	for (i = 0; i < WEAPON_SLOT_COUNT; i++) {
 		if (slot->m_hardpoint == 2 || slot->m_hardpoint == 0) {
 			if (alternate && right > left) {
 				panel = right;
@@ -522,7 +522,7 @@ void LayoutWeaponPanels(Mech* p_mech)
 		}
 	}
 
-	weapons = HeapAlloc(g_primaryHeap, HEAP_NO_SERIALIZE | HEAP_ZERO_MEMORY, 10 * sizeof(WeaponSlot));
+	weapons = HeapAlloc(g_primaryHeap, HEAP_NO_SERIALIZE | HEAP_ZERO_MEMORY, WEAPON_SLOT_COUNT * sizeof(WeaponSlot));
 	dst = weapons;
 	for (i = 3; i <= 7; i++) {
 		if (g_cockpitPanels[i]->m_weapon != -1) {
@@ -573,9 +573,9 @@ void LayoutWeaponPanels(Mech* p_mech)
 		}
 	}
 
-	memcpy(p_mech->m_weapons, weapons, 10 * sizeof(WeaponSlot));
+	memcpy(p_mech->m_weapons, weapons, WEAPON_SLOT_COUNT * sizeof(WeaponSlot));
 	HeapFree(g_primaryHeap, HEAP_NO_SERIALIZE, weapons);
-	for (i = 0; i < 10; i++) {
+	for (i = 0; i < WEAPON_SLOT_COUNT; i++) {
 		slot = &p_mech->m_weapons[i];
 		if (!slot->m_type && !slot->m_ammo) {
 			slot->m_type = -1;
@@ -928,6 +928,7 @@ void DamageCockpitPanels(Mech* p_mech, MechS32 p_heavy)
 // Plays the cockpit's warning sounds for the local mech as its state and flags change.
 // Matches but for the registers, which VC++ 2.2 allocates differently.
 // FUNCTION: MW2 0x100705dd
+// FUNCTION: MW2GBL 0x10004e9f
 // FUNCTION: MW2MATROX 0x1007a658
 // FUNCTION: MW23DFX 0x1001e6c0
 // FUNCTION: MW2ATI 0x1001e990

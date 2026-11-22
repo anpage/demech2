@@ -373,6 +373,7 @@ void SetInfrared(undefined4 p_unk0x00, MechS32 p_state)
 }
 
 // FUNCTION: MW2 0x1007d931
+// FUNCTION: MW2GBL 0x1003caa1
 // FUNCTION: MW2MATROX 0x10085fbe
 // FUNCTION: MW23DFX 0x10007af0
 void QuadrupleMechCooling(void)

@@ -20,8 +20,9 @@ extern "C"
 #endif
 
 	extern struct Shape* g_aimedShape;
-	extern MechS32 g_remoteWeaponsFired[10];
-	extern MechS32 g_localWeaponsFired[10];
+	// WEAPON_SLOT_COUNT each (weaponslot.h, which this header doesn't include)
+	extern MechS32 g_remoteWeaponsFired[];
+	extern MechS32 g_localWeaponsFired[];
 
 	void ReleaseWeaponTriggers(struct Mech* p_mech);
 	void UpdateWeaponFireState(struct Mech* p_mech);

@@ -36,6 +36,9 @@ typedef MechS32 (*PlayerCreatedFn)(MechS32 p_index, Player* p_player);
 
 #pragma pack(push, 1)
 
+// GBL's has m_unk0x154 after m_ai and m_unk0x160 after m_nextFireTime, so its members from
+// m_engageAtWill on are 2 bytes further and from m_restAlertRange on 6 bytes further than the
+// offsets below say, and the pilot table's two values at the end: 0x1b8 bytes.
 // SIZE 0x1aa
 struct Player {
 	MechS32 m_type;        // 0x00 — c_playerType…
@@ -90,14 +93,20 @@ struct Player {
 	AiStackEntry m_stack[2];            // 0x128 — T_PUSH saves the state and goal in the first, QueueAIState behind it
 	// 0x130: the gpspec record's AI parameters (BwdExecuteStream): gunnery, leash range, resting and
 	// active alert ranges (in hundreds), piloting; InitializeAI turns them into the members below.
-	MechU16 m_aiParams[8];           // 0x130
-	MechU16 m_stackCount;            // 0x140
-	undefined2 m_unk0x142;           // 0x142 — nothing reads or writes it
-	PlayerAi m_ai;                   // 0x144
-	MechS32 m_engageAtWill;          // 0x154 — it may be sent to attack: the "Engage at Will" order toggles it
-	MechS8 m_gunnery;                // 0x158 — lower is better: it fires on one roll in m_gunnery
-	MechS8 m_piloting;               // 0x159 — 1 (best) to 4: the maneuvers it may make
-	MechS32 m_nextFireTime;          // 0x15a — the clock when it next rolls to fire
+	MechU16 m_aiParams[8]; // 0x130
+	MechU16 m_stackCount;  // 0x140
+	undefined2 m_unk0x142; // 0x142 — nothing reads or writes it
+	PlayerAi m_ai;         // 0x144
+#ifdef MW2_PLAYER_SPARE_WORD
+	undefined2 m_unk0x154; // 0x154 — nothing reads or writes it
+#endif
+	MechS32 m_engageAtWill; // 0x154 — it may be sent to attack: the "Engage at Will" order toggles it
+	MechS8 m_gunnery;       // 0x158 — lower is better: it fires on one roll in m_gunnery
+	MechS8 m_piloting;      // 0x159 — 1 (best) to 4: the maneuvers it may make
+	MechS32 m_nextFireTime; // 0x15a — the clock when it next rolls to fire
+#ifdef MW2_PILOT_TABLE
+	MechS32 m_unk0x160; // 0x160 — the pilot table entry's flag, which the fire decisions test
+#endif
 	MechS32 m_restAlertRange;        // 0x15e — the rules' range -1: enemies within it wake a resting player
 	MechS32 m_alertRange;            // 0x162 — the rules' range -2: enemies within it are reported or engaged
 	MechS32 m_leashRange;            // 0x166 — the rules' range -4: a chase this far from its anchor nav ends
@@ -125,6 +134,10 @@ struct Player {
 	MechU32 m_skillFlag6 : 1;        // 0x19e
 	MechU32 m_skillFlagsUnused : 25; // 0x19e
 	MechS8 m_placesTaken[8];         // 0x1a2 — the places around it (ChooseFlankPlace) that are taken
+#ifdef MW2_PILOT_TABLE
+	MechS32 m_unk0x1b0; // 0x1b0 — from the pilot table entry
+	MechS32 m_unk0x1b4; // 0x1b4 — from the pilot table entry
+#endif
 };
 
 #pragma pack(pop)

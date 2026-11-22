@@ -129,6 +129,7 @@ void UpdateArtillery(Mech* p_mech)
 // cleared. Then the heat, and the power states: 0 starts powering up, 1 runs once the power-up
 // time has passed, 3 starts over and 4 is destroyed.
 // FUNCTION: MW2 0x1005a2ea
+// FUNCTION: MW2GBL 0x10011cda
 // FUNCTION: MW2MATROX 0x1002e7de
 // FUNCTION: MW23DFX 0x10021a50
 // FUNCTION: MW2ATI 0x10021d20
@@ -237,6 +238,7 @@ void ShutdownArtillery(Mech* p_mech)
 
 // Allocates p_player's mech, its weapons and sections, and sets them up.
 // FUNCTION: MW2 0x1005a637
+// FUNCTION: MW2GBL 0x10012027
 // FUNCTION: MW2MATROX 0x1002eb54
 // FUNCTION: MW23DFX 0x10021c90
 // FUNCTION: MW2ATI 0x10021f60
@@ -262,7 +264,7 @@ MechS32 CreateArtillery(MechS32 p_index, Player* p_player)
 
 	mech = buffer;
 	weapons = (WeaponSlot*) ((Mech*) buffer + 1);
-	sections = (MechSection*) (weapons + 10);
+	sections = (MechSection*) (weapons + WEAPON_SLOT_COUNT);
 	extra = sections + 8;
 	mech->m_weapons = weapons;
 	mech->m_sections = sections;
@@ -273,9 +275,9 @@ MechS32 CreateArtillery(MechS32 p_index, Player* p_player)
 	}
 
 	p_player->m_mech = mech;
-	p_player->m_mechSize = 0x10e;
+	p_player->m_mechSize = sizeof(Mech);
 	slot = mech->m_weapons;
-	for (i = 0; i < 10; i++) {
+	for (i = 0; i < WEAPON_SLOT_COUNT; i++) {
 		slot->m_status = -1;
 		slot->m_type = -1;
 		slot->m_state = c_weaponEmpty;

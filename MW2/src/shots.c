@@ -66,6 +66,7 @@ MechS32 g_effectCameraActive = 0;
 MechS32 g_effectCameraEffect = -1;
 
 // GLOBAL: MW2 0x100ad448
+// GLOBAL: MW2GBL 0x100b6908
 // GLOBAL: MW2MATROX 0x100ae0ac
 // GLOBAL: MW23DFX 0x1025a69c
 // GLOBAL: MW2ATI 0x1018e994

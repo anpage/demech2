@@ -236,6 +236,7 @@ void ZeroGamethings(void)
 // Creates player p_player: allocates it, sets it up, gives it its steering (the input sinks for
 // the local player, the room after it otherwise), and passes it to p_fn if given.
 // FUNCTION: MW2 0x1006d282
+// FUNCTION: MW2GBL 0x1001d112
 // FUNCTION: MW2MATROX 0x10055110
 // FUNCTION: MW23DFX 0x10018970
 // FUNCTION: MW2ATI 0x10018d30

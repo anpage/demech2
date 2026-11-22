@@ -83,6 +83,7 @@ MechS32 g_killCount = 0;
 
 // Set while the local player has been warned of critical heat (CalculateHeat).
 // GLOBAL: MW2 0x100a15a4
+// GLOBAL: MW2GBL 0x100a04c8
 // GLOBAL: MW2MATROX 0x100a462c
 // GLOBAL: MW23DFX 0x1024bfd0
 // GLOBAL: MW2S3 0x100621d0
@@ -91,6 +92,7 @@ MechS32 g_criticalHeatWarned = 0;
 
 // When the warning was given.
 // GLOBAL: MW2 0x100bdff0
+// GLOBAL: MW2GBL 0x100b9118
 // GLOBAL: MW2MATROX 0x100c1e24
 // GLOBAL: MW23DFX 0x1007c310
 // GLOBAL: MW2S3 0x1007cab4
@@ -103,6 +105,7 @@ static MechS32 g_criticalHeatWarningTime;
 // The Matrox edition copies m_maneuverParam and the steering's float throttle into each other as
 // they are (the dword, no conversion).
 // FUNCTION: MW2 0x100079d0
+// FUNCTION: MW2GBL 0x1001ea60
 // FUNCTION: MW2MATROX 0x10010250
 // FUNCTION: MW23DFX 0x10015c00
 // FUNCTION: MW2ATI 0x10016010
@@ -184,6 +187,7 @@ void RunAutopilot(Mech* p_mech)
 // The PUNCH_IN_AUTO_HDG game key: sets the player's target heading (the HUD's bearing marker,
 // which the autopilot steers by) to where the torso faces, unless the autopilot is on.
 // FUNCTION: MW2 0x10007cb5
+// FUNCTION: MW2GBL 0x1001ed45
 // FUNCTION: MW2MATROX 0x1001053c
 // FUNCTION: MW23DFX 0x10015dd0
 // FUNCTION: MW2ATI 0x100161e0
@@ -697,7 +701,7 @@ void DestroyCriticalSlot(MechS32 p_attacker, Mech* p_mech, MechU32 p_section, Me
 	kind = id / 100;
 	if (kind < 50) {
 		weapon = p_mech->m_weapons;
-		for (i = 0; i < 10; i++) {
+		for (i = 0; i < WEAPON_SLOT_COUNT; i++) {
 			if (weapon->m_type < 0) {
 				weapon++;
 				continue;

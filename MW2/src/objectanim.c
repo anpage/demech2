@@ -132,6 +132,7 @@ DECOMP_SIZE_ASSERT(ReelEvent, 0x8)
 
 // Why ReelMotionTask last failed: 1 no player, 2 disabled, 3 no object, 4-7 missing state.
 // GLOBAL: MW2 0x100a6d64
+// GLOBAL: MW2GBL 0x1009b038
 // GLOBAL: MW2MATROX 0x100ae2b4
 // GLOBAL: MW23DFX 0x1024b328
 // GLOBAL: MW2ATI 0x1017f6a8
@@ -294,6 +295,7 @@ AnimFile g_animFiles[60];
 // the rate; the frame events jump to other frames by the player's animation state (m_motionState,
 // the frame it reached, and m_nextMotionState, the one it wants).
 // FUNCTION: MW2 0x10046750
+// FUNCTION: MW2GBL 0x100011c0
 // FUNCTION: MW2MATROX 0x1006ece0
 // FUNCTION: MW23DFX 0x1000dec0
 // FUNCTION: MW2ATI 0x1000e5b0

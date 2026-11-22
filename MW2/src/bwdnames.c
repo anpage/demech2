@@ -76,6 +76,7 @@ MechS32 AddBwdName(BwdName* p_name)
 
 // Finds a BWD name in the list: by name for a named entry (-1 or -2), by number otherwise.
 // FUNCTION: MW2 0x1005860e
+// FUNCTION: MW2GBL 0x1001185e
 // FUNCTION: MW2MATROX 0x1002de9e
 // FUNCTION: MW23DFX 0x1003f850
 // FUNCTION: MW2ATI 0x1003d5b0

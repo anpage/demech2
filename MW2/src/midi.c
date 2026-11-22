@@ -392,6 +392,7 @@ void StartEngineNote(void)
 // Bends the held note by p_pitch and sets its volume from the effects volume, while the local
 // mech's power state is above 1.
 // FUNCTION: MW2 0x10021b2a
+// FUNCTION: MW2GBL 0x1006aada
 // FUNCTION: MW2MATROX 0x1004422f
 // FUNCTION: MW23DFX 0x100333d0
 // FUNCTION: MW2ATI 0x10032070

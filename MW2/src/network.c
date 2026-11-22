@@ -337,6 +337,7 @@ DPID g_masterDpid = 0;
 LPGUID g_serviceProvider = NULL;
 
 // GLOBAL: MW2 0x100a17c8
+// GLOBAL: MW2GBL 0x100b2a18
 // GLOBAL: MW2MATROX 0x100a2178
 // GLOBAL: MW23DFX 0x10250038
 // GLOBAL: MW2ATI 0x10184348
@@ -700,6 +701,7 @@ void ShutdownNetwork(void)
 
 // Sends the local player's state.
 // FUNCTION: MW2 0x1000ebad
+// FUNCTION: MW2GBL 0x10050952
 // FUNCTION: MW2MATROX 0x1000458e
 // FUNCTION: MW23DFX 0x10034000
 // FUNCTION: MW2ATI 0x10032c00
@@ -1057,6 +1059,7 @@ void ReceiveStateMsg(NetStateMsg* p_msg, MechS32 p_slot)
 
 // Sends the weapons the local player fired since the last time, if any.
 // FUNCTION: MW2 0x1000f989
+// FUNCTION: MW2GBL 0x1005171c
 // FUNCTION: MW2MATROX 0x10005666
 // FUNCTION: MW23DFX 0x100350e0
 // FUNCTION: MW2ATI 0x10033ce0
@@ -1073,7 +1076,7 @@ void SendWeaponsMsg(void)
 	mech = player->m_mech;
 	g_weaponsMsg->m_player = player->m_index;
 	g_weaponsMsg->m_weapons = 0;
-	for (i = 0; i < 10; i++) {
+	for (i = 0; i < WEAPON_SLOT_COUNT; i++) {
 		if (g_localWeaponsFired[i]) {
 			g_weaponsMsg->m_weapons |= 1 << i;
 			g_localWeaponsFired[i] = 0;
@@ -1087,6 +1090,7 @@ void SendWeaponsMsg(void)
 
 // Fires the weapons of a player's weapons message.
 // FUNCTION: MW2 0x1000fa58
+// FUNCTION: MW2GBL 0x100517f1
 // FUNCTION: MW2MATROX 0x10005735
 // FUNCTION: MW23DFX 0x100351b0
 // FUNCTION: MW2ATI 0x10033db0
@@ -1108,7 +1112,7 @@ void ReceiveWeaponsMsg(NetWeaponsMsg* p_msg, MechS32 p_slot)
 	player = g_players[p_slot];
 	mech = player->m_mech;
 	bit = 1;
-	for (i = 0; i < 10; i++) {
+	for (i = 0; i < WEAPON_SLOT_COUNT; i++) {
 		if (msg->m_weapons & bit) {
 			g_remoteWeaponsFired[i] = 1;
 		}

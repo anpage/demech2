@@ -467,6 +467,7 @@ MenuChoices g_orderChoices = {
 
 // The AI states, by state plus one (GetSlotAiState), each followed by the player's goal.
 // GLOBAL: MW2 0x100a7588
+// GLOBAL: MW2GBL 0x1009f670
 // GLOBAL: MW23DFX 0x102609e0
 // GLOBAL: MW2ATI 0x10194cd8
 // GLOBAL: MW2S3 0x10063300
@@ -515,6 +516,7 @@ MenuControl g_formationControl = {3, 0, &g_formationChoices, 0, NULL, GetFormati
 MenuControl g_commandAllStatusControl = {3, 0, &g_orderChoices, 0, NULL, GetLanceOrder, NULL, NULL, NULL};
 
 // GLOBAL: MW2 0x100a7668
+// GLOBAL: MW2GBL 0x1009f750
 // GLOBAL: MW23DFX 0x10260ac0
 // GLOBAL: MW2ATI 0x10194db8
 // GLOBAL: MW2S3 0x100633e0
@@ -523,6 +525,7 @@ MenuControl g_commandPoint2StatusControl =
 	{3, 0, &g_aiStateChoices, 1, InstallGoalSuffix, GetSlotAiState, NULL, NULL, NULL};
 
 // GLOBAL: MW2 0x100a7690
+// GLOBAL: MW2GBL 0x1009f778
 // GLOBAL: MW23DFX 0x10260ae8
 // GLOBAL: MW2ATI 0x10194de0
 // GLOBAL: MW2S3 0x10063408
@@ -531,6 +534,7 @@ MenuControl g_commandPoint3StatusControl =
 	{3, 0, &g_aiStateChoices, 2, InstallGoalSuffix, GetSlotAiState, NULL, NULL, NULL};
 
 // GLOBAL: MW2 0x100a76b8
+// GLOBAL: MW2GBL 0x1009f7a0
 // GLOBAL: MW23DFX 0x10260b10
 // GLOBAL: MW2ATI 0x10194e08
 // GLOBAL: MW2S3 0x10063430
@@ -539,6 +543,7 @@ MenuControl g_commandPoint4StatusControl =
 	{3, 0, &g_aiStateChoices, 3, InstallGoalSuffix, GetSlotAiState, NULL, NULL, NULL};
 
 // GLOBAL: MW2 0x100a76e0
+// GLOBAL: MW2GBL 0x1009f7c8
 // GLOBAL: MW23DFX 0x10260b38
 // GLOBAL: MW2ATI 0x10194e30
 // GLOBAL: MW2S3 0x10063458

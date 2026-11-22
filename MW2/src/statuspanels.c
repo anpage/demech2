@@ -607,6 +607,7 @@ void DrawKillsPanel(CockpitPanel* p_panel)
 
 // Shows the autopilot's state.
 // FUNCTION: MW2 0x10006189
+// FUNCTION: MW2GBL 0x100458bd
 // FUNCTION: MW2MATROX 0x10022c7a
 // FUNCTION: MW23DFX 0x100183d0
 // FUNCTION: MW2ATI 0x10018790
@@ -659,6 +660,7 @@ void DrawAutopilotPanel(CockpitPanel* p_panel)
 
 // Shows the local mech's speed in kph, in a different color while it backs up, and its throttle bar.
 // FUNCTION: MW2 0x10006291
+// FUNCTION: MW2GBL 0x100459c5
 // FUNCTION: MW2MATROX 0x10022d91
 // FUNCTION: MW23DFX 0x10018470
 // FUNCTION: MW2ATI 0x10018830
@@ -749,6 +751,7 @@ void DrawMascPanel(CockpitPanel* p_panel)
 
 // Labels the heat panel with the shutdown state and draws the heat bar.
 // FUNCTION: MW2 0x10006484
+// FUNCTION: MW2GBL 0x10045bb8
 // FUNCTION: MW2MATROX 0x10022fbf
 // FUNCTION: MW23DFX 0x100185e0
 // FUNCTION: MW2ATI 0x100189a0
@@ -839,6 +842,7 @@ void DrawHeatRatePanel(CockpitPanel* p_panel)
 
 // Labels the jump jet panel of a mech with jump jets and draws the fuel bar.
 // FUNCTION: MW2 0x1000667c
+// FUNCTION: MW2GBL 0x10045db0
 // FUNCTION: MW2MATROX 0x100231f9
 // FUNCTION: MW23DFX 0x10018730
 // FUNCTION: MW2ATI 0x10018af0

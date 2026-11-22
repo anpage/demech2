@@ -245,6 +245,7 @@ void BreakUpMech(Mech* p_mech)
 
 // Sets off the flames of the jump jets and plays their sound.
 // FUNCTION: MW2 0x1004ccba
+// FUNCTION: MW2GBL 0x1004fe5a
 // FUNCTION: MW2MATROX 0x10045571
 // FUNCTION: MW23DFX 0x1001bf90
 // FUNCTION: MW2ATI 0x1001c2c0
@@ -293,6 +294,7 @@ void FireJumpJetEffects(Mech* p_mech)
 
 // Plays a mech's landing: the thud, and the camera shake for the local player.
 // FUNCTION: MW2 0x1004ce3e
+// FUNCTION: MW2GBL 0x1004ffde
 // FUNCTION: MW2MATROX 0x100456ef
 // FUNCTION: MW23DFX 0x1001c0a0
 // FUNCTION: MW2ATI 0x1001c3d0

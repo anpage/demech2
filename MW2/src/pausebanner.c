@@ -37,6 +37,7 @@
 // The debug keys' selections (HandleDebugKey): a number, and a mech section.
 
 // GLOBAL: MW2 0x100a15d0
+// GLOBAL: MW2GBL 0x1009d970
 // GLOBAL: MW2MATROX 0x100a6228
 // GLOBAL: MW23DFX 0x102503a0
 // GLOBAL: MW2S3 0x100624c0
@@ -44,6 +45,7 @@
 MechS32 g_debugSlot = -1;
 
 // GLOBAL: MW2 0x100a15d4
+// GLOBAL: MW2GBL 0x1009d974
 // GLOBAL: MW2MATROX 0x100a622c
 // GLOBAL: MW23DFX 0x102503a4
 // GLOBAL: MW2S3 0x100624c4

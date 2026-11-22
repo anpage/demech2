@@ -66,12 +66,14 @@ typedef char MechChar;
 #if defined(MW2_GBL) && defined(MW2_ACCEL)
 #error "MW2_GBL is no accelerated edition"
 #endif
-/* GBL's source calls every function /Oi would expand but abs and fabs: the memory and string
-   functions, and the math functions, where 1.1 goes through their __CI entries. An artefact of how
-   it was built. */
+/* GBL's build has no /Oi (it calls memcpy, memset, strcmp and the math functions where 1.1 expands
+   them), but expands abs and fabs as 1.1 does. How it did that isn't known (a pragma like this one
+   or other headers); this reproduces it. VC++ 4.1 takes the pragma only for a function declared
+   ahead of it, hence the CRT's prototypes. */
 #ifdef MW2_GBL
-#pragma function(memcpy, memset, strcat, strcpy, strlen)
-#pragma function(acos, asin, atan, atan2, cos, cosh, exp, fmod, log, log10, pow, sin, sinh, sqrt, tan, tanh)
+int __cdecl abs(int);
+double __cdecl fabs(double);
+#pragma intrinsic(abs, fabs)
 #endif
 
 #ifdef MW2_ACCEL
@@ -722,6 +724,21 @@ typedef char MechChar;
 /* HandleMessages stops skipping mouse messages when its PeekMessage finds nothing, and handles the
    last one it had */
 #define MW2_MOUSE_PEEK_BREAKS
+#endif
+
+#ifdef MW2_GBL
+/* Mechs take heat from outside (Mech::m_externalHeat, which the radius damage adds to and
+   CalculateHeat adds to the frame's heat) */
+#define MW2_EXTERNAL_HEAT
+/* Mechs have a second word of flags (Mech::m_unk0x112: UpdateAllShots sets bit 0) */
+#define MW2_MECH_SECOND_FLAGS
+/* Mechs have 14 weapon slots, not 10 (WEAPON_SLOT_COUNT) */
+#define MW2_FOURTEEN_WEAPON_SLOTS
+/* An AI player whose gunnery is above 6 takes its skills from a table of pilots, with two more
+   values and a flag the AI's fire decisions test (Player::m_unk0x160, m_unk0x1b0, m_unk0x1b4) */
+#define MW2_PILOT_TABLE
+/* The player has a word after its AI state that nothing reads or writes (Player::m_unk0x154) */
+#define MW2_PLAYER_SPARE_WORD
 #endif
 
 /* Boolean typedefs (MechBool / MechBool8 ...) are added when a match proves

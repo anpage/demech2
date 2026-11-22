@@ -404,6 +404,7 @@ void DrawHud(
 // Draws the altimeter: the mech's height, the height of m_player's mark (Player::m_unk0x74) and
 // the height of the target, clamped to the gauge. p_x and p_y go unused.
 // FUNCTION: MW2 0x10040cbc
+// FUNCTION: MW2GBL 0x1007ed0c
 // FUNCTION: MW2MATROX 0x1001caef
 // FUNCTION: MW23DFX 0x100222e0
 // FUNCTION: MW2ATI 0x100225b0

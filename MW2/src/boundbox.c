@@ -112,6 +112,7 @@ void AttachShapeBoundBox(Shape* p_shape)
 
 // Computes the bounding box of the shape's first model, transforming it first if it is out of date.
 // FUNCTION: MW2 0x1006eb80
+// FUNCTION: MW2GBL 0x1001dea4
 // FUNCTION: MW2MATROX 0x1000a700
 // FUNCTION: MW23DFX 0x1000d920
 // FUNCTION: MW2ATI 0x1000e010
