@@ -76,7 +76,8 @@ MechChar g_autoEjectItem[] = "Auto Eject";
 // GLOBAL: MW2ATI 0x10198ee8
 // GLOBAL: MW2S3 0x10062c88
 // GLOBAL: MW2POWERVR 0x101c4260
-MenuControl g_infraredControl = {3, 0, &g_offOnChoices, 166, NULL, GetSystemSetting, NULL, SetSystemSetting, NULL};
+MenuControl g_infraredControl =
+	{3, 0, &g_offOnChoices, GAME_KEY_ACTION(166), NULL, GetSystemSetting, NULL, SetSystemSetting, NULL};
 
 // GLOBAL: MW2 0x100aa910
 // GLOBAL: MW2MATROX 0x100a8208
@@ -85,7 +86,7 @@ MenuControl g_infraredControl = {3, 0, &g_offOnChoices, 166, NULL, GetSystemSett
 // GLOBAL: MW2S3 0x10062cb0
 // GLOBAL: MW2POWERVR 0x101c4288
 MenuControl g_enhancedVisionControl =
-	{3, 0, &g_offOnChoices, 167, NULL, GetSystemSetting, NULL, SetSystemSetting, NULL};
+	{3, 0, &g_offOnChoices, GAME_KEY_ACTION(167), NULL, GetSystemSetting, NULL, SetSystemSetting, NULL};
 
 // GLOBAL: MW2 0x100aa938
 // GLOBAL: MW2MATROX 0x100a8230
@@ -204,10 +205,12 @@ MenuPage* g_systemsMenuPageStack[8];
 
 // The systems status menu's settings, by the game key that toggles each (GAMEKEY.MAP): 0x13
 // TOGGLE_HUD, 0x3c TOGGLE_AUTOEJECT, 0x40 OVERRIDE_SHUTDOWN, 0xa6 INFRARED (light amplification)
-// and 0xa7 ENHANCED_VISION (image enhancement: outlined polygons).
+// and 0xa7 ENHANCED_VISION (image enhancement: outlined polygons); GBL's INFRARED and ENHANCED_VISION are
+// one higher (GAME_KEY_ACTION).
 
 // Returns the setting p_id, or 0.
 // FUNCTION: MW2 0x1005e9b0
+// FUNCTION: MW2GBL 0x10016a60
 // FUNCTION: MW2MATROX 0x10044400
 // FUNCTION: MW23DFX 0x10065030
 // FUNCTION: MW2ATI 0x100626a0
@@ -218,10 +221,10 @@ MechS32 GetSystemSetting(MechS32 p_id)
 	MechS32 value;
 
 	switch (p_id) {
-	case 0xa6:
+	case GAME_KEY_ACTION(0xa6):
 		value = IsInfraredOn(0);
 		break;
-	case 0xa7:
+	case GAME_KEY_ACTION(0xa7):
 		if (g_renderSettings.m_wireframe == 1) {
 			value = 1;
 		}
@@ -248,6 +251,7 @@ MechS32 GetSystemSetting(MechS32 p_id)
 
 // Changes the setting p_id (see GetSystemSetting) to p_value.
 // FUNCTION: MW2 0x1005eb10
+// FUNCTION: MW2GBL 0x10016bc1
 // FUNCTION: MW2MATROX 0x10044560
 // FUNCTION: MW23DFX 0x10065130
 // FUNCTION: MW2ATI 0x100627a0
@@ -256,10 +260,10 @@ MechS32 GetSystemSetting(MechS32 p_id)
 void SetSystemSetting(MechS32 p_id, MechS32 p_value)
 {
 	switch (p_id) {
-	case 0xa6:
+	case GAME_KEY_ACTION(0xa6):
 		SetInfrared(0, p_value);
 		break;
-	case 0xa7:
+	case GAME_KEY_ACTION(0xa7):
 		if (p_value) {
 			g_renderSettings.m_wireframe = 1;
 			PlayCockpitSound(0x1b, 1);

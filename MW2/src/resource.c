@@ -204,6 +204,7 @@ struct Player* g_lastPlayer = NULL;
 // cycles its face colors, 2 moves it around a circle, 3 moves a thing's object through an
 // animation, 4 loops a sound on a star's object, 5 moves it along a path.
 // GLOBAL: MW2 0x100a8640
+// GLOBAL: MW2GBL 0x100b2d18
 // GLOBAL: MW2MATROX 0x100a8618
 // GLOBAL: MW23DFX 0x1025a630
 // GLOBAL: MW2ATI 0x1018e928

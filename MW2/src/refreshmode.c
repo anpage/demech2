@@ -527,9 +527,16 @@ void ToggleFullScreen(void)
 		}
 
 		if (i == 6) {
+#ifdef MW2_GHOST_BEAR_TITLES
+			// (sic)
+			ShowMessage(
+				TEXT_LINE("Ghost Bear Legacy cannot run in a window in the current resolution on your video hardware")
+			);
+#else
 			ShowMessage(
 				TEXT_LINE("MechWarrior2 cannot run in a window in the current resolution on your video hardware")
 			);
+#endif
 			if (!g_simPaused) {
 				DebugPrint(TEXT_LINE("ToggleFullScreen(2): pause_timer(FALSE)"));
 				PauseTimer(0x80, FALSE);
@@ -539,9 +546,16 @@ void ToggleFullScreen(void)
 	}
 	else {
 		if (!g_fastestRefreshMode) {
+#ifdef MW2_GHOST_BEAR_TITLES
+			// (sic)
+			ShowMessage(
+				"Ghost Bear' Legacy cannot support full screen mode in the current resolution on your video hardware"
+			);
+#else
 			ShowMessage(
 				"MechWarrior2 cannot support full screen mode in the current resolution on your video hardware"
 			);
+#endif
 			if (!g_simPaused) {
 				DebugPrint(TEXT_LINE("ToggleFullScreen(3): pause_timer(FALSE)"));
 				PauseTimer(0x80, FALSE);

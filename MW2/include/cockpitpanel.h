@@ -59,11 +59,28 @@ struct CockpitPanel {
 #endif
 };
 
-// The cockpit panels, by index in g_cockpitPanels.
+// The cockpit panels, by index in g_cockpitPanels: one per weapon slot from c_panelFirstWeapon on,
+// 14 in GBL (MW2_FOURTEEN_WEAPON_SLOTS, which takes the others 4 further).
 enum {
 	c_panelRadar = 0, // its damage also breaks up the map views
 	c_panelMechView = 2,
-	c_panelFirstWeapon = 3, // to 12
+	c_panelFirstWeapon = 3, // to 12 (GBL: 16)
+#ifdef MW2_FOURTEEN_WEAPON_SLOTS
+	c_panelTarget = 17,
+	c_panelTargetText = 18,
+	c_panelObjectives = 19,
+	c_panelNetwork = 20,
+	c_panelAutopilot = 21,
+	c_panelSpeed = 22,
+	c_panelMasc = 23,
+	c_panelHeat = 24,
+	c_panelHeatRate = 25,
+	c_panelJets = 26,
+	c_panelAltimeter = 27,
+	c_panelCompass = 28,
+	c_panelKills = 29,
+	c_panelCount = 30
+#else
 	c_panelTarget = 13,
 	c_panelTargetText = 14,
 	c_panelObjectives = 15,
@@ -78,6 +95,7 @@ enum {
 	c_panelCompass = 24,
 	c_panelKills = 25,
 	c_panelCount = 26
+#endif
 };
 
 // The functions and globals of cockpitpanel.c that other units use.

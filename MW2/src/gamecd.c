@@ -24,7 +24,7 @@ MechChar g_gameCdDrive = 0;
 // GLOBAL: MW2POWERVR 0x101a9b5c
 MechS32 g_gameCdNumber = 0;
 
-// Finds the CD-ROM drive holding the game disc (the one with \OLD_HERC.DRV) and caches its
+// Finds the CD-ROM drive holding the game disc (the one with \OLD_HERC.DRV, GBL's \GBL_HERC.DRV) and caches its
 // letter; g_gameCdNumber counts the CD-ROM drives up to it.
 // FUNCTION: MW2 0x10002cb0
 // FUNCTION: MW2GBL 0x1001a740
@@ -47,7 +47,11 @@ MechChar FindGameCdDrive(void)
 
 	drives = HeapAlloc(g_primaryHeap, HEAP_NO_SERIALIZE | HEAP_ZERO_MEMORY, 0x69);
 	GetLogicalDriveStrings(0x69, drives);
+#ifdef MW2_GBL_CD_DRIVER
+	sprintf(path, " :\\GBL_HERC.DRV");
+#else
 	sprintf(path, " :\\OLD_HERC.DRV");
+#endif
 	drive = drives;
 	g_gameCdNumber = 0;
 	while (*drive) {

@@ -29,7 +29,11 @@ void ShowMessage(const MechChar* p_format, ...)
 	_vsnprintf(g_debugPrintBuffer, sizeof(g_debugPrintBuffer), p_format, args);
 	va_end(args);
 	OutputDebugString(g_debugPrintBuffer);
+#ifdef MW2_GHOST_BEAR_TITLES
+	MessageBox(g_gameWindow, g_debugPrintBuffer, "Ghost Bear's Legacy Message", MB_ICONASTERISK);
+#else
 	MessageBox(g_gameWindow, g_debugPrintBuffer, "MechWarrior2 Message", MB_ICONASTERISK);
+#endif
 }
 
 // FUNCTION: MW2 0x10050958

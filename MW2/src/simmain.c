@@ -1941,7 +1941,11 @@ int __stdcall SimMain(
 	__finally {
 		if (AbnormalTermination() && g_ticksTimerInitialized) {
 			SendMessage(g_gameWindow, 0x41e, 0, 0);
+#ifdef MW2_GHOST_BEAR_TITLES
+			MessageBox(NULL, "Attempting to shutdown from an unknown fatal error.", "Ghost Bear's Legacy", MB_ICONHAND);
+#else
 			MessageBox(NULL, "Attempting to shutdown from an unknown fatal error.", "MECHWARRIOR 2", MB_ICONHAND);
+#endif
 			AIL_shutdown();
 		}
 	}
