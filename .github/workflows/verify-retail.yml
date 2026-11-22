@@ -73,6 +73,10 @@ jobs:
           ref: ${{ github.event.workflow_run.head_sha }}
           path: pr
           persist-credentials: false
+          # A fork's pull request is checked out too (checkout refuses it in a workflow_run
+          # workflow unless asked): this job only reads the tree, with the base branch's tools
+          # and packages, and never configures, builds or runs anything from it.
+          allow-unsafe-pr-checkout: true
 
       - name: Checkout the retail originals
         uses: actions/checkout@v6
