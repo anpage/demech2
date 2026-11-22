@@ -55,6 +55,8 @@ The CRT is selected through `MSVC_RUNTIME_LIBRARY` under `CMP0091 NEW` (`MultiTh
 
 The shell's icon 103 (shown by four dialogs) is not committed: CMake builds `tools/extract_resource` and extracts it from the original `MW2SHELL.DLL` (`DEMECH2_MW2SHELL_ORIGINAL`, default: the repository root; SHA-256 checked). Without the original, `mw2shell.rc` builds without the icon. The launcher's window icons 103 and 108 (NetMech) work the same way, from the original `MECH2.EXE` (`DEMECH2_MECH2_ORIGINAL`) into `mech2.rc`, and so do the lobby's two icon groups and 18 bitmaps, from the original `NETMECHW.DLL` (`DEMECH2_NETMECHW_ORIGINAL`) into `netmechw.rc`. Text resources (dialogs, string tables, menus, version blocks) are committed in the `.rc` files, recovered from the originals so that RC compiles each byte-identical.
 
+The 1.1 shell exists in two builds. The patch's (1996-10-09, the target) breaks a word in two dialog texts (dialog 102's "shrieki ng", 113's "co nfident"); the shell on the "with NetMech" and Softkey discs (1996-10-17) is the same build with those two texts fixed: its code, data, imports, relocations and other 30 resources are byte-identical to the patch's (only the link timestamps, in the PE header and the export directory, and the resources after the two shorter dialogs differ). So it isn't a target of its own: `-DDEMECH2_MW2SHELL_RETAIL=ON` defines `MW2SHELL_DIALOG_TEXT_FIXED` for `mw2shell.rc`, which then compiles both dialogs byte-identical to the retail shell's. reccmp compares the code either way. The icon is taken from either original (both hashes are accepted).
+
 Source order in each target must follow the **original link order** (object order determines function addresses).
 
 ## reccmp
