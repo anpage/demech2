@@ -268,6 +268,9 @@ if (MSVC_FOR_DECOMP)
     ID MW2GBL
     SOURCE_DIR MW2
     OUTPUT_NAME MW2_GBL
+    # o\MW2_GBL\ for each of its objects would take the response file past the 4K that LINK 3.10
+    # crashes at on Windows (cmake/decomp_flags.cmake)
+    LINK_DIR g
     RUNTIME MultiThreadedDebug
     SOURCES
       ${mw2_sources}
