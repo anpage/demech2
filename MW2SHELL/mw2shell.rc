@@ -7,6 +7,12 @@
 //
 // Icon 103 is not in the repository: the build extracts it from the original DLL and
 // defines DEMECH2_ORIGINAL_ICON. Without it the dialogs' icon controls stay empty.
+//
+// The 1.1 patch's shell (1996-10-09) breaks a word in two of its dialog texts, dialog 102's
+// "shrieking" and dialog 113's "confident", with a space and a line break. The shell on the
+// "with NetMech" and Softkey discs (1996-10-17) is the same build with those two texts fixed:
+// its code, data, imports, relocations and other resources are the patch's. The build defines
+// MW2SHELL_DIALOG_TEXT_FIXED for that shell (DEMECH2_MW2SHELL_RETAIL).
 
 #include <winres.h>
 
@@ -121,7 +127,11 @@ FONT 8, "MS Sans Serif"
 BEGIN
     DEFPUSHBUTTON   "OK",IDOK,139,120,50,14
     LTEXT           "Welcome to Clan Wolf, MechWarrior.  ",IDC_STATIC,49,21,192,10
+#ifdef MW2SHELL_DIALOG_TEXT_FIXED
+    LTEXT           "Since you are a new recruit, you are encouraged to select ""Play with QuickTips.""  If, however, you have tasted combat and are ready to serve your Clan without further instruction, select, ""Play without QuickTips.""  The shrieking Jade Falcons await you.",IDC_STATIC,19,34,286,27
+#else
     LTEXT           "Since you are a new recruit, you are encouraged to select ""Play with QuickTips.""  If, however, you have tasted combat and are ready to serve your Clan without further instruction, select, ""Play without QuickTips.""  The shrieki \nng Jade Falcons await you.",IDC_STATIC,19,34,286,27
+#endif
     CONTROL         "Play with QuickTips",1000,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,121,69,86,9
     CONTROL         "Play without QuickTips",1001,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,121,83,87,9
     CONTROL         "Do not show me this box again (QuickTips may be accessed from the Clan menu item)",1002,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,14,101,301,8
@@ -175,7 +185,11 @@ BEGIN
     DEFPUSHBUTTON   "OK",IDOK,134,99,50,14
     LTEXT           "As a MechWarrior you wil ride in the cockpit of a BattleMech, a machine which can weigh up to 100 tons and stand 40 meters high. ",IDC_STATIC,19,11,279,16
     LTEXT           "A neuro-helmet connects you with your 'Mech and allows you to operate as a single cyborg with the mind of a human and the metal body of a monster.  You may now instruct your tech to select and customize your war machine.",IDC_STATIC,20,32,279,27
+#ifdef MW2SHELL_DIALOG_TEXT_FIXED
+    LTEXT           "Certain 'Mechs are better suited to different terrain and conditions.  If you do not specify one, your tech will choose one for you based on her years of experience.  Your tech is very skilled; rely on her wisdom unless you are confident in your own.",IDC_STATIC,20,64,279,27
+#else
     LTEXT           "Certain 'Mechs are better suited to different terrain and conditions.  If you do not specify one, your tech will choose one for you based on her years of experience.  Your tech is very skilled; rely on her wisdom unless you are co \nnfident in your own.",IDC_STATIC,20,64,279,27
+#endif
 END
 
 114 DIALOG DISCARDABLE  80, 80, 261, 93

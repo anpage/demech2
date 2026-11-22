@@ -201,20 +201,32 @@ demech2_add_dll(mw2shell
 
 include("${PROJECT_SOURCE_DIR}/cmake/extract_resource.cmake")
 
+# The 1.1 shell exists in two builds: the patch's (1996-10-09, the reccmp target) and the
+# "with NetMech" and Softkey discs' (1996-10-17), which is the same build with two dialog
+# texts fixed (mw2shell.rc). Their code and data are identical, so reccmp compares either.
+option(DEMECH2_MW2SHELL_RETAIL "Build the retail discs' MW2SHELL.DLL dialog texts instead of the 1.1 patch's" OFF)
+set(mw2shell_rc_definitions)
+if (DEMECH2_MW2SHELL_RETAIL)
+  list(APPEND mw2shell_rc_definitions MW2SHELL_DIALOG_TEXT_FIXED)
+endif()
+
 # The shell's dialogs show icon 103, which stays out of the repository: it is extracted
-# from the original MW2SHELL.DLL at build time. Without the original, the dialogs build
-# with an empty icon slot.
+# from the original MW2SHELL.DLL at build time (the patch's or the retail discs', whose icons
+# are the same). Without the original, the dialogs build with an empty icon slot.
 set(DEMECH2_MW2SHELL_ORIGINAL "${PROJECT_SOURCE_DIR}/MW2SHELL.DLL" CACHE FILEPATH
-  "Original MW2SHELL.DLL (1.1 patch) to take the shell's icon from")
-set(mw2shell_original_sha256 1078ccb07fd45388bfd525719a8206ce7a01d6536776d30a5655ccb928900879)
+  "Original 1.1 MW2SHELL.DLL (the patch's or the retail discs') to take the shell's icon from")
+set(mw2shell_original_sha256
+  1078ccb07fd45388bfd525719a8206ce7a01d6536776d30a5655ccb928900879  # 1.1 patch
+  5a0e4a71ce442600ade1b5ab41446e0d71313d0a696b61f7e01cca31d165a7da  # 1.1 retail discs
+)
 set(mw2shell_icon FALSE)
 if (EXISTS "${DEMECH2_MW2SHELL_ORIGINAL}")
   set_property(DIRECTORY APPEND PROPERTY CMAKE_CONFIGURE_DEPENDS "${DEMECH2_MW2SHELL_ORIGINAL}")
   file(SHA256 "${DEMECH2_MW2SHELL_ORIGINAL}" sha256)
-  if (sha256 STREQUAL mw2shell_original_sha256)
+  if (sha256 IN_LIST mw2shell_original_sha256)
     set(mw2shell_icon TRUE)
   else()
-    message(WARNING "${DEMECH2_MW2SHELL_ORIGINAL} is not the 1.1 MW2SHELL.DLL; building the shell without its icon")
+    message(WARNING "${DEMECH2_MW2SHELL_ORIGINAL} is not a 1.1 MW2SHELL.DLL; building the shell without its icon")
   endif()
 endif()
 if (mw2shell_icon)
@@ -227,13 +239,16 @@ if (mw2shell_icon)
     DEPENDS extract_resource "${DEMECH2_MW2SHELL_ORIGINAL}"
     VERBATIM
   )
+  list(APPEND mw2shell_rc_definitions DEMECH2_ORIGINAL_ICON)
   set_source_files_properties(MW2SHELL/mw2shell.rc PROPERTIES
-    COMPILE_DEFINITIONS DEMECH2_ORIGINAL_ICON
     INCLUDE_DIRECTORIES "${icon_dir}"
     OBJECT_DEPENDS "${icon_dir}/mw2shell.ico"
   )
 else()
   message(STATUS "Shell icon: none (no original MW2SHELL.DLL at ${DEMECH2_MW2SHELL_ORIGINAL})")
+endif()
+if (mw2shell_rc_definitions)
+  set_property(SOURCE MW2SHELL/mw2shell.rc APPEND PROPERTY COMPILE_DEFINITIONS ${mw2shell_rc_definitions})
 endif()
 
 # MW2.DLL: C at /Od /Oi /G5, the debug CRT (4.1's LIBCMTD; /MTd predefines _DEBUG). The
