@@ -14,7 +14,7 @@ name: Verify retail targets and comment
 # reccmp-project.yml), compared with the binaries the Build run compiled from
 # it. The originals are fetched fresh each run and never cached or uploaded.
 #
-# The public targets (MW2SHELL, MW2) are verified by the Build workflow itself
+# The public targets (MW2SHELL, MW2, MW2GBL) are verified by the Build workflow itself
 # (its verify job), which uploads its comment payload for the comment job here.
 
 on:
@@ -311,10 +311,10 @@ jobs:
           # Every conditional site of the simulators' editions with the proof of each target that
           # compiles it (tools/edition_sites.py): the Build run's certify job listed the sites and
           # what decides each one's proof, and the states are the Certify step's and the Build
-          # run's (MW2). A report, published with the progress reports; it fails nothing.
+          # run's (MW2, MW2GBL). A report, published with the progress reports; it fails nothing.
           if [ -f ../certify/edition-sites.json ] && [ -f ../public-report/MW2STATES.json ]; then
             python ../tools/edition_sites.py --sites ../certify/edition-sites.json \
-              --states MW2=../public-report/MW2STATES.json --states MW2MATROX=MW2MATROXSTATES.json --states MW23DFX=MW23DFXSTATES.json --states MW2ATI=MW2ATISTATES.json --states MW2S3=MW2S3STATES.json --states MW2POWERVR=MW2POWERVRSTATES.json \
+              --states MW2=../public-report/MW2STATES.json --states MW2GBL=../public-report/MW2GBLSTATES.json --states MW2MATROX=MW2MATROXSTATES.json --states MW23DFX=MW23DFXSTATES.json --states MW2ATI=MW2ATISTATES.json --states MW2S3=MW2S3STATES.json --states MW2POWERVR=MW2POWERVRSTATES.json \
               --json EDITIONSITES.json --markdown EDITIONSITES.md || rm -f EDITIONSITES.json EDITIONSITES.md
             # main's, for the PR comment's line
             curl -fLSs -o EDITIONSITES-main.json "$RELEASE_URL/EDITIONSITES.json" || rm -f EDITIONSITES-main.json
@@ -574,7 +574,7 @@ jobs:
         with:
           enableCrossOsArchive: true
           path: mw2bin
-          key: mw2bin
+          key: mw2bin-gbl
 
       - name: Checkout the retail originals
         uses: actions/checkout@v6
@@ -599,13 +599,14 @@ jobs:
             echo "targets:"
             echo "  MW2SHELL:"; echo "    path: mw2bin/MW2SHELL.DLL"
             echo "  MW2:"; echo "    path: mw2bin/MW2.DLL"
+            echo "  MW2GBL:"; echo "    path: mw2bin/MW2_GBL.DLL"
             for e in $RETAIL_ENTRIES; do IFS=: read -r t f n <<<"$e"; echo "  $t:"; echo "    path: retailbin/$f"; done
           } >reccmp-user.yml
 
       - name: Search
         shell: bash
         run: |
-          for entry in MW2SHELL:mw2bin/MW2SHELL.DLL MW2:mw2bin/MW2.DLL $(for e in $RETAIL_ENTRIES; do IFS=: read -r t f n <<<"$e"; echo "$t:retailbin/$f"; done); do
+          for entry in MW2SHELL:mw2bin/MW2SHELL.DLL MW2:mw2bin/MW2.DLL MW2GBL:mw2bin/MW2_GBL.DLL $(for e in $RETAIL_ENTRIES; do IFS=: read -r t f n <<<"$e"; echo "$t:retailbin/$f"; done); do
             target="${entry%%:*}"
             original="${entry#*:}"
             start=$(date +%s)

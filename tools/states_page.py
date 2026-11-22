@@ -35,7 +35,7 @@ HEADINGS = {"identical": "Byte-identical", "proven": "Proven", "explained": "Exp
 WORDS = {"witness": "proven", "classified": "explained: compiler entropy", "known": "explained: known difference",
          "unexplained": "not understood"}
 RANK = {"unexplained": 0, "known": 1, "classified": 2, "witness": 3}
-EDITIONS = {"MW2SHELL": "1.1", "MW2": "1.1", "NETMECHW": "retail", "MECH2": "retail",
+EDITIONS = {"MW2SHELL": "1.1", "MW2": "1.1", "MW2GBL": "Ghost Bear's Legacy", "NETMECHW": "retail", "MECH2": "retail",
             "MW2MATROX": "Matrox Mystique", "MW23DFX": "3Dfx",
             "MW2ATI": "ATI 3D Rage", "MW2S3": "S3 ViRGE", "MW2POWERVR": "PowerVR"}
 

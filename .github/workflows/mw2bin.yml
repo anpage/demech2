@@ -14,13 +14,14 @@ jobs:
         with:
           enableCrossOsArchive: true
           path: mw2bin
-          key: mw2bin
+          key: mw2bin-gbl
 
       - name: Download and extract original MW2 binaries
         if: ${{ !steps.cache-original-binaries.outputs.cache-hit }}
         env:
           MW2SHELL_SHA256: 1078ccb07fd45388bfd525719a8206ce7a01d6536776d30a5655ccb928900879
           MW2_SHA256: 6212d542f8f915a594b278ab189f20a27e522e7c08ac57ce68bf47f45b17bbb5
+          MW2_GBL_SHA256: 284f3c6abef28eb421fc7da97f52c6223bd1a956409c6cb041ebe2e95d847cb8
         run: |
           set -ex
           mkdir -p mw2bin
@@ -53,12 +54,32 @@ jobs:
             fi
           done
 
-          # Keep only the two target DLLs; the rest of the patch payload
+          # Ghost Bear's Legacy's 1.1 patch is built the same way: its archive,
+          # also at 0x1853, holds the GBL simulator as MW2.DLL (no shell), kept
+          # as MW2_GBL.DLL. Extracted in a directory of its own, since both
+          # patches name their simulator MW2.DLL.
+          mkdir gbl
+          (
+            cd gbl
+            wget https://archive.org/download/GBLPATCH/GBLPATCH.EXE
+            tail -c +$((0x1853 + 1)) GBLPATCH.EXE > gblpatch.arj
+            arj e -y gblpatch.arj
+            for f in *; do
+              [ -f "$f" ] || continue
+              if [ "$(sha256sum "$f" | cut -d' ' -f1)" = "$MW2_GBL_SHA256" ]; then
+                mv -f "$f" ../MW2_GBL.DLL
+              fi
+            done
+          )
+          rm -rf gbl
+
+          # Keep only the target DLLs; the rest of the patches' payload
           # (InstallShield setup stubs, README, ...) is not needed.
-          find . -maxdepth 1 -type f ! -name MW2SHELL.DLL ! -name MW2.DLL -delete
+          find . -maxdepth 1 -type f ! -name MW2SHELL.DLL ! -name MW2.DLL ! -name MW2_GBL.DLL -delete
 
           echo "$MW2SHELL_SHA256  MW2SHELL.DLL" | sha256sum --check
           echo "$MW2_SHA256  MW2.DLL" | sha256sum --check
+          echo "$MW2_GBL_SHA256  MW2_GBL.DLL" | sha256sum --check
 
       - name: Cache original binaries
         if: ${{ !steps.cache-original-binaries.outputs.cache-hit }}
@@ -66,4 +87,4 @@ jobs:
         with:
           enableCrossOsArchive: true
           path: mw2bin
-          key: mw2bin
+          key: mw2bin-gbl

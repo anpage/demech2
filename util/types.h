@@ -46,7 +46,8 @@ typedef char MechChar;
    for 1.1, MW2_ACCEL for the accelerated (3D-card) editions, which share the Matrox edition's
    changes to 1.1, and with it MW2_MATROX (the Matrox Mystique edition), MW2_3DFX (the 3Dfx
    edition), MW2_ATI (the ATI 3D Rage edition), MW2_S3 (the S3 ViRGE edition) or MW2_POWERVR (the
-   PowerVR edition). The code tests the features, named for what they do; an edition's own
+   PowerVR edition), and MW2_GBL alone for Ghost Bear's Legacy's simulator, 1.1's code a month
+   later. The code tests the features, named for what they do; an edition's own
    back end, and a computation one edition's source writes another way with the same behaviour, test the identity.
    Macros cost no unit anything here (types.h is already included), where a header of their own would move code: its
    first inclusion counts as a symbol on 4.0 and 4.1. Features no binary separates (the ones both accelerated editions
@@ -61,6 +62,9 @@ typedef char MechChar;
 #if (defined(MW2_MATROX) || defined(MW2_3DFX) || defined(MW2_ATI) || defined(MW2_S3) || defined(MW2_POWERVR)) &&       \
 	!defined(MW2_ACCEL)
 #error "an accelerated edition defines MW2_ACCEL"
+#endif
+#if defined(MW2_GBL) && defined(MW2_ACCEL)
+#error "MW2_GBL is no accelerated edition"
 #endif
 
 #ifdef MW2_ACCEL
