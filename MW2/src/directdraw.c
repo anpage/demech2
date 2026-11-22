@@ -259,6 +259,7 @@ MechS32 g_ddrawModeFound = FALSE;
 #endif
 
 // FUNCTION: MW2 0x10077850
+// FUNCTION: MW2GBL 0x1002fa30
 // FUNCTION: MW2ATI 0x100051f0
 // FUNCTION: MW2S3 0x1002f8c0
 // FUNCTION: MW2POWERVR 0x100049a0
@@ -525,6 +526,7 @@ MechS32 DdrawCreateSurfaces(MechS32 p_width, MechS32 p_height)
 #endif
 
 // FUNCTION: MW2 0x10077d75
+// FUNCTION: MW2GBL 0x1002ff2d
 // FUNCTION: MW2ATI 0x10005600
 // FUNCTION: MW2S3 0x1002fbb0
 MechS32 DdrawInit(WINDOW* p_buffer, MechS32 p_width, MechS32 p_height)

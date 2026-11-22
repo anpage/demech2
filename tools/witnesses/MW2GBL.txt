@@ -19,6 +19,8 @@
 0x10004465 ScaleCockpitLayout cockpitpanels.c rename i=zqag rect=zqad target=zqaf transition=zqae
 0x1000491c UpdateCockpit cockpitpanels.c rename bearing=zqah distance=zqag i=zqaf pitch=zqad twistBearing=zqae
 0x100051c9 CloseMw2Log mw2log.c rename line=zqae now=zqad
+0x10005290 PrepareCommandComputerPage lancemenu.c pad 2 rename count=zqaf i=zqag index=zqah marked=zqad slot=zqae src=zqai
+0x10005403 PrepareCommandPointPage lancemenu.c pad 3 rename count=zqad index=zqaf slot=zqae src=zqag unk0x08=zqah valid=zqai
 0x100055b4 GetSlotAiState lancemenu.c rename ai=zqae index=zqaf player=zqad state=zqag
 0x10005656 InstallGoalSuffix lancemenu.c rename choices=zqae old=zqad
 0x1000580d GetSlotGoalName lancemenu.c rename goal=zqag index=zqaf player=zqae target=zqad
@@ -26,8 +28,10 @@
 0x100059ca HorizonYAtX horizon.c rename a=zqae b=zqaf c=zqah d=zqag e=zqai y=zqad
 0x10005a4c HorizonXAtY horizon.c rename a=zqae b=zqaf c=zqah d=zqag e=zqai x=zqad
 0x10005ad0 RunMenuSlider menucontrols.c rename apply=zqao bar=zqaa font=zqam height=zqai knob=zqap knobX=zqaj left=zqa2 pressed=zqad right=zqar selected=zqag shapes=zqaf size=zqak state=zqah step=zqae target=zqan value=zqab width=zqbk x=zqal
+0x1000603b RunMenuStatus menucontrols.c rename apply=zqal pressed=zqad room=zqai selected=zqag state=zqah step=zqaj suffix=zqaf target=zqak text=zqam value=zqae
 0x100063c1 RunMenuChoice menucontrols.c rename apply=zqaj pressed=zqad selected=zqaf state=zqag step=zqah target=zqai value=zqae
 0x10006738 RunMenuTextBox menucontrols.c rename box=zqad font=zqag rect=zqah state=zqae target=zqai text=zqaf
+0x10006dc2 JoystickOpenDevice joystick.c rename button=zqah caps=zqae data=zqai info=zqag infoEx=zqad range=zqaf
 0x10007b30 SetGridObject gridobject.c pad 1 rename count=zqaj depth=zqad maxX=zqak maxZ=zqal minX=zqae minZ=zqag model=zqaf span=zqai vertex=zqah
 0x1000801f ScaleRectToFrame screenscale.c rename height=zqad width=zqae
 0x100081ab ScaleBoundsToFrame screenscale.c rename height=zqad width=zqae
@@ -72,6 +76,7 @@
 0x1001573e LateUpdateDoor door.c rename dx=zqap dy=zqaa dz=zqag mech=zqad nav=zqah navX=zqaj navY=zqam navZ=zqao objective=zqaf step=zqak team=zqae x=zqai y=zqal z=zqan
 0x10015a62 CreateDoor door.c rename buffer=zqad extra=zqaf i=zqag mech=zqaj sections=zqak size=zqah slot=zqae weapons=zqai
 0x10015bd0 InitRandom random.c rename i=zqaf j=zqag range=zqah scale=zqae sum=zqad
+0x100163ab DispDibSetPalette dispdib.c pad 1
 0x10017310 ReloadPlayerMech mechreload.c pad 10
 0x100178c0 DrawScenePolygon polydraw.c pad 1 rename fraction=zqal i=zqag index=zqai luma=zqad mode=zqaf point=zqah saved=zqae scale=zqaj shade=zqak
 0x100197ca TransformShapeModel object.c rename model=zqae obj=zqad
@@ -338,6 +343,7 @@
 0x1006ce5b SkipCdTracks cdaudio.c rename position=zqad status=zqae track=zqaf
 0x1006cf7f PlayCdTrack cdaudio.c rename position=zqad status=zqaf tracks=zqae
 0x1006d1ee GetCdAudioTracks cdaudio.c rename count=zqaf parms=zqad track=zqae
+0x1006eb4f LateUpdateMech mechclass.c rename active=zqao cosine=zqaf degrees=zqaa delta=zqac dx=zqaj dy=zqal dz=zqam heading=zqab isLocal=zqae jumping=zqag mech=zqak previousDegrees=zqap speed=zqai text=zqas throttle=zqad turn=zqah turnRate=zqan x=zqa3 y=zqbo z=zqck
 0x1006fdea UpdateLocalMech mechclass.c rename dx=zqad dy=zqaf dz=zqag mech=zqae text=zqah
 0x1007024c CreateMech mechclass.c rename buffer=zqad i=zqae mech=zqag size=zqaf
 0x10070303 InitMechArrays mechclass.c rename bin=zqad bins=zqaf i=zqag sections=zqai slot=zqae weapons=zqah
@@ -376,6 +382,7 @@
 0x10077418 ChooseTeamLeader ai.c pad 7 rename count=zqag i=zqae leader=zqad member=zqai members=zqaf newLeader=zqah
 0x100774ce RetargetGoals ai.c pad 1 rename i=zqad player=zqae
 0x10077d57 AiMessageProx ai.c rename limit=zqag nearest=zqae nearestTarget=zqah result=zqaf target=zqad
+0x10077e4e AiMessageDist ai.c pad 5 rename farthest=zqae farthestTarget=zqah limit=zqag result=zqaf target=zqad
 0x1007835c LogAIStatus ai.c pad 14
 0x100788df FindAttacker ai.c rename i=zqae index=zqad players=zqaf
 0x10078c93 SteerToTarget ai.c rename degrees=zqaf delta=zqad scaled=zqae

@@ -274,6 +274,7 @@ MechS32 GetJoystickDeviceCount(void)
 // name, its driver data and the names of its axes (a tracker's third axis is head roll) and
 // buttons, the POV directions after the buttons. Returns 1 on failure.
 // FUNCTION: MW2 0x10049e86
+// FUNCTION: MW2GBL 0x10006886
 // FUNCTION: MW2MATROX 0x10025f56
 // FUNCTION: MW23DFX 0x1003a690
 // FUNCTION: MW2ATI 0x10039250
@@ -398,6 +399,7 @@ MechS32 FillJoystickDeviceInfo(MechS32 p_index, InputDeviceInfo* p_info)
 // four after the device's own. The Matrox edition reads the extended position only, without
 // setting its size.
 // FUNCTION: MW2 0x1004a3be
+// FUNCTION: MW2GBL 0x10006dc2
 // FUNCTION: MW2MATROX 0x10026380
 // FUNCTION: MW23DFX 0x1003a9c0
 // FUNCTION: MW2ATI 0x10039580

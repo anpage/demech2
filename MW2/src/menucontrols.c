@@ -207,6 +207,7 @@ void RunMenuSlider(MenuDefinition* p_menu, MenuControl* p_control, MechS32 p_ind
 // A list of choices shown with a suffix from MenuChoices::m_suffix; it changes only through its
 // callbacks.
 // FUNCTION: MW2 0x10072dab
+// FUNCTION: MW2GBL 0x1000603b
 // FUNCTION: MW2MATROX 0x1007e58b
 // FUNCTION: MW23DFX 0x10064b60
 // FUNCTION: MW2ATI 0x100621d0
