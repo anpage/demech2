@@ -7,6 +7,13 @@
 #include "shape.h"
 #include "types.h"
 
+// SIZE 0xc
+typedef struct ShapeOwner {
+	MechS32 m_set;  // 0x00 — LoadShapes colours the faces by this owner's team
+	MechS32 m_kind; // 0x04 — 0x100: m_id is a player, 0x200: a game thing
+	MechS32 m_id;   // 0x08
+} ShapeOwner;
+
 // The functions and globals of wtbshapes.c that other units use.
 #ifdef __cplusplus
 extern "C"
@@ -18,9 +25,7 @@ extern "C"
 	extern MechS32 g_unk0x100ba664;
 	extern MechU32 g_shapeFlags;
 	extern MechS32 g_subShapeCollisionType;
-	extern MechS32 g_shapeOwnerSet;
-	extern MechS32 g_shapeOwnerKind;
-	extern MechS32 g_shapeOwner;
+	extern ShapeOwner g_shapeOwner;
 
 	void SetFaceIds(MechU32* p_ids, MechU32 p_count);
 	void SetShapeOffset(MechS32 p_x, MechS32 p_y, MechS32 p_z);

@@ -94,6 +94,7 @@
 0x10019090 SetPlayerSlot team.c pad 10
 0x100190c0 SetTeamLeader team.c pad 4
 0x10019280 GetTeamSlotPosition team.c pad 8
+0x100196a0 UpdateMech mechclass.c early struct~DifficultyCfg*~g_difficulty 14
 0x1001a530 LateUpdateMech mechclass.c pad 10
 0x1001bc20 DrawArmorBars damagepanel.c pad 13
 0x1001c2c0 FireJumpJetEffects fadepal.c pad 1
@@ -133,6 +134,7 @@
 0x10025350 DestroyStaticObject geocache.c pad 6
 0x10025930 GetStaticSceneObject geocache.c pad 10
 0x10025a80 DestroyObjTreeAndShapes geocache.c pad 7
+0x100260a0 LoadClassLevel classtable.c pad 20
 0x10026160 LoadClassEntryShape classtable.c pad 25
 0x10026410 ReleaseClassEntryShape classtable.c pad 2
 0x10026450 GetClassObject classtable.c pad 10
@@ -154,7 +156,7 @@
 0x1002a770 InitPanes palette.c pad 10
 0x1002a860 ApplyPaletteResource palette.c pad 2
 0x1002b270 ProjectVertex queueface.c pad 6
-0x1002bc10 ProjectPolygon queueface.c pad 1
+0x1002bc10 ProjectPolygon queueface.c pad 3
 0x1002c480 FUN_10051dfe animation.c pad 14
 0x1002ccc0 FirstEyepoint eyepoint.c pad 2
 0x1002d240 GetPlayerEyeView eyepoint.c pad 10

@@ -121,6 +121,7 @@
 0x10024850 AreStaticObjectsComplete geocache.c pad 14
 0x10024bc0 GetStaticSceneObject geocache.c pad 13
 0x10024c00 GetStaticObjectPosition geocache.c pad 9
+0x100252a0 LoadClassLevel classtable.c pad 12 early int~g_classEntryCount 9
 0x100258e0 ReleaseObjShape classtable.c pad 16
 0x10025980 ForgetObjShape classtable.c pad 14
 0x10025a10 ReadTextLine polydraw.c pad 20
@@ -214,4 +215,4 @@
 0x100607d0 FUN_100607d0 a3d.c pad 6
 0x100610d0 FUN_100610d0 a3d.c pad 3
 0x10061910 FUN_10061910 a3d.c pad 6
-0x10062df0 FUN_10062df0 a3d.c pad 7
+0x10062df0 FUN_10062df0 a3d.c pad 10

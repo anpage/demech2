@@ -280,9 +280,9 @@ MechS32 LoadClassLevel(MechS32 p_owner, MechS32 p_level)
 		return 1;
 	}
 
-	g_shapeOwnerSet = 1;
-	g_shapeOwnerKind = 0x100;
-	g_shapeOwner = p_owner;
+	g_shapeOwner.m_set = 1;
+	g_shapeOwner.m_kind = 0x100;
+	g_shapeOwner.m_id = p_owner;
 	for (i = 0; i < g_classEntryCount; i++) {
 		entry = &g_classTable[i];
 		if (entry->m_owner == p_owner) {
@@ -299,7 +299,7 @@ MechS32 LoadClassLevel(MechS32 p_owner, MechS32 p_level)
 		}
 	}
 
-	g_shapeOwnerSet = 0;
+	g_shapeOwner.m_set = 0;
 #ifdef MW2_DETAIL_LEVEL_IN_LOADER
 	if (result) {
 		g_players[p_owner]->m_detailLevel = p_level;

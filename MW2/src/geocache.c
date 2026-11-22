@@ -1147,13 +1147,13 @@ MechS32 LoadStaticObject(MechS32 p_index, MechS32 p_block)
 	}
 
 	if (entry->m_thing != -1) {
-		g_shapeOwnerSet = 1;
-		g_shapeOwnerKind = 0x200;
-		g_shapeOwner = entry->m_thing;
+		g_shapeOwner.m_set = 1;
+		g_shapeOwner.m_kind = 0x200;
+		g_shapeOwner.m_id = entry->m_thing;
 	}
 
 	entry->m_shape = LoadShapes(data, &offset, size, parent);
-	g_shapeOwnerSet = 0;
+	g_shapeOwner.m_set = 0;
 	UnlockCachedResource(entry->m_resource, g_resTagPoly);
 	if (!entry->m_shape) {
 		return FALSE;
