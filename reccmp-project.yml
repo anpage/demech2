@@ -23,6 +23,15 @@ targets:
       - reccmp/mw2-vfx.csv
     report:
       icon: assets/dll.png
+  MW2GBL:
+    filename: MW2_GBL.DLL
+    source-root:
+      - MW2
+      - common
+    hash:
+      sha256: 284f3c6abef28eb421fc7da97f52c6223bd1a956409c6cb041ebe2e95d847cb8
+    report:
+      icon: assets/dll.png
   MW2MATROX:
     filename: MW2_MATROX.DLL
     source-root:

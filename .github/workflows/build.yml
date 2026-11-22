@@ -17,7 +17,8 @@ jobs:
           # One line per reccmp target: "TARGET:--total", where --total is the
           # game-code function count from the Ghidra original: everything
           # below the import thunks (MW2SHELL, 0x100492a2) or the CRT (MW2,
-          # 0x10080490). Progress is game code only: reccmp runs with --nolib,
+          # 0x10080490; MW2GBL, Ghost Bear's Legacy's simulator from its 1.1
+          # patch, 0x10080fa0). Progress is game code only: reccmp runs with --nolib,
           # which drops the LIBRARY entries from both sides of the ratio.
           # --total is only a floor: reccmp uses whichever is larger, the
           # annotated function count or --total. Every per-target step below
@@ -25,7 +26,7 @@ jobs:
           # retail ones (NETMECHW, MECH2, MW2MATROX, MW23DFX, MW2ATI, MW2S3, MW2POWERVR), whose originals aren't
           # public, are listed in verify-retail.yml, the workflow that runs
           # after this one.
-          entries="MW2SHELL:770 MW2:1537"
+          entries="MW2SHELL:770 MW2:1537 MW2GBL:1546"
           # The retail targets, for the jobs that need no original binary
           # (decomplint), in reccmp-project.yml's order after the public ones.
           retail="MW2MATROX MW23DFX MW2ATI MW2S3 MW2POWERVR NETMECHW MECH2"
@@ -214,7 +215,7 @@ jobs:
       - name: Compile the units and the witnesses
         shell: bash
         run: |
-          for target in MW2SHELL MW2 MW2MATROX MW23DFX MW2ATI MW2S3 MW2POWERVR NETMECHW MECH2; do
+          for target in MW2SHELL MW2 MW2GBL MW2MATROX MW23DFX MW2ATI MW2S3 MW2POWERVR NETMECHW MECH2; do
             start=$(date +%s)
             python tools/certify.py --target "$target" --build build --compile-only --objects "certify/$target"
             echo "$target: $(( $(date +%s) - start )) s"
@@ -351,7 +352,7 @@ jobs:
         with:
           enableCrossOsArchive: true
           path: mw2bin
-          key: mw2bin
+          key: mw2bin-gbl
 
       - name: Install python packages
         shell: bash
@@ -505,7 +506,10 @@ jobs:
           mkdir -p comment
           for entry in $TARGET_ENTRIES; do
             target="${entry%%:*}"
-            echo "$target $target.DLL" >>comment/targets.txt
+            # The original's name (reccmp-project.yml): MW2GBL's is MW2_GBL.DLL
+            file="$target.DLL"
+            if [ "$target" = MW2GBL ]; then file=MW2_GBL.DLL; fi
+            echo "$target $file" >>comment/targets.txt
             for f in "${target}AUDIT.json" "${target}AUDIT-main.json" "${target}-certify.txt" "${target}-diff.txt"; do
               if [ -f "$f" ]; then cp "$f" comment/; fi
             done
@@ -588,10 +592,13 @@ jobs:
           files=()
           for entry in $TARGET_ENTRIES; do
             target="${entry%%:*}"
+            # The recompiled binary's base name: MW2GBL's is MW2_GBL
+            base="$target"
+            if [ "$target" = MW2GBL ]; then base=MW2_GBL; fi
             files+=(
-              "build/${target}.dll"
-              "build/${target}.pdb"
-              "build/${target}.map"
+              "build/${base}.dll"
+              "build/${base}.pdb"
+              "build/${base}.map"
               "${target}PROGRESS.SVG"
               "${target}PROGRESS.HTML"
               "${target}PROGRESS.json"
@@ -665,9 +672,9 @@ jobs:
         if: ${{ steps.install.conclusion == 'success' && always() }}
         run: |
           # A target's sources are the directory named after it, but the Matrox,
-          # 3Dfx, ATI, S3 and PowerVR editions' (MW2MATROX, MW23DFX, MW2ATI, MW2S3, MW2POWERVR) are MW2's.
+          # 3Dfx, ATI, S3, PowerVR and GBL editions' (MW2MATROX, MW23DFX, MW2ATI, MW2S3, MW2POWERVR, MW2GBL) are MW2's.
           dir=${{ matrix.target }}
-          if [ "$dir" = MW2MATROX ] || [ "$dir" = MW23DFX ] || [ "$dir" = MW2ATI ] || [ "$dir" = MW2S3 ] || [ "$dir" = MW2POWERVR ]; then dir=MW2; fi
+          if [ "$dir" = MW2MATROX ] || [ "$dir" = MW23DFX ] || [ "$dir" = MW2ATI ] || [ "$dir" = MW2S3 ] || [ "$dir" = MW2POWERVR ] || [ "$dir" = MW2GBL ]; then dir=MW2; fi
           reccmp-decomplint "$dir" common --module ${{ matrix.target }} --warnfail
 
       - name: Check address padding
@@ -721,6 +728,10 @@ jobs:
           paths=(NETMECHW MECH2 common)
           for entry in $TARGET_ENTRIES; do
             target="${entry%%:*}"
+            # MW2GBL builds MW2's sources: no folder of its own
+            if [ ! -d "$target" ]; then
+              continue
+            fi
             if [ -d "$target/include" ]; then
               includes+=("$target/include")
             fi
@@ -774,7 +785,10 @@ jobs:
           # The retail targets (NETMECHW, MECH2) aren't in TARGET_ENTRIES.
           paths=(NETMECHW MECH2)
           for entry in $TARGET_ENTRIES; do
-            paths+=("${entry%%:*}")
+            # MW2GBL builds MW2's sources: no folder of its own
+            if [ -d "${entry%%:*}" ]; then
+              paths+=("${entry%%:*}")
+            fi
           done
 
           python3 tools/check_block_sizes.py \

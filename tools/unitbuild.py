@@ -19,7 +19,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent.parent
 
 # The simulators' edition macros (vc40/targets.cmake, vc22/targets.cmake define them).
-EDITION_MACROS = ("MW2_ACCEL", "MW2_MATROX", "MW2_3DFX", "MW2_ATI", "MW2_S3", "MW2_POWERVR")
+EDITION_MACROS = ("MW2_ACCEL", "MW2_MATROX", "MW2_3DFX", "MW2_ATI", "MW2_S3", "MW2_POWERVR", "MW2_GBL")
 
 
 def edition_features(root=ROOT):
@@ -49,6 +49,7 @@ WINDOWS = sys.platform == "win32"
 TARGETS = {
     "MW2SHELL": ("CMakeFiles/mw2shell.dir", None),
     "MW2": ("CMakeFiles/mw2.dir", None),
+    "MW2GBL": ("CMakeFiles/mw2gbl.dir", None),
     "MW2MATROX": ("vc40/CMakeFiles/mw2matrox.dir", "vc40-env.cmake"),
     "MW23DFX": ("vc22/CMakeFiles/mw23dfx.dir", "vc22-env.cmake"),
     "MW2ATI": ("vc22/CMakeFiles/mw2ati.dir", "vc22-env.cmake"),
