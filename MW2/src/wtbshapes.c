@@ -303,18 +303,18 @@ MechS32 LoadShapeRecord(MechU8* p_data, MechS32* p_offset, Shape** p_shape, Scen
 	MechU16* indices;
 	MechScalar key;
 	MechS32 facesSize;
+	MechS32 vertexCount;
 	MechU8* extra;
 	MechS32 extraSize;
 	SceneObject* obj;
-	MechS32 count;
 	WtbVertex* vertices;
 	MechS32 id;
-	MechS32 vertexCount;
 #ifdef MW2_FLOAT_SCALARS
 	MechFloat u;
 #else
 	MechS32 u;
 #endif
+	MechS32 count;
 	MechScalar x;
 #ifdef MW2_FLOAT_SCALARS
 	MechFloat v;

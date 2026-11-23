@@ -871,8 +871,6 @@ double __cdecl fabs(double);
 /* In a network game, UpdateMech leaves a player with flag 1 (another machine's) where it is unless it
    is the local one, and holds a truck at its object's height */
 #define MW2_REMOTE_MECHS_STAY
-/* Artefact: DrawMapTarget indexes the map icons as one array of three a row */
-#define MW2_MAP_ICON_FLAT_INDEX
 #endif
 
 /* A game key action's number: with MW2_CHAT_KEY, the actions from 0x42 on are one higher. */

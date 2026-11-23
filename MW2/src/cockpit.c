@@ -1068,10 +1068,10 @@ void DrawMapTarget(CockpitLayout* p_layout)
 	MechS32 index;
 	Player* player;
 	MechS32 visible;
-	MechS32 icon;
 	MechS32 side;
 	MechS32 kind;
 	PANE* viewport;
+	MechS32 icon;
 #ifdef MW2_FLOAT_SCALARS
 	Vector3 pos;
 	Point screen;
@@ -1152,11 +1152,7 @@ void DrawMapTarget(CockpitLayout* p_layout)
 		row = 6;
 	}
 
-#ifdef MW2_MAP_ICON_FLAT_INDEX
-	icon = *(*p_layout->m_icons + row * 3 + side);
-#else
 	icon = p_layout->m_icons[row][side];
-#endif
 	if (!icon) {
 		return;
 	}

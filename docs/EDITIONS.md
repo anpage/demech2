@@ -281,7 +281,7 @@ tests an `MW2_` macro the table doesn't define, and when no target compiles a br
 
 ## Features
 
-From the table in `util/types.h` (209 features) and the 1403 conditional sites of the simulators' sources (`MW2/`, `common/`, `3rdparty/vfx`). A feature's cell is its value where it has one.
+From the table in `util/types.h` (208 features) and the 1402 conditional sites of the simulators' sources (`MW2/`, `common/`, `3rdparty/vfx`). A feature's cell is its value where it has one.
 
 ### The ATI, S3, Matrox, PowerVR and 3Dfx editions (`MW2_ACCEL`)
 
@@ -607,7 +607,6 @@ Every edition that has one of these has them all, so no binary separates one fro
 | `MW2_SOUND_INFO_FILL_MINUS_ONE` |  |  |  |  |  | yes |  | 1 | *Artefact.* InitSoundInfo fills the table with -1, not 0xff (which GBL's memset call shows) |
 | `MW2_DDRAW_STOP_KEEPS_MODE` |  |  |  |  |  | yes |  | 1 | DdrawStop releases DirectDraw without returning the window to normal cooperation or restoring the display mode |
 | `MW2_REMOTE_MECHS_STAY` |  |  |  |  |  | yes |  | 1 | In a network game, UpdateMech leaves a player with flag 1 (another machine's) where it is unless it is the local one, and holds a truck at its object's height |
-| `MW2_MAP_ICON_FLAT_INDEX` |  |  |  |  |  | yes |  | 1 | *Artefact.* DrawMapTarget indexes the map icons as one array of three a row |
 
 ## Where each feature is tested
 
@@ -819,7 +818,6 @@ Every edition that has one of these has them all, so no binary separates one fro
 - `MW2_SOUND_INFO_FILL_MINUS_ONE`: `MW2/src/soundlimits.c`: `InitSoundInfo`
 - `MW2_DDRAW_STOP_KEEPS_MODE`: `MW2/src/directdraw.c`: `DdrawStop`
 - `MW2_REMOTE_MECHS_STAY`: `MW2/src/mechclass.c`: `UpdateMech`
-- `MW2_MAP_ICON_FLAT_INDEX`: `MW2/src/cockpit.c`: `DrawMapTarget`
 
 ## Functions with a definition per edition
 

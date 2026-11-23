@@ -193,6 +193,7 @@
 0x1002e997 AmsFrame ams.c rename dx=zqam dy=zqan dz=zqad i=zqai playerX=zqaj playerY=zqak playerZ=zqal shot=zqag side=zqao x=zqae y=zqaf z=zqah
 0x1002eb5f AmsLaunch ams.c pad 1
 0x1002ecfd AmsIntercept ams.c pad 2 rename beyond=zqak distance=zqae dx=zqao dy=zqap dz=zqad i=zqaj playerX=zqal playerY=zqam playerZ=zqan shot=zqah side=zqaa x=zqaf y=zqag z=zqai
+0x1002ef30 InitRefreshMode refreshmode.c pad 13 rename backend=zqaf mode=zqag rect=zqad screenHeight=zqah screenWidth=zqae unused=zqai
 0x1002f286 ProfileRefreshModes refreshmode.c pad 8
 0x1002f482 SelectFastestRefreshMode refreshmode.c pad 5
 0x1002f570 ToggleFullScreen refreshmode.c pad 13 rename backend=zqae i=zqaf mode=zqad
@@ -312,6 +313,7 @@
 0x10043440 LoadSndCfg config.c rename data=zqaf file=zqae size=zqad
 0x1004352f SaveScreenshot config.c rename count=zqaf name=zqad target=zqae
 0x100437a9 LoadShapes wtbshapes.c rename count=zqaf next=zqad shape=zqae
+0x10043885 LoadShapeRecord wtbshapes.c pad 13 rename checksum=zqat count=zqak extra=zqah extraSize=zqai face=zqa0 faces=zqbl facesSize=zqag header=zqc8 i=zqcx id=zqal indices=zqae j=zqd4 key=zqaf name=zqao obj=zqaj polygon=zqep record=zqdd size=zqap suffix=zqad u=zqam v=zqan vertex=zqe0 vertexCount=zqbi vertices=zqbg x=zqbj y=zqch z=zqdt
 0x10044190 OpenBwdStream bwd.c rename data=zqad dot=zqag file=zqah header=zqaf id=zqae line=zqak result=zqai size=zqaj
 0x10044464 GetNextNode bwd.c rename next=zqad result=zqaf size=zqae
 0x10044638 LogKeywordName bwd.c rename line=zqae name=zqad
@@ -376,6 +378,7 @@
 0x1004d67c DrawMapContents cockpit.c rename center=zqaf id=zqad player=zqag shape=zqah viewport=zqae
 0x1004d75a DrawMapIcon cockpit.c pad 1
 0x1004d81b DrawMapUnits cockpit.c rename i=zqag icon=zqae player=zqad pos=zqah thing=zqaf
+0x1004d9d7 DrawMapTarget cockpit.c pad 15 rename icon=zqag index=zqad kind=zqai player=zqae pos=zqak row=zqal shape=zqan side=zqah target=zqam viewport=zqaj visible=zqaf
 0x1004dcc2 DrawMapNavPoints cockpit.c rename i=zqag icon=zqae nav=zqai pos=zqah shape=zqaj viewport=zqaf visible=zqad
 0x1004de71 DrawMapFieldOfView cockpit.c pad 13 rename colors=zqai end=zqaf halfFov=zqad viewport=zqae x=zqah y=zqag
 0x1004df84 DrawMapViewText cockpit.c rename degrees=zqak font=zqag heading=zqai player=zqaj range=zqaf units=zqae value=zqad viewport=zqah
@@ -419,7 +422,8 @@
 0x10053186 CreateObjectNode resource.c pad 9 rename classShape=zqd7 data=zqaj first=zqas flags=zqak fromResource=zqah handle=zqck id=zqa3 kind=zqal mapped=zqao matrix=zqab name=zqam obj=zqdw offset=zqad parent=zqag parentIndex=zqai parentObj=zqdg record=zqan resource=zqac shape=zqap size=zqbo thing=zqaa unk0x34=zqae xform=zqaf
 0x1005375f NextThingRecordObject resource.c rename id=zqad obj=zqae
 0x10053810 StartSupAnim supanim.c rename backdropPath=zqae drive=zqag palette=zqaf shapePath=zqad
-0x10054321 DrawDamageOutline damagepanel.c rename color=zqae front=zqaf i=zqal index=zqak level=zqaj rear=zqad remap=zqag scale=zqai section=zqam shape=zqah
+0x10053e30 InitDamagePanel damagepanel.c pad 28 rename color=zqae i=zqaj max=zqak mech=zqai min=zqal panel=zqad section=zqam shape=zqah size1=zqag size2=zqaf
+0x10054321 DrawDamageOutline damagepanel.c pad 2 rename color=zqae front=zqaf i=zqal index=zqak level=zqaj rear=zqad remap=zqag scale=zqai section=zqam shape=zqah
 0x100545c6 DrawArmorBars damagepanel.c rename armor=zqah color=zqaf font=zqag full=zqad i=zqae section=zqaj width=zqai
 0x10054b57 UpdateEyepoint eyepoint.c rename climb=zqae mode=zqad pan=zqaj pitch=zqai speed=zqah strafe=zqaf turn=zqag
 0x10055054 CycleTrackedPlayer eyepoint.c pad 2
@@ -530,6 +534,7 @@
 0x1007ae16 LeadStar ai.c rename count=zqaa flags=zqad i=zqal j=zqam leader=zqab members=zqap mission=zqah objective=zqae objectiveIndex=zqao player=zqag remaining=zqan state=zqai target=zqak targets=zqac team=zqaf type=zqaj
 0x1007b4fc SweepTorso ai.c pad 13
 0x1007b64e ReadStaticMemoryTable poolsizes.c rename buffer=zqah key=zqae keyData=zqag result=zqaf stream=zqad
+0x1007b743 CountMissionStream poolsizes.c pad 8 early char~g_bwdVersion[4] 9 rename known=zqah node=zqaf result=zqad rev=zqae table=zqag type=zqai
 0x1007bbeb FixedAsin fixedtrig.c rename negative=zqaf result=zqae table=zqad
 0x1007be30 FirstShots shots.c rename effect=zqaf i=zqad shot=zqae
 0x1007c0ba UpdateAllShots shots.c rename i=zqad shot=zqae

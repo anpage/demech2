@@ -300,7 +300,7 @@
 0x100591b0 UpdateCameraShake camerashake.c rename base0c=zqaj base10=zqai base14=zqak x=zqal y=zqam z=zqan
 0x1005934c StartCameraShakeKey camerashake.c rename key=zqao off0c=zqaj off10=zqai off14=zqak seconds=zqal x=zqam y=zqan z=zqap
 0x10059831 FormatErrorMessage error.c rename args=zqai code=zqaj
-0x10059940 InitDamagePanel damagepanel.c rename color=zqaa height1=zqal height2=zqai i=zqao max=zqac mech=zqak min=zqab panel=zqan section=zqad shape=zqap width1=zqam width2=zqaj
+0x10059940 InitDamagePanel damagepanel.c pad 3 rename color=zqao i=zqam max=zqaa mech=zqaj min=zqap panel=zqal section=zqab shape=zqan size1=zqak size2=zqai
 0x10059e60 DrawDamageOutline damagepanel.c rename color=zqan front=zqaj i=zqap index=zqao level=zqal rear=zqam remap=zqai scale=zqak section=zqaa shape=zqab
 0x1005a18b DrawArmorBars damagepanel.c rename armor=zqam color=zqai font=zqak full=zqaj i=zqal section=zqan width=zqao
 0x10065710 FUN_10065710 a3d.c pad 5

@@ -27,7 +27,6 @@
 0x10009090 SwitchCockpitView cockpit.c pad 24
 0x100094a0 DrawMapContents cockpit.c pad 19
 0x10009530 DrawMapIcon cockpit.c pad 4
-0x100096c0 DrawMapTarget cockpit.c pad 9
 0x1000aa90 DrawScenePolygon polydraw.c pad 1
 0x1000b180 FUN_100689f5 polydraw.c pad 5 early int~g_unk0x100aa1d0 16
 0x1000b8f0 FUN_100692db polydraw.c pad 8
@@ -188,7 +187,7 @@
 0x10038870 GetBearingAndRange targeting.c pad 4
 0x10038a20 TargetNearestEnemy targeting.c pad 14
 0x10039370 GetMechValue mekfile.c pad 3
-0x10039c90 DrawArmorBars damagepanel.c pad 10
+0x10039c90 DrawArmorBars damagepanel.c pad 12
 0x1003b200 UpdateCameraShake camerashake.c pad 5
 0x1003b8b0 RemoveTask callbacks.c pad 1
 0x1003bdc0 LoadAnim2d anim2d.c pad 1

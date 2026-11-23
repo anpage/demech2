@@ -270,11 +270,11 @@ MechS32 InitRefreshMode(
 	MechS32 p_menu
 )
 {
-	MechS32 unused;
 	MechS32 screenHeight;
 	RefreshMode* mode;
-	DisplayBackend* backend;
 	MechS32 screenWidth;
+	MechS32 unused;
+	DisplayBackend* backend;
 	RECT rect;
 
 	if (p_mode == -1) {
