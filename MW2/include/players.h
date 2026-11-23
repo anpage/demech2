@@ -36,10 +36,9 @@ typedef MechS32 (*PlayerCreatedFn)(MechS32 p_index, Player* p_player);
 
 #pragma pack(push, 1)
 
-// GBL's has m_unk0x154 after m_ai and m_unk0x160 after m_nextFireTime, so its members from
-// m_engageAtWill on are 2 bytes further and from m_restAlertRange on 6 bytes further than the
-// offsets below say, and the pilot table's two values at the end: 0x1b8 bytes.
-// SIZE 0x1aa
+// GBL's m_ai is 2 bytes longer (its PlayerAi::m_flags is an int) and it has m_unk0x160 after
+// m_nextFireTime, so its members from m_engageAtWill on are 2 bytes further and from m_restAlertRange on 6 bytes
+// further than the offsets below say, and the pilot table's two values at the end: 0x1b8 bytes. SIZE 0x1aa
 struct Player {
 	MechS32 m_type;        // 0x00 — c_playerType…
 	MechS32 m_index;       // 0x04
@@ -93,13 +92,10 @@ struct Player {
 	AiStackEntry m_stack[2];            // 0x128 — T_PUSH saves the state and goal in the first, QueueAIState behind it
 	// 0x130: the gpspec record's AI parameters (BwdExecuteStream): gunnery, leash range, resting and
 	// active alert ranges (in hundreds), piloting; InitializeAI turns them into the members below.
-	MechU16 m_aiParams[8]; // 0x130
-	MechU16 m_stackCount;  // 0x140
-	undefined2 m_unk0x142; // 0x142 — nothing reads or writes it
-	PlayerAi m_ai;         // 0x144
-#ifdef MW2_PLAYER_SPARE_WORD
-	undefined2 m_unk0x154; // 0x154 — nothing reads or writes it
-#endif
+	MechU16 m_aiParams[8];  // 0x130
+	MechU16 m_stackCount;   // 0x140
+	undefined2 m_unk0x142;  // 0x142 — nothing reads or writes it
+	PlayerAi m_ai;          // 0x144
 	MechS32 m_engageAtWill; // 0x154 — it may be sent to attack: the "Engage at Will" order toggles it
 	MechS8 m_gunnery;       // 0x158 — lower is better: it fires on one roll in m_gunnery
 	MechS8 m_piloting;      // 0x159 — 1 (best) to 4: the maneuvers it may make

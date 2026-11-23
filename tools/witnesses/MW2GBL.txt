@@ -105,7 +105,12 @@
 0x1001e64e StartPaletteFlash palette.c pad 12
 0x1001e83c StartPalettes palette.c pad 3 rename buffer=zqak count=zqaf handle=zqal hasPalette=zqaj last=zqam palette=zqan pixels=zqae seed=zqai src=zqah target=zqag ticks=zqad
 0x1001ea60 RunAutopilot mechdamage.c rename first=zqae index=zqad
-0x1001f9c1 DestroySectionSlots mechdamage.c pad 2 rename count=zqaf i=zqad section=zqae
+0x1001ed96 DestroyMech mechdamage.c rename i=zqad j=zqae section=zqaf
+0x1001eeb7 CalculateHeat mechdamage.c rename cooling=zqaf delta=zqad frameHeat=zqai heat=zqag shift=zqah unused=zqae
+0x1001f3bd KillMech mechdamage.c pad 12
+0x1001f9c1 DestroySectionSlots mechdamage.c rename count=zqaf i=zqad section=zqae
+0x1001fc77 DestroyCriticalSlot mechdamage.c rename bin=zqam damage=zqan i=zqah id=zqad kind=zqak obj=zqaj section=zqal weapon=zqae x=zqaf y=zqag z=zqai
+0x10020941 ApplyDamageToMech mechdamage.c pad 10 rename front=zqai i=zqag level=zqah levels=zqae rear=zqaf roll=zqaj section=zqak side=zqad
 0x10021880 UpdateMotion gpanim.c rename height=zqaf offset=zqad position=zqae
 0x10021a32 UpdateMotionSounds gpanim.c pad 7 rename id=zqad offset=zqaf sound=zqae
 0x10021be0 FindResourceIdByName resourcename.c rename c=zqaj entry=zqah header=zqae i=zqai j=zqad name=zqak result=zqaf table=zqag
@@ -426,6 +431,7 @@
 0x1007dd1d DamageThingsInRadius shots.c pad 1 rename distance=zqad dx=zqag dy=zqah dz=zqai i=zqaf radius=zqal reach=zqak shape=zqaj thing=zqae x=zqam y=zqan z=zqao
 0x1007e076 DamageGameThing shots.c rename building=zqaf index=zqad thing=zqae
 0x1007e1d3 ScatterDebris shots.c pad 8 rename effect=zqah i=zqag object=zqae piece=zqaf shown=zqad
+0x1007e303 HeatMechsNearFires shots.c pad 4 early int~g_localPlayerId 5 rename distance=zqai dx=zqao dy=zqap dz=zqab heat=zqae i=zqan mech=zqam player=zqaf radius=zqah reach=zqag root=zqad shape=zqaa x=zqaj y=zqak z=zqal
 0x1007e484 StartNuke shots.c rename duration=zqae effect=zqaf i=zqad shape=zqag
 0x1007e58e UpdateNuke shots.c pad 1
 0x1007e660 CanSeeTarget lineofsight.c rename bearing=zqaf hit=zqag ray=zqah surface=zqad target=zqae

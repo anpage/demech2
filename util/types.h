@@ -737,8 +737,8 @@ double __cdecl fabs(double);
 /* An AI player whose gunnery is above 6 takes its skills from a table of pilots, with two more
    values and a flag the AI's fire decisions test (Player::m_unk0x160, m_unk0x1b0, m_unk0x1b4) */
 #define MW2_PILOT_TABLE
-/* The player has a word after its AI state that nothing reads or writes (Player::m_unk0x154) */
-#define MW2_PLAYER_SPARE_WORD
+/* Representation: a player's AI flags are an int, not a short (PlayerAi::m_flags) */
+#define MW2_AI_FLAGS_INT
 /* The local star starts at 0, and the player's formation goes to it */
 #define MW2_LOCAL_STAR_FROM_ZERO
 /* The CHAT_MODE game key, action 66: the later actions are one higher (GAME_KEY_ACTION) */
@@ -783,6 +783,21 @@ double __cdecl fabs(double);
 #define MW2_BUILDINGS_FALL_AT_ONCE
 /* Artefact: InitRefreshMode tests for a window smaller than the screen first */
 #define MW2_WINDOWED_TEST_FIRST
+/* A destroyed mech blows the critical slot of its first ammunition bin, a bin blows whatever its
+   weapon's ammunition, and its pilot ejects when auto-eject is on or the mech isn't the local
+   player's (DestroyMech, DestroyCriticalSlot) */
+#define MW2_DESTROY_BLOWS_FIRST_BIN
+/* EjectPlayer tells the local player with cockpit message 4 when the mech goes without ejecting */
+#define MW2_SELF_DESTRUCT_MESSAGE
+/* A mech's kill counts for the player whose shot hit it last, the local player's outcome is 4 unless
+   they ejected, and in a network game only the local mech's death is played out (KillMech, which
+   DestroySection and DestroyCriticalSlot call whatever the game) */
+#define MW2_KILLS_BY_LAST_SHOOTER
+/* A critical hit on a flamer and on the AMS has a message of its own (DestroyCriticalSlot) */
+#define MW2_MORE_CRITICAL_HITS
+/* The AI's attack and target states stop the group fire as well as the fire (AiStateAttack,
+   AiStateMove) */
+#define MW2_AI_STOPS_GROUP_FIRE
 #endif
 
 /* A game key action's number: with MW2_CHAT_KEY, the actions from 0x42 on are one higher. */

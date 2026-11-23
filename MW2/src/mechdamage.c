@@ -210,6 +210,43 @@ void PunchInAutoHeading(Mech* p_mech)
 	p_mech->m_player->m_targetInfo.m_heading = heading;
 }
 
+#ifdef MW2_DESTROY_BLOWS_FIRST_BIN
+// GBL's: blows the critical slot of the mech's first ammunition bin, whatever its ammunition; failing
+// that, the pilot ejects when auto-eject is on or the mech isn't the local player's.
+// FUNCTION: MW2GBL 0x1001ed96
+void DestroyMech(MechS32 p_killer, Mech* p_mech)
+{
+	MechS32 i;
+	MechS32 j;
+	MechSection* section;
+
+	if (p_mech->m_ammoBins) {
+		for (i = 0; i < 8; i++) {
+			section = &p_mech->m_sections[i];
+			if (section->m_flags & 0x2000) {
+				continue;
+			}
+
+			for (j = 0; j < section->m_slotCount; j++) {
+				if (section->m_slots[j] == ((AmmoBin*) p_mech->m_ammoBins)->m_id) {
+					DestroyCriticalSlot(p_killer, p_mech, i + 1, j, 0);
+					return;
+				}
+			}
+		}
+
+		if (g_autoEject || p_mech->m_player->m_index != g_localPlayerId) {
+			p_mech->m_powerState = 5;
+		}
+	}
+
+	if (p_mech->m_player->m_index == g_localPlayerId) {
+		PlayCockpitSound(0, -1);
+	}
+
+	KillMech(p_killer, p_mech);
+}
+#else
 // Destroys p_mech on behalf of player p_killer, unless g_mechPoweredUp is clear: an intact
 // section holding an ammunition bin with ammunition left blows up first (DestroyCriticalSlot) instead.
 // Matches but for the registers, which VC++ 2.2 allocates differently.
@@ -267,7 +304,114 @@ void DestroyMech(MechS32 p_killer, Mech* p_mech)
 
 	KillMech(p_killer, p_mech);
 }
+#endif
 
+#ifdef MW2_EXTERNAL_HEAT
+// GBL's: the heat from outside joins the frame's, and an overheated mech dies after 1810 ticks (1.1:
+// 4525). Its test for a mech shut down past 100 degrees, which would blow it up, comes after the
+// test for 100 degrees and never holds.
+// FUNCTION: MW2GBL 0x1001eeb7
+void CalculateHeat(Mech* p_mech)
+{
+	MechS32 delta;
+	MechS32 cooling;
+	MechS32 heat;
+	MechS32 shift;
+	MechS32 frameHeat;
+	MechS32 unused;
+
+	shift = 0;
+	if ((p_mech->m_player->m_flags & 2) || (p_mech->m_player->m_flags & 4)) {
+		return;
+	}
+
+	if (!g_difficulty->m_heatTracking && p_mech->m_player->m_index == g_localPlayerId) {
+		p_mech->m_heat = 0;
+		p_mech->m_deltaHeat = 0;
+		return;
+	}
+
+	if (p_mech->m_powerState == 3) {
+		shift = 1;
+	}
+
+	cooling = FIXED_SHL(p_mech->m_cooling * g_deltaTime, shift);
+	p_mech->m_deltaHeat += p_mech->m_externalHeat;
+	p_mech->m_externalHeat = 0;
+	frameHeat = p_mech->m_deltaHeat;
+	delta = frameHeat - cooling;
+	p_mech->m_heat += delta;
+	if (p_mech->m_heat < 0) {
+		p_mech->m_heat = 0;
+	}
+
+	heat = FIXED_TO_INT(p_mech->m_heat);
+	if ((p_mech->m_flags & 4) && !(p_mech->m_flags & 8) && p_mech->m_powerState != 3 &&
+		g_currentClock - p_mech->m_stateTime > 1086) {
+		p_mech->m_powerState = 3;
+		p_mech->m_stateTime = g_currentClock;
+		if (p_mech->m_player->m_index == g_localPlayerId) {
+			PlayCockpitSound(13, -1);
+		}
+	}
+
+	if (heat > 100) {
+		if (p_mech->m_player->m_index == g_localPlayerId && g_difficulty->m_invulnerable) {
+			return;
+		}
+
+		if (p_mech->m_flags & 8) {
+			if (g_deltaTime && RandomIntBelow(4000 / g_deltaTime) < 3) {
+				DestroyMech(p_mech->m_player->m_index, p_mech);
+			}
+		}
+		else if (g_currentClock - p_mech->m_stateTime > 1810) {
+			KillMech(p_mech->m_player->m_index, p_mech);
+		}
+	}
+	else if (heat > 100 && p_mech->m_powerState == 3) {
+		if (g_currentClock - p_mech->m_stateTime > 1810) {
+			DestroyMech(p_mech->m_player->m_index, p_mech);
+		}
+	}
+	else if (heat > FIXED_LITERAL(80.0, 80.0f) && !(p_mech->m_flags & 4)) {
+		p_mech->m_flags |= 4;
+		p_mech->m_stateTime = g_currentClock;
+		if (!(p_mech->m_flags & 0x1000) && p_mech->m_player->m_index == g_localPlayerId) {
+			p_mech->m_flags |= 0x1000;
+			PlayCockpitSound(3, -1);
+			PlaySoundEffect(0xe9, 100, 0x40, 5, 0x50);
+		}
+	}
+	else if (heat > FIXED_LITERAL(65.0, 65.0f)) {
+		if (p_mech->m_player->m_index == g_localPlayerId && !g_criticalHeatWarned && delta > 0) {
+			g_criticalHeatWarningTime = g_currentClock;
+			g_criticalHeatWarned = 1;
+			PlayCockpitSound(0, -1);
+			PlaySoundEffect(0xe9, 100, 0x40, 5, 0x50);
+		}
+	}
+	else if (p_mech->m_flags & 4) {
+		if (p_mech->m_powerState == 3 && g_currentClock - p_mech->m_stateTime > 724) {
+			p_mech->m_flags &= ~4;
+			p_mech->m_powerState = 0;
+		}
+
+		if (p_mech->m_flags & 8) {
+			p_mech->m_flags &= ~8;
+			p_mech->m_flags &= ~4;
+		}
+	}
+	else {
+		if (g_criticalHeatWarned && g_currentClock - g_criticalHeatWarningTime > 724 &&
+			p_mech->m_player->m_index == g_localPlayerId) {
+			g_criticalHeatWarned = 0;
+		}
+
+		p_mech->m_flags &= ~0x1000;
+	}
+}
+#else
 // Accumulates the mech's heat each frame (m_deltaHeat less its cooling, doubled while shut down)
 // in m_heat, 16.16 percent: overheating (bit 4, above 80) shuts the mech down after 6 seconds
 // (state 3), and above 100 the ammunition may explode (with bit 8) or the mech is destroyed after
@@ -398,7 +542,177 @@ void CalculateHeat(Mech* p_mech)
 		p_mech->m_flags &= ~0x1000;
 	}
 }
+#endif
 
+#ifdef MW2_KILLS_BY_LAST_SHOOTER
+// GBL's: a kill counts for the player whose shot hit last (g_lastHitShooter), the local player's
+// outcome is 4 unless they ejected, and in a network game only the local mech's death is played
+// out here.
+// FUNCTION: MW2GBL 0x1001f3bd
+void KillMech(MechS32 p_killer, Mech* p_mech)
+{
+	MechS32 leader;
+	MechChar text[80];
+
+	if (p_mech->m_player->m_index == g_localPlayerId && g_difficulty->m_invulnerable) {
+		return;
+	}
+
+	if ((p_mech->m_player->m_flags & 2) || (p_mech->m_player->m_flags & 4)) {
+		return;
+	}
+
+	p_mech->m_player->m_killer = p_killer;
+	if (p_mech->m_player->m_killer >= 0 && p_mech->m_player->m_killer < 8 && p_mech->m_player->m_index < 8) {
+		g_careerRecord.m_kills[p_mech->m_player->m_killer][p_mech->m_player->m_index]++;
+	}
+
+	if (p_mech->m_powerState == 5) {
+		if (g_hostileAtmosphere) {
+			if (p_mech->m_player->m_index == g_localPlayerId) {
+				g_careerRecord.m_outcome = 4;
+				PlayCockpitSound(0x20, -1);
+			}
+			p_mech->m_powerState = 4;
+		}
+		else if (p_mech->m_player->m_index == g_localPlayerId) {
+			g_careerRecord.m_outcome = 2;
+			PlayCockpitSound(0xc, -1);
+		}
+	}
+	else if (p_mech->m_player->m_index == g_localPlayerId) {
+		g_careerRecord.m_outcome = 4;
+	}
+
+	if (g_lastHitShooter != -1) {
+		if (g_lastHitShooter == g_localPlayerId && (p_mech->m_player->m_flags & 0x1400)) {
+			if (p_mech->m_player->m_type == c_playerTypeMech) {
+				switch (GetPlayerSide(p_mech->m_player->m_index)) {
+				case 0:
+					g_careerRecord.m_directFriendlyMechKills++;
+					break;
+				case 1:
+					g_careerRecord.m_directMechKills++;
+					break;
+				case 2:
+					g_careerRecord.m_directNeutralMechKills++;
+					break;
+				}
+			}
+			else {
+				switch (GetPlayerSide(p_mech->m_player->m_index)) {
+				case 0:
+					g_careerRecord.m_directFriendlyVehicleKills++;
+					break;
+				case 1:
+					g_careerRecord.m_directVehicleKills++;
+					break;
+				case 2:
+					g_careerRecord.m_directNeutralVehicleKills++;
+					break;
+				}
+			}
+		}
+
+		g_lastHitShooter = -1;
+	}
+
+	if (p_mech->m_player->m_flags & 0x1400) {
+		if (p_mech->m_player->m_type == c_playerTypeMech) {
+			switch (GetPlayerSide(p_mech->m_player->m_index)) {
+			case 0:
+				g_careerRecord.m_friendlyMechKills++;
+				break;
+			case 1:
+				g_careerRecord.m_mechKills++;
+				break;
+			case 2:
+				g_careerRecord.m_neutralMechKills++;
+				break;
+			}
+		}
+		else {
+			switch (GetPlayerSide(p_mech->m_player->m_index)) {
+			case 0:
+				g_careerRecord.m_friendlyVehicleKills++;
+				break;
+			case 1:
+				g_careerRecord.m_vehicleKills++;
+				break;
+			case 2:
+				g_careerRecord.m_neutralVehicleKills++;
+				break;
+			}
+		}
+	}
+
+	if (g_players[g_localPlayerId]->m_team == p_mech->m_player->m_team) {
+		if (p_mech->m_powerState == 5) {
+			g_careerRecord.m_wingmenEjected++;
+		}
+		else {
+			g_careerRecord.m_wingmenLost++;
+		}
+	}
+
+	if (g_netRole && p_mech->m_player->m_index != g_localPlayerId) {
+		return;
+	}
+
+	if (GetPlayerSide(p_mech->m_player->m_index) == 1) {
+		switch (p_mech->m_player->m_type) {
+		case 1:
+			PlayCockpitSound(0x15, -1);
+			break;
+		case 2:
+			PlayCockpitSound(0x16, -1);
+			break;
+		case 3:
+			PlayCockpitSound(0x19, -1);
+			break;
+		case 4:
+			PlayCockpitSound(0x16, -1);
+			break;
+		case 5:
+			PlayCockpitSound(0x17, -1);
+			break;
+		case 8:
+			PlayCockpitSound(0x17, -1);
+			break;
+		case 6:
+		case 7:
+			break;
+		}
+	}
+
+	p_mech->m_player->m_flags |= 6;
+	p_mech->m_stateTime = 0;
+	p_mech->m_torsoObj = NULL;
+	p_mech->m_pitchObj = NULL;
+	if (!g_isNetworkGame) {
+		if (p_mech->m_powerState != 5 || p_mech->m_player->m_index != g_localPlayerId) {
+			p_mech->m_powerState = 4;
+		}
+
+		ResetAI(p_mech->m_player);
+		if (GetTeamLeader(p_mech->m_player->m_team) == p_mech->m_player->m_index) {
+			leader = ChooseTeamLeader(p_mech->m_player->m_team);
+			RetargetGoals(p_mech->m_player->m_team, p_mech->m_player->m_index, leader);
+			sprintf(text, "%6ld : New leader for group %d : %d\n", g_currentClock, p_mech->m_player->m_team, leader);
+			WriteToMw2Log(text);
+		}
+	}
+	else {
+		p_mech->m_powerState = 4;
+	}
+
+	if (p_mech->m_player->m_index != g_localPlayerId && GetTeamLeader(p_mech->m_player->m_team) == g_localPlayerId) {
+		SayLancemateReport(6, p_mech->m_player->m_slot);
+	}
+
+	LoadClassLevel(p_mech->m_player->m_index, 1);
+}
+#else
 // Destroys p_mech, on behalf of player p_killer (-2: its player left the game).
 // FUNCTION: MW2 0x1000832b
 // FUNCTION: MW2MATROX 0x10010bd8
@@ -574,6 +888,7 @@ void KillMech(MechS32 p_killer, Mech* p_mech)
 
 	LoadClassLevel(p_mech->m_player->m_index, 1);
 }
+#endif
 
 // Calls DestroyCriticalSlot once for each of section p_section's m_slotCount.
 // FUNCTION: MW2 0x10008938
@@ -600,6 +915,7 @@ void DestroySectionSlots(MechS32 p_attacker, Mech* p_mech, MechU32 p_section)
 // Destroying section 3 takes sections 1, 2 and 4 to 6 with it; section 2 takes 5, and 4 takes 6.
 // Of sections 7 and 8, the first to go only marks the mech (0x20); the second destroys 1 and 3.
 // FUNCTION: MW2 0x1000899d
+// FUNCTION: MW2GBL 0x1001fa26
 // FUNCTION: MW2MATROX 0x1001124b
 // FUNCTION: MW23DFX 0x10016640
 // FUNCTION: MW2ATI 0x10016a50
@@ -657,8 +973,12 @@ void DestroySection(MechS32 p_attacker, Mech* p_mech, MechU32 p_section)
 	}
 
 	BlowOffPart(p_mech->m_player->m_obj, p_section);
+#ifdef MW2_KILLS_BY_LAST_SHOOTER
+	if (p_mech->m_powerState != 4 && p_mech->m_powerState != 5) {
+#else
 	if (p_mech->m_powerState != 4 && p_mech->m_powerState != 5 &&
 		(p_mech->m_player->m_index == g_localPlayerId || !g_isNetworkGame)) {
+#endif
 		KillMech(p_attacker, p_mech);
 	}
 }
@@ -669,6 +989,7 @@ void DestroySection(MechS32 p_attacker, Mech* p_mech, MechU32 p_section)
 // jump jets, the heat sinks, the engine, the gyro...). The local player hears which, unless
 // p_recursing; 8000 and 9000 hit another, random slot instead.
 // FUNCTION: MW2 0x10008c0f
+// FUNCTION: MW2GBL 0x1001fc77
 // FUNCTION: MW2MATROX 0x100114bd
 // FUNCTION: MW23DFX 0x100167b0
 // FUNCTION: MW2ATI 0x10016bc0
@@ -745,7 +1066,15 @@ void DestroyCriticalSlot(MechS32 p_attacker, Mech* p_mech, MechU32 p_section, Me
 						SayCriticalHit(0x1c);
 						break;
 					case 20:
+#ifdef MW2_MORE_CRITICAL_HITS
+						SayCriticalHit(0);
+#endif
 						break;
+#ifdef MW2_MORE_CRITICAL_HITS
+					case 29:
+						SayCriticalHit(3);
+						break;
+#endif
 					case 21:
 						SayCriticalHit(0x1d);
 						break;
@@ -789,9 +1118,11 @@ void DestroyCriticalSlot(MechS32 p_attacker, Mech* p_mech, MechU32 p_section, Me
 		for (i = 0; i < p_mech->m_ammoBinCount; i++) {
 			if (bin->m_id == id) {
 				weapon = &p_mech->m_weapons[bin->m_weapon];
+#ifndef MW2_DESTROY_BLOWS_FIRST_BIN
 				if (weapon->m_ammo < 1) {
 					break;
 				}
+#endif
 
 				if (weapon) {
 					weapon->m_ammo -= bin->m_shots;
@@ -833,7 +1164,11 @@ void DestroyCriticalSlot(MechS32 p_attacker, Mech* p_mech, MechU32 p_section, Me
 						DestroySection(p_attacker, p_mech, p_section);
 					}
 
+#ifdef MW2_DESTROY_BLOWS_FIRST_BIN
+					if (g_autoEject || p_mech->m_player->m_index != g_localPlayerId) {
+#else
 					if (g_autoEject && (p_mech->m_player->m_index == g_localPlayerId || !g_isNetworkGame)) {
+#endif
 						p_mech->m_powerState = 5;
 						KillMech(p_attacker, p_mech);
 					}
@@ -913,7 +1248,11 @@ void DestroyCriticalSlot(MechS32 p_attacker, Mech* p_mech, MechU32 p_section, Me
 				SayCriticalHit(6);
 			}
 
+#ifdef MW2_KILLS_BY_LAST_SHOOTER
+			if (g_hostileAtmosphere) {
+#else
 			if (g_hostileAtmosphere && (p_mech->m_player->m_index == g_localPlayerId || !g_isNetworkGame)) {
+#endif
 				KillMech(p_attacker, p_mech);
 			}
 			break;
@@ -950,9 +1289,13 @@ void DestroyCriticalSlot(MechS32 p_attacker, Mech* p_mech, MechU32 p_section, Me
 			p_mech->m_jumpJets = 0;
 			break;
 		case 5750:
+#ifdef MW2_KILLS_BY_LAST_SHOOTER
+			KillMech(p_attacker, p_mech);
+#else
 			if (p_mech->m_player->m_index == g_localPlayerId || !g_isNetworkGame) {
 				KillMech(p_attacker, p_mech);
 			}
+#endif
 			break;
 		case 5700:
 			if (!p_recursing && p_mech->m_player->m_index == g_localPlayerId) {
@@ -1040,6 +1383,161 @@ void DestroyCriticalSlot(MechS32 p_attacker, Mech* p_mech, MechU32 p_section, Me
 	section->m_slotCount--;
 }
 
+#ifdef MW2_KILLS_BY_LAST_SHOOTER
+// GBL's: counts the hit for the player whose shot hit last (g_lastHitShooter), then forgets them,
+// and in a network game damages only the local mech.
+// FUNCTION: MW2GBL 0x10020941
+void ApplyDamageToMech(MechS32 p_attacker, Mech* p_mech, MechScalar p_damage, MechS32 p_section)
+{
+	MechS32 side;
+	MechU32 levels;
+	MechS32 rear;
+	MechS32 i;
+	MechS32 level;
+	MechS32 front;
+	MechS32 roll;
+	MechSection* section;
+
+	side = 0;
+	front = TRUE;
+	rear = FALSE;
+	level = 0;
+	roll = 0;
+	if (p_mech->m_player->m_index == g_localPlayerId && g_difficulty->m_invulnerable) {
+		return;
+	}
+
+	if (g_lastHitShooter != -1) {
+		if (g_lastHitShooter == g_localPlayerId) {
+			switch (GetPlayerSide(p_mech->m_player->m_index)) {
+			case 0:
+				g_careerRecord.m_friendlyHits++;
+				break;
+			case 1:
+				g_careerRecord.m_hits++;
+				break;
+			case 2:
+				g_careerRecord.m_neutralHits++;
+				break;
+			}
+		}
+
+		if (g_players[g_localPlayerId]->m_team == g_players[g_lastHitShooter]->m_team) {
+			switch (GetPlayerSide(p_mech->m_player->m_index)) {
+			case 0:
+				g_careerRecord.m_teamFriendlyHits++;
+				break;
+			case 1:
+				g_careerRecord.m_teamHits++;
+				break;
+			case 2:
+				g_careerRecord.m_teamNeutralHits++;
+				break;
+			}
+		}
+
+		if (p_mech->m_player->m_index == g_localPlayerId) {
+			g_careerRecord.m_hitsTaken++;
+		}
+
+		if (g_players[g_localPlayerId]->m_team == p_mech->m_player->m_team) {
+			g_careerRecord.m_teamHitsTaken++;
+		}
+	}
+
+	if (g_netRole && p_mech->m_player->m_index != g_localPlayerId) {
+		return;
+	}
+
+	if (p_damage <= 0) {
+		return;
+	}
+
+	if (p_section & 0x8000) {
+		rear = TRUE;
+		p_section &= ~0x8000;
+	}
+
+	if (p_section < 1 || p_section > 8) {
+		return;
+	}
+
+	if (p_section == 3) {
+		p_section = RandomIntBelow(3);
+		switch (p_section) {
+		case 0:
+			p_section = 2;
+			break;
+		case 1:
+			p_section = 3;
+			break;
+		case 2:
+			p_section = 4;
+			break;
+		}
+	}
+
+	section = p_mech->m_sections + p_section - 1;
+	if (rear && (p_section == 2 || p_section == 4 || p_section == 3)) {
+		side = 1;
+		front = FALSE;
+		levels = (section->m_flags & 0xf0) >> 4;
+	}
+	else {
+		levels = section->m_flags & 0xf;
+	}
+
+	section->m_armor[side] -= p_damage;
+	section->m_flags |= 0x8000;
+	if (section->m_armor[side] <= 0) {
+		if (!(section->m_flags & 0x4000) && p_mech->m_player->m_index == g_localPlayerId && p_mech->m_powerState == 2) {
+			PlaySoundEffect(0xec, 100, 0x40, 5, 0x50);
+		}
+
+		section->m_flags |= 0x4000;
+		section->m_internal += section->m_armor[side];
+		section->m_armor[side] = 0;
+		if (p_mech->m_player->m_index == g_localPlayerId && (p_section == 1 || p_section == 3) &&
+			p_mech->m_powerState != 4 && p_damage > FIXED_RAW(0x20000)) {
+			g_hitFadePending = 1;
+		}
+
+		if (section->m_internal <= 0) {
+			DestroySection(p_attacker, p_mech, p_section);
+			return;
+		}
+		else {
+			for (i = 0; i < RandomIntBelow(5); i++) {
+				roll = RandomIntBelow(100);
+				if (roll < 20 && section->m_slotCount > 0) {
+					if (roll == 12) {
+						DestroySection(p_attacker, p_mech, p_section);
+						return;
+					}
+					else {
+						DestroyCriticalSlot(p_attacker, p_mech, p_section, RandomIntBelow(section->m_slotCount), 0);
+					}
+				}
+			}
+		}
+	}
+
+	if (levels) {
+		if (p_mech->m_player->m_index == g_localPlayerId) {
+			level = 15 - (MechS32) (((section->m_internal + section->m_armor[side] / g_localArmorPerLevel) * 3) /
+									(MechS32) FIXED_FROM_INT(levels));
+		}
+		else {
+			level = 15 - (MechS32) (((section->m_internal + section->m_armor[side] / g_otherArmorPerLevel) * 3) /
+									(MechS32) FIXED_FROM_INT(levels));
+		}
+	}
+
+	RaisePartDamageLevel(p_mech->m_player->m_obj, level, p_section);
+	g_lastHitShooter = -1;
+	return;
+}
+#else
 // Deals p_damage (16.16) to section p_section of the mech, on behalf of player p_attacker: to its
 // rear armor with bit 0x8000 (sections 2 to 4), and past the armor to the internal structure,
 // which may destroy the section or hit its critical slots. Section 3 stands for a random one of
@@ -1186,10 +1684,12 @@ void ApplyDamageToMech(MechS32 p_attacker, Mech* p_mech, MechScalar p_damage, Me
 	RaisePartDamageLevel(p_mech->m_player->m_obj, level, p_section);
 	return;
 }
+#endif
 
 // Ejects from p_mech, unless it is already shutting down or ejecting: the local player (p_eject)
 // ejects with a sound, or hears that the ejection system is disabled, and the mech is destroyed.
 // FUNCTION: MW2 0x10009d2a
+// FUNCTION: MW2GBL 0x10020e94
 // FUNCTION: MW2MATROX 0x100126e4
 // FUNCTION: MW23DFX 0x100174f0
 // FUNCTION: MW2ATI 0x100178f0
@@ -1210,6 +1710,11 @@ void EjectPlayer(Mech* p_mech, MechS32 p_eject)
 			PlayCockpitSound(0x20, -1);
 		}
 	}
+#ifdef MW2_SELF_DESTRUCT_MESSAGE
+	else if (p_mech->m_player->m_index == g_localPlayerId) {
+		PlayCockpitSound(4, -1);
+	}
+#endif
 
 	KillMech(p_mech->m_player->m_index, p_mech);
 	return;

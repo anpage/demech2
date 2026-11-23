@@ -21,7 +21,7 @@
 #include "weaponslot.h"
 
 // WeaponSlot::m_state of an AMS the player turned off.
-enum {
+enum AmsSlotState {
 	c_weaponOff = 4
 };
 
@@ -175,9 +175,10 @@ MechS32 AmsLaunch(Player* p_player, WeaponDef* p_def, WeaponSlot* p_slot)
 	return fired;
 }
 
-// Gives each enemy missile within the AMS's reach (p_def and p_slot unused) that closes on the player, once, the range
-// from the player at which it detonates: three times in four a random one beyond AMS_MIN_INTERCEPT, otherwise none; and
-// detonates the missiles within theirs. FUNCTION: MW2GBL 0x1002ecfd
+// Gives each enemy missile within the AMS's reach that closes on the player, once, the range from
+// the player at which it detonates: three times in four a random one beyond AMS_MIN_INTERCEPT,
+// otherwise none; and detonates the missiles within theirs. p_def and p_slot go unused.
+// FUNCTION: MW2GBL 0x1002ecfd
 MechS32 AmsIntercept(Player* p_player, WeaponDef* p_def, WeaponSlot* p_slot)
 {
 	MechS32 side;

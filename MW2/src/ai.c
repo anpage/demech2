@@ -38,7 +38,7 @@
 // MW2.PRJ.
 
 DECOMP_SIZE_ASSERT(AiRule, 0x0c)
-#if defined(MW2_PILOT_TABLE) && defined(MW2_PLAYER_SPARE_WORD)
+#if defined(MW2_PILOT_TABLE) && defined(MW2_AI_FLAGS_INT)
 DECOMP_SIZE_ASSERT(Player, 0x1b8)
 #else
 DECOMP_SIZE_ASSERT(Player, 0x1aa)
@@ -1658,6 +1658,9 @@ void AiStateMove(Player* p_player, MechU16 p_target)
 	switch (p_player->m_ai.m_state) {
 	case c_aiStateTarget:
 		p_player->m_steering->m_weaponFire = 0;
+#ifdef MW2_AI_STOPS_GROUP_FIRE
+		p_player->m_steering->m_weaponFireGroup = 0;
+#endif
 		if (!AvoidObstacles(p_player)) {
 			p_player->m_steering->m_throttle = GetApproachThrottle(p_player, range);
 			heading = SteerToTarget(p_player);
@@ -1725,6 +1728,9 @@ void AiStateMove(Player* p_player, MechU16 p_target)
 void AiStateAttack(Player* p_player, MechU16 p_target)
 {
 	p_player->m_steering->m_weaponFire = 0;
+#ifdef MW2_AI_STOPS_GROUP_FIRE
+	p_player->m_steering->m_weaponFireGroup = 0;
+#endif
 	RunManeuver(p_player, p_target);
 }
 
