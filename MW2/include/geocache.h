@@ -8,6 +8,9 @@
 #include "shape.h"
 #include "types.h"
 #include "xform.h"
+#ifdef MW2_SCROUNGE_STATIC_OBJECTS
+#include "staticobject.h"
+#endif
 
 struct GameThing;
 
@@ -35,6 +38,9 @@ extern "C"
 	extern MechS32 g_blockDepth;
 	extern MechS32 g_currentBlock;
 	extern MechS32 g_thingCapacity;
+#ifdef MW2_SCROUNGE_STATIC_OBJECTS
+	extern StaticObject g_staticObjects[0x402];
+#endif
 	extern MechS32 g_thingCount;
 
 	MechS32 AllocGeoTables(void);

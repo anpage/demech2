@@ -394,6 +394,7 @@ void QuadrupleMechCooling(void)
 }
 
 // FUNCTION: MW2 0x1007d97c
+// FUNCTION: MW2GBL 0x1003caec
 // FUNCTION: MW2MATROX 0x10086017
 // FUNCTION: MW23DFX 0x10007b30
 void QuarterMechCooling(void)

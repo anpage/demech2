@@ -38,6 +38,7 @@ void NormalizeRotation(Matrix* p_matrix)
 
 // Scales (*p_x, *p_y, *p_z) to length p_length (the Matrox edition always to 1).
 // FUNCTION: MW2 0x1007ccc2
+// FUNCTION: MW2GBL 0x10080dae
 // FUNCTION: MW2MATROX 0x1000252c
 // FUNCTION: MW2S3 0x10028ac0
 void ScaleVectorToLength(SCALE_VECTOR_PARAMS)
@@ -55,7 +56,11 @@ void ScaleVectorToLength(SCALE_VECTOR_PARAMS)
 	*p_y = y * scale;
 	*p_z = z * scale;
 #else
+#ifdef MW2_LENGTH_SUM_FROM_Z
+	*p_x = (MechS32) ((scale = p_length / sqrt(z * z + y * y + x * x)) * x);
+#else
 	*p_x = (MechS32) ((scale = p_length / sqrt(x * x + y * y + z * z)) * x);
+#endif
 	*p_y = (MechS32) (y * scale);
 	*p_z = (MechS32) (z * scale);
 #endif

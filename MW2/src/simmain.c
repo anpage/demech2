@@ -154,6 +154,7 @@ DifficultyCfg* g_difficulty = NULL;
 MechS32 g_localPlayerId = 0;
 
 // GLOBAL: MW2 0x100acb2c
+// GLOBAL: MW2GBL 0x100a455c
 // GLOBAL: MW2MATROX 0x100be4d4
 // GLOBAL: MW23DFX 0x1024ac74
 // GLOBAL: MW2POWERVR 0x101a9e28
@@ -185,6 +186,7 @@ HWND g_unk0x100be508 = NULL;
 HWND g_gameWindow = NULL;
 
 // GLOBAL: MW2 0x100acb64
+// GLOBAL: MW2GBL 0x100a4598
 // GLOBAL: MW2MATROX 0x100be510
 // GLOBAL: MW23DFX 0x1024acac
 // GLOBAL: MW2POWERVR 0x101a9e5c
@@ -1591,6 +1593,7 @@ int __stdcall SimMain(
 // 1.1's SimMain. In a network game it doesn't update the players until the launch, which
 // starts when the go state is 3: the network's bit (1) and the bit each main-loop pass sets (2).
 // FUNCTION: MW2 0x10066a50
+// FUNCTION: MW2GBL 0x1002d460
 int __stdcall SimMain(
 	HINSTANCE p_module,
 	undefined4 p_unk0x0c,
@@ -1840,9 +1843,13 @@ int __stdcall SimMain(
 			UpdateMenuKey();
 			HandleGameKeys(0, 0, 0);
 			RunTimedCallbacks(&g_detachedTasks);
+#ifdef MW2_PLAYERS_BEFORE_LAUNCH
+			UpdateAllPlayers();
+#else
 			if (!g_isNetworkGame || (g_goLaunch & 0x80000000)) {
 				UpdateAllPlayers();
 			}
+#endif
 
 			UpdateEyepoint();
 			UpdateAllShots();

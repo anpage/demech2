@@ -213,6 +213,7 @@ MechChar g_hatDownShortName[] = "HatDown";
 MechChar g_hatLeftShortName[] = "HatLeft";
 
 // GLOBAL: MW2 0x100a6f58
+// GLOBAL: MW2GBL 0x1009b900
 // GLOBAL: MW2MATROX 0x100a5758
 // GLOBAL: MW23DFX 0x10259220
 // GLOBAL: MW2ATI 0x1018d530

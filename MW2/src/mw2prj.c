@@ -37,6 +37,7 @@ char* g_resTagSnds = "SNDS";
 char* g_resTagCel = "CEL";
 
 // GLOBAL: MW2 0x100a867c
+// GLOBAL: MW2GBL 0x1009bafc
 // GLOBAL: MW2MATROX 0x100a5a4c
 // GLOBAL: MW23DFX 0x102596b8
 char* g_resTagXyc = "XYC";
@@ -60,11 +61,13 @@ char* g_resTagShp = "SHP";
 char* g_resTagFont = "FONT";
 
 // GLOBAL: MW2 0x100a8688
+// GLOBAL: MW2GBL 0x1009bb08
 // GLOBAL: MW2MATROX 0x100a5a58
 // GLOBAL: MW23DFX 0x102596d8
 char* g_resTagMenu = "MENU";
 
 // GLOBAL: MW2 0x100a868c
+// GLOBAL: MW2GBL 0x1009bb0c
 // GLOBAL: MW2MATROX 0x100a5a5c
 // GLOBAL: MW23DFX 0x102596e4
 char* g_resTagDisp = "DISP";
@@ -145,11 +148,13 @@ char* g_resTagHud = "HUD";
 char* g_resTagCpit = "CPIT";
 
 // GLOBAL: MW2 0x100a86b4
+// GLOBAL: MW2GBL 0x1009bb34
 // GLOBAL: MW2MATROX 0x100a5a84
 // GLOBAL: MW23DFX 0x10259750
 char* g_resTagVpt = "VPT";
 
 // GLOBAL: MW2 0x100a86b8
+// GLOBAL: MW2GBL 0x1009bb38
 // GLOBAL: MW2MATROX 0x100a5a88
 // GLOBAL: MW23DFX 0x1025975c
 char* g_resTagMpit = "MPIT";
@@ -164,6 +169,7 @@ char* g_resTagMpit = "MPIT";
 char* g_resTagBwd = "BWD";
 
 // GLOBAL: MW2 0x100a86c0
+// GLOBAL: MW2GBL 0x1009bb40
 // GLOBAL: MW2MATROX 0x100a5a90
 // GLOBAL: MW23DFX 0x1025976c
 char* g_resTagVer = "VER";
@@ -178,6 +184,7 @@ char* g_resTagVer = "VER";
 char* g_resTagAit = "AIT";
 
 // GLOBAL: MW2 0x100a86c8
+// GLOBAL: MW2GBL 0x1009bb48
 // GLOBAL: MW2MATROX 0x100a5a98
 // GLOBAL: MW23DFX 0x1025977c
 // GLOBAL: MW2ATI 0x1018da7c
@@ -201,61 +208,73 @@ char* g_resTagLuma = "LUMA";
 char* g_resTagMus = "MUS";
 
 // GLOBAL: MW2 0x100a86d4
+// GLOBAL: MW2GBL 0x1009bb54
 // GLOBAL: MW2MATROX 0x100a5aa4
 // GLOBAL: MW23DFX 0x10259798
 char* g_resTagGif = "GIF";
 
 // GLOBAL: MW2 0x100a86d8
+// GLOBAL: MW2GBL 0x1009bb58
 // GLOBAL: MW2MATROX 0x100a5aa8
 // GLOBAL: MW23DFX 0x102597a4
 char* g_resTagNtxt = "NTXT";
 
 // GLOBAL: MW2 0x100a86dc
+// GLOBAL: MW2GBL 0x1009bb5c
 // GLOBAL: MW2MATROX 0x100a5aac
 // GLOBAL: MW23DFX 0x102597b0
 char* g_resExtSfl = ".sfl";
 
 // GLOBAL: MW2 0x100a86e0
+// GLOBAL: MW2GBL 0x1009bb60
 // GLOBAL: MW2MATROX 0x100a5ab0
 // GLOBAL: MW23DFX 0x102597bc
 char* g_resExtXel = ".xel";
 
 // GLOBAL: MW2 0x100a86e4
+// GLOBAL: MW2GBL 0x1009bb64
 // GLOBAL: MW2MATROX 0x100a5ab4
 // GLOBAL: MW23DFX 0x102597c8
 char* g_resExtXyc = ".xyc";
 
 // GLOBAL: MW2 0x100a86e8
+// GLOBAL: MW2GBL 0x1009bb68
 // GLOBAL: MW2MATROX 0x100a5ab8
 // GLOBAL: MW23DFX 0x102597d4
 char* g_resExtShp = ".shp";
 
 // GLOBAL: MW2 0x100a86ec
+// GLOBAL: MW2GBL 0x1009bb6c
 // GLOBAL: MW2MATROX 0x100a5abc
 // GLOBAL: MW23DFX 0x102597e0
 char* g_resExtFnt = ".fnt";
 
 // GLOBAL: MW2 0x100a86f0
+// GLOBAL: MW2GBL 0x1009bb70
 // GLOBAL: MW2MATROX 0x100a5ac0
 // GLOBAL: MW23DFX 0x102597ec
 char* g_resExtMenuDll = ".dll";
 
 // GLOBAL: MW2 0x100a86f4
+// GLOBAL: MW2GBL 0x1009bb74
 // GLOBAL: MW2MATROX 0x100a5ac4
 // GLOBAL: MW23DFX 0x102597f8
 char* g_resExtDispDll = ".dll";
 
 // GLOBAL: MW2 0x100a86f8
+// GLOBAL: MW2GBL 0x1009bb78
 // GLOBAL: MW2MATROX 0x100a5ac8
 // GLOBAL: MW23DFX 0x10259804
 char* g_resExtXmi = ".xmi";
 
 // GLOBAL: MW2 0x100a86fc
+// GLOBAL: MW2GBL 0x1009bb7c
 // GLOBAL: MW2MATROX 0x100a5acc
 // GLOBAL: MW23DFX 0x10259810
 char* g_resExtCol = ".col";
 
 // GLOBAL: MW2 0x100a8700
+// GLOBAL: MW2GBL 0x1009bb80
 // GLOBAL: MW2MATROX 0x100a5ad0
 // GLOBAL: MW23DFX 0x1025981c
 char* g_resExtTbl = ".tbl";
@@ -267,6 +286,7 @@ char* g_resExtTbl = ".tbl";
 char* g_resExtWtb = ".wtb";
 
 // GLOBAL: MW2 0x100a8708
+// GLOBAL: MW2GBL 0x1009bb88
 // GLOBAL: MW2MATROX 0x100a5ad8
 // GLOBAL: MW23DFX 0x10259834
 char* g_resExtXxt = ".xxt";
@@ -307,26 +327,31 @@ char* g_resExtHdi = ".hdi";
 char* g_resExtCpi = ".cpi";
 
 // GLOBAL: MW2 0x100a871c
+// GLOBAL: MW2GBL 0x1009bb9c
 // GLOBAL: MW2MATROX 0x100a5aec
 // GLOBAL: MW23DFX 0x10259870
 char* g_resExtVpi = ".vpi";
 
 // GLOBAL: MW2 0x100a8720
+// GLOBAL: MW2GBL 0x1009bba0
 // GLOBAL: MW2MATROX 0x100a5af0
 // GLOBAL: MW23DFX 0x1025987c
 char* g_resExtPit = ".pit";
 
 // GLOBAL: MW2 0x100a8724
+// GLOBAL: MW2GBL 0x1009bba4
 // GLOBAL: MW2MATROX 0x100a5af4
 // GLOBAL: MW23DFX 0x10259888
 char* g_resExtBwd = ".bwd";
 
 // GLOBAL: MW2 0x100a8728
+// GLOBAL: MW2GBL 0x1009bba8
 // GLOBAL: MW2MATROX 0x100a5af8
 // GLOBAL: MW23DFX 0x10259894
 char* g_resExtAit = ".ait";
 
 // GLOBAL: MW2 0x100a872c
+// GLOBAL: MW2GBL 0x1009bbac
 // GLOBAL: MW2MATROX 0x100a5afc
 // GLOBAL: MW23DFX 0x102598a0
 // GLOBAL: MW2ATI 0x1018dba0
@@ -335,21 +360,25 @@ char* g_resExtAit = ".ait";
 char* g_resExtMek = ".mek";
 
 // GLOBAL: MW2 0x100a8730
+// GLOBAL: MW2GBL 0x1009bbb0
 // GLOBAL: MW2MATROX 0x100a5b00
 // GLOBAL: MW23DFX 0x102598ac
 char* g_resExtLum = ".lum";
 
 // GLOBAL: MW2 0x100a8734
+// GLOBAL: MW2GBL 0x1009bbb4
 // GLOBAL: MW2MATROX 0x100a5b04
 // GLOBAL: MW23DFX 0x102598b8
 char* g_resExtMus = ".mus";
 
 // GLOBAL: MW2 0x100a8738
+// GLOBAL: MW2GBL 0x1009bbb8
 // GLOBAL: MW2MATROX 0x100a5b08
 // GLOBAL: MW23DFX 0x102598c4
 char* g_resExtGif = ".gif";
 
 // GLOBAL: MW2 0x100a873c
+// GLOBAL: MW2GBL 0x1009bbbc
 // GLOBAL: MW2MATROX 0x100a5b0c
 // GLOBAL: MW23DFX 0x102598d0
 char* g_resExtTxt = ".txt";

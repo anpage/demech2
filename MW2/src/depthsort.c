@@ -534,6 +534,7 @@ void DrawQueuedPolygon(QueuedPolygon* p_poly)
 // Clips a queued polygon to the screen (right, left, top and bottom in turn) and stores the
 // result in p_points, six dwords per vertex. Returns the number of vertices.
 // FUNCTION: MW2 0x10033e92
+// FUNCTION: MW2GBL 0x10039b5c
 MechS32 ClipPolygonToScreen(QueuedPolygon* p_poly, MechU32* p_points)
 {
 	ProjectedVertex* cur;
@@ -562,8 +563,12 @@ MechS32 ClipPolygonToScreen(QueuedPolygon* p_poly, MechU32* p_points)
 	while (i--) {
 		src = *vertices;
 		vertices++;
+#ifdef MW2_STRUCT_COPY_MEMCPY
+		memcpy(out++, src, sizeof(ProjectedVertex));
+#else
 		*out = *src;
 		out++;
+#endif
 	}
 
 	n = 0;
@@ -574,25 +579,41 @@ MechS32 ClipPolygonToScreen(QueuedPolygon* p_poly, MechU32* p_points)
 		cur = &in[i];
 		if (cur->m_screenX <= right) {
 			if (prev->m_screenX <= right) {
+#ifdef MW2_STRUCT_COPY_MEMCPY
+				memcpy(out++, cur, sizeof(ProjectedVertex));
+#else
 				*out = *cur;
 				out++;
+#endif
 				n++;
 			}
 			else {
 				ClipEdgeToColumn(prev, cur, right, &clip);
+#ifdef MW2_STRUCT_COPY_MEMCPY
+				memcpy(out++, &clip, sizeof(ProjectedVertex));
+#else
 				*out = clip;
 				out++;
+#endif
 				n++;
+#ifdef MW2_STRUCT_COPY_MEMCPY
+				memcpy(out++, cur, sizeof(ProjectedVertex));
+#else
 				*out = *cur;
 				out++;
+#endif
 				n++;
 			}
 		}
 		else {
 			if (prev->m_screenX <= right) {
 				ClipEdgeToColumn(prev, cur, right, &clip);
+#ifdef MW2_STRUCT_COPY_MEMCPY
+				memcpy(out++, &clip, sizeof(ProjectedVertex));
+#else
 				*out = clip;
 				out++;
+#endif
 				n++;
 			}
 		}
@@ -609,25 +630,41 @@ MechS32 ClipPolygonToScreen(QueuedPolygon* p_poly, MechU32* p_points)
 		cur = &in[i];
 		if (cur->m_screenX >= left) {
 			if (prev->m_screenX >= left) {
+#ifdef MW2_STRUCT_COPY_MEMCPY
+				memcpy(out++, cur, sizeof(ProjectedVertex));
+#else
 				*out = *cur;
 				out++;
+#endif
 				n++;
 			}
 			else {
 				ClipEdgeToColumn(prev, cur, left, &clip);
+#ifdef MW2_STRUCT_COPY_MEMCPY
+				memcpy(out++, &clip, sizeof(ProjectedVertex));
+#else
 				*out = clip;
 				out++;
+#endif
 				n++;
+#ifdef MW2_STRUCT_COPY_MEMCPY
+				memcpy(out++, cur, sizeof(ProjectedVertex));
+#else
 				*out = *cur;
 				out++;
+#endif
 				n++;
 			}
 		}
 		else {
 			if (prev->m_screenX >= left) {
 				ClipEdgeToColumn(prev, cur, left, &clip);
+#ifdef MW2_STRUCT_COPY_MEMCPY
+				memcpy(out++, &clip, sizeof(ProjectedVertex));
+#else
 				*out = clip;
 				out++;
+#endif
 				n++;
 			}
 		}
@@ -644,25 +681,41 @@ MechS32 ClipPolygonToScreen(QueuedPolygon* p_poly, MechU32* p_points)
 		cur = &in[i];
 		if (cur->m_screenY >= top) {
 			if (prev->m_screenY >= top) {
+#ifdef MW2_STRUCT_COPY_MEMCPY
+				memcpy(out++, cur, sizeof(ProjectedVertex));
+#else
 				*out = *cur;
 				out++;
+#endif
 				n++;
 			}
 			else {
 				ClipEdgeToRow(prev, cur, top, &clip);
+#ifdef MW2_STRUCT_COPY_MEMCPY
+				memcpy(out++, &clip, sizeof(ProjectedVertex));
+#else
 				*out = clip;
 				out++;
+#endif
 				n++;
+#ifdef MW2_STRUCT_COPY_MEMCPY
+				memcpy(out++, cur, sizeof(ProjectedVertex));
+#else
 				*out = *cur;
 				out++;
+#endif
 				n++;
 			}
 		}
 		else {
 			if (prev->m_screenY >= top) {
 				ClipEdgeToRow(prev, cur, top, &clip);
+#ifdef MW2_STRUCT_COPY_MEMCPY
+				memcpy(out++, &clip, sizeof(ProjectedVertex));
+#else
 				*out = clip;
 				out++;
+#endif
 				n++;
 			}
 		}
@@ -679,25 +732,41 @@ MechS32 ClipPolygonToScreen(QueuedPolygon* p_poly, MechU32* p_points)
 		cur = &in[i];
 		if (cur->m_screenY <= bottom) {
 			if (prev->m_screenY <= bottom) {
+#ifdef MW2_STRUCT_COPY_MEMCPY
+				memcpy(out++, cur, sizeof(ProjectedVertex));
+#else
 				*out = *cur;
 				out++;
+#endif
 				n++;
 			}
 			else {
 				ClipEdgeToRow(prev, cur, bottom, &clip);
+#ifdef MW2_STRUCT_COPY_MEMCPY
+				memcpy(out++, &clip, sizeof(ProjectedVertex));
+#else
 				*out = clip;
 				out++;
+#endif
 				n++;
+#ifdef MW2_STRUCT_COPY_MEMCPY
+				memcpy(out++, cur, sizeof(ProjectedVertex));
+#else
 				*out = *cur;
 				out++;
+#endif
 				n++;
 			}
 		}
 		else {
 			if (prev->m_screenY <= bottom) {
 				ClipEdgeToRow(prev, cur, bottom, &clip);
+#ifdef MW2_STRUCT_COPY_MEMCPY
+				memcpy(out++, &clip, sizeof(ProjectedVertex));
+#else
 				*out = clip;
 				out++;
+#endif
 				n++;
 			}
 		}

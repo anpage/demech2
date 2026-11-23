@@ -53,6 +53,7 @@ MechChar g_unk0x10109c40[28];
 // (a name without an extension gets ".BWD"), or always with g_streamsFromFiles, and otherwise, or
 // when there is no such file, from the resource file. Returns p_stream, or NULL.
 // FUNCTION: MW2 0x1003fb00
+// FUNCTION: MW2GBL 0x10044190
 // FUNCTION: MW2MATROX 0x10029ef0
 // FUNCTION: MW23DFX 0x10040c60
 // FUNCTION: MW2ATI 0x1003e810

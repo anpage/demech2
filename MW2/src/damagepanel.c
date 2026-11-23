@@ -209,6 +209,7 @@ Point g_armorBarSize;
 // Sets up the damage panel: the identity remap table, the outline's rectangle and parts, the
 // labels and armor bars' places, and the local mech's full armor.
 // FUNCTION: MW2 0x10040020
+// FUNCTION: MW2GBL 0x10053e30
 // FUNCTION: MW2MATROX 0x10059940
 // FUNCTION: MW23DFX 0x1001b230
 // FUNCTION: MW2ATI 0x1001b5c0

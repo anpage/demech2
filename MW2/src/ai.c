@@ -110,6 +110,7 @@ MechS32 g_debugLastLine = -1;
 MechS32 g_debugFirstLine = -1;
 
 // GLOBAL: MW2 0x100a8900
+// GLOBAL: MW2GBL 0x100b5d48
 // GLOBAL: MW2MATROX 0x100bb018
 // GLOBAL: MW23DFX 0x1024b458
 // GLOBAL: MW2ATI 0x1017f7d8
@@ -118,6 +119,7 @@ MechS32 g_debugFirstLine = -1;
 MechS32 g_debugListedStar = -1;
 
 // GLOBAL: MW2 0x100a8908
+// GLOBAL: MW2GBL 0x100b5d50
 // GLOBAL: MW2MATROX 0x100bb020
 AiName g_aiMessageNames[8] = {
 	{"NO_MESSAGE", c_aiMessageNone},
@@ -131,6 +133,7 @@ AiName g_aiMessageNames[8] = {
 };
 
 // GLOBAL: MW2 0x100a8948
+// GLOBAL: MW2GBL 0x100b5d90
 // GLOBAL: MW2MATROX 0x100bb060
 AiName g_aiTransitionNames[7] = {
 	{"T_NULL", c_aiTransitionNull},
@@ -207,6 +210,7 @@ AiName g_aiSymbolicTargetNames[7] = {
 };
 
 // GLOBAL: MW2 0x100a8a90
+// GLOBAL: MW2GBL 0x100b5ed8
 // GLOBAL: MW2MATROX 0x100bb1a8
 AiName g_aiTargetTypeNames[3] = {
 	{"nv", c_aiTargetNav},
@@ -241,6 +245,7 @@ AiName g_shapeKindNames[3] = {
 };
 
 // GLOBAL: MW2 0x100a8ad8
+// GLOBAL: MW2GBL 0x100b5f20
 // GLOBAL: MW2MATROX 0x100bb1f0
 AiName g_playerTypeNames[9] = {
 	{"GP_NULL", 0},
@@ -539,6 +544,7 @@ MechS32 g_aiSpreadTargets = 1;
 MechS32 g_localStarAssigned = 0;
 
 // GLOBAL: MW2 0x100a90c8
+// GLOBAL: MW2GBL 0x100b6578
 // GLOBAL: MW2MATROX 0x100bb7e0
 // GLOBAL: MW2S3 0x10064988
 // GLOBAL: MW2POWERVR 0x101aad88
@@ -560,6 +566,7 @@ AiStateFn g_aiStateFns[14] = {
 };
 
 // GLOBAL: MW2 0x100a9100
+// GLOBAL: MW2GBL 0x100b65b0
 // GLOBAL: MW2MATROX 0x100bb818
 // GLOBAL: MW23DFX 0x1024bc70
 // GLOBAL: MW2ATI 0x1017fff0
@@ -576,6 +583,7 @@ AiMessageFn g_aiMessageFns[8] = {
 };
 
 // GLOBAL: MW2 0x100a9120
+// GLOBAL: MW2GBL 0x100b65d0
 // GLOBAL: MW2MATROX 0x100bb838
 // GLOBAL: MW23DFX 0x1024bc90
 // GLOBAL: MW2ATI 0x10180010
@@ -608,6 +616,7 @@ void* g_aiScripts[10];
 MechS16 g_hiddenTargetCount;
 
 // GLOBAL: MW2 0x100e9e40
+// GLOBAL: MW2GBL 0x100bbc30
 // GLOBAL: MW2MATROX 0x1012c3b0
 // GLOBAL: MW23DFX 0x101e8870
 // GLOBAL: MW2ATI 0x1011c530
@@ -1286,6 +1295,7 @@ MechS16 AiMessageReach(Player* p_player, MechS16 p_target, MechS16 p_arg)
 #endif
 
 // FUNCTION: MW2 0x1005253c
+// FUNCTION: MW2GBL 0x10077732
 // FUNCTION: MW2MATROX 0x1008159c
 void LogPlayerSkillLines(void)
 {
@@ -1330,6 +1340,7 @@ void LogPlayerSkillLines(void)
 #endif
 
 // FUNCTION: MW2 0x1005276a
+// FUNCTION: MW2GBL 0x1007780c
 // FUNCTION: MW2MATROX 0x10081777
 void LogStarMissionLines(MechS32 p_team)
 {

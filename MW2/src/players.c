@@ -21,6 +21,7 @@ DECOMP_SIZE_ASSERT(PlayerSteering, 0x48)
 // The kinds of player a gamepiece record can create, by Player::m_type: 3 has its own
 // callbacks (artillery.c), 7 another (door.c); the others are mechs.
 // GLOBAL: MW2 0x100ad4a0
+// GLOBAL: MW2GBL 0x1009f170
 // GLOBAL: MW2MATROX 0x100aa738
 // GLOBAL: MW23DFX 0x1024c330
 PlayerType g_playerTypes[9] = {
@@ -273,6 +274,7 @@ void CreateSimPlayer(MechS32 p_player, PlayerCreatedFn p_fn)
 
 // Allocates player p_player: a remote player gets room for its steering after it.
 // FUNCTION: MW2 0x1006d340
+// FUNCTION: MW2GBL 0x1001d1d5
 // FUNCTION: MW2MATROX 0x100551cf
 // FUNCTION: MW23DFX 0x100189e0
 // FUNCTION: MW2ATI 0x10018da0

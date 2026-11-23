@@ -698,6 +698,7 @@ void ChoosePlayerDetailLevels(void)
 // nearest player within range gets level 0, the next two level 1, the rest 2 or 3 by distance.
 // The local player's own view (GetViewMode == 0) takes level 4, and dead players 0 or 1.
 // FUNCTION: MW2 0x1001da44
+// FUNCTION: MW2GBL 0x10036dd4
 // FUNCTION: MW2MATROX 0x1006e13f
 // FUNCTION: MW23DFX 0x100267d0
 // FUNCTION: MW2ATI 0x10026490

@@ -34,6 +34,7 @@
 EasedValue g_heatBarLevel = {0, 0, 1};
 
 // GLOBAL: MW2 0x100a82fc
+// GLOBAL: MW2GBL 0x100b591c
 // GLOBAL: MW23DFX 0x1024c824
 undefined4 g_unk0x100a82fc = 0;
 
@@ -47,6 +48,7 @@ undefined4 g_unk0x100a82fc = 0;
 EasedValue g_throttleBarLevel = {0, 0, 1};
 
 // GLOBAL: MW2 0x100a830c
+// GLOBAL: MW2GBL 0x100b592c
 // GLOBAL: MW23DFX 0x1024c834
 undefined4 g_unk0x100a830c = 0;
 
@@ -60,6 +62,7 @@ undefined4 g_unk0x100a830c = 0;
 EasedValue g_heatRateBarLevel = {0, 0, 4};
 
 // GLOBAL: MW2 0x100a831c
+// GLOBAL: MW2GBL 0x100b593c
 // GLOBAL: MW23DFX 0x1024c844
 undefined4 g_unk0x100a831c = 0;
 
@@ -73,6 +76,7 @@ undefined4 g_unk0x100a831c = 0;
 EasedValue g_jumpFuelBarLevel = {0, 0, 1};
 
 // GLOBAL: MW2 0x100a832c
+// GLOBAL: MW2GBL 0x100b594c
 // GLOBAL: MW23DFX 0x1024c854
 undefined4 g_unk0x100a832c = 0;
 

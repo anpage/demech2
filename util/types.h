@@ -802,8 +802,9 @@ double __cdecl fabs(double);
 #define MW2_AI_STOPS_GROUP_FIRE
 /* Artefact: GBL's source copies some structures with memcpy, which its build calls, where the
    optimized editions show a structure assignment: nav points, rays, players, matrices, weapon slots,
-   render settings and sample headers (RemoveNavPoint, CopyRay, LogPlayerStatusLines, the object
-   matrices, LayoutWeaponPanels, the mech view panel, StartSample) */
+   render settings, sample headers and session descriptions (RemoveNavPoint, CopyRay,
+   LogPlayerStatusLines, the object matrices, LayoutWeaponPanels, the mech view panel, StartSample,
+   FindSession) */
 #define MW2_STRUCT_COPY_MEMCPY
 /* Only the local player inspects its target, which counts as inspected once anyone has, and the
    inspect request stays set (UpdateTarget) */
@@ -821,7 +822,8 @@ double __cdecl fabs(double);
 #define MW2_NO_MOUSE_ERRORS
 /* Artefact: DrawDepthQueue takes the next entry's index into a local before it copies the entry */
 #define MW2_DEPTH_QUEUE_INDEX
-/* Artefact: FloatVectorLength sums the squares from z down, where 1.1 adds x's and y's first */
+/* Artefact: the vector lengths sum the squares from z down (FloatVectorLength, ScaleVectorToLength,
+   BuildMatrixFromDirection) */
 #define MW2_LENGTH_SUM_FROM_Z
 /* QueueObjTree draws no shape of type 0x20 */
 #define MW2_SKIP_SHAPE_TYPE_20
@@ -835,6 +837,33 @@ double __cdecl fabs(double);
 #define MW2_NO_STATE_7_POWER_TEST
 /* UpdateInputs compares an axis' rate pointer with its position's address */
 #define MW2_AXIS_RATE_POINTER_TEST
+/* Restarting a star mission keeps its objectives' targets' listed flags */
+#define MW2_RESTART_KEEPS_LISTED
+/* IsTeamNearTarget tests only the team's leader */
+#define MW2_LEADER_NEAR_TARGET
+/* The local star's mission fails once the local mech is lost (UpdateObjectives, g_localMechLost) */
+#define MW2_LOST_MECH_FAILS_STAR
+/* UpdateObjective takes star N as player N in network games */
+#define MW2_NETWORK_STAR_PLAYERS
+/* Artefact: FindIpxProviderCallback compares the provider's name with strcmp, not memcmp */
+#define MW2_IPX_NAME_STRCMP
+/* MemCopy and MemSet return the C runtime's memcpy and memset, where 1.1's are assembly */
+#define MW2_MEM_HELPERS_CALL_CRT
+/* A scrounge record whose id names no class takes a static object's shape, loading the object
+   (BwdExecuteStream) */
+#define MW2_SCROUNGE_STATIC_OBJECTS
+/* A player the stream creates for another machine or the AI gets AI mode 1 in a network game and 2
+   otherwise (BwdExecuteStream) */
+#define MW2_REMOTE_PLAYER_AI_MODE
+/* A mech's heat sinks cool five times as well at -100 degrees or colder, on top of the cold bonus
+   (LoadMechConfig) */
+#define MW2_DEEP_COLD_COOLING
+/* SimMain updates the players every frame, before a network launch too */
+#define MW2_PLAYERS_BEFORE_LAUNCH
+/* StartSupAnim leaves the palette's first 16 entries as the backdrop set them */
+#define MW2_SUPANIM_KEEPS_PALETTE
+/* Artefact: InitSoundInfo fills the table with -1, not 0xff (which GBL's memset call shows) */
+#define MW2_SOUND_INFO_FILL_MINUS_ONE
 #endif
 
 /* A game key action's number: with MW2_CHAT_KEY, the actions from 0x42 on are one higher. */

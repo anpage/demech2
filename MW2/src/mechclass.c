@@ -119,6 +119,7 @@ MechS32 g_toggleMascRequested = 0;
 MechS32 g_mascEngaged = 0;
 
 // GLOBAL: MW2 0x100a2bf4
+// GLOBAL: MW2GBL 0x100b59e8
 // GLOBAL: MW2MATROX 0x100a45b0
 MechS32 g_unk0x100a2bf4 = 0;
 

@@ -65,7 +65,6 @@
 // them to the screen).
 #ifdef MW2_FOURTEEN_WEAPON_SLOTS
 // GBL's 30: seven weapon panels in each column.
-// GLOBAL: MW2GBL 0x1009b128
 PANE g_cockpitPanelPanes[c_panelCount] = {
 	{&g_mainPixelBuffer, 13, 10, 80, 60},     {&g_mainPixelBuffer, 260, 145, 312, 197},
 	{&g_mainPixelBuffer, 258, 145, 309, 175}, {&g_mainPixelBuffer, 214, 15, 256, 23},
@@ -85,6 +84,7 @@ PANE g_cockpitPanelPanes[c_panelCount] = {
 };
 #else
 // GLOBAL: MW2 0x100adf58
+// GLOBAL: MW2GBL 0x1009b128
 // GLOBAL: MW2MATROX 0x100b1478
 // GLOBAL: MW23DFX 0x1024c8b8
 // GLOBAL: MW2ATI 0x10180c38
@@ -127,7 +127,6 @@ PANE g_cockpitPanelPanes[c_panelCount] = {
 
 // The panels' text positions (16.16 fractions of their rectangles).
 #ifdef MW2_FOURTEEN_WEAPON_SLOTS
-// GLOBAL: MW2GBL 0x1009b380
 Point g_cockpitPanelTextOrigins[c_panelCount] = {
 	{0, 0},           {0, 0},           {0, 0},           {0x11ec, 0x2148}, {0x11ec, 0x2148}, {0x11ec, 0x2148},
 	{0x11ec, 0x2148}, {0x11ec, 0x2148}, {0x11ec, 0x2148}, {0x11ec, 0x2148}, {0x11ec, 0x2148}, {0x11ec, 0x2148},
@@ -137,6 +136,7 @@ Point g_cockpitPanelTextOrigins[c_panelCount] = {
 };
 #else
 // GLOBAL: MW2 0x100ae160
+// GLOBAL: MW2GBL 0x1009b380
 // GLOBAL: MW2MATROX 0x100b1680
 // GLOBAL: MW23DFX 0x1024cac0
 // GLOBAL: MW2ATI 0x10180e40
@@ -271,13 +271,13 @@ RectTransition g_mechViewTransition = {&g_mechViewTransitionState, &g_mechViewTr
 
 // The panels' transitions.
 #ifdef MW2_FOURTEEN_WEAPON_SLOTS
-// GLOBAL: MW2GBL 0x1009b550
 RectTransition* g_cockpitPanelTransitions[c_panelCount] = {
 	NULL, NULL, &g_mechViewTransition, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
 	NULL, NULL, &g_targetTransition,   NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL
 };
 #else
 // GLOBAL: MW2 0x100ae310
+// GLOBAL: MW2GBL 0x1009b550
 // GLOBAL: MW2MATROX 0x100b1830
 // GLOBAL: MW23DFX 0x1024cc70
 // GLOBAL: MW2ATI 0x10180ff0
@@ -334,13 +334,13 @@ MechS32 g_hitFadePending = 0;
 
 // The clock times the panels light up at on startup (CockpitPanel::m_lightUpTime): the weapon panels in turn.
 #ifdef MW2_FOURTEEN_WEAPON_SLOTS
-// GLOBAL: MW2GBL 0x1009b5d8
 undefined4 g_cockpitPanelLightUpTimes[c_panelCount] = {0x16a, 0xb5,  0xb5,  0x21f, 0x23d, 0x25b, 0x279, 0x297,
 													   0x2b5, 0x2d3, 0x32e, 0x310, 0x2f2, 0x2d4, 0x2b5, 0x2d3,
 													   0x2f1, 0xb5,  0xb5,  0xb5,  0xb5,  0xb5,  0xb5,  0xb5,
 													   0xb5,  0xb5,  0xb5,  0xb5,  0xb5,  0xb5};
 #else
 // GLOBAL: MW2 0x100ae388
+// GLOBAL: MW2GBL 0x1009b5d8
 // GLOBAL: MW2MATROX 0x100b18a8
 // GLOBAL: MW23DFX 0x1024cce8
 // GLOBAL: MW2ATI 0x10181068

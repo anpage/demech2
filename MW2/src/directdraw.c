@@ -98,6 +98,7 @@ LPDIRECTDRAWSURFACE g_ddrawStretch = NULL;
 
 // Never accessed: there is nothing to name it after.
 // GLOBAL: MW2 0x100b1cc4
+// GLOBAL: MW2GBL 0x100a4fc4
 // GLOBAL: MW2POWERVR 0x101a9668
 undefined4 g_unk0x100b1cc4 = 0;
 
@@ -124,6 +125,7 @@ MechS32 g_ddrawLocked = FALSE;
 MechS32 g_ddrawInitialized = FALSE;
 
 // GLOBAL: MW2 0x100b1cd8
+// GLOBAL: MW2GBL 0x100a4fd8
 // GLOBAL: MW2ATI 0x1017e5e8
 // GLOBAL: MW2S3 0x1006a990
 // GLOBAL: MW2POWERVR 0x101a9678
@@ -142,6 +144,7 @@ DisplayBackend g_directDrawBackend = {
 
 // Draws into the back buffer and flips.
 // GLOBAL: MW2 0x100b1d00
+// GLOBAL: MW2GBL 0x100a5000
 // GLOBAL: MW2ATI 0x1017e610
 // GLOBAL: MW2S3 0x1006a9b8
 // GLOBAL: MW2POWERVR 0x101a96a0
@@ -159,6 +162,7 @@ RefreshMode g_ddrawFlipRefreshMode = {
 
 // Draws into an offscreen surface in system memory, blits it to the back buffer and flips.
 // GLOBAL: MW2 0x100b1d28
+// GLOBAL: MW2GBL 0x100a5028
 // GLOBAL: MW2ATI 0x1017e638
 // GLOBAL: MW2S3 0x1006a9e0
 // GLOBAL: MW2POWERVR 0x101a96c8
@@ -176,6 +180,7 @@ RefreshMode g_ddrawBlitFlipRefreshMode = {
 
 // Draws into an offscreen surface in video memory and blits it to the primary surface.
 // GLOBAL: MW2 0x100b1d50
+// GLOBAL: MW2GBL 0x100a5050
 // GLOBAL: MW2ATI 0x1017e660
 // GLOBAL: MW2S3 0x1006aa08
 // GLOBAL: MW2POWERVR 0x101a96f0
@@ -193,6 +198,7 @@ RefreshMode g_ddrawVideoMemoryRefreshMode = {
 
 // Draws into an offscreen surface in system memory and blits it to the primary surface.
 // GLOBAL: MW2 0x100b1d78
+// GLOBAL: MW2GBL 0x100a5078
 // GLOBAL: MW2ATI 0x1017e688
 // GLOBAL: MW2S3 0x1006aa30
 // GLOBAL: MW2POWERVR 0x101a9718

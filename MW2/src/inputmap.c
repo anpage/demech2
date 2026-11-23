@@ -729,6 +729,7 @@ MechS32 g_inputDeviceCount = 0;
 
 // The input driver classes, in the order RegisterInputDevice asks them for a device.
 // GLOBAL: MW2 0x100b7378
+// GLOBAL: MW2GBL 0x100aa678
 // GLOBAL: MW2MATROX 0x100b6da0
 // GLOBAL: MW23DFX 0x10255f50
 // GLOBAL: MW2ATI 0x1018a260
@@ -1696,6 +1697,7 @@ MechS32 ParseInputMap(FILE* p_file)
 // Loads INPUT.MAP, then each present device's own map: giddi\<device name without its trailing
 // digits>.std.
 // FUNCTION: MW2 0x1007a97a
+// FUNCTION: MW2GBL 0x10032a79
 // FUNCTION: MW2MATROX 0x1007d0ba
 // FUNCTION: MW23DFX 0x10039ac0
 // FUNCTION: MW2ATI 0x10038680

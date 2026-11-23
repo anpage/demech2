@@ -36,6 +36,7 @@
 // Indexed by DisplayBackend::m_id. The accelerated editions' first back end and refresh modes
 // are their own, in DirectDraw's place: matrox/msidraw.c's and 3dfx/glidedraw.c's.
 // GLOBAL: MW2 0x100b1748
+// GLOBAL: MW2GBL 0x100a4a38
 // GLOBAL: MW2MATROX 0x100b1a50
 // GLOBAL: MW23DFX 0x102492b8
 // GLOBAL: MW2ATI 0x1017d2b8
@@ -54,6 +55,7 @@ DisplayBackend* g_displayBackends[3] = {
 };
 
 // GLOBAL: MW2 0x100b1758
+// GLOBAL: MW2GBL 0x100a4a48
 // GLOBAL: MW2MATROX 0x100b1a60
 // GLOBAL: MW23DFX 0x102492c8
 // GLOBAL: MW2ATI 0x1017d2c8
