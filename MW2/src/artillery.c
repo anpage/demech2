@@ -26,6 +26,7 @@
 // Resets the player's mech of this class: its torso objects and ramps, state and weapons, stands
 // its object up where it is and clears the player's steering.
 // FUNCTION: MW2 0x10059fc0
+// FUNCTION: MW2GBL 0x100119b0
 // FUNCTION: MW2MATROX 0x1002e4b0
 // FUNCTION: MW23DFX 0x100218b0
 // FUNCTION: MW2ATI 0x10021b80
@@ -47,7 +48,7 @@ void FirstArtillery(Player* p_player)
 	mech->m_selectedWeapon = 0;
 	mech->m_heat = 0;
 	mech->m_lastSelectedWeapon = 0;
-	mech->m_weaponCount = 10;
+	mech->m_weaponCount = WEAPON_SLOT_COUNT;
 	mech->m_collisionTicks = 0;
 	mech->m_flags = 0x2000;
 	mech->m_powerState = 0;

@@ -9,7 +9,7 @@ sources, so that it can't drift from them.
 Seven editions are targets today; the table lists the editions after 1.1 in the order they were
 built. The S3 and PowerVR editions joined after the others: every one of their functions is
 annotated, but most of what they changed from the ATI edition is still undiagnosed. Ghost Bear's
-Legacy joined last: 1347 of its functions are annotated so far, ported from 1.1's.
+Legacy joined last: 1369 of its functions are annotated so far, ported from 1.1's.
 
 | | 1.1 | ATI | S3 | Matrox | PowerVR | GBL | 3Dfx |
 |---|---|---|---|---|---|---|---|
@@ -104,7 +104,8 @@ compiler with optimization.
 - **Placement.** Its object order is its own (`MW2/sources_gbl.cmake`: it shares no long run of units with 1.1's, the Matrox edition's or the 2.2 editions'), found from the functions and data it shares with 1.1, and `tools/check_units.py` passes with it. Three of its objects are parts of 1.1's: the cockpit panels (`cockpitpanels.c`, after `timedoverlays.c`), the faces' projection (`faceprojection.c`, the end of 1.1's `objectanim.c`, after `mechcollision.c`, where the Matrox edition has its float versions) and `clock.c`'s tables with the rotation's normalization (`clockmath.c`, at the end of its code); it builds those fragments as units. It defines `g_shouldToggleFullscreen`, `g_desktopWidth` and `g_desktopHeight` among `refreshmode.c`'s data, not `simmain.c`'s, and places `RunAIRules` after `FirstAI` (annotated by name in `ai.h`).
 - **Annotations** were ported by bytes from 1.1's original, then from the rebuild (`tools/port_annotations.py --rebuild`: the functions that differ from 1.1's only by the intrinsics), and the globals datacmp then reported left out: the data GBL changed (the cockpit panels' layout, the weapon definitions, the game keys' names, the local star) and the tables that point to functions not annotated yet, with the menus and back ends that point to those.
 - **Structures.** Its `Mech` (0x114 bytes) has `m_externalHeat` at 0x98, the heat the radius damage adds and `CalculateHeat` takes (`MW2_EXTERNAL_HEAT`), and a second word of flags at its end (`MW2_MECH_SECOND_FLAGS`); a mech has 14 weapon slots, not 10 (`MW2_FOURTEEN_WEAPON_SLOTS`, `WEAPON_SLOT_COUNT`). Its `Player` (0x1b8 bytes) has a word nothing uses after `m_ai` (`MW2_PLAYER_SPARE_WORD`), and a flag after `m_nextFireTime` and two values at its end that its AI setup takes from a table of pilots for a gunnery above 6 (`MW2_PILOT_TABLE`). Its 14 weapon slots have 14 weapon panels, seven in each column, so its panels from the target's on are 4 further (`c_panelTarget` 17, `c_panelCount` 30) and its panel tables have 30 entries.
-- **Data.** Two game keys of its own: `CHAT_MODE`, action 66, so its actions from 66 on are one higher (`MW2_CHAT_KEY`, `GAME_KEY_ACTION`), and `TOGGLE_AMS`, 169 (`MW2_AMS_KEY`). Its local star starts at 0, as the accelerated editions' does (`MW2_LOCAL_STAR_FROM_ZERO`). Its message boxes and refresh mode errors name Ghost Bear's Legacy, typos included (`MW2_GHOST_BEAR_TITLES`), and it finds its CD by `GBL_HERC.DRV` (`MW2_GBL_CD_DRIVER`). `GetEngagementAIFlags` returns an `int` (`MW2_ENGAGEMENT_FLAGS_INT`). Still to write: its weapon definitions (`WeaponDef` has 16 more bytes ahead of 1.1's members, among them a pointer to a launch function, and the table has 35 weapons, Inf SRM, Torpedo, InfSSRM and ArrowIV the new ones), its maneuver tables (static data, where 1.1 fills them at run time), and the tables of pointers to its functions that aren't annotated yet (the back ends, the menus, the AI handlers).
+- **VFX.** GBL links VFXA as released (`MW2_VFX_STOCK`, the accelerated editions' feature) with `VFX_lookaside_write` (`MW2_VFX_LOOKASIDE_WRITE`), and keeps 1.1's aligned fill in VFX3D's `VFX_flat_polygon` (`MW2_VFX3D_ALIGNED_FILL`, as the ATI and PowerVR editions do); its VFXREND is 1.1's. The target passes ML its features (`demech2_edition_masm_defines`).
+- **Data.** Two game keys of its own: `CHAT_MODE`, action 66, so its actions from 66 on are one higher (`MW2_CHAT_KEY`, `GAME_KEY_ACTION`), and `TOGGLE_AMS`, 169 (`MW2_AMS_KEY`). Its local star starts at 0, as the accelerated editions' does (`MW2_LOCAL_STAR_FROM_ZERO`). Its message boxes and refresh mode errors name Ghost Bear's Legacy, typos included (`MW2_GHOST_BEAR_TITLES`), and it finds its CD by `GBL_HERC.DRV` (`MW2_GBL_CD_DRIVER`). `GetEngagementAIFlags` returns an `int` (`MW2_ENGAGEMENT_FLAGS_INT`), and a recentering torso snaps to the legs within 1 degree, not 4 (`MW2_TORSO_SNAP_ONE_DEGREE`). Still to write: its weapon definitions (`WeaponDef` has 16 more bytes ahead of 1.1's members, among them a pointer to a launch function, and the table has 35 weapons, Inf SRM, Torpedo, InfSSRM and ArrowIV the new ones), its maneuver tables (static data, where 1.1 fills them at run time), and the tables of pointers to its functions that differ from 1.1's (its DirectDraw back end, the menus' and orders' handlers, the AI states), which are annotated but not yet the edition's.
 - **What it changed** besides, from a first comparison with 1.1, to be settled as the edition is worked in: about 18 functions 1.1 doesn't have: the cheat messages stored XOR-encoded and decoded at startup, a toggle between two modes of one weapon type, a MIDI volume setter, display modes in the face colours; and a restructured `RunGameKey`.
 
 ## Adding an edition
@@ -278,7 +279,7 @@ tests an `MW2_` macro the table doesn't define, and when no target compiles a br
 
 ## Features
 
-From the table in `util/types.h` (174 features) and the 1210 conditional sites of the simulators' sources (`MW2/`, `common/`, `3rdparty/vfx`). A feature's cell is its value where it has one.
+From the table in `util/types.h` (175 features) and the 1211 conditional sites of the simulators' sources (`MW2/`, `common/`, `3rdparty/vfx`). A feature's cell is its value where it has one.
 
 ### The ATI, S3, Matrox, PowerVR and 3Dfx editions (`MW2_ACCEL`)
 
@@ -290,8 +291,6 @@ Every edition that has one of these has them all, so no binary separates one fro
 | `MW2_A3D` |  | yes | yes | yes | yes |  | yes | 67 | The A3D renderer interface and its records: queued polygons, projected vertices, depth lists |
 | `MW2_VERTEX_SHADING` |  | yes | yes | yes | yes |  | yes | 13 | Per-vertex shading for the renderer: WTB normals and colours, shaded projected vertices |
 | `MW2_VFX16` |  | yes | yes | yes | yes |  | yes | 35 | The 2D drawing goes to the 16-bit port of VFXA |
-| `MW2_VFX_STOCK` |  | yes | yes | yes | yes |  | yes | 7 | VFX as released (unaligned fills and runs, word-wise character copies), where 1.1 modified it; the assembly gets it from cmake/editions.cmake |
-| `MW2_VFX_LOOKASIDE_WRITE` |  | yes | yes | yes | yes |  | yes | 2 | VFXA's VFX_lookaside_write, which sets one lookaside entry (cmake/editions.cmake) |
 | `MW2_LARGER_POLYGON_BUFFERS` |  | yes | yes | yes | yes |  | yes | 1 | A larger draw buffer and polygon limit |
 | `MW2_NO_DISSOLVE` |  | yes | yes | yes | yes |  | yes | 1 | StartPalettes blends through the display back end, without 1.1's pixel dissolve |
 | `MW2_DISPLAYDIB_DISABLED` |  | yes | yes | yes | yes |  | yes | 1 | DispDibBegin always fails |
@@ -340,6 +339,8 @@ Every edition that has one of these has them all, so no binary separates one fro
 
 | Feature | 1.1 | ATI | S3 | Matrox | PowerVR | GBL | 3Dfx | Sites | What it does |
 |---|:-:|:-:|:-:|:-:|:-:|:-:|:-:|--:|---|
+| `MW2_VFX_STOCK` |  | yes | yes | yes | yes | yes | yes | 7 | VFX as released (unaligned fills and runs, word-wise character copies), where 1.1 modified it; the assembly gets it from cmake/editions.cmake |
+| `MW2_VFX_LOOKASIDE_WRITE` |  | yes | yes | yes | yes | yes | yes | 2 | VFXA's VFX_lookaside_write, which sets one lookaside entry (cmake/editions.cmake) |
 | `MW2_LOCAL_STAR_FROM_ZERO` |  | yes | yes | yes | yes | yes | yes | 2 | The local star starts at 0, and the player's formation goes to it |
 
 ### The ATI, Matrox and 3Dfx editions (`MW2_MATROX`, `MW2_3DFX`, `MW2_ATI`)
@@ -457,11 +458,11 @@ Every edition that has one of these has them all, so no binary separates one fro
 |---|:-:|:-:|:-:|:-:|:-:|:-:|:-:|--:|---|
 | `MW2_DRAG_DIVIDED_ONCE` |  |  | yes |  | yes |  | yes | 1 | UpdateMech's air drag divides by the length once, then scales both axes by it |
 
-### The ATI and PowerVR editions (`MW2_ATI`, `MW2_POWERVR`)
+### The ATI, PowerVR and GBL editions (`MW2_ATI`, `MW2_POWERVR`, `MW2_GBL`)
 
 | Feature | 1.1 | ATI | S3 | Matrox | PowerVR | GBL | 3Dfx | Sites | What it does |
 |---|:-:|:-:|:-:|:-:|:-:|:-:|:-:|--:|---|
-| `MW2_VFX3D_ALIGNED_FILL` |  | yes |  |  | yes |  |  | 1 | VFX3D's VFX_flat_polygon fills its spans with the destination aligned, as 1.1's modified VFX does, where its other routines are VFX as released (the assembly gets it from cmake/editions.cmake) |
+| `MW2_VFX3D_ALIGNED_FILL` |  | yes |  |  | yes | yes |  | 1 | VFX3D's VFX_flat_polygon fills its spans with the destination aligned, as 1.1's modified VFX does, where its other routines are VFX as released (the assembly gets it from cmake/editions.cmake) |
 
 ### The ATI and S3 editions (`MW2_ATI`, `MW2_S3`)
 
@@ -560,6 +561,7 @@ Every edition that has one of these has them all, so no binary separates one fro
 | `MW2_GHOST_BEAR_TITLES` |  |  |  |  |  | yes |  | 4 | The message boxes and the refresh mode errors name Ghost Bear's Legacy |
 | `MW2_GBL_CD_DRIVER` |  |  |  |  |  | yes |  | 1 | The game's CD is the drive with GBL_HERC.DRV |
 | `MW2_ENGAGEMENT_FLAGS_INT` |  |  |  |  |  | yes |  | 2 | *Representation.* GetEngagementAIFlags returns an int, not a short |
+| `MW2_TORSO_SNAP_ONE_DEGREE` |  |  |  |  |  | yes |  | 1 | A recentering torso snaps to the legs within 1 degree, not 4 (TORSO_SNAP_RANGE) |
 
 ## Where each feature is tested
 
@@ -737,6 +739,7 @@ Every edition that has one of these has them all, so no binary separates one fro
 - `MW2_GHOST_BEAR_TITLES`: `MW2/src/debugprint.c`: `ShowMessage`; `MW2/src/refreshmode.c`: `ToggleFullScreen` (2); `MW2/src/simmain.c`: `SimMain`
 - `MW2_GBL_CD_DRIVER`: `MW2/src/gamecd.c`: `FindGameCdDrive`
 - `MW2_ENGAGEMENT_FLAGS_INT`: `MW2/include/ai.h`: file scope; `MW2/src/ai.c`: `GetEngagementAIFlags`
+- `MW2_TORSO_SNAP_ONE_DEGREE`: `MW2/src/mechclass.c`: file scope
 
 ## Functions with a definition per edition
 

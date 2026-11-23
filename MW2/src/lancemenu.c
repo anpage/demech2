@@ -25,6 +25,7 @@ MechS32 g_lanceOrders[8] = {7, 7, 7, 7, 7, 0, 0, 0};
 // the slots whose player is in AI state 12. With no slot, or every slot marked, the page has only
 // templates 7 and 6.
 // FUNCTION: MW2 0x10065f50
+// FUNCTION: MW2GBL 0x10005290
 // FUNCTION: MW2MATROX 0x1008e640
 // FUNCTION: MW23DFX 0x10064390
 // FUNCTION: MW2ATI 0x10061a00
@@ -74,6 +75,7 @@ MechS32 PrepareCommandComputerPage(MenuDefinition* p_menu, MenuPage* p_page)
 // Unless the page's AI slot holds a player outside AI state 12, keeps only the page's last two
 // items.
 // FUNCTION: MW2 0x100660c2
+// FUNCTION: MW2GBL 0x10005403
 // FUNCTION: MW2MATROX 0x1008e7b2
 // FUNCTION: MW23DFX 0x10064480
 // FUNCTION: MW2ATI 0x10061af0

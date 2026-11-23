@@ -280,6 +280,7 @@ demech2_add_dll(mw2
 # imports. Modern compilers don't build it: it is MW2.DLL's code.
 if (MSVC_FOR_DECOMP)
   include("${DEMECH2_SOURCE_DIR}/MW2/sources_gbl.cmake")
+  demech2_edition_masm_defines(gbl_masm_defines MW2_GBL)
   demech2_add_dll(mw2gbl
     ID MW2GBL
     SOURCE_DIR MW2
@@ -291,7 +292,7 @@ if (MSVC_FOR_DECOMP)
     SOURCES
       ${mw2gbl_sources}
       MW2/MW2.def
-    COMPILE_OPTIONS "$<$<COMPILE_LANGUAGE:C,CXX>:/G5;/DMW2_GBL>"
+    COMPILE_OPTIONS "$<$<COMPILE_LANGUAGE:C,CXX>:/G5;/DMW2_GBL>" "$<$<COMPILE_LANGUAGE:ASM_MASM>:${gbl_masm_defines}>"
     LINK_OPTIONS /DEBUG /OPT:REF /INCREMENTAL:no
     LIBRARIES winmm.lib wail32 ddraw dplay kernel32.lib user32.lib gdi32.lib advapi32.lib
   )

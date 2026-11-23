@@ -539,7 +539,6 @@ AiMessageFn g_aiMessageFns[8] = {
 };
 
 // GLOBAL: MW2 0x100a9120
-// GLOBAL: MW2GBL 0x100b65d0
 // GLOBAL: MW2MATROX 0x100bb838
 // GLOBAL: MW23DFX 0x1024bc90
 // GLOBAL: MW2ATI 0x10180010
@@ -1552,6 +1551,7 @@ void LogAIStatus(void)
 // M_TGTABLE: the nearest of p_target's targets within p_arg hundreds (-2: p_player's alert range,
 // -1: its resting one).
 // FUNCTION: MW2 0x100530f7
+// FUNCTION: MW2GBL 0x100783e1
 // FUNCTION: MW2MATROX 0x1008229a
 // FUNCTION: MW23DFX 0x10012fd0
 // FUNCTION: MW2ATI 0x10013480
@@ -1639,6 +1639,7 @@ void AiStateIdle(Player* p_player)
 
 // Drives p_player towards p_target, or away from it when fleeing.
 // FUNCTION: MW2 0x10053275
+// FUNCTION: MW2GBL 0x1007855d
 // FUNCTION: MW2MATROX 0x10082431
 // FUNCTION: MW23DFX 0x100130f0
 // FUNCTION: MW2ATI 0x10013580
@@ -1715,6 +1716,7 @@ void AiStateMove(Player* p_player, MechU16 p_target)
 
 // Runs p_player's maneuvers against p_target (RunManeuver).
 // FUNCTION: MW2 0x100534a0
+// FUNCTION: MW2GBL 0x10078792
 // FUNCTION: MW2MATROX 0x10082666
 // FUNCTION: MW23DFX 0x10013290
 // FUNCTION: MW2ATI 0x10013720

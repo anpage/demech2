@@ -751,6 +751,16 @@ double __cdecl fabs(double);
 #define MW2_GBL_CD_DRIVER
 /* Representation: GetEngagementAIFlags returns an int, not a short */
 #define MW2_ENGAGEMENT_FLAGS_INT
+/* VFX as released (unaligned fills and runs, word-wise character copies), where 1.1 modified it; the
+   assembly gets it from cmake/editions.cmake */
+#define MW2_VFX_STOCK
+/* VFXA's VFX_lookaside_write, which sets one lookaside entry (cmake/editions.cmake) */
+#define MW2_VFX_LOOKASIDE_WRITE
+/* VFX3D's VFX_flat_polygon fills its spans with the destination aligned, as 1.1's modified VFX does,
+   where its other routines are VFX as released (the assembly gets it from cmake/editions.cmake) */
+#define MW2_VFX3D_ALIGNED_FILL
+/* A recentering torso snaps to the legs within 1 degree, not 4 (TORSO_SNAP_RANGE) */
+#define MW2_TORSO_SNAP_ONE_DEGREE
 #endif
 
 /* A game key action's number: with MW2_CHAT_KEY, the actions from 0x42 on are one higher. */

@@ -826,6 +826,7 @@ void UpdateMech(Mech* p_mech)
 // collisions with shapes and other mechs, lands it on the terrain (with falling damage), slides
 // it down slopes, then poses its objects. Every player type's update (PlayerType::m_updateFn).
 // FUNCTION: MW2 0x10016edf
+// FUNCTION: MW2GBL 0x1006d91f
 void UpdateMech(Mech* p_mech)
 {
 	MechScalar velZ;
@@ -1255,6 +1256,13 @@ void UpdateMech(Mech* p_mech)
 }
 #endif
 
+// How close to the legs a recentering torso snaps to them (16.16 degrees).
+#ifdef MW2_TORSO_SNAP_ONE_DEGREE
+#define TORSO_SNAP_RANGE 0x10000
+#else
+#define TORSO_SNAP_RANGE 0x40000
+#endif
+
 // Runs p_mech's systems for the tick: the cockpit keys of a running mech (eject, view and display
 // keys, the autopilot, the throttle), its jump jets and their fuel, the turn rate, the torso's
 // recentering, the MASC (which can fail), the heat, and the power state machine: starting up,
@@ -1263,6 +1271,7 @@ void UpdateMech(Mech* p_mech)
 // The ATI, S3, PowerVR and 3Dfx editions declare the message text in the block that shows it, where
 // VC++ 2.2 and 4.1 let it share the frame with a scalar local.
 // FUNCTION: MW2 0x100180cd
+// FUNCTION: MW2GBL 0x1006eb4f
 // FUNCTION: MW2MATROX 0x1000e721
 // FUNCTION: MW23DFX 0x1001a180
 // FUNCTION: MW2ATI 0x1001a530
@@ -1631,7 +1640,7 @@ void LateUpdateMech(Mech* p_mech)
 		}
 
 		delta = heading - g_recenterLastHeading;
-		if (mech->m_torsoTwist.m_value > -0x40000 && mech->m_torsoTwist.m_value < 0x40000) {
+		if (mech->m_torsoTwist.m_value > -TORSO_SNAP_RANGE && mech->m_torsoTwist.m_value < TORSO_SNAP_RANGE) {
 			mech->m_turnRate.m_value = mech->m_turnRate.m_target = 0;
 			mech->m_torsoTwist.m_value = mech->m_torsoTwist.m_target = 0;
 			g_localSteering.m_torsoPanReset = 1;

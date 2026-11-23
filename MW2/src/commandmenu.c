@@ -500,7 +500,6 @@ MenuChoices g_aiStateChoices = {
 MenuChoices g_noChoices = {NULL, 0};
 
 // GLOBAL: MW2 0x100a7618
-// GLOBAL: MW2GBL 0x1009f700
 // GLOBAL: MW23DFX 0x10260a70
 // GLOBAL: MW2ATI 0x10194d68
 // GLOBAL: MW2S3 0x10063390
@@ -508,7 +507,6 @@ MenuChoices g_noChoices = {NULL, 0};
 MenuControl g_formationControl = {3, 0, &g_formationChoices, 0, NULL, GetFormation, NULL, NULL, NULL};
 
 // GLOBAL: MW2 0x100a7640
-// GLOBAL: MW2GBL 0x1009f728
 // GLOBAL: MW23DFX 0x10260a98
 // GLOBAL: MW2ATI 0x10194d90
 // GLOBAL: MW2S3 0x100633b8
@@ -516,7 +514,6 @@ MenuControl g_formationControl = {3, 0, &g_formationChoices, 0, NULL, GetFormati
 MenuControl g_commandAllStatusControl = {3, 0, &g_orderChoices, 0, NULL, GetLanceOrder, NULL, NULL, NULL};
 
 // GLOBAL: MW2 0x100a7668
-// GLOBAL: MW2GBL 0x1009f750
 // GLOBAL: MW23DFX 0x10260ac0
 // GLOBAL: MW2ATI 0x10194db8
 // GLOBAL: MW2S3 0x100633e0
@@ -525,7 +522,6 @@ MenuControl g_commandPoint2StatusControl =
 	{3, 0, &g_aiStateChoices, 1, InstallGoalSuffix, GetSlotAiState, NULL, NULL, NULL};
 
 // GLOBAL: MW2 0x100a7690
-// GLOBAL: MW2GBL 0x1009f778
 // GLOBAL: MW23DFX 0x10260ae8
 // GLOBAL: MW2ATI 0x10194de0
 // GLOBAL: MW2S3 0x10063408
@@ -534,7 +530,6 @@ MenuControl g_commandPoint3StatusControl =
 	{3, 0, &g_aiStateChoices, 2, InstallGoalSuffix, GetSlotAiState, NULL, NULL, NULL};
 
 // GLOBAL: MW2 0x100a76b8
-// GLOBAL: MW2GBL 0x1009f7a0
 // GLOBAL: MW23DFX 0x10260b10
 // GLOBAL: MW2ATI 0x10194e08
 // GLOBAL: MW2S3 0x10063430
@@ -543,7 +538,6 @@ MenuControl g_commandPoint4StatusControl =
 	{3, 0, &g_aiStateChoices, 3, InstallGoalSuffix, GetSlotAiState, NULL, NULL, NULL};
 
 // GLOBAL: MW2 0x100a76e0
-// GLOBAL: MW2GBL 0x1009f7c8
 // GLOBAL: MW23DFX 0x10260b38
 // GLOBAL: MW2ATI 0x10194e30
 // GLOBAL: MW2S3 0x10063458
@@ -552,7 +546,6 @@ MenuControl g_commandPoint5StatusControl =
 	{3, 0, &g_aiStateChoices, 4, InstallGoalSuffix, GetSlotAiState, NULL, NULL, NULL};
 
 // GLOBAL: MW2 0x100a7708
-// GLOBAL: MW2GBL 0x1009f7f0
 // GLOBAL: MW23DFX 0x10260b60
 // GLOBAL: MW2ATI 0x10194e58
 // GLOBAL: MW2S3 0x10063480
@@ -560,7 +553,6 @@ MenuControl g_commandPoint5StatusControl =
 MenuControl g_echelonLeftControl = {2, 0, &g_noChoices, 0, NULL, NULL, NULL, SelectFormation, NULL};
 
 // GLOBAL: MW2 0x100a7730
-// GLOBAL: MW2GBL 0x1009f818
 // GLOBAL: MW23DFX 0x10260b88
 // GLOBAL: MW2ATI 0x10194e80
 // GLOBAL: MW2S3 0x100634a8
@@ -568,7 +560,6 @@ MenuControl g_echelonLeftControl = {2, 0, &g_noChoices, 0, NULL, NULL, NULL, Sel
 MenuControl g_echelonRightControl = {2, 0, &g_noChoices, 1, NULL, NULL, NULL, SelectFormation, NULL};
 
 // GLOBAL: MW2 0x100a7758
-// GLOBAL: MW2GBL 0x1009f840
 // GLOBAL: MW23DFX 0x10260bb0
 // GLOBAL: MW2ATI 0x10194ea8
 // GLOBAL: MW2S3 0x100634d0
@@ -576,7 +567,6 @@ MenuControl g_echelonRightControl = {2, 0, &g_noChoices, 1, NULL, NULL, NULL, Se
 MenuControl g_lineAbreastControl = {2, 0, &g_noChoices, 2, NULL, NULL, NULL, SelectFormation, NULL};
 
 // GLOBAL: MW2 0x100a7780
-// GLOBAL: MW2GBL 0x1009f868
 // GLOBAL: MW23DFX 0x10260bd8
 // GLOBAL: MW2ATI 0x10194ed0
 // GLOBAL: MW2S3 0x100634f8
@@ -584,7 +574,6 @@ MenuControl g_lineAbreastControl = {2, 0, &g_noChoices, 2, NULL, NULL, NULL, Sel
 MenuControl g_lineAsternControl = {2, 0, &g_noChoices, 3, NULL, NULL, NULL, SelectFormation, NULL};
 
 // GLOBAL: MW2 0x100a77a8
-// GLOBAL: MW2GBL 0x1009f890
 // GLOBAL: MW23DFX 0x10260c00
 // GLOBAL: MW2ATI 0x10194ef8
 // GLOBAL: MW2S3 0x10063520
@@ -592,7 +581,6 @@ MenuControl g_lineAsternControl = {2, 0, &g_noChoices, 3, NULL, NULL, NULL, Sele
 MenuControl g_vFormControl = {2, 0, &g_noChoices, 4, NULL, NULL, NULL, SelectFormation, NULL};
 
 // GLOBAL: MW2 0x100a77d0
-// GLOBAL: MW2GBL 0x1009f8b8
 // GLOBAL: MW23DFX 0x10260c28
 // GLOBAL: MW2ATI 0x10194f20
 // GLOBAL: MW2S3 0x10063548
@@ -600,7 +588,6 @@ MenuControl g_vFormControl = {2, 0, &g_noChoices, 4, NULL, NULL, NULL, SelectFor
 MenuControl g_wedgeControl = {2, 0, &g_noChoices, 5, NULL, NULL, NULL, SelectFormation, NULL};
 
 // GLOBAL: MW2 0x100a77f8
-// GLOBAL: MW2GBL 0x1009f8e0
 // GLOBAL: MW23DFX 0x10260c50
 // GLOBAL: MW2ATI 0x10194f48
 // GLOBAL: MW2S3 0x10063570
@@ -608,7 +595,6 @@ MenuControl g_wedgeControl = {2, 0, &g_noChoices, 5, NULL, NULL, NULL, SelectFor
 MenuControl g_attackControl = {2, 0, &g_noChoices, 0, SetControlSlot, NULL, NULL, OrderAttack, NULL};
 
 // GLOBAL: MW2 0x100a7820
-// GLOBAL: MW2GBL 0x1009f908
 // GLOBAL: MW23DFX 0x10260c78
 // GLOBAL: MW2ATI 0x10194f70
 // GLOBAL: MW2S3 0x10063598
@@ -616,7 +602,6 @@ MenuControl g_attackControl = {2, 0, &g_noChoices, 0, SetControlSlot, NULL, NULL
 MenuControl g_engageAtWillControl = {2, 0, &g_noChoices, 0, SetControlSlot, NULL, NULL, OrderEngageAtWill, NULL};
 
 // GLOBAL: MW2 0x100a7848
-// GLOBAL: MW2GBL 0x1009f930
 // GLOBAL: MW23DFX 0x10260ca0
 // GLOBAL: MW2ATI 0x10194f98
 // GLOBAL: MW2S3 0x100635c0
@@ -624,7 +609,6 @@ MenuControl g_engageAtWillControl = {2, 0, &g_noChoices, 0, SetControlSlot, NULL
 MenuControl g_joinFormationControl = {2, 0, &g_noChoices, 0, SetControlSlot, NULL, NULL, OrderJoinFormation, NULL};
 
 // GLOBAL: MW2 0x100a7870
-// GLOBAL: MW2GBL 0x1009f958
 // GLOBAL: MW23DFX 0x10260cc8
 // GLOBAL: MW2ATI 0x10194fc0
 // GLOBAL: MW2S3 0x100635e8
@@ -635,7 +619,6 @@ MenuControl g_defendControl = {2, 0, &g_noChoices, 0, SetControlSlot, NULL, NULL
 MenuControl g_disengageControl = {2, 0, &g_noChoices, 0, SetControlSlot, NULL, NULL, OrderDisengage, NULL};
 
 // GLOBAL: MW2 0x100a78c0
-// GLOBAL: MW2GBL 0x1009f9a8
 // GLOBAL: MW23DFX 0x10260d18
 // GLOBAL: MW2ATI 0x10195010
 // GLOBAL: MW2S3 0x10063638
