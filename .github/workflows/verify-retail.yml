@@ -14,7 +14,7 @@ name: Verify retail targets and comment
 # reccmp-project.yml), compared with the binaries the Build run compiled from
 # it. The originals are fetched fresh each run and never cached or uploaded.
 #
-# The public targets (MW2SHELL, MW2) are verified by the Build workflow itself
+# The public targets (MW2SHELL, MW2, MW2GBL) are verified by the Build workflow itself
 # (its verify job), which uploads its comment payload for the comment job here.
 
 on:
@@ -32,13 +32,13 @@ env:
   # precede Texus at 0x100680b2, as tools/edition.py's functions command
   # counts them by tracing the code; Ghidra finds 1313; MW2ATI: the 1427
   # functions before its import thunks at 0x10065066, counted the same way;
-  # MW2S3: the 1393 functions before its import thunks at 0x10051068, and
+  # MW2S3: the 1396 functions before its import thunks at 0x10051068, and
   # MW2POWERVR: the 1423 functions before its import thunks at 0x10062e80,
   # counted the same way).
   # The list lives
   # here rather than in Build's targets job: a workflow_run job can't read the
   # Build run's outputs.
-  RETAIL_ENTRIES: "NETMECHW:NETMECHW.DLL:244 MECH2:MECH2.EXE:21 MW2MATROX:MW2_MATROX.DLL:1597 MW23DFX:MW2_3DFX.DLL:1574 MW2ATI:MW2_ATI.DLL:1427 MW2S3:MW2_S3.DLL:1393 MW2POWERVR:MW2_POWERVR.DLL:1423"
+  RETAIL_ENTRIES: "NETMECHW:NETMECHW.DLL:244 MECH2:MECH2.EXE:21 MW2MATROX:MW2_MATROX.DLL:1597 MW23DFX:MW2_3DFX.DLL:1574 MW2ATI:MW2_ATI.DLL:1427 MW2S3:MW2_S3.DLL:1396 MW2POWERVR:MW2_POWERVR.DLL:1423"
   # The targets whose block layout check is reported but doesn't fail the
   # job yet: reccmp can't resolve some of the element types in the Matrox
   # edition's LINK 3.00 PDB, and falls back on the gap to the next symbol.
@@ -73,6 +73,10 @@ jobs:
           ref: ${{ github.event.workflow_run.head_sha }}
           path: pr
           persist-credentials: false
+          # A fork's pull request is checked out too (checkout refuses it in a workflow_run
+          # workflow unless asked): this job only reads the tree, with the base branch's tools
+          # and packages, and never configures, builds or runs anything from it.
+          allow-unsafe-pr-checkout: true
 
       - name: Checkout the retail originals
         uses: actions/checkout@v6
@@ -311,10 +315,10 @@ jobs:
           # Every conditional site of the simulators' editions with the proof of each target that
           # compiles it (tools/edition_sites.py): the Build run's certify job listed the sites and
           # what decides each one's proof, and the states are the Certify step's and the Build
-          # run's (MW2). A report, published with the progress reports; it fails nothing.
+          # run's (MW2, MW2GBL). A report, published with the progress reports; it fails nothing.
           if [ -f ../certify/edition-sites.json ] && [ -f ../public-report/MW2STATES.json ]; then
             python ../tools/edition_sites.py --sites ../certify/edition-sites.json \
-              --states MW2=../public-report/MW2STATES.json --states MW2MATROX=MW2MATROXSTATES.json --states MW23DFX=MW23DFXSTATES.json --states MW2ATI=MW2ATISTATES.json --states MW2S3=MW2S3STATES.json --states MW2POWERVR=MW2POWERVRSTATES.json \
+              --states MW2=../public-report/MW2STATES.json --states MW2GBL=../public-report/MW2GBLSTATES.json --states MW2MATROX=MW2MATROXSTATES.json --states MW23DFX=MW23DFXSTATES.json --states MW2ATI=MW2ATISTATES.json --states MW2S3=MW2S3STATES.json --states MW2POWERVR=MW2POWERVRSTATES.json \
               --json EDITIONSITES.json --markdown EDITIONSITES.md || rm -f EDITIONSITES.json EDITIONSITES.md
             # main's, for the PR comment's line
             curl -fLSs -o EDITIONSITES-main.json "$RELEASE_URL/EDITIONSITES.json" || rm -f EDITIONSITES-main.json
@@ -574,7 +578,7 @@ jobs:
         with:
           enableCrossOsArchive: true
           path: mw2bin
-          key: mw2bin
+          key: mw2bin-gbl
 
       - name: Checkout the retail originals
         uses: actions/checkout@v6
@@ -599,13 +603,14 @@ jobs:
             echo "targets:"
             echo "  MW2SHELL:"; echo "    path: mw2bin/MW2SHELL.DLL"
             echo "  MW2:"; echo "    path: mw2bin/MW2.DLL"
+            echo "  MW2GBL:"; echo "    path: mw2bin/MW2_GBL.DLL"
             for e in $RETAIL_ENTRIES; do IFS=: read -r t f n <<<"$e"; echo "  $t:"; echo "    path: retailbin/$f"; done
           } >reccmp-user.yml
 
       - name: Search
         shell: bash
         run: |
-          for entry in MW2SHELL:mw2bin/MW2SHELL.DLL MW2:mw2bin/MW2.DLL $(for e in $RETAIL_ENTRIES; do IFS=: read -r t f n <<<"$e"; echo "$t:retailbin/$f"; done); do
+          for entry in MW2SHELL:mw2bin/MW2SHELL.DLL MW2:mw2bin/MW2.DLL MW2GBL:mw2bin/MW2_GBL.DLL $(for e in $RETAIL_ENTRIES; do IFS=: read -r t f n <<<"$e"; echo "$t:retailbin/$f"; done); do
             target="${entry%%:*}"
             original="${entry#*:}"
             start=$(date +%s)

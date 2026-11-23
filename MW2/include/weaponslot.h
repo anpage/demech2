@@ -38,7 +38,14 @@ enum {
 	c_weaponHeld = 3    // a volley ended with the trigger still down
 };
 
-// One of a mech's ten weapons (Mech::m_weapons). A slot with m_unk0x00 at -1 ends the list.
+// A mech's weapon slots (Mech::m_weapons).
+#ifdef MW2_FOURTEEN_WEAPON_SLOTS
+#define WEAPON_SLOT_COUNT 14
+#else
+#define WEAPON_SLOT_COUNT 10
+#endif
+
+// One of a mech's WEAPON_SLOT_COUNT weapons (Mech::m_weapons). A slot with m_unk0x00 at -1 ends the list.
 // SIZE 0x68
 typedef struct WeaponSlot {
 	MechS32 m_status;     // 0x00

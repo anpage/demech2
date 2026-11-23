@@ -22,8 +22,13 @@
 #include <string.h>
 #include <windows.h>
 
+#ifdef MW2_POWERVR
+#include "accel/a3d.h"
+#endif
+
 // The player whose mech ReloadPlayerMech is reloading, or -1.
 // GLOBAL: MW2 0x100ba690
+// GLOBAL: MW2GBL 0x1009e6c0
 // GLOBAL: MW2MATROX 0x100bea18
 // GLOBAL: MW23DFX 0x1024d140
 // GLOBAL: MW2ATI 0x101814c0
@@ -36,6 +41,7 @@ MechS32 g_reloadingPlayer = -1;
 MechS32 g_unk0x100ba694 = 0;
 
 // GLOBAL: MW2 0x100ba698
+// GLOBAL: MW2GBL 0x1009e6c8
 // GLOBAL: MW2MATROX 0x100bea20
 // GLOBAL: MW23DFX 0x1024d148
 // GLOBAL: MW2ATI 0x101814c8
@@ -44,6 +50,7 @@ MechS32 g_unk0x100ba694 = 0;
 RememberedMech g_rememberedMechs[60] = {0};
 
 // GLOBAL: MW2 0x100babc0
+// GLOBAL: MW2GBL 0x1009ebf0
 // GLOBAL: MW2MATROX 0x100bef48
 // GLOBAL: MW23DFX 0x1024d670
 // GLOBAL: MW2ATI 0x101819f0
@@ -55,6 +62,7 @@ MechSegment* g_mechSegments[60] = {NULL};
 // flag 2 set. The last two parameters are unused: the callers pass zeros, and the 3Dfx edition,
 // where __fastcall's callee pops them (ret 8), shows that the function takes them.
 // FUNCTION: MW2 0x1007fbe0
+// FUNCTION: MW2GBL 0x10017310
 // FUNCTION: MW2MATROX 0x10090fd0
 // FUNCTION: MW23DFX 0x100235e0
 // FUNCTION: MW2ATI 0x100238a0
@@ -137,6 +145,7 @@ MechS32 ReloadPlayerMech(MechS32 p_player, MechS32 p_force, undefined4 p_unk0x08
 }
 
 // FUNCTION: MW2 0x1007fecf
+// FUNCTION: MW2GBL 0x100175ff
 // FUNCTION: MW2MATROX 0x100912be
 // FUNCTION: MW23DFX 0x100238c0
 // FUNCTION: MW2ATI 0x10023b80
@@ -162,6 +171,7 @@ void RememberLoadMech(Mech* p_mech, MechChar* p_name, MechS32 p_id, MechChar* p_
 }
 
 // FUNCTION: MW2 0x1007ff9c
+// FUNCTION: MW2GBL 0x100176a8
 // FUNCTION: MW2MATROX 0x1009138b
 // FUNCTION: MW23DFX 0x100239a0
 // FUNCTION: MW2ATI 0x10023c60
@@ -187,7 +197,9 @@ void RememberMechSegments(Mech* p_mech)
 	g_mechSegments[id] = SaveMechSegments(obj);
 }
 
+// The PowerVR edition also attaches each restored object's SGL list to its parent's.
 // FUNCTION: MW2 0x10080014
+// FUNCTION: MW2GBL 0x10017720
 // FUNCTION: MW2MATROX 0x10091403
 // FUNCTION: MW23DFX 0x10023a20
 // FUNCTION: MW2ATI 0x10023ce0
@@ -210,12 +222,18 @@ SceneObject* RestoreMechSegments(MechSegment* p_segment)
 		obj->m_firstChild = RestoreMechSegments(p_segment->m_firstChild);
 		obj->m_nextSibling = RestoreMechSegments(p_segment->m_nextSibling);
 		obj->m_parent = p_segment->m_parent;
+#ifdef MW2_POWERVR
+		if (obj->m_parent) {
+			FUN_1005f320(obj->m_list, obj->m_parent->m_list);
+		}
+#endif
 	}
 
 	return obj;
 }
 
 // FUNCTION: MW2 0x100800e3
+// FUNCTION: MW2GBL 0x100177ef
 // FUNCTION: MW2MATROX 0x100914d2
 // FUNCTION: MW23DFX 0x10023ae0
 // FUNCTION: MW2ATI 0x10023da0

@@ -17,6 +17,7 @@
 
 // The background color the 3D view is cleared to.
 // GLOBAL: MW2 0x100a5544
+// GLOBAL: MW2GBL 0x100b5d1c
 // GLOBAL: MW2MATROX 0x100a4940
 // GLOBAL: MW23DFX 0x1024e410
 // GLOBAL: MW2S3 0x100771ac
@@ -24,6 +25,7 @@ MechS32 g_backgroundColor = 0;
 
 // The sky's color (DrawSkyAndGround; the ground's is g_groundColor).
 // GLOBAL: MW2 0x100a5548
+// GLOBAL: MW2GBL 0x100b5d20
 // GLOBAL: MW2MATROX 0x100a4944
 // GLOBAL: MW23DFX 0x1024e414
 // GLOBAL: MW2ATI 0x10182724
@@ -33,6 +35,7 @@ MechS32 g_skyColor = 0xe0;
 
 // The ground's color (DrawSkyAndGround; the sky's is g_skyColor).
 // GLOBAL: MW2 0x100a554c
+// GLOBAL: MW2GBL 0x100b5d24
 // GLOBAL: MW2MATROX 0x100a4948
 // GLOBAL: MW23DFX 0x1024e418
 // GLOBAL: MW2ATI 0x10182728
@@ -42,6 +45,7 @@ MechS32 g_groundColor = 0xef;
 
 // The horizon map's (LoadMapBitmap, from the world stream's hrzm record).
 // GLOBAL: MW2 0x100a5550
+// GLOBAL: MW2GBL 0x100b5d28
 // GLOBAL: MW2MATROX 0x100a494c
 // GLOBAL: MW23DFX 0x1024e41c
 // GLOBAL: MW2S3 0x100771b8
@@ -49,6 +53,7 @@ MechS32 g_groundColor = 0xef;
 MechS32 g_horizonMapColor = 0xea;
 
 // GLOBAL: MW2 0x100a5558
+// GLOBAL: MW2GBL 0x100b5d30
 // GLOBAL: MW2MATROX 0x100a4954
 // GLOBAL: MW23DFX 0x1024e424
 // GLOBAL: MW2ATI 0x10182734
@@ -58,6 +63,7 @@ MechS32 g_unk0x100a5558 = -1;
 // Set by the world stream (BwdExecuteStream): GetFaceColor brightens damaged shapes instead of
 // dimming them.
 // GLOBAL: MW2 0x100a555c
+// GLOBAL: MW2GBL 0x100b5d34
 // GLOBAL: MW2MATROX 0x100a4958
 // GLOBAL: MW23DFX 0x1024e428
 // GLOBAL: MW2S3 0x100771c4
@@ -66,6 +72,7 @@ MechS32 g_brightenDamage = 0;
 
 // The eyepoint's ambient light (SelectEyepoint): ComputeShade's base shade, out of 0x80.
 // GLOBAL: MW2 0x1010b540
+// GLOBAL: MW2GBL 0x100e99f0
 // GLOBAL: MW2MATROX 0x101d6960
 // GLOBAL: MW23DFX 0x101b0ec0
 // GLOBAL: MW2ATI 0x100e4ea0
@@ -82,6 +89,7 @@ MechS32 ComputeShade(MechS32 p_light, MechS32 p_value, MechScalar p_distance);
 // The Matrox edition's lights its vertices instead (FUN_100689f5): it returns no shade, and
 // draws untextured faces in mode 0xf000 (an animation's color) rather than 0x1000.
 // FUNCTION: MW2 0x10036230
+// FUNCTION: MW2GBL 0x10075be0
 // FUNCTION: MW2MATROX 0x10016b60
 // FUNCTION: MW23DFX 0x1002a4b0
 // FUNCTION: MW2ATI 0x1002a0c0
@@ -418,6 +426,7 @@ MechU32 GetFaceColor(Face* p_face, Vertex* p_vertices, MechU32 p_color, MechS32 
 // Returns a shade from 0 to 15 for a light level p_light (out of 0x80) and a brightness
 // p_value, dimmed with the distance p_distance.
 // FUNCTION: MW2 0x100367c5
+// FUNCTION: MW2GBL 0x10076175
 // FUNCTION: MW2MATROX 0x10017042
 // FUNCTION: MW23DFX 0x1002a810
 MechS32 ComputeShade(MechS32 p_light, MechS32 p_value, MechScalar p_distance)
@@ -442,6 +451,7 @@ MechS32 ComputeShade(MechS32 p_light, MechS32 p_value, MechScalar p_distance)
 // Switches the texture maps of the shape kinds in p_flags on or off (the TOGGLE_..._TEXT_MAPS
 // keys).
 // FUNCTION: MW2 0x10036853
+// FUNCTION: MW2GBL 0x10076203
 // FUNCTION: MW2MATROX 0x100170d8
 // FUNCTION: MW23DFX 0x1002a880
 // FUNCTION: MW2ATI 0x1002a420
@@ -453,6 +463,7 @@ void ToggleTextureMaps(MechU32 p_flags)
 }
 
 // FUNCTION: MW2 0x10036867
+// FUNCTION: MW2GBL 0x10076217
 // FUNCTION: MW2MATROX 0x100170ec
 // FUNCTION: MW23DFX 0x1002a890
 // FUNCTION: MW2ATI 0x1002a430
@@ -464,6 +475,7 @@ MechS32 AreTextureMapsOn(MechU32 p_flags)
 }
 
 // FUNCTION: MW2 0x10036891
+// FUNCTION: MW2GBL 0x10076241
 // FUNCTION: MW2MATROX 0x10017116
 // FUNCTION: MW23DFX 0x1002a8a0
 // FUNCTION: MW2ATI 0x1002a440
@@ -481,6 +493,7 @@ void EnableTextureMaps(MechU32 p_flags, MechS32 p_enable)
 
 // The display detail setting: textures with perspective correction.
 // FUNCTION: MW2 0x100368bf
+// FUNCTION: MW2GBL 0x1007626f
 // FUNCTION: MW2MATROX 0x10017144
 // FUNCTION: MW23DFX 0x1002a8c0
 // FUNCTION: MW2ATI 0x1002a460
@@ -492,6 +505,7 @@ MechS32 ArePerspectiveTexturesOn(undefined4 p_unk0x00)
 }
 
 // FUNCTION: MW2 0x100368e8
+// FUNCTION: MW2GBL 0x10076298
 // FUNCTION: MW2MATROX 0x1001716d
 // FUNCTION: MW23DFX 0x1002a8d0
 // FUNCTION: MW2ATI 0x1002a470

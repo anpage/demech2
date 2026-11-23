@@ -13,6 +13,7 @@
 // Approximates the length of (p_x, p_y, p_z) as (max * 4 + the other two) / 4 of the absolute
 // values.
 // FUNCTION: MW2 0x100035c0
+// FUNCTION: MW2GBL 0x10005090
 MechS32 ApproximateVectorLength(MechS32 p_x, MechS32 p_y, MechS32 p_z)
 {
 #ifdef PORTABLE_C

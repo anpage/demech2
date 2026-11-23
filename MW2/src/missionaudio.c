@@ -23,6 +23,7 @@ typedef struct ProjectFileEntry {
 DECOMP_SIZE_ASSERT(ProjectFileEntry, 0x14)
 
 // GLOBAL: MW2 0x100a14f4
+// GLOBAL: MW2GBL 0x100b2024
 // GLOBAL: MW2MATROX 0x100a2030
 // GLOBAL: MW23DFX 0x1024abe4
 // GLOBAL: MW2ATI 0x1017f01c
@@ -31,17 +32,21 @@ DECOMP_SIZE_ASSERT(ProjectFileEntry, 0x14)
 MechS32 g_soundFileCount = 0;
 
 // GLOBAL: MW2 0x100bcdb8
+// GLOBAL: MW2GBL 0x100ba150
 // GLOBAL: MW2MATROX 0x100c0af8
 // GLOBAL: MW2S3 0x1007dd98
 static ProjectFileEntry g_soundFileEntries[200];
 
 // GLOBAL: MW2 0x100bdd58
+// GLOBAL: MW2GBL 0x100bb0f0
 // GLOBAL: MW2MATROX 0x100c1a98
 // GLOBAL: MW2S3 0x1007ed38
+// GLOBAL: MW2POWERVR 0x1006f118
 static ProjectFileEntry* g_soundFileTable[0x65];
 
 // The directory of the mission's sound files.
 // GLOBAL: MW2 0x100bdef0
+// GLOBAL: MW2GBL 0x100bb288
 // GLOBAL: MW2MATROX 0x100c09f8
 // GLOBAL: MW23DFX 0x1007b078
 // GLOBAL: MW2ATI 0x10070078
@@ -52,6 +57,7 @@ MechChar g_soundFileDir[0x100];
 // Returns the entry named p_name, or adds it if p_add; NULL when it is missing.
 // Matches but for the registers, which VC++ 2.2 allocates differently.
 // FUNCTION: MW2 0x10007140
+// FUNCTION: MW2GBL 0x1004ef30
 // FUNCTION: MW2MATROX 0x10001000
 // FUNCTION: MW23DFX 0x100084e0
 // FUNCTION: MW2ATI 0x10008cd0
@@ -89,6 +95,7 @@ ProjectFileEntry* FindSoundFile(MechChar* p_name, MechS32 p_add)
 // Lists the mission's sound files (keating\*.sfl, on the game CD when they aren't installed) in
 // the project file table and keeps their directory in g_soundFileDir.
 // FUNCTION: MW2 0x10007252
+// FUNCTION: MW2GBL 0x1004f02d
 // FUNCTION: MW2MATROX 0x10001112
 // FUNCTION: MW23DFX 0x100085d0
 // FUNCTION: MW2ATI 0x10008dc0
@@ -141,6 +148,7 @@ void CollectMissionAudio(void)
 // Reads the sound file p_name (".sfl" appended) from the mission's directory, if the project
 // file lists it. Returns the data, or NULL.
 // FUNCTION: MW2 0x100073bb
+// FUNCTION: MW2GBL 0x1004f196
 // FUNCTION: MW2MATROX 0x10001257
 // FUNCTION: MW23DFX 0x100086d0
 // FUNCTION: MW2ATI 0x10008ec0

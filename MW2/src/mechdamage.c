@@ -38,6 +38,7 @@
 
 // A game-key toggle (GetSystemSetting's setting 0x3c).
 // GLOBAL: MW2 0x100a1590
+// GLOBAL: MW2GBL 0x100a04b4
 // GLOBAL: MW2MATROX 0x100a4618
 // GLOBAL: MW23DFX 0x1024bfbc
 // GLOBAL: MW2ATI 0x1018033c
@@ -47,6 +48,7 @@ MechS32 g_autoEject = 0;
 
 // The armor per damage level of other players' sections (the local player's: g_localArmorPerLevel).
 // GLOBAL: MW2 0x100a1594
+// GLOBAL: MW2GBL 0x100a04b8
 // GLOBAL: MW2MATROX 0x100a461c
 // GLOBAL: MW23DFX 0x1024bfc0
 // GLOBAL: MW2ATI 0x10180340
@@ -55,6 +57,7 @@ MechS32 g_autoEject = 0;
 MechScalar g_otherArmorPerLevel = 4;
 
 // GLOBAL: MW2 0x100a1598
+// GLOBAL: MW2GBL 0x100a04bc
 // GLOBAL: MW2MATROX 0x100a4620
 // GLOBAL: MW23DFX 0x1024bfc4
 // GLOBAL: MW2ATI 0x10180344
@@ -63,12 +66,14 @@ MechScalar g_otherArmorPerLevel = 4;
 MechScalar g_localArmorPerLevel = 4;
 
 // GLOBAL: MW2 0x100a159c
+// GLOBAL: MW2GBL 0x100a04c0
 // GLOBAL: MW2MATROX 0x100a4624
 // GLOBAL: MW23DFX 0x1024bfc8
 MechS32 g_localMechHidden = 0;
 
 // The kill count the cockpit shows in a network game.
 // GLOBAL: MW2 0x100a15a0
+// GLOBAL: MW2GBL 0x100a04c4
 // GLOBAL: MW2MATROX 0x100a4628
 // GLOBAL: MW23DFX 0x1024bfcc
 // GLOBAL: MW2ATI 0x1018034c
@@ -78,6 +83,7 @@ MechS32 g_killCount = 0;
 
 // Set while the local player has been warned of critical heat (CalculateHeat).
 // GLOBAL: MW2 0x100a15a4
+// GLOBAL: MW2GBL 0x100a04c8
 // GLOBAL: MW2MATROX 0x100a462c
 // GLOBAL: MW23DFX 0x1024bfd0
 // GLOBAL: MW2S3 0x100621d0
@@ -86,6 +92,7 @@ MechS32 g_criticalHeatWarned = 0;
 
 // When the warning was given.
 // GLOBAL: MW2 0x100bdff0
+// GLOBAL: MW2GBL 0x100b9118
 // GLOBAL: MW2MATROX 0x100c1e24
 // GLOBAL: MW23DFX 0x1007c310
 // GLOBAL: MW2S3 0x1007cab4
@@ -98,6 +105,7 @@ static MechS32 g_criticalHeatWarningTime;
 // The Matrox edition copies m_maneuverParam and the steering's float throttle into each other as
 // they are (the dword, no conversion).
 // FUNCTION: MW2 0x100079d0
+// FUNCTION: MW2GBL 0x1001ea60
 // FUNCTION: MW2MATROX 0x10010250
 // FUNCTION: MW23DFX 0x10015c00
 // FUNCTION: MW2ATI 0x10016010
@@ -179,6 +187,7 @@ void RunAutopilot(Mech* p_mech)
 // The PUNCH_IN_AUTO_HDG game key: sets the player's target heading (the HUD's bearing marker,
 // which the autopilot steers by) to where the torso faces, unless the autopilot is on.
 // FUNCTION: MW2 0x10007cb5
+// FUNCTION: MW2GBL 0x1001ed45
 // FUNCTION: MW2MATROX 0x1001053c
 // FUNCTION: MW23DFX 0x10015dd0
 // FUNCTION: MW2ATI 0x100161e0
@@ -568,6 +577,7 @@ void KillMech(MechS32 p_killer, Mech* p_mech)
 
 // Calls DestroyCriticalSlot once for each of section p_section's m_slotCount.
 // FUNCTION: MW2 0x10008938
+// FUNCTION: MW2GBL 0x1001f9c1
 // FUNCTION: MW2MATROX 0x100111e6
 // FUNCTION: MW23DFX 0x10016600
 // FUNCTION: MW2ATI 0x10016a10
@@ -691,7 +701,7 @@ void DestroyCriticalSlot(MechS32 p_attacker, Mech* p_mech, MechU32 p_section, Me
 	kind = id / 100;
 	if (kind < 50) {
 		weapon = p_mech->m_weapons;
-		for (i = 0; i < 10; i++) {
+		for (i = 0; i < WEAPON_SLOT_COUNT; i++) {
 			if (weapon->m_type < 0) {
 				weapon++;
 				continue;
@@ -1161,8 +1171,8 @@ void ApplyDamageToMech(MechS32 p_attacker, Mech* p_mech, MechScalar p_damage, Me
 									(MechS32) FIXED_FROM_INT(levels));
 		}
 		else {
-#ifdef MW2_3DFX
-			// The 3Dfx edition divides before it multiplies here.
+#if defined(MW2_ATI) || defined(MW2_S3) || defined(MW2_POWERVR) || defined(MW2_3DFX)
+			// The ATI, S3, PowerVR and 3Dfx editions divide before they multiply here.
 			level = 15 - (MechS32) (((section->m_internal + section->m_armor[side] / g_otherArmorPerLevel) /
 									 (MechS32) FIXED_FROM_INT(levels)) *
 									3);
@@ -1207,6 +1217,7 @@ void EjectPlayer(Mech* p_mech, MechS32 p_eject)
 
 // Toggles the local player's object between HideObjTree and ShowObjTree.
 // FUNCTION: MW2 0x10009dd2
+// FUNCTION: MW2GBL 0x10020f61
 // FUNCTION: MW2MATROX 0x1001278c
 // FUNCTION: MW23DFX 0x10017560
 void ToggleLocalMechVisible(void)

@@ -45,6 +45,7 @@
 // target lock of guided weapons.
 
 // GLOBAL: MW2 0x100a6d34
+// GLOBAL: MW2GBL 0x100b0068
 // GLOBAL: MW2MATROX 0x100a61c8
 // GLOBAL: MW23DFX 0x1025a664
 // GLOBAL: MW2ATI 0x1018e95c
@@ -54,6 +55,7 @@ Shape* g_aimedShape = NULL;
 
 // The fire button fires only the selected weapon; cleared, it fires them all.
 // GLOBAL: MW2 0x100a6d38
+// GLOBAL: MW2GBL 0x100b006c
 // GLOBAL: MW2MATROX 0x100a61cc
 // GLOBAL: MW23DFX 0x1025a668
 // GLOBAL: MW2S3 0x10066288
@@ -66,22 +68,25 @@ MechS32 g_singleWeaponFire = 1;
 // are 16-byte alignment.
 
 // GLOBAL: MW2 0x101099c0
+// GLOBAL: MW2GBL 0x100e97e0
 // GLOBAL: MW2MATROX 0x101d4bd0
 // GLOBAL: MW23DFX 0x10159470
 // GLOBAL: MW2ATI 0x1008d480
 // GLOBAL: MW2S3 0x100abcd0
 // GLOBAL: MW2POWERVR 0x10083a60
-MechS32 g_remoteWeaponsFired[10];
+MechS32 g_remoteWeaponsFired[WEAPON_SLOT_COUNT];
 
 // GLOBAL: MW2 0x101099f0
+// GLOBAL: MW2GBL 0x100e9820
 // GLOBAL: MW2MATROX 0x101d4c00
 // GLOBAL: MW23DFX 0x101594a0
 // GLOBAL: MW2ATI 0x1008d4b0
 // GLOBAL: MW2S3 0x100abd00
 // GLOBAL: MW2POWERVR 0x10083a90
-MechS32 g_localWeaponsFired[10];
+MechS32 g_localWeaponsFired[WEAPON_SLOT_COUNT];
 
 // FUNCTION: MW2 0x10044740
+// FUNCTION: MW2GBL 0x100471b0
 // FUNCTION: MW2MATROX 0x1002b4e0
 // FUNCTION: MW23DFX 0x10043760
 // FUNCTION: MW2ATI 0x10040fb0
@@ -92,14 +97,14 @@ void ReleaseWeaponTriggers(Mech* p_mech)
 	WeaponSlot* slot;
 	MechS32 i;
 
-	for (i = 0; i < 10; i++) {
+	for (i = 0; i < WEAPON_SLOT_COUNT; i++) {
 		slot = &p_mech->m_weapons[i];
 		if (slot->m_state == c_weaponFiring || slot->m_state == c_weaponHeld) {
 			slot->m_state = c_weaponReady;
 		}
 	}
 
-	for (i = 0; i < 10; i++) {
+	for (i = 0; i < WEAPON_SLOT_COUNT; i++) {
 		g_localWeaponsFired[i] = 0;
 		g_remoteWeaponsFired[i] = 0;
 	}
@@ -209,7 +214,7 @@ void UpdateWeaponFireState(Mech* p_mech)
 		}
 	}
 
-	for (i = 0; i < 10; i++) {
+	for (i = 0; i < WEAPON_SLOT_COUNT; i++) {
 		slot = &p_mech->m_weapons[i];
 		if (slot->m_type < 0) {
 			continue;
@@ -218,13 +223,21 @@ void UpdateWeaponFireState(Mech* p_mech)
 		def = &g_weaponDefs[slot->m_type];
 		switch (slot->m_state) {
 		case c_weaponRecycling:
+#ifdef MW2_CHEAT_RECYCLE
+			if (g_currentClock - slot->m_time >= def->m_recycle || (g_difficulty->m_unlimitedAmmo & 2)) {
+#else
 			if (g_currentClock - slot->m_time >= def->m_recycle) {
+#endif
 				slot->m_state = c_weaponReady;
 				slot->m_time = 0;
 			}
 			break;
 		case c_weaponHeld:
+#ifdef MW2_CHEAT_RECYCLE_HELD
+			if (g_currentClock - slot->m_time >= def->m_recycle || (g_difficulty->m_unlimitedAmmo & 2)) {
+#else
 			if (g_currentClock - slot->m_time >= def->m_recycle) {
+#endif
 				if (&p_mech->m_weapons[p_mech->m_selectedWeapon] == slot ||
 					p_mech->m_player->m_steering->m_weaponFireGroup ||
 					p_mech->m_player->m_steering->m_weaponFireGroup1 ||
@@ -463,9 +476,9 @@ void SelectNextWeaponInGroup(Mech* p_mech, MechS32 p_wrap)
 	selected = p_mech->m_selectedWeapon;
 	group = p_mech->m_weapons[p_mech->m_selectedWeapon].m_group;
 	index = selected;
-	for (i = 1; i < 10; i++) {
+	for (i = 1; i < WEAPON_SLOT_COUNT; i++) {
 		index++;
-		index %= 10;
+		index %= WEAPON_SLOT_COUNT;
 		slot = &p_mech->m_weapons[index];
 		if (slot->m_type < 0) {
 			continue;
@@ -503,7 +516,7 @@ void SelectNextWeapon(Mech* p_mech)
 
 	while (!done) {
 		p_mech->m_selectedWeapon++;
-		p_mech->m_selectedWeapon %= 10;
+		p_mech->m_selectedWeapon %= WEAPON_SLOT_COUNT;
 		if (p_mech->m_weapons[p_mech->m_selectedWeapon].m_type < 0) {
 			continue;
 		}
@@ -516,7 +529,7 @@ void SelectNextWeapon(Mech* p_mech)
 			p_mech->m_selectedWeapon = 0;
 		}
 
-		if (p_mech->m_weapons[p_mech->m_selectedWeapon].m_state != c_weaponEmpty || ++tries == 10) {
+		if (p_mech->m_weapons[p_mech->m_selectedWeapon].m_state != c_weaponEmpty || ++tries == WEAPON_SLOT_COUNT) {
 			done = TRUE;
 		}
 	}
@@ -546,9 +559,9 @@ void SelectNextWeaponGroup(Mech* p_mech)
 
 	current = p_mech->m_weapons[p_mech->m_selectedWeapon].m_group;
 	group = current + 1;
-	group %= 10;
+	group %= WEAPON_SLOT_COUNT;
 	while (group != current && !found) {
-		for (i = 0; i < 10 && !found; i++) {
+		for (i = 0; i < WEAPON_SLOT_COUNT && !found; i++) {
 			if (p_mech->m_weapons[i].m_type < 0) {
 				continue;
 			}
@@ -562,7 +575,7 @@ void SelectNextWeaponGroup(Mech* p_mech)
 		}
 
 		group++;
-		group %= 10;
+		group %= WEAPON_SLOT_COUNT;
 	}
 }
 
@@ -595,7 +608,7 @@ MechS32 SelectWeaponGroup(Mech* p_mech, MechS32 p_group)
 		return 1;
 	}
 
-	for (i = 0; i < 10 && !found; i++) {
+	for (i = 0; i < WEAPON_SLOT_COUNT && !found; i++) {
 		if (p_mech->m_weapons[i].m_type < 0) {
 			continue;
 		}
@@ -613,6 +626,7 @@ MechS32 SelectWeaponGroup(Mech* p_mech, MechS32 p_group)
 
 // Returns 1 if the selected weapon is ready, 0 if not, -1 without one.
 // FUNCTION: MW2 0x10045919
+// FUNCTION: MW2GBL 0x10048564
 // FUNCTION: MW2MATROX 0x1002c6bf
 // FUNCTION: MW23DFX 0x100441f0
 // FUNCTION: MW2ATI 0x10041a40
@@ -692,6 +706,7 @@ void LoadWeaponSounds(void)
 }
 
 // FUNCTION: MW2 0x10045b14
+// FUNCTION: MW2GBL 0x10048763
 // FUNCTION: MW2MATROX 0x1002c8ba
 // FUNCTION: MW23DFX 0x10044330
 // FUNCTION: MW2ATI 0x10041b70
@@ -709,6 +724,7 @@ void SetWeaponGroup(Mech* p_mech, MechS32 p_index, MechS32 p_group)
 
 // Moves the local player's selected weapon to p_group.
 // FUNCTION: MW2 0x10045b56
+// FUNCTION: MW2GBL 0x100487a5
 // FUNCTION: MW2MATROX 0x1002c8fc
 // FUNCTION: MW23DFX 0x10044350
 // FUNCTION: MW2ATI 0x10041ba0
@@ -725,6 +741,7 @@ void SetSelectedWeaponGroup(MechS32 p_group)
 }
 
 // FUNCTION: MW2 0x10045b9c
+// FUNCTION: MW2GBL 0x100487eb
 // FUNCTION: MW2MATROX 0x1002c942
 // FUNCTION: MW23DFX 0x10044380
 // FUNCTION: MW2ATI 0x10041bd0
@@ -751,7 +768,7 @@ void FireRemoteWeapons(Mech* p_mech)
 	WeaponDef* def;
 	MechS32 i;
 
-	for (i = 0; i < 10; i++) {
+	for (i = 0; i < WEAPON_SLOT_COUNT; i++) {
 		if (g_remoteWeaponsFired[i]) {
 			g_remoteWeaponsFired[i] = 0;
 			slot = &p_mech->m_weapons[i];
@@ -816,6 +833,7 @@ void FireWeaponGroup(void)
 
 // Moves the next weapon into the selected one's group.
 // FUNCTION: MW2 0x10045e25
+// FUNCTION: MW2GBL 0x10048a62
 // FUNCTION: MW2MATROX 0x1002cbcb
 // FUNCTION: MW23DFX 0x10044520
 // FUNCTION: MW2ATI 0x10041d70
@@ -933,6 +951,7 @@ void UpdateWeaponLock(Mech* p_mech)
 // Casts the player's aim ray and returns the shape it hits, if any. A hit on a mech or a
 // building sets the distance the weapons converge at.
 // FUNCTION: MW2 0x10046269
+// FUNCTION: MW2GBL 0x10048f4f
 // FUNCTION: MW2MATROX 0x1002d0b1
 // FUNCTION: MW23DFX 0x10044810
 // FUNCTION: MW2ATI 0x10042060
@@ -977,6 +996,7 @@ Shape* UpdateAimDistance(Player* p_player)
 }
 
 // FUNCTION: MW2 0x1004635c
+// FUNCTION: MW2GBL 0x10049042
 // FUNCTION: MW2MATROX 0x1002d1bc
 // FUNCTION: MW23DFX 0x100448d0
 // FUNCTION: MW2ATI 0x10042120
@@ -988,6 +1008,7 @@ MechScalar GetAimRange(Player* p_player)
 }
 
 // FUNCTION: MW2 0x10046375
+// FUNCTION: MW2GBL 0x1004905b
 // FUNCTION: MW2MATROX 0x1002d1de
 // FUNCTION: MW23DFX 0x100448e0
 // FUNCTION: MW2ATI 0x10042130
@@ -1010,6 +1031,7 @@ void GetMechAimDirection(Player* p_player, MechScalar* p_x, MechScalar* p_y, Mec
 
 // Builds the player's aim ray, 150000 long.
 // FUNCTION: MW2 0x100463e5
+// FUNCTION: MW2GBL 0x100490cb
 // FUNCTION: MW2MATROX 0x1002d253
 // FUNCTION: MW23DFX 0x10044950
 // FUNCTION: MW2ATI 0x100421a0
@@ -1035,6 +1057,7 @@ void BuildAimRay(Player* p_player, Ray* p_ray)
 
 // The direction the player aims in.
 // FUNCTION: MW2 0x10046466
+// FUNCTION: MW2GBL 0x1004914c
 // FUNCTION: MW2MATROX 0x1002d2d7
 // FUNCTION: MW23DFX 0x100449d0
 // FUNCTION: MW2ATI 0x10042220
@@ -1069,6 +1092,7 @@ void GetEyeAimDirection(Player* p_player, MechScalar* p_x, MechScalar* p_y, Mech
 }
 
 // FUNCTION: MW2 0x100464f3
+// FUNCTION: MW2GBL 0x100491d9
 // FUNCTION: MW2MATROX 0x1002d364
 // FUNCTION: MW23DFX 0x10044a50
 // FUNCTION: MW2ATI 0x100422a0
@@ -1081,6 +1105,7 @@ void GetFiringPosition(Player* p_player, MechScalar* p_x, MechScalar* p_y, MechS
 
 // Places p_obj at the player's current hardpoint.
 // FUNCTION: MW2 0x10046519
+// FUNCTION: MW2GBL 0x100491ff
 // FUNCTION: MW2MATROX 0x1002d38a
 // FUNCTION: MW23DFX 0x10044a70
 // FUNCTION: MW2ATI 0x100422c0

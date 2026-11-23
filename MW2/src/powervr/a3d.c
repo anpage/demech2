@@ -124,9 +124,9 @@ static sgl_vector g_a3dAxisY = {0.0f, 1.0f, 0.0f};
 // GLOBAL: MW2POWERVR 0x101c4d90
 static sgl_vector g_a3dAxisZ = {0.0f, 0.0f, 1.0f};
 
-// The renderer is open (FUN_10060f00).
+// The renderer is open (FUN_10060f00). geocache.c reads it too.
 // GLOBAL: MW2POWERVR 0x101c4d9c
-static MechS32 g_a3dInitialized = FALSE;
+MechS32 g_a3dInitialized = FALSE;
 
 // GLOBAL: MW2POWERVR 0x101c4db0
 static MechS32 g_a3dDevice = -1;
@@ -1428,7 +1428,7 @@ void FUN_10060320(void)
 	MechFloat ambient;
 
 	ambient = g_eyepoint->m_ambientLight * 0.01171875f;
-	if (g_groundTile < 0.0f) {
+	if (FIXED_IS_NEGATIVE(g_groundTile)) {
 		FUN_10051ba1(c_a3dGroundAnimation, &ground[0], &ground[1], &ground[2]);
 		g_a3dFogColour[0] = g_a3dBackground[0] = ground[0];
 		g_a3dFogColour[1] = g_a3dBackground[1] = ground[1];
@@ -1820,10 +1820,12 @@ void FUN_10061050(MechS32 p_set)
 {
 	Animation* animation;
 	sgl_colour colour;
+	AnimFrame* frame;
 
-	colour[0] = g_animFrames[p_set][0].m_red;
-	colour[1] = g_animFrames[p_set][0].m_green;
-	colour[2] = g_animFrames[p_set][0].m_blue;
+	frame = g_animFrames[p_set];
+	colour[0] = frame->m_red;
+	colour[1] = frame->m_green;
+	colour[2] = frame->m_blue;
 	for (animation = g_animations; animation < g_animations + 0x200; animation++) {
 		if (animation->m_set == p_set && animation->m_material >= 0) {
 			sgl_modify_material(animation->m_material, TRUE);
@@ -1841,8 +1843,8 @@ void FUN_100610d0(MechS32 p_index)
 	Animation* animation;
 	AnimFrame* frame;
 
-	frame = &g_animFrames[g_animations[p_index].m_set][g_animations[p_index].m_frame];
 	animation = &g_animations[p_index];
+	frame = &g_animFrames[animation->m_set][animation->m_frame];
 	if (animation->m_material > 0 && frame->m_texture > 0) {
 		if (p_index == c_a3dSkyAnimation || p_index == c_a3dGroundAnimation) {
 			animation->m_lit = TRUE;
@@ -2416,7 +2418,7 @@ MechS32 FUN_10061d60(MechFloat p_distance, MechFloat p_size)
 {
 	MechS32 pixels;
 
-	pixels = (MechS32) (g_gameWindowWidth * 0.5f * p_size / (g_eyepoint->m_detailScale * p_distance));
+	pixels = (MechS32) ((MechFloat) (g_gameWindowWidth * 0.5f) * (p_size / (g_eyepoint->m_detailScale * p_distance)));
 	if (!pixels) {
 		pixels = 1;
 	}
@@ -2502,7 +2504,7 @@ void FUN_10061db0(Shape* p_shape, Model* p_model)
 		halfY = (topY - bottomY) * 0.5f;
 		halfX = (topX - bottomX) * 0.5f;
 		if (topY < -10.0f) {
-			bottomY = -10.0f - topY + bottomY;
+			bottomY = (MechFloat) (-10.0f - topY) + bottomY;
 			topY = -10.0f;
 		}
 
@@ -2551,24 +2553,22 @@ void FUN_10061db0(Shape* p_shape, Model* p_model)
 void FUN_10062160(Shape* p_shape, MechS32 p_material)
 {
 	Model* model;
-	Model* level;
-	Face* faces;
+	Vertex* vertices;
 	Face* face;
 	Vertex* vertex;
-	MechU8* indices;
 	MechS32 ids[16];
-	MechS32 models[3];
-	MechS32 changePoints[2];
 	MechS32 translucent;
 	MechS32 levels;
 	MechS32 lit;
 	MechS32 textured;
 	MechS32 index;
+	MechS32 material;
 	MechS32 width;
 	MechS32 height;
 	MechFloat red;
 	MechFloat green;
 	MechFloat blue;
+	MechU16 lastColor;
 	MechFloat minX;
 	MechFloat minY;
 	MechFloat minZ;
@@ -2576,9 +2576,6 @@ void FUN_10062160(Shape* p_shape, MechS32 p_material)
 	MechFloat maxY;
 	MechFloat maxZ;
 	MechFloat extent;
-	MechFloat delta;
-	MechS32 parent;
-	MechU16 lastColor;
 	MechS32 i;
 	MechS32 k;
 
@@ -2604,8 +2601,7 @@ void FUN_10062160(Shape* p_shape, MechS32 p_material)
 			continue;
 		}
 
-		faces = (Face*) ((MechU8*) model + model->m_faceOffset);
-		if ((faces->m_color & 0xf000) == 0x3000) {
+		if ((((Face*) ((MechU8*) model + model->m_faceOffset))->m_color & 0xf000) == 0x3000) {
 			if (!(p_shape->m_kind & 0xf0)) {
 				p_shape->m_kind = (p_shape->m_kind & ~0xf0) | 0x20;
 			}
@@ -2628,8 +2624,9 @@ void FUN_10062160(Shape* p_shape, MechS32 p_material)
 			DebugPrint("Polys:%d\n", model->m_faceCount);
 		}
 
+		vertices = (Vertex*) (model + 1);
 		for (i = 0; i < model->m_faceCount; i++) {
-			face = &faces[i];
+			face = (Face*) ((MechU8*) model + model->m_faceOffset) + i;
 			if (face->m_indexCount < 2) {
 				continue;
 			}
@@ -2639,13 +2636,12 @@ void FUN_10062160(Shape* p_shape, MechS32 p_material)
 				textured = FALSE;
 			}
 
-			indices = (MechU8*) face + face->m_indexOffset;
 			for (k = 0; k < face->m_indexCount; k++) {
-				vertex = (Vertex*) (model + 1) + indices[k];
+				vertex = vertices + ((MechU8*) face + face->m_indexOffset)[k];
 				if (textured && A3D_VERTEX_UV_SCALED(vertex) != 1) {
 					vertex->m_u = vertex->m_u / width;
-					A3D_VERTEX_UV_SCALED(vertex) = 1;
 					vertex->m_v = vertex->m_v / height;
+					A3D_VERTEX_UV_SCALED(vertex) = 1;
 				}
 				if (lit) {
 					A3D_VERTEX_LIT(vertex) = 1;
@@ -2657,13 +2653,13 @@ void FUN_10062160(Shape* p_shape, MechS32 p_material)
 			DebugPrint("Verts:%d\n", model->m_vertexCount);
 		}
 
-		vertex = (Vertex*) (model + 1);
-		for (i = 0; i < model->m_vertexCount; i++, vertex++) {
+		for (i = 0; i < model->m_vertexCount; i++, vertices++) {
+			vertex = vertices;
 			if (p_shape->m_models == model) {
 				if (!i) {
-					maxX = minX = vertex->m_worldX;
-					maxY = minY = vertex->m_worldY;
-					maxZ = minZ = vertex->m_worldZ;
+					minX = maxX = vertex->m_worldX;
+					minY = maxY = vertex->m_worldY;
+					minZ = maxZ = vertex->m_worldZ;
 				}
 				else {
 					if (vertex->m_worldX < minX) {
@@ -2730,14 +2726,13 @@ void FUN_10062160(Shape* p_shape, MechS32 p_material)
 				g_a3dPiecePolys++;
 			}
 
-			face = &faces[i];
+			face = (Face*) ((MechU8*) model + model->m_faceOffset) + i;
 			if (face->m_indexCount <= 2 || face->m_indexCount >= 0x10) {
 				continue;
 			}
 
-			indices = (MechU8*) face + face->m_indexOffset;
 			for (k = 0; k < face->m_indexCount; k++) {
-				ids[k] = indices[k];
+				ids[k] = ((MechU8*) face + face->m_indexOffset)[k];
 			}
 
 			if (lastColor == face->m_color) {
@@ -2749,39 +2744,43 @@ void FUN_10062160(Shape* p_shape, MechS32 p_material)
 			case 0:
 				FUN_10061ba0(face->m_color, &red, &green, &blue);
 				FUN_1005f9b0(face->m_indexCount, ids, red, green, blue);
+				lastColor = face->m_color;
 				break;
 			case 0x1000:
 				FUN_10061c20(face->m_color, &red, &green, &blue);
 				FUN_1005f920(face->m_indexCount, ids, red, green, blue);
+				lastColor = face->m_color;
 				break;
 			case 0x2000:
 				FUN_10061be0(face->m_color, &red, &green, &blue);
 				FUN_1005f9b0(face->m_indexCount, ids, red, green, blue);
+				lastColor = face->m_color;
 				break;
 			case 0x4000:
-				vertex = (Vertex*) (model + 1) + indices[0];
+				vertex = (Vertex*) (model + 1) + ((MechU8*) face + face->m_indexOffset)[0];
 				red = vertex->m_red * 0.00390625f;
 				green = vertex->m_green * 0.00390625f;
 				blue = vertex->m_blue * 0.00390625f;
 				FUN_1005f920(face->m_indexCount, ids, red, green, blue);
+				lastColor = face->m_color;
 				break;
 			case 0xf000:
 				DebugPrintInternal("MAPSOLID poly\n");
 				index = (face->m_color & 0xff) + 0x100;
 				FUN_10051ba1(index, &red, &green, &blue);
 				FUN_1005f920(face->m_indexCount, ids, red, green, blue);
+				lastColor = face->m_color;
 				break;
 			default:
 				FUN_100619a0(face->m_color, &translucent, &lit, &textured, &index);
-				index = FUN_10061810(index, &width, &height, lit);
-				if (index < 0) {
+				material = FUN_10061810(index, &width, &height, lit);
+				if (material < 0) {
 					continue;
 				}
-				FUN_1005f8c0(face->m_indexCount, ids, index);
+				FUN_1005f8c0(face->m_indexCount, ids, material);
+				lastColor = face->m_color;
 				break;
 			}
-
-			lastColor = face->m_color;
 		}
 
 		levels++;
@@ -2793,12 +2792,11 @@ void FUN_10062160(Shape* p_shape, MechS32 p_material)
 	}
 
 	if (p_shape->m_object) {
-		parent = p_shape->m_object->m_list;
+		p_shape->m_list = FUN_1005f200(p_shape->m_object->m_list);
 	}
 	else {
-		parent = FUN_10061910(p_shape);
+		p_shape->m_list = FUN_1005f200(FUN_10061910(p_shape));
 	}
-	p_shape->m_list = FUN_1005f200(parent);
 	if (g_a3dVerbose) {
 		DebugPrint("Object:%d\n", p_shape->m_list);
 	}
@@ -2807,33 +2805,33 @@ void FUN_10062160(Shape* p_shape, MechS32 p_material)
 	}
 
 	if (levels > 1 && (MechFloat) fabs(model->m_key) >= 1e-07f) {
+		MechS32 models[3];
+		MechS32 changePoints[2];
+
 		extent = maxX - minX;
-		delta = maxY - minY;
-		if (delta > extent) {
-			extent = delta;
+		if (maxY - minY > extent) {
+			extent = maxY - minY;
 		}
-		delta = maxZ - minZ;
-		if (delta > extent) {
-			extent = delta;
+		if (maxZ - minZ > extent) {
+			extent = maxZ - minZ;
 		}
 
 		models[0] = model->m_list;
-		level = model;
 		for (i = levels / 2; i > 0; i--) {
-			level = level->m_next;
+			model = model->m_next;
 		}
-		models[1] = level->m_list;
-		changePoints[0] = FUN_10061d60(level->m_key, extent);
-		if (!level->m_next) {
+		models[1] = model->m_list;
+		changePoints[0] = FUN_10061d60(model->m_key, extent);
+		if (!model->m_next) {
 			models[2] = -2;
 			changePoints[1] = 1;
 		}
 		else {
 			do {
-				level = level->m_next;
-			} while (level->m_next);
-			models[2] = level->m_list;
-			changePoints[1] = FUN_10061d60(level->m_key, extent);
+				model = model->m_next;
+			} while (model->m_next);
+			models[2] = model->m_list;
+			changePoints[1] = FUN_10061d60(model->m_key, extent);
 		}
 
 		FUN_1005fa50(p_shape->m_list, models, minX, minY, minZ, maxX, maxY, maxZ, changePoints);

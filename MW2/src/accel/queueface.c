@@ -195,7 +195,7 @@ ProjectedVertex* ProjectVertex(ProjectedVertex* p_vertex)
 		depth = p_vertex->m_z;
 		p_vertex->m_screenX = g_viewCenterX + (MechS32) (p_vertex->m_x / depth);
 		screenX = p_vertex->m_screenX;
-#ifndef MW2_3DFX
+#ifndef MW2_PROJECT_Y_AFTER_X
 		p_vertex->m_screenY = -(MechS32) (p_vertex->m_y / depth) + g_viewCenterY;
 		screenY = p_vertex->m_screenY;
 #endif
@@ -207,8 +207,8 @@ ProjectedVertex* ProjectVertex(ProjectedVertex* p_vertex)
 			outcode |= 1;
 		}
 
-#ifdef MW2_3DFX
-		// The 3Dfx edition's projects y after testing x.
+#ifdef MW2_PROJECT_Y_AFTER_X
+		// The ATI, S3 and 3Dfx editions' project y after testing x.
 		p_vertex->m_screenY = -(MechS32) (p_vertex->m_y / depth) + g_viewCenterY;
 		screenY = p_vertex->m_screenY;
 #endif
@@ -311,7 +311,11 @@ void QueueFace(Face* p_face, Vertex* p_vertices)
 	MechU8* index;
 	QueuedPolygon* poly;
 	MechFloat scale;
+#ifdef MW2_QUEUEFACE_REUSED_LOCALS
+	MechS8 orCodes;
+#else
 	MechU8 orCodes;
+#endif
 	MechS32 count;
 	MechFloat viewDepth;
 	MechS8 previousClipped;
@@ -322,7 +326,18 @@ void QueueFace(Face* p_face, Vertex* p_vertices)
 	MechFloat dx;
 	MechFloat dy;
 	MechFloat dz;
+#ifdef MW2_QUEUEFACE_REUSED_LOCALS
+	MechFloat normalX;
+	MechFloat normalY;
+#else
 	DepthEntry* entry;
+#endif
+#ifdef MW2_QUEUEFACE_TEXTURE_RANGE
+	MechFloat minU;
+	MechFloat maxU;
+	MechFloat minV;
+	MechFloat maxV;
+#endif
 
 	orCodes = 0;
 	andCodes = 3;
@@ -331,17 +346,38 @@ void QueueFace(Face* p_face, Vertex* p_vertices)
 	// Faces of three vertices or more face away when the eyepoint's offset from the first one has
 	// a dot product with the normal that isn't negative.
 	if (p_face->m_indexCount >= 3) {
+#ifdef MW2_QUEUEFACE_REUSED_LOCALS
+		// These editions copy the normal into locals and sum the z term first. The z goes into
+		// depth, the variable that later holds the polygon's depth: the frame has no slot of its own
+		// for it.
+		normalX = p_face->m_normal[0];
+		normalY = p_face->m_normal[1];
+		depth = p_face->m_normal[2];
+		vertex = &p_vertices[((MechU8*) p_face)[p_face->m_indexOffset]];
+		dot = (vertex->m_worldZ - g_viewEyeZ) * depth + (vertex->m_worldX - g_viewEyeX) * normalX +
+			  (vertex->m_worldY - g_viewEyeY) * normalY;
+#else
 		vertex = &p_vertices[((MechU8*) p_face)[p_face->m_indexOffset]];
 		dot = (vertex->m_worldX - g_viewEyeX) * p_face->m_normal[0] +
 			  (vertex->m_worldY - g_viewEyeY) * p_face->m_normal[1] +
 			  (vertex->m_worldZ - g_viewEyeZ) * p_face->m_normal[2];
+#endif
 		if (!FIXED_IS_NEGATIVE(dot)) {
 			return;
 		}
 	}
 
 	g_facesFrontFacing++;
+#ifdef MW2_QUEUEFACE_TEXTURE_RANGE
+	// The S3 edition also takes the range of the face's texture coordinates.
+	index = (MechU8*) p_face + p_face->m_indexOffset;
+	vertex = &p_vertices[*index];
+	minU = maxU = vertex->m_u;
+	minV = maxV = vertex->m_v;
+	for (count = p_face->m_indexCount; count--; index++) {
+#else
 	for (index = (MechU8*) p_face + p_face->m_indexOffset, count = p_face->m_indexCount; count--; index++) {
+#endif
 		vertex = &p_vertices[*index];
 		if (!(vertex->m_flags & 4)) {
 			g_verticesTransformed++;
@@ -364,6 +400,12 @@ void QueueFace(Face* p_face, Vertex* p_vertices)
 		codes = vertex->m_flags;
 		orCodes |= codes;
 		andCodes &= codes;
+#ifdef MW2_QUEUEFACE_TEXTURE_RANGE
+		minU = minU > vertex->m_u ? vertex->m_u : minU;
+		maxU = maxU < vertex->m_u ? vertex->m_u : maxU;
+		minV = minV > vertex->m_v ? vertex->m_v : minV;
+		maxV = maxV < vertex->m_v ? vertex->m_v : maxV;
+#endif
 	}
 
 	if (andCodes == 1 || andCodes == 2) {
@@ -411,6 +453,44 @@ void QueueFace(Face* p_face, Vertex* p_vertices)
 	g_polygonPointCursor = g_drawBufferBottom;
 	poly->m_count = g_polygonPointCount;
 	poly->m_outcodes = 0;
+#ifdef MW2_QUEUEFACE_REUSED_LOCALS
+	// These editions count the points down, and sum the depths in dot.
+	if (g_queuedShapeFlags & 2) {
+		dot = 0;
+		for (count = g_polygonPointCount; count--;) {
+			point = *points;
+			points++;
+			dot += point->m_z;
+			poly->m_outcodes |= point->m_outcode;
+		}
+
+		depth = dot / g_polygonPointCount;
+	}
+	else if (g_queuedShapeFlags & 4) {
+		depth = FIXED_MAX;
+		for (count = g_polygonPointCount; count--;) {
+			point = *points;
+			points++;
+			if (point->m_z < depth) {
+				depth = point->m_z;
+			}
+
+			poly->m_outcodes |= point->m_outcode;
+		}
+	}
+	else {
+		depth = 0;
+		for (count = g_polygonPointCount; count--;) {
+			point = *points;
+			points++;
+			if (point->m_z > depth) {
+				depth = point->m_z;
+			}
+
+			poly->m_outcodes |= point->m_outcode;
+		}
+	}
+#else
 	if (g_queuedShapeFlags & 2) {
 		depth = 0;
 		for (count = 0; count < g_polygonPointCount; count++) {
@@ -446,6 +526,7 @@ void QueueFace(Face* p_face, Vertex* p_vertices)
 			poly->m_outcodes |= point->m_outcode;
 		}
 	}
+#endif
 
 	if (g_queuedShapeFlags & 1) {
 		depth += 268435456.0f;
@@ -458,6 +539,39 @@ void QueueFace(Face* p_face, Vertex* p_vertices)
 	points += g_polygonPointCount;
 	g_drawBufferBottom = g_polygonPointCursor;
 	poly->m_flags = ((DrawFaceHook) g_renderSettings.m_drawFace)(p_face, p_vertices, p_face->m_color, depth);
+#ifdef MW2_QUEUEFACE_TEXTURE_RANGE
+	// A texture spanning more than 2047 texels in u or v gives up the modes 5 to 11 for 15; one that
+	// doesn't marks the polygon past the texture's end (u: 0x10, v: 0x20) or before its start
+	// (u: 0x40, v: 0x80) by its largest coordinates.
+	if (maxU - minU > 2047.0f || maxV - minV > 2047.0f) {
+		switch (poly->m_flags & 0xf000) {
+		case 0x5000:
+		case 0x6000:
+		case 0x7000:
+		case 0x8000:
+		case 0x9000:
+		case 0xa000:
+		case 0xb000:
+			poly->m_flags &= ~0xf000;
+			poly->m_flags |= 0xf000;
+		}
+	}
+	else {
+		if (maxU > 2047.0f) {
+			poly->m_outcodes |= 0x10;
+		}
+		else if (maxU < 0.0f) {
+			poly->m_outcodes |= 0x40;
+		}
+
+		if (maxV > 2047.0f) {
+			poly->m_outcodes |= 0x20;
+		}
+		else if (maxV < 0.0f) {
+			poly->m_outcodes |= 0x80;
+		}
+	}
+#endif
 
 	// The shape's damage level (its flags' bits 4-7, of 15) dims its vertices, or brightens them
 	// with g_brightenDamage: for parts of a player and for buildings (type 0x50).
@@ -522,9 +636,14 @@ void QueueFace(Face* p_face, Vertex* p_vertices)
 			g_polygonCount++;
 		}
 
+#ifdef MW2_QUEUEFACE_REUSED_LOCALS
+		g_depthList[g_depthEntryCount].m_poly = poly;
+		g_depthList[g_depthEntryCount].m_depth = depth;
+#else
 		entry = &g_depthList[g_depthEntryCount];
 		entry->m_poly = poly;
 		entry->m_depth = depth;
+#endif
 		g_depthEntryCount++;
 	}
 	else {
@@ -653,16 +772,32 @@ MechS32 ProjectPolygon(Vertex* p_vertices, MechU32 p_count, MechS32 p_unk0x08)
 	MechU32 i;
 	Vertex* vertex;
 	Vertex* previous;
+#ifdef MW2_PROJECT_ALL_NEAR_EMPTY
+	MechU32 allNear;
+#endif
 
 	g_polygonPointCount = 0;
+#ifdef MW2_PROJECT_ALL_NEAR_EMPTY
+	allNear = TRUE;
+#endif
 	vertex = p_vertices;
 	for (i = 0; i < p_count; i++) {
 		vertex->m_depth = (vertex->m_worldX - g_viewEyeX) * g_viewProjZ0 +
 						  (vertex->m_worldY - g_viewEyeY) * g_viewProjZ1 +
 						  (vertex->m_worldZ - g_viewEyeZ) * g_viewProjZ2;
 		vertex->m_flags = vertex->m_depth < g_viewNearPlane;
+#ifdef MW2_PROJECT_ALL_NEAR_EMPTY
+		allNear &= vertex->m_flags;
+#endif
 		vertex++;
 	}
+
+#ifdef MW2_PROJECT_ALL_NEAR_EMPTY
+	// The S3 edition's leaves no points when every vertex is nearer than the near plane.
+	if (allNear == TRUE) {
+		return 0;
+	}
+#endif
 
 	vertex = p_vertices;
 	previous = &p_vertices[p_count - 1];

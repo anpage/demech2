@@ -13,6 +13,7 @@
 #include <stddef.h>
 
 // GLOBAL: MW2 0x100a5288
+// GLOBAL: MW2GBL 0x100ad8c8
 // GLOBAL: MW23DFX 0x102651c0
 // GLOBAL: MW2ATI 0x101994b8
 // GLOBAL: MW2S3 0x10065540
@@ -20,6 +21,7 @@
 MechChar g_audioItem[] = "Audio Ctrl";
 
 // GLOBAL: MW2 0x100a5298
+// GLOBAL: MW2GBL 0x100ad8d8
 // GLOBAL: MW23DFX 0x102651d0
 // GLOBAL: MW2ATI 0x101994c8
 // GLOBAL: MW2S3 0x10065550
@@ -30,6 +32,7 @@ MechChar g_audioTitle[] = "SET AUDIO VOLUME";
 MechChar g_bettyMessageItem[] = "Betty Message";
 
 // GLOBAL: MW2 0x100a52c0
+// GLOBAL: MW2GBL 0x100ad900
 // GLOBAL: MW23DFX 0x102651f8
 // GLOBAL: MW2ATI 0x101994f0
 // GLOBAL: MW2S3 0x10065578
@@ -37,6 +40,7 @@ MechChar g_bettyMessageItem[] = "Betty Message";
 MechChar g_soundEffectsItem[] = "Sound Effects";
 
 // GLOBAL: MW2 0x100a52d0
+// GLOBAL: MW2GBL 0x100ad910
 // GLOBAL: MW23DFX 0x10265208
 // GLOBAL: MW2ATI 0x10199500
 // GLOBAL: MW2S3 0x10065588
@@ -44,6 +48,7 @@ MechChar g_soundEffectsItem[] = "Sound Effects";
 MechChar g_voiceItem[] = "Voice";
 
 // GLOBAL: MW2 0x100a52d8
+// GLOBAL: MW2GBL 0x100ad918
 // GLOBAL: MW23DFX 0x10265210
 // GLOBAL: MW2ATI 0x10199508
 // GLOBAL: MW2S3 0x10065590
@@ -51,6 +56,7 @@ MechChar g_voiceItem[] = "Voice";
 MechChar g_musicItem[] = "Music";
 
 // GLOBAL: MW2 0x100a52e0
+// GLOBAL: MW2GBL 0x100ad920
 // GLOBAL: MW23DFX 0x10265218
 // GLOBAL: MW2ATI 0x10199510
 // GLOBAL: MW2S3 0x10065598
@@ -59,6 +65,7 @@ MenuControl g_soundEffectsControl =
 	{2, 0, g_sliderShapes, 0, NULL, GetSoundSetting, PreviewSoundSetting, SetSoundSetting, RestoreSoundSetting};
 
 // GLOBAL: MW2 0x100a5308
+// GLOBAL: MW2GBL 0x100ad948
 // GLOBAL: MW23DFX 0x10265240
 // GLOBAL: MW2ATI 0x10199538
 // GLOBAL: MW2S3 0x100655c0
@@ -67,6 +74,7 @@ MenuControl g_voiceControl =
 	{2, 0, g_sliderShapes, 1, NULL, GetSoundSetting, PreviewSoundSetting, SetSoundSetting, RestoreSoundSetting};
 
 // GLOBAL: MW2 0x100a5330
+// GLOBAL: MW2GBL 0x100ad970
 // GLOBAL: MW23DFX 0x10265268
 // GLOBAL: MW2ATI 0x10199560
 // GLOBAL: MW2S3 0x100655e8
@@ -75,6 +83,7 @@ MenuControl g_musicControl =
 	{2, 0, g_sliderShapes, 2, NULL, GetSoundSetting, PreviewSoundSetting, SetSoundSetting, RestoreSoundSetting};
 
 // GLOBAL: MW2 0x100a5358
+// GLOBAL: MW2GBL 0x100ad998
 // GLOBAL: MW23DFX 0x10265290
 // GLOBAL: MW2ATI 0x10199588
 // GLOBAL: MW2S3 0x10065610

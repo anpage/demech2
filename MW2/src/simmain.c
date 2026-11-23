@@ -110,6 +110,7 @@ DECOMP_SIZE_ASSERT(StarMission, 0x3c0a)
 DECOMP_SIZE_ASSERT(MissionObjective, 0x13f)
 
 // GLOBAL: MW2 0x100acb18
+// GLOBAL: MW2GBL 0x100a4548
 // GLOBAL: MW2MATROX 0x100be4c0
 // GLOBAL: MW23DFX 0x1024ac60
 // GLOBAL: MW2ATI 0x1017f098
@@ -118,6 +119,7 @@ DECOMP_SIZE_ASSERT(MissionObjective, 0x13f)
 MechS32 g_shouldQuit = 0;
 
 // GLOBAL: MW2 0x100acb1c
+// GLOBAL: MW2GBL 0x100a454c
 // GLOBAL: MW2MATROX 0x100be4c4
 // GLOBAL: MW23DFX 0x1024ac64
 // GLOBAL: MW2ATI 0x1017f09c
@@ -126,6 +128,7 @@ MechS32 g_shouldQuit = 0;
 MechS32 g_quitStage = 0;
 
 // GLOBAL: MW2 0x100acb20
+// GLOBAL: MW2GBL 0x100a4550
 // GLOBAL: MW2MATROX 0x100be4c8
 // GLOBAL: MW23DFX 0x1024ac68
 // GLOBAL: MW2S3 0x10065ce8
@@ -133,6 +136,7 @@ MechS32 g_quitStage = 0;
 TimedCallback* g_detachedTasks = NULL;
 
 // GLOBAL: MW2 0x100acb24
+// GLOBAL: MW2GBL 0x100a4554
 // GLOBAL: MW2MATROX 0x100be4cc
 // GLOBAL: MW23DFX 0x1024ac6c
 // GLOBAL: MW2ATI 0x1017f0a4
@@ -141,6 +145,7 @@ TimedCallback* g_detachedTasks = NULL;
 DifficultyCfg* g_difficulty = NULL;
 
 // GLOBAL: MW2 0x100acb28
+// GLOBAL: MW2GBL 0x100a4558
 // GLOBAL: MW2MATROX 0x100be4d0
 // GLOBAL: MW23DFX 0x1024ac70
 // GLOBAL: MW2ATI 0x1017f0a8
@@ -156,6 +161,7 @@ MechS32 g_remoteWaitTime = 0;
 
 // Set when the local player starts on the autopilot (FirstMech).
 // GLOBAL: MW2 0x100acb34
+// GLOBAL: MW2GBL 0x100a4564
 // GLOBAL: MW2MATROX 0x100be4dc
 // GLOBAL: MW23DFX 0x1024ac7c
 // GLOBAL: MW2ATI 0x1017f0b4
@@ -170,6 +176,7 @@ HWND g_unk0x100be508 = NULL;
 
 #endif
 // GLOBAL: MW2 0x100acb60
+// GLOBAL: MW2GBL 0x100a4594
 // GLOBAL: MW2MATROX 0x100be50c
 // GLOBAL: MW23DFX 0x1024aca8
 // GLOBAL: MW2ATI 0x1017f0e0
@@ -184,6 +191,7 @@ HWND g_gameWindow = NULL;
 HINSTANCE g_simModule = NULL;
 
 // GLOBAL: MW2 0x100acb68
+// GLOBAL: MW2GBL 0x100a459c
 // GLOBAL: MW2MATROX 0x100be514
 // GLOBAL: MW23DFX 0x1024acb0
 // GLOBAL: MW2ATI 0x1017f0e8
@@ -192,6 +200,7 @@ HINSTANCE g_simModule = NULL;
 HANDLE g_primaryHeap = NULL;
 
 // GLOBAL: MW2 0x100acb6c
+// GLOBAL: MW2GBL 0x100a45a0
 // GLOBAL: MW2MATROX 0x100be518
 // GLOBAL: MW23DFX 0x1024acb4
 // GLOBAL: MW2ATI 0x1017f0ec
@@ -200,6 +209,7 @@ HANDLE g_primaryHeap = NULL;
 MechS32 g_gameWindowWidth = 0;
 
 // GLOBAL: MW2 0x100acb70
+// GLOBAL: MW2GBL 0x100a45a4
 // GLOBAL: MW2MATROX 0x100be51c
 // GLOBAL: MW23DFX 0x1024acb8
 // GLOBAL: MW2ATI 0x1017f0f0
@@ -208,6 +218,7 @@ MechS32 g_gameWindowWidth = 0;
 MechS32 g_gameWindowHeight = 0;
 
 // GLOBAL: MW2 0x100acb74
+// GLOBAL: MW2GBL 0x100a45a8
 // GLOBAL: MW2MATROX 0x100be520
 // GLOBAL: MW23DFX 0x1024acbc
 // GLOBAL: MW2ATI 0x1017f0f4
@@ -216,12 +227,15 @@ MechS32 g_gameWindowHeight = 0;
 MechS32 g_windowActive = 0;
 
 // GLOBAL: MW2 0x100acb78
+// GLOBAL: MW2GBL 0x100a45ac
 // GLOBAL: MW2MATROX 0x100be524
 // GLOBAL: MW23DFX 0x1024acc0
 // GLOBAL: MW2S3 0x10065d40
 // GLOBAL: MW2POWERVR 0x101a9e70
 MechS32 g_drawModeReady = 0;
 
+// GBL defines these three in refreshmode.c.
+#ifndef MW2_GBL
 // GLOBAL: MW2 0x100acb7c
 // GLOBAL: MW2MATROX 0x100be528
 // GLOBAL: MW23DFX 0x1024acc4
@@ -239,8 +253,10 @@ MechS32 g_desktopWidth = 0;
 // GLOBAL: MW23DFX 0x1024accc
 // GLOBAL: MW2POWERVR 0x101a9e7c
 MechS32 g_desktopHeight = 0;
+#endif
 
 // GLOBAL: MW2 0x100acb88
+// GLOBAL: MW2GBL 0x100a45b0
 // GLOBAL: MW2MATROX 0x100be534
 // GLOBAL: MW23DFX 0x1024acd0
 // GLOBAL: MW2ATI 0x1017f108
@@ -249,6 +265,7 @@ MechS32 g_desktopHeight = 0;
 MechS32 g_simPaused = 0;
 
 // GLOBAL: MW2 0x100acb8c
+// GLOBAL: MW2GBL 0x100a45b4
 // GLOBAL: MW2MATROX 0x100be538
 // GLOBAL: MW23DFX 0x1024acd4
 // GLOBAL: MW2ATI 0x1017f10c
@@ -257,6 +274,7 @@ MechS32 g_simPaused = 0;
 MechS32 g_pauseRequested = 0;
 
 // GLOBAL: MW2 0x100acb90
+// GLOBAL: MW2GBL 0x100a45b8
 // GLOBAL: MW2MATROX 0x100be53c
 // GLOBAL: MW23DFX 0x1024acd8
 // GLOBAL: MW2ATI 0x1017f110
@@ -265,6 +283,7 @@ MechS32 g_pauseRequested = 0;
 undefined4 g_windowedSwitchPending = 0;
 
 // GLOBAL: MW2 0x100acb94
+// GLOBAL: MW2GBL 0x100a45bc
 // GLOBAL: MW2MATROX 0x100be540
 // GLOBAL: MW23DFX 0x1024acdc
 // GLOBAL: MW2ATI 0x1017f114
@@ -280,6 +299,7 @@ MechS32 g_unk0x100be544 = 0;
 
 #endif
 // GLOBAL: MW2 0x100acb98
+// GLOBAL: MW2GBL 0x100a45c0
 // GLOBAL: MW2MATROX 0x100be548
 // GLOBAL: MW23DFX 0x1024ace0
 // GLOBAL: MW2ATI 0x1017f118
@@ -294,6 +314,7 @@ MechS32 g_unk0x101a9e94 = 1;
 #endif
 
 // GLOBAL: MW2 0x100e9240
+// GLOBAL: MW2GBL 0x101331b4
 // GLOBAL: MW2MATROX 0x1012595c
 // GLOBAL: MW23DFX 0x1024429c
 // GLOBAL: MW2ATI 0x10177f5c
@@ -302,6 +323,7 @@ MechS32 g_unk0x101a9e94 = 1;
 MechU32 g_windowedSwitchTime;
 
 // GLOBAL: MW2 0x100e933c
+// GLOBAL: MW2GBL 0x101332ac
 // GLOBAL: MW2MATROX 0x10125958
 // GLOBAL: MW23DFX 0x10244298
 // GLOBAL: MW2ATI 0x10177f58
@@ -310,6 +332,7 @@ MechU32 g_windowedSwitchTime;
 MechU32 g_windowedSwitchDeadline;
 
 // GLOBAL: MW2 0x1012b7c0
+// GLOBAL: MW2GBL 0x100e9a80
 // GLOBAL: MW2MATROX 0x101d69c0
 // GLOBAL: MW23DFX 0x10159ea0
 // GLOBAL: MW2ATI 0x1008dea0
@@ -1125,6 +1148,15 @@ int __stdcall SimMain(
 #else
 #define SIM_BACKEND_FILL DdrawFill
 #endif
+#ifdef MW2_LIT_GROUND_FILL
+// The S3 edition fills with the ground's colour lit by its renderer's light, an RGB555 pixel.
+#define SIM_RGB555(r, g, b) ((((MechU8) (r) & ~7) << 5 | ((MechU8) (g) & ~7)) << 2 | (MechU8) (b) >> 3)
+
+// polydraw.c's, which declares them nowhere else.
+extern MechFloat g_groundBlue;
+extern MechFloat g_groundGreen;
+extern MechFloat g_groundRed;
+#endif
 
 // The ATI and 3Dfx editions' SimMain (the ATI edition's is six months older). Both have the window
 // 1.1 has and ask SetGameResolution (the 3Dfx edition 800x600 with its registry setting); like the
@@ -1456,9 +1488,25 @@ int __stdcall SimMain(
 			AdvanceAnimations();
 			UpdatePaletteFade();
 			ApplyPendingPalette();
+#ifdef MW2_LIT_GROUND_FILL
+			if ((g_goLaunch & 4) && g_windowActive && g_currentDisplayBackend->m_id == 0) {
+				SIM_BACKEND_FILL(
+					0,
+					0,
+					g_gameWindowWidth,
+					g_gameWindowHeight,
+					SIM_RGB555(
+						g_unk0x10184700[2] * g_groundRed / 255,
+						g_unk0x10184700[1] * g_groundGreen / 255,
+						g_unk0x10184700[0] * g_groundBlue / 255
+					)
+				);
+			}
+#else
 			if (g_windowActive && g_currentDisplayBackend->m_id == 0 && !g_renderSettings.m_texturedGround) {
 				SIM_BACKEND_FILL(0, 0, g_gameWindowWidth, g_gameWindowHeight, PIXEL_COLOR(g_groundColor));
 			}
+#endif
 
 			if ((g_windowActive ? g_currentDisplayBackend->m_acquireFramebuffer() : -1) == 0) {
 				g_renderSettings.m_frameDrawCallback();
@@ -1497,9 +1545,9 @@ int __stdcall SimMain(
 
 		DebugPrint("Calling Blit()\n");
 		Blit();
-#ifdef MW2_3DFX
+#if defined(MW2_3DFX)
 		FUN_10066910();
-#else
+#elif !defined(MW2_NO_SIMMAIN_A3D_SHUTDOWN)
 		A3D_shutdown();
 #endif
 		while (PeekMessage(&msg, NULL, 0, 0, PM_REMOVE)) {
@@ -1893,7 +1941,11 @@ int __stdcall SimMain(
 	__finally {
 		if (AbnormalTermination() && g_ticksTimerInitialized) {
 			SendMessage(g_gameWindow, 0x41e, 0, 0);
+#ifdef MW2_GHOST_BEAR_TITLES
+			MessageBox(NULL, "Attempting to shutdown from an unknown fatal error.", "Ghost Bear's Legacy", MB_ICONHAND);
+#else
 			MessageBox(NULL, "Attempting to shutdown from an unknown fatal error.", "MECHWARRIOR 2", MB_ICONHAND);
+#endif
 			AIL_shutdown();
 		}
 	}
@@ -2129,6 +2181,7 @@ LRESULT CALLBACK SimWindowProc(HWND p_hWnd, UINT p_msg, WPARAM p_wParam, LPARAM 
 // 1.1's window procedure. On WM_ACTIVATEAPP, on a desktop of 640x480 or less, it leaves full
 // screen when the game is deactivated and returns to it when activated again.
 // FUNCTION: MW2 0x10067757
+// FUNCTION: MW2GBL 0x1002e136
 LRESULT CALLBACK SimWindowProc(HWND p_hWnd, UINT p_msg, WPARAM p_wParam, LPARAM p_lParam)
 {
 	WINDOWPOS* windowPos;
@@ -2256,6 +2309,7 @@ LRESULT CALLBACK SimWindowProc(HWND p_hWnd, UINT p_msg, WPARAM p_wParam, LPARAM 
 
 // The Matrox edition returns when the mouse message loop's PeekMessage finds nothing.
 // FUNCTION: MW2 0x10067bbc
+// FUNCTION: MW2GBL 0x1002e59b
 // FUNCTION: MW2MATROX 0x10090ca7
 // FUNCTION: MW23DFX 0x10009680
 // FUNCTION: MW2ATI 0x10009e50
@@ -2271,9 +2325,13 @@ void HandleMessages(void)
 
 	if (!g_shouldQuit && PeekMessage(&msg, NULL, 0, 0, PM_REMOVE)) {
 		while (!g_mouseOutsideClientWindow && msg.message >= WM_MOUSEFIRST && msg.message <= WM_MBUTTONDBLCLK) {
-#ifdef MW2_MOUSE_PEEK_RETURNS
+#if defined(MW2_MOUSE_PEEK_RETURNS)
 			if (!PeekMessage(&msg, NULL, 0, 0, PM_REMOVE)) {
 				return;
+			}
+#elif defined(MW2_MOUSE_PEEK_BREAKS)
+			if (!PeekMessage(&msg, NULL, 0, 0, PM_REMOVE)) {
+				break;
 			}
 #else
 			PeekMessage(&msg, NULL, 0, 0, PM_REMOVE);
@@ -2291,6 +2349,7 @@ void HandleMessages(void)
 }
 
 // FUNCTION: MW2 0x10067c79
+// FUNCTION: MW2GBL 0x1002e658
 // FUNCTION: MW2MATROX 0x10090d71
 // FUNCTION: MW23DFX 0x10009740
 // FUNCTION: MW2ATI 0x10009f10
@@ -2395,6 +2454,7 @@ void SetGameResolution(char* p_driverName)
 }
 #else
 // FUNCTION: MW2 0x10067e23
+// FUNCTION: MW2GBL 0x1002e802
 // FUNCTION: MW2MATROX 0x10090f1b
 // FUNCTION: MW2ATI 0x1000a060
 void SetGameResolution(char* p_driverName)

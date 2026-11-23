@@ -20,6 +20,7 @@ DECOMP_SIZE_ASSERT(ResourceCacheEntry, 0x14)
 
 // The resource cache's hash chains, 0x3f1 of them.
 // GLOBAL: MW2 0x100a2c5c
+// GLOBAL: MW2GBL 0x100adc2c
 // GLOBAL: MW2MATROX 0x100aa88c
 // GLOBAL: MW23DFX 0x1024d7ec
 // GLOBAL: MW2ATI 0x10181b6c
@@ -29,6 +30,7 @@ ResourceCacheEntry** g_cacheTable = NULL;
 
 // The number of the next cache log.
 // GLOBAL: MW2 0x100a2c60
+// GLOBAL: MW2GBL 0x100adc30
 // GLOBAL: MW2MATROX 0x100aa890
 // GLOBAL: MW23DFX 0x1024d7f0
 // GLOBAL: MW2ATI 0x10181b70
@@ -37,6 +39,7 @@ ResourceCacheEntry** g_cacheTable = NULL;
 MechS32 g_cacheDumpNumber = 0;
 
 // GLOBAL: MW2 0x101748d0
+// GLOBAL: MW2GBL 0x100e98c8
 // GLOBAL: MW2MATROX 0x1015e8c4
 // GLOBAL: MW23DFX 0x101de79c
 // GLOBAL: MW2ATI 0x1011245c
@@ -46,6 +49,7 @@ MechS32 g_cacheEntryCount;
 
 // The purge list: unlocked items, oldest first.
 // GLOBAL: MW2 0x101748d4
+// GLOBAL: MW2GBL 0x100e98cc
 // GLOBAL: MW2MATROX 0x1015e8bc
 // GLOBAL: MW23DFX 0x101de794
 // GLOBAL: MW2ATI 0x10112454
@@ -54,6 +58,7 @@ MechS32 g_cacheEntryCount;
 ResourceCacheEntry* g_purgeListHead;
 
 // GLOBAL: MW2 0x101748d8
+// GLOBAL: MW2GBL 0x100e98d0
 // GLOBAL: MW2MATROX 0x1015e8c0
 // GLOBAL: MW23DFX 0x101de798
 // GLOBAL: MW2ATI 0x10112458
@@ -62,6 +67,7 @@ ResourceCacheEntry* g_purgeListHead;
 ResourceCacheEntry* g_purgeListTail;
 // Unlocks an item and appends it to the purge list.
 // FUNCTION: MW2 0x10019af0
+// FUNCTION: MW2GBL 0x1003e300
 // FUNCTION: MW2MATROX 0x10055890
 // FUNCTION: MW23DFX 0x10023f90
 // FUNCTION: MW2ATI 0x10024200
@@ -88,6 +94,7 @@ void UnlockCacheEntry(ResourceCacheEntry* p_item)
 
 // Locks an item and takes it off the purge list.
 // FUNCTION: MW2 0x10019b63
+// FUNCTION: MW2GBL 0x1003e373
 // FUNCTION: MW2MATROX 0x10055903
 // FUNCTION: MW23DFX 0x10023fd0
 // FUNCTION: MW2ATI 0x10024240
@@ -121,6 +128,7 @@ void LockCacheEntry(ResourceCacheEntry* p_item)
 }
 
 // FUNCTION: MW2 0x10019c0c
+// FUNCTION: MW2GBL 0x1003e41a
 // FUNCTION: MW2MATROX 0x100559ac
 // FUNCTION: MW23DFX 0x10024030
 // FUNCTION: MW2ATI 0x100242a0
@@ -133,6 +141,7 @@ void AllocateCacheTable(void)
 
 // Rebuilds the purge list from the unlocked items.
 // FUNCTION: MW2 0x10019c2f
+// FUNCTION: MW2GBL 0x1003e43d
 // FUNCTION: MW2MATROX 0x100559cf
 // FUNCTION: MW23DFX 0x10024050
 // FUNCTION: MW2ATI 0x100242c0
@@ -157,6 +166,7 @@ void RebuildPurgeList(void)
 
 // Frees every cached item and the hash table.
 // FUNCTION: MW2 0x10019cc2
+// FUNCTION: MW2GBL 0x1003e4d0
 // FUNCTION: MW2MATROX 0x10055a62
 // FUNCTION: MW23DFX 0x100240a0
 // FUNCTION: MW2ATI 0x10024310
@@ -186,6 +196,7 @@ void ShutdownResourceCache(void)
 }
 
 // FUNCTION: MW2 0x10019d73
+// FUNCTION: MW2GBL 0x1003e581
 // FUNCTION: MW2MATROX 0x10055b13
 // FUNCTION: MW23DFX 0x10024100
 // FUNCTION: MW2ATI 0x10024370
@@ -200,6 +211,7 @@ void InitializeResourceCache(void)
 }
 
 // FUNCTION: MW2 0x10019da1
+// FUNCTION: MW2GBL 0x1003e5af
 // FUNCTION: MW2MATROX 0x10055b41
 // FUNCTION: MW23DFX 0x10024120
 void FUN_10019da1(void)
@@ -208,6 +220,7 @@ void FUN_10019da1(void)
 
 // Returns the cached item of an ID and type, or NULL.
 // FUNCTION: MW2 0x10019dac
+// FUNCTION: MW2GBL 0x1003e5ba
 // FUNCTION: MW2MATROX 0x10055b4c
 // FUNCTION: MW23DFX 0x10024130
 // FUNCTION: MW2ATI 0x10024390
@@ -234,6 +247,7 @@ ResourceCacheEntry* FindCacheEntry(MechS32 p_id, const char* p_type)
 
 // Frees an item. An item missing from its hash chain is reported instead.
 // FUNCTION: MW2 0x10019e53
+// FUNCTION: MW2GBL 0x1003e661
 // FUNCTION: MW2MATROX 0x10055bf3
 // FUNCTION: MW23DFX 0x10024190
 // FUNCTION: MW2ATI 0x100243f0
@@ -289,6 +303,7 @@ void FreeCacheEntry(ResourceCacheEntry* p_item)
 
 // Writes the cache's hash chains and purge list to the next dbugcch<n>.log.
 // FUNCTION: MW2 0x10019fef
+// FUNCTION: MW2GBL 0x1003e7fc
 // FUNCTION: MW2MATROX 0x10055d8e
 // FUNCTION: MW23DFX 0x100242a0
 // FUNCTION: MW2ATI 0x10024500
@@ -337,6 +352,7 @@ void DumpResourceCache(void)
 }
 
 // FUNCTION: MW2 0x1001a158
+// FUNCTION: MW2GBL 0x1003e965
 // FUNCTION: MW2MATROX 0x10055ef7
 // FUNCTION: MW23DFX 0x100243c0
 void FUN_1001a158(void)
@@ -344,6 +360,7 @@ void FUN_1001a158(void)
 }
 
 // FUNCTION: MW2 0x1001a163
+// FUNCTION: MW2GBL 0x1003e970
 // FUNCTION: MW2MATROX 0x10055f02
 // FUNCTION: MW23DFX 0x100243d0
 // FUNCTION: MW2ATI 0x10024620
@@ -366,6 +383,7 @@ void UnlockCachedResource(MechS32 p_id, const char* p_type)
 // missing resource is logged to symlog.txt (closed even when it didn't open) and reported.
 // p_unk0x0c goes unused.
 // FUNCTION: MW2 0x1001a19f
+// FUNCTION: MW2GBL 0x1003e9ac
 // FUNCTION: MW2MATROX 0x10055f3e
 // FUNCTION: MW23DFX 0x100243f0
 // FUNCTION: MW2ATI 0x10024640
@@ -380,7 +398,7 @@ void* LoadCachedResource(MechS32 p_file, MechS32 p_id, const char* p_type, undef
 	FILE* file;
 	MechChar message[100];
 	FILE* file2;
-#ifndef MW2_3DFX
+#ifndef MW2_ONE_RESOURCE_MESSAGE
 	MechChar message2[100];
 #endif
 
@@ -448,8 +466,7 @@ void* LoadCachedResource(MechS32 p_file, MechS32 p_id, const char* p_type, undef
 
 		Error(0x20, "Non-existant resource (type: %s  id: %i)\n", p_type, p_id);
 		if (g_missionTimerStopped) {
-#ifdef MW2_3DFX
-			// The 3Dfx edition formats both messages in one buffer.
+#ifdef MW2_ONE_RESOURCE_MESSAGE
 			sprintf(message, "Non-existant resource (type: %s  id: %i)\n", p_type, p_id);
 			ShowInGameMessage(message, 1, 0x712, 100);
 #else
@@ -474,6 +491,7 @@ void* LoadCachedResource(MechS32 p_file, MechS32 p_id, const char* p_type, undef
 }
 
 // FUNCTION: MW2 0x1001a4e5
+// FUNCTION: MW2GBL 0x1003ecf2
 // FUNCTION: MW2MATROX 0x10056284
 // FUNCTION: MW23DFX 0x10024670
 // FUNCTION: MW2ATI 0x100248c0
@@ -492,13 +510,16 @@ void FreeCachedResource(MechS32 p_id, const char* p_type)
 }
 
 // FUNCTION: MW2 0x1001a521
+// FUNCTION: MW2GBL 0x1003ed2e
 // FUNCTION: MW2MATROX 0x100562c0
 // FUNCTION: MW23DFX 0x10024690
+// FUNCTION: MW2S3 0x10002b70
 void FUN_1001a521(undefined4 p_unk0x00)
 {
 }
 
 // FUNCTION: MW2 0x1001a52c
+// FUNCTION: MW2GBL 0x1003ed39
 // FUNCTION: MW2MATROX 0x100562cb
 // FUNCTION: MW23DFX 0x100246a0
 undefined4 FUN_1001a52c(undefined4 p_unk0x00)
@@ -507,6 +528,7 @@ undefined4 FUN_1001a52c(undefined4 p_unk0x00)
 }
 
 // FUNCTION: MW2 0x1001a53f
+// FUNCTION: MW2GBL 0x1003ed4c
 // FUNCTION: MW2MATROX 0x100562de
 // FUNCTION: MW23DFX 0x100246b0
 void* FUN_1001a53f(MechS32 p_id, const char* p_type)
@@ -515,6 +537,7 @@ void* FUN_1001a53f(MechS32 p_id, const char* p_type)
 }
 
 // FUNCTION: MW2 0x1001a563
+// FUNCTION: MW2GBL 0x1003ed70
 // FUNCTION: MW2MATROX 0x10056302
 // FUNCTION: MW23DFX 0x100246c0
 // FUNCTION: MW2ATI 0x100248f0
@@ -531,6 +554,7 @@ MechS32 PurgeOldestCacheEntry(void)
 }
 
 // FUNCTION: MW2 0x1001a59a
+// FUNCTION: MW2GBL 0x1003eda7
 // FUNCTION: MW2MATROX 0x10056339
 // FUNCTION: MW23DFX 0x100246e0
 // FUNCTION: MW2ATI 0x10024910
@@ -624,6 +648,7 @@ void* MemSet(void* p_dst, MechS32 p_value, MechU32 p_size)
 }
 
 // FUNCTION: MW2 0x1001a61e
+// FUNCTION: MW2GBL 0x1003ee11
 // FUNCTION: MW2MATROX 0x100563bd
 // FUNCTION: MW23DFX 0x10024760
 // FUNCTION: MW2ATI 0x10024990

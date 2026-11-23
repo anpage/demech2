@@ -9,6 +9,7 @@
 
 // Where FindIniSection found the section's entries in mw2.ini, or -1.
 // GLOBAL: MW2 0x100ad46c
+// GLOBAL: MW2GBL 0x100a0458
 // GLOBAL: MW2MATROX 0x100a368c
 // GLOBAL: MW23DFX 0x102593e0
 // GLOBAL: MW2ATI 0x1018d6f0
@@ -27,6 +28,7 @@ MechChar g_iniLine[0x85];
 // Finds the section p_section in mw2.ini for GetIniValue. Returns 0, 0x36 when the file can't
 // be opened or 0x3f when the section isn't there. A line starting with '[' ends the search.
 // FUNCTION: MW2 0x1006c6c0
+// FUNCTION: MW2GBL 0x1001d8c0
 // FUNCTION: MW2MATROX 0x1000a170
 // FUNCTION: MW23DFX 0x1003b370
 // FUNCTION: MW2ATI 0x10039f30
@@ -128,6 +130,7 @@ MechChar* GetIniValue(MechChar* p_key)
 
 // Cuts the whitespace off both ends of p_string, in place.
 // FUNCTION: MW2 0x1006c968
+// FUNCTION: MW2GBL 0x1001db9a
 // FUNCTION: MW2MATROX 0x1000a3f1
 // FUNCTION: MW23DFX 0x1003b540
 // FUNCTION: MW2ATI 0x1003a100

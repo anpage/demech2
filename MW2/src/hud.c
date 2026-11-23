@@ -57,6 +57,7 @@
 
 // The size of the altimeter's mark shape (InitHudGauges), which spaces its columns.
 // GLOBAL: MW2 0x100a5ed0
+// GLOBAL: MW2GBL 0x100b6930
 // GLOBAL: MW2MATROX 0x100a4de8
 // GLOBAL: MW23DFX 0x1024d0d8
 // GLOBAL: MW2ATI 0x10181458
@@ -65,6 +66,7 @@
 MechS32 g_altimeterMarkWidth = 0xf0f;
 
 // GLOBAL: MW2 0x100a5ed4
+// GLOBAL: MW2GBL 0x100b6934
 // GLOBAL: MW2MATROX 0x100a4dec
 // GLOBAL: MW23DFX 0x1024d0dc
 // GLOBAL: MW2ATI 0x1018145c
@@ -73,6 +75,7 @@ MechS32 g_altimeterMarkHeight = 0xd79;
 
 // The altimeter's place, in 16.16 fractions of its gauge until InitHudGauges scales it.
 // GLOBAL: MW2 0x100a5ed8
+// GLOBAL: MW2GBL 0x100b6938
 // GLOBAL: MW2MATROX 0x100a4df0
 // GLOBAL: MW23DFX 0x1024d0e0
 // GLOBAL: MW2ATI 0x10181460
@@ -81,6 +84,7 @@ Point g_altimeterOrigin = {0xb333, 0x8000};
 
 // The compass's place, likewise.
 // GLOBAL: MW2 0x100a5ee0
+// GLOBAL: MW2GBL 0x100b6940
 // GLOBAL: MW2MATROX 0x100a4df8
 // GLOBAL: MW23DFX 0x1024d0e8
 // GLOBAL: MW2ATI 0x10181468
@@ -89,6 +93,7 @@ Point g_altimeterOrigin = {0xb333, 0x8000};
 Point g_compassOrigin = {0x8000, 0x6666};
 
 // GLOBAL: MW2 0x100a5ee8
+// GLOBAL: MW2GBL 0x100b6948
 // GLOBAL: MW2MATROX 0x100a4e00
 // GLOBAL: MW23DFX 0x1024d0f0
 // GLOBAL: MW2ATI 0x10181470
@@ -99,6 +104,7 @@ Point g_hudGaugePositions[6] = {{0x73, 0x10}, {8, 0x4a}, {4, 0x28}, {4, 0x4a}, {
 // The HUD's display options: the HUD itself, the crosshair, the target marker, the compass and
 // the altimeter.
 // GLOBAL: MW2 0x100a5f18
+// GLOBAL: MW2GBL 0x100b6978
 // GLOBAL: MW2MATROX 0x100a4e30
 // GLOBAL: MW23DFX 0x1024d120
 // GLOBAL: MW2ATI 0x101814a0
@@ -107,6 +113,7 @@ Point g_hudGaugePositions[6] = {{0x73, 0x10}, {8, 0x4a}, {4, 0x28}, {4, 0x4a}, {
 undefined4 g_showHud = 1;
 
 // GLOBAL: MW2 0x100a5f1c
+// GLOBAL: MW2GBL 0x100b697c
 // GLOBAL: MW2MATROX 0x100a4e34
 // GLOBAL: MW23DFX 0x1024d124
 // GLOBAL: MW2ATI 0x101814a4
@@ -115,6 +122,7 @@ undefined4 g_showHud = 1;
 MechS32 g_showCrosshair = 1;
 
 // GLOBAL: MW2 0x100a5f20
+// GLOBAL: MW2GBL 0x100b6980
 // GLOBAL: MW2MATROX 0x100a4e38
 // GLOBAL: MW23DFX 0x1024d128
 // GLOBAL: MW2ATI 0x101814a8
@@ -123,6 +131,7 @@ MechS32 g_showCrosshair = 1;
 MechS32 g_showTargetMarker = 1;
 
 // GLOBAL: MW2 0x100a5f24
+// GLOBAL: MW2GBL 0x100b6984
 // GLOBAL: MW2MATROX 0x100a4e3c
 // GLOBAL: MW23DFX 0x1024d12c
 // GLOBAL: MW2ATI 0x101814ac
@@ -131,6 +140,7 @@ MechS32 g_showTargetMarker = 1;
 MechS32 g_showCompass = 1;
 
 // GLOBAL: MW2 0x100a5f2c
+// GLOBAL: MW2GBL 0x100b698c
 // GLOBAL: MW2MATROX 0x100a4e44
 // GLOBAL: MW23DFX 0x1024d134
 // GLOBAL: MW2ATI 0x101814b4
@@ -153,6 +163,7 @@ MechS32 g_hudMarkerKind = 0;
 // of g_compassOrigin.m_y, in the source's order, as the compiler leaves two struct members (a plain
 // global goes after a member), and the pair stays together in every edition.
 // GLOBAL: MW2 0x100be5a0
+// GLOBAL: MW2GBL 0x100bb738
 // GLOBAL: MW2MATROX 0x100c1e58
 // GLOBAL: MW23DFX 0x1007c3e0
 // GLOBAL: MW2ATI 0x100713e0
@@ -161,6 +172,7 @@ MechS32 g_hudMarkerKind = 0;
 static Point g_compassArrowSize;
 
 // GLOBAL: MW2 0x100be5a8
+// GLOBAL: MW2GBL 0x100bb740
 // GLOBAL: MW2MATROX 0x100c1e50
 // GLOBAL: MW23DFX 0x1007c3d8
 // GLOBAL: MW2ATI 0x100713d8
@@ -169,6 +181,7 @@ static Point g_compassArrowSize;
 static MechS32 g_compassSideArrowWidth;
 
 // GLOBAL: MW2 0x100be5ac
+// GLOBAL: MW2GBL 0x100bb744
 // GLOBAL: MW2MATROX 0x100c1e54
 // GLOBAL: MW23DFX 0x1007c3dc
 // GLOBAL: MW2ATI 0x100713dc
@@ -177,6 +190,7 @@ static MechS32 g_compassSideArrowWidth;
 static MechS32 g_compassSideArrowHeight;
 
 // GLOBAL: MW2 0x100be5b0
+// GLOBAL: MW2GBL 0x100bb748
 // GLOBAL: MW2MATROX 0x100c1e48
 // GLOBAL: MW23DFX 0x1007c3d0
 // GLOBAL: MW2ATI 0x100713d0
@@ -185,6 +199,7 @@ static MechS32 g_compassSideArrowHeight;
 static MechS32 g_altimeterGroundX;
 
 // GLOBAL: MW2 0x100be5b4
+// GLOBAL: MW2GBL 0x100bb74c
 // GLOBAL: MW2MATROX 0x100c1e64
 // GLOBAL: MW23DFX 0x1007c3ec
 // GLOBAL: MW2ATI 0x100713ec
@@ -194,6 +209,7 @@ static MechS32 g_altimeterTargetX;
 
 // The altimeter's scale: pixels per 16.16 unit of height.
 // GLOBAL: MW2 0x100be5b8
+// GLOBAL: MW2GBL 0x100bb750
 // GLOBAL: MW2MATROX 0x100c1e6c
 // GLOBAL: MW23DFX 0x1007c3f4
 // GLOBAL: MW2ATI 0x100713f4
@@ -203,6 +219,7 @@ static MechScalar g_altimeterScale;
 
 // The compass's scale: pixels per degree, 16.16.
 // GLOBAL: MW2 0x100be5bc
+// GLOBAL: MW2GBL 0x100bb754
 // GLOBAL: MW2MATROX 0x100c1e44
 // GLOBAL: MW23DFX 0x1007c3cc
 // GLOBAL: MW2ATI 0x100713cc
@@ -211,13 +228,16 @@ static MechScalar g_altimeterScale;
 static MechScalar g_compassScale;
 
 // GLOBAL: MW2 0x100be5c0
+// GLOBAL: MW2GBL 0x100bb758
 // GLOBAL: MW2MATROX 0x100c1e68
 // GLOBAL: MW23DFX 0x1007c3f0
 // GLOBAL: MW2ATI 0x100713f0
 // GLOBAL: MW2S3 0x1007c510
+// GLOBAL: MW2POWERVR 0x1006f41c
 static MechS32 g_compassTapeAbove;
 
 // GLOBAL: MW2 0x100be5c4
+// GLOBAL: MW2GBL 0x100bb75c
 // GLOBAL: MW2MATROX 0x100c1e40
 // GLOBAL: MW23DFX 0x1007c3c8
 // GLOBAL: MW2ATI 0x100713c8
@@ -226,6 +246,7 @@ static MechS32 g_compassTapeAbove;
 static MechS32 g_altimeterLevelX;
 
 // GLOBAL: MW2 0x100be5c8
+// GLOBAL: MW2GBL 0x100bb760
 // GLOBAL: MW2MATROX 0x100c1e60
 // GLOBAL: MW23DFX 0x1007c3e8
 // GLOBAL: MW2ATI 0x100713e8
@@ -293,6 +314,7 @@ static MechS32 g_objectBracketBottomRight;
 // Draws the HUD's overlays the display options enable: the compass and its target markers, the
 // crosshair, the target marker and the altimeter, at the gauge positions.
 // FUNCTION: MW2 0x10040b30
+// FUNCTION: MW2GBL 0x1007eb80
 void DrawHudAt(
 	Mech* p_mech,
 	MechScalar p_heading,
@@ -335,6 +357,7 @@ void DrawHudAt(
 // DrawHudAt with the overlays at their default places, and the crosshair only with
 // p_drawCrosshair (the view is the cockpit's).
 // FUNCTION: MW2 0x10040bfd
+// FUNCTION: MW2GBL 0x1007ec4d
 // FUNCTION: MW2MATROX 0x1001ca30
 // FUNCTION: MW23DFX 0x10022230
 // FUNCTION: MW2ATI 0x10022500
@@ -381,6 +404,7 @@ void DrawHud(
 // Draws the altimeter: the mech's height, the height of m_player's mark (Player::m_unk0x74) and
 // the height of the target, clamped to the gauge. p_x and p_y go unused.
 // FUNCTION: MW2 0x10040cbc
+// FUNCTION: MW2GBL 0x1007ed0c
 // FUNCTION: MW2MATROX 0x1001caef
 // FUNCTION: MW23DFX 0x100222e0
 // FUNCTION: MW2ATI 0x100225b0
@@ -507,6 +531,7 @@ void DrawAltimeter(Mech* p_mech, MechS32 p_x, MechS32 p_y)
 // Lays out the altimeter and the compass from their shapes' extents. Each shape is released by
 // its extent plus its id, not by the id it was loaded with.
 // FUNCTION: MW2 0x10040f91
+// FUNCTION: MW2GBL 0x1007efe1
 // FUNCTION: MW2MATROX 0x1001ce3d
 // FUNCTION: MW23DFX 0x10022490
 // FUNCTION: MW2ATI 0x10022760
@@ -604,6 +629,7 @@ void InitHudGauges(void)
 
 // Returns the HUD gauges' positions (the compass's, then the altimeter's).
 // FUNCTION: MW2 0x100412c8
+// FUNCTION: MW2GBL 0x1007f318
 // FUNCTION: MW2MATROX 0x1001d1a4
 // FUNCTION: MW23DFX 0x10022700
 Point* GetHudGaugePositions(void)
@@ -688,6 +714,7 @@ MechS32 DrawCrosshair(Mech* p_mech, MechScalar p_bearing, MechScalar p_pitch, Me
 // markers (DrawPlayerBrackets, DrawObjectBrackets), a nav with shape 0xe5, or 0xeb at the edge when it is
 // off the screen.
 // FUNCTION: MW2 0x100414ab
+// FUNCTION: MW2GBL 0x1007f4fc
 // FUNCTION: MW2MATROX 0x1001d3c9
 // FUNCTION: MW23DFX 0x10022830
 // FUNCTION: MW2ATI 0x10022af0
@@ -911,6 +938,7 @@ void DrawCompassMarkers(
 // Draws the compass tape at heading p_heading (degrees), twice to wrap around, and the torso twist
 // p_twist as a bar from the center. p_x and p_y go unused.
 // FUNCTION: MW2 0x1004183a
+// FUNCTION: MW2GBL 0x1007f88b
 // FUNCTION: MW2MATROX 0x1001d7b6
 // FUNCTION: MW23DFX 0x10022b10
 // FUNCTION: MW2ATI 0x10022dd0
@@ -982,6 +1010,7 @@ void DrawCompass(MechS32 p_x, MechS32 p_y, MechScalar p_heading, MechScalar p_tw
 // Projects the end of the mech's player's aim ray to the screen: returns ProjectWorldPoint's result,
 // and the point in p_x and p_y.
 // FUNCTION: MW2 0x10041998
+// FUNCTION: MW2GBL 0x1007f9e9
 // FUNCTION: MW2MATROX 0x1001d942
 // FUNCTION: MW23DFX 0x10022c40
 // FUNCTION: MW2ATI 0x10022f00
@@ -1027,7 +1056,7 @@ void DrawPlayerBrackets(Player* p_player, MechS32 p_side)
 	MechScalar x;
 	MechScalar y;
 	MechScalar z;
-#ifndef MW2_3DFX
+#ifndef MW2_BLOCK_SCOPED_LOCALS
 	MechScalar size;
 	Point point;
 #endif
@@ -1036,7 +1065,7 @@ void DrawPlayerBrackets(Player* p_player, MechS32 p_side)
 	y = p_player->m_position.m_y;
 	z = p_player->m_position.m_z;
 	if (!ProjectWorldPoint(&x, &y, &z)) {
-#ifdef MW2_3DFX
+#ifdef MW2_BLOCK_SCOPED_LOCALS
 		Point point;
 
 #endif
@@ -1058,7 +1087,7 @@ void DrawPlayerBrackets(Player* p_player, MechS32 p_side)
 		DrawHudShape(point.m_x, point.m_y, topLeft);
 	}
 	else {
-#ifdef MW2_3DFX
+#ifdef MW2_BLOCK_SCOPED_LOCALS
 		MechScalar size;
 
 #endif
@@ -1115,7 +1144,7 @@ void DrawPlayerBrackets(Player* p_player, MechS32 p_side)
 // FUNCTION: MW2S3 0x10001c50
 void DrawObjectBrackets(struct SceneObject* p_object, MechS32 p_side)
 {
-#ifndef MW2_3DFX
+#ifndef MW2_BLOCK_SCOPED_LOCALS
 	MechScalar maxSize;
 #endif
 	MechS32 topLeft;
@@ -1128,7 +1157,7 @@ void DrawObjectBrackets(struct SceneObject* p_object, MechS32 p_side)
 	MechScalar y;
 	MechScalar z;
 	MechScalar size;
-#ifndef MW2_3DFX
+#ifndef MW2_BLOCK_SCOPED_LOCALS
 	Point point;
 #endif
 
@@ -1138,7 +1167,7 @@ void DrawObjectBrackets(struct SceneObject* p_object, MechS32 p_side)
 
 	size = GetShapeBounds(p_object->m_shape, &x, &y, &z);
 	if (!ProjectWorldPoint(&x, &y, &z)) {
-#ifdef MW2_3DFX
+#ifdef MW2_BLOCK_SCOPED_LOCALS
 		Point point;
 
 #endif
@@ -1160,7 +1189,7 @@ void DrawObjectBrackets(struct SceneObject* p_object, MechS32 p_side)
 		DrawHudShape(point.m_x, point.m_y, topLeft);
 	}
 	else {
-#ifdef MW2_3DFX
+#ifdef MW2_BLOCK_SCOPED_LOCALS
 		MechScalar maxSize;
 
 #endif
@@ -1504,6 +1533,7 @@ void FUN_1001e01a(MechS32 p_x, MechS32 p_y, MechS32 p_id, PANE* p_target)
 
 // Draws frame 0 of the "SHP" resource p_id (relative to g_artResolution) at p_x, p_y.
 // FUNCTION: MW2 0x10041f06
+// FUNCTION: MW2GBL 0x1007ff55
 // FUNCTION: MW2MATROX 0x1001e0cb
 // FUNCTION: MW23DFX 0x10023120
 // FUNCTION: MW2ATI 0x100233e0
@@ -1522,6 +1552,7 @@ void DrawPaneShape(MechS32 p_x, MechS32 p_y, MechS32 p_id, PANE* p_target)
 
 // Draws DrawHudShape's shape at p_x, p_y of pane p_target.
 // FUNCTION: MW2 0x10041f73
+// FUNCTION: MW2GBL 0x1007ffc2
 // FUNCTION: MW2MATROX 0x1001e136
 // FUNCTION: MW23DFX 0x10023180
 // FUNCTION: MW2ATI 0x10023440

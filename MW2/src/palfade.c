@@ -12,6 +12,7 @@ DECOMP_SIZE_ASSERT(PaletteCycle, 0x0d)
 DECOMP_SIZE_ASSERT(PaletteFade, 0x19)
 
 // FUNCTION: MW2 0x10010ad0
+// FUNCTION: MW2GBL 0x10033a10
 // FUNCTION: MW2MATROX 0x10050540
 // FUNCTION: MW23DFX 0x100612a0
 MechS32 InitPaletteCycle(PaletteCycle* p_cycle, MechU8* p_palette, MechU8 p_first, MechS32 p_count)
@@ -37,6 +38,7 @@ MechS32 InitPaletteCycle(PaletteCycle* p_cycle, MechU8* p_palette, MechU8 p_firs
 }
 
 // FUNCTION: MW2 0x10010b6e
+// FUNCTION: MW2GBL 0x10033aae
 // FUNCTION: MW2MATROX 0x100505de
 // FUNCTION: MW23DFX 0x10061320
 // FUNCTION: MW2ATI 0x1005ea00
@@ -69,6 +71,7 @@ void RotatePaletteCycle(PaletteCycle* p_cycle)
 }
 
 // FUNCTION: MW2 0x10010c3d
+// FUNCTION: MW2GBL 0x10033b7d
 // FUNCTION: MW2MATROX 0x100506ad
 // FUNCTION: MW23DFX 0x10061390
 void FreePaletteCycle(PaletteCycle* p_cycle)
@@ -127,6 +130,7 @@ MechS32 InitPaletteFade(
 }
 
 // FUNCTION: MW2 0x10010d99
+// FUNCTION: MW2GBL 0x10033cd9
 // FUNCTION: MW2MATROX 0x10050809
 // FUNCTION: MW23DFX 0x10061480
 // FUNCTION: MW2ATI 0x1005eb30

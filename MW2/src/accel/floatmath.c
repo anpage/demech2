@@ -155,13 +155,13 @@ MechS32 InitSlopeTables(void)
 {
 	MechS32 i;
 	MechDouble cosine;
-#ifdef MW2_3DFX
+#ifdef MW2_SLOPE_ONCE
 	MechDouble slope;
 #endif
 
 	for (i = 0; i < 800; i++) {
-#ifdef MW2_3DFX
-		// The 3Dfx edition's computes the slope once.
+#ifdef MW2_SLOPE_ONCE
+		// The ATI, S3, PowerVR and 3Dfx editions' compute the slope once.
 		slope = i / 16.0;
 		cosine = 1.0 / sqrt(slope * slope + 1.0);
 		g_slopeCosines[i] = cosine;

@@ -8,6 +8,7 @@
 // Scales a joystick axis reading about p_center to -0x10000..0x10000 by p_scale, with a dead
 // zone of p_deadZone on either side.
 // FUNCTION: MW2 0x1004ad6c
+// FUNCTION: MW2GBL 0x10007778
 // FUNCTION: MW2MATROX 0x10026ac1
 // FUNCTION: MW23DFX 0x1003b050
 // FUNCTION: MW2ATI 0x10039c10

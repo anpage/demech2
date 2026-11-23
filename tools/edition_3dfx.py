@@ -53,7 +53,7 @@ EDITIONS = {
     "MW2POWERVR": {"binary": "MW2_POWERVR.DLL", "output": "MW2_POWERVR", "code_end": 0x10062E80, "thunks": 0x10062E80,
                    "name": "the PowerVR edition"},
 }
-MODULES = ["MW2SHELL", "MW2", "MW2MATROX", "MW23DFX", "MW2ATI", "MW2S3", "MW2POWERVR", "NETMECHW", "MECH2"]  # reccmp-project.yml's order
+MODULES = ["MW2SHELL", "MW2", "MW2GBL", "MW2MATROX", "MW23DFX", "MW2ATI", "MW2S3", "MW2POWERVR", "NETMECHW", "MECH2"]  # reccmp-project.yml's order
 DIRS = ["MW2", "common"]
 
 

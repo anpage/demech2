@@ -35,6 +35,7 @@ __inline MechS32 ProjectMapCoordinate(MechFloat p_value, MechFloat p_scale, Mech
 #endif
 
 // GLOBAL: MW2 0x10109ab0
+// GLOBAL: MW2GBL 0x100bb9e0
 // GLOBAL: MW2MATROX 0x10212cc0
 // GLOBAL: MW23DFX 0x10245a20
 // GLOBAL: MW2ATI 0x10179840
@@ -43,6 +44,7 @@ __inline MechS32 ProjectMapCoordinate(MechFloat p_value, MechFloat p_scale, Mech
 MechS32 g_savedPalettePending;
 
 // GLOBAL: MW2 0x10109ac0
+// GLOBAL: MW2GBL 0x100bb9f0
 // GLOBAL: MW2MATROX 0x10212ba0
 // GLOBAL: MW23DFX 0x10245900
 // GLOBAL: MW2ATI 0x10179720
@@ -51,6 +53,7 @@ MechS32 g_savedPalettePending;
 Eyepoint g_savedEyepoint;
 
 // GLOBAL: MW2 0x10109ba0
+// GLOBAL: MW2GBL 0x100bbad0
 // GLOBAL: MW2MATROX 0x10212cd0
 // GLOBAL: MW23DFX 0x10245a30
 // GLOBAL: MW2ATI 0x10179850
@@ -59,6 +62,7 @@ Eyepoint g_savedEyepoint;
 MechScalar g_mapViewMinX;
 
 // GLOBAL: MW2 0x10109ba4
+// GLOBAL: MW2GBL 0x100bbad4
 // GLOBAL: MW2MATROX 0x10212cd4
 // GLOBAL: MW23DFX 0x10245a34
 // GLOBAL: MW2ATI 0x10179854
@@ -67,6 +71,7 @@ MechScalar g_mapViewMinX;
 MechScalar g_mapViewMaxX;
 
 // GLOBAL: MW2 0x10109ba8
+// GLOBAL: MW2GBL 0x100bbad8
 // GLOBAL: MW2MATROX 0x10212cd8
 // GLOBAL: MW23DFX 0x10245a38
 // GLOBAL: MW2ATI 0x10179858
@@ -75,6 +80,7 @@ MechScalar g_mapViewMaxX;
 MechScalar g_mapViewMaxY;
 
 // GLOBAL: MW2 0x10109bac
+// GLOBAL: MW2GBL 0x100bbadc
 // GLOBAL: MW2MATROX 0x10212cdc
 // GLOBAL: MW23DFX 0x10245a3c
 // GLOBAL: MW2ATI 0x1017985c
@@ -83,6 +89,7 @@ MechScalar g_mapViewMaxY;
 MechScalar g_mapViewMinY;
 
 // GLOBAL: MW2 0x10109bb0
+// GLOBAL: MW2GBL 0x100bbae0
 // GLOBAL: MW2MATROX 0x10212ce0
 // GLOBAL: MW23DFX 0x10245a40
 // GLOBAL: MW2ATI 0x10179860
@@ -91,6 +98,7 @@ MechScalar g_mapViewMinY;
 MechScalar g_mapViewNear;
 
 // GLOBAL: MW2 0x10109bb4
+// GLOBAL: MW2GBL 0x100bbae4
 // GLOBAL: MW2MATROX 0x10212ce4
 // GLOBAL: MW23DFX 0x10245a44
 // GLOBAL: MW2ATI 0x10179864
@@ -99,6 +107,7 @@ MechScalar g_mapViewNear;
 MechScalar g_mapViewFar;
 
 // GLOBAL: MW2 0x10109bb8
+// GLOBAL: MW2GBL 0x100bbae8
 // GLOBAL: MW2MATROX 0x10212cc4
 // GLOBAL: MW23DFX 0x10245a24
 // GLOBAL: MW2ATI 0x10179844
@@ -107,6 +116,7 @@ MechScalar g_mapViewFar;
 MechScalar g_mapViewScale;
 
 // GLOBAL: MW2 0x10109bc0
+// GLOBAL: MW2GBL 0x100bbaf0
 // GLOBAL: MW2MATROX 0x10212c50
 // GLOBAL: MW23DFX 0x102459b0
 // GLOBAL: MW2ATI 0x101797d0
@@ -117,6 +127,7 @@ RenderSettings g_savedRenderSettings;
 // Saves the eyepoint and the rendering settings, and sets up a view from p_pose (position, then
 // rotation) of p_worldSpan units across pane p_slot, as far as p_far.
 // FUNCTION: MW2 0x10041fa0
+// FUNCTION: MW2GBL 0x100802b0
 // FUNCTION: MW2MATROX 0x1001e170
 // FUNCTION: MW23DFX 0x10001000
 // FUNCTION: MW2ATI 0x10001000
@@ -126,7 +137,7 @@ void BeginMapView(MechScalar* p_pose, MechS32 p_slot, MechS32 p_worldSpan, MechS
 {
 #ifdef MW2_FLOAT_SCALARS
 	g_mapViewScale = (MechFloat) p_worldSpan / (g_panes[p_slot].m_x1 - g_panes[p_slot].m_x0 + 1);
-#ifdef MW2_3DFX
+#if defined(MW2_ATI) || defined(MW2_S3) || defined(MW2_POWERVR) || defined(MW2_3DFX)
 	g_mapViewMaxX = -(g_mapViewMinX = p_worldSpan / -2.0f);
 #else
 	g_mapViewMaxX = -(g_mapViewMinX = -(p_worldSpan / 2.0f));
@@ -169,6 +180,7 @@ void BeginMapView(MechScalar* p_pose, MechS32 p_slot, MechS32 p_worldSpan, MechS
 // Draws the map view's scene: the terrain when bit 0 of p_flags is set, then the shapes. The
 // PowerVR edition has its renderer draw the frame (FUN_10062b10) whatever the flags.
 // FUNCTION: MW2 0x1004215f
+// FUNCTION: MW2GBL 0x1008046f
 // FUNCTION: MW2MATROX 0x1001e36d
 // FUNCTION: MW23DFX 0x10001180
 // FUNCTION: MW2ATI 0x10001180
@@ -190,6 +202,7 @@ void DrawMapViewScene(MapViewFlags p_flags)
 
 // Restores the eyepoint and the rendering settings BeginMapView saved.
 // FUNCTION: MW2 0x10042195
+// FUNCTION: MW2GBL 0x100804a5
 // FUNCTION: MW2MATROX 0x1001e3a3
 // FUNCTION: MW23DFX 0x100011b0
 // FUNCTION: MW2ATI 0x100011b0
@@ -293,6 +306,7 @@ MechS32 CullMapViewShape(Shape* p_shape)
 // Projects a vertex onto the map view (ProjectCoordinate's scaling) once per frame, with its clip
 // outcodes, and adds it to the polygon being built: ProjectVertex's map-view counterpart.
 // FUNCTION: MW2 0x100423b3
+// FUNCTION: MW2GBL 0x100806c3
 // FUNCTION: MW2MATROX 0x1001e5c0
 // FUNCTION: MW23DFX 0x100013a0
 // FUNCTION: MW2ATI 0x100013a0
@@ -353,6 +367,7 @@ ProjectedVertex* ProjectMapViewVertex(ProjectedVertex* p_vertex)
 // Projects p_point onto the map view in place. Returns whether it is in front of the eye and
 // on the screen. The Matrox edition projects the position p_position to p_screen instead.
 // FUNCTION: MW2 0x1004251e
+// FUNCTION: MW2GBL 0x1008082c
 // FUNCTION: MW2MATROX 0x1001e743
 // FUNCTION: MW23DFX 0x100014b0
 // FUNCTION: MW2ATI 0x100014b0

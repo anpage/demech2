@@ -17,6 +17,7 @@
 #include <stddef.h>
 
 // GLOBAL: MW2 0x100a71d0
+// GLOBAL: MW2GBL 0x1009f2b8
 // GLOBAL: MW23DFX 0x10260628
 // GLOBAL: MW2ATI 0x10194920
 // GLOBAL: MW2S3 0x10062f48
@@ -24,6 +25,7 @@
 MechChar g_commandComputerTitle[] = "COMMAND COMPUTER";
 
 // GLOBAL: MW2 0x100a71e8
+// GLOBAL: MW2GBL 0x1009f2d0
 // GLOBAL: MW23DFX 0x10260640
 // GLOBAL: MW2ATI 0x10194938
 // GLOBAL: MW2S3 0x10062f60
@@ -31,6 +33,7 @@ MechChar g_commandComputerTitle[] = "COMMAND COMPUTER";
 MechChar g_commandAllItem[] = "Command All";
 
 // GLOBAL: MW2 0x100a71f8
+// GLOBAL: MW2GBL 0x1009f2e0
 // GLOBAL: MW23DFX 0x10260650
 // GLOBAL: MW2ATI 0x10194948
 // GLOBAL: MW2S3 0x10062f70
@@ -38,6 +41,7 @@ MechChar g_commandAllItem[] = "Command All";
 MechChar g_changeFormationItem[] = "Change Formation";
 
 // GLOBAL: MW2 0x100a7210
+// GLOBAL: MW2GBL 0x1009f2f8
 // GLOBAL: MW23DFX 0x10260668
 // GLOBAL: MW2ATI 0x10194960
 // GLOBAL: MW2S3 0x10062f88
@@ -45,6 +49,7 @@ MechChar g_changeFormationItem[] = "Change Formation";
 MechChar g_noStarMatesText[] = "NO STAR MATES";
 
 // GLOBAL: MW2 0x100a7220
+// GLOBAL: MW2GBL 0x1009f308
 // GLOBAL: MW23DFX 0x10260678
 // GLOBAL: MW2ATI 0x10194970
 // GLOBAL: MW2S3 0x10062f98
@@ -52,6 +57,7 @@ MechChar g_noStarMatesText[] = "NO STAR MATES";
 MechChar g_currentFormationLabel[] = "Current Form:";
 
 // GLOBAL: MW2 0x100a7230
+// GLOBAL: MW2GBL 0x1009f318
 // GLOBAL: MW23DFX 0x10260688
 // GLOBAL: MW2ATI 0x10194980
 // GLOBAL: MW2S3 0x10062fa8
@@ -59,6 +65,7 @@ MechChar g_currentFormationLabel[] = "Current Form:";
 MechChar g_commandPoint2Item[] = "Command Point 2";
 
 // GLOBAL: MW2 0x100a7240
+// GLOBAL: MW2GBL 0x1009f328
 // GLOBAL: MW23DFX 0x10260698
 // GLOBAL: MW2ATI 0x10194990
 // GLOBAL: MW2S3 0x10062fb8
@@ -66,6 +73,7 @@ MechChar g_commandPoint2Item[] = "Command Point 2";
 MechChar g_commandPoint3Item[] = "Command Point 3";
 
 // GLOBAL: MW2 0x100a7250
+// GLOBAL: MW2GBL 0x1009f338
 // GLOBAL: MW23DFX 0x102606a8
 // GLOBAL: MW2ATI 0x101949a0
 // GLOBAL: MW2S3 0x10062fc8
@@ -73,6 +81,7 @@ MechChar g_commandPoint3Item[] = "Command Point 3";
 MechChar g_commandPoint4Item[] = "Command Point 4";
 
 // GLOBAL: MW2 0x100a7260
+// GLOBAL: MW2GBL 0x1009f348
 // GLOBAL: MW23DFX 0x102606b8
 // GLOBAL: MW2ATI 0x101949b0
 // GLOBAL: MW2S3 0x10062fd8
@@ -80,6 +89,7 @@ MechChar g_commandPoint4Item[] = "Command Point 4";
 MechChar g_commandPoint5Item[] = "Command Point 5";
 
 // GLOBAL: MW2 0x100a7270
+// GLOBAL: MW2GBL 0x1009f358
 // GLOBAL: MW23DFX 0x102606c8
 // GLOBAL: MW2ATI 0x101949c0
 // GLOBAL: MW2S3 0x10062fe8
@@ -87,6 +97,7 @@ MechChar g_commandPoint5Item[] = "Command Point 5";
 MechChar g_statusLabel[] = "Status:";
 
 // GLOBAL: MW2 0x100a7278
+// GLOBAL: MW2GBL 0x1009f360
 // GLOBAL: MW23DFX 0x102606d0
 // GLOBAL: MW2ATI 0x101949c8
 // GLOBAL: MW2S3 0x10062ff0
@@ -94,6 +105,7 @@ MechChar g_statusLabel[] = "Status:";
 MechChar g_notAvailableText[] = "NOT AVAILABLE";
 
 // GLOBAL: MW2 0x100a7288
+// GLOBAL: MW2GBL 0x1009f370
 // GLOBAL: MW23DFX 0x102606e0
 // GLOBAL: MW2ATI 0x101949d8
 // GLOBAL: MW2S3 0x10063000
@@ -101,6 +113,7 @@ MechChar g_notAvailableText[] = "NOT AVAILABLE";
 MechChar g_commandAllTitle[] = "COMMAND ALL";
 
 // GLOBAL: MW2 0x100a7298
+// GLOBAL: MW2GBL 0x1009f380
 // GLOBAL: MW23DFX 0x102606f0
 // GLOBAL: MW2ATI 0x101949e8
 // GLOBAL: MW2S3 0x10063010
@@ -108,6 +121,7 @@ MechChar g_commandAllTitle[] = "COMMAND ALL";
 MechChar g_changeFormationTitle[] = "CHANGE FORMATION";
 
 // GLOBAL: MW2 0x100a72b0
+// GLOBAL: MW2GBL 0x1009f398
 // GLOBAL: MW23DFX 0x10260708
 // GLOBAL: MW2ATI 0x10194a00
 // GLOBAL: MW2S3 0x10063028
@@ -115,6 +129,7 @@ MechChar g_changeFormationTitle[] = "CHANGE FORMATION";
 MechChar g_commandPoint2Title[] = "COMMAND POINT 2";
 
 // GLOBAL: MW2 0x100a72c0
+// GLOBAL: MW2GBL 0x1009f3a8
 // GLOBAL: MW23DFX 0x10260718
 // GLOBAL: MW2ATI 0x10194a10
 // GLOBAL: MW2S3 0x10063038
@@ -122,6 +137,7 @@ MechChar g_commandPoint2Title[] = "COMMAND POINT 2";
 MechChar g_commandPoint3Title[] = "COMMAND POINT 3";
 
 // GLOBAL: MW2 0x100a72d0
+// GLOBAL: MW2GBL 0x1009f3b8
 // GLOBAL: MW23DFX 0x10260728
 // GLOBAL: MW2ATI 0x10194a20
 // GLOBAL: MW2S3 0x10063048
@@ -129,6 +145,7 @@ MechChar g_commandPoint3Title[] = "COMMAND POINT 3";
 MechChar g_commandPoint4Title[] = "COMMAND POINT 4";
 
 // GLOBAL: MW2 0x100a72e0
+// GLOBAL: MW2GBL 0x1009f3c8
 // GLOBAL: MW23DFX 0x10260738
 // GLOBAL: MW2ATI 0x10194a30
 // GLOBAL: MW2S3 0x10063058
@@ -136,6 +153,7 @@ MechChar g_commandPoint4Title[] = "COMMAND POINT 4";
 MechChar g_commandPoint5Title[] = "COMMAND POINT 5";
 
 // GLOBAL: MW2 0x100a72f0
+// GLOBAL: MW2GBL 0x1009f3d8
 // GLOBAL: MW23DFX 0x10260748
 // GLOBAL: MW2ATI 0x10194a40
 // GLOBAL: MW2S3 0x10063068
@@ -143,6 +161,7 @@ MechChar g_commandPoint5Title[] = "COMMAND POINT 5";
 MechChar g_echelonLeftText[] = "Echelon Left";
 
 // GLOBAL: MW2 0x100a7300
+// GLOBAL: MW2GBL 0x1009f3e8
 // GLOBAL: MW23DFX 0x10260758
 // GLOBAL: MW2ATI 0x10194a50
 // GLOBAL: MW2S3 0x10063078
@@ -150,6 +169,7 @@ MechChar g_echelonLeftText[] = "Echelon Left";
 MechChar g_echelonRightText[] = "Echelon Right";
 
 // GLOBAL: MW2 0x100a7310
+// GLOBAL: MW2GBL 0x1009f3f8
 // GLOBAL: MW23DFX 0x10260768
 // GLOBAL: MW2ATI 0x10194a60
 // GLOBAL: MW2S3 0x10063088
@@ -157,6 +177,7 @@ MechChar g_echelonRightText[] = "Echelon Right";
 MechChar g_lineAbreastText[] = "Line Abreast";
 
 // GLOBAL: MW2 0x100a7320
+// GLOBAL: MW2GBL 0x1009f408
 // GLOBAL: MW23DFX 0x10260778
 // GLOBAL: MW2ATI 0x10194a70
 // GLOBAL: MW2S3 0x10063098
@@ -164,6 +185,7 @@ MechChar g_lineAbreastText[] = "Line Abreast";
 MechChar g_lineAsternText[] = "Line Astern";
 
 // GLOBAL: MW2 0x100a7330
+// GLOBAL: MW2GBL 0x1009f418
 // GLOBAL: MW23DFX 0x10260788
 // GLOBAL: MW2ATI 0x10194a80
 // GLOBAL: MW2S3 0x100630a8
@@ -171,6 +193,7 @@ MechChar g_lineAsternText[] = "Line Astern";
 MechChar g_vFormText[] = "V Form";
 
 // GLOBAL: MW2 0x100a7338
+// GLOBAL: MW2GBL 0x1009f420
 // GLOBAL: MW23DFX 0x10260790
 // GLOBAL: MW2ATI 0x10194a88
 // GLOBAL: MW2S3 0x100630b0
@@ -178,6 +201,7 @@ MechChar g_vFormText[] = "V Form";
 MechChar g_wedgeText[] = "Wedge";
 
 // GLOBAL: MW2 0x100a7340
+// GLOBAL: MW2GBL 0x1009f428
 // GLOBAL: MW23DFX 0x10260798
 // GLOBAL: MW2ATI 0x10194a90
 // GLOBAL: MW2S3 0x100630b8
@@ -185,6 +209,7 @@ MechChar g_wedgeText[] = "Wedge";
 MechChar g_noFormationText[] = "No Formation";
 
 // GLOBAL: MW2 0x100a7350
+// GLOBAL: MW2GBL 0x1009f438
 // GLOBAL: MW23DFX 0x102607a8
 // GLOBAL: MW2ATI 0x10194aa0
 // GLOBAL: MW2S3 0x100630c8
@@ -192,6 +217,7 @@ MechChar g_noFormationText[] = "No Formation";
 MechChar g_orderAttackText[] = "Attack";
 
 // GLOBAL: MW2 0x100a7358
+// GLOBAL: MW2GBL 0x1009f440
 // GLOBAL: MW23DFX 0x102607b0
 // GLOBAL: MW2ATI 0x10194aa8
 // GLOBAL: MW2S3 0x100630d0
@@ -199,6 +225,7 @@ MechChar g_orderAttackText[] = "Attack";
 MechChar g_orderDefendText[] = "Defend";
 
 // GLOBAL: MW2 0x100a7360
+// GLOBAL: MW2GBL 0x1009f448
 // GLOBAL: MW23DFX 0x102607b8
 // GLOBAL: MW2ATI 0x10194ab0
 // GLOBAL: MW2S3 0x100630d8
@@ -206,6 +233,7 @@ MechChar g_orderDefendText[] = "Defend";
 MechChar g_orderJoinFormationText[] = "Join Formation";
 
 // GLOBAL: MW2 0x100a7370
+// GLOBAL: MW2GBL 0x1009f458
 // GLOBAL: MW23DFX 0x102607c8
 // GLOBAL: MW2ATI 0x10194ac0
 // GLOBAL: MW2S3 0x100630e8
@@ -213,6 +241,7 @@ MechChar g_orderJoinFormationText[] = "Join Formation";
 MechChar g_orderChangeFormationText[] = "Change Formation";
 
 // GLOBAL: MW2 0x100a7388
+// GLOBAL: MW2GBL 0x1009f470
 // GLOBAL: MW23DFX 0x102607e0
 // GLOBAL: MW2ATI 0x10194ad8
 // GLOBAL: MW2S3 0x10063100
@@ -220,6 +249,7 @@ MechChar g_orderChangeFormationText[] = "Change Formation";
 MechChar g_orderDisengageText[] = "Disengage";
 
 // GLOBAL: MW2 0x100a7398
+// GLOBAL: MW2GBL 0x1009f480
 // GLOBAL: MW23DFX 0x102607f0
 // GLOBAL: MW2ATI 0x10194ae8
 // GLOBAL: MW2S3 0x10063110
@@ -227,6 +257,7 @@ MechChar g_orderDisengageText[] = "Disengage";
 MechChar g_orderEngageAtWillText[] = "Engage at Will";
 
 // GLOBAL: MW2 0x100a73a8
+// GLOBAL: MW2GBL 0x1009f490
 // GLOBAL: MW23DFX 0x10260800
 // GLOBAL: MW2ATI 0x10194af8
 // GLOBAL: MW2S3 0x10063120
@@ -234,6 +265,7 @@ MechChar g_orderEngageAtWillText[] = "Engage at Will";
 MechChar g_orderShutdownText[] = "Shutdown";
 
 // GLOBAL: MW2 0x100a73b8
+// GLOBAL: MW2GBL 0x1009f4a0
 // GLOBAL: MW23DFX 0x10260810
 // GLOBAL: MW2ATI 0x10194b08
 // GLOBAL: MW2S3 0x10063130
@@ -241,6 +273,7 @@ MechChar g_orderShutdownText[] = "Shutdown";
 MechChar g_orderNoneText[] = "No Cmd";
 
 // GLOBAL: MW2 0x100a73c0
+// GLOBAL: MW2GBL 0x1009f4a8
 // GLOBAL: MW23DFX 0x10260818
 // GLOBAL: MW2ATI 0x10194b10
 // GLOBAL: MW2S3 0x10063138
@@ -248,6 +281,7 @@ MechChar g_orderNoneText[] = "No Cmd";
 MechChar g_attackMyTargetItem[] = "Attack My Target";
 
 // GLOBAL: MW2 0x100a73d8
+// GLOBAL: MW2GBL 0x1009f4c0
 // GLOBAL: MW23DFX 0x10260830
 // GLOBAL: MW2ATI 0x10194b28
 // GLOBAL: MW2S3 0x10063150
@@ -255,6 +289,7 @@ MechChar g_attackMyTargetItem[] = "Attack My Target";
 MechChar g_defendMyTargetItem[] = "Defend My Target";
 
 // GLOBAL: MW2 0x100a73f0
+// GLOBAL: MW2GBL 0x1009f4d8
 // GLOBAL: MW23DFX 0x10260848
 // GLOBAL: MW2ATI 0x10194b40
 // GLOBAL: MW2S3 0x10063168
@@ -265,6 +300,7 @@ MechChar g_joinFormationItem[] = "Join Formation";
 MechChar g_disengageItem[] = "Disengage";
 
 // GLOBAL: MW2 0x100a7410
+// GLOBAL: MW2GBL 0x1009f4f8
 // GLOBAL: MW23DFX 0x10260868
 // GLOBAL: MW2ATI 0x10194b60
 // GLOBAL: MW2S3 0x10063188
@@ -272,6 +308,7 @@ MechChar g_disengageItem[] = "Disengage";
 MechChar g_engageAtWillItem[] = "Engage at Will";
 
 // GLOBAL: MW2 0x100a7420
+// GLOBAL: MW2GBL 0x1009f508
 // GLOBAL: MW23DFX 0x10260878
 // GLOBAL: MW2ATI 0x10194b70
 // GLOBAL: MW2S3 0x10063198
@@ -279,6 +316,7 @@ MechChar g_engageAtWillItem[] = "Engage at Will";
 MechChar g_shutdownItem[] = "Shutdown";
 
 // GLOBAL: MW2 0x100a7430
+// GLOBAL: MW2GBL 0x1009f518
 // GLOBAL: MW23DFX 0x10260888
 // GLOBAL: MW2ATI 0x10194b80
 // GLOBAL: MW2S3 0x100631a8
@@ -286,6 +324,7 @@ MechChar g_shutdownItem[] = "Shutdown";
 MechChar g_aiStateNoneText[] = "None ";
 
 // GLOBAL: MW2 0x100a7438
+// GLOBAL: MW2GBL 0x1009f520
 // GLOBAL: MW23DFX 0x10260890
 // GLOBAL: MW2ATI 0x10194b88
 // GLOBAL: MW2S3 0x100631b0
@@ -293,6 +332,7 @@ MechChar g_aiStateNoneText[] = "None ";
 MechChar g_aiStateIdleText[] = "Idle ";
 
 // GLOBAL: MW2 0x100a7440
+// GLOBAL: MW2GBL 0x1009f528
 // GLOBAL: MW23DFX 0x10260898
 // GLOBAL: MW2ATI 0x10194b90
 // GLOBAL: MW2S3 0x100631b8
@@ -300,6 +340,7 @@ MechChar g_aiStateIdleText[] = "Idle ";
 MechChar g_aiStateAvoidText[] = "Avoiding ";
 
 // GLOBAL: MW2 0x100a7450
+// GLOBAL: MW2GBL 0x1009f538
 // GLOBAL: MW23DFX 0x102608a8
 // GLOBAL: MW2ATI 0x10194ba0
 // GLOBAL: MW2S3 0x100631c8
@@ -307,6 +348,7 @@ MechChar g_aiStateAvoidText[] = "Avoiding ";
 MechChar g_aiStateTargetText[] = "Targeting ";
 
 // GLOBAL: MW2 0x100a7460
+// GLOBAL: MW2GBL 0x1009f548
 // GLOBAL: MW23DFX 0x102608b8
 // GLOBAL: MW2ATI 0x10194bb0
 // GLOBAL: MW2S3 0x100631d8
@@ -314,6 +356,7 @@ MechChar g_aiStateTargetText[] = "Targeting ";
 MechChar g_aiStateAttackText[] = "Engaging ";
 
 // GLOBAL: MW2 0x100a7470
+// GLOBAL: MW2GBL 0x1009f558
 // GLOBAL: MW23DFX 0x102608c8
 // GLOBAL: MW2ATI 0x10194bc0
 // GLOBAL: MW2S3 0x100631e8
@@ -321,6 +364,7 @@ MechChar g_aiStateAttackText[] = "Engaging ";
 MechChar g_aiStateFleeText[] = "Disengaging ";
 
 // GLOBAL: MW2 0x100a7480
+// GLOBAL: MW2GBL 0x1009f568
 // GLOBAL: MW23DFX 0x102608d8
 // GLOBAL: MW2ATI 0x10194bd0
 // GLOBAL: MW2S3 0x100631f8
@@ -328,6 +372,7 @@ MechChar g_aiStateFleeText[] = "Disengaging ";
 MechChar g_aiStateFollowText[] = "In Formation ";
 
 // GLOBAL: MW2 0x100a7490
+// GLOBAL: MW2GBL 0x1009f578
 // GLOBAL: MW23DFX 0x102608e8
 // GLOBAL: MW2ATI 0x10194be0
 // GLOBAL: MW2S3 0x10063208
@@ -335,6 +380,7 @@ MechChar g_aiStateFollowText[] = "In Formation ";
 MechChar g_aiStateReconText[] = "Reconning ";
 
 // GLOBAL: MW2 0x100a74a0
+// GLOBAL: MW2GBL 0x1009f588
 // GLOBAL: MW23DFX 0x102608f8
 // GLOBAL: MW2ATI 0x10194bf0
 // GLOBAL: MW2S3 0x10063218
@@ -342,6 +388,7 @@ MechChar g_aiStateReconText[] = "Reconning ";
 MechChar g_aiStatePatrolText[] = "Defending ";
 
 // GLOBAL: MW2 0x100a74b0
+// GLOBAL: MW2GBL 0x1009f598
 // GLOBAL: MW23DFX 0x10260908
 // GLOBAL: MW2ATI 0x10194c00
 // GLOBAL: MW2S3 0x10063228
@@ -349,6 +396,7 @@ MechChar g_aiStatePatrolText[] = "Defending ";
 MechChar g_aiStateGoDirectText[] = "En Route ";
 
 // GLOBAL: MW2 0x100a74c0
+// GLOBAL: MW2GBL 0x1009f5a8
 // GLOBAL: MW23DFX 0x10260918
 // GLOBAL: MW2ATI 0x10194c10
 // GLOBAL: MW2S3 0x10063238
@@ -356,6 +404,7 @@ MechChar g_aiStateGoDirectText[] = "En Route ";
 MechChar g_aiState9Text[] = "Disengaging ";
 
 // GLOBAL: MW2 0x100a74d0
+// GLOBAL: MW2GBL 0x1009f5b8
 // GLOBAL: MW23DFX 0x10260928
 // GLOBAL: MW2ATI 0x10194c20
 // GLOBAL: MW2S3 0x10063248
@@ -363,6 +412,7 @@ MechChar g_aiState9Text[] = "Disengaging ";
 MechChar g_aiStateRestText[] = "Silent ";
 
 // GLOBAL: MW2 0x100a74d8
+// GLOBAL: MW2GBL 0x1009f5c0
 // GLOBAL: MW23DFX 0x10260930
 // GLOBAL: MW2ATI 0x10194c28
 // GLOBAL: MW2S3 0x10063250
@@ -370,6 +420,7 @@ MechChar g_aiStateRestText[] = "Silent ";
 MechChar g_aiStateShutdownText[] = "Shutdown ";
 
 // GLOBAL: MW2 0x100a74e8
+// GLOBAL: MW2GBL 0x1009f5d0
 // GLOBAL: MW23DFX 0x10260940
 // GLOBAL: MW2ATI 0x10194c38
 // GLOBAL: MW2S3 0x10063260
@@ -377,6 +428,7 @@ MechChar g_aiStateShutdownText[] = "Shutdown ";
 MechChar g_aiStateDeadText[] = "Destroyed ";
 
 // GLOBAL: MW2 0x100a74f8
+// GLOBAL: MW2GBL 0x1009f5e0
 // GLOBAL: MW23DFX 0x10260950
 // GLOBAL: MW2ATI 0x10194c48
 // GLOBAL: MW2S3 0x10063270
@@ -395,6 +447,7 @@ MenuChoices g_formationChoices = {
 
 // The orders, by g_lanceOrders.
 // GLOBAL: MW2 0x100a7540
+// GLOBAL: MW2GBL 0x1009f628
 // GLOBAL: MW23DFX 0x10260998
 // GLOBAL: MW2ATI 0x10194c90
 // GLOBAL: MW2S3 0x100632b8
@@ -414,6 +467,7 @@ MenuChoices g_orderChoices = {
 
 // The AI states, by state plus one (GetSlotAiState), each followed by the player's goal.
 // GLOBAL: MW2 0x100a7588
+// GLOBAL: MW2GBL 0x1009f670
 // GLOBAL: MW23DFX 0x102609e0
 // GLOBAL: MW2ATI 0x10194cd8
 // GLOBAL: MW2S3 0x10063300
@@ -438,6 +492,7 @@ MenuChoices g_aiStateChoices = {
 };
 
 // GLOBAL: MW2 0x100a75d0
+// GLOBAL: MW2GBL 0x1009f6b8
 // GLOBAL: MW23DFX 0x10260a28
 // GLOBAL: MW2ATI 0x10194d20
 // GLOBAL: MW2S3 0x10063348
@@ -727,6 +782,7 @@ MenuPage g_commandComputerPage = {
 };
 
 // GLOBAL: MW2 0x100a8250
+// GLOBAL: MW2GBL 0x100a0338
 // GLOBAL: MW2MATROX 0x100baf68
 // GLOBAL: MW23DFX 0x102616a8
 // GLOBAL: MW2ATI 0x101959a0
@@ -735,6 +791,7 @@ MenuPage g_commandComputerPage = {
 PANE g_commandMenuTarget = {NULL, 0x3852, 0x4ccd, 0x10000, 0x999a};
 
 // GLOBAL: MW2 0x100a8268
+// GLOBAL: MW2GBL 0x100a0350
 // GLOBAL: MW2MATROX 0x100baf80
 // GLOBAL: MW23DFX 0x102616c0
 // GLOBAL: MW2ATI 0x101959b8
@@ -774,6 +831,7 @@ MenuDefinition g_commandMenu = {
 };
 
 // GLOBAL: MW2 0x100ea7e0
+// GLOBAL: MW2GBL 0x10137c20
 // GLOBAL: MW2MATROX 0x1012f450
 // GLOBAL: MW23DFX 0x10153560
 // GLOBAL: MW2ATI 0x10087570

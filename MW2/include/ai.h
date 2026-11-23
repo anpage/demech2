@@ -137,7 +137,11 @@ extern "C"
 	MechScalar AddClamped(MechScalar p_value, MechS32 p_delta, MechS32 p_sameSign);
 	void ResetStarOrders(MechS32 p_team);
 	void AssignStarObjective(MechS32 p_team);
-	MechS16 GetEngagementAIFlags(MechS32 p_value);
+#ifdef MW2_ENGAGEMENT_FLAGS_INT
+	MechS32 GetEngagementAIFlags(MechS32 p_value);
+#else
+MechS16 GetEngagementAIFlags(MechS32 p_value);
+#endif
 	void SetAIScript(struct Player* p_player, MechS16 p_slot, MechS16 p_script, MechS16 p_leader);
 	MechU16 GetObjectiveTarget(MechS32 p_team, MechS16 p_objective, MechS32 p_index);
 	MechS32 GetTeamMembers(MechS32 p_team, struct Player** p_members, MechS32 p_aliveOnly);
@@ -177,6 +181,7 @@ extern "C"
 // The 3Dfx edition's diff is register allocation, scheduling and comparison operand order only.
 // FUNCTION: MW23DFX 0x10012730
 // FUNCTION: MW2ATI 0x10012c90
+// FUNCTION: MW2S3 0x10016100
 // LogStarMissionLines
 
 // The 3Dfx edition's diff is register allocation, scheduling and comparison operand order only.
@@ -192,5 +197,13 @@ extern "C"
 
 // FUNCTION: MW2POWERVR 0x100121d0
 // FindNearestTarget
+
+// GBL places these after FirstAI, out of ai.c's order, so they are annotated here, by name.
+
+// FUNCTION: MW2GBL 0x1007672e
+// UpdateAI
+
+// FUNCTION: MW2GBL 0x1007687f
+// RunAIRules
 
 #endif // AI_H

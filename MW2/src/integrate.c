@@ -10,6 +10,7 @@
 // Advances p_velocity by p_acceleration * p_time and p_position by the midpoint velocity
 // times p_time (16.16 fixed point, with a 64-bit product).
 // FUNCTION: MW2 0x10004e90
+// FUNCTION: MW2GBL 0x10027a50
 void IntegrateMidpoint(MechS32* p_position, MechS32* p_velocity, MechS32 p_acceleration, MechS32 p_time)
 {
 #ifdef PORTABLE_C

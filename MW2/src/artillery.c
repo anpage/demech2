@@ -26,6 +26,7 @@
 // Resets the player's mech of this class: its torso objects and ramps, state and weapons, stands
 // its object up where it is and clears the player's steering.
 // FUNCTION: MW2 0x10059fc0
+// FUNCTION: MW2GBL 0x100119b0
 // FUNCTION: MW2MATROX 0x1002e4b0
 // FUNCTION: MW23DFX 0x100218b0
 // FUNCTION: MW2ATI 0x10021b80
@@ -47,7 +48,7 @@ void FirstArtillery(Player* p_player)
 	mech->m_selectedWeapon = 0;
 	mech->m_heat = 0;
 	mech->m_lastSelectedWeapon = 0;
-	mech->m_weaponCount = 10;
+	mech->m_weaponCount = WEAPON_SLOT_COUNT;
 	mech->m_collisionTicks = 0;
 	mech->m_flags = 0x2000;
 	mech->m_powerState = 0;
@@ -85,6 +86,7 @@ void FirstArtillery(Player* p_player)
 // Updates the mech's torso: clears the tick's heat, steps the twist and pitch ramps and turns the
 // torso objects (m_pitchObj by the pitch, m_torsoObj by the player's view angles with the twist).
 // FUNCTION: MW2 0x1005a203
+// FUNCTION: MW2GBL 0x10011bf3
 // FUNCTION: MW2MATROX 0x1002e6f3
 // FUNCTION: MW23DFX 0x100219e0
 // FUNCTION: MW2ATI 0x10021cb0
@@ -128,6 +130,7 @@ void UpdateArtillery(Mech* p_mech)
 // cleared. Then the heat, and the power states: 0 starts powering up, 1 runs once the power-up
 // time has passed, 3 starts over and 4 is destroyed.
 // FUNCTION: MW2 0x1005a2ea
+// FUNCTION: MW2GBL 0x10011cda
 // FUNCTION: MW2MATROX 0x1002e7de
 // FUNCTION: MW23DFX 0x10021a50
 // FUNCTION: MW2ATI 0x10021d20
@@ -221,6 +224,7 @@ void LateUpdateArtillery(Mech* p_mech)
 }
 
 // FUNCTION: MW2 0x1005a61d
+// FUNCTION: MW2GBL 0x1001200d
 // FUNCTION: MW2MATROX 0x1002eb3a
 // FUNCTION: MW23DFX 0x10021c80
 // FUNCTION: MW2ATI 0x10021f50
@@ -235,6 +239,7 @@ void ShutdownArtillery(Mech* p_mech)
 
 // Allocates p_player's mech, its weapons and sections, and sets them up.
 // FUNCTION: MW2 0x1005a637
+// FUNCTION: MW2GBL 0x10012027
 // FUNCTION: MW2MATROX 0x1002eb54
 // FUNCTION: MW23DFX 0x10021c90
 // FUNCTION: MW2ATI 0x10021f60
@@ -260,7 +265,7 @@ MechS32 CreateArtillery(MechS32 p_index, Player* p_player)
 
 	mech = buffer;
 	weapons = (WeaponSlot*) ((Mech*) buffer + 1);
-	sections = (MechSection*) (weapons + 10);
+	sections = (MechSection*) (weapons + WEAPON_SLOT_COUNT);
 	extra = sections + 8;
 	mech->m_weapons = weapons;
 	mech->m_sections = sections;
@@ -271,9 +276,9 @@ MechS32 CreateArtillery(MechS32 p_index, Player* p_player)
 	}
 
 	p_player->m_mech = mech;
-	p_player->m_mechSize = 0x10e;
+	p_player->m_mechSize = sizeof(Mech);
 	slot = mech->m_weapons;
-	for (i = 0; i < 10; i++) {
+	for (i = 0; i < WEAPON_SLOT_COUNT; i++) {
 		slot->m_status = -1;
 		slot->m_type = -1;
 		slot->m_state = c_weaponEmpty;

@@ -22,6 +22,7 @@
 
 // The lancemates a message addresses.
 // GLOBAL: MW2 0x100a96c8
+// GLOBAL: MW2GBL 0x100ae860
 // GLOBAL: MW2MATROX 0x100bbe98
 // GLOBAL: MW23DFX 0x1024eb40
 // GLOBAL: MW2ATI 0x10182e50
@@ -38,6 +39,7 @@ MechS32 g_unk0x100a96ec = 0;
 
 // What a lancemate reports.
 // GLOBAL: MW2 0x100a96f0
+// GLOBAL: MW2GBL 0x100ae888
 // GLOBAL: MW2MATROX 0x100bbec0
 // GLOBAL: MW23DFX 0x1024ec58
 // GLOBAL: MW2ATI 0x10182f68
@@ -61,6 +63,7 @@ SpeechLine g_lancemateSpeech[11] = {
 MechS32 g_unk0x100a9774 = 0;
 
 // GLOBAL: MW2 0x100a9778
+// GLOBAL: MW2GBL 0x100ae910
 // GLOBAL: MW2MATROX 0x100bbf48
 // GLOBAL: MW23DFX 0x1024ed40
 // GLOBAL: MW2ATI 0x10183050
@@ -80,6 +83,7 @@ SpeechLine g_formationSpeech[7] = {
 MechS32 g_unk0x100a97cc = 0;
 
 // GLOBAL: MW2 0x100a97d0
+// GLOBAL: MW2GBL 0x100ae968
 // GLOBAL: MW2MATROX 0x100bbfa0
 // GLOBAL: MW23DFX 0x1024edb8
 // GLOBAL: MW2ATI 0x101830c8
@@ -95,6 +99,7 @@ SpeechLine g_engageSpeech[3] = {
 MechS32 g_unk0x100a97f4 = 0;
 
 // GLOBAL: MW2 0x100a97f8
+// GLOBAL: MW2GBL 0x100ae990
 // GLOBAL: MW2MATROX 0x100bbfc8
 // GLOBAL: MW23DFX 0x1024f140
 // GLOBAL: MW2ATI 0x10183450
@@ -139,6 +144,7 @@ SpeechLine g_cockpitSpeech[34] = {
 
 // The damaged parts "Critical hit : " names.
 // GLOBAL: MW2 0x100a9990
+// GLOBAL: MW2GBL 0x100aeb28
 // GLOBAL: MW2MATROX 0x100bc160
 // GLOBAL: MW23DFX 0x1024f4e8
 // GLOBAL: MW2ATI 0x101837f8
@@ -187,6 +193,7 @@ SpeechLine g_damageSpeech[39] = {
 };
 
 // GLOBAL: MW2 0x100a9b64
+// GLOBAL: MW2GBL 0x100aecfc
 // GLOBAL: MW2MATROX 0x100bc334
 // GLOBAL: MW23DFX 0x1024f6bc
 // GLOBAL: MW2ATI 0x101839cc
@@ -195,6 +202,7 @@ SpeechLine g_damageSpeech[39] = {
 SpeechEntry* g_speechQueue = NULL;
 
 // GLOBAL: MW2 0x100a9b68
+// GLOBAL: MW2GBL 0x100aed00
 // GLOBAL: MW2MATROX 0x100bc338
 // GLOBAL: MW23DFX 0x1024f6c0
 // GLOBAL: MW2ATI 0x101839d0
@@ -203,6 +211,7 @@ SpeechEntry* g_speechQueue = NULL;
 HSAMPLE g_speechSample = NULL;
 
 // GLOBAL: MW2 0x100a9b6c
+// GLOBAL: MW2GBL 0x100aed04
 // GLOBAL: MW2MATROX 0x100bc33c
 // GLOBAL: MW23DFX 0x1024f6c4
 // GLOBAL: MW2ATI 0x101839d4
@@ -211,6 +220,7 @@ HSAMPLE g_speechSample = NULL;
 MechS32 g_speechLocked = 0;
 
 // GLOBAL: MW2 0x100bea10
+// GLOBAL: MW2GBL 0x100b9d80
 // GLOBAL: MW2MATROX 0x10125430
 // GLOBAL: MW23DFX 0x1007c890
 // GLOBAL: MW2ATI 0x10071890
@@ -221,6 +231,7 @@ SpeechEntry g_speechEntries[8];
 // Queues p_line, followed by p_suffix, by priority (-1: the sound's own). Returns whether it
 // was queued.
 // FUNCTION: MW2 0x10059390
+// FUNCTION: MW2GBL 0x10041b30
 // FUNCTION: MW2MATROX 0x1008b510
 // FUNCTION: MW23DFX 0x10031150
 // FUNCTION: MW2ATI 0x1002ff40
@@ -363,6 +374,7 @@ MechS32 QueueSpeech(SpeechLine* p_line, SpeechLine* p_suffix, MechS32 p_priority
 
 // Moves to the next queued message once the current one has finished.
 // FUNCTION: MW2 0x10059827
+// FUNCTION: MW2GBL 0x10041fb9
 // FUNCTION: MW2MATROX 0x1008b9a7
 // FUNCTION: MW23DFX 0x100313d0
 // FUNCTION: MW2ATI 0x100301c0
@@ -399,6 +411,7 @@ void AdvanceSpeechQueue(void)
 
 // Plays a queued message: the line and its suffix as sounds, or its text.
 // FUNCTION: MW2 0x100598f6
+// FUNCTION: MW2GBL 0x10042088
 // FUNCTION: MW2MATROX 0x1008ba76
 // FUNCTION: MW23DFX 0x10031440
 // FUNCTION: MW2ATI 0x10030230
@@ -491,6 +504,7 @@ MechS32 StartSpeech(SpeechEntry* p_entry)
 }
 
 // FUNCTION: MW2 0x10059b7b
+// FUNCTION: MW2GBL 0x1004230d
 // FUNCTION: MW2MATROX 0x1008bcfb
 // FUNCTION: MW23DFX 0x100315f0
 // FUNCTION: MW2ATI 0x100303e0
@@ -509,6 +523,7 @@ void PlayVoiceVolumeTest(void)
 // Stops the queue taking messages and drops the queued ones; p_keep keeps sound data and
 // messages of priority 0x50 and above.
 // FUNCTION: MW2 0x10059be3
+// FUNCTION: MW2GBL 0x10042375
 // FUNCTION: MW2MATROX 0x1008bd63
 // FUNCTION: MW23DFX 0x10031640
 // FUNCTION: MW2ATI 0x10030430
@@ -561,6 +576,7 @@ void FlushSpeechQueue(MechS32 p_keep)
 
 // Frees an entry's sound data. Returns the next entry.
 // FUNCTION: MW2 0x10059d15
+// FUNCTION: MW2GBL 0x100424a7
 // FUNCTION: MW2MATROX 0x1008be95
 // FUNCTION: MW23DFX 0x10031700
 // FUNCTION: MW2ATI 0x100304f0
@@ -586,6 +602,7 @@ SpeechEntry* FreeSpeechEntry(SpeechEntry* p_entry)
 
 // Drops the messages after the current one and stops it.
 // FUNCTION: MW2 0x10059d8b
+// FUNCTION: MW2GBL 0x1004251d
 // FUNCTION: MW2MATROX 0x1008bf0b
 // FUNCTION: MW23DFX 0x10031760
 // FUNCTION: MW2ATI 0x10030550
@@ -609,6 +626,7 @@ void StopSpeech(void)
 }
 
 // FUNCTION: MW2 0x10059deb
+// FUNCTION: MW2GBL 0x1004257d
 // FUNCTION: MW2MATROX 0x1008bf6b
 // FUNCTION: MW23DFX 0x10031790
 // FUNCTION: MW2ATI 0x10030580
@@ -633,6 +651,7 @@ void ResumeSpeech(void)
 
 // A lancemate's report: p_message of g_lancemateSpeech, addressed by p_slot (-1: none).
 // FUNCTION: MW2 0x10059e63
+// FUNCTION: MW2GBL 0x100425f5
 // FUNCTION: MW2MATROX 0x1008bfe3
 // FUNCTION: MW23DFX 0x10031810
 // FUNCTION: MW2ATI 0x10030600
@@ -659,6 +678,7 @@ void SayLancemateReport(MechS32 p_message, MechS32 p_slot)
 }
 
 // FUNCTION: MW2 0x10059ed2
+// FUNCTION: MW2GBL 0x10042664
 // FUNCTION: MW2MATROX 0x1008c052
 // FUNCTION: MW23DFX 0x10031850
 // FUNCTION: MW2ATI 0x10030640
@@ -672,6 +692,7 @@ void SayFormation(MechS32 p_formation)
 }
 
 // FUNCTION: MW2 0x10059f0f
+// FUNCTION: MW2GBL 0x100426a1
 // FUNCTION: MW2MATROX 0x1008c08f
 // FUNCTION: MW23DFX 0x10031870
 // FUNCTION: MW2ATI 0x10030660
@@ -697,6 +718,7 @@ void PlayCockpitSound(MechS32 p_message, MechS32 p_engage)
 
 // "Critical hit : " and the part of g_damageSpeech.
 // FUNCTION: MW2 0x10059f6e
+// FUNCTION: MW2GBL 0x10042700
 // FUNCTION: MW2MATROX 0x1008c0ee
 // FUNCTION: MW23DFX 0x100318a0
 // FUNCTION: MW2ATI 0x10030690
@@ -708,6 +730,7 @@ void SayCriticalHit(MechS32 p_part)
 }
 
 // FUNCTION: MW2 0x10059f9c
+// FUNCTION: MW2GBL 0x1004272e
 // FUNCTION: MW2MATROX 0x1008c11c
 // FUNCTION: MW23DFX 0x100318c0
 // FUNCTION: MW2ATI 0x100306b0

@@ -11,6 +11,7 @@
 #include <windows.h>
 
 // GLOBAL: MW2 0x100aa278
+// GLOBAL: MW2GBL 0x100b59b8
 // GLOBAL: MW2MATROX 0x100a20d0
 // GLOBAL: MW23DFX 0x1024eb08
 // GLOBAL: MW2ATI 0x10182e18
@@ -19,6 +20,7 @@
 MCIDEVICEID g_cdAudioDevice = (MCIDEVICEID) -1;
 
 // GLOBAL: MW2 0x100aa27c
+// GLOBAL: MW2GBL 0x100b59bc
 // GLOBAL: MW2MATROX 0x100a20d4
 // GLOBAL: MW23DFX 0x1024eb0c
 // GLOBAL: MW2ATI 0x10182e1c
@@ -27,6 +29,7 @@ MCIDEVICEID g_cdAudioDevice = (MCIDEVICEID) -1;
 MechS32 g_cdAudioAuxDevice = -1;
 
 // GLOBAL: MW2 0x100aa280
+// GLOBAL: MW2GBL 0x100b59c0
 // GLOBAL: MW2MATROX 0x100a20d8
 // GLOBAL: MW23DFX 0x1024eb10
 // GLOBAL: MW2ATI 0x10182e20
@@ -35,6 +38,7 @@ MechS32 g_cdAudioAuxDevice = -1;
 CdAudioTracks g_cdAudioTracks = {0, 0, NULL};
 
 // GLOBAL: MW2 0x100aa28c
+// GLOBAL: MW2GBL 0x100b59cc
 // GLOBAL: MW2MATROX 0x100a20e4
 // GLOBAL: MW23DFX 0x1024eb1c
 // GLOBAL: MW2ATI 0x10182e2c
@@ -43,6 +47,7 @@ CdAudioTracks g_cdAudioTracks = {0, 0, NULL};
 MechS32 g_cdAudioInitialized = 0;
 
 // GLOBAL: MW2 0x100beca8
+// GLOBAL: MW2GBL 0x100bb548
 // GLOBAL: MW2MATROX 0x100c1c4c
 // GLOBAL: MW23DFX 0x1007c88c
 // GLOBAL: MW2ATI 0x1007188c
@@ -51,6 +56,7 @@ MechS32 g_cdAudioInitialized = 0;
 undefined4 g_unk0x100beca8;
 
 // GLOBAL: MW2 0x100becac
+// GLOBAL: MW2GBL 0x100bb54c
 // GLOBAL: MW2MATROX 0x100c1c48
 // GLOBAL: MW23DFX 0x1007c888
 // GLOBAL: MW2ATI 0x10071888
@@ -59,6 +65,7 @@ undefined4 g_unk0x100beca8;
 undefined4 g_unk0x100becac;
 
 // GLOBAL: MW2 0x100becb0
+// GLOBAL: MW2GBL 0x100bb550
 // GLOBAL: MW2MATROX 0x100c1c38
 // GLOBAL: MW23DFX 0x1007c878
 // GLOBAL: MW2ATI 0x10071878
@@ -67,6 +74,7 @@ undefined4 g_unk0x100becac;
 CdAudioPosition g_pausedCdAudioPosition;
 
 // GLOBAL: MW2 0x100becc0
+// GLOBAL: MW2GBL 0x100bb560
 // GLOBAL: MW2MATROX 0x100c1c30
 // GLOBAL: MW23DFX 0x1007c870
 // GLOBAL: MW2ATI 0x10071870
@@ -77,6 +85,7 @@ MechS32 g_cdStatus;
 // Picks the auxiliary audio device the CD volume goes through: the CD audio output, or failing
 // that the first auxiliary input.
 // FUNCTION: MW2 0x1005a7a0
+// FUNCTION: MW2GBL 0x1006c4f0
 // FUNCTION: MW2MATROX 0x100025b0
 // FUNCTION: MW23DFX 0x10030600
 // FUNCTION: MW2ATI 0x1002f660
@@ -124,6 +133,7 @@ MechS32 GetCdAudioAuxDevice(void)
 
 // Opens the CD audio device of the drive holding the game disc, in TMSF time format.
 // FUNCTION: MW2 0x1005a8b5
+// FUNCTION: MW2GBL 0x1006c605
 // FUNCTION: MW2MATROX 0x100026c5
 // FUNCTION: MW23DFX 0x100306b0
 // FUNCTION: MW2ATI 0x1002f710
@@ -183,6 +193,7 @@ MechS32 InitCdAudio(void)
 }
 
 // FUNCTION: MW2 0x1005aa0a
+// FUNCTION: MW2GBL 0x1006c75a
 // FUNCTION: MW2MATROX 0x1000281a
 // FUNCTION: MW23DFX 0x100307e0
 // FUNCTION: MW2ATI 0x1002f840
@@ -198,6 +209,7 @@ MechS32 CloseCdAudio(void)
 }
 
 // FUNCTION: MW2 0x1005aa40
+// FUNCTION: MW2GBL 0x1006c790
 // FUNCTION: MW2MATROX 0x10002850
 // FUNCTION: MW23DFX 0x10030810
 // FUNCTION: MW2ATI 0x1002f870
@@ -212,6 +224,7 @@ void PauseCdAudio(void)
 }
 
 // FUNCTION: MW2 0x1005aa6a
+// FUNCTION: MW2GBL 0x1006c7ba
 // FUNCTION: MW2MATROX 0x1000287a
 // FUNCTION: MW23DFX 0x10030840
 // FUNCTION: MW2ATI 0x1002f8a0
@@ -226,6 +239,7 @@ void ResumeCdAudio(void)
 }
 
 // FUNCTION: MW2 0x1005aa94
+// FUNCTION: MW2GBL 0x1006c7e4
 // FUNCTION: MW2MATROX 0x100028a4
 // FUNCTION: MW23DFX 0x10030870
 // FUNCTION: MW2ATI 0x1002f8d0
@@ -241,6 +255,7 @@ void StopCdAudio(void)
 
 // Plays from p_from, up to p_to unless it is 0 (TMSF positions).
 // FUNCTION: MW2 0x1005aabe
+// FUNCTION: MW2GBL 0x1006c80e
 // FUNCTION: MW2MATROX 0x100028ce
 // FUNCTION: MW23DFX 0x100308a0
 // FUNCTION: MW2ATI 0x1002f900
@@ -263,6 +278,7 @@ void PlayCdAudio(MechU32 p_from, MechU32 p_to)
 }
 
 // FUNCTION: MW2 0x1005ab0b
+// FUNCTION: MW2GBL 0x1006c85b
 // FUNCTION: MW2MATROX 0x1000291b
 // FUNCTION: MW23DFX 0x100308e0
 // FUNCTION: MW2ATI 0x1002f940
@@ -300,6 +316,7 @@ MechS32 StartCdAudio(void)
 }
 
 // FUNCTION: MW2 0x1005abff
+// FUNCTION: MW2GBL 0x1006c94f
 // FUNCTION: MW2MATROX 0x10002a0f
 // FUNCTION: MW23DFX 0x10030980
 // FUNCTION: MW2ATI 0x1002f9e0
@@ -315,6 +332,7 @@ void DeInitCdAudio(void)
 }
 
 // FUNCTION: MW2 0x1005ac33
+// FUNCTION: MW2GBL 0x1006c983
 // FUNCTION: MW2MATROX 0x10002a43
 // FUNCTION: MW23DFX 0x100309b0
 // FUNCTION: MW2ATI 0x1002fa10
@@ -350,6 +368,7 @@ MechS32 GetCdStatus(void)
 }
 
 // FUNCTION: MW2 0x1005ad0a
+// FUNCTION: MW2GBL 0x1006ca5a
 // FUNCTION: MW2MATROX 0x10002b1a
 // FUNCTION: MW23DFX 0x10030a60
 // FUNCTION: MW2ATI 0x1002fac0
@@ -361,6 +380,7 @@ MechS32 RefreshCdStatus(void)
 }
 
 // FUNCTION: MW2 0x1005ad29
+// FUNCTION: MW2GBL 0x1006ca79
 // FUNCTION: MW2MATROX 0x10002b39
 // FUNCTION: MW23DFX 0x10030a70
 void OpenCdDoor(void)
@@ -373,6 +393,7 @@ void OpenCdDoor(void)
 }
 
 // FUNCTION: MW2 0x1005ad5e
+// FUNCTION: MW2GBL 0x1006caae
 // FUNCTION: MW2MATROX 0x10002b6e
 // FUNCTION: MW23DFX 0x10030aa0
 // FUNCTION: MW2ATI 0x1002fad0
@@ -399,6 +420,7 @@ void CdAudioTogglePaused(void)
 }
 
 // FUNCTION: MW2 0x1005adef
+// FUNCTION: MW2GBL 0x1006cb3f
 // FUNCTION: MW2MATROX 0x10002bff
 // FUNCTION: MW23DFX 0x10030af0
 void ContinueCdAudio(void)
@@ -422,6 +444,7 @@ void ContinueCdAudio(void)
 
 // Stops the disc, retrying until the drive reports it stopped.
 // FUNCTION: MW2 0x1005ae7b
+// FUNCTION: MW2GBL 0x1006cbcb
 // FUNCTION: MW2MATROX 0x10002c8b
 // FUNCTION: MW23DFX 0x10030b30
 // FUNCTION: MW2ATI 0x1002fb20
@@ -441,6 +464,7 @@ void StopCdAudioAndWait(void)
 }
 
 // FUNCTION: MW2 0x1005aeb9
+// FUNCTION: MW2GBL 0x1006cc09
 // FUNCTION: MW2MATROX 0x10002cc9
 // FUNCTION: MW23DFX 0x10030b50
 void PreviousCdTrack(void)
@@ -451,6 +475,7 @@ void PreviousCdTrack(void)
 }
 
 // FUNCTION: MW2 0x1005aee0
+// FUNCTION: MW2GBL 0x1006cc30
 // FUNCTION: MW2MATROX 0x10002cf0
 // FUNCTION: MW23DFX 0x10030b70
 void NextCdTrack(void)
@@ -461,6 +486,7 @@ void NextCdTrack(void)
 }
 
 // FUNCTION: MW2 0x1005af07
+// FUNCTION: MW2GBL 0x1006cc57
 // FUNCTION: MW2MATROX 0x10002d17
 // FUNCTION: MW23DFX 0x10030b90
 // FUNCTION: MW2ATI 0x1002fb40
@@ -488,6 +514,7 @@ void UpdateCdAudioPosition(CdAudioPosition* p_position)
 }
 
 // FUNCTION: MW2 0x1005afbb
+// FUNCTION: MW2GBL 0x1006cd0b
 // FUNCTION: MW2MATROX 0x10002dcb
 // FUNCTION: MW23DFX 0x10030c00
 undefined4 FUN_1005afbb(void)
@@ -496,6 +523,7 @@ undefined4 FUN_1005afbb(void)
 }
 
 // FUNCTION: MW2 0x1005afd0
+// FUNCTION: MW2GBL 0x1006cd20
 // FUNCTION: MW2MATROX 0x10002de0
 // FUNCTION: MW23DFX 0x10030c10
 void FUN_1005afd0(undefined4 p_unk0x00)
@@ -504,6 +532,7 @@ void FUN_1005afd0(undefined4 p_unk0x00)
 }
 
 // FUNCTION: MW2 0x1005afe3
+// FUNCTION: MW2GBL 0x1006cd33
 // FUNCTION: MW2MATROX 0x10002df3
 // FUNCTION: MW23DFX 0x10030c20
 undefined4 FUN_1005afe3(void)
@@ -512,6 +541,7 @@ undefined4 FUN_1005afe3(void)
 }
 
 // FUNCTION: MW2 0x1005aff8
+// FUNCTION: MW2GBL 0x1006cd48
 // FUNCTION: MW2MATROX 0x10002e08
 // FUNCTION: MW23DFX 0x10030c30
 void FUN_1005aff8(undefined4 p_unk0x00)
@@ -523,6 +553,7 @@ void FUN_1005aff8(undefined4 p_unk0x00)
 // a disc goes in (beeping on each failed attempt, and exiting after three). Returns whether the
 // state changed.
 // FUNCTION: MW2 0x1005b00b
+// FUNCTION: MW2GBL 0x1006cd5b
 // FUNCTION: MW2MATROX 0x10002e1b
 // FUNCTION: MW23DFX 0x10030c40
 // FUNCTION: MW2ATI 0x1002fbb0
@@ -564,6 +595,7 @@ MechS32 PollCdDrive(void)
 
 // Skips p_step tracks from the current one.
 // FUNCTION: MW2 0x1005b10b
+// FUNCTION: MW2GBL 0x1006ce5b
 // FUNCTION: MW2MATROX 0x10002f1b
 // FUNCTION: MW23DFX 0x10030cc0
 void SkipCdTracks(CdAudioTracks* p_tracks, MechS32 p_step)
@@ -603,6 +635,7 @@ void SkipCdTracks(CdAudioTracks* p_tracks, MechS32 p_step)
 
 // Plays track p_track to its end.
 // FUNCTION: MW2 0x1005b22f
+// FUNCTION: MW2GBL 0x1006cf7f
 // FUNCTION: MW2MATROX 0x1000303f
 // FUNCTION: MW23DFX 0x10030d80
 // FUNCTION: MW2ATI 0x1002fc30
@@ -655,6 +688,7 @@ void PlayCdTrack(MechS32 p_track)
 }
 
 // FUNCTION: MW2 0x1005b3a0
+// FUNCTION: MW2GBL 0x1006d0f0
 // FUNCTION: MW2MATROX 0x100031b0
 // FUNCTION: MW23DFX 0x10030e60
 void PlayNewCdAudio(MechU32 p_from, MechU32 p_to)
@@ -694,6 +728,7 @@ void PlayNewCdAudio(MechU32 p_from, MechU32 p_to)
 
 // Reads the disc's table of contents into p_tracks. Returns 0 on success.
 // FUNCTION: MW2 0x1005b49e
+// FUNCTION: MW2GBL 0x1006d1ee
 // FUNCTION: MW2MATROX 0x100032ae
 // FUNCTION: MW23DFX 0x10030ee0
 // FUNCTION: MW2ATI 0x1002fd10
@@ -740,6 +775,7 @@ MechS32 GetCdAudioTracks(CdAudioTracks* p_tracks)
 }
 
 // FUNCTION: MW2 0x1005b5e6
+// FUNCTION: MW2GBL 0x1006d336
 // FUNCTION: MW2MATROX 0x100033f6
 // FUNCTION: MW23DFX 0x10030ff0
 // FUNCTION: MW2ATI 0x1002fe20
@@ -754,6 +790,7 @@ void FreeCdAudioTracks(CdAudioTracks* p_tracks)
 }
 
 // FUNCTION: MW2 0x1005b61d
+// FUNCTION: MW2GBL 0x1006d36d
 // FUNCTION: MW2MATROX 0x1000342d
 // FUNCTION: MW23DFX 0x10031020
 // FUNCTION: MW2ATI 0x1002fe50
@@ -775,6 +812,7 @@ void GetCdAudioPosition(CdAudioPosition* p_position)
 }
 
 // FUNCTION: MW2 0x1005b696
+// FUNCTION: MW2GBL 0x1006d3e6
 // FUNCTION: MW2MATROX 0x100034a6
 // FUNCTION: MW23DFX 0x10031090
 // FUNCTION: MW2ATI 0x1002fec0
@@ -787,6 +825,7 @@ MechS32 IsCdAudioInitialized(void)
 
 // Returns whether p_track is on the disc.
 // FUNCTION: MW2 0x1005b6ab
+// FUNCTION: MW2GBL 0x1006d3fb
 // FUNCTION: MW2MATROX 0x100034bb
 // FUNCTION: MW23DFX 0x100310a0
 // FUNCTION: MW2ATI 0x1002fed0
@@ -803,6 +842,7 @@ MechS32 IsCdTrackOnDisc(MechS32 p_track)
 
 // Returns the left channel's volume of the CD's auxiliary device, or -1.
 // FUNCTION: MW2 0x1005b6e5
+// FUNCTION: MW2GBL 0x1006d435
 // FUNCTION: MW2MATROX 0x100034f5
 // FUNCTION: MW23DFX 0x100310c0
 MechS32 GetCdAudioVolume(void)
@@ -819,6 +859,7 @@ MechS32 GetCdAudioVolume(void)
 
 // Sets both channels of the CD's auxiliary device to p_volume (at most 0xffff).
 // FUNCTION: MW2 0x1005b734
+// FUNCTION: MW2GBL 0x1006d484
 // FUNCTION: MW2MATROX 0x10003544
 // FUNCTION: MW23DFX 0x10031100
 // FUNCTION: MW2ATI 0x1002fef0
@@ -838,6 +879,7 @@ MechS32 SetCdAudioVolume(MechS32 p_volume)
 }
 
 // FUNCTION: MW2 0x1005b7a0
+// FUNCTION: MW2GBL 0x1006d4f0
 // FUNCTION: MW2MATROX 0x100035b0
 // FUNCTION: MW23DFX 0x10031140
 // FUNCTION: MW2ATI 0x1002ff30

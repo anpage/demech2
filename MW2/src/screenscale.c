@@ -36,6 +36,7 @@ DECOMP_SIZE_ASSERT(Rect, 0x10)
 
 // The margins FitRectToText leaves around a text block, in 16.16 fractions.
 // GLOBAL: MW2 0x100a9450
+// GLOBAL: MW2GBL 0x1009bad8
 // GLOBAL: MW2MATROX 0x100ae330
 // GLOBAL: MW23DFX 0x1024a840
 // GLOBAL: MW2ATI 0x1017ec98
@@ -46,19 +47,24 @@ Point g_textMargins = {0x28f, 0x28f};
 // DrawPulsingFrame's state: the frame's inset (1 or 2, alternating each call), its color (0xf0
 // to 0xf7 and back), when the color last stepped and its step.
 // GLOBAL: MW2 0x100a9458
+// GLOBAL: MW2GBL 0x1009bae0
 MechS32 g_pulseInset = 0;
 
 // GLOBAL: MW2 0x100a945c
+// GLOBAL: MW2GBL 0x1009bae4
 MechS32 g_pulseColor = 0xf0;
 
 // GLOBAL: MW2 0x100a9460
+// GLOBAL: MW2GBL 0x1009bae8
 MechS32 g_pulseTime = 0;
 
 // GLOBAL: MW2 0x100a9464
+// GLOBAL: MW2GBL 0x1009baec
 MechS32 g_pulseStep = 0;
 
 // Maps 16.16 fractions of the screen onto pixels.
 // FUNCTION: MW2 0x10056920
+// FUNCTION: MW2GBL 0x10007fa0
 // FUNCTION: MW2MATROX 0x10071320
 // FUNCTION: MW23DFX 0x10005b70
 // FUNCTION: MW2ATI 0x10006790
@@ -75,6 +81,7 @@ PANE* ScaleRectToScreen(WINDOW* p_buffer, PANE* p_src, PANE* p_dst)
 
 // Maps 16.16 fractions of p_frame onto pixels.
 // FUNCTION: MW2 0x1005699f
+// FUNCTION: MW2GBL 0x1000801f
 // FUNCTION: MW2MATROX 0x1007139f
 // FUNCTION: MW23DFX 0x10005c20
 // FUNCTION: MW2ATI 0x10006840
@@ -100,6 +107,7 @@ PANE* ScaleRectToFrame(PANE* p_frame, PANE* p_src, PANE* p_dst)
 
 // ScaleRectToScreen for a Rect.
 // FUNCTION: MW2 0x10056a67
+// FUNCTION: MW2GBL 0x100080e7
 // FUNCTION: MW2MATROX 0x10071467
 // FUNCTION: MW23DFX 0x10005d00
 Rect* ScaleBoundsToScreen(WINDOW* p_buffer, Rect* p_src, Rect* p_dst)
@@ -112,6 +120,7 @@ Rect* ScaleBoundsToScreen(WINDOW* p_buffer, Rect* p_src, Rect* p_dst)
 }
 
 // FUNCTION: MW2 0x10056ae4
+// FUNCTION: MW2GBL 0x10008164
 // FUNCTION: MW2MATROX 0x100714e4
 // FUNCTION: MW23DFX 0x10005db0
 // FUNCTION: MW2ATI 0x10006920
@@ -127,6 +136,7 @@ Point* ScalePointToScreen(WINDOW* p_buffer, Point* p_src, Point* p_dst)
 // Maps 16.16 fractions of p_frame's size onto pixels, relative to the frame (unlike
 // ScaleRectToFrame, it doesn't add the frame's origin).
 // FUNCTION: MW2 0x10056b2b
+// FUNCTION: MW2GBL 0x100081ab
 // FUNCTION: MW2MATROX 0x1007152b
 // FUNCTION: MW23DFX 0x10005e10
 Rect* ScaleBoundsToFrame(PANE* p_frame, Rect* p_src, Rect* p_dst)
@@ -145,6 +155,7 @@ Rect* ScaleBoundsToFrame(PANE* p_frame, Rect* p_src, Rect* p_dst)
 
 // Maps a point in 16.16 fractions of p_frame's size onto pixels, relative to the frame.
 // FUNCTION: MW2 0x10056bc1
+// FUNCTION: MW2GBL 0x10008241
 // FUNCTION: MW2MATROX 0x100715c1
 // FUNCTION: MW23DFX 0x10005ec0
 // FUNCTION: MW2ATI 0x10006980
@@ -165,6 +176,7 @@ Point* ScalePointToFrame(PANE* p_frame, Point* p_src, Point* p_dst)
 // Scales 16.16 fractions to 320x200 (low resolution) coordinates, correcting the height for the aspect ratio
 // p_aspect (16.16, 0xd555 = 5:6 for none).
 // FUNCTION: MW2 0x10056c25
+// FUNCTION: MW2GBL 0x100082a5
 // FUNCTION: MW2MATROX 0x10071625
 // FUNCTION: MW23DFX 0x10005f30
 // FUNCTION: MW2ATI 0x100069f0
@@ -196,6 +208,7 @@ PANE* ScaleRectToLowRes(PANE* p_rect, MechScalar p_aspect)
 
 // Maps 320x200 coordinates to 16.16 fractions of the screen.
 // FUNCTION: MW2 0x10056ce9
+// FUNCTION: MW2GBL 0x10008369
 // FUNCTION: MW2MATROX 0x100716f9
 // FUNCTION: MW23DFX 0x10006000
 // FUNCTION: MW2ATI 0x10006ac0
@@ -211,6 +224,7 @@ PANE* ScaleRectFromLowRes(PANE* p_src, PANE* p_dst)
 }
 
 // FUNCTION: MW2 0x10056d64
+// FUNCTION: MW2GBL 0x100083e4
 // FUNCTION: MW2MATROX 0x10071774
 // FUNCTION: MW23DFX 0x100060a0
 Rect* ScaleBoundsFromLowRes(Rect* p_src, Rect* p_dst)
@@ -223,6 +237,7 @@ Rect* ScaleBoundsFromLowRes(Rect* p_src, Rect* p_dst)
 }
 
 // FUNCTION: MW2 0x10056ddd
+// FUNCTION: MW2GBL 0x1000845d
 // FUNCTION: MW2MATROX 0x100717ed
 // FUNCTION: MW23DFX 0x10006140
 // FUNCTION: MW2ATI 0x10006b60
@@ -237,6 +252,7 @@ Point* ScalePointFromLowRes(Point* p_src, Point* p_dst)
 
 // Centers a rectangle of p_src's size on the screen.
 // FUNCTION: MW2 0x10056e22
+// FUNCTION: MW2GBL 0x100084a2
 // FUNCTION: MW2MATROX 0x10071832
 // FUNCTION: MW23DFX 0x100061a0
 // FUNCTION: MW2ATI 0x10006bc0
@@ -263,6 +279,7 @@ PANE* CenterRectOnScreen(WINDOW* p_buffer, PANE* p_src, PANE* p_dst)
 
 // Scales p_src about its center by p_scale (16.16).
 // FUNCTION: MW2 0x10056ec5
+// FUNCTION: MW2GBL 0x10008545
 // FUNCTION: MW2MATROX 0x100718d5
 // FUNCTION: MW23DFX 0x10006210
 // FUNCTION: MW2ATI 0x10006c30
@@ -292,6 +309,7 @@ PANE* ScaleRectAboutCenter(PANE* p_src, PANE* p_dst, Point p_scale)
 
 // Scales p_src about its center to the size of a shape frame.
 // FUNCTION: MW2 0x10056fcf
+// FUNCTION: MW2GBL 0x1000864f
 // FUNCTION: MW2MATROX 0x100719df
 // FUNCTION: MW23DFX 0x10006310
 // FUNCTION: MW2ATI 0x10006d30
@@ -313,6 +331,7 @@ PANE* FitRectToShape(PANE* p_src, PANE* p_dst, void* p_shape, MechS32 p_frame)
 
 // Scales p_src about its center to the size of a shape.
 // FUNCTION: MW2 0x1005705e
+// FUNCTION: MW2GBL 0x100086de
 // FUNCTION: MW2MATROX 0x10071a6e
 // FUNCTION: MW23DFX 0x100063b0
 PANE* FitRectToGif(PANE* p_src, PANE* p_dst, void* p_shape)
@@ -331,6 +350,7 @@ PANE* FitRectToGif(PANE* p_src, PANE* p_dst, void* p_shape)
 
 // Outlines a pane.
 // FUNCTION: MW2 0x100570e9
+// FUNCTION: MW2GBL 0x10008769
 // FUNCTION: MW2MATROX 0x10071af9
 // FUNCTION: MW23DFX 0x10006450
 // FUNCTION: MW2ATI 0x10006dd0
@@ -351,6 +371,7 @@ void OutlinePane(PANE* p_target, MechS32 p_color)
 
 // Draws a line across the pane under a line of text at p_pos.
 // FUNCTION: MW2 0x1005718d
+// FUNCTION: MW2GBL 0x1000880d
 // FUNCTION: MW2MATROX 0x10071bc1
 // FUNCTION: MW23DFX 0x100064e0
 // FUNCTION: MW2ATI 0x10006e60
@@ -426,6 +447,7 @@ void BoxText(PANE* p_target, MechChar* p_text, Point p_pos, void* p_font, MechS3
 
 // Draws text word-wrapped into a pane, inside the margins, until it runs out of lines.
 // FUNCTION: MW2 0x10057396
+// FUNCTION: MW2GBL 0x10008a0c
 // FUNCTION: MW2MATROX 0x10071e00
 // FUNCTION: MW23DFX 0x100066c0
 // FUNCTION: MW2ATI 0x10007040
@@ -511,6 +533,7 @@ void DrawWrappedText(PANE* p_target, MechChar* p_text, void* p_font)
 
 // Sizes p_rect to fit a block of text, lines separated by newlines, plus the margins.
 // FUNCTION: MW2 0x100575b9
+// FUNCTION: MW2GBL 0x10008c15
 // FUNCTION: MW2MATROX 0x10072023
 // FUNCTION: MW23DFX 0x10006860
 // FUNCTION: MW2ATI 0x100071e0
@@ -567,6 +590,7 @@ typedef struct CenteredDraw {
 // Plots a pixel of p_draw's colour at (p_width / 2, -p_height / 2) from the centre of its target
 // (16.16 fractions of the target), shows the frame, and returns FALSE if Esc was pressed.
 // FUNCTION: MW2 0x100576e9
+// FUNCTION: MW2GBL 0x10008d45
 MechS32 PlotCenteredPixel(CenteredDraw* p_draw, MechS32 p_width, MechS32 p_height)
 {
 	MechS32 result;
@@ -602,6 +626,7 @@ MechS32 PlotCenteredPixel(CenteredDraw* p_draw, MechS32 p_width, MechS32 p_heigh
 
 // Draws a pulsing frame just inside a pane.
 // FUNCTION: MW2 0x100577be
+// FUNCTION: MW2GBL 0x10008e1a
 void DrawPulsingFrame(PANE* p_target)
 {
 	Point corner;
@@ -626,6 +651,7 @@ void DrawPulsingFrame(PANE* p_target)
 
 // Tiles a pane with a shape frame.
 // FUNCTION: MW2 0x10057896
+// FUNCTION: MW2GBL 0x10008ef2
 // FUNCTION: MW2MATROX 0x10072153
 // FUNCTION: MW23DFX 0x10006960
 // FUNCTION: MW2ATI 0x100072e0
@@ -677,6 +703,7 @@ void TilePane(PANE* p_target, void* p_shape, MechS32 p_frame)
 // Returns 1 if the line through (0, 0) and (p_dx, p_dy) is too steep for a 16.16 slope,
 // otherwise 0 with the slope in p_slope.
 // FUNCTION: MW2 0x1005798d
+// FUNCTION: MW2GBL 0x10008fe9
 // FUNCTION: MW2MATROX 0x1007224a
 // FUNCTION: MW23DFX 0x10006a20
 // FUNCTION: MW2ATI 0x100073a0
@@ -710,6 +737,7 @@ MechS32 GetLineSlope(MechScalar p_dx, MechScalar p_dy, MechScalar* p_slope)
 
 // Where the needle from the center of a gauge rectangle towards p_point leaves the rectangle.
 // FUNCTION: MW2 0x10057a03
+// FUNCTION: MW2GBL 0x1000905f
 // FUNCTION: MW2MATROX 0x100722b1
 // FUNCTION: MW23DFX 0x10006a60
 // FUNCTION: MW2ATI 0x100073e0
@@ -745,6 +773,7 @@ Point* GetRectNeedleToward(PANE* p_target, Point* p_point, Point* p_out)
 // Where the needle from the center of a gauge rectangle at the heading p_angle (16.16 degrees)
 // leaves the rectangle.
 // FUNCTION: MW2 0x10057ac4
+// FUNCTION: MW2GBL 0x10009120
 // FUNCTION: MW2MATROX 0x10072388
 // FUNCTION: MW23DFX 0x10006b10
 // FUNCTION: MW2ATI 0x10007490
@@ -774,7 +803,7 @@ Point* GetRectNeedleAt(PANE* p_target, MechScalar p_angle, Point* p_out)
 		quadrant.m_bits.m_left = 0;
 	}
 
-#ifdef MW2_3DFX
+#ifdef MW2_CONDITIONAL_EXPRESSIONS
 	quadrant.m_bits.m_up = p_angle <= FIXED_CONST(180);
 #else
 	if (p_angle <= FIXED_CONST(180)) {
@@ -803,6 +832,7 @@ Point* GetRectNeedleAt(PANE* p_target, MechScalar p_angle, Point* p_out)
 // Where a line from the center of a rectangle (p_half: its half size) leaves it, for the
 // slope p_slope and the direction bits of p_quadrant (GetRectNeedleToward).
 // FUNCTION: MW2 0x10057bf3
+// FUNCTION: MW2GBL 0x1000924f
 // FUNCTION: MW2MATROX 0x100724c7
 // FUNCTION: MW23DFX 0x10006c20
 // FUNCTION: MW2ATI 0x100075a0
@@ -891,6 +921,7 @@ Point* GetRectEdgeAtSlope(Point* p_half, GaugeQuadrant p_quadrant, MechScalar p_
 
 // Draws the ellipse inscribed in a pane, corrected for the pixel aspect.
 // FUNCTION: MW2 0x10057e56
+// FUNCTION: MW2GBL 0x100094b2
 // FUNCTION: MW2MATROX 0x100727aa
 // FUNCTION: MW23DFX 0x10006e80
 // FUNCTION: MW2ATI 0x10007800
@@ -925,6 +956,7 @@ void DrawGaugeEllipse(PANE* p_target, MechS32 p_color)
 
 // Fills the part of the ellipse inscribed in a pane that lies in p_rect.
 // FUNCTION: MW2 0x10057edc
+// FUNCTION: MW2GBL 0x10009538
 void FillGaugeEllipse(PANE* p_target, Rect* p_rect, MechS32 p_color)
 {
 	PANE clip;
@@ -952,6 +984,7 @@ void FillGaugeEllipse(PANE* p_target, Rect* p_rect, MechS32 p_color)
 // Tests whether a point lies inside the ellipse inscribed in a pane.
 // The Matrox edition takes the point as a Point and divides by the float aspect.
 // FUNCTION: MW2 0x10057fbe
+// FUNCTION: MW2GBL 0x1000961a
 // FUNCTION: MW2MATROX 0x10072834
 // FUNCTION: MW23DFX 0x10006ef0
 // FUNCTION: MW2ATI 0x10007870
@@ -991,6 +1024,7 @@ MechS32 IsInsideGaugeEllipse(PANE* p_target, MechS32 p_x, MechS32 p_y)
 
 // Where the needle of the gauge ellipse towards p_point ends.
 // FUNCTION: MW2 0x1005806a
+// FUNCTION: MW2GBL 0x100096c6
 // FUNCTION: MW2MATROX 0x100728f3
 // FUNCTION: MW23DFX 0x10006f70
 // FUNCTION: MW2ATI 0x100078f0
@@ -1037,6 +1071,7 @@ Point* GetEllipseNeedleToward(PANE* p_target, Point* p_point, Point* p_out)
 
 // Where the needle of the gauge ellipse at the heading p_angle (16.16 degrees) ends.
 // FUNCTION: MW2 0x1005816f
+// FUNCTION: MW2GBL 0x100097cb
 // FUNCTION: MW2MATROX 0x10072a22
 // FUNCTION: MW23DFX 0x10007070
 // FUNCTION: MW2ATI 0x100079f0
@@ -1066,7 +1101,7 @@ Point* GetEllipseNeedleAt(PANE* p_target, MechScalar p_angle, Point* p_out)
 		quadrant.m_bits.m_left = 0;
 	}
 
-#ifdef MW2_3DFX
+#ifdef MW2_CONDITIONAL_EXPRESSIONS
 	quadrant.m_bits.m_up = p_angle <= FIXED_CONST(180);
 #else
 	if (p_angle <= FIXED_CONST(180)) {
@@ -1081,7 +1116,7 @@ Point* GetEllipseNeedleAt(PANE* p_target, MechScalar p_angle, Point* p_out)
 	dx = FixedCos(p_angle);
 	dy = FixedSin(p_angle);
 	dy = dy * g_eyepoint->m_pixelAspect;
-#ifdef MW2_3DFX
+#ifdef MW2_CONDITIONAL_EXPRESSIONS
 	quadrant.m_bits.m_steep = !FIXED_IS_NONZERO(dx);
 #else
 	if (!FIXED_IS_NONZERO(dx)) {
@@ -1110,6 +1145,7 @@ Point* GetEllipseNeedleAt(PANE* p_target, MechScalar p_angle, Point* p_out)
 
 // Where a needle of the gauge ellipse at p_angle ends, from p_center.
 // FUNCTION: MW2 0x100582c4
+// FUNCTION: MW2GBL 0x10009920
 // FUNCTION: MW2MATROX 0x10072b74
 // FUNCTION: MW23DFX 0x100071a0
 // FUNCTION: MW2ATI 0x10007b20

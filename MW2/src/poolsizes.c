@@ -49,6 +49,7 @@ typedef struct DtblRecord {
 // The pool's block tags, four characters each: players (AGP), mechs (MGP), SEG, TLIS, ADAT, ANTK,
 // ANFL, OBJI, CID and CINS.
 // GLOBAL: MW2 0x100a9428
+// GLOBAL: MW2GBL 0x100b68d8
 // GLOBAL: MW2MATROX 0x100bbb40
 // GLOBAL: MW23DFX 0x10259f38
 // GLOBAL: MW2ATI 0x1018e230
@@ -61,6 +62,7 @@ BwdTag g_staticPoolTags[10] =
 // memory pools.
 
 // GLOBAL: MW2 0x100e9da8
+// GLOBAL: MW2GBL 0x100bbb98
 // GLOBAL: MW2MATROX 0x1012c308
 // GLOBAL: MW23DFX 0x101597c8
 // GLOBAL: MW2ATI 0x1008d7d8
@@ -69,13 +71,16 @@ BwdTag g_staticPoolTags[10] =
 MechS16 g_missionPlayers;
 
 // GLOBAL: MW2 0x100e9daa
+// GLOBAL: MW2GBL 0x100bbb9a
 // GLOBAL: MW2MATROX 0x1012c30a
 // GLOBAL: MW23DFX 0x101597ca
 // GLOBAL: MW2ATI 0x1008d7da
+// GLOBAL: MW2S3 0x1014d2fa
 // GLOBAL: MW2POWERVR 0x10083dba
 MechS16 g_unk0x100e9daa;
 
 // GLOBAL: MW2 0x100e9dac
+// GLOBAL: MW2GBL 0x100bbb9c
 // GLOBAL: MW2MATROX 0x1012c30c
 // GLOBAL: MW23DFX 0x101597cc
 // GLOBAL: MW2ATI 0x1008d7dc
@@ -84,6 +89,7 @@ MechS16 g_unk0x100e9daa;
 MechS16 g_missionObjects;
 
 // GLOBAL: MW2 0x100e9dae
+// GLOBAL: MW2GBL 0x100bbb9e
 // GLOBAL: MW2MATROX 0x1012c30e
 // GLOBAL: MW23DFX 0x101597ce
 // GLOBAL: MW2ATI 0x1008d7de
@@ -92,20 +98,25 @@ MechS16 g_missionObjects;
 MechS16 g_missionClassEntries;
 
 // GLOBAL: MW2 0x100e9db0
+// GLOBAL: MW2GBL 0x100bbba0
 // GLOBAL: MW2MATROX 0x1012c310
 // GLOBAL: MW23DFX 0x101597d0
 // GLOBAL: MW2ATI 0x1008d7e0
+// GLOBAL: MW2S3 0x1014d300
 // GLOBAL: MW2POWERVR 0x10083dc0
 MechS16 g_unk0x100e9db0;
 
 // GLOBAL: MW2 0x100e9db2
+// GLOBAL: MW2GBL 0x100bbba2
 // GLOBAL: MW2MATROX 0x1012c312
 // GLOBAL: MW23DFX 0x101597d2
 // GLOBAL: MW2ATI 0x1008d7e2
+// GLOBAL: MW2S3 0x1014d302
 // GLOBAL: MW2POWERVR 0x10083dc2
 MechS16 g_unk0x100e9db2;
 
 // GLOBAL: MW2 0x100e9db4
+// GLOBAL: MW2GBL 0x100bbba4
 // GLOBAL: MW2MATROX 0x1012c314
 // GLOBAL: MW23DFX 0x101597d4
 // GLOBAL: MW2ATI 0x1008d7e4
@@ -114,6 +125,7 @@ MechS16 g_unk0x100e9db2;
 MechS16 g_missionAnims;
 
 // GLOBAL: MW2 0x100e9db6
+// GLOBAL: MW2GBL 0x100bbba6
 // GLOBAL: MW2MATROX 0x1012c316
 // GLOBAL: MW23DFX 0x101597d6
 // GLOBAL: MW2ATI 0x1008d7e6
@@ -122,6 +134,7 @@ MechS16 g_missionAnims;
 MechS16 g_missionAnimTracks;
 
 // GLOBAL: MW2 0x100e9db8
+// GLOBAL: MW2GBL 0x100bbba8
 // GLOBAL: MW2MATROX 0x1012c318
 // GLOBAL: MW23DFX 0x101597d8
 // GLOBAL: MW2ATI 0x1008d7e8
@@ -131,6 +144,7 @@ MechS32 g_missionAnimFrameBytes;
 
 // The mission's static memory table, which ReadStaticMemoryTable fills.
 // GLOBAL: MW2 0x100e9dc0
+// GLOBAL: MW2GBL 0x100bbbb0
 // GLOBAL: MW2MATROX 0x1012c320
 // GLOBAL: MW23DFX 0x101597e0
 // GLOBAL: MW2ATI 0x1008d7f0
@@ -140,6 +154,7 @@ StaticPoolSize g_staticPoolSizes[10];
 
 // Returns the size of the table's entry at an index, or 0.
 // FUNCTION: MW2 0x100563d0
+// FUNCTION: MW2GBL 0x1007b610
 // FUNCTION: MW2MATROX 0x10085690
 // FUNCTION: MW23DFX 0x10041020
 // FUNCTION: MW2ATI 0x1003ebd0
@@ -160,6 +175,7 @@ MechU32 GetStaticPoolSize(MechS32 p_index)
 // Reads a mission's static memory table (seven tag and size pairs), or returns NULL. A mission
 // named by a number is looked up by that resource id.
 // FUNCTION: MW2 0x1005640e
+// FUNCTION: MW2GBL 0x1007b64e
 // FUNCTION: MW2MATROX 0x100856ce
 // FUNCTION: MW23DFX 0x10041040
 // FUNCTION: MW2ATI 0x1003ebf0
@@ -202,6 +218,7 @@ StaticPoolSize* ReadStaticMemoryTable(char* p_mission)
 // first time adds all of them), and runs its scenario table and the streams it includes. Returns
 // FALSE on an error.
 // FUNCTION: MW2 0x10056503
+// FUNCTION: MW2GBL 0x1007b743
 // FUNCTION: MW2MATROX 0x100857c3
 // FUNCTION: MW23DFX 0x100410e0
 // FUNCTION: MW2ATI 0x1003ec90

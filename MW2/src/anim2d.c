@@ -26,6 +26,7 @@ DECOMP_SIZE_ASSERT(FramePrj, 0x08)
 DECOMP_SIZE_ASSERT(Anim2d, 0x1c)
 
 // GLOBAL: MW2 0x100a156c
+// GLOBAL: MW2GBL 0x100b209c
 // GLOBAL: MW2MATROX 0x100a20a8
 // GLOBAL: MW23DFX 0x10249270
 // GLOBAL: MW2ATI 0x1017d270
@@ -34,6 +35,7 @@ DECOMP_SIZE_ASSERT(Anim2d, 0x1c)
 MechS32 g_framePrjCount = -1;
 
 // GLOBAL: MW2 0x100a158c
+// GLOBAL: MW2GBL 0x100b20bc
 // GLOBAL: MW2MATROX 0x100a20c8
 // GLOBAL: MW23DFX 0x10249290
 // GLOBAL: MW2ATI 0x1017d290
@@ -42,6 +44,7 @@ MechS32 g_framePrjCount = -1;
 MechS32 g_anim2dCount = 0;
 
 // GLOBAL: MW2 0x10179b60
+// GLOBAL: MW2GBL 0x100bf560
 // GLOBAL: MW2MATROX 0x102184d0
 // GLOBAL: MW23DFX 0x102453d0
 // GLOBAL: MW2ATI 0x101791f0
@@ -50,6 +53,7 @@ MechS32 g_anim2dCount = 0;
 Anim2d* g_anim2ds[7];
 
 // GLOBAL: MW2 0x10179b80
+// GLOBAL: MW2GBL 0x100bf580
 // GLOBAL: MW2MATROX 0x102184f0
 // GLOBAL: MW23DFX 0x102453f0
 // GLOBAL: MW2ATI 0x10179210
@@ -58,6 +62,7 @@ Anim2d* g_anim2ds[7];
 FramePrj g_framePrjs[0x60];
 
 // FUNCTION: MW2 0x10007510
+// FUNCTION: MW2GBL 0x1004f290
 // FUNCTION: MW2MATROX 0x100013b0
 // FUNCTION: MW23DFX 0x10002080
 // FUNCTION: MW2ATI 0x10002070
@@ -83,6 +88,7 @@ MechS32 LoadFramePrj(MechU16 p_id, MechS16 p_unk0x04, MechS16 p_unk0x06)
 }
 
 // FUNCTION: MW2 0x1000759c
+// FUNCTION: MW2GBL 0x1004f31c
 // FUNCTION: MW2MATROX 0x1000143c
 // FUNCTION: MW23DFX 0x100020e0
 // FUNCTION: MW2ATI 0x100020d0
@@ -102,6 +108,7 @@ void ResetFramePrjs(void)
 }
 
 // FUNCTION: MW2 0x100075eb
+// FUNCTION: MW2GBL 0x1004f36b
 // FUNCTION: MW2MATROX 0x1000148b
 // FUNCTION: MW23DFX 0x10002110
 // FUNCTION: MW2ATI 0x10002100
@@ -115,6 +122,7 @@ void ClearFramePrj(FramePrj* p_prj)
 }
 
 // FUNCTION: MW2 0x10007611
+// FUNCTION: MW2GBL 0x1004f391
 // FUNCTION: MW2MATROX 0x100014b1
 // FUNCTION: MW23DFX 0x10002130
 // FUNCTION: MW2ATI 0x10002120
@@ -155,6 +163,7 @@ MechS16 LoadAnim2d(MechU32 p_flags, MechS32 p_frameTime, MechS32 p_type, MechS16
 
 // Frees one animation, or all of them for a negative index.
 // FUNCTION: MW2 0x100076ea
+// FUNCTION: MW2GBL 0x1004f46f
 // FUNCTION: MW2MATROX 0x1000158a
 // FUNCTION: MW23DFX 0x100021e0
 // FUNCTION: MW2ATI 0x100021d0
@@ -173,6 +182,7 @@ void FreeAnim2ds(MechS32 p_index)
 }
 
 // FUNCTION: MW2 0x1000773a
+// FUNCTION: MW2GBL 0x1004f4bf
 // FUNCTION: MW2MATROX 0x100015da
 // FUNCTION: MW23DFX 0x10002200
 // FUNCTION: MW2ATI 0x100021f0
@@ -223,6 +233,7 @@ void TileShapeFrame(PANE* p_target, void* p_shape, MechS32 p_frame, MechS32 p_x,
 // Draws the animation's current frame, loading its shape on first use. The index test never
 // rejects anything (the original tests p_index < 0 && p_index >= 7).
 // FUNCTION: MW2 0x100077b3
+// FUNCTION: MW2GBL 0x1004f538
 // FUNCTION: MW2MATROX 0x10001653
 // FUNCTION: MW23DFX 0x100022f0
 // FUNCTION: MW2ATI 0x10002240
@@ -310,6 +321,7 @@ void DrawAnim2d(PANE* p_target, MechS32 p_index, MechS32 p_x, MechS32 p_y)
 
 // Restarts the animation. As in DrawAnim2d, the index test never rejects anything.
 // FUNCTION: MW2 0x10007987
+// FUNCTION: MW2GBL 0x1004f70c
 // FUNCTION: MW2MATROX 0x10001827
 // FUNCTION: MW23DFX 0x10002450
 void RestartAnim2d(MechS32 p_index)

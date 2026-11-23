@@ -13,6 +13,7 @@
 // The game clock, in ticks of the 181 Hz Miles timer FirstClock registers.
 
 // GLOBAL: MW2 0x100ba548
+// GLOBAL: MW2GBL 0x100a03d4
 // GLOBAL: MW2MATROX 0x100a4e50
 // GLOBAL: MW23DFX 0x1024ab44
 // GLOBAL: MW2ATI 0x1017ef94
@@ -22,6 +23,7 @@ MechS32 g_currentClock = 0;
 
 // Ticks that run on while the game clock is paused; the network times its messages by them.
 // GLOBAL: MW2 0x100ba54c
+// GLOBAL: MW2GBL 0x100a03d8
 // GLOBAL: MW2MATROX 0x100a4e54
 // GLOBAL: MW23DFX 0x1024ab48
 // GLOBAL: MW2ATI 0x1017ef98
@@ -30,6 +32,7 @@ MechS32 g_currentClock = 0;
 MechS32 g_realClock = 0;
 
 // GLOBAL: MW2 0x100ba550
+// GLOBAL: MW2GBL 0x100a03dc
 // GLOBAL: MW2MATROX 0x100a4e58
 // GLOBAL: MW23DFX 0x1024ab4c
 // GLOBAL: MW2ATI 0x1017ef9c
@@ -39,6 +42,7 @@ MechS32 g_deltaTime = 0;
 
 // 0 the game clock runs on its own ticks, 2 a slave's follows the master's, 3 paused.
 // GLOBAL: MW2 0x100ba554
+// GLOBAL: MW2GBL 0x100a03e0
 // GLOBAL: MW2MATROX 0x100a4e5c
 // GLOBAL: MW23DFX 0x1024ab50
 // GLOBAL: MW2ATI 0x1017efa0
@@ -47,12 +51,14 @@ MechS32 g_deltaTime = 0;
 MechS32 g_clockMode = 0;
 
 // GLOBAL: MW2 0x100ba558
+// GLOBAL: MW2GBL 0x100a03e4
 // GLOBAL: MW2MATROX 0x100a4e60
 // GLOBAL: MW23DFX 0x1024ab54
 // GLOBAL: MW2S3 0x100640ac
 MechS32 g_clockPaused = 0;
 
 // GLOBAL: MW2 0x100ba55c
+// GLOBAL: MW2GBL 0x100a03e8
 // GLOBAL: MW2MATROX 0x100a4e64
 // GLOBAL: MW23DFX 0x1024ab58
 // GLOBAL: MW2ATI 0x1017efa8
@@ -61,6 +67,7 @@ MechS32 g_clockPaused = 0;
 HTIMER g_ticksTimer = -1;
 
 // GLOBAL: MW2 0x100ba560
+// GLOBAL: MW2GBL 0x100a03ec
 // GLOBAL: MW2MATROX 0x100a4e68
 // GLOBAL: MW23DFX 0x1024ab5c
 // GLOBAL: MW2ATI 0x1017efac
@@ -69,6 +76,7 @@ HTIMER g_ticksTimer = -1;
 MechS32 g_timeCompressionEnabled = 0;
 
 // GLOBAL: MW2 0x100ba564
+// GLOBAL: MW2GBL 0x100a03f0
 // GLOBAL: MW2MATROX 0x100a4e6c
 // GLOBAL: MW23DFX 0x1024ab60
 // GLOBAL: MW2ATI 0x1017efb0
@@ -77,6 +85,7 @@ MechS32 g_timeCompressionEnabled = 0;
 MechS32 g_timeExpansionEnabled = 0;
 
 // GLOBAL: MW2 0x100ba568
+// GLOBAL: MW2GBL 0x100a03f4
 // GLOBAL: MW2MATROX 0x100a4e70
 // GLOBAL: MW23DFX 0x1024ab64
 // GLOBAL: MW2ATI 0x1017efb4
@@ -85,6 +94,7 @@ MechS32 g_timeExpansionEnabled = 0;
 MechS32 g_framerateLimit = 0;
 
 // GLOBAL: MW2 0x100ba56c
+// GLOBAL: MW2GBL 0x100a03f8
 // GLOBAL: MW2MATROX 0x100a4e74
 // GLOBAL: MW23DFX 0x1024ab68
 // GLOBAL: MW2ATI 0x1017efb8
@@ -95,6 +105,7 @@ MechS32 g_clockHandle = -1;
 // The ticks since a slave's last UpdateNetwork: they advance its game clock when the master's
 // clock didn't arrive.
 // GLOBAL: MW2 0x100ba570
+// GLOBAL: MW2GBL 0x100a03fc
 // GLOBAL: MW2MATROX 0x100a4e78
 // GLOBAL: MW23DFX 0x1024ab6c
 // GLOBAL: MW2ATI 0x1017efbc
@@ -106,6 +117,7 @@ MechS32 g_syncTicksHandle = -1;
 MechS32 g_unk0x100ba574 = -1;
 
 // GLOBAL: MW2 0x100ba578
+// GLOBAL: MW2GBL 0x100a0404
 // GLOBAL: MW2MATROX 0x100a4e80
 // GLOBAL: MW23DFX 0x1024ab74
 // GLOBAL: MW2ATI 0x1017efc4
@@ -114,6 +126,7 @@ MechS32 g_unk0x100ba574 = -1;
 MechS32 g_realClockHandle = -1;
 
 // GLOBAL: MW2 0x100ba57c
+// GLOBAL: MW2GBL 0x100a0408
 // GLOBAL: MW2MATROX 0x100a4e84
 // GLOBAL: MW23DFX 0x1024ab78
 // GLOBAL: MW2ATI 0x1017efc8
@@ -122,12 +135,14 @@ MechS32 g_realClockHandle = -1;
 MechS32 g_previousClock = 0;
 
 // GLOBAL: MW2 0x100ba580
+// GLOBAL: MW2GBL 0x100a040c
 // GLOBAL: MW2MATROX 0x100a4e88
 // GLOBAL: MW23DFX 0x1024ab7c
 // GLOBAL: MW2S3 0x100640d4
 MechS32 g_clockModeBeforePause = 0;
 
 // GLOBAL: MW2 0x100ba584
+// GLOBAL: MW2GBL 0x100a0410
 // GLOBAL: MW2MATROX 0x100a4e8c
 // GLOBAL: MW23DFX 0x1024ab80
 // GLOBAL: MW2ATI 0x1017efd0
@@ -136,9 +151,11 @@ MechS32 g_clockModeBeforePause = 0;
 BOOL g_ticksTimerInitialized = FALSE;
 
 // GLOBAL: MW2 0x100bfd54
+// GLOBAL: MW2GBL 0x1017d2f0
 MechS16* g_sqrtTable;
 
 // GLOBAL: MW2 0x100bfd60
+// GLOBAL: MW2GBL 0x1017d300
 // GLOBAL: MW2MATROX 0x1012d7d0
 // GLOBAL: MW23DFX 0x1015d260
 // GLOBAL: MW2ATI 0x10091250
@@ -147,6 +164,7 @@ MechS16* g_sqrtTable;
 MechScalar g_slopeSines[800];
 
 // GLOBAL: MW2 0x100c09e0
+// GLOBAL: MW2GBL 0x1017df80
 // GLOBAL: MW2MATROX 0x1012cb50
 // GLOBAL: MW23DFX 0x1015c5e0
 // GLOBAL: MW2ATI 0x100905d0
@@ -155,6 +173,7 @@ MechScalar g_slopeSines[800];
 MechScalar g_slopeCosines[800];
 
 // GLOBAL: MW2 0x100c1660
+// GLOBAL: MW2GBL 0x1017ec00
 // GLOBAL: MW2MATROX 0x1012e450
 // GLOBAL: MW23DFX 0x1015dee0
 // GLOBAL: MW2ATI 0x10091ed0
@@ -163,98 +182,25 @@ MechScalar g_slopeCosines[800];
 MechScalar g_sinTable[TRIG_TABLE_SIZE];
 
 // GLOBAL: MW2 0x100c1a80
+// GLOBAL: MW2GBL 0x1017f020
 MechS16 g_sqrtTableData[0x400];
 
 // GLOBAL: MW2 0x100c2290
+// GLOBAL: MW2GBL 0x1017f830
 // GLOBAL: MW2MATROX 0x1012ec50
 // GLOBAL: MW23DFX 0x1015e6f0
 // GLOBAL: MW2ATI 0x100926e0
-// GLOBAL: MW2S3 0x100814f0
+// GLOBAL: MW2S3 0x10081500
 // GLOBAL: MW2POWERVR 0x10088c20
 MechScalar g_atanTable[TRIG_TABLE_SIZE];
 
-// The Matrox edition's tables, Hypot2D and trigonometry are its own float code, in accel/floatmath.c.
-#ifndef MW2_FLOAT_SCALARS
-// A quarter wave of sines (2.29 fixed point, 1024 steps to the circle) and the arctangents of
-// 0 to 1 in 256 steps (16.16 degrees), each padded with two copies of its last value.
-// FUNCTION: MW2 0x1007c930
-MechS32 InitSinAtanTables(void)
-{
-	MechS32 i;
-
-	for (i = 0; i < 0x100; i++) {
-		g_sinTable[i] = (MechS32) (sin(i * (3.14159265 / 512)) * 536870912.0);
-		g_atanTable[i] = (MechS32) (atan(i / 256.0) * 3754936.210460003);
-	}
-
-	g_sinTable[0x100] = g_sinTable[0x101] = 0x20000000;
-	g_atanTable[0x100] = g_atanTable[0x101] = 0x2d0000;
-	return TRUE;
-}
-
-// The cosines and sines of the angles whose tangents are 0 to 50 in steps of 1/16 (2.29).
-// FUNCTION: MW2 0x1007c9e3
-MechS32 InitSlopeTables(void)
-{
-	MechS32 i;
-	MechDouble cosine;
-
-	for (i = 0; i < 800; i++) {
-		g_slopeCosines[i] = (MechS32) ((cosine = 1.0 / sqrt(i / 16.0 * (i / 16.0) + 1.0)) * 536870912.0);
-		g_slopeSines[i] = (MechS32) (i / 16.0 * cosine * 536870912.0);
-	}
-
-	return TRUE;
-}
-
-#endif
-
-// The square roots of 0 to 1023 (6.10 fixed point).
-// FUNCTION: MW2 0x1007ca8e
-MechS32 InitSqrtTable(void)
-{
-	MechS32 i;
-
-	g_sqrtTable = g_sqrtTableData;
-	for (i = 0; i < 0x400; i++) {
-		g_sqrtTable[i] = (MechS16) (sqrt(i) * 1024.0);
-	}
-
-	return TRUE;
-}
-
-#ifndef MW2_FLOAT_SCALARS
-// FUNCTION: MW2 0x1007caf7
-MechScalar Hypot2D(MechScalar p_x, MechScalar p_y)
-{
-	MechS32 length;
-	MechDouble x;
-	MechDouble y;
-
-	x = p_x;
-	length = (MechS32) sqrt((y = p_y) * y + x * x);
-	return length;
-}
-#endif
-
-// Sets p_matrix to the rotation that points along (p_x, p_y, p_z).
-// FUNCTION: MW2 0x1007cb3d
-void BuildMatrixFromDirection(Matrix* p_matrix, MechS32 p_x, MechS32 p_y, MechS32 p_z)
-{
-	MechDouble pitch;
-	MechDouble yaw;
-
-	yaw = atan2(p_x, p_z);
-	pitch = -asin(p_y / sqrt((MechDouble) p_x * p_x + (MechDouble) p_y * p_y + (MechDouble) p_z * p_z));
-	BuildMatrix(p_matrix, (MechS32) (pitch * 3754939.378), (MechS32) (yaw * 3754939.378), 0, 0, 0, 0);
-}
-
-// The rotation's normalization: 1.1 has it here, the Matrox edition at the end of transform.c's object.
-#ifndef MW2_ACCEL
-#include "normalizerotation.c"
+// The tables, Hypot2D and BuildMatrixFromDirection: GBL has them in an object of their own.
+#ifndef MW2_GBL
+#include "clockmath.c"
 #endif
 
 // FUNCTION: MW2 0x1007cd50
+// FUNCTION: MW2GBL 0x1001d4f0
 // FUNCTION: MW2MATROX 0x1001e8e0
 // FUNCTION: MW23DFX 0x10007f20
 // FUNCTION: MW2ATI 0x10008740
@@ -281,6 +227,7 @@ void FirstClock(void)
 }
 
 // FUNCTION: MW2 0x1007ce2c
+// FUNCTION: MW2GBL 0x1001d5cc
 // FUNCTION: MW2MATROX 0x1001e9bc
 // FUNCTION: MW23DFX 0x10007ff0
 // FUNCTION: MW2ATI 0x10008810
@@ -340,6 +287,7 @@ void NextClock(void)
 }
 
 // FUNCTION: MW2 0x1007cff5
+// FUNCTION: MW2GBL 0x1001d795
 // FUNCTION: MW2MATROX 0x1001eb85
 // FUNCTION: MW23DFX 0x10008190
 // FUNCTION: MW2ATI 0x100089d0
@@ -359,6 +307,7 @@ void StopTimers(void)
 }
 
 // FUNCTION: MW2 0x1007d05d
+// FUNCTION: MW2GBL 0x1001d7fd
 // FUNCTION: MW2MATROX 0x1001ebed
 // FUNCTION: MW23DFX 0x100081f0
 // FUNCTION: MW2ATI 0x10008a30
@@ -370,6 +319,7 @@ MechS32 GetGameClock(void)
 }
 
 // FUNCTION: MW2 0x1007d07b
+// FUNCTION: MW2GBL 0x1001d81b
 // FUNCTION: MW2MATROX 0x1001ec0b
 // FUNCTION: MW23DFX 0x10008200
 // FUNCTION: MW2ATI 0x10008a40
@@ -381,6 +331,7 @@ MechS32 GetTicksSinceSync(void)
 }
 
 // FUNCTION: MW2 0x1007d099
+// FUNCTION: MW2GBL 0x1001d839
 // FUNCTION: MW2MATROX 0x1001ec29
 // FUNCTION: MW23DFX 0x10008210
 // FUNCTION: MW2ATI 0x10008a50
@@ -392,6 +343,7 @@ void ResetSyncTicks(void)
 }
 
 // FUNCTION: MW2 0x1007d0b2
+// FUNCTION: MW2GBL 0x1001d852
 // FUNCTION: MW2MATROX 0x1001ec42
 // FUNCTION: MW23DFX 0x10008220
 // FUNCTION: MW2ATI 0x10008a60
@@ -406,6 +358,7 @@ void ResetClocks(void)
 }
 
 // FUNCTION: MW2 0x1007d0fb
+// FUNCTION: MW2GBL 0x1001d89b
 // FUNCTION: MW2MATROX 0x1001ec8b
 // FUNCTION: MW23DFX 0x10008260
 // FUNCTION: MW2ATI 0x10008aa0

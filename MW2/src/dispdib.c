@@ -36,6 +36,7 @@ enum DispDibDrawFlags {
 };
 
 // GLOBAL: MW2 0x100a8380
+// GLOBAL: MW2GBL 0x1009e0e0
 // GLOBAL: MW2MATROX 0x100be238
 // GLOBAL: MW23DFX 0x10249008
 // GLOBAL: MW2ATI 0x1017d008
@@ -44,6 +45,7 @@ enum DispDibDrawFlags {
 HWND g_dispDibWindow = NULL;
 
 // GLOBAL: MW2 0x100a8384
+// GLOBAL: MW2GBL 0x1009e0e4
 // GLOBAL: MW2MATROX 0x100be23c
 // GLOBAL: MW23DFX 0x1024900c
 // GLOBAL: MW2ATI 0x1017d00c
@@ -52,6 +54,7 @@ HWND g_dispDibWindow = NULL;
 HDC g_dispDibWindowDc = NULL;
 
 // GLOBAL: MW2 0x100a8388
+// GLOBAL: MW2GBL 0x1009e0e8
 // GLOBAL: MW2MATROX 0x100be240
 // GLOBAL: MW23DFX 0x10249010
 // GLOBAL: MW2ATI 0x1017d010
@@ -60,6 +63,7 @@ HDC g_dispDibWindowDc = NULL;
 HDC g_dispDibDc = NULL;
 
 // GLOBAL: MW2 0x100a838c
+// GLOBAL: MW2GBL 0x1009e0ec
 // GLOBAL: MW2MATROX 0x100be244
 // GLOBAL: MW23DFX 0x10249014
 // GLOBAL: MW2ATI 0x1017d014
@@ -68,6 +72,7 @@ HDC g_dispDibDc = NULL;
 HDC g_dispDibStretchDc = NULL;
 
 // GLOBAL: MW2 0x100a8390
+// GLOBAL: MW2GBL 0x1009e0f0
 // GLOBAL: MW2MATROX 0x100be248
 // GLOBAL: MW23DFX 0x10249018
 // GLOBAL: MW2ATI 0x1017d018
@@ -76,6 +81,7 @@ HDC g_dispDibStretchDc = NULL;
 HBITMAP g_dispDibBitmap = NULL;
 
 // GLOBAL: MW2 0x100a8394
+// GLOBAL: MW2GBL 0x1009e0f4
 // GLOBAL: MW2MATROX 0x100be24c
 // GLOBAL: MW23DFX 0x1024901c
 // GLOBAL: MW2ATI 0x1017d01c
@@ -84,6 +90,7 @@ HBITMAP g_dispDibBitmap = NULL;
 HBITMAP g_dispDibStretchBitmap = NULL;
 
 // GLOBAL: MW2 0x100a8398
+// GLOBAL: MW2GBL 0x1009e0f8
 // GLOBAL: MW2MATROX 0x100be250
 // GLOBAL: MW23DFX 0x10249020
 // GLOBAL: MW2ATI 0x1017d020
@@ -92,6 +99,7 @@ HBITMAP g_dispDibStretchBitmap = NULL;
 undefined* g_dispDibStretchBits = NULL;
 
 // GLOBAL: MW2 0x100a839c
+// GLOBAL: MW2GBL 0x1009e0fc
 // GLOBAL: MW2MATROX 0x100be254
 // GLOBAL: MW23DFX 0x10249024
 // GLOBAL: MW2ATI 0x1017d024
@@ -119,6 +127,7 @@ DisplayBackend g_dispDibBackend = {
 };
 
 // GLOBAL: MW2 0x100a83c8
+// GLOBAL: MW2GBL 0x1009e128
 // GLOBAL: MW2MATROX 0x100be280
 // GLOBAL: MW23DFX 0x10249050
 // GLOBAL: MW2ATI 0x1017d050
@@ -128,6 +137,7 @@ RefreshMode g_dispDibRefreshMode =
 	{4, c_displayBackendDisplayDib, 1, 0, DispDibBegin, DispDibEnd, DispDibFlip, DispDibBlitRect, DispDibStretchBlit};
 
 // GLOBAL: MW2 0x100ea7dc
+// GLOBAL: MW2GBL 0x1015d910
 // GLOBAL: MW2MATROX 0x10125960
 // GLOBAL: MW23DFX 0x102456f0
 // GLOBAL: MW2ATI 0x10179510
@@ -138,6 +148,7 @@ MechU32 g_dispDibResult;
 // MW2MATROX: the window's empty title (DisplayDibWindowCreateEx) pairs with another "" of the
 // original's: reccmp pairs identical strings in address order.
 // FUNCTION: MW2 0x1004e760
+// FUNCTION: MW2GBL 0x10015dd0
 // FUNCTION: MW2MATROX 0x1008ecd0
 // FUNCTION: MW23DFX 0x10001970
 // FUNCTION: MW2ATI 0x10001960
@@ -249,6 +260,7 @@ MechS32 DispDibBegin(WINDOW* p_buffer, MechS32 p_width, MechS32 p_height)
 }
 
 // FUNCTION: MW2 0x1004ea78
+// FUNCTION: MW2GBL 0x100160e8
 // FUNCTION: MW2MATROX 0x1008f08b
 // FUNCTION: MW23DFX 0x10001980
 // FUNCTION: MW2ATI 0x10001970
@@ -282,6 +294,7 @@ MechS32 DispDibEnd(void)
 }
 
 // FUNCTION: MW2 0x1004eb72
+// FUNCTION: MW2GBL 0x100161e2
 // FUNCTION: MW2MATROX 0x1008f185
 // FUNCTION: MW23DFX 0x10001a40
 // FUNCTION: MW2ATI 0x10001a30
@@ -300,6 +313,7 @@ MechS32 DispDibFlip(void)
 
 // DisplayDib can't draw part of the screen: the rectangle is ignored and the whole frame drawn.
 // FUNCTION: MW2 0x1004ebdb
+// FUNCTION: MW2GBL 0x1001624b
 // FUNCTION: MW2MATROX 0x1008f225
 // FUNCTION: MW23DFX 0x10001ac0
 // FUNCTION: MW2ATI 0x10001ab0
@@ -317,6 +331,7 @@ MechS32 DispDibBlitRect(MechS32 p_left, MechS32 p_top, MechS32 p_right, MechS32 
 }
 
 // FUNCTION: MW2 0x1004ec44
+// FUNCTION: MW2GBL 0x100162b4
 // FUNCTION: MW2MATROX 0x1008f2c5
 // FUNCTION: MW23DFX 0x10001b40
 // FUNCTION: MW2ATI 0x10001b30
@@ -353,6 +368,7 @@ MechS32 DispDibStretchBlit(MechS32 p_left, MechS32 p_top, MechS32 p_right, MechS
 }
 
 // FUNCTION: MW2 0x1004ed1c
+// FUNCTION: MW2GBL 0x1001638c
 // FUNCTION: MW2MATROX 0x1008f3d4
 // FUNCTION: MW23DFX 0x10001c20
 // FUNCTION: MW2ATI 0x10001c10
@@ -365,6 +381,7 @@ MechS32 DispDibAcquireFramebuffer(void)
 }
 
 // FUNCTION: MW2 0x1004ed3b
+// FUNCTION: MW2GBL 0x100163ab
 // FUNCTION: MW2MATROX 0x1008f3f3
 // FUNCTION: MW23DFX 0x10001c30
 // FUNCTION: MW2ATI 0x10001c20
@@ -399,6 +416,7 @@ MechS32 DispDibSetPalette(MechS32 p_first, MechS32 p_count, PaletteColor* p_pale
 }
 
 // FUNCTION: MW2 0x1004eea7
+// FUNCTION: MW2GBL 0x10016517
 // FUNCTION: MW2MATROX 0x1008f58d
 // FUNCTION: MW23DFX 0x10001d50
 // FUNCTION: MW2ATI 0x10001d40
@@ -431,6 +449,7 @@ MechS32 DispDibSetPaletteWithBrightness(PaletteColor* p_palette)
 
 // Fades from the current palette to p_palette in p_steps steps of 16 ms, at 8 bits per component.
 // FUNCTION: MW2 0x1004efd5
+// FUNCTION: MW2GBL 0x10016645
 // FUNCTION: MW2MATROX 0x1008f6e9
 // FUNCTION: MW23DFX 0x10001e40
 // FUNCTION: MW2ATI 0x10001e30

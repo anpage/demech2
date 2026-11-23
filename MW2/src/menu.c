@@ -35,6 +35,7 @@
 #endif
 
 // GLOBAL: MW2 0x100a59e0
+// GLOBAL: MW2GBL 0x100b5ce0
 // GLOBAL: MW2MATROX 0x100bf0a0
 // GLOBAL: MW23DFX 0x102653e8
 // GLOBAL: MW2ATI 0x101996e0
@@ -73,10 +74,12 @@ MenuDefinition* g_menuDefinitions[11] = {
 undefined2 g_textColors[0x100];
 #else
 // GLOBAL: MW2 0x100e9350
+// GLOBAL: MW2GBL 0x1015dd40
 undefined g_textColors[0x100];
 #endif
 
 // GLOBAL: MW2 0x10109c78
+// GLOBAL: MW2GBL 0x100bc1d4
 // GLOBAL: MW2MATROX 0x10125864
 // GLOBAL: MW23DFX 0x101534c8
 // GLOBAL: MW2ATI 0x100874e4
@@ -93,6 +96,7 @@ MenuSlot* g_menuSlots = NULL;
 MenuSlot* g_menuSlotsTail = NULL;
 #else
 // GLOBAL: MW2 0x10109c7c
+// GLOBAL: MW2GBL 0x100bc1d8
 // GLOBAL: MW2MATROX 0x10125868
 // GLOBAL: MW23DFX 0x101534cc
 // GLOBAL: MW2ATI 0x100874e8
@@ -100,6 +104,7 @@ MenuSlot* g_menuSlotsTail = NULL;
 MenuSlot* g_menuSlotsTail;
 
 // GLOBAL: MW2 0x10109c80
+// GLOBAL: MW2GBL 0x100bc1dc
 // GLOBAL: MW2MATROX 0x1012585c
 // GLOBAL: MW23DFX 0x101534c0
 // GLOBAL: MW2ATI 0x100874dc
@@ -109,6 +114,7 @@ MenuSlot* g_menuSlots;
 
 // The key the open menu acts on this frame (0: none).
 // GLOBAL: MW2 0x10109c84
+// GLOBAL: MW2GBL 0x100bc1e0
 // GLOBAL: MW2MATROX 0x10125860
 // GLOBAL: MW23DFX 0x101534c4
 // GLOBAL: MW2ATI 0x100874e0
@@ -129,6 +135,7 @@ MechS32 IsMenuPageStackEmpty(MenuDefinition* p_menu);
 
 // Adds a slot for a menu ID at the end of g_menuSlots. Returns whether it could.
 // FUNCTION: MW2 0x1003c3e0
+// FUNCTION: MW2GBL 0x100740a0
 // FUNCTION: MW2MATROX 0x100915b0
 // FUNCTION: MW23DFX 0x100653e0
 // FUNCTION: MW2ATI 0x10062a50
@@ -162,6 +169,7 @@ MechS32 RegisterMenu(MechS32 p_id)
 // Asks for an in-mission menu to open (4 is the mission menu), if no menu is open already.
 // Returns whether it will.
 // FUNCTION: MW2 0x1003c46b
+// FUNCTION: MW2GBL 0x1007412f
 // FUNCTION: MW2MATROX 0x1009163b
 // FUNCTION: MW23DFX 0x10065440
 // FUNCTION: MW2ATI 0x10062ab0
@@ -186,6 +194,7 @@ MechS32 RequestMenu(MechS32 p_id)
 
 // Asks for a closed menu to open or an open one to close. Returns whether it asked to open it.
 // FUNCTION: MW2 0x1003c4bf
+// FUNCTION: MW2GBL 0x10074183
 // FUNCTION: MW2MATROX 0x1009168f
 // FUNCTION: MW23DFX 0x10065470
 // FUNCTION: MW2ATI 0x10062ae0
@@ -212,6 +221,7 @@ MechS32 ToggleMenu(MechS32 p_id)
 }
 
 // FUNCTION: MW2 0x1003c53c
+// FUNCTION: MW2GBL 0x10074200
 // FUNCTION: MW2MATROX 0x1009170c
 // FUNCTION: MW23DFX 0x100654b0
 // FUNCTION: MW2ATI 0x10062b20
@@ -260,6 +270,7 @@ Point* ScaleMenuPointToFrame(PANE* p_frame, Point* p_src, Point* p_dst)
 // its m_lineCount lines evenly down the target, and converts its points to pixels. With flag 0x10
 // the background moves to the target's left edge.
 // FUNCTION: MW2 0x1003c5a2
+// FUNCTION: MW2GBL 0x10074266
 // FUNCTION: MW2MATROX 0x10091772
 // FUNCTION: MW23DFX 0x10065580
 // FUNCTION: MW2ATI 0x10062b60
@@ -347,6 +358,7 @@ void LayoutMenu(MenuDefinition* p_menu)
 
 // Loads a menu's background shapes and font.
 // FUNCTION: MW2 0x1003c844
+// FUNCTION: MW2GBL 0x10074508
 // FUNCTION: MW2MATROX 0x10091a14
 // FUNCTION: MW23DFX 0x100657f0
 // FUNCTION: MW2ATI 0x10062da0
@@ -377,6 +389,7 @@ void LoadMenuResources(MenuDefinition* p_menu)
 // DisableGameplayInput; DeactivateMenu calls EnableGameplayInput again. Returns whether the menu
 // has a definition (the original reads the definition uninitialized for a menu ID outside 1-10).
 // FUNCTION: MW2 0x1003c902
+// FUNCTION: MW2GBL 0x100745c6
 // FUNCTION: MW2MATROX 0x10091ad2
 // FUNCTION: MW23DFX 0x10065880
 // FUNCTION: MW2ATI 0x10062e30
@@ -415,6 +428,7 @@ MechS32 ActivateMenu(MenuSlot* p_slot)
 
 // Closes a menu and frees its resources.
 // FUNCTION: MW2 0x1003c9d2
+// FUNCTION: MW2GBL 0x10074696
 // FUNCTION: MW2MATROX 0x10091ba2
 // FUNCTION: MW23DFX 0x10065910
 // FUNCTION: MW2ATI 0x10062ec0
@@ -452,6 +466,7 @@ void DeactivateMenu(MenuSlot* p_slot)
 
 // Asks for a menu to close.
 // FUNCTION: MW2 0x1003caab
+// FUNCTION: MW2GBL 0x1007476f
 // FUNCTION: MW2MATROX 0x10091c7b
 // FUNCTION: MW23DFX 0x100659a0
 // FUNCTION: MW2ATI 0x10062f50
@@ -470,6 +485,7 @@ void RequestMenuClose(MechS32 p_id)
 // First draws the menus' panes to the main pixel buffer and loads their layout; drops
 // the definitions whose root page or its subpages fail their init callbacks.
 // FUNCTION: MW2 0x1003cadc
+// FUNCTION: MW2GBL 0x100747a0
 // FUNCTION: MW2MATROX 0x10091cac
 // FUNCTION: MW23DFX 0x100659c0
 // FUNCTION: MW2ATI 0x10062f70
@@ -520,6 +536,7 @@ void FirstMenu(void)
 // Works out g_menuKey for the open menu from the key code, or from the menu bindings in menus
 // that take navigation keys (repeating while they are held), and takes the key code it uses.
 // FUNCTION: MW2 0x1003cc20
+// FUNCTION: MW2GBL 0x100748e4
 // FUNCTION: MW2MATROX 0x10091df0
 // FUNCTION: MW23DFX 0x10065a70
 // FUNCTION: MW2ATI 0x10063020
@@ -601,6 +618,7 @@ void UpdateMenuKey(void)
 // SimMain after UpdateMenuKey and HandleGameKeys, so a menu closed this frame still counts as open
 // (g_openMenuCount) when that frame's game keys run.
 // FUNCTION: MW2 0x1003ce91
+// FUNCTION: MW2GBL 0x10074b55
 // FUNCTION: MW2MATROX 0x1009207d
 // FUNCTION: MW23DFX 0x10065c20
 // FUNCTION: MW2ATI 0x100631d0
@@ -647,6 +665,7 @@ void UpdateMenus(void)
 
 // Draws the open in-mission menu and acts on g_menuKey. Returns FALSE when the menu should close.
 // FUNCTION: MW2 0x1003cf96
+// FUNCTION: MW2GBL 0x10074c5a
 // FUNCTION: MW2MATROX 0x10092182
 // FUNCTION: MW23DFX 0x10065cb0
 // FUNCTION: MW2ATI 0x10063260
@@ -703,6 +722,7 @@ MechS32 DrawAndRunMenu(MenuDefinition* p_menu)
 // action 3; 2 goes back, action 4; 5 and 6 close, action 5); Escape closes (action 5); Down (0xc7)
 // and Tab move the selection +1 through *p_move; Up (0xc6) and Shift+Tab (0x209) move it -1.
 // FUNCTION: MW2 0x1003d083
+// FUNCTION: MW2GBL 0x10074d47
 // FUNCTION: MW2MATROX 0x10092290
 // FUNCTION: MW23DFX 0x10065d40
 // FUNCTION: MW2ATI 0x100632f0
@@ -748,6 +768,7 @@ void ApplyMenuKey(MechS32 p_key, MechS32 p_itemType, MechS32* p_action, MechS32*
 // with the accepting or closing item as 0, calling each item's m_run, which sees g_menuKey too.
 // Finally opens the selected item's subpage (state 3) or closes the page (states 4 and 5).
 // FUNCTION: MW2 0x1003d1a7
+// FUNCTION: MW2GBL 0x10074e6b
 // FUNCTION: MW2MATROX 0x100923b4
 // FUNCTION: MW23DFX 0x10065df0
 // FUNCTION: MW2ATI 0x100633a0
@@ -967,6 +988,7 @@ void RunMenuItems(MenuDefinition* p_menu)
 
 // Finds the g_menuSlots entry for a menu ID, or NULL.
 // FUNCTION: MW2 0x1003d85b
+// FUNCTION: MW2GBL 0x1007551f
 // FUNCTION: MW2MATROX 0x10092a8f
 // FUNCTION: MW23DFX 0x100662e0
 // FUNCTION: MW2ATI 0x10063890
@@ -989,6 +1011,7 @@ MenuSlot* FindMenuSlot(MechS32 p_id)
 
 // Returns the definition of an open menu, or NULL.
 // FUNCTION: MW2 0x1003d8a4
+// FUNCTION: MW2GBL 0x10075568
 // FUNCTION: MW2MATROX 0x10092ad8
 // FUNCTION: MW23DFX 0x10066300
 MenuDefinition* FindMenuDefinition(MechS32 p_id)
@@ -1013,6 +1036,7 @@ MenuDefinition* FindMenuDefinition(MechS32 p_id)
 }
 
 // FUNCTION: MW2 0x1003d907
+// FUNCTION: MW2GBL 0x100755cb
 // FUNCTION: MW2MATROX 0x10092b3b
 // FUNCTION: MW23DFX 0x10066330
 // FUNCTION: MW2ATI 0x100638b0
@@ -1032,6 +1056,7 @@ MenuPage* PopMenuPage(MenuDefinition* p_menu)
 }
 
 // FUNCTION: MW2 0x1003d949
+// FUNCTION: MW2GBL 0x1007560d
 // FUNCTION: MW2MATROX 0x10092b7d
 // FUNCTION: MW23DFX 0x10066350
 // FUNCTION: MW2ATI 0x100638d0
@@ -1050,6 +1075,7 @@ MenuPage* PeekMenuPage(MenuDefinition* p_menu)
 }
 
 // FUNCTION: MW2 0x1003d986
+// FUNCTION: MW2GBL 0x1007564a
 // FUNCTION: MW2MATROX 0x10092bba
 // FUNCTION: MW23DFX 0x10066370
 // FUNCTION: MW2ATI 0x100638f0
@@ -1070,6 +1096,7 @@ MechS32 PushMenuPage(MenuDefinition* p_menu, MenuPage* p_page)
 }
 
 // FUNCTION: MW2 0x1003d9cf
+// FUNCTION: MW2GBL 0x10075693
 // FUNCTION: MW2MATROX 0x10092c03
 // FUNCTION: MW23DFX 0x10066390
 // FUNCTION: MW2ATI 0x10063910
@@ -1081,6 +1108,7 @@ void ClearMenuPages(MenuDefinition* p_menu)
 }
 
 // FUNCTION: MW2 0x1003d9e4
+// FUNCTION: MW2GBL 0x100756a8
 // FUNCTION: MW2MATROX 0x10092c18
 // FUNCTION: MW23DFX 0x100663a0
 // FUNCTION: MW2ATI 0x10063920
@@ -1093,6 +1121,7 @@ MechS32 IsMenuPageStackEmpty(MenuDefinition* p_menu)
 
 // Returns the open in-mission menu's definition, or NULL if none is open.
 // FUNCTION: MW2 0x1003da0d
+// FUNCTION: MW2GBL 0x100756d1
 // FUNCTION: MW2MATROX 0x10092c41
 // FUNCTION: MW23DFX 0x100663b0
 // FUNCTION: MW2ATI 0x10063930
@@ -1118,6 +1147,7 @@ MenuDefinition* GetOpenMenu(void)
 
 // Returns a menu's state (1: open), or 0 if it isn't registered.
 // FUNCTION: MW2 0x1003da65
+// FUNCTION: MW2GBL 0x10075729
 // FUNCTION: MW2MATROX 0x10092c99
 // FUNCTION: MW23DFX 0x100663e0
 // FUNCTION: MW2ATI 0x10063960

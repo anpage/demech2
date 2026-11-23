@@ -26,6 +26,7 @@
 // right cap and the knob): while selected, Space or Right (0xc8) raises it by a tenth and Left
 // (0xc9) lowers it, and its number key raises it too.
 // FUNCTION: MW2 0x10072840
+// FUNCTION: MW2GBL 0x10005ad0
 // FUNCTION: MW2MATROX 0x1007e020
 // FUNCTION: MW23DFX 0x10064780
 // FUNCTION: MW2ATI 0x10061df0
@@ -206,6 +207,7 @@ void RunMenuSlider(MenuDefinition* p_menu, MenuControl* p_control, MechS32 p_ind
 // A list of choices shown with a suffix from MenuChoices::m_suffix; it changes only through its
 // callbacks.
 // FUNCTION: MW2 0x10072dab
+// FUNCTION: MW2GBL 0x1000603b
 // FUNCTION: MW2MATROX 0x1007e58b
 // FUNCTION: MW23DFX 0x10064b60
 // FUNCTION: MW2ATI 0x100621d0
@@ -345,6 +347,7 @@ void RunMenuStatus(MenuDefinition* p_menu, MenuControl* p_control, MechS32 p_ind
 // A list of choices (MenuChoices): while selected, Space or Right (0xc8) picks the next and Left
 // (0xc9) the previous, wrapping, and its number key the next.
 // FUNCTION: MW2 0x10073136
+// FUNCTION: MW2GBL 0x100063c1
 // FUNCTION: MW2MATROX 0x1007e92e
 // FUNCTION: MW23DFX 0x10064d90
 // FUNCTION: MW2ATI 0x10062400
@@ -489,6 +492,7 @@ void RunMenuChoice(MenuDefinition* p_menu, MenuControl* p_control, MechS32 p_ind
 // A text box (MenuTextBox) in the menu's font; its rectangle is placed in the menu's target the
 // first time. Reports 0 through m_preview unless the menu is being accepted or cancelled.
 // FUNCTION: MW2 0x100734ad
+// FUNCTION: MW2GBL 0x10006738
 // FUNCTION: MW2MATROX 0x1007eca5
 // FUNCTION: MW23DFX 0x10064fa0
 // FUNCTION: MW2ATI 0x10062610

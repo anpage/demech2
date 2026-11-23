@@ -17,6 +17,7 @@ DECOMP_SIZE_ASSERT(MissionEntry, 0x97)
 // Sets up star p_table->m_star's mission from its mission table: the mission's times and sounds
 // and each objective's, with its conditions.
 // FUNCTION: MW2 0x1004da30
+// FUNCTION: MW2GBL 0x100385a0
 // FUNCTION: MW2MATROX 0x1007f550
 // FUNCTION: MW23DFX 0x1003f900
 // FUNCTION: MW2ATI 0x1003d660
@@ -104,6 +105,7 @@ void SetUpStarMission(MissionTable* p_table)
 // Returns the objectives that wait (state 0, 1 or 7) on the event list p_name, marking them as
 // waiting (7): bit j for objective j, bit 16 + i for mission table i.
 // FUNCTION: MW2 0x1004e35b
+// FUNCTION: MW2GBL 0x10038e76
 // FUNCTION: MW2MATROX 0x1007fe7b
 // FUNCTION: MW23DFX 0x1003fe70
 // FUNCTION: MW2ATI 0x1003dbd0
@@ -144,6 +146,7 @@ MechU32 FindEventList(MechChar* p_name)
 // Adds the target p_target to the waiting objectives on the event list p_name whose type is in
 // p_types.
 // FUNCTION: MW2 0x1004e4e6
+// FUNCTION: MW2GBL 0x10039002
 // FUNCTION: MW2MATROX 0x10080007
 // FUNCTION: MW23DFX 0x1003ff60
 // FUNCTION: MW2ATI 0x1003dcc0
@@ -176,6 +179,7 @@ void PostEventToList(MechChar* p_name, MechS32 p_types, MechU16 p_target)
 // Walks the waiting objectives of the lists p_lists (FindEventList's bits) and does nothing
 // with them.
 // FUNCTION: MW2 0x1004e69c
+// FUNCTION: MW2GBL 0x100391b8
 // FUNCTION: MW2MATROX 0x100801be
 // FUNCTION: MW23DFX 0x10040060
 // FUNCTION: MW2ATI 0x1003ddc0

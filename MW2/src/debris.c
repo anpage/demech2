@@ -26,6 +26,7 @@ DECOMP_SIZE_ASSERT(DebrisChunk, 0x14)
 // come to rest; the chunks among them can be shot to pieces and time out.
 
 // GLOBAL: MW2 0x100a1150
+// GLOBAL: MW2GBL 0x100a3ae8
 // GLOBAL: MW2MATROX 0x100a5a28
 // GLOBAL: MW23DFX 0x1024bfa0
 // GLOBAL: MW2ATI 0x10180320
@@ -34,6 +35,7 @@ DECOMP_SIZE_ASSERT(DebrisChunk, 0x14)
 MechS32 g_debrisCount = 0;
 
 // GLOBAL: MW2 0x100a1158
+// GLOBAL: MW2GBL 0x100a3af0
 // GLOBAL: MW2MATROX 0x100a5a30
 // GLOBAL: MW23DFX 0x1024bfa8
 // GLOBAL: MW2ATI 0x10180328
@@ -42,6 +44,7 @@ MechS32 g_debrisCount = 0;
 DebrisChunk g_emptyDebrisChunk = {0};
 
 // GLOBAL: MW2 0x10179ec0
+// GLOBAL: MW2GBL 0x101332c0
 // GLOBAL: MW2MATROX 0x101d5630
 // GLOBAL: MW23DFX 0x101e7630
 // GLOBAL: MW2ATI 0x1011b2f0
@@ -50,6 +53,7 @@ DebrisChunk g_emptyDebrisChunk = {0};
 DebrisPiece g_debrisPieces[0x80];
 
 // GLOBAL: MW2 0x1017b0c0
+// GLOBAL: MW2GBL 0x101344c0
 // GLOBAL: MW2MATROX 0x101d4c30
 // GLOBAL: MW23DFX 0x101e6c30
 // GLOBAL: MW2ATI 0x1011a8f0
@@ -58,6 +62,7 @@ DebrisPiece g_debrisPieces[0x80];
 DebrisChunk g_debrisChunks[0x80];
 
 // FUNCTION: MW2 0x100040b0
+// FUNCTION: MW2GBL 0x10026c70
 // FUNCTION: MW2MATROX 0x1002a420
 // FUNCTION: MW23DFX 0x10015200
 // FUNCTION: MW2ATI 0x10015610
@@ -74,6 +79,7 @@ MechS32 IsDebrisFull(void)
 }
 
 // FUNCTION: MW2 0x10004111
+// FUNCTION: MW2GBL 0x10026cd1
 // FUNCTION: MW2MATROX 0x1002a481
 // FUNCTION: MW23DFX 0x10015230
 // FUNCTION: MW2ATI 0x10015640
@@ -113,6 +119,7 @@ MechS32 AddDebrisPiece(SceneObject* p_obj, MechS32 p_unk0x00)
 
 // Throws the piece off in a random direction, spinning.
 // FUNCTION: MW2 0x10004218
+// FUNCTION: MW2GBL 0x10026dd8
 // FUNCTION: MW2MATROX 0x1002a589
 // FUNCTION: MW23DFX 0x100152e0
 // FUNCTION: MW2ATI 0x100156f0
@@ -146,6 +153,7 @@ void ThrowDebrisPiece(MechS32 p_index)
 
 // Blows p_obj off its model as a chunk of debris; p_callback gets it when it's gone.
 // FUNCTION: MW2 0x10004356
+// FUNCTION: MW2GBL 0x10026f16
 // FUNCTION: MW2MATROX 0x1002a703
 // FUNCTION: MW23DFX 0x10015410
 // FUNCTION: MW2ATI 0x10015820
@@ -202,6 +210,7 @@ void BlowOffChunk(SceneObject* p_obj, ObjectCallback p_callback, MechU32 p_unk0x
 }
 
 // FUNCTION: MW2 0x100044f3
+// FUNCTION: MW2GBL 0x100270b3
 // FUNCTION: MW2MATROX 0x1002a8a0
 // FUNCTION: MW23DFX 0x10015530
 // FUNCTION: MW2ATI 0x10015940
@@ -230,6 +239,7 @@ void BlowOffObjTree(SceneObject* p_obj, ObjectCallback p_callback, MechU32 p_unk
 }
 
 // FUNCTION: MW2 0x1000457e
+// FUNCTION: MW2GBL 0x1002713e
 // FUNCTION: MW2MATROX 0x1002a92b
 // FUNCTION: MW23DFX 0x10015580
 // FUNCTION: MW2ATI 0x10015990
@@ -253,6 +263,7 @@ void DisposeDebris(SceneObject* p_obj, ObjectCallback p_callback)
 }
 
 // FUNCTION: MW2 0x100045db
+// FUNCTION: MW2GBL 0x1002719b
 // FUNCTION: MW2MATROX 0x1002a988
 // FUNCTION: MW23DFX 0x100155b0
 // FUNCTION: MW2ATI 0x100159c0
@@ -277,6 +288,7 @@ void UpdateDebris(void)
 
 // Blows the chunk up.
 // FUNCTION: MW2 0x100046b2
+// FUNCTION: MW2GBL 0x10027272
 // FUNCTION: MW2MATROX 0x1002aa5f
 // FUNCTION: MW23DFX 0x10015620
 // FUNCTION: MW2ATI 0x10015a30
@@ -311,6 +323,7 @@ void ExplodeChunk(MechS32 p_index)
 }
 
 // FUNCTION: MW2 0x10004783
+// FUNCTION: MW2GBL 0x10027343
 // FUNCTION: MW2MATROX 0x1002ab32
 // FUNCTION: MW23DFX 0x100156c0
 // FUNCTION: MW2ATI 0x10015ad0
@@ -325,6 +338,7 @@ void DamageChunk(MechS32 p_index, MechScalar p_damage)
 }
 
 // FUNCTION: MW2 0x100047c2
+// FUNCTION: MW2GBL 0x10027382
 // FUNCTION: MW2MATROX 0x1002ab7a
 // FUNCTION: MW23DFX 0x100156f0
 // FUNCTION: MW2ATI 0x10015b00
@@ -428,6 +442,7 @@ void UpdateDebrisPiece(MechS32 p_index)
 
 // Pushes the piece by (p_x, p_y, p_z) on top of a random throw.
 // FUNCTION: MW2 0x10004a45
+// FUNCTION: MW2GBL 0x10027605
 // FUNCTION: MW2MATROX 0x1002aeed
 // FUNCTION: MW23DFX 0x10015920
 // FUNCTION: MW2ATI 0x10015d30
@@ -472,6 +487,7 @@ void PushDebrisPiece(MechS32 p_index, MechScalar p_x, MechScalar p_y, MechScalar
 
 // reccmp leaves the indirect call's displacement (g_debrisChunks[0].m_callback) unmapped.
 // FUNCTION: MW2 0x10004b4f
+// FUNCTION: MW2GBL 0x1002770f
 // FUNCTION: MW2MATROX 0x1002affe
 // FUNCTION: MW23DFX 0x10015a00
 // FUNCTION: MW2ATI 0x10015e10
@@ -497,6 +513,7 @@ void ZeroChunx(void)
 }
 
 // FUNCTION: MW2 0x10004c06
+// FUNCTION: MW2GBL 0x100277c6
 // FUNCTION: MW2MATROX 0x1002b0b5
 // FUNCTION: MW23DFX 0x10015a50
 // FUNCTION: MW2ATI 0x10015e60
@@ -515,6 +532,7 @@ void ResetDebrisPiece(MechS32 p_index)
 }
 
 // FUNCTION: MW2 0x10004c86
+// FUNCTION: MW2GBL 0x10027846
 // FUNCTION: MW2MATROX 0x1002b135
 // FUNCTION: MW23DFX 0x10015aa0
 // FUNCTION: MW2ATI 0x10015eb0
@@ -538,6 +556,7 @@ MechS32 FindDebrisPiece(SceneObject* p_obj)
 
 // Damages the chunks within p_radius of (p_x, p_y, p_z) by p_damage per second.
 // FUNCTION: MW2 0x10004ce5
+// FUNCTION: MW2GBL 0x100278a5
 // FUNCTION: MW2MATROX 0x1002b194
 // FUNCTION: MW23DFX 0x10015ad0
 // FUNCTION: MW2ATI 0x10015ee0
@@ -579,6 +598,7 @@ void DamageChunksInRadius(MechScalar p_x, MechScalar p_y, MechScalar p_z, MechSc
 }
 
 // FUNCTION: MW2 0x10004dcb
+// FUNCTION: MW2GBL 0x1002798b
 // FUNCTION: MW2MATROX 0x1002b29d
 // FUNCTION: MW23DFX 0x10015b90
 // FUNCTION: MW2ATI 0x10015fa0
@@ -603,6 +623,7 @@ void RemoveChunk(SceneObject* p_obj, ObjectCallback p_callback)
 }
 
 // FUNCTION: MW2 0x10004e4d
+// FUNCTION: MW2GBL 0x10027a0d
 // FUNCTION: MW2MATROX 0x1002b31f
 // FUNCTION: MW23DFX 0x10015be0
 // FUNCTION: MW2ATI 0x10015ff0

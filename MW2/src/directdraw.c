@@ -13,6 +13,7 @@
 
 #ifdef MW2_POWERVR
 #include "accel/a3d.h"
+#include "logwindow.h"
 #endif
 
 #include <ddraw.h>
@@ -60,24 +61,28 @@ DDRAW_UNLOCK_INLINE static HRESULT DdrawUnlock(void);
 __inline static HRESULT DdrawRestore(void);
 
 // GLOBAL: MW2 0x100b1cb0
+// GLOBAL: MW2GBL 0x100a4fb0
 // GLOBAL: MW2ATI 0x1017e5c0
 // GLOBAL: MW2S3 0x1006a968
 // GLOBAL: MW2POWERVR 0x101a9654
 LPDIRECTDRAW g_ddraw = NULL;
 
 // GLOBAL: MW2 0x100b1cb4
+// GLOBAL: MW2GBL 0x100a4fb4
 // GLOBAL: MW2ATI 0x1017e5c4
 // GLOBAL: MW2S3 0x1006a96c
 // GLOBAL: MW2POWERVR 0x101a9658
 LPDIRECTDRAWSURFACE g_ddrawPrimary = NULL;
 
 // GLOBAL: MW2 0x100b1cb8
+// GLOBAL: MW2GBL 0x100a4fb8
 // GLOBAL: MW2ATI 0x1017e5c8
 // GLOBAL: MW2S3 0x1006a970
 // GLOBAL: MW2POWERVR 0x101a965c
 LPDIRECTDRAWSURFACE g_ddrawBack = NULL;
 
 // GLOBAL: MW2 0x100b1cbc
+// GLOBAL: MW2GBL 0x100a4fbc
 // GLOBAL: MW2ATI 0x1017e5cc
 // GLOBAL: MW2S3 0x1006a974
 // GLOBAL: MW2POWERVR 0x101a9660
@@ -85,6 +90,7 @@ LPDIRECTDRAWSURFACE g_ddrawBuffer = NULL;
 
 // The second back buffer of the 320x200 mode, which stretches the frame into it and flips.
 // GLOBAL: MW2 0x100b1cc0
+// GLOBAL: MW2GBL 0x100a4fc0
 // GLOBAL: MW2ATI 0x1017e5d0
 // GLOBAL: MW2S3 0x1006a978
 // GLOBAL: MW2POWERVR 0x101a9664
@@ -96,6 +102,7 @@ LPDIRECTDRAWSURFACE g_ddrawStretch = NULL;
 undefined4 g_unk0x100b1cc4 = 0;
 
 // GLOBAL: MW2 0x100b1cc8
+// GLOBAL: MW2GBL 0x100a4fc8
 // GLOBAL: MW2ATI 0x1017e5d8
 // GLOBAL: MW2S3 0x1006a980
 // GLOBAL: MW2POWERVR 0x101a966c
@@ -103,12 +110,14 @@ LPDIRECTDRAWPALETTE g_ddrawPalette = NULL;
 
 // TRUE while g_ddrawBuffer is locked for drawing.
 // GLOBAL: MW2 0x100b1ccc
+// GLOBAL: MW2GBL 0x100a4fcc
 // GLOBAL: MW2ATI 0x1017e5dc
 // GLOBAL: MW2S3 0x1006a984
 // GLOBAL: MW2POWERVR 0x101a9670
 MechS32 g_ddrawLocked = FALSE;
 
 // GLOBAL: MW2 0x100b1cd0
+// GLOBAL: MW2GBL 0x100a4fd0
 // GLOBAL: MW2ATI 0x1017e5e0
 // GLOBAL: MW2S3 0x1006a988
 // GLOBAL: MW2POWERVR 0x101a9674
@@ -200,37 +209,44 @@ RefreshMode g_ddrawSystemMemoryRefreshMode = {
 };
 
 // GLOBAL: MW2 0x100c26b0
+// GLOBAL: MW2GBL 0x10132b90
 // GLOBAL: MW2ATI 0x10178770
 // GLOBAL: MW2S3 0x100ab5d0
 // GLOBAL: MW2POWERVR 0x101a3430
 RECT g_ddrawScreenRect;
 
 // GLOBAL: MW2 0x100c26c0
+// GLOBAL: MW2GBL 0x10132ba0
 // GLOBAL: MW2ATI 0x101787e4
 // GLOBAL: MW2S3 0x100ab5e0
 // GLOBAL: MW2POWERVR 0x101a3440
 HRESULT g_ddrawResult;
 
 // GLOBAL: MW2 0x100c26d0
+// GLOBAL: MW2GBL 0x10132bb0
 // GLOBAL: MW2ATI 0x10178780
 // GLOBAL: MW2S3 0x100ab5f0
 DDBLTFX g_ddrawBltFx;
 
 // GLOBAL: MW2 0x100c2740
+// GLOBAL: MW2GBL 0x10132c20
 // GLOBAL: MW2ATI 0x101788d0
 // GLOBAL: MW2S3 0x100ab660
 DDSURFACEDESC g_ddrawPrimaryDesc;
 
 // GLOBAL: MW2 0x100c27b0
+// GLOBAL: MW2GBL 0x10132c90
 // GLOBAL: MW2ATI 0x10178860
 // GLOBAL: MW2S3 0x100ab6d0
 DDSURFACEDESC g_ddrawBackDesc;
 
 // GLOBAL: MW2 0x100c281c
+// GLOBAL: MW2GBL 0x10132cfc
 // GLOBAL: MW2S3 0x100ab73c
 DDSCAPS g_ddrawCaps;
 
 // GLOBAL: MW2 0x100c2820
+// GLOBAL: MW2GBL 0x10132d00
 // GLOBAL: MW2ATI 0x101787f0
 // GLOBAL: MW2S3 0x100ab740
 DDSURFACEDESC g_ddrawBufferDesc;
@@ -243,6 +259,7 @@ MechS32 g_ddrawModeFound = FALSE;
 #endif
 
 // FUNCTION: MW2 0x10077850
+// FUNCTION: MW2GBL 0x1002fa30
 // FUNCTION: MW2ATI 0x100051f0
 // FUNCTION: MW2S3 0x1002f8c0
 // FUNCTION: MW2POWERVR 0x100049a0
@@ -271,6 +288,7 @@ void DdrawStop(void)
 }
 
 // FUNCTION: MW2 0x100778e0
+// FUNCTION: MW2GBL 0x1002fa98
 // FUNCTION: MW2ATI 0x10005260
 // FUNCTION: MW2S3 0x1002f930
 // FUNCTION: MW2POWERVR 0x10004a10
@@ -398,7 +416,11 @@ MechS32 DdrawCreateSurfaces(MechS32 p_width, MechS32 p_height)
 		}
 
 		g_ddrawPrimaryDesc.dwSize = sizeof(DDSURFACEDESC);
+#ifdef MW2_DDRAW_NO_CAPS_FLAG
+		g_ddrawPrimaryDesc.dwFlags = DDSD_BACKBUFFERCOUNT;
+#else
 		g_ddrawPrimaryDesc.dwFlags = DDSD_CAPS | DDSD_BACKBUFFERCOUNT;
+#endif
 		g_ddrawPrimaryDesc.ddsCaps.dwCaps = DDSCAPS_PRIMARYSURFACE | DDSCAPS_FLIP | DDSCAPS_COMPLEX;
 		g_ddrawPrimaryDesc.dwBackBufferCount = 2;
 		g_ddrawResult = IDirectDraw_CreateSurface(g_ddraw, &g_ddrawPrimaryDesc, &g_ddrawPrimary, NULL);
@@ -428,7 +450,11 @@ MechS32 DdrawCreateSurfaces(MechS32 p_width, MechS32 p_height)
 		}
 
 		g_ddrawPrimaryDesc.dwSize = sizeof(DDSURFACEDESC);
+#ifdef MW2_DDRAW_NO_CAPS_FLAG
+		g_ddrawPrimaryDesc.dwFlags = 0;
+#else
 		g_ddrawPrimaryDesc.dwFlags = DDSD_CAPS;
+#endif
 		g_ddrawPrimaryDesc.ddsCaps.dwCaps = DDSCAPS_PRIMARYSURFACE | DDSCAPS_VIDEOMEMORY;
 		if (flip) {
 			g_ddrawPrimaryDesc.dwFlags |= DDSD_BACKBUFFERCOUNT;
@@ -436,8 +462,12 @@ MechS32 DdrawCreateSurfaces(MechS32 p_width, MechS32 p_height)
 			g_ddrawPrimaryDesc.dwBackBufferCount = 2;
 		}
 
+#ifdef MW2_DDRAW_FALLBACK_SURFACES_ONLY
+		{
+#else
 		g_ddrawResult = IDirectDraw_CreateSurface(g_ddraw, &g_ddrawPrimaryDesc, &g_ddrawPrimary, NULL);
 		if (g_ddrawResult != DD_OK) {
+#endif
 			if (flip) {
 				DebugPrint("DDRAW_CreateSurfaces primary failed; trying 1 back buffer\n");
 				g_ddrawPrimaryDesc.dwBackBufferCount = 1;
@@ -468,7 +498,11 @@ MechS32 DdrawCreateSurfaces(MechS32 p_width, MechS32 p_height)
 		}
 		else {
 			g_ddrawBufferDesc.dwSize = sizeof(DDSURFACEDESC);
+#ifdef MW2_DDRAW_NO_CAPS_FLAG
+			g_ddrawBufferDesc.dwFlags = DDSD_HEIGHT | DDSD_WIDTH;
+#else
 			g_ddrawBufferDesc.dwFlags = DDSD_CAPS | DDSD_HEIGHT | DDSD_WIDTH;
+#endif
 			g_ddrawBufferDesc.ddsCaps.dwCaps = DDSCAPS_OFFSCREENPLAIN;
 			g_ddrawBufferDesc.dwWidth = p_width;
 			g_ddrawBufferDesc.dwHeight = p_height;
@@ -492,12 +526,21 @@ MechS32 DdrawCreateSurfaces(MechS32 p_width, MechS32 p_height)
 #endif
 
 // FUNCTION: MW2 0x10077d75
+// FUNCTION: MW2GBL 0x1002ff2d
 // FUNCTION: MW2ATI 0x10005600
 // FUNCTION: MW2S3 0x1002fbb0
 MechS32 DdrawInit(WINDOW* p_buffer, MechS32 p_width, MechS32 p_height)
 {
 	LPPALETTEENTRY entries;
-#ifndef MW2_S3
+#ifdef MW2_DDRAW_CAPS_DX1
+	// DirectX 1's DDCAPS (0xac bytes), without DirectX 2's capabilities of blits between system and
+	// video memory.
+	struct DdrawCapsDx1 {
+		DWORD m_size;                    // 0x00
+		DWORD m_caps;                    // 0x04
+		DWORD m_unk0x08[(0xac - 8) / 4]; // 0x08
+	} caps;
+#elif !defined(MW2_S3)
 	DDCAPS caps;
 #endif
 
@@ -524,7 +567,7 @@ MechS32 DdrawInit(WINDOW* p_buffer, MechS32 p_width, MechS32 p_height)
 			return 1;
 		}
 
-#ifdef MW2_S3
+#ifdef MW2_DDRAW_MODE_16BIT
 		g_ddrawResult = IDirectDraw_SetDisplayMode(g_ddraw, p_width, p_height, 16);
 #else
 		g_ddrawResult = IDirectDraw_SetDisplayMode(g_ddraw, p_width, p_height, 8);
@@ -536,7 +579,15 @@ MechS32 DdrawInit(WINDOW* p_buffer, MechS32 p_width, MechS32 p_height)
 		}
 	}
 
-#ifndef MW2_S3
+#ifdef MW2_DDRAW_CAPS_DX1
+	memset(&caps, 0, sizeof(caps));
+	caps.m_size = sizeof(caps);
+	if (IDirectDraw_GetCaps(g_ddraw, (LPDDCAPS) &caps, NULL) == DD_OK && (caps.m_caps & DDCAPS_BANKSWITCHED) &&
+		(g_currentRefreshMode->m_index == 0 || g_currentRefreshMode->m_index == 2)) {
+		DebugPrint("DDRAW_Init: bank-switched video card.\n");
+		return 1;
+	}
+#elif !defined(MW2_S3)
 	memset(&caps, 0, sizeof(caps));
 	caps.dwSize = sizeof(caps);
 	if (IDirectDraw_GetCaps(g_ddraw, &caps, NULL) == DD_OK && (caps.dwCaps & DDCAPS_BANKSWITCHED) &&
@@ -552,7 +603,7 @@ MechS32 DdrawInit(WINDOW* p_buffer, MechS32 p_width, MechS32 p_height)
 	}
 
 	g_ddrawBltFx.dwSize = sizeof(DDBLTFX);
-#ifdef MW2_S3
+#ifdef MW2_DDRAW_FILL_SIZE
 	if (DdrawFill(0, 0, p_width, p_height, 0)) {
 #else
 	if (DdrawFill(0, 0, p_width - 1, p_height - 1, 0)) {
@@ -657,15 +708,13 @@ MechS32 FUN_100059b0(MechS32 p_width, MechS32 p_height, MechS32 p_bitCount)
 		created = TRUE;
 		g_ddrawResult = DirectDrawCreate(NULL, &g_ddraw, NULL);
 		if (g_ddrawResult != DD_OK) {
-#ifdef MW2_S3
 			DebugPrint("DDRAW_Init DirectDrawCreate(): %d\n", g_ddrawResult & 0xfff);
-#else
-			DebugPrint("DDRAW_Init DirectDrawCreate(): %d\n", g_ddrawResult);
-#endif
 			return FALSE;
 		}
 	}
 
+	g_ddrawPrimaryDesc.dwWidth = p_width;
+	g_ddrawPrimaryDesc.dwHeight = p_height;
 	g_ddrawPrimaryDesc.ddpfPixelFormat.dwSize = sizeof(DDPIXELFORMAT);
 	g_ddrawPrimaryDesc.ddpfPixelFormat.dwRGBBitCount = p_bitCount;
 	g_ddrawPrimaryDesc.ddpfPixelFormat.dwFlags = DDPF_PALETTEINDEXED8;
@@ -675,12 +724,10 @@ MechS32 FUN_100059b0(MechS32 p_width, MechS32 p_height, MechS32 p_bitCount)
 		g_ddrawPrimaryDesc.ddpfPixelFormat.dwFlags = DDPF_RGB;
 	}
 
-	mode[2] = p_bitCount;
 	g_ddrawModeFound = FALSE;
-	g_ddrawPrimaryDesc.dwHeight = p_height;
-	g_ddrawPrimaryDesc.dwWidth = p_width;
 	mode[0] = p_width;
 	mode[1] = p_height;
+	mode[2] = p_bitCount;
 	g_ddrawResult = IDirectDraw_EnumDisplayModes(g_ddraw, 0, &g_ddrawPrimaryDesc, mode, FUN_10005950);
 	if (created) {
 		IDirectDraw_Release(g_ddraw);
@@ -692,6 +739,7 @@ MechS32 FUN_100059b0(MechS32 p_width, MechS32 p_height, MechS32 p_bitCount)
 #endif
 
 // FUNCTION: MW2 0x100781c0
+// FUNCTION: MW2GBL 0x10030388
 // FUNCTION: MW2ATI 0x10005ab0
 // FUNCTION: MW2S3 0x10030010
 // FUNCTION: MW2POWERVR 0x10004ae0
@@ -723,6 +771,7 @@ MechS32 DdrawFlip(void)
 }
 
 // FUNCTION: MW2 0x10078285
+// FUNCTION: MW2GBL 0x1003044d
 // FUNCTION: MW2ATI 0x10005bb0
 // FUNCTION: MW2S3 0x10030130
 // FUNCTION: MW2POWERVR 0x10004bc0
@@ -733,6 +782,7 @@ MechS32 DdrawBlit(void)
 		return -1;
 	}
 
+	DebugPrintInternal("DDRAW_Blit");
 #endif
 	g_ddrawResult = DdrawUnlock();
 	if (g_ddrawResult != DD_OK) {
@@ -744,7 +794,11 @@ MechS32 DdrawBlit(void)
 		DebugPrint("DDRAW_Blit Restore(): %d\n", g_ddrawResult & 0xfff);
 	}
 
+#ifdef MW2_BLIT_NO_WAIT
+	g_ddrawResult = IDirectDrawSurface_BltFast(g_ddrawPrimary, 0, 0, g_ddrawBuffer, NULL, DDBLTFAST_NOCOLORKEY);
+#else
 	g_ddrawResult = IDirectDrawSurface_BltFast(g_ddrawPrimary, 0, 0, g_ddrawBuffer, NULL, DDBLTFAST_WAIT);
+#endif
 	if (g_ddrawResult != DD_OK) {
 		DebugPrint("DDRAW_Blit BltFast(): %d\n", g_ddrawResult & 0xfff);
 	}
@@ -753,6 +807,7 @@ MechS32 DdrawBlit(void)
 }
 
 // FUNCTION: MW2 0x10078354
+// FUNCTION: MW2GBL 0x1003051c
 // FUNCTION: MW2ATI 0x10005cc0
 // FUNCTION: MW2S3 0x10030260
 // FUNCTION: MW2POWERVR 0x10004cc0
@@ -788,6 +843,7 @@ MechS32 DdrawBlitFlip(void)
 }
 
 // FUNCTION: MW2 0x10078461
+// FUNCTION: MW2GBL 0x10030629
 // FUNCTION: MW2ATI 0x10005e00
 // FUNCTION: MW2S3 0x100303b0
 // FUNCTION: MW2POWERVR 0x10004de0
@@ -825,6 +881,7 @@ MechS32 DdrawStretchBlit(MechS32 p_left, MechS32 p_top, MechS32 p_right, MechS32
 
 #ifndef MW2_POWERVR
 // FUNCTION: MW2 0x10078553
+// FUNCTION: MW2GBL 0x1003071b
 // FUNCTION: MW2ATI 0x10005f40
 // FUNCTION: MW2S3 0x10030510
 MechS32 DdrawStretchBlit320(MechS32 p_left, MechS32 p_top, MechS32 p_right, MechS32 p_bottom)
@@ -860,6 +917,7 @@ MechS32 DdrawStretchBlit320(MechS32 p_left, MechS32 p_top, MechS32 p_right, Mech
 #endif
 
 // FUNCTION: MW2 0x10078687
+// FUNCTION: MW2GBL 0x1003084f
 // FUNCTION: MW2ATI 0x100060b0
 // FUNCTION: MW2S3 0x100306a0
 // FUNCTION: MW2POWERVR 0x10004f00
@@ -914,6 +972,7 @@ MechS32 DdrawBlitRect(MechS32 p_left, MechS32 p_top, MechS32 p_right, MechS32 p_
 
 #ifndef MW2_POWERVR
 // FUNCTION: MW2 0x10078826
+// FUNCTION: MW2GBL 0x100309ee
 // FUNCTION: MW2ATI 0x10006260
 // FUNCTION: MW2S3 0x10030860
 MechS32 DdrawFill(MechS32 p_left, MechS32 p_top, MechS32 p_right, MechS32 p_bottom, MechU32 p_color)
@@ -946,10 +1005,11 @@ MechS32 DdrawFill(MechS32 p_left, MechS32 p_top, MechS32 p_right, MechS32 p_bott
 }
 #endif
 
-#ifdef MW2_S3
-// The S3 edition's records the colors and computes the entries, but sets no palette (its display
-// is 16-bit).
+#ifdef MW2_DDRAW_PALETTE_UNSET
+// The 16-bit editions' record the colors and compute the entries, but set no palette.
+// FUNCTION: MW2ATI 0x100063a0
 // FUNCTION: MW2S3 0x100309c0
+// FUNCTION: MW2POWERVR 0x10005090
 MechS32 DdrawWritePaletteEntries(MechS32 p_first, MechS32 p_count, PaletteColor* p_palette, MechS32 p_allColors)
 {
 	MechS32 i;
@@ -974,21 +1034,16 @@ MechS32 DdrawWritePaletteEntries(MechS32 p_first, MechS32 p_count, PaletteColor*
 }
 #else
 // The original also compares i < p_count as `cmp [i], ...` and adds p_first + i with i loaded
-// first. The PowerVR edition's palette functions keep the colors but write no DirectDraw palette.
+// first.
 // FUNCTION: MW2 0x1007890f
-// FUNCTION: MW2ATI 0x100063a0
-// FUNCTION: MW2POWERVR 0x10005090
+// FUNCTION: MW2GBL 0x10030ad7
 MechS32 DdrawWritePaletteEntries(MechS32 p_first, MechS32 p_count, PaletteColor* p_palette, MechS32 p_allColors)
 {
 	MechS32 i;
-#ifndef MW2_POWERVR
 	MechS32 relock;
-#endif
 	PALETTEENTRY entries[0x100];
 
-#ifndef MW2_POWERVR
 	relock = FALSE;
-#endif
 	if (!g_ddrawInitialized) {
 		return -1;
 	}
@@ -1004,7 +1059,6 @@ MechS32 DdrawWritePaletteEntries(MechS32 p_first, MechS32 p_count, PaletteColor*
 		entries[i].peBlue = p_palette[i].m_blue * 4;
 	}
 
-#ifndef MW2_POWERVR
 	if (g_ddrawLocked) {
 		relock = TRUE;
 		g_ddrawResult = DdrawUnlock();
@@ -1018,8 +1072,6 @@ MechS32 DdrawWritePaletteEntries(MechS32 p_first, MechS32 p_count, PaletteColor*
 		DebugPrint("DDRAW_WritePaletteEntries Restore(): %d\n", g_ddrawResult & 0xfff);
 	}
 
-#endif
-#ifndef MW2_POWERVR
 	g_ddrawResult = IDirectDrawPalette_SetEntries(g_ddrawPalette, 0, p_first, p_count, entries);
 	if (g_ddrawResult != DD_OK) {
 		DebugPrint("DDRAW_WritePaletteEntries SetEntries(): %d\n", g_ddrawResult & 0xfff);
@@ -1031,15 +1083,16 @@ MechS32 DdrawWritePaletteEntries(MechS32 p_first, MechS32 p_count, PaletteColor*
 		return -1;
 	}
 
-#endif
 	return 0;
 }
 #endif
 
-#ifdef MW2_S3
-// The S3 edition's records the colors with the brightness and computes the entries, but sets no
-// palette (its display is 16-bit).
+#ifdef MW2_DDRAW_PALETTE_UNSET
+// The 16-bit editions' record the colors with the brightness and compute the entries, but set no
+// palette.
+// FUNCTION: MW2ATI 0x10006430
 // FUNCTION: MW2S3 0x10030a50
+// FUNCTION: MW2POWERVR 0x10005120
 MechS32 DdrawWritePaletteGamma(PaletteColor* p_palette)
 {
 	MechS32 i;
@@ -1061,19 +1114,14 @@ MechS32 DdrawWritePaletteGamma(PaletteColor* p_palette)
 }
 #else
 // FUNCTION: MW2 0x10078b38
-// FUNCTION: MW2ATI 0x10006430
-// FUNCTION: MW2POWERVR 0x10005120
+// FUNCTION: MW2GBL 0x10030d00
 MechS32 DdrawWritePaletteGamma(PaletteColor* p_palette)
 {
 	MechS32 i;
-#ifndef MW2_POWERVR
 	MechS32 relock;
-#endif
 	PALETTEENTRY entries[0x100];
 
-#ifndef MW2_POWERVR
 	relock = FALSE;
-#endif
 	if (p_palette == NULL || g_ddrawPalette == NULL) {
 		return -1;
 	}
@@ -1086,7 +1134,6 @@ MechS32 DdrawWritePaletteGamma(PaletteColor* p_palette)
 		entries[i].peBlue = g_paletteColors[i].m_blue * 4;
 	}
 
-#ifndef MW2_POWERVR
 	if (g_ddrawLocked) {
 		relock = TRUE;
 		g_ddrawResult = DdrawUnlock();
@@ -1100,8 +1147,6 @@ MechS32 DdrawWritePaletteGamma(PaletteColor* p_palette)
 		DebugPrint("DDRAW_WritePaletteGamma Restore(): %d\n", g_ddrawResult & 0xfff);
 	}
 
-#endif
-#ifndef MW2_POWERVR
 	g_ddrawResult = IDirectDrawPalette_SetEntries(g_ddrawPalette, 0, 0, 0x100, entries);
 	if (g_ddrawResult != DD_OK) {
 		DebugPrint("DDRAW_WritePaletteGamma SetEntries(): %d\n", g_ddrawResult & 0xfff);
@@ -1113,7 +1158,6 @@ MechS32 DdrawWritePaletteGamma(PaletteColor* p_palette)
 		return -1;
 	}
 
-#endif
 	return 0;
 }
 #endif
@@ -1160,6 +1204,7 @@ MechS32 DdrawPaletteFade(PaletteColor* p_palette, MechS32 p_steps)
 #else
 // Fades the palette from g_paletteColors to p_palette in p_steps steps, a step every 16 ms.
 // FUNCTION: MW2 0x10078d38
+// FUNCTION: MW2GBL 0x10030f00
 // FUNCTION: MW2POWERVR 0x100051c0
 MechS32 DdrawPaletteFade(PaletteColor* p_palette, MechS32 p_steps)
 {
@@ -1235,8 +1280,15 @@ MechS32 DdrawPaletteFade(PaletteColor* p_palette, MechS32 p_steps)
 }
 #endif
 
+#ifdef MW2_ATI
+// The ATI renderer's (ati/a3d.c): starts the CIF's rendering. Declared here, ahead of its one
+// caller in this unit, which leaves the unit's other functions as they were.
+void FUN_10063d10(void);
+
+#endif
 // Locks g_ddrawBuffer and points the output buffer at it.
 // FUNCTION: MW2 0x10079170
+// FUNCTION: MW2GBL 0x10031338
 // FUNCTION: MW2ATI 0x100066b0
 // FUNCTION: MW2S3 0x10030c80
 // FUNCTION: MW2POWERVR 0x100053a0
@@ -1265,6 +1317,10 @@ MechS32 DdrawLockBuffer(void)
 #ifdef MW2_S3
 		FUN_1000f850(g_ddrawBufferDesc.lpSurface);
 #endif
+#ifdef MW2_ATI
+		// The ATI edition's has the CIF start rendering on the locked buffer.
+		FUN_10063d10();
+#endif
 	}
 
 	g_refreshModeBuffer->m_buffer = g_ddrawBufferDesc.lpSurface;
@@ -1274,6 +1330,7 @@ MechS32 DdrawLockBuffer(void)
 
 // Releases the pending lock on g_ddrawBuffer.
 // FUNCTION: MW2 0x10079240
+// FUNCTION: MW2GBL 0x10031410
 // FUNCTION: MW2POWERVR 0x10005490
 DDRAW_UNLOCK_INLINE static HRESULT DdrawUnlock(void)
 {
@@ -1297,6 +1354,7 @@ DDRAW_UNLOCK_INLINE static HRESULT DdrawUnlock(void)
 
 // Restores the primary surface and g_ddrawBuffer when they were lost.
 // FUNCTION: MW2 0x100792b0
+// FUNCTION: MW2GBL 0x10031480
 __inline static HRESULT DdrawRestore(void)
 {
 	if (IDirectDrawSurface_IsLost(g_ddrawPrimary) == DDERR_SURFACELOST) {

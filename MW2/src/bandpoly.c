@@ -20,6 +20,7 @@
 FloatPoint g_bandTexCoords[4] = {{0, 0}, {1.0f, 0}, {1.0f, 1.0f}, {0, 1.0f}};
 #else
 // GLOBAL: MW2 0x100a2330
+// GLOBAL: MW2GBL 0x1009e6a0
 Point g_bandTexCoords[4] = {{0, 0}, {0x10000, 0}, {0x10000, 0x10000}, {0, 0x10000}};
 #endif
 
@@ -27,9 +28,8 @@ Point g_bandTexCoords[4] = {{0, 0}, {0x10000, 0}, {0x10000, 0x10000}, {0, 0x1000
 #if defined(MW2_ATI) || defined(MW2_POWERVR)
 // The ATI edition's: draws the textured polygon of p_count vertices p_vertices on p_pane, its
 // texture the p_width x p_height pixels p_pixels (at most 128 texels square, as wide as it is high),
-// with levels when p_mip, translucent with p_translucent; perspective-corrected when the render
-// settings' member at 0x54 is clear (the 3Dfx edition's DrawAnimatedPolygon tests m_affineTextures,
-// at 0x4c, in its place).
+// with levels when p_mip, translucent with p_translucent; perspective-corrected unless
+// g_renderSettings.m_affineTextures is set.
 // FUNCTION: MW2ATI 0x1002a480
 void FUN_1002a480(
 	PANE* p_pane,
@@ -52,7 +52,7 @@ void FUN_1002a480(
 		flags = 1;
 	}
 
-	if (g_renderSettings.m_frameDrawCallback) {
+	if (g_renderSettings.m_affineTextures) {
 		flags |= 0x400;
 	}
 	else {
@@ -80,6 +80,7 @@ void FUN_1002a480(
 // The Matrox edition has no DrawBandPolygon: its DrawScenePolygon calls DrawBand itself.
 #ifndef MW2_A3D
 // FUNCTION: MW2 0x10010750
+// FUNCTION: MW2GBL 0x10016f90
 void DrawBandPolygon(MechU32 p_flags, MechS32 p_count, MechU32* p_points, MechS32 p_unk0x0c)
 {
 	MechU32 color;
@@ -332,6 +333,7 @@ MechS32 DrawBand(MechU32 p_color, MechS32 p_count, MechS32* p_points, MechS32 p_
 // The Matrox edition has no DrawBandWithFlash.
 #ifndef MW2_A3D
 // FUNCTION: MW2 0x10010a7f
+// FUNCTION: MW2GBL 0x100172c3
 MechS32 DrawBandWithFlash(undefined4 p_unk0x00, MechS32 p_unk0x04, undefined4* p_unk0x08)
 {
 	MechS32 result;

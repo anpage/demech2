@@ -65,7 +65,7 @@ jobs:
           enableCrossOsArchive: true
           fail-on-cache-miss: true
           path: mw2bin
-          key: mw2bin
+          key: mw2bin-gbl
 
       - name: Build and verify the source with the image
         shell: bash
@@ -76,9 +76,10 @@ jobs:
           docker run --rm \
             -v "$PWD:/demech2:rw" -v "$PWD/build:/build:rw" -v "$PWD/mw2bin:/originals:ro" \
             "$image:latest" 2>&1 | tee verify.txt
-          # Both public targets were checked (a skipped target has no counts).
+          # Every public target was checked (a skipped target has no counts).
           grep -E '^MW2SHELL +MW2SHELL\.DLL +[0-9]+ +[0-9]+ +[0-9]+ +[0-9]+' verify.txt
           grep -E '^MW2 +MW2\.DLL +[0-9]+ +[0-9]+ +[0-9]+ +[0-9]+' verify.txt
+          grep -E '^MW2GBL +MW2_GBL\.DLL +[0-9]+ +[0-9]+ +[0-9]+ +[0-9]+' verify.txt
 
       - name: Upload the states
         if: ${{ always() }}

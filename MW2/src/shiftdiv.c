@@ -10,6 +10,7 @@
 
 // Returns (p_value << p_shift) / p_depth, divided by 4 and rounded, plus p_center.
 // FUNCTION: MW2 0x10042740
+// FUNCTION: MW2GBL 0x1000aa90
 MechS32 ProjectCoordinate(MechS32 p_value, MechS32 p_depth, MechS32 p_shift, MechS32 p_center)
 {
 #ifdef PORTABLE_C

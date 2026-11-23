@@ -64,14 +64,15 @@ enum FilePermission {
 	c_permissionWrite = 0x80 // _S_IWRITE (sys/stat.h)
 };
 
-// The cockpit panels: 1.1 has them here, the Matrox edition at the end of staticmem.c's object
-// and the ATI and 3Dfx editions at the end of targeting.c's.
-#ifndef MW2_ACCEL
+// The cockpit panels: 1.1 has them here, the Matrox edition at the end of staticmem.c's object,
+// the ATI and 3Dfx editions at the end of targeting.c's, and GBL in an object of their own.
+#if !defined(MW2_ACCEL) && !defined(MW2_GBL)
 #include "cockpitpanels.c"
 #endif
 
 // The game directory (the MECHWARRIOR environment variable).
 // GLOBAL: MW2 0x100ae400
+// GLOBAL: MW2GBL 0x100af410
 // GLOBAL: MW2MATROX 0x100a3f00
 // GLOBAL: MW23DFX 0x10259c90
 // GLOBAL: MW2ATI 0x1018df90
@@ -81,6 +82,7 @@ MechChar g_gameDir[256] = {0};
 
 // The number of the next screenshot SaveScreenshot saves.
 // GLOBAL: MW2 0x100ae500
+// GLOBAL: MW2GBL 0x100af510
 // GLOBAL: MW2MATROX 0x100a4000
 // GLOBAL: MW23DFX 0x10259d90
 // GLOBAL: MW2ATI 0x1018e090
@@ -91,6 +93,7 @@ MechS32 g_screenshotCount = 0;
 // The path BuildGamePath returns: 0x100 bytes in every edition, each with other globals after it
 // (the functions clear the first 0x50).
 // GLOBAL: MW2 0x100bef58
+// GLOBAL: MW2GBL 0x100ba018
 // GLOBAL: MW2MATROX 0x100c1d20
 // GLOBAL: MW23DFX 0x1007db30
 // GLOBAL: MW2ATI 0x10072b30
@@ -100,6 +103,7 @@ MechChar g_gamePath[0x100];
 
 // The three values of the HUD layout (LoadHudFile).
 // GLOBAL: MW2 0x10109c30
+// GLOBAL: MW2GBL 0x100bf1c0
 // GLOBAL: MW2MATROX 0x1015e8b0
 // GLOBAL: MW23DFX 0x101de8e0
 // GLOBAL: MW2ATI 0x101125a0
@@ -109,6 +113,7 @@ MechS32 g_hudLayoutValues[3];
 
 // Loads seven values from resource p_ref.
 // FUNCTION: MW2 0x100707c0
+// FUNCTION: MW2GBL 0x10042750
 // FUNCTION: MW2MATROX 0x1000acd0
 // FUNCTION: MW23DFX 0x100400b0
 // FUNCTION: MW2ATI 0x1003de10
@@ -169,6 +174,7 @@ MechS32 LoadMgdFile(
 // (GetAnimBase), into g_reels.
 // Matches but for the registers, which VC++ 2.2 allocates differently.
 // FUNCTION: MW2 0x100708f4
+// FUNCTION: MW2GBL 0x10042884
 // FUNCTION: MW2MATROX 0x1000ae34
 // FUNCTION: MW23DFX 0x100401c0
 // FUNCTION: MW2ATI 0x1003df20
@@ -269,6 +275,7 @@ MechS32 LoadReels(ResourceRef* p_ref)
 // them out of range cleared.
 // Matches but for the registers, which VC++ 2.2 allocates differently.
 // FUNCTION: MW2 0x10070bda
+// FUNCTION: MW2GBL 0x10042b6a
 // FUNCTION: MW2MATROX 0x1000b1c6
 // FUNCTION: MW23DFX 0x100403a0
 // FUNCTION: MW2ATI 0x1003e100
@@ -413,6 +420,7 @@ MechS32 LoadCptFile(ResourceRef* p_ref, PANE* p_gauges, PANE* p_panels, Point* p
 // Writes the screen as a picture: a 0x20-byte header from TABL resource 15, the palette, then
 // the main pixel buffer. Returns whether it could.
 // FUNCTION: MW2 0x10071026
+// FUNCTION: MW2GBL 0x10042fb6
 // FUNCTION: MW2MATROX 0x1000b612
 // FUNCTION: MW23DFX 0x10040660
 MechS32 WriteScreenPicture(MechChar* p_path, void* p_palette)
@@ -445,6 +453,7 @@ MechS32 WriteScreenPicture(MechChar* p_path, void* p_palette)
 // Reads a whole file into memory from the heap, or from a static pool when p_poolTag is given.
 // Returns the open file, or -1 (logging the path to symlog.txt when it can't be opened).
 // FUNCTION: MW2 0x10071108
+// FUNCTION: MW2GBL 0x10043098
 // FUNCTION: MW2MATROX 0x1000b6f4
 // FUNCTION: MW23DFX 0x10040700
 // FUNCTION: MW2ATI 0x1003e3c0
@@ -491,6 +500,7 @@ MechS32 LoadFile(MechChar* p_path, MechS32* p_size, void** p_data, BwdTag* p_poo
 
 // Reads a game file into memory. Returns the file (closed), or -1.
 // FUNCTION: MW2 0x10071251
+// FUNCTION: MW2GBL 0x100431e1
 // FUNCTION: MW2MATROX 0x1000b83d
 // FUNCTION: MW23DFX 0x10040800
 MechS32 ReadGameFile(MechChar* p_name, void** p_data)
@@ -510,6 +520,7 @@ MechS32 ReadGameFile(MechChar* p_name, void** p_data)
 }
 
 // FUNCTION: MW2 0x100712b0
+// FUNCTION: MW2GBL 0x10043240
 // FUNCTION: MW2MATROX 0x1000b89c
 // FUNCTION: MW23DFX 0x10040850
 // FUNCTION: MW2ATI 0x1003e4c0
@@ -536,6 +547,7 @@ MechS32 WriteCareerRecordFile(MechChar* p_name, void* p_data)
 // Reads the difficulty settings into a new block, then overrides some of them in network games.
 // Returns 1, or -1 if there is no block.
 // FUNCTION: MW2 0x10071326
+// FUNCTION: MW2GBL 0x100432b6
 // FUNCTION: MW2MATROX 0x1000b912
 // FUNCTION: MW23DFX 0x100408a0
 // FUNCTION: MW2ATI 0x1003e510
@@ -579,6 +591,7 @@ MechS32 LoadDifficultyCfg(MechChar* p_name, DifficultyCfg** p_cfg)
 }
 
 // FUNCTION: MW2 0x10071440
+// FUNCTION: MW2GBL 0x100433cd
 // FUNCTION: MW2MATROX 0x1000ba2c
 // FUNCTION: MW23DFX 0x10040960
 MechS32 SaveDifficultyCfg(MechChar* p_name, DifficultyCfg* p_cfg)
@@ -601,6 +614,7 @@ MechS32 SaveDifficultyCfg(MechChar* p_name, DifficultyCfg* p_cfg)
 
 // Reads the sound settings, or allocates cleared ones. Returns 1, or -1 if it couldn't read them.
 // FUNCTION: MW2 0x100714b3
+// FUNCTION: MW2GBL 0x10043440
 // FUNCTION: MW2MATROX 0x1000ba9f
 // FUNCTION: MW23DFX 0x100409b0
 // FUNCTION: MW2ATI 0x1003e5d0
@@ -626,6 +640,7 @@ MechS32 LoadSndCfg(MechChar* p_name, SoundConfig** p_cfg)
 }
 
 // FUNCTION: MW2 0x1007152f
+// FUNCTION: MW2GBL 0x100434bc
 // FUNCTION: MW2MATROX 0x1000bb1b
 // FUNCTION: MW23DFX 0x10040a10
 // FUNCTION: MW2ATI 0x1003e630
@@ -651,6 +666,7 @@ MechS32 SaveSndCfg(MechChar* p_name, SoundConfig* p_cfg)
 
 // Saves the screen as the next of mw2NNNN.gif, up to 1000 of them.
 // FUNCTION: MW2 0x100715a2
+// FUNCTION: MW2GBL 0x1004352f
 // FUNCTION: MW2MATROX 0x1000bb8e
 // FUNCTION: MW23DFX 0x10040a60
 // FUNCTION: MW2ATI 0x1003e680
@@ -709,6 +725,7 @@ void SaveScreenshot(void)
 
 // Returns the path of a game file: in g_gameDir unless the name has a directory already.
 // FUNCTION: MW2 0x1007162a
+// FUNCTION: MW2GBL 0x100435b7
 // FUNCTION: MW2MATROX 0x1000bcd2
 // FUNCTION: MW23DFX 0x10040b60
 // FUNCTION: MW2ATI 0x1003e780
@@ -734,6 +751,7 @@ MechChar* BuildGamePath(MechChar* p_name)
 
 // Returns the path of a file in g_gameDir.
 // FUNCTION: MW2 0x100716ec
+// FUNCTION: MW2GBL 0x10043663
 // FUNCTION: MW2MATROX 0x1000bd94
 // FUNCTION: MW23DFX 0x10040bf0
 MechChar* BuildGameDirPath(MechChar* p_name)

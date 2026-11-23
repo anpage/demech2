@@ -17,6 +17,7 @@
 
 // Returns whether the screen point (p_x, p_y) lies above the horizon of p_eyepoint's view.
 // FUNCTION: MW2 0x10071930
+// FUNCTION: MW2GBL 0x10005930
 // FUNCTION: MW2MATROX 0x1007b8d0
 // FUNCTION: MW23DFX 0x10028ee0
 // FUNCTION: MW2ATI 0x10028ba0
@@ -94,6 +95,7 @@ below:
 
 // Returns the screen y of the horizon at screen x p_x in p_eyepoint's view.
 // FUNCTION: MW2 0x100719ca
+// FUNCTION: MW2GBL 0x100059ca
 // FUNCTION: MW2MATROX 0x1007b99e
 // FUNCTION: MW23DFX 0x10028f80
 // FUNCTION: MW2ATI 0x10028c40
@@ -101,7 +103,7 @@ below:
 MechS32 HorizonYAtX(MechS32 p_x, Eyepoint* p_eyepoint)
 {
 #ifdef MW2_FLOAT_SCALARS
-#ifdef MW2_3DFX
+#ifdef MW2_HORIZON_FLOAT_Y
 	MechFloat y;
 #else
 	MechS32 y;
@@ -119,8 +121,8 @@ MechS32 HorizonYAtX(MechS32 p_x, Eyepoint* p_eyepoint)
 	e = p_eyepoint->m_viewMatrix.m_rows[2][1];
 	p_x -= p_eyepoint->m_centerX;
 	y = -(((p_x * a) / b + e) * d / c);
-#ifdef MW2_3DFX
-	// The 3Dfx edition's converts y to an integer only for the return.
+#ifdef MW2_HORIZON_FLOAT_Y
+	// The ATI, S3 and 3Dfx editions' convert y to an integer only for the return.
 	return -(MechS32) y + p_eyepoint->m_centerY;
 #else
 	return -y + p_eyepoint->m_centerY;
@@ -168,6 +170,7 @@ MechS32 HorizonYAtX(MechS32 p_x, Eyepoint* p_eyepoint)
 
 // Returns the screen x of the horizon at screen y p_y in p_eyepoint's view.
 // FUNCTION: MW2 0x10071a4c
+// FUNCTION: MW2GBL 0x10005a4c
 // FUNCTION: MW2MATROX 0x1007ba4c
 // FUNCTION: MW23DFX 0x10028ff0
 // FUNCTION: MW2ATI 0x10028cb0

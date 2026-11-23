@@ -32,6 +32,9 @@
 #endif
 
 #ifdef MW2_POWERVR
+// The renderer is open (powervr/a3d.c): LoadClassEntryShape converts the shapes it loads then.
+extern MechS32 g_a3dInitialized;
+
 DECOMP_SIZE_ASSERT(ClassEntry, 0x58)
 #else
 DECOMP_SIZE_ASSERT(ClassEntry, 0x44)
@@ -66,6 +69,7 @@ MechFloat g_lodLevel4 = 40000.0f;
 #endif
 
 // GLOBAL: MW2 0x100a37d4
+// GLOBAL: MW2GBL 0x100ad870
 // GLOBAL: MW2MATROX 0x100ae0e4
 // GLOBAL: MW23DFX 0x1024dbd8
 // GLOBAL: MW2ATI 0x10181ee8
@@ -74,6 +78,7 @@ MechFloat g_lodLevel4 = 40000.0f;
 MechS32 g_classEntryCount = 0;
 
 // GLOBAL: MW2 0x100a37d8
+// GLOBAL: MW2GBL 0x100ad874
 // GLOBAL: MW2MATROX 0x100ae0e8
 // GLOBAL: MW23DFX 0x1024dbdc
 // GLOBAL: MW2ATI 0x10181eec
@@ -82,6 +87,7 @@ MechS32 g_classEntryCount = 0;
 MechS32 g_classTableReady = 0;
 
 // GLOBAL: MW2 0x1012b7e0
+// GLOBAL: MW2GBL 0x100e9aa0
 // GLOBAL: MW2MATROX 0x10150690
 // GLOBAL: MW23DFX 0x101b16b0
 // GLOBAL: MW2ATI 0x100e5410
@@ -91,6 +97,7 @@ ClassEntry g_classTable[0x30c];
 
 // Loads the shapes of p_player's entries for its base level (m_baseLevel) into one pool block.
 // FUNCTION: MW2 0x1001ce90
+// FUNCTION: MW2GBL 0x10036220
 // FUNCTION: MW2MATROX 0x1006d550
 // FUNCTION: MW23DFX 0x100260e0
 // FUNCTION: MW2ATI 0x10025e50
@@ -129,6 +136,7 @@ MechS32 LoadBaseLevelShapes(Player* p_player)
 // goes to entry p_index. The unset levels above it take the same value. Returns the entry's
 // index, or -1.
 // FUNCTION: MW2 0x1001cf93
+// FUNCTION: MW2GBL 0x10036323
 // FUNCTION: MW2MATROX 0x1006d653
 // FUNCTION: MW23DFX 0x10026180
 // FUNCTION: MW2ATI 0x10025ef0
@@ -201,6 +209,7 @@ MechS32 AddClassEntryLevel(
 }
 
 // FUNCTION: MW2 0x1001d12a
+// FUNCTION: MW2GBL 0x100364ba
 // FUNCTION: MW2MATROX 0x1006d7ea
 // FUNCTION: MW23DFX 0x10026280
 // FUNCTION: MW2ATI 0x10025ff0
@@ -237,6 +246,7 @@ void ResetClassTable(void)
 
 // Gives the entries added since the last call (owner -2) to p_player.
 // FUNCTION: MW2 0x1001d220
+// FUNCTION: MW2GBL 0x100365b0
 // FUNCTION: MW2MATROX 0x1006d8e0
 // FUNCTION: MW23DFX 0x100262f0
 // FUNCTION: MW2ATI 0x10026060
@@ -261,6 +271,7 @@ void ClaimNewClassEntries(Player* p_player)
 // Loads the level-p_level shapes of p_owner's entries, or, for a player with flag 2, keeps the
 // shape already loaded. Returns 0 when a shape doesn't load.
 // FUNCTION: MW2 0x1001d292
+// FUNCTION: MW2GBL 0x10036622
 // FUNCTION: MW2MATROX 0x1006d952
 // FUNCTION: MW23DFX 0x10026330
 // FUNCTION: MW2ATI 0x100260a0
@@ -277,9 +288,9 @@ MechS32 LoadClassLevel(MechS32 p_owner, MechS32 p_level)
 		return 1;
 	}
 
-	g_shapeOwnerSet = 1;
-	g_shapeOwnerKind = 0x100;
-	g_shapeOwner = p_owner;
+	g_shapeOwner.m_set = 1;
+	g_shapeOwner.m_kind = 0x100;
+	g_shapeOwner.m_id = p_owner;
 	for (i = 0; i < g_classEntryCount; i++) {
 		entry = &g_classTable[i];
 		if (entry->m_owner == p_owner) {
@@ -296,7 +307,7 @@ MechS32 LoadClassLevel(MechS32 p_owner, MechS32 p_level)
 		}
 	}
 
-	g_shapeOwnerSet = 0;
+	g_shapeOwner.m_set = 0;
 #ifdef MW2_DETAIL_LEVEL_IN_LOADER
 	if (result) {
 		g_players[p_owner]->m_detailLevel = p_level;
@@ -307,6 +318,7 @@ MechS32 LoadClassLevel(MechS32 p_owner, MechS32 p_level)
 
 // Releases the level-p_level shapes of p_owner's entries.
 // FUNCTION: MW2 0x1001d3a4
+// FUNCTION: MW2GBL 0x10036734
 // FUNCTION: MW2MATROX 0x1006da7e
 // FUNCTION: MW23DFX 0x100263f0
 void ReleaseClassLevel(MechS32 p_owner, MechS32 p_level)
@@ -324,6 +336,7 @@ void ReleaseClassLevel(MechS32 p_owner, MechS32 p_level)
 // under its player's object, or under the object (or shape object) of entry m_unk0x1c, made in
 // p_buffer if given. Returns whether the entry has its shape.
 // FUNCTION: MW2 0x1001d3ff
+// FUNCTION: MW2GBL 0x1003678f
 // FUNCTION: MW2MATROX 0x1006dad9
 // FUNCTION: MW23DFX 0x10026430
 // FUNCTION: MW2ATI 0x10026160
@@ -341,18 +354,46 @@ MechS32 LoadClassEntryShape(MechS32 p_index, MechS32 p_level, void* p_buffer)
 	struct SceneObject* obj;
 	MechS32 placed;
 	Shape* shape;
+#ifdef MW2_POWERVR
+	MechS32* list;
+#endif
 
 	size = 0;
 	offset = 0;
 	flags = 0;
 	entry = &g_classTable[p_index];
+#if defined(MW2_POWERVR)
+	// The renderer keeps each level's list: a level converted before is shown again.
+	if (entry->m_released || (entry->m_loadedLevel == p_level && entry->m_lists[p_level] > 0)) {
+		return TRUE;
+	}
+#elif defined(MW2_SKIP_LOADED_LEVEL_WITH_RELEASED)
+	if (entry->m_released || entry->m_loadedLevel == p_level) {
+		return TRUE;
+	}
+#else
 	if (entry->m_released) {
 		return TRUE;
 	}
+#endif
 
 #ifdef MW2_SKIP_LOADED_LEVEL
 	if (entry->m_loadedLevel == p_level) {
 		return TRUE;
+	}
+#endif
+#ifdef MW2_POWERVR
+	if (entry->m_loadedLevel >= 0 && entry->m_lists[entry->m_loadedLevel] > 0) {
+		FUN_1005f3f0(entry->m_lists[entry->m_loadedLevel]);
+	}
+
+	list = &entry->m_lists[p_level];
+	if (*list > 0) {
+		FUN_1005f450(*list);
+		entry->m_loadedLevel = p_level;
+		if (entry->m_shape) {
+			return TRUE;
+		}
 	}
 #endif
 
@@ -361,7 +402,11 @@ MechS32 LoadClassEntryShape(MechS32 p_index, MechS32 p_level, void* p_buffer)
 			return TRUE;
 		}
 
+#ifdef MW2_POWERVR
+		flags = GetShapeState(entry->m_shape) & ~0x2000;
+#else
 		flags = GetShapeState(entry->m_shape);
+#endif
 		DestroyObjShape(entry->m_shape);
 		entry->m_shape = NULL;
 	}
@@ -427,6 +472,21 @@ MechS32 LoadClassEntryShape(MechS32 p_index, MechS32 p_level, void* p_buffer)
 		SetShapeOwner(entry->m_shape, entry->m_owner);
 		SetShapePartId(entry->m_shape, entry->m_partId);
 		AddSceneShape(entry->m_shape);
+#ifdef MW2_POWERVR
+		if (g_a3dInitialized) {
+			if (*list == -1) {
+				FUN_10062160(entry->m_shape, -1);
+				if (FUN_10062960(entry->m_shape)) {
+					*list = entry->m_shape->m_list;
+				}
+
+				entry->m_shape->m_list = -1;
+			}
+
+			FUN_10061750(entry->m_shape);
+		}
+
+#endif
 		if (kind == 0x70) {
 			HideShape(entry->m_shape);
 			DisableShapeCollision(entry->m_shape);
@@ -460,6 +520,7 @@ MechS32 LoadClassEntryShape(MechS32 p_index, MechS32 p_level, void* p_buffer)
 
 // Releases the shapes of the first player whose m_detailLevel names a level, and clears it.
 // FUNCTION: MW2 0x1001d88b
+// FUNCTION: MW2GBL 0x10036c1b
 // FUNCTION: MW2MATROX 0x1006df87
 // FUNCTION: MW23DFX 0x100266e0
 void ReleasePendingDetailLevel(void)
@@ -479,6 +540,7 @@ void ReleasePendingDetailLevel(void)
 
 // Releases entry p_index's shape if it is the one loaded for level p_level.
 // FUNCTION: MW2 0x1001d912
+// FUNCTION: MW2GBL 0x10036ca2
 // FUNCTION: MW2MATROX 0x1006e00e
 // FUNCTION: MW23DFX 0x10026730
 // FUNCTION: MW2ATI 0x10026410
@@ -502,6 +564,7 @@ void ReleaseClassEntryShape(MechS32 p_index, MechS32 p_level)
 }
 
 // FUNCTION: MW2 0x1001d980
+// FUNCTION: MW2GBL 0x10036d10
 // FUNCTION: MW2MATROX 0x1006e07c
 // FUNCTION: MW23DFX 0x10026770
 // FUNCTION: MW2ATI 0x10026450
@@ -520,6 +583,7 @@ struct SceneObject* GetClassObject(MechS32 p_index)
 }
 
 // FUNCTION: MW2 0x1001d9ca
+// FUNCTION: MW2GBL 0x10036d5a
 // FUNCTION: MW2MATROX 0x1006e0c6
 // FUNCTION: MW23DFX 0x10026790
 Shape* GetClassShape(MechS32 p_index)
@@ -535,6 +599,7 @@ Shape* GetClassShape(MechS32 p_index)
 }
 
 // FUNCTION: MW2 0x1001da14
+// FUNCTION: MW2GBL 0x10036da4
 // FUNCTION: MW2MATROX 0x1006e10f
 // FUNCTION: MW23DFX 0x100267b0
 // FUNCTION: MW2ATI 0x10026470
@@ -888,6 +953,7 @@ void ChoosePlayerDetailLevels(void)
 
 // Releases the shape of the entry whose object is p_obj.
 // FUNCTION: MW2 0x1001ddf2
+// FUNCTION: MW2GBL 0x10037182
 // FUNCTION: MW2MATROX 0x1006e63c
 // FUNCTION: MW23DFX 0x100269a0
 // FUNCTION: MW2ATI 0x10026660
@@ -934,6 +1000,7 @@ void ReleaseObjShape(struct SceneObject* p_obj)
 
 // Forgets the shape of the entry whose object is p_obj without releasing it.
 // FUNCTION: MW2 0x1001de84
+// FUNCTION: MW2GBL 0x10037214
 // FUNCTION: MW2MATROX 0x1006e6ce
 // FUNCTION: MW23DFX 0x100269f0
 // FUNCTION: MW2ATI 0x100266b0

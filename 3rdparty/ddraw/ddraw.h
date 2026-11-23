@@ -244,6 +244,7 @@ extern "C"
 	// IDirectDrawSurface::Blt's, BltFast's, Flip's and Lock's flags.
 #define DDBLT_COLORFILL 0x00000400L
 #define DDBLT_WAIT 0x01000000L
+#define DDBLTFAST_NOCOLORKEY 0x00000000
 #define DDBLTFAST_WAIT 0x00000010
 #define DDFLIP_WAIT 0x00000001L
 #define DDLOCK_WAIT 0x00000001L

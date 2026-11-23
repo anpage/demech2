@@ -11,6 +11,7 @@
 
 // Hashes a name, ignoring case: each character is added and the low word rotated left.
 // FUNCTION: MW2 0x100074e0
+// FUNCTION: MW2GBL 0x1004f260
 // FUNCTION: MW2MATROX 0x10001380
 MechU32 HashName(const MechChar* p_name)
 {

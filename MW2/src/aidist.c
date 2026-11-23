@@ -32,9 +32,11 @@
 // M_DIST: the farthest of p_target's targets farther than p_arg hundreds (-4: p_player's leash
 // range, -2: its alert range).
 // FUNCTION: MW2 0x10052617
+// FUNCTION: MW2GBL 0x10077e4e
 // FUNCTION: MW2MATROX 0x10081ce3
 // FUNCTION: MW23DFX 0x10012bf0
 // FUNCTION: MW2ATI 0x10013150
+// FUNCTION: MW2S3 0x100163d0
 // FUNCTION: MW2POWERVR 0x10012090
 MechS16 AiMessageDist(Player* p_player, MechS16 p_target, MechS16 p_arg)
 {

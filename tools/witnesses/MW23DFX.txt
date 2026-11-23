@@ -141,6 +141,7 @@
 0x10025310 PropagateStaticObjectStates geocache.c pad 18
 0x10025410 AreStaticObjectsComplete geocache.c pad 30
 0x10025b70 LoadQuadtreeBoxes geocache.c pad 8
+0x10026330 LoadClassLevel classtable.c pad 2
 0x10026430 LoadClassEntryShape classtable.c pad 2
 0x100266e0 ReleasePendingDetailLevel classtable.c pad 1
 0x10026730 ReleaseClassEntryShape classtable.c pad 1

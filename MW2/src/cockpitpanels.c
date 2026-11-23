@@ -1,8 +1,9 @@
-/* The cockpit panels: their layout, set-up, per-frame update and warnings. Not a unit of its own:
-   1.1 has these in config.c's object, ahead of its other functions, the Matrox edition at the end
-   of staticmem.c's, the S3 edition at the end of eyepoint.c's, and the 3Dfx edition at the end of
-   targeting.c's, so config.c includes this file in 1.1's build, staticmem.c in the Matrox
-   edition's, eyepoint.c in the S3 edition's and targeting.c in the 3Dfx edition's. */
+/* The cockpit panels: their layout, set-up, per-frame update and warnings. Not a unit of its own
+   but in GBL: 1.1 has these in config.c's object, ahead of its other functions, the Matrox edition
+   at the end of staticmem.c's, the S3 edition at the end of eyepoint.c's, and the 3Dfx edition at
+   the end of targeting.c's, so config.c includes this file in 1.1's build, staticmem.c in the
+   Matrox edition's, eyepoint.c in the S3 edition's and targeting.c in the 3Dfx edition's. GBL has
+   them in an object of their own, after timedoverlays.c's, and builds this file as a unit. */
 #include "ammobin.h"
 #include "anim2d.h"
 #include "approxlen.h"
@@ -60,8 +61,29 @@
 #include <string.h>
 #include <windows.h>
 
-// The 26 cockpit panels' rectangles, in 320x200 screen coordinates (ScaleCockpitLayout scales them to the
-// screen).
+// The cockpit panels' rectangles (c_panelCount: 26, GBL's 30), in 320x200 screen coordinates (ScaleCockpitLayout scales
+// them to the screen).
+#ifdef MW2_FOURTEEN_WEAPON_SLOTS
+// GBL's 30: seven weapon panels in each column.
+// GLOBAL: MW2GBL 0x1009b128
+PANE g_cockpitPanelPanes[c_panelCount] = {
+	{&g_mainPixelBuffer, 13, 10, 80, 60},     {&g_mainPixelBuffer, 260, 145, 312, 197},
+	{&g_mainPixelBuffer, 258, 145, 309, 175}, {&g_mainPixelBuffer, 214, 15, 256, 23},
+	{&g_mainPixelBuffer, 214, 25, 256, 33},   {&g_mainPixelBuffer, 214, 35, 256, 43},
+	{&g_mainPixelBuffer, 214, 45, 256, 53},   {&g_mainPixelBuffer, 214, 55, 256, 63},
+	{&g_mainPixelBuffer, 214, 65, 256, 73},   {&g_mainPixelBuffer, 214, 75, 256, 83},
+	{&g_mainPixelBuffer, 268, 15, 319, 23},   {&g_mainPixelBuffer, 268, 25, 319, 33},
+	{&g_mainPixelBuffer, 268, 35, 319, 43},   {&g_mainPixelBuffer, 268, 45, 319, 53},
+	{&g_mainPixelBuffer, 268, 55, 319, 63},   {&g_mainPixelBuffer, 268, 65, 319, 73},
+	{&g_mainPixelBuffer, 268, 75, 319, 83},   {&g_mainPixelBuffer, 10, 145, 62, 179},
+	{&g_mainPixelBuffer, 10, 183, 70, 199},   {&g_mainPixelBuffer, 30, 70, 300, 170},
+	{&g_mainPixelBuffer, 30, 70, 300, 170},   {&g_mainPixelBuffer, 55, 190, 120, 199},
+	{&g_mainPixelBuffer, 275, 130, 317, 195}, {&g_mainPixelBuffer, 250, 188, 273, 199},
+	{&g_mainPixelBuffer, 110, 175, 169, 189}, {&g_mainPixelBuffer, 170, 175, 209, 189},
+	{&g_mainPixelBuffer, 210, 175, 249, 189}, {&g_mainPixelBuffer, 1, 74, 35, 111},
+	{&g_mainPixelBuffer, 115, 1, 205, 35},    {&g_mainPixelBuffer, 10, 136, 70, 145},
+};
+#else
 // GLOBAL: MW2 0x100adf58
 // GLOBAL: MW2MATROX 0x100b1478
 // GLOBAL: MW23DFX 0x1024c8b8
@@ -101,8 +123,19 @@ PANE g_cockpitPanelPanes[c_panelCount] = {
 	{&g_mainPixelBuffer, 10, 136, 70, 145},
 #endif
 };
+#endif
 
 // The panels' text positions (16.16 fractions of their rectangles).
+#ifdef MW2_FOURTEEN_WEAPON_SLOTS
+// GLOBAL: MW2GBL 0x1009b380
+Point g_cockpitPanelTextOrigins[c_panelCount] = {
+	{0, 0},           {0, 0},           {0, 0},           {0x11ec, 0x2148}, {0x11ec, 0x2148}, {0x11ec, 0x2148},
+	{0x11ec, 0x2148}, {0x11ec, 0x2148}, {0x11ec, 0x2148}, {0x11ec, 0x2148}, {0x11ec, 0x2148}, {0x11ec, 0x2148},
+	{0x11ec, 0x2148}, {0x11ec, 0x2148}, {0x11ec, 0x2148}, {0x11ec, 0x2148}, {0x11ec, 0x2148}, {0, 0},
+	{0, 0},           {0, 0},           {0, 0},           {0, 0},           {0, 0xe666},      {0, 0},
+	{0, 0xa666},      {0, 0xa666},      {0, 0xa666},      {0, 0},           {0, 0},           {0, 0},
+};
+#else
 // GLOBAL: MW2 0x100ae160
 // GLOBAL: MW2MATROX 0x100b1680
 // GLOBAL: MW23DFX 0x1024cac0
@@ -122,10 +155,12 @@ Point g_cockpitPanelTextOrigins[c_panelCount] = {{0, 0},           {0, 0},
 												 {0, 0xa666},      {0, 0xa666},
 												 {0, 0xa666},      {0, 0},
 												 {0, 0},           {0, 0}};
+#endif
 
 // The transitions of panels 13 and 2.
 
 // GLOBAL: MW2 0x100ae230
+// GLOBAL: MW2GBL 0x1009b470
 // GLOBAL: MW2MATROX 0x100b1750
 // GLOBAL: MW23DFX 0x1024cb90
 // GLOBAL: MW2ATI 0x10180f10
@@ -134,6 +169,7 @@ Point g_cockpitPanelTextOrigins[c_panelCount] = {{0, 0},           {0, 0},
 RectTransitionState g_targetTransitionState = {0, 0, 0};
 
 // GLOBAL: MW2 0x100ae240
+// GLOBAL: MW2GBL 0x1009b480
 // GLOBAL: MW2MATROX 0x100b1760
 // GLOBAL: MW23DFX 0x1024cba0
 // GLOBAL: MW2ATI 0x10180f20
@@ -142,6 +178,7 @@ RectTransitionState g_targetTransitionState = {0, 0, 0};
 RectTransitionState g_mechViewTransitionState = {0, 0, 0};
 
 // GLOBAL: MW2 0x100ae250
+// GLOBAL: MW2GBL 0x1009b490
 // GLOBAL: MW2MATROX 0x100b1770
 // GLOBAL: MW23DFX 0x1024cbb0
 // GLOBAL: MW2ATI 0x10180f30
@@ -150,6 +187,7 @@ RectTransitionState g_mechViewTransitionState = {0, 0, 0};
 PANE g_targetTransitionFirst = {NULL, 0x8000, 0x8000, 0x8000, 0x8000};
 
 // GLOBAL: MW2 0x100ae268
+// GLOBAL: MW2GBL 0x1009b4a8
 // GLOBAL: MW2MATROX 0x100b1788
 // GLOBAL: MW23DFX 0x1024cbc8
 // GLOBAL: MW2ATI 0x10180f48
@@ -158,6 +196,7 @@ PANE g_targetTransitionFirst = {NULL, 0x8000, 0x8000, 0x8000, 0x8000};
 PANE g_targetTransitionSecond = {NULL, 0, 0, 0x10000, 0x10000};
 
 // GLOBAL: MW2 0x100ae280
+// GLOBAL: MW2GBL 0x1009b4c0
 // GLOBAL: MW2MATROX 0x100b17a0
 // GLOBAL: MW23DFX 0x1024cbe0
 // GLOBAL: MW2ATI 0x10180f60
@@ -166,6 +205,7 @@ PANE g_targetTransitionSecond = {NULL, 0, 0, 0x10000, 0x10000};
 PANE g_targetTransitionRect = {NULL, 0, 0, 0, 0};
 
 // GLOBAL: MW2 0x100ae298
+// GLOBAL: MW2GBL 0x1009b4d8
 // GLOBAL: MW2MATROX 0x100b17b8
 // GLOBAL: MW23DFX 0x1024cbf8
 // GLOBAL: MW2ATI 0x10180f78
@@ -175,6 +215,7 @@ RectTransitionDef g_targetTransitionDef =
 	{0xb5, &g_targetTransitionFirst, &g_targetTransitionSecond, &g_targetTransitionRect};
 
 // GLOBAL: MW2 0x100ae2a8
+// GLOBAL: MW2GBL 0x1009b4e8
 // GLOBAL: MW2MATROX 0x100b17c8
 // GLOBAL: MW23DFX 0x1024cc08
 // GLOBAL: MW2ATI 0x10180f88
@@ -183,6 +224,7 @@ RectTransitionDef g_targetTransitionDef =
 RectTransition g_targetTransition = {&g_targetTransitionState, &g_targetTransitionDef};
 
 // GLOBAL: MW2 0x100ae2b0
+// GLOBAL: MW2GBL 0x1009b4f0
 // GLOBAL: MW2MATROX 0x100b17d0
 // GLOBAL: MW23DFX 0x1024cc10
 // GLOBAL: MW2ATI 0x10180f90
@@ -191,6 +233,7 @@ RectTransition g_targetTransition = {&g_targetTransitionState, &g_targetTransiti
 PANE g_mechViewTransitionFirst = {NULL, 0x8000, 0x8000, 0x8000, 0x8000};
 
 // GLOBAL: MW2 0x100ae2c8
+// GLOBAL: MW2GBL 0x1009b508
 // GLOBAL: MW2MATROX 0x100b17e8
 // GLOBAL: MW23DFX 0x1024cc28
 // GLOBAL: MW2ATI 0x10180fa8
@@ -199,6 +242,7 @@ PANE g_mechViewTransitionFirst = {NULL, 0x8000, 0x8000, 0x8000, 0x8000};
 PANE g_mechViewTransitionSecond = {NULL, 0, 0, 0x10000, 0x10000};
 
 // GLOBAL: MW2 0x100ae2e0
+// GLOBAL: MW2GBL 0x1009b520
 // GLOBAL: MW2MATROX 0x100b1800
 // GLOBAL: MW23DFX 0x1024cc40
 // GLOBAL: MW2ATI 0x10180fc0
@@ -207,6 +251,7 @@ PANE g_mechViewTransitionSecond = {NULL, 0, 0, 0x10000, 0x10000};
 PANE g_mechViewTransitionRect = {NULL, 0, 0, 0, 0};
 
 // GLOBAL: MW2 0x100ae2f8
+// GLOBAL: MW2GBL 0x1009b538
 // GLOBAL: MW2MATROX 0x100b1818
 // GLOBAL: MW23DFX 0x1024cc58
 // GLOBAL: MW2ATI 0x10180fd8
@@ -216,6 +261,7 @@ RectTransitionDef g_mechViewTransitionDef =
 	{0xb5, &g_mechViewTransitionFirst, &g_mechViewTransitionSecond, &g_mechViewTransitionRect};
 
 // GLOBAL: MW2 0x100ae308
+// GLOBAL: MW2GBL 0x1009b548
 // GLOBAL: MW2MATROX 0x100b1828
 // GLOBAL: MW23DFX 0x1024cc68
 // GLOBAL: MW2ATI 0x10180fe8
@@ -224,6 +270,13 @@ RectTransitionDef g_mechViewTransitionDef =
 RectTransition g_mechViewTransition = {&g_mechViewTransitionState, &g_mechViewTransitionDef};
 
 // The panels' transitions.
+#ifdef MW2_FOURTEEN_WEAPON_SLOTS
+// GLOBAL: MW2GBL 0x1009b550
+RectTransition* g_cockpitPanelTransitions[c_panelCount] = {
+	NULL, NULL, &g_mechViewTransition, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
+	NULL, NULL, &g_targetTransition,   NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL
+};
+#else
 // GLOBAL: MW2 0x100ae310
 // GLOBAL: MW2MATROX 0x100b1830
 // GLOBAL: MW23DFX 0x1024cc70
@@ -258,9 +311,11 @@ RectTransition* g_cockpitPanelTransitions[c_panelCount] = {
 	NULL,
 	NULL
 };
+#endif
 
 // Set when UpdateCockpit should run PunchInAutoHeading on its next frame.
 // GLOBAL: MW2 0x100ae37c
+// GLOBAL: MW2GBL 0x1009b5cc
 // GLOBAL: MW2MATROX 0x100b189c
 // GLOBAL: MW23DFX 0x1024ccdc
 // GLOBAL: MW2ATI 0x1018105c
@@ -269,6 +324,7 @@ RectTransition* g_cockpitPanelTransitions[c_panelCount] = {
 MechS32 g_punchInAutoHeadingRequested = 0;
 
 // GLOBAL: MW2 0x100ae380
+// GLOBAL: MW2GBL 0x1009b5d0
 // GLOBAL: MW2MATROX 0x100b18a0
 // GLOBAL: MW23DFX 0x1024cce0
 // GLOBAL: MW2ATI 0x10181060
@@ -277,6 +333,13 @@ MechS32 g_punchInAutoHeadingRequested = 0;
 MechS32 g_hitFadePending = 0;
 
 // The clock times the panels light up at on startup (CockpitPanel::m_lightUpTime): the weapon panels in turn.
+#ifdef MW2_FOURTEEN_WEAPON_SLOTS
+// GLOBAL: MW2GBL 0x1009b5d8
+undefined4 g_cockpitPanelLightUpTimes[c_panelCount] = {0x16a, 0xb5,  0xb5,  0x21f, 0x23d, 0x25b, 0x279, 0x297,
+													   0x2b5, 0x2d3, 0x32e, 0x310, 0x2f2, 0x2d4, 0x2b5, 0x2d3,
+													   0x2f1, 0xb5,  0xb5,  0xb5,  0xb5,  0xb5,  0xb5,  0xb5,
+													   0xb5,  0xb5,  0xb5,  0xb5,  0xb5,  0xb5};
+#else
 // GLOBAL: MW2 0x100ae388
 // GLOBAL: MW2MATROX 0x100b18a8
 // GLOBAL: MW23DFX 0x1024cce8
@@ -285,27 +348,32 @@ MechS32 g_hitFadePending = 0;
 undefined4 g_cockpitPanelLightUpTimes[c_panelCount] = {0x16a, 0xb5,  0xb5,  0x21f, 0x23d, 0x25b, 0x279, 0x297, 0x32e,
 													   0x310, 0x2f2, 0x2d4, 0x2b5, 0xb5,  0xb5,  0xb5,  0xb5,  0xb5,
 													   0xb5,  0xb5,  0xb5,  0xb5,  0xb5,  0x0,   0x0,   0x0};
+#endif
 
 // The local mech's state (Mech::m_powerState) when PlayCockpitWarnings last ran.
 // GLOBAL: MW2 0x100ae3f0
+// GLOBAL: MW2GBL 0x1009b650
 // GLOBAL: MW2MATROX 0x100b1910
 // GLOBAL: MW23DFX 0x1024cd50
 // GLOBAL: MW2S3 0x10076aa0
 MechS32 g_lastWarningPowerState = 0;
 
 // GLOBAL: MW2 0x100ae3f4
+// GLOBAL: MW2GBL 0x1009b654
 // GLOBAL: MW2MATROX 0x100b1914
 // GLOBAL: MW23DFX 0x1024cd54
 // GLOBAL: MW2S3 0x10076aa4
 MechS32 g_lockedTonePlayed = 0;
 
 // GLOBAL: MW2 0x100ae3f8
+// GLOBAL: MW2GBL 0x1009b658
 // GLOBAL: MW2MATROX 0x100b1918
 // GLOBAL: MW23DFX 0x1024cd58
 // GLOBAL: MW2S3 0x10076aa8
 MechS32 g_lockingTonePlayed = 0;
 
 // GLOBAL: MW2 0x100ae3fc
+// GLOBAL: MW2GBL 0x1009b65c
 // GLOBAL: MW2MATROX 0x100b191c
 // GLOBAL: MW23DFX 0x1024cd5c
 // GLOBAL: MW2ATI 0x101810dc
@@ -315,6 +383,7 @@ MechS32 g_hitFadeCount = 0;
 // The local player's heading and torso twist, in whole degrees (UpdateCockpit).
 
 // GLOBAL: MW2 0x100c326c
+// GLOBAL: MW2GBL 0x1015defc
 // GLOBAL: MW2MATROX 0x1012f964
 // GLOBAL: MW23DFX 0x101de7fc
 // GLOBAL: MW2ATI 0x101124bc
@@ -323,6 +392,7 @@ MechS32 g_hitFadeCount = 0;
 MechScalar g_torsoTwistDegrees;
 
 // GLOBAL: MW2 0x100c3270
+// GLOBAL: MW2GBL 0x1015df00
 // GLOBAL: MW2MATROX 0x1012f960
 // GLOBAL: MW23DFX 0x101de7f8
 // GLOBAL: MW2ATI 0x101124b8
@@ -330,8 +400,9 @@ MechScalar g_torsoTwistDegrees;
 // GLOBAL: MW2POWERVR 0x1013d178
 MechScalar g_headingDegrees;
 
-// The 26 cockpit panels InitCockpitPanels allocates.
+// The cockpit panels InitCockpitPanels allocates (c_panelCount: 26, GBL's 30).
 // GLOBAL: MW2 0x100c3280
+// GLOBAL: MW2GBL 0x1015df10
 // GLOBAL: MW2MATROX 0x1012f970
 // GLOBAL: MW23DFX 0x101de800
 // GLOBAL: MW2ATI 0x101124c0
@@ -341,6 +412,7 @@ CockpitPanel* g_cockpitPanels[c_panelCount];
 
 // Which of the panels are enabled when they are set up.
 // GLOBAL: MW2 0x100c32f0
+// GLOBAL: MW2GBL 0x1015df90
 // GLOBAL: MW2MATROX 0x1012f9e0
 // GLOBAL: MW23DFX 0x101de870
 // GLOBAL: MW2ATI 0x10112530
@@ -348,6 +420,7 @@ CockpitPanel* g_cockpitPanels[c_panelCount];
 MechS32 g_cockpitPanelEnabled[c_panelCount];
 
 // GLOBAL: MW2 0x100c3358
+// GLOBAL: MW2GBL 0x1015e008
 // GLOBAL: MW2MATROX 0x1012f9d8
 // GLOBAL: MW23DFX 0x101de868
 // GLOBAL: MW2ATI 0x10112528
@@ -357,6 +430,7 @@ MechS32 g_cockpitPowerState;
 
 // Loads eight sounds ahead of their use.
 // FUNCTION: MW2 0x1006f480
+// FUNCTION: MW2GBL 0x10003d30
 // FUNCTION: MW2MATROX 0x100794d0
 // FUNCTION: MW23DFX 0x1001dc50
 // FUNCTION: MW2ATI 0x1001df20
@@ -380,8 +454,13 @@ void PreloadCockpitSounds(void)
 	}
 }
 
-// Lays out p_mech's weapons on the weapon panels: the left panels (3 to 7) take the weapons on
-// hardpoints 5, 3 and 7, the right ones (8 to 12) those on 4, 1 and 6, and the weapons on 2 and 0
+// The weapon panels' two columns: the left from c_panelFirstWeapon (3 to 7, GBL's 3 to 9), the
+// right from FIRST_RIGHT_WEAPON_PANEL to LAST_WEAPON_PANEL (8 to 12, GBL's 10 to 16).
+#define FIRST_RIGHT_WEAPON_PANEL (c_panelFirstWeapon + WEAPON_SLOT_COUNT / 2)
+#define LAST_WEAPON_PANEL (c_panelFirstWeapon + WEAPON_SLOT_COUNT - 1)
+
+// Lays out p_mech's weapons on the weapon panels: the left panels take the weapons on
+// hardpoints 5, 3 and 7, the right ones those on 4, 1 and 6, and the weapons on 2 and 0
 // fill the rest, alternating. Then reorders the weapons to match, left at even indices and right
 // at odd ones, renumbering their bins, and clears the slots left empty.
 // FUNCTION: MW2 0x1006f4fa
@@ -406,25 +485,25 @@ void LayoutWeaponPanels(Mech* p_mech)
 	MechS32 right;
 
 	alternate = TRUE;
-	for (i = 0; i < 10; i++) {
+	for (i = 0; i < WEAPON_SLOT_COUNT; i++) {
 		p_mech->m_weapons[i].m_index = i;
 	}
 
 	slot = p_mech->m_weapons;
-	rightStart = 8;
-	for (i = 0; i < 10; i++) {
+	rightStart = FIRST_RIGHT_WEAPON_PANEL;
+	for (i = 0; i < WEAPON_SLOT_COUNT; i++) {
 		if (slot->m_hardpoint == 4 || slot->m_hardpoint == 1 || slot->m_hardpoint == 6) {
 			rightStart++;
 		}
 
-		if (i != 10) {
+		if (i != WEAPON_SLOT_COUNT) {
 			slot++;
 		}
 	}
 
 	slot = p_mech->m_weapons;
 	left = 3;
-	for (i = 0; i < 10; i++) {
+	for (i = 0; i < WEAPON_SLOT_COUNT; i++) {
 		if (slot->m_hardpoint == 5 || slot->m_hardpoint == 3 || slot->m_hardpoint == 7) {
 			g_cockpitPanels[left]->m_setName(g_cockpitPanels[left], g_weaponDefs[slot->m_type].m_name);
 			g_cockpitPanels[left]->m_setWeapon(g_cockpitPanels[left], i);
@@ -433,18 +512,18 @@ void LayoutWeaponPanels(Mech* p_mech)
 			left++;
 		}
 
-		if (left == 8) {
+		if (left == FIRST_RIGHT_WEAPON_PANEL) {
 			left = rightStart;
 		}
 
-		if (i != 10) {
+		if (i != WEAPON_SLOT_COUNT) {
 			slot++;
 		}
 	}
 
 	slot = p_mech->m_weapons;
-	right = 8;
-	for (i = 0; i < 10; i++) {
+	right = FIRST_RIGHT_WEAPON_PANEL;
+	for (i = 0; i < WEAPON_SLOT_COUNT; i++) {
 		if (slot->m_hardpoint == 4 || slot->m_hardpoint == 1 || slot->m_hardpoint == 6) {
 			g_cockpitPanels[right]->m_setName(g_cockpitPanels[right], g_weaponDefs[slot->m_type].m_name);
 			g_cockpitPanels[right]->m_setWeapon(g_cockpitPanels[right], i);
@@ -453,22 +532,22 @@ void LayoutWeaponPanels(Mech* p_mech)
 			right++;
 		}
 
-		if (right > 12) {
+		if (right > LAST_WEAPON_PANEL) {
 			right = left;
 		}
 
-		if (i != 10) {
+		if (i != WEAPON_SLOT_COUNT) {
 			slot++;
 		}
 	}
 
 	slot = p_mech->m_weapons;
 	panel = left;
-	for (i = 0; i < 10; i++) {
+	for (i = 0; i < WEAPON_SLOT_COUNT; i++) {
 		if (slot->m_hardpoint == 2 || slot->m_hardpoint == 0) {
 			if (alternate && right > left) {
 				panel = right;
-				if (panel == 13) {
+				if (panel == c_panelTarget) {
 					panel = left;
 					left++;
 				}
@@ -480,7 +559,7 @@ void LayoutWeaponPanels(Mech* p_mech)
 			}
 			else {
 				panel = left;
-				if (panel == 8) {
+				if (panel == FIRST_RIGHT_WEAPON_PANEL) {
 					panel = right;
 					right++;
 				}
@@ -498,36 +577,36 @@ void LayoutWeaponPanels(Mech* p_mech)
 			panel++;
 		}
 
-		if (i != 10) {
+		if (i != WEAPON_SLOT_COUNT) {
 			slot++;
 		}
 	}
 
-	weapons = HeapAlloc(g_primaryHeap, HEAP_NO_SERIALIZE | HEAP_ZERO_MEMORY, 10 * sizeof(WeaponSlot));
+	weapons = HeapAlloc(g_primaryHeap, HEAP_NO_SERIALIZE | HEAP_ZERO_MEMORY, WEAPON_SLOT_COUNT * sizeof(WeaponSlot));
 	dst = weapons;
-	for (i = 3; i <= 7; i++) {
+	for (i = c_panelFirstWeapon; i <= FIRST_RIGHT_WEAPON_PANEL - 1; i++) {
 		if (g_cockpitPanels[i]->m_weapon != -1) {
 			slot = &p_mech->m_weapons[g_cockpitPanels[i]->m_weapon];
 			*dst = *slot;
-			if (i != 7) {
+			if (i != FIRST_RIGHT_WEAPON_PANEL - 1) {
 				dst += 2;
 			}
 		}
 	}
 
 	dst = weapons + 1;
-	for (i = 8; i <= 12; i++) {
+	for (i = FIRST_RIGHT_WEAPON_PANEL; i <= LAST_WEAPON_PANEL; i++) {
 		if (g_cockpitPanels[i]->m_weapon != -1) {
 			slot = &p_mech->m_weapons[g_cockpitPanels[i]->m_weapon];
 			*dst = *slot;
-			if (i != 12) {
+			if (i != LAST_WEAPON_PANEL) {
 				dst += 2;
 			}
 		}
 	}
 
 	index = 0;
-	for (i = 3; i <= 7; i++) {
+	for (i = c_panelFirstWeapon; i <= FIRST_RIGHT_WEAPON_PANEL - 1; i++) {
 		if (g_cockpitPanels[i]->m_weapon != -1) {
 			slot = &p_mech->m_weapons[g_cockpitPanels[i]->m_weapon];
 			for (j = 0; j < slot->m_binCount; j++) {
@@ -541,7 +620,7 @@ void LayoutWeaponPanels(Mech* p_mech)
 	}
 
 	index = 1;
-	for (i = 8; i <= 12; i++) {
+	for (i = FIRST_RIGHT_WEAPON_PANEL; i <= LAST_WEAPON_PANEL; i++) {
 		if (g_cockpitPanels[i]->m_weapon != -1) {
 			slot = &p_mech->m_weapons[g_cockpitPanels[i]->m_weapon];
 			for (j = 0; j < slot->m_binCount; j++) {
@@ -554,9 +633,9 @@ void LayoutWeaponPanels(Mech* p_mech)
 		}
 	}
 
-	memcpy(p_mech->m_weapons, weapons, 10 * sizeof(WeaponSlot));
+	memcpy(p_mech->m_weapons, weapons, WEAPON_SLOT_COUNT * sizeof(WeaponSlot));
 	HeapFree(g_primaryHeap, HEAP_NO_SERIALIZE, weapons);
-	for (i = 0; i < 10; i++) {
+	for (i = 0; i < WEAPON_SLOT_COUNT; i++) {
 		slot = &p_mech->m_weapons[i];
 		if (!slot->m_type && !slot->m_ammo) {
 			slot->m_type = -1;
@@ -566,6 +645,7 @@ void LayoutWeaponPanels(Mech* p_mech)
 
 // Scales the panels' rectangles, text positions and transition rectangles to the screen.
 // FUNCTION: MW2 0x1006fba3
+// FUNCTION: MW2GBL 0x10004465
 // FUNCTION: MW2MATROX 0x10079bfb
 // FUNCTION: MW23DFX 0x1001e060
 // FUNCTION: MW2ATI 0x1001e330
@@ -597,10 +677,11 @@ void ScaleCockpitLayout(void)
 	}
 }
 
-// Creates the 26 cockpit panels, all enabled but the second and (in network games) the
+// Creates the cockpit panels (c_panelCount), all enabled but the second and (in network games) the
 // fourteenth, lays out the local mech's weapon panels (LayoutWeaponPanels) and installs the panels'
 // handlers.
 // FUNCTION: MW2 0x1006fca5
+// FUNCTION: MW2GBL 0x10004567
 // FUNCTION: MW2MATROX 0x10079cfd
 // FUNCTION: MW23DFX 0x1001e0f0
 // FUNCTION: MW2ATI 0x1001e3c0
@@ -675,6 +756,7 @@ void InitCockpitPanels(void)
 
 // Lays out the local mech's weapon panels again and resets every panel to its settings.
 // FUNCTION: MW2 0x1006ff7b
+// FUNCTION: MW2GBL 0x1000483d
 // FUNCTION: MW2MATROX 0x10079fd3
 // FUNCTION: MW23DFX 0x1001e2d0
 // FUNCTION: MW2ATI 0x1001e5a0
@@ -701,6 +783,7 @@ void ResetCockpitPanels(void)
 // the target's bearing relative to both and its distance, a one-time warning sound, and the
 // panels' handlers for the view mode (Mech::m_powerState: 1, 2 or the rest).
 // FUNCTION: MW2 0x1007005a
+// FUNCTION: MW2GBL 0x1000491c
 // FUNCTION: MW2MATROX 0x1007a0b2
 // FUNCTION: MW23DFX 0x1001e340
 // FUNCTION: MW2ATI 0x1001e610
@@ -853,6 +936,7 @@ void UpdateCockpit(Mech* p_mech)
 // Shuts the cockpit panels down: ResetMapView with the radar on (DifficultyCfg::m_radar),
 // each panel's m_shutdown hook, then every 2D animation.
 // FUNCTION: MW2 0x100704c1
+// FUNCTION: MW2GBL 0x10004d83
 // FUNCTION: MW2MATROX 0x1007a53c
 // FUNCTION: MW23DFX 0x1001e630
 // FUNCTION: MW2ATI 0x1001e900
@@ -878,6 +962,7 @@ void ShutdownCockpitPanels(void)
 // Knocks the cockpit panels about when the local player's mech is hit: each panel has a two
 // (p_heavy: five) in ten chance of stepping its damage.
 // FUNCTION: MW2 0x1007053d
+// FUNCTION: MW2GBL 0x10004dff
 // FUNCTION: MW2MATROX 0x1007a5b8
 // FUNCTION: MW23DFX 0x1001e670
 // FUNCTION: MW2ATI 0x1001e940
@@ -909,6 +994,7 @@ void DamageCockpitPanels(Mech* p_mech, MechS32 p_heavy)
 // Plays the cockpit's warning sounds for the local mech as its state and flags change.
 // Matches but for the registers, which VC++ 2.2 allocates differently.
 // FUNCTION: MW2 0x100705dd
+// FUNCTION: MW2GBL 0x10004e9f
 // FUNCTION: MW2MATROX 0x1007a658
 // FUNCTION: MW23DFX 0x1001e6c0
 // FUNCTION: MW2ATI 0x1001e990
@@ -962,6 +1048,7 @@ void PlayCockpitWarnings(Mech* p_mech)
 }
 
 // FUNCTION: MW2 0x1007079d
+// FUNCTION: MW2GBL 0x1000505f
 // FUNCTION: MW2MATROX 0x1007a818
 // FUNCTION: MW23DFX 0x1001e800
 // FUNCTION: MW2ATI 0x1001ead0

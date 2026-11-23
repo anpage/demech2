@@ -30,6 +30,7 @@
 // Resets the player's mech of this class: clears its state, stands its object up at its current
 // place and starts its position ramps there.
 // FUNCTION: MW2 0x100680a0
+// FUNCTION: MW2GBL 0x10015390
 // FUNCTION: MW2MATROX 0x100887e0
 // FUNCTION: MW23DFX 0x10021d20
 // FUNCTION: MW2ATI 0x10021ff0
@@ -90,6 +91,7 @@ void FirstDoor(Player* p_player)
 // MW2MATROX (0x10088a5a) takes the heading's sine and cosine as floats, from the Matrox edition's
 // FixedSin of a float angle (the cosine is FixedSin(heading + 90)), without the >> 13.
 // FUNCTION: MW2 0x1006831a
+// FUNCTION: MW2GBL 0x1001560a
 // FUNCTION: MW2MATROX 0x10088a5a
 // FUNCTION: MW23DFX 0x10021e60
 // FUNCTION: MW2ATI 0x10022130
@@ -143,6 +145,7 @@ void UpdateDoor(Mech* p_mech)
 // The original tests the target's kind by loading its high byte and shifting it back
 // ((MechU16) (kind << 8) == 0x100), where a mask would compile to a byte compare.
 // FUNCTION: MW2 0x1006844e
+// FUNCTION: MW2GBL 0x1001573e
 // FUNCTION: MW2MATROX 0x10088b99
 // FUNCTION: MW23DFX 0x10021f20
 // FUNCTION: MW2ATI 0x100221f0
@@ -242,6 +245,7 @@ void LateUpdateDoor(Mech* p_mech)
 }
 
 // FUNCTION: MW2 0x10068758
+// FUNCTION: MW2GBL 0x10015a48
 // FUNCTION: MW2MATROX 0x10088eba
 // FUNCTION: MW23DFX 0x10022190
 // FUNCTION: MW2ATI 0x10022460
@@ -256,6 +260,7 @@ void ShutdownDoor(Mech* p_mech)
 
 // Allocates p_player's mech, its weapons and sections, and sets them up.
 // FUNCTION: MW2 0x10068772
+// FUNCTION: MW2GBL 0x10015a62
 // FUNCTION: MW2MATROX 0x10088ed4
 // FUNCTION: MW23DFX 0x100221a0
 // FUNCTION: MW2ATI 0x10022470
@@ -281,7 +286,7 @@ MechS32 CreateDoor(MechS32 p_index, Player* p_player)
 
 	mech = buffer;
 	weapons = (WeaponSlot*) ((Mech*) buffer + 1);
-	sections = (MechSection*) (weapons + 10);
+	sections = (MechSection*) (weapons + WEAPON_SLOT_COUNT);
 	extra = sections + 8;
 	mech->m_weapons = weapons;
 	mech->m_sections = sections;
@@ -292,9 +297,9 @@ MechS32 CreateDoor(MechS32 p_index, Player* p_player)
 	}
 
 	p_player->m_mech = mech;
-	p_player->m_mechSize = 0x10e;
+	p_player->m_mechSize = sizeof(Mech);
 	slot = mech->m_weapons;
-	for (i = 0; i < 10; i++) {
+	for (i = 0; i < WEAPON_SLOT_COUNT; i++) {
 		slot->m_status = -1;
 		slot->m_type = -1;
 		slot->m_state = c_weaponEmpty;

@@ -37,19 +37,24 @@
 // The debug keys' selections (HandleDebugKey): a number, and a mech section.
 
 // GLOBAL: MW2 0x100a15d0
+// GLOBAL: MW2GBL 0x1009d970
 // GLOBAL: MW2MATROX 0x100a6228
 // GLOBAL: MW23DFX 0x102503a0
 // GLOBAL: MW2S3 0x100624c0
+// GLOBAL: MW2POWERVR 0x101af744
 MechS32 g_debugSlot = -1;
 
 // GLOBAL: MW2 0x100a15d4
+// GLOBAL: MW2GBL 0x1009d974
 // GLOBAL: MW2MATROX 0x100a622c
 // GLOBAL: MW23DFX 0x102503a4
 // GLOBAL: MW2S3 0x100624c4
+// GLOBAL: MW2POWERVR 0x101af748
 MechS32 g_debugSection = -1;
 
 // The banner's rectangle, in 16.16 fractions of the screen until the first draw scales it.
 // GLOBAL: MW2 0x100a15e0
+// GLOBAL: MW2GBL 0x1009d980
 // GLOBAL: MW2MATROX 0x100a6238
 // GLOBAL: MW23DFX 0x102503b0
 // GLOBAL: MW2ATI 0x101846c0
@@ -58,6 +63,7 @@ MechS32 g_debugSection = -1;
 PANE g_pausedBannerRect = {NULL, 0, 0x3333, 0x10000, 0x6666};
 
 // GLOBAL: MW2 0x100a15f4
+// GLOBAL: MW2GBL 0x1009d994
 // GLOBAL: MW2MATROX 0x100a624c
 // GLOBAL: MW23DFX 0x102503c4
 // GLOBAL: MW2ATI 0x101846d4
@@ -66,6 +72,7 @@ PANE g_pausedBannerRect = {NULL, 0, 0x3333, 0x10000, 0x6666};
 MechS32 g_pausedBannerUnscaled = 1;
 
 // FUNCTION: MW2 0x10009e50
+// FUNCTION: MW2GBL 0x10012900
 // FUNCTION: MW2MATROX 0x1002ecc0
 // FUNCTION: MW23DFX 0x10036370
 // FUNCTION: MW2ATI 0x10034f70
@@ -96,6 +103,7 @@ void DrawPausedBanner(void)
 }
 
 // FUNCTION: MW2 0x10009ef1
+// FUNCTION: MW2GBL 0x100129a1
 // FUNCTION: MW2MATROX 0x1002ed6e
 // FUNCTION: MW23DFX 0x100363f0
 // FUNCTION: MW2ATI 0x10034ff0
@@ -107,6 +115,7 @@ void PlayPauseSound(void)
 }
 
 // FUNCTION: MW2 0x10009f13
+// FUNCTION: MW2GBL 0x100129c3
 // FUNCTION: MW2MATROX 0x1002ed90
 // FUNCTION: MW23DFX 0x10036410
 // FUNCTION: MW2ATI 0x10035010
@@ -119,6 +128,7 @@ void PlayResumeSound(void)
 
 // Pauses the clock and the audio, outside a network game.
 // FUNCTION: MW2 0x10009f35
+// FUNCTION: MW2GBL 0x100129e5
 // FUNCTION: MW2MATROX 0x1002edb2
 // FUNCTION: MW23DFX 0x10036430
 void PauseGame(void)
@@ -131,6 +141,7 @@ void PauseGame(void)
 
 // Resumes the clock and the audio, outside a network game.
 // FUNCTION: MW2 0x10009f61
+// FUNCTION: MW2GBL 0x10012a11
 // FUNCTION: MW2MATROX 0x1002edde
 // FUNCTION: MW23DFX 0x10036450
 void ResumeGame(void)
@@ -253,7 +264,7 @@ void HandleDebugKey(MechU16 p_key)
 		}
 		break;
 	case 0x78:
-#ifdef MW2_3DFX
+#ifdef MW2_CONDITIONAL_EXPRESSIONS
 		g_debugStar = g_debugStar == -1 ? -2 : -1;
 #else
 		if (g_debugStar == -1) {

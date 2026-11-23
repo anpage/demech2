@@ -58,7 +58,7 @@ MechS32 RunAIWeapons(Player* p_player, MechScalar p_heading)
 	}
 
 	p_player->m_steering->m_torsoPan = AimTorsoPan(p_player, p_heading, roll) * 0x2d00;
-#ifdef MW2_3DFX
+#ifdef MW2_TILT_NEGATIVE_FACTOR
 	p_player->m_steering->m_torsoTilt = AimTorsoTilt(p_player, roll) * -0xf00;
 #else
 	p_player->m_steering->m_torsoTilt = -(AimTorsoTilt(p_player, roll) * 0xf00);

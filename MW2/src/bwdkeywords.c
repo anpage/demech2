@@ -9,15 +9,18 @@
 // The ATI and 3Dfx editions' has no terminator: the keyword names follow it directly.
 // GLOBAL: MW23DFX 0x1025a0a0
 // GLOBAL: MW2ATI 0x1018e398
+// GLOBAL: MW2S3 0x10060030
 // GLOBAL: MW2POWERVR 0x101b9680
 MechChar g_bwdVersion[4] = "1.22";
 #else
 // GLOBAL: MW2 0x100a66b8
+// GLOBAL: MW2GBL 0x100afb40
 MechChar g_bwdVersion[] = "1.22";
 #endif
 
 // The name of each keyword in g_bwdTypeCodes.
 // GLOBAL: MW2 0x100a66c0
+// GLOBAL: MW2GBL 0x100afb48
 // GLOBAL: MW2MATROX 0x100a5ca8
 // GLOBAL: MW23DFX 0x1025a380
 // GLOBAL: MW2ATI 0x1018e678
@@ -73,6 +76,7 @@ MechChar g_bwdExtension[8] = "BWD";
 
 // The node tags, four characters each. The first is a stream's header node (BwdHeader).
 // GLOBAL: MW2 0x100a67e8
+// GLOBAL: MW2GBL 0x100afc70
 // GLOBAL: MW2MATROX 0x100a5dd0
 // GLOBAL: MW23DFX 0x1025a4a8
 // GLOBAL: MW2ATI 0x1018e7a0
