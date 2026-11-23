@@ -822,6 +822,7 @@ void SetObjWorldMatrix(SceneObject* p_obj, Matrix* p_matrix)
 // In the PowerVR edition the object's transforms take its world placement, and its list moves to the
 // scene's.
 // FUNCTION: MW2 0x10001e32
+// FUNCTION: MW2GBL 0x10019d80
 // FUNCTION: MW2MATROX 0x10041944
 // FUNCTION: MW23DFX 0x1000fd10
 // FUNCTION: MW2ATI 0x10010310
@@ -859,7 +860,7 @@ void DetachObj(SceneObject* p_obj)
 #endif
 	p_obj->m_parent = NULL;
 	p_obj->m_nextSibling = NULL;
-	p_obj->m_local = p_obj->m_world;
+	memcpy(&p_obj->m_local, &p_obj->m_world, sizeof(p_obj->m_local));
 	p_obj->m_flags |= c_objectDirty;
 	UpdateObj(p_obj);
 }

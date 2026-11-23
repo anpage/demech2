@@ -5,9 +5,39 @@
 #include "fixedfloat.h"
 #include "types.h"
 
-// A weapon type, from the table of weapon definitions (g_weaponDefs: LLASER, MLASER, ...).
+#ifdef MW2_WEAPON_FUNCTIONS
+struct Player;
+struct WeaponDef;
+struct WeaponSlot;
+
+// GBL's weapon functions: each frame's and each launch's. A launch returns
+// the shots it fired (SpawnShot), 0 when the weapon can't fire again.
+typedef void (*WeaponFrameFn)(struct Player* p_player, struct WeaponDef* p_def, struct WeaponSlot* p_slot);
+typedef MechS32 (*WeaponLaunchFn)(struct Player* p_player, struct WeaponDef* p_def, struct WeaponSlot* p_slot);
+
+// WeaponDef::m_flags.
+enum {
+	c_weaponSoundFirst = 0x1,    // the launch sound plays at a volley's first shot
+	c_weaponSoundEach = 0x2,     // and at each of its shots
+	c_weaponSelectable = 0x4,    // the weapon selection stops at it (all but the AMS)
+	c_weaponSlowTurn = 0x10,     // its guided shot eases its turns toward the target (the torpedo)
+	c_weaponAnimation = 0x20,    // its shot starts the animations from m_animation on
+	c_weaponNoLaunchMove = 0x40, // the shot starts at the hardpoint, not a shot's length ahead of it
+	c_weaponNarc = 0x80          // its shot marks the mech it hits (Mech::m_unk0x112 bit 0)
+};
+#endif
+
+// A weapon type, from the table of weapon definitions (g_weaponDefs: LLASER, MLASER, ...). GBL's
+// (MW2_WEAPON_FUNCTIONS) starts with four more words: its members from m_shotType on are 16 bytes
+// further than the comments give.
 // SIZE 0x58
 typedef struct WeaponDef {
+#ifdef MW2_WEAPON_FUNCTIONS
+	WeaponFrameFn m_frame;   // 0x00 — called for each slot of the weapon each frame, or NULL
+	WeaponLaunchFn m_launch; // 0x04 — launches a shot of a volley (SpawnShot)
+	MechU32 m_flags;         // 0x08 — c_weaponSoundFirst etc., copied to Shot::m_weaponFlags
+	MechS32 m_animation;     // 0x0c — the first of 8 animations, with c_weaponAnimation
+#endif
 	MechS32 m_shotType;      // 0x00 — the Shot::m_type a launch takes from the free shots
 	MechS32 m_impact;        // 0x04 — the effect the shot sets off (Shot::m_impact)
 	MechS32 m_launchEffect;  // 0x08 — an effect started at each launch (SpawnLaunchEffect)

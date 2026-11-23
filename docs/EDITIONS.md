@@ -105,7 +105,8 @@ compiler with optimization.
 - **Annotations** were ported by bytes from 1.1's original, then from the rebuild (`tools/port_annotations.py --rebuild`: the functions that differ from 1.1's only by the intrinsics), and the globals datacmp then reported left out: the data GBL changed (the cockpit panels' layout, the weapon definitions, the game keys' names, the local star) and the tables that point to functions not annotated yet, with the menus and back ends that point to those.
 - **Structures.** Its `Mech` (0x114 bytes) has `m_externalHeat` at 0x98, the heat the radius damage adds and `CalculateHeat` takes (`MW2_EXTERNAL_HEAT`), and a second word of flags at its end (`MW2_MECH_SECOND_FLAGS`); a mech has 14 weapon slots, not 10 (`MW2_FOURTEEN_WEAPON_SLOTS`, `WEAPON_SLOT_COUNT`). Its `Player` (0x1b8 bytes) has a word nothing uses after `m_ai` (`MW2_PLAYER_SPARE_WORD`), and a flag after `m_nextFireTime` and two values at its end that its AI setup takes from a table of pilots for a gunnery above 6 (`MW2_PILOT_TABLE`). Its 14 weapon slots have 14 weapon panels, seven in each column, so its panels from the target's on are 4 further (`c_panelTarget` 17, `c_panelCount` 30) and its panel tables have 30 entries.
 - **VFX.** GBL links VFXA as released (`MW2_VFX_STOCK`, the accelerated editions' feature) with `VFX_lookaside_write` (`MW2_VFX_LOOKASIDE_WRITE`), and keeps 1.1's aligned fill in VFX3D's `VFX_flat_polygon` (`MW2_VFX3D_ALIGNED_FILL`, as the ATI and PowerVR editions do); its VFXREND is 1.1's. The target passes ML its features (`demech2_edition_masm_defines`).
-- **Data.** Two game keys of its own: `CHAT_MODE`, action 66, so its actions from 66 on are one higher (`MW2_CHAT_KEY`, `GAME_KEY_ACTION`), and `TOGGLE_AMS`, 169 (`MW2_AMS_KEY`). Its local star starts at 0, as the accelerated editions' does (`MW2_LOCAL_STAR_FROM_ZERO`). Its message boxes and refresh mode errors name Ghost Bear's Legacy, typos included (`MW2_GHOST_BEAR_TITLES`), and it finds its CD by `GBL_HERC.DRV` (`MW2_GBL_CD_DRIVER`). `GetEngagementAIFlags` returns an `int` (`MW2_ENGAGEMENT_FLAGS_INT`), and a recentering torso snaps to the legs within 1 degree, not 4 (`MW2_TORSO_SNAP_ONE_DEGREE`). Still to write: its weapon definitions (`WeaponDef` has 16 more bytes ahead of 1.1's members, among them a pointer to a launch function, and the table has 35 weapons, Inf SRM, Torpedo, InfSSRM and ArrowIV the new ones), its maneuver tables (static data, where 1.1 fills them at run time), and the tables of pointers to its functions that differ from 1.1's (its DirectDraw back end, the menus' and orders' handlers, the AI states), which are annotated but not yet the edition's.
+- **Data.** Two game keys of its own: `CHAT_MODE`, action 66, so its actions from 66 on are one higher (`MW2_CHAT_KEY`, `GAME_KEY_ACTION`), and `TOGGLE_AMS`, 169 (`MW2_AMS_KEY`). Its local star starts at 0, as the accelerated editions' does (`MW2_LOCAL_STAR_FROM_ZERO`). Its message boxes and refresh mode errors name Ghost Bear's Legacy, typos included (`MW2_GHOST_BEAR_TITLES`), and it finds its CD by `GBL_HERC.DRV` (`MW2_GBL_CD_DRIVER`). `GetEngagementAIFlags` returns an `int` (`MW2_ENGAGEMENT_FLAGS_INT`), and a recentering torso snaps to the legs within 1 degree, not 4 (`MW2_TORSO_SNAP_ONE_DEGREE`). Still to write: its maneuver tables (static data, where 1.1 fills them at run time), and the tables of pointers to its functions that differ from 1.1's (its DirectDraw back end, the menus' and orders' handlers, the AI states), which are annotated but not yet the edition's.
+- **Weapons, shots and effects** (`MW2_WEAPON_FUNCTIONS`). A weapon type (`WeaponDef`, 0x68 bytes) starts with a function its slots call each frame, its launch function (`SpawnShot`, which now takes the definition, for all but the AMS), flags and the first of eight animations; the table has 35 weapons, Inf SRM, Torpedo, InfSSRM and ArrowIV the new ones. The flags say when the launch sound plays (a volley's first shot or each), whether the weapon selection stops at it (not the AMS), whether its guided shot eases its turns (the torpedo), whether its shot starts the animations (the flamer) or leaves from the hardpoint itself, and whether it marks the mech it hits (the NARC: a guided weapon then locks on that mech at once). A shot (0x58 bytes, 255 of them) carries its weapon's flags; an effect (0x2c, 255) the shape it is attached to; an effect type (0x2c bytes, 36 of them) its own damage and heat per tick and flags (attached to the hit mech's object, uncounted), where 1.1 damages by 0x100 a tick whatever the type. `UpdateEffects` grows the radius of the nuke's and effect 0x23's damage as they burn, and the radius damage heats mechs from outside. `PlayPositionalSound` takes the sample's flags and plays nothing past a cutoff distance (`MW2_POSITIONAL_SOUND_FLAGS`); a destroyed game thing counts for the team whoever destroyed it (`MW2_THING_KILLS_FORGET_SHOOTER`), and a shot destroys a building at once (`MW2_BUILDINGS_FALL_AT_ONCE`). The AMS's four functions are an object of their own before `refreshmode.c`'s (`MW2/src/gbl/ams.c`, stubs so far).
 - **What it changed** besides, from a first comparison with 1.1, to be settled as the edition is worked in: about 18 functions 1.1 doesn't have: the cheat messages stored XOR-encoded and decoded at startup, a toggle between two modes of one weapon type, a MIDI volume setter, display modes in the face colours; and a restructured `RunGameKey`.
 
 ## Adding an edition
@@ -279,7 +280,7 @@ tests an `MW2_` macro the table doesn't define, and when no target compiles a br
 
 ## Features
 
-From the table in `util/types.h` (175 features) and the 1211 conditional sites of the simulators' sources (`MW2/`, `common/`, `3rdparty/vfx`). A feature's cell is its value where it has one.
+From the table in `util/types.h` (182 features) and the 1278 conditional sites of the simulators' sources (`MW2/`, `common/`, `3rdparty/vfx`). A feature's cell is its value where it has one.
 
 ### The ATI, S3, Matrox, PowerVR and 3Dfx editions (`MW2_ACCEL`)
 
@@ -552,7 +553,7 @@ Every edition that has one of these has them all, so no binary separates one fro
 | Feature | 1.1 | ATI | S3 | Matrox | PowerVR | GBL | 3Dfx | Sites | What it does |
 |---|:-:|:-:|:-:|:-:|:-:|:-:|:-:|--:|---|
 | `MW2_EXTERNAL_HEAT` |  |  |  |  |  | yes |  | 2 | Mechs take heat from outside (Mech::m_externalHeat, which the radius damage adds to and CalculateHeat adds to the frame's heat) |
-| `MW2_MECH_SECOND_FLAGS` |  |  |  |  |  | yes |  | 2 | Mechs have a second word of flags (Mech::m_unk0x112: UpdateAllShots sets bit 0) |
+| `MW2_MECH_SECOND_FLAGS` |  |  |  |  |  | yes |  | 2 | Mechs have a second word of flags (Mech::m_unk0x112, whose bit 0 UpdateShot sets for a NARC hit) |
 | `MW2_FOURTEEN_WEAPON_SLOTS` |  |  |  |  |  | yes |  | 6 | Mechs have 14 weapon slots, not 10 (WEAPON_SLOT_COUNT) |
 | `MW2_PILOT_TABLE` |  |  |  |  |  | yes |  | 3 | An AI player whose gunnery is above 6 takes its skills from a table of pilots, with two more values and a flag the AI's fire decisions test (Player::m_unk0x160, m_unk0x1b0, m_unk0x1b4) |
 | `MW2_PLAYER_SPARE_WORD` |  |  |  |  |  | yes |  | 2 | The player has a word after its AI state that nothing reads or writes (Player::m_unk0x154) |
@@ -562,6 +563,13 @@ Every edition that has one of these has them all, so no binary separates one fro
 | `MW2_GBL_CD_DRIVER` |  |  |  |  |  | yes |  | 1 | The game's CD is the drive with GBL_HERC.DRV |
 | `MW2_ENGAGEMENT_FLAGS_INT` |  |  |  |  |  | yes |  | 2 | *Representation.* GetEngagementAIFlags returns an int, not a short |
 | `MW2_TORSO_SNAP_ONE_DEGREE` |  |  |  |  |  | yes |  | 1 | A recentering torso snaps to the legs within 1 degree, not 4 (TORSO_SNAP_RANGE) |
+| `MW2_WEAPON_FUNCTIONS` |  |  |  |  |  | yes |  | 58 | Weapons work through their definitions: each has a launch function (SpawnShot for all but the AMS), a function called each frame, flags (the launch sounds, an animation) and an animation, and there are 35 of them; shots and effects carry the weapon's flags and a word more, and there are 255 of each and 36 effect types, with four more words each (WeaponDef, Shot, Effect, EffectInfo) |
+| `MW2_POSITIONAL_SOUND_FLAGS` |  |  |  |  |  | yes |  | 2 | PlayPositionalSound takes the sample's flags (PlayPositionalSoundEx; the old entry point passes 0x32), and plays nothing beyond a cutoff distance, g_unk0x100ba608 hundred units, when that is set |
+| `MW2_THING_KILLS_FORGET_SHOOTER` |  |  |  |  |  | yes |  | 2 | A game thing's destruction counts for the local team whoever's shot destroyed it, and forgets the shooter (KillGameThing) |
+| `MW2_LOCK_LABS` |  |  |  |  |  | yes |  | 1 | *Artefact.* UpdateWeaponLock tests the aim with the C runtime's labs. GBL links labs and abs, the same code, and calls one here and the other in targeting.c: which is which isn't known |
+| `MW2_ABS_CALLS` |  |  |  |  |  | yes |  | 1 | *Artefact.* GetBearingAndRange (targeting.c) calls abs, which GBL's other units expand (MW2_GBL's pragma above) |
+| `MW2_BUILDINGS_FALL_AT_ONCE` |  |  |  |  |  | yes |  | 3 | A shot destroys a game thing whose shape is of kind 0xb0 at once, and every destroyed thing leaves effect 0x20b (DamageGameThing) |
+| `MW2_WINDOWED_TEST_FIRST` |  |  |  |  |  | yes |  | 1 | *Artefact.* InitRefreshMode tests for a window smaller than the screen first |
 
 ## Where each feature is tested
 
@@ -740,6 +748,13 @@ Every edition that has one of these has them all, so no binary separates one fro
 - `MW2_GBL_CD_DRIVER`: `MW2/src/gamecd.c`: `FindGameCdDrive`
 - `MW2_ENGAGEMENT_FLAGS_INT`: `MW2/include/ai.h`: file scope; `MW2/src/ai.c`: `GetEngagementAIFlags`
 - `MW2_TORSO_SNAP_ONE_DEGREE`: `MW2/src/mechclass.c`: file scope
+- `MW2_WEAPON_FUNCTIONS`: `MW2/include/effect.h`: `Effect`, file scope (2); `MW2/include/effectinfo.h`: `EffectInfo`, file scope (2); `MW2/include/shots.h`: `Shot` (2), file scope (4); `MW2/include/weapondata.h`: file scope; `MW2/include/weapondef.h`: `WeaponDef`, file scope; `MW2/include/weapons.h`: file scope (3); `MW2/src/shots.c`: `DamageMechsInRadius` (4), `DetonateShot` (2), `FirstShots`, `GuideMissileToTarget` (2), `ResetShotSlot`, `SpawnEffect`, `SpawnLaunchEffect`, `SpawnRotatedEffect`, `UpdateNuke`, `UpdateShot` (3), file scope, the definition of `SpawnEffectEx`, the definition of `UpdateEffects`; `MW2/src/weapondata.c`: file scope (3); `MW2/src/weapons.c`: `LoadWeaponSounds`, `SelectNextWeapon` (2), `SelectNextWeaponGroup` (2), `SelectNextWeaponInGroup` (2), `SelectWeaponGroup` (3), `SpawnLaunchFx` (2), `UpdateWeaponLock`, file scope, the definition of `FireWeaponGroup`, the definition of `SpawnShot`, the definition of `UpdateWeaponFireState`
+- `MW2_POSITIONAL_SOUND_FLAGS`: `MW2/include/soundfx.h`: file scope; `MW2/src/soundfx.c`: the definitions of `PlayPositionalSound`, `PlayPositionalSoundEx`
+- `MW2_THING_KILLS_FORGET_SHOOTER`: `MW2/src/shots.c`: `KillGameThing` (2)
+- `MW2_LOCK_LABS`: `MW2/src/weapons.c`: `UpdateWeaponLock`
+- `MW2_ABS_CALLS`: `MW2/src/targeting.c`: file scope
+- `MW2_BUILDINGS_FALL_AT_ONCE`: `MW2/src/shots.c`: `DamageGameThing` (3)
+- `MW2_WINDOWED_TEST_FIRST`: `MW2/src/refreshmode.c`: `InitRefreshMode`
 
 ## Functions with a definition per edition
 
@@ -762,6 +777,7 @@ Where an edition's version of a function differs in its control flow or in more 
 | `DrawSkyAndGround` | `MW2/src/polydraw.c` | `defined(MW2_A3D)` | ATI, S3, Matrox, PowerVR and 3Dfx; 1.1 and GBL |
 | `DrawSkyAndGround` | `MW2/src/polydraw.c` | `defined(MW2_S3)` | S3; ATI, Matrox, PowerVR and 3Dfx |
 | `DrawTargetMarker` | `MW2/src/hud.c` | `!defined(MW2_HUD_MARKER_LAG)` | 1.1, ATI, S3, Matrox, GBL and 3Dfx; PowerVR |
+| `FireWeaponGroup` | `MW2/src/weapons.c` | `defined(MW2_WEAPON_FUNCTIONS)` | GBL; 1.1, ATI, S3, Matrox, PowerVR and 3Dfx |
 | `FirstRender` | `MW2/src/render.c` | `defined(MW2_POWERVR)` | PowerVR; 1.1, ATI, S3, Matrox, GBL and 3Dfx |
 | `FUN_100519b0` | `MW2/src/animation.c` | `defined(MW2_POWERVR)` | PowerVR; ATI, S3, Matrox and 3Dfx |
 | `FUN_10051c07` | `MW2/src/animation.c` | `defined(MW2_S3)` | S3; ATI, PowerVR and 3Dfx |
@@ -777,13 +793,18 @@ Where an edition's version of a function differs in its control flow or in more 
 | `FUN_1008fad0` | `MW2/src/simmain.c` | `defined(MW2_POWERVR)` | PowerVR; ATI, S3, Matrox and 3Dfx |
 | `JoystickPoll` | `MW2/src/joystick.c` | `defined(MW2_JOYSTICK_AXIS_SUMS)` | Matrox; PowerVR; 1.1, ATI, S3, GBL and 3Dfx |
 | `LoadSkyGroundSettings` | `MW2/src/polydraw.c` | `defined(MW2_S3)` | S3; ATI, Matrox, PowerVR and 3Dfx |
+| `PlayPositionalSound` | `MW2/src/soundfx.c` | `defined(MW2_POSITIONAL_SOUND_FLAGS)` | GBL; 1.1, ATI, S3, Matrox, PowerVR and 3Dfx |
 | `RotateTexturePoint` | `MW2/src/animation.c` | `defined(MW2_S3)` | S3; ATI, Matrox, PowerVR and 3Dfx |
 | `SetGameResolution` | `MW2/src/simmain.c` | `defined(MW2_RES_800X600)` | 3Dfx; S3; PowerVR; 1.1, ATI, Matrox and GBL |
 | `ShowGridObject` | `MW2/src/gridobject.c` | `defined(MW2_GRID_OBJECT_HIDDEN)` | S3; 1.1, ATI, Matrox, PowerVR, GBL and 3Dfx |
 | `SimMain` | `MW2/src/simmain.c` | `defined(MW2_MATROX)` | Matrox; PowerVR; ATI, S3 and 3Dfx; 1.1 and GBL |
 | `SimWindowProc` | `MW2/src/simmain.c` | `defined(MW2_MATROX)` | Matrox; ATI, S3, PowerVR and 3Dfx; 1.1 and GBL |
+| `SpawnEffectEx` | `MW2/src/shots.c` | `defined(MW2_WEAPON_FUNCTIONS)` | GBL; 1.1, ATI, S3, Matrox, PowerVR and 3Dfx |
+| `SpawnShot` | `MW2/src/weapons.c` | `defined(MW2_WEAPON_FUNCTIONS)` | GBL; 1.1, ATI, S3, Matrox, PowerVR and 3Dfx |
 | `SwitchCockpitView` | `MW2/src/cockpit.c` | `defined(MW2_POWERVR)` | PowerVR; 1.1, ATI, S3, Matrox, GBL and 3Dfx |
+| `UpdateEffects` | `MW2/src/shots.c` | `defined(MW2_WEAPON_FUNCTIONS)` | GBL; 1.1, ATI, S3, Matrox, PowerVR and 3Dfx |
 | `UpdateMech` | `MW2/src/mechclass.c` | `defined(MW2_FLOAT_SCALARS)` | ATI, S3, Matrox, PowerVR and 3Dfx; 1.1 and GBL |
+| `UpdateWeaponFireState` | `MW2/src/weapons.c` | `defined(MW2_WEAPON_FUNCTIONS)` | GBL; 1.1, ATI, S3, Matrox, PowerVR and 3Dfx |
 
 ## Sites that test an edition
 

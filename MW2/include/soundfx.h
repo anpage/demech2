@@ -53,6 +53,16 @@ extern "C"
 		MechU16 p_flags
 	);
 	MechS32 PlayPositionalSound(MechScalar p_dx, MechScalar p_dy, MechScalar p_dz, MechS32 p_sound, MechS32 p_half);
+#ifdef MW2_POSITIONAL_SOUND_FLAGS
+	MechS32 PlayPositionalSoundEx(
+		MechScalar p_dx,
+		MechScalar p_dy,
+		MechScalar p_dz,
+		MechS32 p_sound,
+		MechS32 p_half,
+		MechU16 p_flags
+	);
+#endif
 	MechS32 PlaySoundEffect(MechS32 p_id, MechU32 p_volume, MechS32 p_pan, MechS32 p_rate, MechU16 p_flags);
 	MechS32 PlayDelayedSound(
 		MechS32 p_delay,

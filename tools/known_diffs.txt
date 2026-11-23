@@ -5,10 +5,11 @@
 # without a line, on a hash that no longer matches, and on a line whose function no longer needs it.
 
 MW2GBL 0x10006886 FillJoystickDeviceInfo 2872380adb30 compares the device name with "tracker" through a two-argument call where 1.1 passes memcmp a length; to investigate
+MW2GBL 0x1002ef30 InitRefreshMode 63b76918efdf reads g_refreshModes and g_displayBackends, whose GBL annotations are left out until its DirectDraw back end is written (datacmp), and compares the width with the screen's in the other operand order; to investigate
 MW2GBL 0x1002fa30 DdrawStop e9975a95a1c0 tests a global of its own before 1.1's code (GBL's DirectDraw back end); to investigate
 MW2GBL 0x1002ff2d DdrawInit b4e3eea0583e GBL's own: a frame of 0x140 bytes against 1.1's 0xb0 (GBL's DirectDraw back end); to investigate
-MW2GBL 0x1003ad17 TestSegmentCollision daeba724f1d4 a comparison's operands in the other order, which no padding or early redeclaration gives; to investigate (tools/declorder.py)
-MW2GBL 0x1006d91f UpdateMech ce0d38a6cfc7 GBL's changes to the mech update (its heat, weapons and jump jets members among them); to investigate
+MW2GBL 0x1004c9a9 CopyRay c53ca11b74f7 calls memcpy (GBL has no /Oi) where the source assigns the structure; memcpy needs <string.h> in ray.c, whose inclusion changes three functions of the optimized editions
+MW2GBL 0x1006d91f UpdateMech 9e4434164d7e GBL's changes to the mech update (its heat, weapons and jump jets members among them); to investigate
 MW2GBL 0x100783e1 AiMessageTargetable 767af371ceb8 reads Player 0x152 as a word where 1.1 tests its low bits; to investigate
 MW2GBL 0x1007855d AiStateMove 3590c2cbee1e GBL's own move state (calls where 1.1 reads the mech's 0x4c); to investigate
 MW2GBL 0x10078792 AiStateAttack 5c62d63fac60 GBL's own attack state; to investigate

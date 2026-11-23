@@ -27,6 +27,10 @@
 
 #include <stdlib.h>
 
+#ifdef MW2_ABS_CALLS
+#pragma function(abs) // GBL calls abs in this unit (util/types.h)
+#endif
+
 // Targeting: the nav points and the AI target ids (0x100 | nav, 0x200 | game piece, 0x400 |
 // game thing; 0x1000 marks the target lost), cycling the target through them, and the cockpit's
 // map and satellite views. The flags of CycleTarget pick what it may select: 1 nav points only
@@ -869,6 +873,7 @@ void TargetAtReticle(void)
 // ground (*p_distance), its full length (*p_length) and its pitch (*p_pitch).
 // MW2MATROX: floats throughout (the divisions are plain, the zero tests FIXED_IS_NONZERO).
 // FUNCTION: MW2 0x10060197
+// FUNCTION: MW2GBL 0x10071a5c
 // FUNCTION: MW2MATROX 0x10007a32
 // FUNCTION: MW23DFX 0x1001d970
 // FUNCTION: MW2ATI 0x1001dc40

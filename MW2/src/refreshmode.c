@@ -253,6 +253,7 @@ MechS32 g_refreshModeHeight;
 // is unavailable if p_allowFallback is set. The window covers the screen unless p_width x
 // p_height is smaller.
 // FUNCTION: MW2 0x10076d50
+// FUNCTION: MW2GBL 0x1002ef30
 // FUNCTION: MW2MATROX 0x1007add0
 // FUNCTION: MW23DFX 0x100025e0
 // FUNCTION: MW2ATI 0x100024f0
@@ -293,6 +294,21 @@ MechS32 InitRefreshMode(
 	g_windowedRect.top = 0;
 	g_windowedRect.right = p_width;
 	g_windowedRect.bottom = p_height;
+#ifdef MW2_WINDOWED_TEST_FIRST
+	if (p_width < screenWidth || p_height < screenHeight) {
+		g_gdiBackend.m_style = WS_CAPTION | WS_SYSMENU | WS_MINIMIZEBOX;
+		AdjustWindowRect(&g_windowedRect, g_gdiBackend.m_style, p_menu);
+		g_windowedRect.right -= g_windowedRect.left;
+		g_windowedRect.bottom -= g_windowedRect.top;
+		g_windowedRect.top = (screenHeight - g_windowedRect.bottom) / 2;
+		g_windowedRect.left = (screenWidth - g_windowedRect.right) / 2;
+		g_windowMode = backend->m_windowMode;
+	}
+	else {
+		g_gdiBackend.m_style = WS_POPUP;
+		g_windowMode = c_windowModeFullscreen;
+	}
+#else
 	if (screenWidth <= p_width && screenHeight <= p_height) {
 		g_gdiBackend.m_style = WS_POPUP;
 		g_windowMode = c_windowModeFullscreen;
@@ -306,6 +322,7 @@ MechS32 InitRefreshMode(
 		g_windowedRect.left = (screenWidth - g_windowedRect.right) / 2;
 		g_windowMode = backend->m_windowMode;
 	}
+#endif
 
 	if (backend->m_windowMode == c_windowModeFullscreen) {
 		rect.left = 0;

@@ -26,7 +26,11 @@ extern "C"
 
 	void ReleaseWeaponTriggers(struct Mech* p_mech);
 	void UpdateWeaponFireState(struct Mech* p_mech);
-	MechS32 SpawnShot(struct Player* p_player, struct WeaponSlot* p_slot);
+#ifdef MW2_WEAPON_FUNCTIONS
+	MechS32 SpawnShot(struct Player* p_player, struct WeaponDef* p_def, struct WeaponSlot* p_slot);
+#else
+MechS32 SpawnShot(struct Player* p_player, struct WeaponSlot* p_slot);
+#endif
 	void SelectNextWeaponInGroup(struct Mech* p_mech, MechS32 p_wrap);
 	void SelectNextWeapon(struct Mech* p_mech);
 	void SelectNextWeaponGroup(struct Mech* p_mech);
@@ -38,7 +42,11 @@ extern "C"
 	void SetSelectedWeaponGroup(MechS32 p_group);
 	void CycleLocalWeaponGroup(void);
 	void FireRemoteWeapons(struct Mech* p_mech);
-	void FireWeaponGroup(void);
+#ifdef MW2_WEAPON_FUNCTIONS
+	void FireWeaponGroup(struct Mech* p_mech);
+#else
+void FireWeaponGroup(void);
+#endif
 	void AddNextWeaponToGroup(struct Mech* p_mech);
 	void UpdateWeaponLock(struct Mech* p_mech);
 	struct Shape* UpdateAimDistance(struct Player* p_player);
@@ -55,6 +63,10 @@ extern "C"
 		MechScalar p_dy,
 		MechScalar p_dz,
 		MechS32 p_spread
+#ifdef MW2_WEAPON_FUNCTIONS
+		,
+		struct WeaponDef* p_def
+#endif
 	);
 
 #ifdef __cplusplus

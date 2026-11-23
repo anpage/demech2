@@ -730,7 +730,7 @@ double __cdecl fabs(double);
 /* Mechs take heat from outside (Mech::m_externalHeat, which the radius damage adds to and
    CalculateHeat adds to the frame's heat) */
 #define MW2_EXTERNAL_HEAT
-/* Mechs have a second word of flags (Mech::m_unk0x112: UpdateAllShots sets bit 0) */
+/* Mechs have a second word of flags (Mech::m_unk0x112, whose bit 0 UpdateShot sets for a NARC hit) */
 #define MW2_MECH_SECOND_FLAGS
 /* Mechs have 14 weapon slots, not 10 (WEAPON_SLOT_COUNT) */
 #define MW2_FOURTEEN_WEAPON_SLOTS
@@ -761,6 +761,28 @@ double __cdecl fabs(double);
 #define MW2_VFX3D_ALIGNED_FILL
 /* A recentering torso snaps to the legs within 1 degree, not 4 (TORSO_SNAP_RANGE) */
 #define MW2_TORSO_SNAP_ONE_DEGREE
+/* Weapons work through their definitions: each has a launch function (SpawnShot for all but the
+   AMS), a function called each frame, flags (the launch sounds, an animation) and an animation, and
+   there are 35 of them; shots and effects carry the weapon's flags and a word more, and there are 255
+   of each and 36 effect types, with four more words each (WeaponDef, Shot, Effect, EffectInfo) */
+#define MW2_WEAPON_FUNCTIONS
+/* PlayPositionalSound takes the sample's flags (PlayPositionalSoundEx; the old entry point passes
+   0x32), and plays nothing beyond a cutoff distance, g_unk0x100ba608 hundred units, when that is set */
+#define MW2_POSITIONAL_SOUND_FLAGS
+/* A game thing's destruction counts for the local team whoever's shot destroyed it, and forgets the
+   shooter (KillGameThing) */
+#define MW2_THING_KILLS_FORGET_SHOOTER
+/* Artefact: UpdateWeaponLock tests the aim with the C runtime's labs. GBL links labs and abs, the
+   same code, and calls one here and the other in targeting.c: which is which isn't known */
+#define MW2_LOCK_LABS
+/* Artefact: GetBearingAndRange (targeting.c) calls abs, which GBL's other units expand (MW2_GBL's
+   pragma above) */
+#define MW2_ABS_CALLS
+/* A shot destroys a game thing whose shape is of kind 0xb0 at once, and every destroyed thing leaves
+   effect 0x20b (DamageGameThing) */
+#define MW2_BUILDINGS_FALL_AT_ONCE
+/* Artefact: InitRefreshMode tests for a window smaller than the screen first */
+#define MW2_WINDOWED_TEST_FIRST
 #endif
 
 /* A game key action's number: with MW2_CHAT_KEY, the actions from 0x42 on are one higher. */

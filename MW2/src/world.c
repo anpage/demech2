@@ -1029,7 +1029,7 @@ MechS32 BwdExecuteStream(BwdStream* p_stream)
 
 			id = booyow->m_id;
 			shotType = booyow->m_value;
-			if (g_nextShotRecord < 0xaf && g_nextShotRecord > -1) {
+			if (g_nextShotRecord < SHOT_COUNT && g_nextShotRecord > -1) {
 				id = MapResourceId(id);
 				if (!g_shots[g_nextShotRecord].m_object) {
 					shape = FindClassById(id);
@@ -1061,8 +1061,8 @@ MechS32 BwdExecuteStream(BwdStream* p_stream)
 			id = xplode->m_id;
 			animation = xplode->m_value;
 			effectType = xplode->m_effectType;
-			if (g_nextEffectRecord >= 0 && g_nextEffectRecord < 0x100) {
-				if (effectType < 0 || effectType >= 0x20) {
+			if (g_nextEffectRecord >= 0 && g_nextEffectRecord < EFFECT_COUNT) {
+				if (effectType < 0 || effectType >= EFFECT_TYPE_COUNT) {
 					effectType = 3;
 				}
 

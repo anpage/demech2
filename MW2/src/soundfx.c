@@ -563,6 +563,51 @@ MechS32 PlaySoundRandomRate(
 	);
 }
 
+#ifdef MW2_POSITIONAL_SOUND_FLAGS
+// FUNCTION: MW2GBL 0x1003dbf5
+MechS32 PlayPositionalSound(MechScalar p_dx, MechScalar p_dy, MechScalar p_dz, MechS32 p_sound, MechS32 p_half)
+{
+	return PlayPositionalSoundEx(p_dx, p_dy, p_dz, p_sound, p_half, 0x32);
+}
+
+// Plays p_sound at the offset (p_dx, p_dy, p_dz) from the eyepoint with the sample flags p_flags,
+// delayed by its distance and fading with it; p_half halves the volume. Nothing plays beyond
+// g_unk0x100ba608 hundred units, when that is set. Returns the distance.
+// FUNCTION: MW2GBL 0x1003dc23
+MechS32 PlayPositionalSoundEx(
+	MechScalar p_dx,
+	MechScalar p_dy,
+	MechScalar p_dz,
+	MechS32 p_sound,
+	MechS32 p_half,
+	MechU16 p_flags
+)
+{
+	MechScalar horizontal;
+	MechS32 delay;
+	MechScalar pitch;
+	MechS32 volume;
+	MechScalar bearing;
+	MechScalar distance;
+	MechS32 range;
+
+	GetBearingAndRange(p_dx, p_dy, p_dz, &bearing, &distance, (BearingDistance*) &horizontal, &pitch);
+	range = distance / 100;
+	if (range < g_unk0x100ba608 || !g_unk0x100ba608) {
+		volume = GetDistanceVolume(range);
+		if (volume > 0) {
+			if (p_half) {
+				volume >>= 1;
+			}
+
+			delay = FixedMul16(distance, g_soundDelayPerUnit);
+			PlayDelayedSound(delay, bearing, p_sound, volume, -1, p_flags);
+		}
+	}
+
+	return distance;
+}
+#else
 // Plays p_sound at the offset (p_dx, p_dy, p_dz) from the eyepoint, delayed by its distance
 // and fading with it; p_half halves the volume. Returns the distance.
 // FUNCTION: MW2 0x1007ea8c
@@ -605,6 +650,7 @@ MechS32 PlayPositionalSound(MechScalar p_dx, MechScalar p_dy, MechScalar p_dz, M
 
 	return distance;
 }
+#endif
 
 // FUNCTION: MW2 0x1007eb23
 // FUNCTION: MW2GBL 0x1003dce0

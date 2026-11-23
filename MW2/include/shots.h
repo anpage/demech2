@@ -27,10 +27,14 @@ enum {
 	c_impactGround = 0x400
 };
 
-// A projectile in flight.
+// A projectile in flight. GBL's (MW2_WEAPON_FUNCTIONS) has its weapon's flags after m_type and a word
+// after m_tracked: its members from m_impact on are 4 bytes further than the comments give.
 // SIZE 0x50
 typedef struct Shot {
-	MechS32 m_type;           // 0x00 — 7 for a shot that knocks mechs down
+	MechS32 m_type; // 0x00 — 7 for a shot that knocks mechs down
+#ifdef MW2_WEAPON_FUNCTIONS
+	MechU32 m_weaponFlags; // 0x04 — its WeaponDef::m_flags
+#endif
 	MechS32 m_impact;         // 0x04 — the effect it sets off, with c_impactMech etc.
 	MechScalar m_velocity[3]; // 0x08
 	MechScalar m_steering[3]; // 0x14
@@ -46,7 +50,17 @@ typedef struct Shot {
 	MechScalar m_damage;      // 0x44
 	MechScalar m_heat;        // 0x48 — added to the heat of the mech it hits
 	MechS32 m_tracked;        // 0x4c — the tracked-shot view follows it
+#ifdef MW2_WEAPON_FUNCTIONS
+	MechS32 m_unk0x54; // 0x54 — -1 when free
+#endif
 } Shot;
+
+// The shot slots (g_shots).
+#ifdef MW2_WEAPON_FUNCTIONS
+#define SHOT_COUNT 0xff
+#else
+#define SHOT_COUNT 0xaf
+#endif
 
 struct Player;
 struct Shape;
@@ -70,8 +84,8 @@ extern "C"
 	extern MechScalar g_nukeRadius;
 	extern Vector3 g_nukePosition;
 	extern CareerRecord g_careerRecord;
-	extern Shot g_shots[0xaf];
-	extern Effect g_effects[0x100];
+	extern Shot g_shots[SHOT_COUNT];
+	extern Effect g_effects[EFFECT_COUNT];
 
 	void FirstShots(void);
 	void ResetEffectSlot(MechS32 p_index);
@@ -81,6 +95,10 @@ extern "C"
 	void SwayShot(Shot* p_shot, MechScalar* p_x, MechScalar* p_y, MechScalar* p_z);
 	void GuideMissileToTarget(Shot* p_shot, MechScalar p_x, MechScalar p_y, MechScalar p_z);
 	void DetonateShot(
+#ifdef MW2_WEAPON_FUNCTIONS
+		MechS32 p_owner,
+		struct Shape* p_shape,
+#endif
 		MechS32 p_index,
 		MechS32 p_explode,
 		MechScalar p_x,
@@ -112,6 +130,9 @@ extern "C"
 	void SpawnLaunchEffect(MechS32 p_type, struct Player* p_player);
 	void SpawnEffectEx(
 		MechS32 p_owner,
+#ifdef MW2_WEAPON_FUNCTIONS
+		struct Shape* p_shape,
+#endif
 		MechS32 p_type,
 		MechScalar p_x,
 		MechScalar p_y,
@@ -131,6 +152,10 @@ extern "C"
 		MechScalar p_z,
 		MechScalar p_radius,
 		MechScalar p_rate
+#ifdef MW2_WEAPON_FUNCTIONS
+		,
+		MechScalar p_heatRate
+#endif
 	);
 	void DamageThingsInRadius(
 		MechS32 p_owner,

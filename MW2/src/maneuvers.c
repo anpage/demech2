@@ -2092,6 +2092,7 @@ Shape* GetTargetShape(MechS16 p_target)
 // sights within 3 units and 15 degrees) sidesteps along a clear path (state 11), or else braces
 // (state 4).
 // FUNCTION: MW2 0x1001632c
+// FUNCTION: MW2GBL 0x1002c49b
 // FUNCTION: MW2MATROX 0x1001c1ca
 // FUNCTION: MW23DFX 0x10020ac0
 // FUNCTION: MW2ATI 0x10020d90
