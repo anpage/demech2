@@ -349,6 +349,7 @@ typedef union BwdTargetId {
 // points it creates are posted to the stream's event list (the mission table's, once one is
 // read). Returns whether every stream it executed loaded.
 // FUNCTION: MW2 0x1000a9f5
+// FUNCTION: MW2GBL 0x10023fc5
 // FUNCTION: MW2MATROX 0x100461f5
 // FUNCTION: MW23DFX 0x1003de10
 // FUNCTION: MW2ATI 0x1003bb70
@@ -711,10 +712,22 @@ MechS32 BwdExecuteStream(BwdStream* p_stream)
 			Shape* shape;
 			MechS32 id;
 			BwdIdRecord* scrounge = (BwdIdRecord*) node;
+#ifdef MW2_SCROUNGE_STATIC_OBJECTS
+			MechS32 index;
+#endif
 
 			id = scrounge->m_id;
 			id = MapResourceId(id);
 			shape = FindClassById(id);
+#ifdef MW2_SCROUNGE_STATIC_OBJECTS
+			if (!shape) {
+				index = FindStarIdxById(id);
+				if (index != -1 && LoadStaticObject(index, g_staticObjects[index].m_block)) {
+					shape = GetStaticObjectShape(index);
+				}
+			}
+
+#endif
 			if (shape && (obj = GetShapeObject(shape)) != NULL) {
 				SetGridObject(obj);
 			}
@@ -800,6 +813,15 @@ MechS32 BwdExecuteStream(BwdStream* p_stream)
 							player->m_drawFn = playerType->m_drawFn;
 						}
 						else {
+#ifdef MW2_REMOTE_PLAYER_AI_MODE
+							if (g_isNetworkGame) {
+								player->m_aiMode = 1;
+							}
+							else {
+								player->m_aiMode = 2;
+							}
+
+#endif
 							player->m_localUpdateFn = NULL;
 							player->m_drawFn = NULL;
 						}

@@ -178,6 +178,7 @@ char* g_resTagVer = "VER";
 char* g_resTagAit = "AIT";
 
 // GLOBAL: MW2 0x100a86c8
+// GLOBAL: MW2GBL 0x1009bb48
 // GLOBAL: MW2MATROX 0x100a5a98
 // GLOBAL: MW23DFX 0x1025977c
 // GLOBAL: MW2ATI 0x1018da7c
@@ -327,6 +328,7 @@ char* g_resExtBwd = ".bwd";
 char* g_resExtAit = ".ait";
 
 // GLOBAL: MW2 0x100a872c
+// GLOBAL: MW2GBL 0x1009bbac
 // GLOBAL: MW2MATROX 0x100a5afc
 // GLOBAL: MW23DFX 0x102598a0
 // GLOBAL: MW2ATI 0x1018dba0

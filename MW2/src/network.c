@@ -1389,6 +1389,7 @@ BOOL PASCAL CountPlayersCallback(DPID p_id, LPSTR p_friendlyName, LPSTR p_formal
 
 // Copies the session named g_sessionName into p_context.
 // FUNCTION: MW2 0x1001001a
+// FUNCTION: MW2GBL 0x10051dbf
 // FUNCTION: MW2MATROX 0x10005dda
 // FUNCTION: MW23DFX 0x100358b0
 // FUNCTION: MW2ATI 0x100344b0
@@ -1401,7 +1402,11 @@ BOOL PASCAL FindSessionCallback(LPDPSESSIONDESC p_desc, LPVOID p_context, LPDWOR
 	}
 
 	if (strcmp(p_desc->szSessionName, g_sessionName) == 0) {
+#ifdef MW2_STRUCT_COPY_MEMCPY
+		memcpy(p_context, p_desc, sizeof(DPSESSIONDESC));
+#else
 		*(DPSESSIONDESC*) p_context = *p_desc;
+#endif
 	}
 
 	return FALSE;
@@ -1409,6 +1414,7 @@ BOOL PASCAL FindSessionCallback(LPDPSESSIONDESC p_desc, LPVOID p_context, LPDWOR
 
 // Picks the IPX service provider.
 // FUNCTION: MW2 0x10010098
+// FUNCTION: MW2GBL 0x10051e13
 // FUNCTION: MW2MATROX 0x10005e58
 // FUNCTION: MW23DFX 0x10035930
 // FUNCTION: MW2ATI 0x10034530
@@ -1416,7 +1422,11 @@ BOOL PASCAL FindSessionCallback(LPDPSESSIONDESC p_desc, LPVOID p_context, LPDWOR
 // FUNCTION: MW2POWERVR 0x1002efb0
 BOOL PASCAL FindIpxProviderCallback(LPGUID p_guid, LPSTR p_name, DWORD p_major, DWORD p_minor, LPVOID p_context)
 {
+#ifdef MW2_IPX_NAME_STRCMP
+	if (strcmp(p_name, "WinSock IPX Connection For DirectPlay") == 0) {
+#else
 	if (memcmp(p_name, "WinSock IPX Connection For DirectPlay", 38) == 0) {
+#endif
 		g_serviceProvider = p_guid;
 	}
 
@@ -1425,6 +1435,7 @@ BOOL PASCAL FindIpxProviderCallback(LPGUID p_guid, LPSTR p_name, DWORD p_major, 
 
 // Looks for the session named g_sessionName, into p_desc.
 // FUNCTION: MW2 0x100100cc
+// FUNCTION: MW2GBL 0x10051e4b
 // FUNCTION: MW2MATROX 0x10005e8c
 // FUNCTION: MW23DFX 0x10035970
 // FUNCTION: MW2ATI 0x10034570
@@ -1435,7 +1446,11 @@ MechS32 FindSession(LPDPSESSIONDESC p_desc)
 	HRESULT result;
 	DPSESSIONDESC desc;
 
+#ifdef MW2_STRUCT_COPY_MEMCPY
+	memcpy(&desc, p_desc, sizeof(DPSESSIONDESC));
+#else
 	desc = *p_desc;
+#endif
 	result = g_directPlay->lpVtbl
 				 ->EnumSessions(g_directPlay, &desc, 500, FindSessionCallback, p_desc, DPENUMSESSIONS_AVAILABLE);
 	if (result) {

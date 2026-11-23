@@ -352,6 +352,7 @@ MechS32 LoadMissionTable(MissionTable* p_table)
 
 // Adds a path to g_paths, or returns FALSE if the table or the path is full.
 // FUNCTION: MW2 0x1004f64a
+// FUNCTION: MW2GBL 0x100526e3
 // FUNCTION: MW2MATROX 0x1004920a
 // FUNCTION: MW23DFX 0x10042b00
 // FUNCTION: MW2ATI 0x100406a0

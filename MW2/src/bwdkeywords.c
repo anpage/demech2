@@ -67,6 +67,7 @@ MechChar* g_bwdKeywordNames[0x48] = {
 
 // The extension OpenBwdStream gives a file name without one.
 // GLOBAL: MW2 0x100a67e0
+// GLOBAL: MW2GBL 0x100afc68
 // GLOBAL: MW2MATROX 0x100a5dc8
 // GLOBAL: MW23DFX 0x1025a4a0
 // GLOBAL: MW2ATI 0x1018e798

@@ -25,6 +25,9 @@
 #include "targeting.h"
 #include "team.h"
 #include "types.h"
+#ifdef MW2_LOST_MECH_FAILS_STAR
+#include "mechclass.h"
+#endif
 
 #include <ctype.h>
 #include <stdio.h>
@@ -262,6 +265,7 @@ MechS32 HasTeamReachedTarget(MechU8* p_target, MechS32 p_team)
 // Returns whether a live member of team p_team is near an objective target (within 20000, or a
 // nav's radius). The local player reaching a nav marks it reached and plays sound 0xe7.
 // FUNCTION: MW2 0x1001ad5b
+// FUNCTION: MW2GBL 0x1003426b
 // FUNCTION: MW2MATROX 0x1001f0f8
 // FUNCTION: MW23DFX 0x10009b80
 // FUNCTION: MW2ATI 0x1000a3b0
@@ -288,7 +292,7 @@ MechS32 IsTeamNearTarget(MechU8* p_target, MechS32 p_team)
 	index = p_target[0];
 	kind = p_target[1] << 8;
 #ifdef MW2_LEADER_NEAR_TARGET
-	// The Matrox edition only tests the team's leader.
+	// The Matrox edition and GBL only test the team's leader.
 	leader = g_players[g_teams[p_team].m_leader];
 	if (g_teams[p_team].m_leader < 0) {
 		return FALSE;
@@ -651,6 +655,7 @@ MechS32 ObjectiveConditionsHold(MechS32 p_star, MechS32 p_objective)
 // (types 0x10000 and up end or reset other objectives and missions). Sets its state: 5 successful,
 // 6 failed, 8 failed for another star, 3 still going.
 // FUNCTION: MW2 0x1001b79a
+// FUNCTION: MW2GBL 0x10034ba2
 // FUNCTION: MW2MATROX 0x1001faf7
 // FUNCTION: MW23DFX 0x1000a1d0
 // FUNCTION: MW2ATI 0x1000aa00
@@ -1014,6 +1019,7 @@ void UpdateObjective(MechS32 p_star, MechS32 p_objective)
 // progress, whether it succeeded (every listed objective done), failed or ran out of time; and
 // its current objective, the first whose conditions hold (ResetStarOrders hears of changes).
 // FUNCTION: MW2 0x1001c69e
+// FUNCTION: MW2GBL 0x10035aad
 // FUNCTION: MW2MATROX 0x10020a02
 // FUNCTION: MW23DFX 0x1000a9b0
 // FUNCTION: MW2ATI 0x1000b1e0
@@ -1076,6 +1082,13 @@ void UpdateObjectives(void)
 				AnnounceMissionResult(star, mission->m_status);
 				mission->m_endTime = g_missionTime;
 			}
+#ifdef MW2_LOST_MECH_FAILS_STAR
+			else if (g_localMechLost && star == g_localStar) {
+				mission->m_status = 3;
+				AnnounceMissionResult(star, mission->m_status);
+				mission->m_endTime = g_missionTime;
+			}
+#endif
 		}
 		else if (star == g_localStar && !g_missionTimerStopped && !g_speechQueue && !g_missionResolved) {
 			g_missionResolved = 1;
@@ -1115,6 +1128,7 @@ void EndTheMission1(void)
 // Writes the local team's mission result to mw2msn.cfg for the shell: the mission's times and
 // status and the objectives listed on the objectives panel. Returns whether it could.
 // FUNCTION: MW2 0x1001c9f7
+// FUNCTION: MW2GBL 0x10035e50
 // FUNCTION: MW2MATROX 0x10020d5b
 // FUNCTION: MW23DFX 0x1000aba0
 // FUNCTION: MW2ATI 0x1000b3d0
@@ -1131,7 +1145,11 @@ MechS32 EndTheMission2(void)
 	count = 0;
 	mission = &g_objectiveTable[g_localStar];
 	memset(&result, 0, sizeof(result));
+#ifdef MW2_STRUCT_COPY_MEMCPY
+	memcpy(&result.m_tag, &g_missionResultTag, sizeof(result.m_tag));
+#else
 	result.m_tag = g_missionResultTag;
+#endif
 	result.m_startTime = mission->m_startTime;
 	result.m_endTime = mission->m_endTime;
 	result.m_status = mission->m_status;
@@ -1165,6 +1183,7 @@ MechS32 EndTheMission2(void)
 // to state 3 with no times. A completed objective of type 0x40000 toggles whether the objective
 // it names is listed on the objectives panel (not in the Matrox edition).
 // FUNCTION: MW2 0x1001cc5c
+// FUNCTION: MW2GBL 0x100360b3
 // FUNCTION: MW2MATROX 0x10020fde
 // FUNCTION: MW23DFX 0x1000acd0
 // FUNCTION: MW2ATI 0x1000b500

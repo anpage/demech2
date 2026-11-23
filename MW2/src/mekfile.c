@@ -67,6 +67,7 @@ MechU16 g_weaponValues[30] = {183, 137, 91,  46,  51,  34, 17,  74,  49, 25, 2, 
 // and the temperature, g_temperature) and the jump jets. Returns TRUE.
 // Matches but for the registers, which VC++ 2.2 allocates differently.
 // FUNCTION: MW2 0x1005d6d0
+// FUNCTION: MW2GBL 0x10045e90
 // FUNCTION: MW2MATROX 0x1008c850
 // FUNCTION: MW23DFX 0x10041410
 // FUNCTION: MW2ATI 0x1003efc0
@@ -335,6 +336,63 @@ MechS32 LoadMechConfig(Mech* p_mech, MechChar* p_name, MechS32 p_id, MechChar* p
 	p_mech->m_tons = header->m_tons;
 	p_mech->m_weaponCount = header->m_weaponCount;
 	p_mech->m_ammoBinCount = header->m_ammoCount;
+#ifdef MW2_DEEP_COLD_COOLING
+	heat = FIXED_RAW(50);
+	if (p_mech->m_player->m_index == g_localPlayerId) {
+		switch (g_difficulty->m_enemySkill) {
+		case 0:
+			heat *= FIXED_LITERAL(1.4, 1.4f);
+			if (g_temperature <= -100) {
+				heat *= 5;
+			}
+
+			if (g_temperature < -30) {
+				heat *= 2;
+			}
+			else if (g_temperature > 50) {
+			}
+			break;
+		case 1:
+			if (g_temperature <= -100) {
+				heat *= 5;
+			}
+
+			if (g_temperature < -30) {
+				heat *= 2;
+			}
+			else if (g_temperature > 50) {
+				heat *= FIXED_LITERAL(0.9, 0.9f);
+			}
+			break;
+		case 2:
+			heat *= FIXED_LITERAL(0.9, 0.9f);
+			if (g_temperature <= -100) {
+				heat *= 5;
+			}
+
+			if (g_temperature < -30) {
+				heat *= FIXED_LITERAL(1.5, 1.5f);
+			}
+			else if (g_temperature > 50) {
+				heat *= FIXED_LITERAL(0.8, 0.8f);
+			}
+			break;
+		}
+	}
+	else {
+		if (g_temperature <= -100) {
+			heat *= 5;
+		}
+
+		if (g_temperature < -30) {
+			heat *= 2;
+		}
+		else if (g_temperature > 50) {
+			heat *= FIXED_LITERAL(0.9, 0.9f);
+		}
+	}
+
+#else
 	heat = FIXED_RAW(50);
 	if (p_mech->m_player->m_index == g_localPlayerId) {
 		switch (g_difficulty->m_enemySkill) {
@@ -374,6 +432,7 @@ MechS32 LoadMechConfig(Mech* p_mech, MechChar* p_name, MechS32 p_id, MechChar* p
 		heat *= FIXED_LITERAL(0.9, 0.9f);
 	}
 
+#endif
 	p_mech->m_cooling = header->m_heatSinks * heat;
 	if (header->m_jump == 0) {
 		p_mech->m_jumpFuel = -2;
@@ -417,6 +476,7 @@ MechS32 LoadMechConfig(Mech* p_mech, MechChar* p_name, MechS32 p_id, MechChar* p
 // Returns a mech's value: its tonnage, scaled by the critical slots it fills (by kind), plus its
 // armor and the value of each of its weapons (up to ten).
 // FUNCTION: MW2 0x1005e534
+// FUNCTION: MW2GBL 0x10046d28
 // FUNCTION: MW2MATROX 0x1008d62b
 // FUNCTION: MW23DFX 0x10041c80
 // FUNCTION: MW2ATI 0x1003f830

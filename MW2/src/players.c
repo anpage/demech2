@@ -21,6 +21,7 @@ DECOMP_SIZE_ASSERT(PlayerSteering, 0x48)
 // The kinds of player a gamepiece record can create, by Player::m_type: 3 has its own
 // callbacks (artillery.c), 7 another (door.c); the others are mechs.
 // GLOBAL: MW2 0x100ad4a0
+// GLOBAL: MW2GBL 0x1009f170
 // GLOBAL: MW2MATROX 0x100aa738
 // GLOBAL: MW23DFX 0x1024c330
 PlayerType g_playerTypes[9] = {

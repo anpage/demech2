@@ -566,6 +566,7 @@ void* MemAlloc(MechU32 p_size)
 }
 
 // FUNCTION: MW2 0x1001a5bc
+// FUNCTION: MW2GBL 0x1003edc9
 // FUNCTION: MW2MATROX 0x1005635b
 // FUNCTION: MW23DFX 0x10024700
 // FUNCTION: MW2ATI 0x10024930
@@ -573,7 +574,9 @@ void* MemAlloc(MechU32 p_size)
 // FUNCTION: MW2POWERVR 0x10023bb0
 void* MemCopy(void* p_dst, const void* p_src, MechU32 p_size)
 {
-#if defined(MW2_INLINE_HELPERS)
+#if defined(MW2_MEM_HELPERS_CALL_CRT)
+	return memcpy(p_dst, p_src, p_size);
+#elif defined(MW2_INLINE_HELPERS)
 	// The 3Dfx edition's is C: the library's memcpy, which /Ox expands inline.
 	memcpy(p_dst, p_src, p_size);
 #elif defined(PORTABLE_C)
@@ -608,10 +611,13 @@ void* MemCopy(void* p_dst, const void* p_src, MechU32 p_size)
 	}
 #endif
 
+#ifndef MW2_MEM_HELPERS_CALL_CRT
 	return p_dst;
+#endif
 }
 
 // FUNCTION: MW2 0x1001a5e6
+// FUNCTION: MW2GBL 0x1003eded
 // FUNCTION: MW2MATROX 0x10056385
 // FUNCTION: MW23DFX 0x10024730
 // FUNCTION: MW2ATI 0x10024960
@@ -619,7 +625,9 @@ void* MemCopy(void* p_dst, const void* p_src, MechU32 p_size)
 // FUNCTION: MW2POWERVR 0x10023be0
 void* MemSet(void* p_dst, MechS32 p_value, MechU32 p_size)
 {
-#if defined(MW2_INLINE_HELPERS)
+#if defined(MW2_MEM_HELPERS_CALL_CRT)
+	return memset(p_dst, p_value, p_size);
+#elif defined(MW2_INLINE_HELPERS)
 	// The 3Dfx edition's is C: the library's memset, which /Ox expands inline.
 	memset(p_dst, p_value, p_size);
 #elif defined(PORTABLE_C)
@@ -644,7 +652,9 @@ void* MemSet(void* p_dst, MechS32 p_value, MechU32 p_size)
 	}
 #endif
 
+#ifndef MW2_MEM_HELPERS_CALL_CRT
 	return p_dst;
+#endif
 }
 
 // FUNCTION: MW2 0x1001a61e

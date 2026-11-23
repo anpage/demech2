@@ -281,7 +281,7 @@ tests an `MW2_` macro the table doesn't define, and when no target compiles a br
 
 ## Features
 
-From the table in `util/types.h` (198 features) and the 1358 conditional sites of the simulators' sources (`MW2/`, `common/`, `3rdparty/vfx`). A feature's cell is its value where it has one.
+From the table in `util/types.h` (204 features) and the 1389 conditional sites of the simulators' sources (`MW2/`, `common/`, `3rdparty/vfx`). A feature's cell is its value where it has one.
 
 ### The ATI, S3, Matrox, PowerVR and 3Dfx editions (`MW2_ACCEL`)
 
@@ -327,9 +327,6 @@ Every edition that has one of these has them all, so no binary separates one fro
 | `MW2_COLLISION_DAMAGE_X2` |  | yes | yes | yes | yes |  | yes | 1 | Damage from below scales by twice the mass ratio, not four times |
 | `MW2_RADIUS_HEAD_DAMAGE_HALF` |  | yes | yes | yes | yes |  | yes | 1 | Radius (fire) damage to the head is half, not a quarter |
 | `MW2_NO_ENGINE_NOTE` |  | yes | yes | yes | yes |  | yes | 1 | StartEngineNote returns at once |
-| `MW2_LEADER_NEAR_TARGET` |  | yes | yes | yes | yes |  | yes | 3 | IsTeamNearTarget tests only the team's leader |
-| `MW2_NETWORK_STAR_PLAYERS` |  | yes | yes | yes | yes |  | yes | 2 | UpdateObjective takes star N as player N in network games |
-| `MW2_RESTART_KEEPS_LISTED` |  | yes | yes | yes | yes |  | yes | 1 | Restarting a star mission keeps its objectives' targets' listed flags |
 | `MW2_JOYINFOEX_UNCLEARED` |  | yes | yes | yes | yes |  | yes | 1 | JoystickPoll neither clears its JOYINFOEX nor sets its size |
 | `MW2_NO_FULLSCREEN_KEY` |  | yes | yes | yes | yes |  | yes | 1 | Key code 0x40d no longer toggles full screen |
 | `MW2_LEMMY_CHEAT` |  | yes | yes | yes | yes |  | yes | 1 | The "lemmy" cheat |
@@ -342,7 +339,10 @@ Every edition that has one of these has them all, so no binary separates one fro
 |---|:-:|:-:|:-:|:-:|:-:|:-:|:-:|--:|---|
 | `MW2_VFX_STOCK` |  | yes | yes | yes | yes | yes | yes | 7 | VFX as released (unaligned fills and runs, word-wise character copies), where 1.1 modified it; the assembly gets it from cmake/editions.cmake |
 | `MW2_VFX_LOOKASIDE_WRITE` |  | yes | yes | yes | yes | yes | yes | 2 | VFXA's VFX_lookaside_write, which sets one lookaside entry (cmake/editions.cmake) |
+| `MW2_LEADER_NEAR_TARGET` |  | yes | yes | yes | yes | yes | yes | 3 | IsTeamNearTarget tests only the team's leader |
 | `MW2_LOCAL_STAR_FROM_ZERO` |  | yes | yes | yes | yes | yes | yes | 2 | The local star starts at 0, and the player's formation goes to it |
+| `MW2_NETWORK_STAR_PLAYERS` |  | yes | yes | yes | yes | yes | yes | 2 | UpdateObjective takes star N as player N in network games |
+| `MW2_RESTART_KEEPS_LISTED` |  | yes | yes | yes | yes | yes | yes | 1 | Restarting a star mission keeps its objectives' targets' listed flags |
 | `MW2_AXIS_RATE_POINTER_TEST` |  | yes | yes | yes | yes | yes | yes | 1 | UpdateInputs compares an axis' rate pointer with its position's address |
 
 ### The ATI, Matrox and 3Dfx editions (`MW2_MATROX`, `MW2_3DFX`, `MW2_ATI`)
@@ -587,7 +587,7 @@ Every edition that has one of these has them all, so no binary separates one fro
 | `MW2_KILLS_BY_LAST_SHOOTER` |  |  |  |  |  | yes |  | 5 | A mech's kill counts for the player whose shot hit it last, the local player's outcome is 4 unless they ejected, and in a network game only the local mech's death is played out (KillMech, which DestroySection and DestroyCriticalSlot call whatever the game) |
 | `MW2_MORE_CRITICAL_HITS` |  |  |  |  |  | yes |  | 2 | A critical hit on a flamer and on the AMS has a message of its own (DestroyCriticalSlot) |
 | `MW2_AI_STOPS_GROUP_FIRE` |  |  |  |  |  | yes |  | 2 | The AI's attack and target states stop the group fire as well as the fire (AiStateAttack, AiStateMove) |
-| `MW2_STRUCT_COPY_MEMCPY` |  |  |  |  |  | yes |  | 21 | *Artefact.* GBL's source copies some structures with memcpy, which its build calls, where the optimized editions show a structure assignment: nav points, rays, players, matrices, weapon slots, render settings and sample headers (RemoveNavPoint, CopyRay, LogPlayerStatusLines, the object matrices, LayoutWeaponPanels, the mech view panel, StartSample) |
+| `MW2_STRUCT_COPY_MEMCPY` |  |  |  |  |  | yes |  | 41 | *Artefact.* GBL's source copies some structures with memcpy, which its build calls, where the optimized editions show a structure assignment: nav points, rays, players, matrices, weapon slots, render settings, sample headers and session descriptions (RemoveNavPoint, CopyRay, LogPlayerStatusLines, the object matrices, LayoutWeaponPanels, the mech view panel, StartSample, FindSession) |
 | `MW2_LOCAL_INSPECTION` |  |  |  |  |  | yes |  | 1 | Only the local player inspects its target, which counts as inspected once anyone has, and the inspect request stays set (UpdateTarget) |
 | `MW2_CHEAT_TABLE` |  |  |  |  |  | yes |  | 4 | The cheat codes are a table with the messages each shows, all stored XORed with 0xa, the messages decoded at the first key typed; GBL has codes of its own, and six of them do nothing (g_cheatCodes, HandleCheatInput) |
 | `MW2_INI_COMMENTS` |  |  |  |  |  | yes |  | 4 | GetIniValue cuts a value at a ';' and trims it, unless its second argument asks for the raw value (which error.c's call doesn't pass) |
@@ -597,6 +597,12 @@ Every edition that has one of these has them all, so no binary separates one fro
 | `MW2_SKIP_SHAPE_TYPE_20` |  |  |  |  |  | yes |  | 1 | QueueObjTree draws no shape of type 0x20 |
 | `MW2_PT_MENU_KEYS` |  |  |  |  |  | yes |  | 3 | The ALL_PT_MENU, PT_2_MENU and PT_3_MENU game keys (actions 53 to 55) do what the first three starmate menu keys do (RunGameKey) |
 | `MW2_SCREENSHOT_ACQUIRE_IF` |  |  |  |  |  | yes |  | 1 | *Artefact.* RunGameKey's screenshot acquires the frame buffer in an if with an empty else, where 1.1 has a conditional expression |
+| `MW2_LOST_MECH_FAILS_STAR` |  |  |  |  |  | yes |  | 2 | The local star's mission fails once the local mech is lost (UpdateObjectives, g_localMechLost) |
+| `MW2_IPX_NAME_STRCMP` |  |  |  |  |  | yes |  | 1 | *Artefact.* FindIpxProviderCallback compares the provider's name with strcmp, not memcmp |
+| `MW2_MEM_HELPERS_CALL_CRT` |  |  |  |  |  | yes |  | 4 | MemCopy and MemSet return the C runtime's memcpy and memset, where 1.1's are assembly |
+| `MW2_SCROUNGE_STATIC_OBJECTS` |  |  |  |  |  | yes |  | 4 | A scrounge record whose id names no class takes a static object's shape, loading the object (BwdExecuteStream) |
+| `MW2_REMOTE_PLAYER_AI_MODE` |  |  |  |  |  | yes |  | 1 | A player the stream creates for another machine or the AI gets AI mode 1 in a network game and 2 otherwise (BwdExecuteStream) |
+| `MW2_DEEP_COLD_COOLING` |  |  |  |  |  | yes |  | 1 | A mech's heat sinks cool five times as well at -100 degrees or colder, on top of the cold bonus (LoadMechConfig) |
 
 ## Where each feature is tested
 
@@ -788,7 +794,7 @@ Every edition that has one of these has them all, so no binary separates one fro
 - `MW2_KILLS_BY_LAST_SHOOTER`: `MW2/src/mechdamage.c`: `DestroyCriticalSlot` (2), `DestroySection`, the definition of `ApplyDamageToMech`, the definition of `KillMech`
 - `MW2_MORE_CRITICAL_HITS`: `MW2/src/mechdamage.c`: `DestroyCriticalSlot` (2)
 - `MW2_AI_STOPS_GROUP_FIRE`: `MW2/src/ai.c`: `AiStateAttack`, `AiStateMove`
-- `MW2_STRUCT_COPY_MEMCPY`: `MW2/src/ai.c`: `LogPlayerStatusLines`, file scope; `MW2/src/cockpitpanels.c`: `LayoutWeaponPanels` (2); `MW2/src/geocache.c`: `DestroyStaticObject`; `MW2/src/mechviewpanel.c`: `DrawMechViewPanel` (3), `SetMechViewRenderSettings`, file scope; `MW2/src/object.c`: `CreateObj`, `InitObj`, `SetObjLocalMatrix`, `SetObjTransform`, `SetObjWorldMatrix`, `UpdateObjWorld`; `MW2/src/ray.c`: `CopyRay`, file scope; `MW2/src/soundfx.c`: `StartSample`; `MW2/src/targeting.c`: `RemoveNavPoint`, file scope
+- `MW2_STRUCT_COPY_MEMCPY`: `MW2/src/ai.c`: `LogPlayerStatusLines`, file scope; `MW2/src/cockpitpanels.c`: `LayoutWeaponPanels` (2); `MW2/src/depthsort.c`: `ClipPolygonToScreen` (17); `MW2/src/geocache.c`: `DestroyStaticObject`; `MW2/src/mechviewpanel.c`: `DrawMechViewPanel` (3), `SetMechViewRenderSettings`, file scope; `MW2/src/network.c`: `FindSession`, `FindSessionCallback`; `MW2/src/object.c`: `CreateObj`, `InitObj`, `SetObjLocalMatrix`, `SetObjTransform`, `SetObjWorldMatrix`, `UpdateObjWorld`; `MW2/src/objective.c`: `EndTheMission2`; `MW2/src/ray.c`: `CopyRay`, file scope; `MW2/src/soundfx.c`: `StartSample`; `MW2/src/targeting.c`: `RemoveNavPoint`, file scope
 - `MW2_LOCAL_INSPECTION`: `MW2/src/targeting.c`: the definition of `UpdateTarget`
 - `MW2_CHEAT_TABLE`: `MW2/src/gamekeys.c`: `TypedCodeMatches`, file scope (2), the definitions of `DecodeCheatMessages`, `HandleCheatInput`
 - `MW2_INI_COMMENTS`: `MW2/include/inifile.h`: file scope; `MW2/src/inifile.c`: `GetIniValue` (3)
@@ -798,6 +804,12 @@ Every edition that has one of these has them all, so no binary separates one fro
 - `MW2_SKIP_SHAPE_TYPE_20`: `MW2/src/depthsort.c`: `QueueObjTree`
 - `MW2_PT_MENU_KEYS`: `MW2/src/gamekeys.c`: `RunGameKey` (3)
 - `MW2_SCREENSHOT_ACQUIRE_IF`: `MW2/src/gamekeys.c`: `RunGameKey`
+- `MW2_LOST_MECH_FAILS_STAR`: `MW2/src/objective.c`: `UpdateObjectives`, file scope
+- `MW2_IPX_NAME_STRCMP`: `MW2/src/network.c`: `FindIpxProviderCallback`
+- `MW2_MEM_HELPERS_CALL_CRT`: `MW2/src/loadres.c`: `MemCopy` (2), `MemSet` (2)
+- `MW2_SCROUNGE_STATIC_OBJECTS`: `MW2/include/geocache.h`: file scope (2); `MW2/src/world.c`: `BwdExecuteStream` (2)
+- `MW2_REMOTE_PLAYER_AI_MODE`: `MW2/src/world.c`: `BwdExecuteStream`
+- `MW2_DEEP_COLD_COOLING`: `MW2/src/mekfile.c`: `LoadMechConfig`
 
 ## Functions with a definition per edition
 

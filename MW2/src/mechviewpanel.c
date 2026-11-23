@@ -365,6 +365,7 @@ void DrawMechViewPanel(CockpitPanel* p_panel)
 // g_renderSettings holds 1, 1, 0xe0, 0xef from 0x28, and RenderViewToPane saves and clears
 // 0x28 and 0x2c), not at the end.
 // FUNCTION: MW2 0x10050dc3
+// FUNCTION: MW2GBL 0x100125bf
 // FUNCTION: MW2MATROX 0x1008b1da
 // FUNCTION: MW23DFX 0x100119f0
 // FUNCTION: MW2ATI 0x10011f50
