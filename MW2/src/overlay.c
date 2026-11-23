@@ -60,6 +60,7 @@ MechChar g_blankText[] = "                                 ";
 MechS32 g_showPalette = 0;
 
 // GLOBAL: MW2 0x100a94a0
+// GLOBAL: MW2GBL 0x100b5ab8
 MechS32 g_unk0x100a94a0 = 0;
 
 // The row MonoPrint last wrote to; MonoClear resets it and its neighbours to the top row.
@@ -118,6 +119,7 @@ MechS32 g_showFrameRate = 0;
 MechS32 g_showFrameRateMain = 0;
 
 // GLOBAL: MW2 0x100a94bc
+// GLOBAL: MW2GBL 0x100b5ad4
 MechS32 g_unk0x100a94bc = 0;
 
 // Where the _MAIN readouts are drawn, in 16.16 fractions of the screen until

@@ -229,7 +229,6 @@ MechS32 g_maneuverTablesReady = 0;
 // first. GBL's are data, with the pilot table's in entries 9 to 12 and the stupid maneuver for every
 // type but the mech.
 #ifdef MW2_STATIC_MANEUVER_TABLES
-// GLOBAL: MW2GBL 0x100a4170
 ManeuverTable g_maneuverTables[13] = {
 	{13, 7, g_mechManeuvers},
 	{1, 0, &g_stupidManeuvers},
@@ -247,6 +246,7 @@ ManeuverTable g_maneuverTables[13] = {
 };
 #else
 // GLOBAL: MW2 0x101748e0
+// GLOBAL: MW2GBL 0x100a4170
 // GLOBAL: MW2MATROX 0x10212cf0
 // GLOBAL: MW23DFX 0x101de7b0
 // GLOBAL: MW2ATI 0x10112470

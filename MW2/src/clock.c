@@ -114,6 +114,7 @@ MechS32 g_clockHandle = -1;
 MechS32 g_syncTicksHandle = -1;
 
 // GLOBAL: MW2 0x100ba574
+// GLOBAL: MW2GBL 0x100a0400
 MechS32 g_unk0x100ba574 = -1;
 
 // GLOBAL: MW2 0x100ba578

@@ -108,6 +108,7 @@ undefined* g_dispDibStretchBits = NULL;
 MechS32 g_dispDibInitialized = FALSE;
 
 // GLOBAL: MW2 0x100a83a0
+// GLOBAL: MW2GBL 0x1009e100
 // GLOBAL: MW2MATROX 0x100be258
 // GLOBAL: MW23DFX 0x10249028
 // GLOBAL: MW2ATI 0x1017d028

@@ -31,6 +31,7 @@
 // bouncing its velocity off the surface. Returns the number of ticks it has been colliding (0:
 // free); *p_hit is the shape it hit and *p_player the mech's player.
 // FUNCTION: MW2 0x100758a0
+// FUNCTION: MW2GBL 0x10027a80
 // FUNCTION: MW2MATROX 0x10075a80
 // FUNCTION: MW23DFX 0x1000b5e0
 // FUNCTION: MW2ATI 0x1000bd50
@@ -216,6 +217,7 @@ MechS32 MoveMechWithCollisions(
 // m_collidedWith is p_mech's player) always collides. A mech in state 4 is knocked down
 // (KnockMechOver) instead. Returns 1 on a collision, with *p_hit the other mech's player.
 // FUNCTION: MW2 0x10075d7b
+// FUNCTION: MW2GBL 0x10027f5b
 // FUNCTION: MW2MATROX 0x10075f6c
 // FUNCTION: MW23DFX 0x1000ba20
 // FUNCTION: MW2ATI 0x1000c190

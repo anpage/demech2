@@ -502,6 +502,7 @@ void FUN_100206e0(CockpitPanel* p_panel)
 // Draws the target panel: the locked target through a camera behind it, a nav point's icon, or
 // static while the panel is damaged (m_damage).
 // FUNCTION: MW2 0x1007c126
+// FUNCTION: MW2GBL 0x1001c609
 // FUNCTION: MW2MATROX 0x10018683
 // FUNCTION: MW23DFX 0x10021300
 // FUNCTION: MW2ATI 0x100215d0
@@ -852,7 +853,11 @@ void DrawTargetPanel(CockpitPanel* p_panel)
 	}
 
 	OutlinePane(p_panel->m_target, 8);
+#ifdef MW2_STRUCT_COPY_MEMCPY
+	memcpy(&g_renderSettings, &saved, sizeof(RenderSettings));
+#else
 	g_renderSettings = saved;
+#endif
 #endif
 }
 

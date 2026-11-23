@@ -17,6 +17,7 @@
 #include "types.h"
 
 // GLOBAL: MW2 0x100aa870
+// GLOBAL: MW2GBL 0x1009e368
 // GLOBAL: MW2MATROX 0x100a8168
 MechChar g_gameCtrlItem[] = "Game Ctrl";
 
@@ -57,6 +58,7 @@ MechChar g_imageEnhancementItem[] = "Image Emhancement";
 MechChar g_hudItem[] = "HUD";
 
 // GLOBAL: MW2 0x100aa8c0
+// GLOBAL: MW2GBL 0x1009e3b8
 // GLOBAL: MW2MATROX 0x100a81b8
 // GLOBAL: MW2POWERVR 0x101c4238
 MechChar g_autoThermOverrideItem[] = "Auto Therm Override";
@@ -71,6 +73,7 @@ MechChar g_autoThermOverrideItem[] = "Auto Therm Override";
 MechChar g_autoEjectItem[] = "Auto Eject";
 
 // GLOBAL: MW2 0x100aa8e8
+// GLOBAL: MW2GBL 0x1009e3e0
 // GLOBAL: MW2MATROX 0x100a81e0
 // GLOBAL: MW23DFX 0x10264bf0
 // GLOBAL: MW2ATI 0x10198ee8
@@ -80,6 +83,7 @@ MenuControl g_infraredControl =
 	{3, 0, &g_offOnChoices, GAME_KEY_ACTION(166), NULL, GetSystemSetting, NULL, SetSystemSetting, NULL};
 
 // GLOBAL: MW2 0x100aa910
+// GLOBAL: MW2GBL 0x1009e408
 // GLOBAL: MW2MATROX 0x100a8208
 // GLOBAL: MW23DFX 0x10264c18
 // GLOBAL: MW2ATI 0x10198f10
@@ -89,6 +93,7 @@ MenuControl g_enhancedVisionControl =
 	{3, 0, &g_offOnChoices, GAME_KEY_ACTION(167), NULL, GetSystemSetting, NULL, SetSystemSetting, NULL};
 
 // GLOBAL: MW2 0x100aa938
+// GLOBAL: MW2GBL 0x1009e430
 // GLOBAL: MW2MATROX 0x100a8230
 // GLOBAL: MW23DFX 0x10264c40
 // GLOBAL: MW2ATI 0x10198f38
@@ -97,12 +102,14 @@ MenuControl g_enhancedVisionControl =
 MenuControl g_hudControl = {3, 0, &g_offOnChoices, 19, NULL, GetSystemSetting, NULL, SetSystemSetting, NULL};
 
 // GLOBAL: MW2 0x100aa960
+// GLOBAL: MW2GBL 0x1009e458
 // GLOBAL: MW2MATROX 0x100a8258
 // GLOBAL: MW2POWERVR 0x101c42d8
 MenuControl g_overrideShutdownControl =
 	{3, 0, &g_offOnChoices, 64, NULL, GetSystemSetting, NULL, SetSystemSetting, NULL};
 
 // GLOBAL: MW2 0x100aa988
+// GLOBAL: MW2GBL 0x1009e480
 // GLOBAL: MW2MATROX 0x100a8280
 // GLOBAL: MW23DFX 0x10264c90
 // GLOBAL: MW2ATI 0x10198f88
@@ -127,6 +134,7 @@ MenuPage g_systemsStatusPage = {
 };
 #else
 // GLOBAL: MW2 0x100aa9b0
+// GLOBAL: MW2GBL 0x1009e4a8
 // GLOBAL: MW2MATROX 0x100a82a8
 // GLOBAL: MW23DFX 0x10264cb8
 // GLOBAL: MW2ATI 0x10198fb0
@@ -165,6 +173,7 @@ PANE g_systemsMenuTarget = {NULL, 0x8ccd, 0x547b, 0x10000, 0x9eb8};
 PANE g_systemsMenuBackgroundTarget = {NULL, 0x8ccd, 0x547b, 0x10000, 0x9eb8};
 
 // GLOBAL: MW2 0x100aab38
+// GLOBAL: MW2GBL 0x1009e630
 // GLOBAL: MW2MATROX 0x100a8430
 // GLOBAL: MW23DFX 0x10264e40
 // GLOBAL: MW2ATI 0x10199138

@@ -281,7 +281,7 @@ tests an `MW2_` macro the table doesn't define, and when no target compiles a br
 
 ## Features
 
-From the table in `util/types.h` (204 features) and the 1389 conditional sites of the simulators' sources (`MW2/`, `common/`, `3rdparty/vfx`). A feature's cell is its value where it has one.
+From the table in `util/types.h` (207 features) and the 1395 conditional sites of the simulators' sources (`MW2/`, `common/`, `3rdparty/vfx`). A feature's cell is its value where it has one.
 
 ### The ATI, S3, Matrox, PowerVR and 3Dfx editions (`MW2_ACCEL`)
 
@@ -587,13 +587,13 @@ Every edition that has one of these has them all, so no binary separates one fro
 | `MW2_KILLS_BY_LAST_SHOOTER` |  |  |  |  |  | yes |  | 5 | A mech's kill counts for the player whose shot hit it last, the local player's outcome is 4 unless they ejected, and in a network game only the local mech's death is played out (KillMech, which DestroySection and DestroyCriticalSlot call whatever the game) |
 | `MW2_MORE_CRITICAL_HITS` |  |  |  |  |  | yes |  | 2 | A critical hit on a flamer and on the AMS has a message of its own (DestroyCriticalSlot) |
 | `MW2_AI_STOPS_GROUP_FIRE` |  |  |  |  |  | yes |  | 2 | The AI's attack and target states stop the group fire as well as the fire (AiStateAttack, AiStateMove) |
-| `MW2_STRUCT_COPY_MEMCPY` |  |  |  |  |  | yes |  | 41 | *Artefact.* GBL's source copies some structures with memcpy, which its build calls, where the optimized editions show a structure assignment: nav points, rays, players, matrices, weapon slots, render settings, sample headers and session descriptions (RemoveNavPoint, CopyRay, LogPlayerStatusLines, the object matrices, LayoutWeaponPanels, the mech view panel, StartSample, FindSession) |
+| `MW2_STRUCT_COPY_MEMCPY` |  |  |  |  |  | yes |  | 42 | *Artefact.* GBL's source copies some structures with memcpy, which its build calls, where the optimized editions show a structure assignment: nav points, rays, players, matrices, weapon slots, render settings, sample headers and session descriptions (RemoveNavPoint, CopyRay, LogPlayerStatusLines, the object matrices, LayoutWeaponPanels, the mech view panel, StartSample, FindSession) |
 | `MW2_LOCAL_INSPECTION` |  |  |  |  |  | yes |  | 1 | Only the local player inspects its target, which counts as inspected once anyone has, and the inspect request stays set (UpdateTarget) |
 | `MW2_CHEAT_TABLE` |  |  |  |  |  | yes |  | 4 | The cheat codes are a table with the messages each shows, all stored XORed with 0xa, the messages decoded at the first key typed; GBL has codes of its own, and six of them do nothing (g_cheatCodes, HandleCheatInput) |
 | `MW2_INI_COMMENTS` |  |  |  |  |  | yes |  | 4 | GetIniValue cuts a value at a ';' and trims it, unless its second argument asks for the raw value (which error.c's call doesn't pass) |
 | `MW2_NO_MOUSE_ERRORS` |  |  |  |  |  | yes |  | 1 | ReportInputDeviceError reports nothing about the mouse |
 | `MW2_DEPTH_QUEUE_INDEX` |  |  |  |  |  | yes |  | 2 | *Artefact.* DrawDepthQueue takes the next entry's index into a local before it copies the entry |
-| `MW2_LENGTH_SUM_FROM_Z` |  |  |  |  |  | yes |  | 1 | *Artefact.* FloatVectorLength sums the squares from z down, where 1.1 adds x's and y's first |
+| `MW2_LENGTH_SUM_FROM_Z` |  |  |  |  |  | yes |  | 3 | *Artefact.* The vector lengths sum the squares from z down (FloatVectorLength, ScaleVectorToLength, BuildMatrixFromDirection) |
 | `MW2_SKIP_SHAPE_TYPE_20` |  |  |  |  |  | yes |  | 1 | QueueObjTree draws no shape of type 0x20 |
 | `MW2_PT_MENU_KEYS` |  |  |  |  |  | yes |  | 3 | The ALL_PT_MENU, PT_2_MENU and PT_3_MENU game keys (actions 53 to 55) do what the first three starmate menu keys do (RunGameKey) |
 | `MW2_SCREENSHOT_ACQUIRE_IF` |  |  |  |  |  | yes |  | 1 | *Artefact.* RunGameKey's screenshot acquires the frame buffer in an if with an empty else, where 1.1 has a conditional expression |
@@ -603,6 +603,9 @@ Every edition that has one of these has them all, so no binary separates one fro
 | `MW2_SCROUNGE_STATIC_OBJECTS` |  |  |  |  |  | yes |  | 4 | A scrounge record whose id names no class takes a static object's shape, loading the object (BwdExecuteStream) |
 | `MW2_REMOTE_PLAYER_AI_MODE` |  |  |  |  |  | yes |  | 1 | A player the stream creates for another machine or the AI gets AI mode 1 in a network game and 2 otherwise (BwdExecuteStream) |
 | `MW2_DEEP_COLD_COOLING` |  |  |  |  |  | yes |  | 1 | A mech's heat sinks cool five times as well at -100 degrees or colder, on top of the cold bonus (LoadMechConfig) |
+| `MW2_PLAYERS_BEFORE_LAUNCH` |  |  |  |  |  | yes |  | 1 | SimMain updates the players every frame, before a network launch too |
+| `MW2_SUPANIM_KEEPS_PALETTE` |  |  |  |  |  | yes |  | 1 | StartSupAnim leaves the palette's first 16 entries as the backdrop set them |
+| `MW2_SOUND_INFO_FILL_MINUS_ONE` |  |  |  |  |  | yes |  | 1 | *Artefact.* InitSoundInfo fills the table with -1, not 0xff (which GBL's memset call shows) |
 
 ## Where each feature is tested
 
@@ -794,13 +797,13 @@ Every edition that has one of these has them all, so no binary separates one fro
 - `MW2_KILLS_BY_LAST_SHOOTER`: `MW2/src/mechdamage.c`: `DestroyCriticalSlot` (2), `DestroySection`, the definition of `ApplyDamageToMech`, the definition of `KillMech`
 - `MW2_MORE_CRITICAL_HITS`: `MW2/src/mechdamage.c`: `DestroyCriticalSlot` (2)
 - `MW2_AI_STOPS_GROUP_FIRE`: `MW2/src/ai.c`: `AiStateAttack`, `AiStateMove`
-- `MW2_STRUCT_COPY_MEMCPY`: `MW2/src/ai.c`: `LogPlayerStatusLines`, file scope; `MW2/src/cockpitpanels.c`: `LayoutWeaponPanels` (2); `MW2/src/depthsort.c`: `ClipPolygonToScreen` (17); `MW2/src/geocache.c`: `DestroyStaticObject`; `MW2/src/mechviewpanel.c`: `DrawMechViewPanel` (3), `SetMechViewRenderSettings`, file scope; `MW2/src/network.c`: `FindSession`, `FindSessionCallback`; `MW2/src/object.c`: `CreateObj`, `InitObj`, `SetObjLocalMatrix`, `SetObjTransform`, `SetObjWorldMatrix`, `UpdateObjWorld`; `MW2/src/objective.c`: `EndTheMission2`; `MW2/src/ray.c`: `CopyRay`, file scope; `MW2/src/soundfx.c`: `StartSample`; `MW2/src/targeting.c`: `RemoveNavPoint`, file scope
+- `MW2_STRUCT_COPY_MEMCPY`: `MW2/src/ai.c`: `LogPlayerStatusLines`, file scope; `MW2/src/cockpitpanels.c`: `LayoutWeaponPanels` (2); `MW2/src/depthsort.c`: `ClipPolygonToScreen` (17); `MW2/src/geocache.c`: `DestroyStaticObject`; `MW2/src/mechviewpanel.c`: `DrawMechViewPanel` (3), `SetMechViewRenderSettings`, file scope; `MW2/src/network.c`: `FindSession`, `FindSessionCallback`; `MW2/src/object.c`: `CreateObj`, `InitObj`, `SetObjLocalMatrix`, `SetObjTransform`, `SetObjWorldMatrix`, `UpdateObjWorld`; `MW2/src/objective.c`: `EndTheMission2`; `MW2/src/ray.c`: `CopyRay`, file scope; `MW2/src/soundfx.c`: `StartSample`; `MW2/src/targeting.c`: `RemoveNavPoint`, file scope; `MW2/src/targetpanel.c`: `DrawTargetPanel`
 - `MW2_LOCAL_INSPECTION`: `MW2/src/targeting.c`: the definition of `UpdateTarget`
 - `MW2_CHEAT_TABLE`: `MW2/src/gamekeys.c`: `TypedCodeMatches`, file scope (2), the definitions of `DecodeCheatMessages`, `HandleCheatInput`
 - `MW2_INI_COMMENTS`: `MW2/include/inifile.h`: file scope; `MW2/src/inifile.c`: `GetIniValue` (3)
 - `MW2_NO_MOUSE_ERRORS`: `MW2/src/inputmap.c`: `ReportInputDeviceError`
 - `MW2_DEPTH_QUEUE_INDEX`: `MW2/src/depthsort.c`: `DrawDepthQueue` (2)
-- `MW2_LENGTH_SUM_FROM_Z`: `MW2/src/fixedsqrt.c`: `FloatVectorLength`
+- `MW2_LENGTH_SUM_FROM_Z`: `MW2/src/clockmath.c`: `BuildMatrixFromDirection`; `MW2/src/fixedsqrt.c`: `FloatVectorLength`; `MW2/src/normalizerotation.c`: `ScaleVectorToLength`
 - `MW2_SKIP_SHAPE_TYPE_20`: `MW2/src/depthsort.c`: `QueueObjTree`
 - `MW2_PT_MENU_KEYS`: `MW2/src/gamekeys.c`: `RunGameKey` (3)
 - `MW2_SCREENSHOT_ACQUIRE_IF`: `MW2/src/gamekeys.c`: `RunGameKey`
@@ -810,6 +813,9 @@ Every edition that has one of these has them all, so no binary separates one fro
 - `MW2_SCROUNGE_STATIC_OBJECTS`: `MW2/include/geocache.h`: file scope (2); `MW2/src/world.c`: `BwdExecuteStream` (2)
 - `MW2_REMOTE_PLAYER_AI_MODE`: `MW2/src/world.c`: `BwdExecuteStream`
 - `MW2_DEEP_COLD_COOLING`: `MW2/src/mekfile.c`: `LoadMechConfig`
+- `MW2_PLAYERS_BEFORE_LAUNCH`: `MW2/src/simmain.c`: `SimMain`
+- `MW2_SUPANIM_KEEPS_PALETTE`: `MW2/src/supanim.c`: `StartSupAnim`
+- `MW2_SOUND_INFO_FILL_MINUS_ONE`: `MW2/src/soundlimits.c`: `InitSoundInfo`
 
 ## Functions with a definition per edition
 

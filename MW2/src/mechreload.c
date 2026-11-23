@@ -37,6 +37,7 @@
 MechS32 g_reloadingPlayer = -1;
 
 // GLOBAL: MW2 0x100ba694
+// GLOBAL: MW2GBL 0x1009e6c4
 // GLOBAL: MW2MATROX 0x100bea1c
 MechS32 g_unk0x100ba694 = 0;
 

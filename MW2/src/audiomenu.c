@@ -29,6 +29,7 @@ MechChar g_audioItem[] = "Audio Ctrl";
 MechChar g_audioTitle[] = "SET AUDIO VOLUME";
 
 // GLOBAL: MW2 0x100a52b0
+// GLOBAL: MW2GBL 0x100ad8f0
 MechChar g_bettyMessageItem[] = "Betty Message";
 
 // GLOBAL: MW2 0x100a52c0

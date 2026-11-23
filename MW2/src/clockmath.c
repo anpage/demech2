@@ -84,13 +84,18 @@ MechScalar Hypot2D(MechScalar p_x, MechScalar p_y)
 
 // Sets p_matrix to the rotation that points along (p_x, p_y, p_z).
 // FUNCTION: MW2 0x1007cb3d
+// FUNCTION: MW2GBL 0x10080c08
 void BuildMatrixFromDirection(Matrix* p_matrix, MechS32 p_x, MechS32 p_y, MechS32 p_z)
 {
 	MechDouble pitch;
 	MechDouble yaw;
 
 	yaw = atan2(p_x, p_z);
+#ifdef MW2_LENGTH_SUM_FROM_Z
+	pitch = -asin(p_y / sqrt((MechDouble) p_z * p_z + (MechDouble) p_y * p_y + (MechDouble) p_x * p_x));
+#else
 	pitch = -asin(p_y / sqrt((MechDouble) p_x * p_x + (MechDouble) p_y * p_y + (MechDouble) p_z * p_z));
+#endif
 	BuildMatrix(p_matrix, (MechS32) (pitch * 3754939.378), (MechS32) (yaw * 3754939.378), 0, 0, 0, 0);
 }
 

@@ -46,6 +46,7 @@ MechS32 g_menuRepeatTimer = -1;
 // The in-mission menus by ID (RegisterMenu): 4 the main menu, 5 the systems status, 1 the lance
 // command computer, 7 and 8 command points 2 and 3, 3 the programmers' page.
 // GLOBAL: MW2 0x100a59e8
+// GLOBAL: MW2GBL 0x100b5ce8
 // GLOBAL: MW2MATROX 0x100bf0a8
 // GLOBAL: MW23DFX 0x102653f0
 // GLOBAL: MW2ATI 0x101996e8

@@ -156,6 +156,7 @@ MechChar g_smallMapExtraLabel[4] = "x";
 MechChar g_smallMapRangeLabel[4] = "R: ";
 
 // GLOBAL: MW2 0x100aabe0
+// GLOBAL: MW2GBL 0x100b00c8
 // GLOBAL: MW2MATROX 0x100bce00
 MechChar g_smallMapBearingLabel[12] = "Bearing: ";
 
@@ -178,6 +179,7 @@ MechChar g_largeMapExtraLabel[4] = "x";
 MechChar g_largeMapRangeLabel[8] = "R: ";
 
 // GLOBAL: MW2 0x100aabf8
+// GLOBAL: MW2GBL 0x100b00e0
 // GLOBAL: MW2MATROX 0x100bce18
 MechChar g_largeMapBearingLabel[12] = "Bearing: ";
 

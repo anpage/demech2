@@ -92,16 +92,19 @@ MechChar g_objectDensityItem[] = "Object density";
 MechChar g_explosionChunksItem[] = "Explosion chunks";
 
 // GLOBAL: MW2 0x100b14c8
+// GLOBAL: MW2GBL 0x100a42a0
 // GLOBAL: MW2MATROX 0x100b11d0
 // GLOBAL: MW2POWERVR 0x101c45b0
 MechChar g_affineText[] = "Affine";
 
 // GLOBAL: MW2 0x100b14d0
+// GLOBAL: MW2GBL 0x100a42a8
 // GLOBAL: MW2MATROX 0x100b11d8
 // GLOBAL: MW2POWERVR 0x101c45b8
 MechChar g_perspectiveText[] = "Perspective";
 
 // GLOBAL: MW2 0x100b14e0
+// GLOBAL: MW2GBL 0x100a42b8
 // GLOBAL: MW2MATROX 0x100b11e8
 // GLOBAL: MW2POWERVR 0x101c45c8
 MenuChoices g_affinePerspectiveChoices = {NULL, 2, {g_affineText, g_perspectiveText}};

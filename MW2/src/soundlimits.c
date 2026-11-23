@@ -12,6 +12,7 @@ DECOMP_SIZE_ASSERT(SoundTableEntry, 0x08)
 // The playback limits of the sound resources that have any: a resource id and its SoundInfo
 // values (-1: unset).
 // GLOBAL: MW2 0x100a24a0
+// GLOBAL: MW2GBL 0x100b54b0
 // GLOBAL: MW2MATROX 0x100a4110
 // GLOBAL: MW23DFX 0x1024e6a8
 SoundTableEntry g_soundTable[0x8c] = {
@@ -43,6 +44,7 @@ SoundTableEntry g_soundTable[0x8c] = {
 
 // Fills g_soundInfo from the sound table.
 // FUNCTION: MW2 0x10013370
+// FUNCTION: MW2GBL 0x1006acb0
 // FUNCTION: MW2MATROX 0x1000be30
 // FUNCTION: MW23DFX 0x10030590
 // FUNCTION: MW2ATI 0x1002f5f0
@@ -54,7 +56,11 @@ void InitSoundInfo(void)
 	SoundTableEntry* entry;
 	MechS32 id;
 
+#ifdef MW2_SOUND_INFO_FILL_MINUS_ONE
+	memset(g_soundInfo, -1, sizeof(g_soundInfo));
+#else
 	memset(g_soundInfo, 0xff, sizeof(g_soundInfo));
+#endif
 	for (i = 0, entry = g_soundTable; i < 0x8c; i++, entry++) {
 		id = entry->m_id;
 		if (id < 1 || id >= 1200) {

@@ -822,7 +822,8 @@ double __cdecl fabs(double);
 #define MW2_NO_MOUSE_ERRORS
 /* Artefact: DrawDepthQueue takes the next entry's index into a local before it copies the entry */
 #define MW2_DEPTH_QUEUE_INDEX
-/* Artefact: FloatVectorLength sums the squares from z down, where 1.1 adds x's and y's first */
+/* Artefact: the vector lengths sum the squares from z down (FloatVectorLength, ScaleVectorToLength,
+   BuildMatrixFromDirection) */
 #define MW2_LENGTH_SUM_FROM_Z
 /* QueueObjTree draws no shape of type 0x20 */
 #define MW2_SKIP_SHAPE_TYPE_20
@@ -857,6 +858,12 @@ double __cdecl fabs(double);
 /* A mech's heat sinks cool five times as well at -100 degrees or colder, on top of the cold bonus
    (LoadMechConfig) */
 #define MW2_DEEP_COLD_COOLING
+/* SimMain updates the players every frame, before a network launch too */
+#define MW2_PLAYERS_BEFORE_LAUNCH
+/* StartSupAnim leaves the palette's first 16 entries as the backdrop set them */
+#define MW2_SUPANIM_KEEPS_PALETTE
+/* Artefact: InitSoundInfo fills the table with -1, not 0xff (which GBL's memset call shows) */
+#define MW2_SOUND_INFO_FILL_MINUS_ONE
 #endif
 
 /* A game key action's number: with MW2_CHAT_KEY, the actions from 0x42 on are one higher. */

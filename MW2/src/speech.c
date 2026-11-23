@@ -35,6 +35,7 @@ SpeechLine g_slotSpeech[3] = {
 };
 
 // GLOBAL: MW2 0x100a96ec
+// GLOBAL: MW2GBL 0x100ae884
 MechS32 g_unk0x100a96ec = 0;
 
 // What a lancemate reports.
@@ -60,6 +61,7 @@ SpeechLine g_lancemateSpeech[11] = {
 };
 
 // GLOBAL: MW2 0x100a9774
+// GLOBAL: MW2GBL 0x100ae90c
 MechS32 g_unk0x100a9774 = 0;
 
 // GLOBAL: MW2 0x100a9778
@@ -80,6 +82,7 @@ SpeechLine g_formationSpeech[7] = {
 };
 
 // GLOBAL: MW2 0x100a97cc
+// GLOBAL: MW2GBL 0x100ae964
 MechS32 g_unk0x100a97cc = 0;
 
 // GLOBAL: MW2 0x100a97d0
@@ -96,6 +99,7 @@ SpeechLine g_engageSpeech[3] = {
 };
 
 // GLOBAL: MW2 0x100a97f4
+// GLOBAL: MW2GBL 0x100ae98c
 MechS32 g_unk0x100a97f4 = 0;
 
 // GLOBAL: MW2 0x100a97f8

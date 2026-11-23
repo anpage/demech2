@@ -54,6 +54,7 @@ typedef struct MekAmmo {
 
 // The value each weapon type adds to a mech's (GetMechValue).
 // GLOBAL: MW2 0x100aa730
+// GLOBAL: MW2GBL 0x100afa00
 // GLOBAL: MW23DFX 0x10259f60
 // GLOBAL: MW2ATI 0x1018e258
 // GLOBAL: MW2POWERVR 0x101b9540

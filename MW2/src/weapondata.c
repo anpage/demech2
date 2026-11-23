@@ -14,7 +14,6 @@
 #ifdef MW2_WEAPON_FUNCTIONS
 // GBL's: each weapon's functions, flags and animation first, its damage and ranges retuned, and
 // four weapons more.
-// GLOBAL: MW2GBL 0x100b05e8
 WeaponDef g_weaponDefs[WEAPON_DEF_COUNT] = {
 	{NULL, SpawnShot, 0x5, 0, 4,     3, 26,   27,     0,    1,  1,   20,     6,
 	 189,  0,         100, 2, 39321, 0, 7500, 100100, 2534, 11, 905, "LRM20"},
@@ -68,6 +67,7 @@ WeaponDef g_weaponDefs[WEAPON_DEF_COUNT] = {
 };
 #else
 // GLOBAL: MW2 0x100a0258
+// GLOBAL: MW2GBL 0x100b05e8
 // GLOBAL: MW2MATROX 0x100bd340
 // GLOBAL: MW23DFX 0x1025a6c0
 // GLOBAL: MW2ATI 0x1018e9b8
@@ -132,7 +132,6 @@ WeaponDef g_weaponDefs[WEAPON_DEF_COUNT] = {
 #endif
 
 #ifdef MW2_WEAPON_FUNCTIONS
-// GLOBAL: MW2GBL 0x100b1420
 EffectInfo g_effectInfo[EFFECT_TYPE_COUNT] = {
 	{271, -1, 251, -1, 0, 1, 0, 2, 256, 0, 0},      // 0x00
 	{271, -1, 251, -1, 0, 1, 0, 2, 256, 0, 0},      // 0x01
@@ -173,6 +172,7 @@ EffectInfo g_effectInfo[EFFECT_TYPE_COUNT] = {
 };
 #else
 // GLOBAL: MW2 0x100a0d00
+// GLOBAL: MW2GBL 0x100b1420
 // GLOBAL: MW2MATROX 0x100bdde8
 // GLOBAL: MW23DFX 0x1025b168
 // GLOBAL: MW2ATI 0x1018f460

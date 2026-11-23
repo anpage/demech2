@@ -78,6 +78,7 @@ MechChar* g_supAnimShapeName = NULL;
 
 // The first 16 palette entries in single player.
 // GLOBAL: MW2 0x100a0168
+// GLOBAL: MW2GBL 0x100b2d68
 // GLOBAL: MW2MATROX 0x100a8668
 // GLOBAL: MW23DFX 0x1024a868
 // GLOBAL: MW2ATI 0x1017ecc0
@@ -158,6 +159,7 @@ void SupAnimTimerCallback(void);
 // drive, draws it and fades its palette in (slowly with p_slowFade), then loads the dropship
 // (launch6.shp) and animates it on an AIL timer. On the DisplayDib back end it draws one frame.
 // FUNCTION: MW2 0x10003a70
+// FUNCTION: MW2GBL 0x10053810
 // FUNCTION: MW2MATROX 0x1004a510
 // FUNCTION: MW23DFX 0x100073b0
 // FUNCTION: MW2ATI 0x10007d10
@@ -239,10 +241,12 @@ void StartSupAnim(MechS32 p_slowFade)
 		g_currentDisplayBackend->m_blendPalettes(palette, 2);
 	}
 
+#ifndef MW2_SUPANIM_KEEPS_PALETTE
 	if (!g_isNetworkGame) {
 		g_currentDisplayBackend->m_setPalette(0, 16, g_supAnimPalette, 1);
 	}
 
+#endif
 	HeapFree(g_primaryHeap, HEAP_NO_SERIALIZE, palette);
 	g_supAnimShape = FILE_read(shapePath, NULL);
 	if (g_supAnimShape == NULL) {

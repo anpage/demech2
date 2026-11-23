@@ -31,6 +31,7 @@ DECOMP_SIZE_ASSERT(TimedOverlay, 0x24)
 PANE g_topMessagePane = {&g_mainPixelBuffer, 0, 0, 0x10000, 0x10000};
 
 // GLOBAL: MW2 0x100adef4
+// GLOBAL: MW2GBL 0x1009b0c4
 // GLOBAL: MW23DFX 0x10249834
 undefined4 g_unk0x100adef4 = 0;
 
@@ -43,6 +44,7 @@ undefined4 g_unk0x100adef4 = 0;
 PANE g_bottomMessagePane = {&g_mainPixelBuffer, 0, 0, 0x10000, 0x10000};
 
 // GLOBAL: MW2 0x100adf0c
+// GLOBAL: MW2GBL 0x1009b0dc
 // GLOBAL: MW23DFX 0x1024984c
 undefined4 g_unk0x100adf0c = 0;
 

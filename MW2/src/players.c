@@ -274,6 +274,7 @@ void CreateSimPlayer(MechS32 p_player, PlayerCreatedFn p_fn)
 
 // Allocates player p_player: a remote player gets room for its steering after it.
 // FUNCTION: MW2 0x1006d340
+// FUNCTION: MW2GBL 0x1001d1d5
 // FUNCTION: MW2MATROX 0x100551cf
 // FUNCTION: MW23DFX 0x100189e0
 // FUNCTION: MW2ATI 0x10018da0
