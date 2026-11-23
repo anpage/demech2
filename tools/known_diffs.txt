@@ -5,14 +5,15 @@
 # without a line, on a hash that no longer matches, and on a line whose function no longer needs it.
 
 MW2GBL 0x10006886 FillJoystickDeviceInfo 2872380adb30 compares the device name with "tracker" through a two-argument call where 1.1 passes memcmp a length; to investigate
+MW2GBL 0x10017ccb DrawSkyAndGround 9764ede04941 its slots, and the first two corners' horizon tests called in the other order, which neither the order of the terms nor any declaration order (tools/declorder.py: slots only at padding 4) changes; to investigate
 MW2GBL 0x1002ef30 InitRefreshMode 63b76918efdf reads g_refreshModes and g_displayBackends, whose GBL annotations are left out until its DirectDraw back end is written (datacmp), and compares the width with the screen's in the other operand order; to investigate
 MW2GBL 0x1002fa30 DdrawStop e9975a95a1c0 tests a global of its own before 1.1's code (GBL's DirectDraw back end); to investigate
-MW2GBL 0x1002ff2d DdrawInit b4e3eea0583e GBL's own: a frame of 0x140 bytes against 1.1's 0xb0 (GBL's DirectDraw back end); to investigate
+MW2GBL 0x1002ff2d DdrawInit 9532d611b172 GBL's own: a frame of 0x140 bytes against 1.1's 0xb0 (GBL's DirectDraw back end); to investigate
 MW2GBL 0x10048016 SelectNextWeaponInGroup dac3766d7c3a its slots and a comparison's operand order: a declaration order gives only slots at padding 13 but costs the PowerVR edition's (tools/declorder.py); to investigate
-MW2GBL 0x1006d91f UpdateMech 3f276d6c51f2 GBL's changes to the mech update (its heat, weapons and jump jets members among them); to investigate
+MW2GBL 0x1004d9d7 DrawMapTarget ac148056a99e loads the icon table's row before the layout's table pointer, where the source loads the pointer first (an address's base and index the audit doesn't reorder here), and its slots; to investigate
+MW2GBL 0x1006d91f UpdateMech 361a6fad0880 GBL's changes to the mech update (its heat, weapons and jump jets members among them); to investigate
 MW2GBL 0x10072527 BuildQuadtreeChild b76fa7d4d7b0 its locals' slots and the order of a node's X bounds in their sum: a declaration order gives them at padding 10 but costs 1.1's (tools/declorder.py); to investigate
 MW2GBL 0x10076d32 LogPlayerStatusLines 604c2c0c1eb3 GBL's debug status lines compile to about 40 instructions fewer than the source, the player copy aside (MW2_STRUCT_COPY_MEMCPY); to investigate
-MW2GBL 0x1007aa86 AssignStarTarget 6385ae439851 a comparison's operands in the other order, which no padding or early redeclaration gives; to investigate
 MW2GBL 0x1007b743 CountMissionStream 480d05a2010b compares a tag in another byte order (shr 24 where 1.1 shifts by 8); to investigate
 MW2GBL 0x1008002e ChooseArtResolution 95f913e4b442 reads a table whose GBL annotation is left out (datacmp), and loads it into another register; to investigate
 MW2MATROX 0x10001b59 MultiplyRotations b93b7f6a221d the x87 sums of products are added in another term order (a flattened float chain), and the slot map then fails (a22 and a20 overlap): reordering a float sum isn't a rewrite the audit has

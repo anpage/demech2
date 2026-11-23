@@ -3391,8 +3391,13 @@ MechS32 AssignStarTarget(MechS32 p_team, MechU16 p_target)
 			if (member->m_index != leader && !(member->m_ai.m_flags & 3) && member->m_ai.m_state != c_aiStateTarget &&
 				member->m_ai.m_state != c_aiStateAttack && !IsOutOfAmmo(member->m_mech) && member->m_engageAtWill) {
 				diff = member->m_ai.m_value - slot;
+#ifdef MW2_ABS_CALLS
+				if (labs(diff) < nearest) {
+					nearest = labs(diff);
+#else
 				if (abs(diff) < nearest) {
 					nearest = abs(diff);
+#endif
 					chosen = member->m_index;
 				}
 			}

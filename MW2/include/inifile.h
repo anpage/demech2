@@ -13,7 +13,12 @@ extern "C"
 	extern MechChar g_iniLine[0x85];
 
 	MechS32 FindIniSection(MechChar* p_section);
-	MechChar* GetIniValue(MechChar* p_key);
+#ifdef MW2_INI_COMMENTS
+	// Declared without its parameters: GBL's error.c passes only the key.
+	MechChar* GetIniValue();
+#else
+MechChar* GetIniValue(MechChar* p_key);
+#endif
 	MechChar* TrimWhitespace(MechChar* p_string);
 
 #ifdef __cplusplus

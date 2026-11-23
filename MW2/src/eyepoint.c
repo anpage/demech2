@@ -420,6 +420,7 @@ void FirstEyepoint(void)
 // local player): the cockpit, tracking, external, drop or free camera, driven by INPUT.MAP's
 // eyepoint and track sinks.
 // FUNCTION: MW2 0x100110f7
+// FUNCTION: MW2GBL 0x10054b57
 // FUNCTION: MW2MATROX 0x10008d87
 // FUNCTION: MW23DFX 0x1002dc90
 // FUNCTION: MW2ATI 0x1002cde0
@@ -828,6 +829,7 @@ void UpdateOrdinanceView(void)
 // within limits taken from the mech's size the first time, p_turn turns it around the mech and
 // p_tilt tilts it. The first call after another view starts its ramps from the current eyepoint.
 // FUNCTION: MW2 0x100118bc
+// FUNCTION: MW2GBL 0x1005531c
 // FUNCTION: MW2MATROX 0x10009653
 // FUNCTION: MW23DFX 0x1002e280
 // FUNCTION: MW2ATI 0x1002d3d0

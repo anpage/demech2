@@ -512,6 +512,7 @@ void SelectFastestRefreshMode(void)
 // fullscreen mode last selected. Unlike the shell's, it does nothing while the frame covers the
 // whole screen, unless g_shouldToggleFullscreen is set.
 // FUNCTION: MW2 0x10077392
+// FUNCTION: MW2GBL 0x1002f570
 // FUNCTION: MW2MATROX 0x1007b40e
 // FUNCTION: MW23DFX 0x10002aa0
 void ToggleFullScreen(void)
@@ -680,6 +681,7 @@ void AdjustWindowSize(DisplayBackend* p_backend)
 
 // Copies p_count colors of g_paletteColors from p_first into p_palette.
 // FUNCTION: MW2 0x100777a5
+// FUNCTION: MW2GBL 0x1002f983
 // FUNCTION: MW2MATROX 0x1007b82b
 // FUNCTION: MW23DFX 0x10002de0
 MechS32 GetPaletteColors(MechS32 p_first, MechS32 p_count, PaletteColor* p_palette)

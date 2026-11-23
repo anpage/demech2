@@ -642,6 +642,7 @@ Point* GetHudGaugePositions(void)
 // aim (returns TRUE then); otherwise the lock or guided-state shapes, or 0x67 without a ready
 // weapon.
 // FUNCTION: MW2 0x100412dd
+// FUNCTION: MW2GBL 0x1007f32d
 // FUNCTION: MW2MATROX 0x1001d1b9
 // FUNCTION: MW23DFX 0x10022710
 // FUNCTION: MW2ATI 0x100229d0
@@ -845,6 +846,7 @@ void DrawTargetMarker(Mech* p_mech)
 // torso, p_twistBearing, unless the target is a nav point), and the arrows above and below while
 // its pitch p_pitch is beyond 3 degrees. p_x and p_y go unused.
 // FUNCTION: MW2 0x1004161f
+// FUNCTION: MW2GBL 0x1007f670
 // FUNCTION: MW2MATROX 0x1001d551
 // FUNCTION: MW23DFX 0x10022960
 // FUNCTION: MW2ATI 0x10022c20
@@ -1041,6 +1043,7 @@ MechS32 ProjectAimPoint(Mech* p_mech, MechS32* p_x, MechS32* p_y)
 // The 3Dfx edition declares point and size in the blocks that use them, where VC++ 2.2 gives
 // them one slot.
 // FUNCTION: MW2 0x10041a14
+// FUNCTION: MW2GBL 0x1007fa65
 // FUNCTION: MW2MATROX 0x1001d9cd
 // FUNCTION: MW23DFX 0x10022cc0
 // FUNCTION: MW2ATI 0x10022f80
@@ -1138,6 +1141,7 @@ void DrawPlayerBrackets(Player* p_player, MechS32 p_side)
 // The 3Dfx edition declares point and maxSize in the blocks that use them, where VC++ 2.2 gives
 // them one slot.
 // FUNCTION: MW2 0x10041c3c
+// FUNCTION: MW2GBL 0x1007fc8d
 // FUNCTION: MW2MATROX 0x1001dc23
 // FUNCTION: MW23DFX 0x10022ea0
 // FUNCTION: MW2ATI 0x10023160
@@ -1469,6 +1473,7 @@ void DrawObjectBrackets(struct SceneObject* p_object, MechS32 p_side)
 // Draws frame 0 of the "SHP" resource p_id (relative to g_artResolution) at p_x, p_y of the
 // current pane.
 // FUNCTION: MW2 0x10041e98
+// FUNCTION: MW2GBL 0x1007fee9
 // FUNCTION: MW2MATROX 0x1001dee6
 // FUNCTION: MW23DFX 0x100230c0
 // FUNCTION: MW2ATI 0x10023380

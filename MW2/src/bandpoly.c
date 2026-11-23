@@ -13,6 +13,12 @@
 
 #include <stdlib.h>
 
+#ifdef MW2_ABS_CALLS
+#define BAND_ABS labs // GBL calls labs here (util/types.h)
+#else
+#define BAND_ABS abs
+#endif
+
 // The texture coordinates of a band's corners (DrawBand).
 #ifdef MW2_FLOAT_SCALARS
 // GLOBAL: MW2MATROX 0x100a85a8
@@ -110,6 +116,7 @@ void DrawBandPolygon(MechU32 p_flags, MechS32 p_count, MechU32* p_points, MechS3
 // ends; a negative v flips the texture where 1.1 tests u), and the renderer's argument p_unk0x14.
 // Its original adds dy first to y0 and x1 (y1 + dy keeps y1 first).
 // FUNCTION: MW2 0x100107de
+// FUNCTION: MW2GBL 0x1001701e
 // FUNCTION: MW2MATROX 0x100459b0
 // FUNCTION: MW23DFX 0x1002a8e0
 // FUNCTION: MW2ATI 0x1002a530
@@ -197,7 +204,7 @@ MechS32 DrawBand(MechU32 p_color, MechS32 p_count, MechS32* p_points, MechS32 p_
 		vertices[3].m_screenY = y1 + dy;
 	}
 	else {
-		dy = abs(dy);
+		dy = BAND_ABS(dy);
 		vertices[0].m_screenX = x1 - dy;
 		vertices[0].m_screenY = y1 - dy;
 		vertices[1].m_screenX = x1 + dy;
@@ -297,7 +304,7 @@ MechS32 DrawBand(MechU32 p_color, MechS32 p_count, MechS32* p_points, MechS32 p_
 		quad[3][1] = y1 + dy;
 	}
 	else {
-		dy = abs(dy);
+		dy = BAND_ABS(dy);
 		quad[0][0] = x1 - dy;
 		quad[0][1] = y1 - dy;
 		quad[1][0] = x1 + dy;

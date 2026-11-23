@@ -1056,6 +1056,7 @@ MechS32 CullSceneShape(Shape* p_shape)
 // The 3Dfx edition negates the depth once for both side tests (fchs, then fadd): the source
 // parenthesizes the negation, which keeps VC++ 2.2 from folding it into an fsub.
 // FUNCTION: MW2 0x1004c565
+// FUNCTION: MW2GBL 0x1000a645
 // FUNCTION: MW2MATROX 0x10029c23
 // FUNCTION: MW23DFX 0x1002fdc0
 // FUNCTION: MW2ATI 0x1002ee20

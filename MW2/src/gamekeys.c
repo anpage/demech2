@@ -47,6 +47,9 @@
 #include <sgl.h>
 #endif
 
+#ifdef MW2_AMS_KEY
+#include "gbl/ams.h"
+#endif
 #include <ctype.h>
 #include <stdio.h>
 #include <string.h>
@@ -61,6 +64,7 @@
 MechS32 g_missionEndTime = 0;
 
 // GLOBAL: MW2 0x100aa294
+// GLOBAL: MW2GBL 0x1009dae4
 // GLOBAL: MW2MATROX 0x100a7cbc
 // GLOBAL: MW23DFX 0x10250510
 // GLOBAL: MW2ATI 0x10184820
@@ -117,6 +121,7 @@ MechS32 g_missionTimerStopped = 0;
 
 // The "meepmeep" cheat: enables the time compression key.
 // GLOBAL: MW2 0x100aa2b0
+// GLOBAL: MW2GBL 0x1009db00
 // GLOBAL: MW2MATROX 0x100a7cd8
 // GLOBAL: MW23DFX 0x1025052c
 // GLOBAL: MW2ATI 0x1018483c
@@ -142,6 +147,12 @@ MechS32 g_chatLength = 0;
 // GLOBAL: MW2POWERVR 0x101af910
 MechS32 g_missionResolved = 0;
 
+#ifdef MW2_CHEAT_TABLE
+// Set once the cheat messages are decoded (DecodeCheatMessages).
+// GLOBAL: MW2GBL 0x1009db10
+MechS32 g_cheatMessagesDecoded = 0;
+#endif
+
 // GLOBAL: MW2 0x100aa2c0
 // GLOBAL: MW2GBL 0x1009db14
 // GLOBAL: MW2MATROX 0x100a7ce8
@@ -150,6 +161,65 @@ MechS32 g_missionResolved = 0;
 // GLOBAL: MW2S3 0x1006265c
 // GLOBAL: MW2POWERVR 0x101af914
 MechS32 g_statusMessage = 0;
+
+#ifdef MW2_CHEAT_TABLE
+#define CHEAT_CODE_COUNT 21
+
+// A cheat code and the messages its cheat shows when turned on and off, all stored XORed with 0xa.
+typedef struct CheatCode {
+	MechChar* m_code; // 0x00
+	MechChar* m_on;   // 0x04
+	MechChar* m_off;  // 0x08
+} CheatCode;
+
+// The cheat codes, in HandleCheatInput's order; the table ends with an empty entry. "dei", "fuck",
+// "hangaround", "idkfa", "lairdo" and "shit" are listed but do nothing.
+// GLOBAL: MW2GBL 0x1009db18
+CheatCode g_cheatCodes[CHEAT_CODE_COUNT + 1] = {
+	// "kent" / "Invulnerbility ON." / "Invulnerbility OFF."
+	{"aod~", "Cd|\177fdoxhcfc~s*ED$", "Cd|\177fdoxhcfc~s*ELL$"},
+	// "thundros" / "Unlimited Ammo ON." / "Unlimited Ammo OFF."
+	{"~b\177dnxey", "_dfcgc~on*Kgge*ED$", "_dfcgc~on*Kgge*ELL$"},
+	// "burr" / "Heat tracking ON." / "Heat tracking OFF."
+	{"h\177xx", "Bok~*~xkiacdm*ED$", "Bok~*~xkiacdm*ELL$"},
+	// "dorcs" / "You asked for it."
+	{"nexiy", "Se\177*kyaon*lex*c~$", NULL},
+	// "dei" / "F E I F"
+	{"noc", "L*O*C*L", NULL},
+	// "kaboom"
+	{"akheeg", NULL, NULL},
+	// "jumbo" / "jumpjets"
+	{"`\177ghe", "`\177gz`o~y", NULL},
+	// "voyeur" / "Forward view instead of rear ON." / "Forward view instead of rear OFF."
+	{"|eso\177x", "Lex}kxn*|co}*cdy~okn*el*xokx*ED$", "Lex}kxn*|co}*cdy~okn*el*xokx*ELL$"},
+	// "fuck" / "Freebirth vulgarity will not be tolerated."
+	{"l\177ia", "Lxoohcx~b*|\177fmkxc~s*}cff*de~*ho*~efoxk~on$", NULL},
+	// "palex"
+	{"zkfor", NULL, NULL},
+	// "hangaround" / "That's better." / "Now how do i win."
+	{"bkdmkxe\177dn", "^bk~-y*ho~~ox$", "De}*be}*ne*c*}cd$"},
+	// "putz"
+	{"z\177~p", NULL, NULL},
+	// "idkfa" / "This ain't, DOOM bub."
+	{"cnalk", "^bcy*kcd-~&*NEEG*h\177h$", NULL},
+	// "lairdo" / "ATTENTION ENEMIES: Don't mess with the blimp."
+	{"fkcxne", "K^^OD^CED*ODOGCOY0*Ned-~*goyy*}c~b*~bo*hfcgz$", NULL},
+	// "gonzales" / "Time compression key enabled." / "Time compression key disabled."
+	{"medpkfoy", "^cgo*iegzxoyyced*aos*odkhfon$", "^cgo*iegzxoyyced*aos*ncykhfon$"},
+	// "tik" / "Bounding spheres."
+	{"~ca", "He\177dncdm*yzboxoy$", NULL},
+	// "crillion" / "Infinite jumpjets ON." / "Infinite jumpjets OFF."
+	{"ixcffced", "Cdlcdc~o*`\177gz`o~y*ED$", "Cdlcdc~o*`\177gz`o~y*ELL$"},
+	// "shit" / "Freebirth vulgarity will not be tolerated."
+	{"ybc~", "Lxoohcx~b*|\177fmkxc~s*}cff*de~*ho*~efoxk~on$", NULL},
+	// "drone" / "free-eye mode on."
+	{"nxedo", "lxoo'oso*geno*ed$", NULL},
+	// "clark" / "x-ray vision enabled."
+	{"ifkxa", "r'xks*|cyced*odkhfon$", NULL},
+	// "merlock" / "time expansion enabled." / "time expansion disabled."
+	{"goxfeia", "~cgo*orzkdyced*odkhfon$", "~cgo*orzkdyced*ncykhfon$"},
+};
+#endif
 
 // The last 15 characters typed, the newest last.
 // GLOBAL: MW2 0x100e9620
@@ -192,6 +262,7 @@ MechS32 AppendTypedKey(MechS16 p_key)
 // Returns whether the typed keys end with the code p_code, whose characters are stored XORed
 // with 0x1a.
 // FUNCTION: MW2 0x1005b807
+// FUNCTION: MW2GBL 0x100134b7
 // FUNCTION: MW2MATROX 0x10041f17
 // FUNCTION: MW23DFX 0x10036d40
 // FUNCTION: MW2ATI 0x10035900
@@ -206,7 +277,11 @@ MechS32 TypedCodeMatches(MechChar* p_code)
 	n = strlen(p_code);
 	typed = &g_typedKeys[0xe];
 	for (c = &p_code[n - 1]; n; n--, c--, typed--) {
+#ifdef MW2_CHEAT_TABLE
+		if ((*c ^ 0xa) != *typed) {
+#else
 		if ((*c ^ 0x1a) != *typed) {
+#endif
 			return FALSE;
 		}
 	}
@@ -214,6 +289,164 @@ MechS32 TypedCodeMatches(MechChar* p_code)
 	return TRUE;
 }
 
+#ifdef MW2_CHEAT_TABLE
+// Decodes the cheat messages in place (g_cheatCodes; the codes stay encoded).
+// FUNCTION: MW2GBL 0x1001352e
+void DecodeCheatMessages(void)
+{
+	MechS32 i;
+	MechChar* message;
+	MechS32 length;
+	MechS32 j;
+
+	for (i = 0; i < CHEAT_CODE_COUNT; i++) {
+		message = g_cheatCodes[i].m_on;
+		if (message) {
+			length = strlen(message);
+			for (j = 0; j < length; j++) {
+				message[j] ^= 0xa;
+			}
+		}
+
+		message = g_cheatCodes[i].m_off;
+		if (message) {
+			length = strlen(message);
+			for (j = 0; j < length; j++) {
+				message[j] ^= 0xa;
+			}
+		}
+	}
+}
+
+// Takes a typed key for the cheat codes: decodes the messages at the first key, and when the last
+// keys typed spell a code of g_cheatCodes (TypedCodeMatches), toggles or runs its cheat and says so.
+// FUNCTION: MW2GBL 0x10013616
+void HandleCheatInput(MechS16 p_key)
+{
+	MechS32 target;
+	MechS32 victim;
+
+	if (!g_cheatMessagesDecoded) {
+		g_cheatMessagesDecoded = 1;
+		DecodeCheatMessages();
+	}
+
+	if (!AppendTypedKey(p_key)) {
+		return;
+	}
+
+	if (TypedCodeMatches(g_cheatCodes[0].m_code)) { // "kent"
+		if (!g_difficulty->m_invulnerable) {
+			g_difficulty->m_invulnerable = 1;
+			ShowInGameMessage(g_cheatCodes[0].m_on, 1, 0x16a, 0x32);
+		}
+		else {
+			g_difficulty->m_invulnerable = 0;
+			ShowInGameMessage(g_cheatCodes[0].m_off, 1, 0x16a, 0x32);
+		}
+	}
+	else if (TypedCodeMatches(g_cheatCodes[1].m_code)) { // "thundros"
+		if (!g_difficulty->m_unlimitedAmmo) {
+			g_difficulty->m_unlimitedAmmo = 1;
+			ShowInGameMessage(g_cheatCodes[1].m_on, 1, 0x16a, 0x32);
+		}
+		else {
+			g_difficulty->m_unlimitedAmmo = 0;
+			ShowInGameMessage(g_cheatCodes[1].m_off, 1, 0x16a, 0x32);
+		}
+	}
+	else if (TypedCodeMatches(g_cheatCodes[2].m_code)) { // "burr"
+		if (!g_difficulty->m_heatTracking) {
+			g_difficulty->m_heatTracking = 1;
+			ShowInGameMessage(g_cheatCodes[2].m_on, 1, 0x16a, 0x32);
+		}
+		else {
+			g_difficulty->m_heatTracking = 0;
+			ShowInGameMessage(g_cheatCodes[2].m_off, 1, 0x16a, 0x32);
+		}
+	}
+	else if (TypedCodeMatches(g_cheatCodes[3].m_code)) { // "dorcs"
+		ShowDorcs();
+		ShowInGameMessage(g_cheatCodes[3].m_on, 1, 0x16a, 0x32);
+	}
+	else if (TypedCodeMatches(g_cheatCodes[5].m_code)) { // "kaboom"
+		target = GetLocalTargetGamePiece();
+		if (target >= 0) {
+			StartNuke(g_players[target]);
+		}
+	}
+	else if (TypedCodeMatches(g_cheatCodes[6].m_code)) { // "jumbo"
+		g_localSteering.m_grantJumpJets = 1;
+		ShowInGameMessage(g_cheatCodes[6].m_on, 1, 0x16a, 0x32);
+	}
+	else if (TypedCodeMatches(g_cheatCodes[7].m_code)) { // "voyeur"
+		if (!g_frontViewForRear) {
+			g_frontViewForRear = 1;
+			ShowInGameMessage(g_cheatCodes[7].m_on, 1, 0x16a, 0x32);
+		}
+		else {
+			g_frontViewForRear = 0;
+			ShowInGameMessage(g_cheatCodes[7].m_off, 1, 0x16a, 0x32);
+		}
+	}
+	else if (TypedCodeMatches(g_cheatCodes[9].m_code)) { // "palex"
+		victim = GetLocalTargetGamePiece();
+		if (victim >= 0) {
+			KillMech(g_localPlayerId, g_players[victim]->m_mech);
+		}
+	}
+	else if (TypedCodeMatches(g_cheatCodes[11].m_code)) { // "putz"
+		g_forceMissionSuccess = 1;
+	}
+	else if (TypedCodeMatches(g_cheatCodes[14].m_code)) { // "gonzales"
+		g_timeCompressionCheat = !g_timeCompressionCheat;
+
+		if (g_timeCompressionCheat) {
+			ShowInGameMessage(g_cheatCodes[14].m_on, 1, 0xb5, 0x32);
+		}
+		else {
+			ShowInGameMessage(g_cheatCodes[14].m_off, 1, 0xb5, 0x32);
+		}
+	}
+	else if (TypedCodeMatches(g_cheatCodes[15].m_code)) { // "tik"
+		g_frameOutlineParts = !g_frameOutlineParts;
+
+		g_showBoundingSpheres = !g_showBoundingSpheres;
+
+		ShowInGameMessage(g_cheatCodes[15].m_on, 1, 0x16a, 0x32);
+	}
+	else if (TypedCodeMatches(g_cheatCodes[16].m_code)) { // "crillion"
+		if (!g_infiniteJumpFuel) {
+			g_infiniteJumpFuel = 1;
+			ShowInGameMessage(g_cheatCodes[16].m_on, 1, 0x16a, 0x32);
+		}
+		else {
+			g_infiniteJumpFuel = 0;
+			ShowInGameMessage(g_cheatCodes[16].m_off, 1, 0x16a, 0x32);
+		}
+	}
+	else if (TypedCodeMatches(g_cheatCodes[18].m_code)) { // "drone"
+		SetViewMode(c_viewFreeEye);
+		g_mapFollowsFreeEye = 1;
+		ShowInGameMessage(g_cheatCodes[18].m_on, 1, 0x16a, 0x32);
+	}
+	else if (TypedCodeMatches(g_cheatCodes[19].m_code)) { // "clark"
+		g_renderSettings.m_wireframe = 2;
+		g_renderSettings.m_wireframeColors = 0;
+		ShowInGameMessage(g_cheatCodes[19].m_on, 1, 0x16a, 0x32);
+	}
+	else if (TypedCodeMatches(g_cheatCodes[20].m_code)) { // "merlock"
+		g_timeExpansionEnabled = !g_timeExpansionEnabled;
+
+		if (g_timeExpansionEnabled) {
+			ShowInGameMessage(g_cheatCodes[20].m_on, 1, 0x16a, 0x32);
+		}
+		else {
+			ShowInGameMessage(g_cheatCodes[20].m_off, 1, 0x16a, 0x32);
+		}
+	}
+}
+#else
 // Takes a typed key for the cheat codes: when the last keys typed spell one (TypedCodeMatches; the codes
 // are stored XORed with 0x1a), toggles or runs its cheat and says so.
 // FUNCTION: MW2 0x1005b883
@@ -449,6 +682,7 @@ void HandleCheatInput(MechS16 p_key)
 	}
 #endif
 }
+#endif
 
 // Turns a typed character into the one its key gives with shift held (the US layout).
 // FUNCTION: MW2 0x1005bf7c
@@ -581,6 +815,7 @@ MechS32 HandleChatKey(MechU32 p_keyCode)
 // with DifficultyCfg::m_regenerate, to regenerate); otherwise passes the key code (from the local
 // steering, through the cheat codes, the chat message and LookupGameKey) to RunGameKey.
 // FUNCTION: MW2 0x1005c2e1
+// FUNCTION: MW2GBL 0x10013f1a
 // FUNCTION: MW2MATROX 0x10042a17
 // FUNCTION: MW23DFX 0x100374e0
 // FUNCTION: MW2ATI 0x100360a0
@@ -655,7 +890,7 @@ void HandleGameKeys(MechS32 p_unk0x00, MechS32 p_unk0x04, MechU16 p_key)
 
 	if (g_missionEnded) {
 		if (!g_netRole || g_missionResolved || g_fledToWindows) {
-			if (p_key == 0x59) {
+			if (p_key == GAME_KEY_ACTION(0x59)) {
 				g_shouldQuit = 1;
 				g_quitStage = 0x29a;
 				return;
@@ -663,14 +898,14 @@ void HandleGameKeys(MechS32 p_unk0x00, MechS32 p_unk0x04, MechU16 p_key)
 		}
 		else if (g_difficulty->m_regenerate) {
 			switch (p_key) {
-			case 0x59:
+			case GAME_KEY_ACTION(0x59):
 				g_shouldQuit = 1;
 				g_quitStage = 0x29a;
 				return;
 			case 0x33:
 				RequestMenu(4);
 				break;
-			case 0x4f:
+			case GAME_KEY_ACTION(0x4f):
 				g_renderSettings.m_wireframe = 0;
 				SetInfrared(0, 0);
 				ReloadPlayerMech(g_localPlayerId, 0, 0, 0);
@@ -690,14 +925,14 @@ void HandleGameKeys(MechS32 p_unk0x00, MechS32 p_unk0x04, MechU16 p_key)
 		}
 		else if (g_spectating) {
 			switch (p_key) {
-			case 0x59:
+			case GAME_KEY_ACTION(0x59):
 				g_shouldQuit = 1;
 				g_quitStage = 0x29a;
 				return;
 			case 0x33:
 				RequestMenu(4);
 				break;
-			case 0x4f:
+			case GAME_KEY_ACTION(0x4f):
 				CycleTrackedPlayer(1, 0);
 				break;
 			}
@@ -713,6 +948,7 @@ void HandleGameKeys(MechS32 p_unk0x00, MechS32 p_unk0x04, MechU16 p_key)
 // recipients, ejecting (0x3b) and the screenshot (0x5b). Any other key goes to HandleDebugKey while
 // the mission timer is stopped.
 // FUNCTION: MW2 0x1005c78a
+// FUNCTION: MW2GBL 0x100143c3
 // FUNCTION: MW2MATROX 0x10042ec0
 // FUNCTION: MW23DFX 0x10037880
 // FUNCTION: MW2ATI 0x10036440
@@ -729,7 +965,7 @@ void RunGameKey(MechS32 p_key)
 	switch (p_key) {
 	case 0x0:
 		break;
-	case 0x59:
+	case GAME_KEY_ACTION(0x59):
 		g_shouldQuit = 1;
 		g_quitStage += 2;
 		break;
@@ -886,7 +1122,10 @@ void RunGameKey(MechS32 p_key)
 	case 0x34:
 		ToggleMenu(5);
 		break;
-	case 0x42:
+#ifdef MW2_PT_MENU_KEYS
+	case 0x35:
+#endif
+	case GAME_KEY_ACTION(0x42):
 		g_showObjectives = 0;
 		if (g_isNetworkGame) {
 			g_chatRecipient = -1;
@@ -895,7 +1134,10 @@ void RunGameKey(MechS32 p_key)
 			ToggleMenu(1);
 		}
 		break;
-	case 0x43:
+#ifdef MW2_PT_MENU_KEYS
+	case 0x36:
+#endif
+	case GAME_KEY_ACTION(0x43):
 		g_showObjectives = 0;
 		if (g_isNetworkGame) {
 			g_chatRecipient = 1;
@@ -904,7 +1146,10 @@ void RunGameKey(MechS32 p_key)
 			ToggleMenu(7);
 		}
 		break;
-	case 0x44:
+#ifdef MW2_PT_MENU_KEYS
+	case 0x37:
+#endif
+	case GAME_KEY_ACTION(0x44):
 		g_showObjectives = 0;
 		if (g_isNetworkGame) {
 			g_chatRecipient = 2;
@@ -913,31 +1158,31 @@ void RunGameKey(MechS32 p_key)
 			ToggleMenu(8);
 		}
 		break;
-	case 0x45:
+	case GAME_KEY_ACTION(0x45):
 		g_showObjectives = 0;
 		if (g_isNetworkGame) {
 			g_chatRecipient = 3;
 		}
 		break;
-	case 0x46:
+	case GAME_KEY_ACTION(0x46):
 		g_showObjectives = 0;
 		if (g_isNetworkGame) {
 			g_chatRecipient = 4;
 		}
 		break;
-	case 0x47:
+	case GAME_KEY_ACTION(0x47):
 		g_showObjectives = 0;
 		if (g_isNetworkGame) {
 			g_chatRecipient = 5;
 		}
 		break;
-	case 0x48:
+	case GAME_KEY_ACTION(0x48):
 		g_showObjectives = 0;
 		if (g_isNetworkGame) {
 			g_chatRecipient = 6;
 		}
 		break;
-	case 0x49:
+	case GAME_KEY_ACTION(0x49):
 		g_showObjectives = 0;
 		if (g_isNetworkGame) {
 			g_chatRecipient = 7;
@@ -1003,7 +1248,7 @@ void RunGameKey(MechS32 p_key)
 		g_overrideShutdown = 1;
 		break;
 #ifndef MW2_NO_WIREFRAME_KEY
-	case 0xa7:
+	case GAME_KEY_ACTION(0xa7):
 		if (g_renderSettings.m_wireframe != 1 && (g_players[g_localPlayerId]->m_flags & 0x2000)) {
 			g_renderSettings.m_wireframe = 1;
 			g_renderSettings.m_wireframeColors = 0;
@@ -1014,50 +1259,60 @@ void RunGameKey(MechS32 p_key)
 		}
 		break;
 #endif
-	case 0xa6:
+#ifdef MW2_AMS_KEY
+	case 0xa9:
+		ToggleAms();
+		break;
+#endif
+	case GAME_KEY_ACTION(0xa6):
 		SetInfrared(0, !g_infraredOn);
 		break;
 	case 0x41:
 		g_chatRecipient = 0;
 		g_showObjectives = !g_showObjectives;
 		break;
-	case 0x4a:
+#ifdef MW2_CHAT_KEY
+	case 0x42:
+		g_chatRecipient = !g_chatRecipient;
+		break;
+#endif
+	case GAME_KEY_ACTION(0x4a):
 		g_localSteering.m_autopilot = 1;
 		break;
-	case 0x4b:
+	case GAME_KEY_ACTION(0x4b):
 		g_localSteering.m_toggleGroupFire = 1;
 		break;
-	case 0x4c:
+	case GAME_KEY_ACTION(0x4c):
 		g_localSteering.m_advanceTarget = 1;
 		break;
-	case 0x4d:
+	case GAME_KEY_ACTION(0x4d):
 		g_localSteering.m_previousTarget = 1;
 		break;
-	case 0x4e:
+	case GAME_KEY_ACTION(0x4e):
 		g_localSteering.m_resetTarget = 1;
 		break;
-	case 0x50:
+	case GAME_KEY_ACTION(0x50):
 		g_localSteering.m_nearestEnemy = 1;
 		break;
-	case 0x53:
+	case GAME_KEY_ACTION(0x53):
 		g_localSteering.m_targetLastShot = 1;
 		break;
-	case 0x51:
+	case GAME_KEY_ACTION(0x51):
 		g_localSteering.m_targetFriendly = 1;
 		break;
-	case 0x54:
+	case GAME_KEY_ACTION(0x54):
 		g_localSteering.m_nextObjective = 1;
 		break;
-	case 0x52:
+	case GAME_KEY_ACTION(0x52):
 		g_localSteering.m_targetReticle = 1;
 		break;
-	case 0x55:
+	case GAME_KEY_ACTION(0x55):
 		g_punchInAutoHeadingRequested = 1;
 		break;
-	case 0x56:
+	case GAME_KEY_ACTION(0x56):
 		g_toggleMascRequested = 1;
 		break;
-	case 0x57:
+	case GAME_KEY_ACTION(0x57):
 		g_localSteering.m_selfDestruct = 1;
 		break;
 	case 0x1:
@@ -1068,34 +1323,34 @@ void RunGameKey(MechS32 p_key)
 		g_sinkEyepointTiltReset = 1;
 		g_sinkEyepointPanReset = 1;
 		break;
-	case 0x58:
+	case GAME_KEY_ACTION(0x58):
 		g_pauseRequested = 1;
 		break;
-	case 0x97:
+	case GAME_KEY_ACTION(0x97):
 		SetSelectedWeaponGroup(0);
 		break;
-	case 0x98:
+	case GAME_KEY_ACTION(0x98):
 		SetSelectedWeaponGroup(1);
 		break;
-	case 0x99:
+	case GAME_KEY_ACTION(0x99):
 		SetSelectedWeaponGroup(2);
 		break;
-	case 0x9a:
+	case GAME_KEY_ACTION(0x9a):
 		g_localSteering.m_weaponCycleGroup = 1;
 		break;
-	case 0x9b:
+	case GAME_KEY_ACTION(0x9b):
 		g_localSteering.m_weaponFireGroup = 1;
 		break;
-	case 0x9c:
+	case GAME_KEY_ACTION(0x9c):
 		g_localSteering.m_weaponFireGroup1 = 1;
 		break;
-	case 0x9d:
+	case GAME_KEY_ACTION(0x9d):
 		g_localSteering.m_weaponFireGroup2 = 1;
 		break;
-	case 0x9e:
+	case GAME_KEY_ACTION(0x9e):
 		g_localSteering.m_weaponFireGroup3 = 1;
 		break;
-	case 0x92:
+	case GAME_KEY_ACTION(0x92):
 		if (!g_timeCompressionCheat) {
 			break;
 		}
@@ -1112,7 +1367,7 @@ void RunGameKey(MechS32 p_key)
 		}
 		break;
 #ifndef MW2_NO_SCREENSHOT_KEY
-	case 0x5b:
+	case GAME_KEY_ACTION(0x5b):
 		PauseTimer(0x80, 1);
 #ifdef MW2_RAW_SCREENSHOTS
 		if (g_windowActive) {
@@ -1124,6 +1379,16 @@ void RunGameKey(MechS32 p_key)
 		SaveScreenshot();
 		PauseTimer(0x80, 0);
 		sprintf(text, "Image saved - MW2000?.888");
+#elif defined(MW2_SCREENSHOT_ACQUIRE_IF)
+		if (g_windowActive) {
+			g_currentDisplayBackend->m_acquireFramebuffer();
+		}
+		else {
+		}
+
+		SaveScreenshot();
+		PauseTimer(0x80, 0);
+		sprintf(text, "GIF saved - MW2000?.GIF");
 #else
 		g_windowActive ? g_currentDisplayBackend->m_acquireFramebuffer() : -1;
 		SaveScreenshot();

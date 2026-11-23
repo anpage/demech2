@@ -13,6 +13,10 @@
 
 #include <stdlib.h>
 
+#ifdef MW2_ABS_CALLS
+#pragma function(abs) // GBL calls abs in this unit (util/types.h)
+#endif
+
 // The grid SetGridObject sets up: its cell size, whether the object is on, has been shown and
 // snaps to the nearest cell.
 
@@ -208,6 +212,7 @@ void SetGridObject(SceneObject* p_obj)
 
 // Moves the grid object (SetGridObject) to the eyepoint's cell when that changes.
 // FUNCTION: MW2 0x1004b344
+// FUNCTION: MW2GBL 0x10007d44
 // FUNCTION: MW2MATROX 0x100277fe
 // FUNCTION: MW23DFX 0x10011570
 // FUNCTION: MW2ATI 0x10011ad0

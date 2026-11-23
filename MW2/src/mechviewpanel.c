@@ -27,6 +27,9 @@
 #include "accel/a3d.h"
 #include "powervr/a3dviews.h"
 #endif
+#ifdef MW2_STRUCT_COPY_MEMCPY
+#include <string.h>
+#endif
 
 // The handlers of the cockpit panel InitCockpitPanels sets up second (g_cockpitPanels[c_panelMechView]): it
 // cycles through five views of the local mech (CycleMechViewMode), drawn into the panel's render
@@ -218,6 +221,7 @@ void DrawMechViewPanel(CockpitPanel* p_panel)
 #else
 // MW2MATROX: clears each rendered view with the transparent pixel and presents the pane.
 // FUNCTION: MW2 0x100509c8
+// FUNCTION: MW2GBL 0x100121b8
 // FUNCTION: MW2MATROX 0x1008ad78
 // FUNCTION: MW23DFX 0x10011720
 // FUNCTION: MW2ATI 0x10011c80
@@ -271,7 +275,11 @@ void DrawMechViewPanel(CockpitPanel* p_panel)
 			SetMechViewRenderSettings(&saved);
 			camera[4] = 0;
 			RenderViewToPane(5, FIXED_CONST(2), camera, 0);
+#ifdef MW2_STRUCT_COPY_MEMCPY
+			memcpy(&g_renderSettings, &saved, sizeof(RenderSettings));
+#else
 			g_renderSettings = saved;
+#endif
 #ifdef MW2_KEY_COLOR
 			VFX_pane_wipe(p_panel->m_target, MECH_VIEW_WIPE);
 #endif
@@ -297,7 +305,11 @@ void DrawMechViewPanel(CockpitPanel* p_panel)
 		VFX_pane_wipe(p_panel->m_target, MECH_VIEW_WIPE);
 #endif
 		DrawMechViewFrame(p_panel, 6, MECH_VIEW_SHAPE(0xf7));
+#ifdef MW2_STRUCT_COPY_MEMCPY
+		memcpy(&g_renderSettings, &saved, sizeof(RenderSettings));
+#else
 		g_renderSettings = saved;
+#endif
 #ifdef MW2_KEY_COLOR
 		FUN_10088280(p_panel->m_target);
 #endif
@@ -326,7 +338,11 @@ void DrawMechViewPanel(CockpitPanel* p_panel)
 			DrawMechViewFrame(p_panel, 6, MECH_VIEW_SHAPE(0xfa));
 		}
 
+#ifdef MW2_STRUCT_COPY_MEMCPY
+		memcpy(&g_renderSettings, &saved, sizeof(RenderSettings));
+#else
 		g_renderSettings = saved;
+#endif
 #ifdef MW2_KEY_COLOR
 		FUN_10088280(p_panel->m_target);
 #endif
@@ -355,7 +371,11 @@ void DrawMechViewPanel(CockpitPanel* p_panel)
 // FUNCTION: MW2S3 0x1002ea70
 void SetMechViewRenderSettings(RenderSettings* p_saved)
 {
+#ifdef MW2_STRUCT_COPY_MEMCPY
+	memcpy(p_saved, &g_renderSettings, sizeof(RenderSettings));
+#else
 	*p_saved = g_renderSettings;
+#endif
 	g_renderSettings.m_drawPixels = 0;
 	g_renderSettings.m_unk0x08 = 0;
 	g_renderSettings.m_textures = 1;

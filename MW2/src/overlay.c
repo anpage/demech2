@@ -508,6 +508,7 @@ void DrawDebugOverlays(void)
 
 // Draws the 256 palette colours as a grid of 16 swatches per row.
 // FUNCTION: MW2 0x100588a7
+// FUNCTION: MW2GBL 0x100735c7
 // FUNCTION: MW2MATROX 0x1008dd05
 // FUNCTION: MW23DFX 0x1003c630
 // FUNCTION: MW2ATI 0x1003a600

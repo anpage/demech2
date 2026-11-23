@@ -223,6 +223,7 @@ void EndMapView(void)
 // Culls a shape against the map view's frustum: 1 hidden, 4 in front of the near plane, 5 past
 // the far plane, 6 and 7 outside the side planes, 0 visible. Keeps its depth in g_queueDepth.
 // FUNCTION: MW2 0x10042206
+// FUNCTION: MW2GBL 0x10080516
 // FUNCTION: MW2MATROX 0x1001e414
 // FUNCTION: MW23DFX 0x10001220
 // FUNCTION: MW2ATI 0x10001220

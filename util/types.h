@@ -775,8 +775,8 @@ double __cdecl fabs(double);
 /* A game thing's destruction counts for the local team whoever's shot destroyed it, and forgets the
    shooter (KillGameThing) */
 #define MW2_THING_KILLS_FORGET_SHOOTER
-/* Artefact: weapons.c, ai.c and maneuvers.c call the C runtime's abs, which GBL's other units expand
-   (MW2_GBL's pragma above) */
+/* Artefact: weapons.c, ai.c, maneuvers.c and gridobject.c call the C runtime's abs, which GBL's
+   other units expand (MW2_GBL's pragma above), and bandpoly.c and AssignStarTarget its labs */
 #define MW2_ABS_CALLS
 /* Artefact: GetBearingAndRange compares with the C runtime's labs */
 #define MW2_BEARING_LABS
@@ -800,13 +800,41 @@ double __cdecl fabs(double);
 /* The AI's attack and target states stop the group fire as well as the fire (AiStateAttack,
    AiStateMove) */
 #define MW2_AI_STOPS_GROUP_FIRE
-/* Artefact: GBL's source copies a nav point, a ray and a player with memcpy, which its build calls,
-   where the optimized editions show a structure assignment (RemoveNavPoint, CopyRay,
-   LogPlayerStatusLines) */
+/* Artefact: GBL's source copies some structures with memcpy, which its build calls, where the
+   optimized editions show a structure assignment: nav points, rays, players, matrices, weapon slots,
+   render settings and sample headers (RemoveNavPoint, CopyRay, LogPlayerStatusLines, the object
+   matrices, LayoutWeaponPanels, the mech view panel, StartSample) */
 #define MW2_STRUCT_COPY_MEMCPY
 /* Only the local player inspects its target, which counts as inspected once anyone has, and the
    inspect request stays set (UpdateTarget) */
 #define MW2_LOCAL_INSPECTION
+/* DdrawCreateSurfaces sets no DDSD_CAPS in its surface descriptions */
+#define MW2_DDRAW_NO_CAPS_FLAG
+/* The cheat codes are a table with the messages each shows, all stored XORed with 0xa, the messages
+   decoded at the first key typed; GBL has codes of its own, and six of them do nothing
+   (g_cheatCodes, HandleCheatInput) */
+#define MW2_CHEAT_TABLE
+/* GetIniValue cuts a value at a ';' and trims it, unless its second argument asks for the raw value
+   (which error.c's call doesn't pass) */
+#define MW2_INI_COMMENTS
+/* ReportInputDeviceError reports nothing about the mouse */
+#define MW2_NO_MOUSE_ERRORS
+/* Artefact: DrawDepthQueue takes the next entry's index into a local before it copies the entry */
+#define MW2_DEPTH_QUEUE_INDEX
+/* Artefact: FloatVectorLength sums the squares from z down, where 1.1 adds x's and y's first */
+#define MW2_LENGTH_SUM_FROM_Z
+/* QueueObjTree draws no shape of type 0x20 */
+#define MW2_SKIP_SHAPE_TYPE_20
+/* The ALL_PT_MENU, PT_2_MENU and PT_3_MENU game keys (actions 53 to 55) do what the first three
+   starmate menu keys do (RunGameKey) */
+#define MW2_PT_MENU_KEYS
+/* Artefact: RunGameKey's screenshot acquires the frame buffer in an if with an empty else, where 1.1
+   has a conditional expression */
+#define MW2_SCREENSHOT_ACQUIRE_IF
+/* Key 0x3e asks for power down in power state 7 too, where 1.1 ignores it */
+#define MW2_NO_STATE_7_POWER_TEST
+/* UpdateInputs compares an axis' rate pointer with its position's address */
+#define MW2_AXIS_RATE_POINTER_TEST
 #endif
 
 /* A game key action's number: with MW2_CHAT_KEY, the actions from 0x42 on are one higher. */

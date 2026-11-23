@@ -548,6 +548,7 @@ MechS32 FirstExternalCtrl(void)
 }
 
 // FUNCTION: MW2 0x1000e68c
+// FUNCTION: MW2GBL 0x10050431
 // FUNCTION: MW2MATROX 0x1000406c
 // FUNCTION: MW23DFX 0x10033b00
 // FUNCTION: MW2ATI 0x10032700
@@ -869,6 +870,7 @@ void ReceiveChatMsg(NetChatMsg* p_msg, MechS32 p_slot)
 
 // Applies a player's state message.
 // FUNCTION: MW2 0x1000f1ee
+// FUNCTION: MW2GBL 0x10050f81
 // FUNCTION: MW2MATROX 0x10004cbc
 // FUNCTION: MW23DFX 0x10034730
 // FUNCTION: MW2ATI 0x10033330
@@ -1126,6 +1128,7 @@ void ReceiveWeaponsMsg(NetWeaponsMsg* p_msg, MechS32 p_slot)
 
 // Sends player p_slot a collision push along the normal (p_x, p_y, p_z).
 // FUNCTION: MW2 0x1000faef
+// FUNCTION: MW2GBL 0x10051888
 // FUNCTION: MW2MATROX 0x100057cc
 // FUNCTION: MW23DFX 0x10035250
 // FUNCTION: MW2ATI 0x10033e50
@@ -1150,6 +1153,7 @@ void SendCollisionMsg(MechS32 p_slot, MechScalar p_x, MechScalar p_y, MechScalar
 
 // Applies a collision push from player p_slot to the local mech.
 // FUNCTION: MW2 0x1000fb8f
+// FUNCTION: MW2GBL 0x1005192e
 // FUNCTION: MW2MATROX 0x100058d3
 // FUNCTION: MW23DFX 0x10035360
 // FUNCTION: MW2ATI 0x10033f60
@@ -1212,6 +1216,7 @@ void SendGoMsg(void)
 }
 
 // FUNCTION: MW2 0x1000fcf5
+// FUNCTION: MW2GBL 0x10051a93
 // FUNCTION: MW2MATROX 0x10005ab4
 // FUNCTION: MW23DFX 0x10035550
 // FUNCTION: MW2ATI 0x10034150
@@ -1447,6 +1452,7 @@ MechS32 FindSession(LPDPSESSIONDESC p_desc)
 }
 
 // FUNCTION: MW2 0x10010178
+// FUNCTION: MW2GBL 0x10051ecd
 // FUNCTION: MW2MATROX 0x10005f38
 // FUNCTION: MW23DFX 0x10035a40
 // FUNCTION: MW2ATI 0x10034640

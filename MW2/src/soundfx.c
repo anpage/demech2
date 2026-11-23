@@ -305,6 +305,7 @@ MechS32 PlaySample(
 // priority. The m_flags bits: 0x100 keeps the slot, 0x200 restarts the same sound, 0x400
 // plays it only once, 0x1000 loops.
 // FUNCTION: MW2 0x1007e1cf
+// FUNCTION: MW2GBL 0x1003d345
 // FUNCTION: MW2MATROX 0x1008689b
 // FUNCTION: MW2S3 0x100358f0
 MechS32 StartSample(MechS32 p_id, void* p_data, MechU16 p_flags, MechS16 p_slot, MechS32* p_userData)
@@ -393,7 +394,11 @@ MechS32 StartSample(MechS32 p_id, void* p_data, MechU16 p_flags, MechS16 p_slot,
 		}
 	}
 
+#ifdef MW2_STRUCT_COPY_MEMCPY
+	memcpy(&g_audioEngine->m_headers[slot], g_audioEngine->m_data[slot], sizeof(SampleHeader));
+#else
 	g_audioEngine->m_headers[slot] = *(SampleHeader*) g_audioEngine->m_data[slot];
+#endif
 	g_audioEngine->m_data[slot] += sizeof(SampleHeader);
 
 	if (strncmp(g_audioEngine->m_headers[slot].m_tag, g_sampleTag, 4)) {

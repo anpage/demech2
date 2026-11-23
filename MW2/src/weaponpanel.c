@@ -25,6 +25,7 @@
 // in the color of its state (and the weapon group's, while it is ready), and frames the panel
 // in that color if the weapon is selected.
 // FUNCTION: MW2 0x10033280
+// FUNCTION: MW2GBL 0x1004c020
 // FUNCTION: MW2MATROX 0x10055510
 // FUNCTION: MW23DFX 0x1001e820
 // FUNCTION: MW2ATI 0x1001eaf0
@@ -71,6 +72,11 @@ void DrawWeaponPanel(CockpitPanel* p_panel)
 	case 2:
 		color = 0xe;
 		break;
+#ifdef MW2_WEAPON_FUNCTIONS
+	case 4: // the AMS turned off
+		color = 0xb;
+		break;
+#endif
 	default:
 		color = 0xb;
 		break;

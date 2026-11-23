@@ -153,7 +153,7 @@ MechS32 g_shapeHasObject;
 MechU32* g_faceIds;
 
 // GLOBAL: MW2 0x100bfac4
-// GLOBAL: MW2GBL 0x100bb764
+// GLOBAL: MW2GBL 0x100ba120
 // GLOBAL: MW2MATROX 0x100c1e90
 // GLOBAL: MW23DFX 0x1007dc30
 // GLOBAL: MW2ATI 0x10072c30
@@ -294,6 +294,7 @@ Shape* LoadShapes(MechU8* p_data, MechS32* p_offset, MechS32 p_size, SceneObject
 }
 
 // FUNCTION: MW2 0x1007f2d5
+// FUNCTION: MW2GBL 0x10043885
 // FUNCTION: MW2MATROX 0x10025407
 // FUNCTION: MW2S3 0x10047da0
 MechS32 LoadShapeRecord(MechU8* p_data, MechS32* p_offset, Shape** p_shape, SceneObject* p_parent, MechS32* p_count)
