@@ -9,6 +9,9 @@
 #include "types.h"
 
 #include <math.h>
+#ifdef MW2_STRUCT_COPY_MEMCPY
+#include <string.h>
+#endif
 
 DECOMP_SIZE_ASSERT(Ray, 0x38)
 
@@ -128,6 +131,7 @@ void BuildRayFixed(Ray* p_ray)
 }
 
 // FUNCTION: MW2 0x10003053
+// FUNCTION: MW2GBL 0x1004c5c3
 // FUNCTION: MW2MATROX 0x10087a6a
 // FUNCTION: MW23DFX 0x1000afd0
 // FUNCTION: MW2ATI 0x1000b7d0
@@ -287,6 +291,7 @@ void ClipRayToGround(Ray* p_ray, MechScalar p_y)
 }
 
 // FUNCTION: MW2 0x1000342d
+// FUNCTION: MW2GBL 0x1004c9a9
 // FUNCTION: MW2MATROX 0x10087e35
 // FUNCTION: MW23DFX 0x1000b220
 // FUNCTION: MW2ATI 0x1000b990
@@ -294,7 +299,11 @@ void ClipRayToGround(Ray* p_ray, MechScalar p_y)
 // FUNCTION: MW2POWERVR 0x1000a550
 void CopyRay(Ray* p_dst, Ray* p_src)
 {
+#ifdef MW2_STRUCT_COPY_MEMCPY
+	memcpy(p_dst, p_src, sizeof(Ray));
+#else
 	*p_dst = *p_src;
+#endif
 }
 
 // FUNCTION: MW2 0x10003445

@@ -3,8 +3,19 @@
 
 #include "decomp.h"
 #include "types.h"
+#ifdef MW2_WEAPON_FUNCTIONS
+#include "fixedfloat.h"
+#endif
 
-// The properties of an effect type (g_effectInfo).
+#ifdef MW2_WEAPON_FUNCTIONS
+// EffectInfo::m_flags.
+enum {
+	c_effectAttaches = 0x1, // it attaches to the object of the mech the shot hit (Effect::m_attachedShape)
+	c_effectUncounted = 0x2 // it plays however many of its type burn nearby
+};
+#endif
+
+// The properties of an effect type (g_effectInfo). GBL's (MW2_WEAPON_FUNCTIONS) has four more words.
 // SIZE 0x1c
 typedef struct EffectInfo {
 	MechS32 m_duration;    // 0x00 — ticks
@@ -14,6 +25,12 @@ typedef struct EffectInfo {
 	MechS32 m_camera;      // 0x10 — the effect camera may follow it
 	MechS32 m_needsObject; // 0x14 — only a slot with a scene object can play it
 	MechS32 m_damages;     // 0x18 — it deals splash damage while it lasts
+#ifdef MW2_WEAPON_FUNCTIONS
+	undefined4 m_unk0x1c; // 0x1c
+	MechScalar m_damage;  // 0x20 — per tick to what is within its radius (1.1: 0x100 for every type)
+	MechScalar m_heat;    // 0x24 — per tick to the mechs within its radius
+	MechU32 m_flags;      // 0x28 — c_effectAttaches etc.
+#endif
 } EffectInfo;
 
 #endif // EFFECTINFO_H

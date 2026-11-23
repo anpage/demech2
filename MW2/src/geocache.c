@@ -336,6 +336,7 @@ MechS32 AllocGeoTables(void)
 
 // Adds a class to the class table. Returns whether there was room.
 // FUNCTION: MW2 0x1001f504
+// FUNCTION: MW2GBL 0x10049564
 // FUNCTION: MW2MATROX 0x10052ba4
 // FUNCTION: MW23DFX 0x10024830
 // FUNCTION: MW2ATI 0x10024a60
@@ -960,6 +961,7 @@ void LinkStaticObjectThing(MechS32 p_index, MechS32 p_replacement, MechS32 p_thi
 // and loads the entry that replaces it (m_replacement) where the old object was. Returns the
 // replacement's index, or -1.
 // FUNCTION: MW2 0x10020292
+// FUNCTION: MW2GBL 0x1004a2f3
 // FUNCTION: MW2MATROX 0x100539da
 // FUNCTION: MW23DFX 0x10025180
 // FUNCTION: MW2ATI 0x10025350
@@ -990,7 +992,11 @@ MechS32 DestroyStaticObject(MechS32 p_index)
 	if (shape) {
 		obj = entry->m_object;
 		if (obj) {
+#ifdef MW2_STRUCT_COPY_MEMCPY
+			memcpy(&matrix, GetObjWorldMatrix(obj), sizeof(Matrix));
+#else
 			matrix = *GetObjWorldMatrix(obj);
+#endif
 		}
 
 		DestroyObjShape(shape);

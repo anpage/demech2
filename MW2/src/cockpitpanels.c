@@ -464,6 +464,7 @@ void PreloadCockpitSounds(void)
 // fill the rest, alternating. Then reorders the weapons to match, left at even indices and right
 // at odd ones, renumbering their bins, and clears the slots left empty.
 // FUNCTION: MW2 0x1006f4fa
+// FUNCTION: MW2GBL 0x10003daa
 // FUNCTION: MW2MATROX 0x1007954a
 // FUNCTION: MW23DFX 0x1001dcc0
 // FUNCTION: MW2ATI 0x1001df90
@@ -587,7 +588,11 @@ void LayoutWeaponPanels(Mech* p_mech)
 	for (i = c_panelFirstWeapon; i <= FIRST_RIGHT_WEAPON_PANEL - 1; i++) {
 		if (g_cockpitPanels[i]->m_weapon != -1) {
 			slot = &p_mech->m_weapons[g_cockpitPanels[i]->m_weapon];
+#ifdef MW2_STRUCT_COPY_MEMCPY
+			memcpy(dst, slot, sizeof(WeaponSlot));
+#else
 			*dst = *slot;
+#endif
 			if (i != FIRST_RIGHT_WEAPON_PANEL - 1) {
 				dst += 2;
 			}
@@ -598,7 +603,11 @@ void LayoutWeaponPanels(Mech* p_mech)
 	for (i = FIRST_RIGHT_WEAPON_PANEL; i <= LAST_WEAPON_PANEL; i++) {
 		if (g_cockpitPanels[i]->m_weapon != -1) {
 			slot = &p_mech->m_weapons[g_cockpitPanels[i]->m_weapon];
+#ifdef MW2_STRUCT_COPY_MEMCPY
+			memcpy(dst, slot, sizeof(WeaponSlot));
+#else
 			*dst = *slot;
+#endif
 			if (i != LAST_WEAPON_PANEL) {
 				dst += 2;
 			}

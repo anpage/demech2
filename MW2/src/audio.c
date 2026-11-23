@@ -469,6 +469,7 @@ MechS32 FirstAudio(void)
 // Serves the samples and, every five seconds, sounds a warning while an AI player within
 // 150000 attacks the local player.
 // FUNCTION: MW2 0x10006ef1
+// FUNCTION: MW2GBL 0x10022681
 // FUNCTION: MW2MATROX 0x10044e61
 // FUNCTION: MW23DFX 0x10031e30
 // FUNCTION: MW2ATI 0x10030c20

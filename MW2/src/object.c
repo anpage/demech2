@@ -40,6 +40,7 @@ DECOMP_SIZE_ASSERT(SceneObject, 0x7c)
 MechU32 g_nextRenormalizeCountdown = 100;
 
 // FUNCTION: MW2 0x100012d0
+// FUNCTION: MW2GBL 0x10019200
 // FUNCTION: MW2MATROX 0x10040dd0
 // FUNCTION: MW23DFX 0x1000f5e0
 // FUNCTION: MW2ATI 0x1000fcb0
@@ -93,7 +94,11 @@ SceneObject* CreateObj(SceneObject* p_parent, MechU32 p_flags)
 	SetIdentityMatrix(&obj->m_local);
 
 	if (p_parent) {
+#ifdef MW2_STRUCT_COPY_MEMCPY
+		memcpy(&obj->m_world, &p_parent->m_world, sizeof(Matrix));
+#else
 		obj->m_world = p_parent->m_world;
+#endif
 	}
 	else {
 		SetIdentityMatrix(&obj->m_world);
@@ -114,6 +119,7 @@ SceneObject* CreateObj(SceneObject* p_parent, MechU32 p_flags)
 }
 
 // FUNCTION: MW2 0x1000145a
+// FUNCTION: MW2GBL 0x1001938f
 // FUNCTION: MW2MATROX 0x10040f5a
 // FUNCTION: MW23DFX 0x1000f6d0
 // FUNCTION: MW2ATI 0x1000fda0
@@ -137,7 +143,11 @@ SceneObject* InitObj(SceneObject* p_parent, void* p_memory)
 	SetIdentityMatrix(&obj->m_local);
 
 	if (p_parent) {
+#ifdef MW2_STRUCT_COPY_MEMCPY
+		memcpy(&obj->m_world, &p_parent->m_world, sizeof(Matrix));
+#else
 		obj->m_world = p_parent->m_world;
+#endif
 	}
 	else {
 		SetIdentityMatrix(&obj->m_world);
@@ -305,6 +315,7 @@ void MoveObj(SceneObject* p_obj, MechScalar p_x, MechScalar p_y, MechScalar p_z)
 
 // The PowerVR edition also sets the object's translation and rotation transforms.
 // FUNCTION: MW2 0x10001694
+// FUNCTION: MW2GBL 0x100195ce
 // FUNCTION: MW2MATROX 0x100411a6
 // FUNCTION: MW23DFX 0x1000f880
 // FUNCTION: MW2ATI 0x1000ff20
@@ -318,7 +329,11 @@ void SetObjTransform(SceneObject* p_obj, Matrix* p_matrix)
 	MechScalar angleZ;
 
 #endif
+#ifdef MW2_STRUCT_COPY_MEMCPY
+	memcpy(&p_obj->m_local, p_matrix, sizeof(Matrix));
+#else
 	p_obj->m_local = *p_matrix;
+#endif
 	p_obj->m_flags |= c_objectDirty;
 #ifdef MW2_POWERVR
 	FUN_1005fb60(
@@ -663,6 +678,7 @@ void ClearObjTreeKind(SceneObject* p_obj, MechS32 p_flags)
 
 // Recomputes the world matrices of the object and its subtree, and their shapes' centers.
 // FUNCTION: MW2 0x10001c3f
+// FUNCTION: MW2GBL 0x10019b7e
 // FUNCTION: MW2MATROX 0x10041751
 // FUNCTION: MW23DFX 0x1000fbe0
 // FUNCTION: MW2ATI 0x10010230
@@ -679,7 +695,11 @@ void UpdateObjWorld(SceneObject* p_obj)
 		MultiplyMatrix(&p_obj->m_parent->m_world, &p_obj->m_local, &p_obj->m_world);
 	}
 	else {
+#ifdef MW2_STRUCT_COPY_MEMCPY
+		memcpy(&p_obj->m_world, &p_obj->m_local, sizeof(Matrix));
+#else
 		p_obj->m_world = p_obj->m_local;
+#endif
 	}
 
 	shape = p_obj->m_shape;
@@ -771,6 +791,7 @@ Matrix* GetObjLocalMatrix(SceneObject* p_obj)
 
 // The PowerVR edition also sets the object's translation and rotation transforms.
 // FUNCTION: MW2 0x10001de6
+// FUNCTION: MW2GBL 0x10019d2a
 // FUNCTION: MW2MATROX 0x100418f8
 // FUNCTION: MW23DFX 0x1000fcc0
 // FUNCTION: MW2ATI 0x100102e0
@@ -784,7 +805,11 @@ void SetObjLocalMatrix(SceneObject* p_obj, Matrix* p_matrix)
 	MechScalar angleZ;
 
 #endif
+#ifdef MW2_STRUCT_COPY_MEMCPY
+	memcpy(&p_obj->m_local, p_matrix, sizeof(Matrix));
+#else
 	p_obj->m_local = *p_matrix;
+#endif
 #ifdef MW2_POWERVR
 	FUN_1005fb60(
 		p_obj->m_translation,
@@ -811,17 +836,23 @@ Matrix* GetObjWorldMatrix(SceneObject* p_obj)
 }
 
 // FUNCTION: MW2 0x10001e17
+// FUNCTION: MW2GBL 0x10019d60
 // FUNCTION: MW2MATROX 0x10041929
 // FUNCTION: MW23DFX 0x1000fcf0
 void SetObjWorldMatrix(SceneObject* p_obj, Matrix* p_matrix)
 {
+#ifdef MW2_STRUCT_COPY_MEMCPY
+	memcpy(&p_obj->m_world, p_matrix, sizeof(Matrix));
+#else
 	p_obj->m_world = *p_matrix;
+#endif
 }
 
 // Unlinks the object from its parent, keeping its world placement.
 // In the PowerVR edition the object's transforms take its world placement, and its list moves to the
 // scene's.
 // FUNCTION: MW2 0x10001e32
+// FUNCTION: MW2GBL 0x10019d80
 // FUNCTION: MW2MATROX 0x10041944
 // FUNCTION: MW23DFX 0x1000fd10
 // FUNCTION: MW2ATI 0x10010310
@@ -859,7 +890,7 @@ void DetachObj(SceneObject* p_obj)
 #endif
 	p_obj->m_parent = NULL;
 	p_obj->m_nextSibling = NULL;
-	p_obj->m_local = p_obj->m_world;
+	memcpy(&p_obj->m_local, &p_obj->m_world, sizeof(p_obj->m_local));
 	p_obj->m_flags |= c_objectDirty;
 	UpdateObj(p_obj);
 }

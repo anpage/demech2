@@ -70,12 +70,17 @@ void NormalizeVectorGuarded(MechScalar* p_x, MechScalar* p_y, MechScalar* p_z)
 #endif
 
 // FUNCTION: MW2 0x10016a2e
+// FUNCTION: MW2GBL 0x1002d3ae
 MechS32 FloatVectorLength(MechS32 p_x, MechS32 p_y, MechS32 p_z)
 {
 	MechDouble x = p_x;
 	MechDouble y = p_y;
 	MechDouble z = p_z;
 
+#ifdef MW2_LENGTH_SUM_FROM_Z
+	return (MechS32) (sqrt(z * z + y * y + x * x) + 0.5);
+#else
 	/* Only this grouping of the sum matches. */
 	return (MechS32) (sqrt(z * z + (x * x + y * y)) + 0.5);
+#endif
 }

@@ -18,6 +18,7 @@
 MechS32 g_iniSectionOffset = -1;
 
 // GLOBAL: MW2 0x100bee88
+// GLOBAL: MW2GBL 0x100b9060
 // GLOBAL: MW2MATROX 0x100c1c98
 // GLOBAL: MW23DFX 0x1007d558
 // GLOBAL: MW2ATI 0x10072558
@@ -78,17 +79,25 @@ MechS32 FindIniSection(MechChar* p_section)
 // Returns the value of p_key in the section FindIniSection found, or an empty string. The
 // value's last character (the newline) is cut off.
 // FUNCTION: MW2 0x1006c817
+// FUNCTION: MW2GBL 0x1001da17
 // FUNCTION: MW2MATROX 0x1000a2a0
 // FUNCTION: MW23DFX 0x1003b450
 // FUNCTION: MW2ATI 0x1003a010
 // FUNCTION: MW2S3 0x1003b690
 // FUNCTION: MW2POWERVR 0x10034e50
+#ifdef MW2_INI_COMMENTS
+MechChar* GetIniValue(MechChar* p_key, MechS32 p_raw)
+#else
 MechChar* GetIniValue(MechChar* p_key)
+#endif
 {
 	FILE* file;
 	MechChar* value;
 	size_t length;
 	MechChar* line;
+#ifdef MW2_INI_COMMENTS
+	size_t end;
+#endif
 
 	if (g_iniSectionOffset == -1 || !(file = fopen("mw2.ini", "rt"))) {
 		return "";
@@ -124,6 +133,14 @@ MechChar* GetIniValue(MechChar* p_key)
 	if (length > 0) {
 		value[length - 1] = '\0';
 	}
+
+#ifdef MW2_INI_COMMENTS
+	if (!p_raw) {
+		end = strcspn(value, ";");
+		value[end] = '\0';
+		value = TrimWhitespace(value);
+	}
+#endif
 
 	return value;
 }

@@ -150,6 +150,7 @@ MechS32 GetTextWidth(const MechChar* p_text, void* p_font)
 // with its state at the right edge of the panel. A name longer than 31 characters takes two
 // lines. In a network game whose only listed objective is a secondary one, it counts as primary.
 // FUNCTION: MW2 0x100050d1
+// FUNCTION: MW2GBL 0x10044821
 // FUNCTION: MW2MATROX 0x10021a1d
 // FUNCTION: MW23DFX 0x100176d0
 // FUNCTION: MW2ATI 0x10017a90

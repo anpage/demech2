@@ -2862,6 +2862,7 @@ void DrawSkyAndGround(Eyepoint* p_eyepoint)
 // The original calls IsAboveHorizon for the corners in the order of the terms, (x0, y1) first,
 // which the corner bits written as shifts keep.
 // FUNCTION: MW2 0x1004320b
+// FUNCTION: MW2GBL 0x10017ccb
 void DrawSkyAndGround(Eyepoint* p_eyepoint)
 {
 	MechS32 dy;

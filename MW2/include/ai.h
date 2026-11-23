@@ -206,4 +206,7 @@ MechS16 GetEngagementAIFlags(MechS32 p_value);
 // FUNCTION: MW2GBL 0x1007687f
 // RunAIRules
 
+// FUNCTION: MW2GBL 0x10076a4a
+// CollectAIRules
+
 #endif // AI_H

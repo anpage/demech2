@@ -351,6 +351,7 @@ MechS32 LoadHudFile(ResourceRef* p_ref)
 // Loads the cockpit layout resource p_ref: five rectangles into p_gauges, fifteen into p_panels
 // and a point.
 // FUNCTION: MW2 0x10070e22
+// FUNCTION: MW2GBL 0x10042db2
 // FUNCTION: MW2MATROX 0x1000b40e
 // FUNCTION: MW23DFX 0x100404f0
 // FUNCTION: MW2ATI 0x1003e250
@@ -393,7 +394,11 @@ MechS32 LoadCptFile(ResourceRef* p_ref, PANE* p_gauges, PANE* p_panels, Point* p
 	}
 
 	target = p_panels;
+#ifdef MW2_FOURTEEN_WEAPON_SLOTS
+	for (i = 0; i < 19; i++) { // four more weapon panels
+#else
 	for (i = 0; i < 15; i++) {
+#endif
 		target->m_x0 = frame->m_x;
 		target->m_y0 = frame->m_y;
 		target->m_x1 = frame->m_x + frame->m_width - 1;

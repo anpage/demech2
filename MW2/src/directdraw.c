@@ -405,6 +405,7 @@ MechS32 DdrawCreateSurfaces(MechS32 p_width, MechS32 p_height)
 }
 #else
 // FUNCTION: MW2 0x10077990
+// FUNCTION: MW2GBL 0x1002fb48
 // FUNCTION: MW2ATI 0x100052e0
 MechS32 DdrawCreateSurfaces(MechS32 p_width, MechS32 p_height)
 {

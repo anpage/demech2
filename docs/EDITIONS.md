@@ -103,9 +103,11 @@ compiler with optimization.
 - **Build.** VC++ 4.1 at `/Od /G5` with `LIBCMTD`, as 1.1, but without `/Oi`: there is no inline `strlen` in its game code (1.1 has 85), it calls `memset`, `memcpy`, `strcmp` and `memcmp` where 1.1 expands them (`FindSession`, `FindIpxProviderCallback`), and `_sqrt`, `_sin` and `_atan` where 1.1 calls their `__CI` entries. It expands `abs` and `fabs` all the same, as 1.1 does; how its build did that isn't known (a `#pragma intrinsic` or other headers), and `util/types.h` reproduces it with a `#pragma intrinsic(abs, fabs)` under `MW2_GBL`. It was linked without `/DEBUG` (the DLL has no debug directory), so with LINK's default `/OPT:REF`: the functions nothing calls are gone, with the imports of the C runtime they bring in (1.1's `HeapWalk`, locale and console imports), which is most of why its code is 20 KB smaller than 1.1's.
 - **Placement.** Its object order is its own (`MW2/sources_gbl.cmake`: it shares no long run of units with 1.1's, the Matrox edition's or the 2.2 editions'), found from the functions and data it shares with 1.1, and `tools/check_units.py` passes with it. Three of its objects are parts of 1.1's: the cockpit panels (`cockpitpanels.c`, after `timedoverlays.c`), the faces' projection (`faceprojection.c`, the end of 1.1's `objectanim.c`, after `mechcollision.c`, where the Matrox edition has its float versions) and `clock.c`'s tables with the rotation's normalization (`clockmath.c`, at the end of its code); it builds those fragments as units. It defines `g_shouldToggleFullscreen`, `g_desktopWidth` and `g_desktopHeight` among `refreshmode.c`'s data, not `simmain.c`'s, and places `RunAIRules` after `FirstAI` (annotated by name in `ai.h`).
 - **Annotations** were ported by bytes from 1.1's original, then from the rebuild (`tools/port_annotations.py --rebuild`: the functions that differ from 1.1's only by the intrinsics), and the globals datacmp then reported left out: the data GBL changed (the cockpit panels' layout, the weapon definitions, the game keys' names, the local star) and the tables that point to functions not annotated yet, with the menus and back ends that point to those.
-- **Structures.** Its `Mech` (0x114 bytes) has `m_externalHeat` at 0x98, the heat the radius damage adds and `CalculateHeat` takes (`MW2_EXTERNAL_HEAT`), and a second word of flags at its end (`MW2_MECH_SECOND_FLAGS`); a mech has 14 weapon slots, not 10 (`MW2_FOURTEEN_WEAPON_SLOTS`, `WEAPON_SLOT_COUNT`). Its `Player` (0x1b8 bytes) has a word nothing uses after `m_ai` (`MW2_PLAYER_SPARE_WORD`), and a flag after `m_nextFireTime` and two values at its end that its AI setup takes from a table of pilots for a gunnery above 6 (`MW2_PILOT_TABLE`). Its 14 weapon slots have 14 weapon panels, seven in each column, so its panels from the target's on are 4 further (`c_panelTarget` 17, `c_panelCount` 30) and its panel tables have 30 entries.
+- **Structures.** Its `Mech` (0x114 bytes) has `m_externalHeat` at 0x98, the heat the radius damage adds and `CalculateHeat` takes (`MW2_EXTERNAL_HEAT`), and a second word of flags at its end (`MW2_MECH_SECOND_FLAGS`); a mech has 14 weapon slots, not 10 (`MW2_FOURTEEN_WEAPON_SLOTS`, `WEAPON_SLOT_COUNT`). Its `Player` (0x1b8 bytes) has an `int` for its AI flags, where 1.1 has a short (`MW2_AI_FLAGS_INT`), and a flag after `m_nextFireTime` and two values at its end that its AI setup takes from a table of pilots for a gunnery above 6 (`MW2_PILOT_TABLE`). Its 14 weapon slots have 14 weapon panels, seven in each column, so its panels from the target's on are 4 further (`c_panelTarget` 17, `c_panelCount` 30) and its panel tables have 30 entries.
 - **VFX.** GBL links VFXA as released (`MW2_VFX_STOCK`, the accelerated editions' feature) with `VFX_lookaside_write` (`MW2_VFX_LOOKASIDE_WRITE`), and keeps 1.1's aligned fill in VFX3D's `VFX_flat_polygon` (`MW2_VFX3D_ALIGNED_FILL`, as the ATI and PowerVR editions do); its VFXREND is 1.1's. The target passes ML its features (`demech2_edition_masm_defines`).
-- **Data.** Two game keys of its own: `CHAT_MODE`, action 66, so its actions from 66 on are one higher (`MW2_CHAT_KEY`, `GAME_KEY_ACTION`), and `TOGGLE_AMS`, 169 (`MW2_AMS_KEY`). Its local star starts at 0, as the accelerated editions' does (`MW2_LOCAL_STAR_FROM_ZERO`). Its message boxes and refresh mode errors name Ghost Bear's Legacy, typos included (`MW2_GHOST_BEAR_TITLES`), and it finds its CD by `GBL_HERC.DRV` (`MW2_GBL_CD_DRIVER`). `GetEngagementAIFlags` returns an `int` (`MW2_ENGAGEMENT_FLAGS_INT`), and a recentering torso snaps to the legs within 1 degree, not 4 (`MW2_TORSO_SNAP_ONE_DEGREE`). Still to write: its weapon definitions (`WeaponDef` has 16 more bytes ahead of 1.1's members, among them a pointer to a launch function, and the table has 35 weapons, Inf SRM, Torpedo, InfSSRM and ArrowIV the new ones), its maneuver tables (static data, where 1.1 fills them at run time), and the tables of pointers to its functions that differ from 1.1's (its DirectDraw back end, the menus' and orders' handlers, the AI states), which are annotated but not yet the edition's.
+- **Data.** Two game keys of its own: `CHAT_MODE`, action 66, so its actions from 66 on are one higher (`MW2_CHAT_KEY`, `GAME_KEY_ACTION`), and `TOGGLE_AMS`, 169 (`MW2_AMS_KEY`). Its local star starts at 0, as the accelerated editions' does (`MW2_LOCAL_STAR_FROM_ZERO`). Its message boxes and refresh mode errors name Ghost Bear's Legacy, typos included (`MW2_GHOST_BEAR_TITLES`), and it finds its CD by `GBL_HERC.DRV` (`MW2_GBL_CD_DRIVER`). `GetEngagementAIFlags` returns an `int` (`MW2_ENGAGEMENT_FLAGS_INT`), and a recentering torso snaps to the legs within 1 degree, not 4 (`MW2_TORSO_SNAP_ONE_DEGREE`). Still to write: the tables of pointers to its functions that differ from 1.1's (its DirectDraw back end, the menus' and orders' handlers, the AI states), which are annotated but not yet the edition's.
+- **Weapons, shots and effects** (`MW2_WEAPON_FUNCTIONS`). A weapon type (`WeaponDef`, 0x68 bytes) starts with a function its slots call each frame, its launch function (`SpawnShot`, which now takes the definition, for all but the AMS), flags and the first of eight animations; the table has 35 weapons, Inf SRM, Torpedo, InfSSRM and ArrowIV the new ones. The flags say when the launch sound plays (a volley's first shot or each), whether the weapon selection stops at it (not the AMS), whether its guided shot eases its turns (the torpedo), whether its shot starts the animations (the flamer) or leaves from the hardpoint itself, and whether it marks the mech it hits (the NARC: a guided weapon then locks on that mech at once). A shot (0x58 bytes, 255 of them) carries its weapon's flags; an effect (0x2c, 255) the shape it is attached to; an effect type (0x2c bytes, 36 of them) its own damage and heat per tick and flags (attached to the hit mech's object, uncounted), where 1.1 damages by 0x100 a tick whatever the type. `UpdateEffects` grows the radius of the nuke's and effect 0x23's damage as they burn, and the radius damage heats mechs from outside. `PlayPositionalSound` takes the sample's flags and plays nothing past a cutoff distance (`MW2_POSITIONAL_SOUND_FLAGS`); a destroyed game thing counts for the team whoever destroyed it (`MW2_THING_KILLS_FORGET_SHOOTER`), and a shot destroys a building at once (`MW2_BUILDINGS_FALL_AT_ONCE`). The AMS (`MW2/src/gbl/ams.c`, an object of its own before `refreshmode.c`'s) fires when an enemy missile within 50000 units closes on its mech, one to five rounds a launch, and gives each missile it reaches, once, a range from the mech at which it detonates: three times in four a random one beyond 2500 units. Its game key turns it off (a slot state of 4) and on.
+- **Damage, kills and the AI.** A destroyed mech blows the critical slot of its first ammunition bin, and a pilot ejects when auto-eject is on or the mech isn't the player's (`MW2_DESTROY_BLOWS_FIRST_BIN`); kills and hits count for the player whose shot hit last, and in a network game only the local mech's damage and death are played out (`MW2_KILLS_BY_LAST_SHOOTER`); an overheated mech dies after 1810 ticks. Its maneuver tables are data, where 1.1 fills them at run time: every type but the mech has the stupid maneuver, and four more tables serve the pilot table, whose entries (for a gunnery above 6, `InitializeAI`) give a pilot its skills, its maneuver table and the range at which it breaks off (`MW2_STATIC_MANEUVER_TABLES`). An AI pilot whose pilot-table entry has the flag fires its weapons as one group (`GroupAIWeapons`, `DecideAIFire`, `RunAIWeapons`), a player's AI flags are an `int` (`MW2_AI_FLAGS_INT`), only the local player inspects targets (`MW2_LOCAL_INSPECTION`), and its source copies a nav point and a ray with `memcpy` (`MW2_STRUCT_COPY_MEMCPY`).
 - **What it changed** besides, from a first comparison with 1.1, to be settled as the edition is worked in: about 18 functions 1.1 doesn't have: the cheat messages stored XOR-encoded and decoded at startup, a toggle between two modes of one weapon type, a MIDI volume setter, display modes in the face colours; and a restructured `RunGameKey`.
 
 ## Adding an edition
@@ -279,7 +281,7 @@ tests an `MW2_` macro the table doesn't define, and when no target compiles a br
 
 ## Features
 
-From the table in `util/types.h` (175 features) and the 1211 conditional sites of the simulators' sources (`MW2/`, `common/`, `3rdparty/vfx`). A feature's cell is its value where it has one.
+From the table in `util/types.h` (198 features) and the 1358 conditional sites of the simulators' sources (`MW2/`, `common/`, `3rdparty/vfx`). A feature's cell is its value where it has one.
 
 ### The ATI, S3, Matrox, PowerVR and 3Dfx editions (`MW2_ACCEL`)
 
@@ -329,7 +331,6 @@ Every edition that has one of these has them all, so no binary separates one fro
 | `MW2_NETWORK_STAR_PLAYERS` |  | yes | yes | yes | yes |  | yes | 2 | UpdateObjective takes star N as player N in network games |
 | `MW2_RESTART_KEEPS_LISTED` |  | yes | yes | yes | yes |  | yes | 1 | Restarting a star mission keeps its objectives' targets' listed flags |
 | `MW2_JOYINFOEX_UNCLEARED` |  | yes | yes | yes | yes |  | yes | 1 | JoystickPoll neither clears its JOYINFOEX nor sets its size |
-| `MW2_AXIS_RATE_POINTER_TEST` |  | yes | yes | yes | yes |  | yes | 1 | UpdateInputs compares an axis' rate pointer with its position's address |
 | `MW2_NO_FULLSCREEN_KEY` |  | yes | yes | yes | yes |  | yes | 1 | Key code 0x40d no longer toggles full screen |
 | `MW2_LEMMY_CHEAT` |  | yes | yes | yes | yes |  | yes | 1 | The "lemmy" cheat |
 | `MW2_NO_DORCS_CHEAT` |  | yes | yes | yes | yes |  | yes | 1 | 1.1's "dorcs" cheat is gone |
@@ -342,6 +343,7 @@ Every edition that has one of these has them all, so no binary separates one fro
 | `MW2_VFX_STOCK` |  | yes | yes | yes | yes | yes | yes | 7 | VFX as released (unaligned fills and runs, word-wise character copies), where 1.1 modified it; the assembly gets it from cmake/editions.cmake |
 | `MW2_VFX_LOOKASIDE_WRITE` |  | yes | yes | yes | yes | yes | yes | 2 | VFXA's VFX_lookaside_write, which sets one lookaside entry (cmake/editions.cmake) |
 | `MW2_LOCAL_STAR_FROM_ZERO` |  | yes | yes | yes | yes | yes | yes | 2 | The local star starts at 0, and the player's formation goes to it |
+| `MW2_AXIS_RATE_POINTER_TEST` |  | yes | yes | yes | yes | yes | yes | 1 | UpdateInputs compares an axis' rate pointer with its position's address |
 
 ### The ATI, Matrox and 3Dfx editions (`MW2_MATROX`, `MW2_3DFX`, `MW2_ATI`)
 
@@ -448,9 +450,14 @@ Every edition that has one of these has them all, so no binary separates one fro
 |---|:-:|:-:|:-:|:-:|:-:|:-:|:-:|--:|---|
 | `MW2_SKY_GROUND_COLORS` |  | yes |  |  |  |  | yes | 1 | DrawSkyAndGround sets the sky and ground palette entries |
 | `MW2_SKY_GROUND_ALL_CASES` |  | yes |  |  |  |  | yes | 1 | DrawSkyAndGround goes through the horizon's cases when it draws neither the sky nor the ground |
-| `MW2_NO_STATE_7_POWER_TEST` |  | yes |  |  |  |  | yes | 1 | Key 0x3e asks for power down in power state 7 too, where 1.1 ignores it |
 | `MW2_RECENTER_NO_RETEST` |  | yes |  |  |  |  | yes | 1 | *Artefact.* LateUpdateMech's torso recentring records the heading without testing isLocal again (it holds there) |
 | `MW2_DEBUG_LOG_FORMATS` |  | yes |  |  |  |  | yes | 1 | The debug log prints the sky's and the ground's colours on one line |
+
+### The ATI, GBL and 3Dfx editions (`MW2_3DFX`, `MW2_ATI`, `MW2_GBL`)
+
+| Feature | 1.1 | ATI | S3 | Matrox | PowerVR | GBL | 3Dfx | Sites | What it does |
+|---|:-:|:-:|:-:|:-:|:-:|:-:|:-:|--:|---|
+| `MW2_NO_STATE_7_POWER_TEST` |  | yes |  |  |  | yes | yes | 1 | Key 0x3e asks for power down in power state 7 too, where 1.1 ignores it |
 
 ### The S3, PowerVR and 3Dfx editions (`MW2_3DFX`, `MW2_S3`, `MW2_POWERVR`)
 
@@ -480,7 +487,6 @@ Every edition that has one of these has them all, so no binary separates one fro
 | `MW2_JUMP_JET_THRUST_FIRST` |  | yes |  |  |  |  |  | 4 | UpdateMech's jump jets add their thrust to accelX before the drag (the later editions add the drag and the thrust first, as for accelZ) |
 | `MW2_RES_512X384` |  | yes |  |  |  |  |  | 4 | VESA480.DLL is 512x384 when DirectDraw has the mode in 16 bits (FUN_100059b0), 640x480 otherwise |
 | `MW2_DDRAW_CAPS_DX1` |  | yes |  |  |  |  |  | 2 | *Artefact.* DdrawInit's DDCAPS is DirectX 1's, 0xac bytes (the edition was built with DirectX 1's headers) |
-| `MW2_DDRAW_NO_CAPS_FLAG` |  | yes |  |  |  |  |  | 3 | DdrawCreateSurfaces sets no DDSD_CAPS in its surface descriptions |
 | `MW2_DDRAW_FALLBACK_SURFACES_ONLY` |  | yes |  |  |  |  |  | 1 | DdrawCreateSurfaces makes the primary surface of the larger modes only the second way: with one back buffer when it flips, without video memory in refresh mode 3, and not at all in mode 2 |
 
 ### The ATI, S3 and PowerVR editions (`MW2_ATI`, `MW2_S3`, `MW2_POWERVR`)
@@ -488,6 +494,12 @@ Every edition that has one of these has them all, so no binary separates one fro
 | Feature | 1.1 | ATI | S3 | Matrox | PowerVR | GBL | 3Dfx | Sites | What it does |
 |---|:-:|:-:|:-:|:-:|:-:|:-:|:-:|--:|---|
 | `MW2_DDRAW_PALETTE_UNSET` |  | yes | yes |  | yes |  |  | 2 | The DirectDraw back end's palette writes record the colors and compute the entries, but set no DirectDraw palette (the display is 16-bit) |
+
+### The ATI and GBL editions (`MW2_ATI`, `MW2_GBL`)
+
+| Feature | 1.1 | ATI | S3 | Matrox | PowerVR | GBL | 3Dfx | Sites | What it does |
+|---|:-:|:-:|:-:|:-:|:-:|:-:|:-:|--:|---|
+| `MW2_DDRAW_NO_CAPS_FLAG` |  | yes |  |  |  | yes |  | 3 | DdrawCreateSurfaces sets no DDSD_CAPS in its surface descriptions |
 
 ### The S3 edition (`MW2_S3`)
 
@@ -551,17 +563,40 @@ Every edition that has one of these has them all, so no binary separates one fro
 
 | Feature | 1.1 | ATI | S3 | Matrox | PowerVR | GBL | 3Dfx | Sites | What it does |
 |---|:-:|:-:|:-:|:-:|:-:|:-:|:-:|--:|---|
-| `MW2_EXTERNAL_HEAT` |  |  |  |  |  | yes |  | 2 | Mechs take heat from outside (Mech::m_externalHeat, which the radius damage adds to and CalculateHeat adds to the frame's heat) |
-| `MW2_MECH_SECOND_FLAGS` |  |  |  |  |  | yes |  | 2 | Mechs have a second word of flags (Mech::m_unk0x112: UpdateAllShots sets bit 0) |
-| `MW2_FOURTEEN_WEAPON_SLOTS` |  |  |  |  |  | yes |  | 6 | Mechs have 14 weapon slots, not 10 (WEAPON_SLOT_COUNT) |
-| `MW2_PILOT_TABLE` |  |  |  |  |  | yes |  | 3 | An AI player whose gunnery is above 6 takes its skills from a table of pilots, with two more values and a flag the AI's fire decisions test (Player::m_unk0x160, m_unk0x1b0, m_unk0x1b4) |
-| `MW2_PLAYER_SPARE_WORD` |  |  |  |  |  | yes |  | 2 | The player has a word after its AI state that nothing reads or writes (Player::m_unk0x154) |
-| `MW2_CHAT_KEY` |  |  |  |  |  | yes |  | 1 | The CHAT_MODE game key, action 66: the later actions are one higher (GAME_KEY_ACTION) |
-| `MW2_AMS_KEY` |  |  |  |  |  | yes |  | 1 | The TOGGLE_AMS game key, action 169 |
+| `MW2_EXTERNAL_HEAT` |  |  |  |  |  | yes |  | 3 | Mechs take heat from outside (Mech::m_externalHeat, which the radius damage adds to and CalculateHeat adds to the frame's heat) |
+| `MW2_MECH_SECOND_FLAGS` |  |  |  |  |  | yes |  | 2 | Mechs have a second word of flags (Mech::m_unk0x112, whose bit 0 UpdateShot sets for a NARC hit) |
+| `MW2_FOURTEEN_WEAPON_SLOTS` |  |  |  |  |  | yes |  | 7 | Mechs have 14 weapon slots, not 10 (WEAPON_SLOT_COUNT) |
+| `MW2_PILOT_TABLE` |  |  |  |  |  | yes |  | 12 | An AI player whose gunnery is above 6 takes its skills from a table of pilots, with two more values and a flag the AI's fire decisions test (Player::m_unk0x160, m_unk0x1b0, m_unk0x1b4) |
+| `MW2_STATIC_MANEUVER_TABLES` |  |  |  |  |  | yes |  | 7 | The maneuver tables are data, five of them the pilot table's, and each player has its table and a range (Player::m_maneuverTable, m_unk0x1b0: InitializeManeuvers) |
+| `MW2_AI_FLAGS_INT` |  |  |  |  |  | yes |  | 4 | *Representation.* A player's AI flags are an int, not a short (PlayerAi::m_flags) |
+| `MW2_CHAT_KEY` |  |  |  |  |  | yes |  | 2 | The CHAT_MODE game key, action 66: the later actions are one higher (GAME_KEY_ACTION) |
+| `MW2_AMS_KEY` |  |  |  |  |  | yes |  | 3 | The TOGGLE_AMS game key, action 169 |
 | `MW2_GHOST_BEAR_TITLES` |  |  |  |  |  | yes |  | 4 | The message boxes and the refresh mode errors name Ghost Bear's Legacy |
 | `MW2_GBL_CD_DRIVER` |  |  |  |  |  | yes |  | 1 | The game's CD is the drive with GBL_HERC.DRV |
 | `MW2_ENGAGEMENT_FLAGS_INT` |  |  |  |  |  | yes |  | 2 | *Representation.* GetEngagementAIFlags returns an int, not a short |
 | `MW2_TORSO_SNAP_ONE_DEGREE` |  |  |  |  |  | yes |  | 1 | A recentering torso snaps to the legs within 1 degree, not 4 (TORSO_SNAP_RANGE) |
+| `MW2_WEAPON_FUNCTIONS` |  |  |  |  |  | yes |  | 59 | Weapons work through their definitions: each has a launch function (SpawnShot for all but the AMS), a function called each frame, flags (the launch sounds, an animation) and an animation, and there are 35 of them; shots and effects carry the weapon's flags and a word more, and there are 255 of each and 36 effect types, with four more words each (WeaponDef, Shot, Effect, EffectInfo) |
+| `MW2_POSITIONAL_SOUND_FLAGS` |  |  |  |  |  | yes |  | 2 | PlayPositionalSound takes the sample's flags (PlayPositionalSoundEx; the old entry point passes 0x32), and plays nothing beyond a cutoff distance, g_unk0x100ba608 hundred units, when that is set |
+| `MW2_THING_KILLS_FORGET_SHOOTER` |  |  |  |  |  | yes |  | 2 | A game thing's destruction counts for the local team whoever's shot destroyed it, and forgets the shooter (KillGameThing) |
+| `MW2_ABS_CALLS` |  |  |  |  |  | yes |  | 6 | *Artefact.* Weapons.c, ai.c, maneuvers.c and gridobject.c call the C runtime's abs, which GBL's other units expand (MW2_GBL's pragma above), and bandpoly.c and AssignStarTarget its labs |
+| `MW2_BEARING_LABS` |  |  |  |  |  | yes |  | 1 | *Artefact.* GetBearingAndRange compares with the C runtime's labs |
+| `MW2_BUILDINGS_FALL_AT_ONCE` |  |  |  |  |  | yes |  | 3 | A shot destroys a game thing whose shape is of kind 0xb0 at once, and every destroyed thing leaves effect 0x20b (DamageGameThing) |
+| `MW2_WINDOWED_TEST_FIRST` |  |  |  |  |  | yes |  | 1 | *Artefact.* InitRefreshMode tests for a window smaller than the screen first |
+| `MW2_DESTROY_BLOWS_FIRST_BIN` |  |  |  |  |  | yes |  | 3 | A destroyed mech blows the critical slot of its first ammunition bin, a bin blows whatever its weapon's ammunition, and its pilot ejects when auto-eject is on or the mech isn't the local player's (DestroyMech, DestroyCriticalSlot) |
+| `MW2_SELF_DESTRUCT_MESSAGE` |  |  |  |  |  | yes |  | 1 | EjectPlayer tells the local player with cockpit message 4 when the mech goes without ejecting |
+| `MW2_KILLS_BY_LAST_SHOOTER` |  |  |  |  |  | yes |  | 5 | A mech's kill counts for the player whose shot hit it last, the local player's outcome is 4 unless they ejected, and in a network game only the local mech's death is played out (KillMech, which DestroySection and DestroyCriticalSlot call whatever the game) |
+| `MW2_MORE_CRITICAL_HITS` |  |  |  |  |  | yes |  | 2 | A critical hit on a flamer and on the AMS has a message of its own (DestroyCriticalSlot) |
+| `MW2_AI_STOPS_GROUP_FIRE` |  |  |  |  |  | yes |  | 2 | The AI's attack and target states stop the group fire as well as the fire (AiStateAttack, AiStateMove) |
+| `MW2_STRUCT_COPY_MEMCPY` |  |  |  |  |  | yes |  | 21 | *Artefact.* GBL's source copies some structures with memcpy, which its build calls, where the optimized editions show a structure assignment: nav points, rays, players, matrices, weapon slots, render settings and sample headers (RemoveNavPoint, CopyRay, LogPlayerStatusLines, the object matrices, LayoutWeaponPanels, the mech view panel, StartSample) |
+| `MW2_LOCAL_INSPECTION` |  |  |  |  |  | yes |  | 1 | Only the local player inspects its target, which counts as inspected once anyone has, and the inspect request stays set (UpdateTarget) |
+| `MW2_CHEAT_TABLE` |  |  |  |  |  | yes |  | 4 | The cheat codes are a table with the messages each shows, all stored XORed with 0xa, the messages decoded at the first key typed; GBL has codes of its own, and six of them do nothing (g_cheatCodes, HandleCheatInput) |
+| `MW2_INI_COMMENTS` |  |  |  |  |  | yes |  | 4 | GetIniValue cuts a value at a ';' and trims it, unless its second argument asks for the raw value (which error.c's call doesn't pass) |
+| `MW2_NO_MOUSE_ERRORS` |  |  |  |  |  | yes |  | 1 | ReportInputDeviceError reports nothing about the mouse |
+| `MW2_DEPTH_QUEUE_INDEX` |  |  |  |  |  | yes |  | 2 | *Artefact.* DrawDepthQueue takes the next entry's index into a local before it copies the entry |
+| `MW2_LENGTH_SUM_FROM_Z` |  |  |  |  |  | yes |  | 1 | *Artefact.* FloatVectorLength sums the squares from z down, where 1.1 adds x's and y's first |
+| `MW2_SKIP_SHAPE_TYPE_20` |  |  |  |  |  | yes |  | 1 | QueueObjTree draws no shape of type 0x20 |
+| `MW2_PT_MENU_KEYS` |  |  |  |  |  | yes |  | 3 | The ALL_PT_MENU, PT_2_MENU and PT_3_MENU game keys (actions 53 to 55) do what the first three starmate menu keys do (RunGameKey) |
+| `MW2_SCREENSHOT_ACQUIRE_IF` |  |  |  |  |  | yes |  | 1 | *Artefact.* RunGameKey's screenshot acquires the frame buffer in an if with an empty else, where 1.1 has a conditional expression |
 
 ## Where each feature is tested
 
@@ -729,17 +764,40 @@ Every edition that has one of these has them all, so no binary separates one fro
 - `MW2_HASH_NAME_ROL32`: `MW2/include/namehash.h`: `HashName`
 - `MW2_NO_MAP_DAMAGE_ANIM`: `MW2/src/cockpit.c`: `DrawDamagedMapView`
 - `MW2_MOUSE_PEEK_BREAKS`: `MW2/src/simmain.c`: `HandleMessages`
-- `MW2_EXTERNAL_HEAT`: `MW2/include/mech.h`: `Mech`; `MW2/src/mechclass.c`: file scope
+- `MW2_EXTERNAL_HEAT`: `MW2/include/mech.h`: `Mech`; `MW2/src/mechclass.c`: file scope; `MW2/src/mechdamage.c`: the definition of `CalculateHeat`
 - `MW2_MECH_SECOND_FLAGS`: `MW2/include/mech.h`: `Mech`; `MW2/src/mechclass.c`: file scope
-- `MW2_FOURTEEN_WEAPON_SLOTS`: `MW2/include/cockpitpanel.h`: `enum`; `MW2/include/weaponslot.h`: file scope; `MW2/src/cockpitpanels.c`: file scope (4)
-- `MW2_PILOT_TABLE`: `MW2/include/players.h`: `Player` (2); `MW2/src/ai.c`: file scope
-- `MW2_PLAYER_SPARE_WORD`: `MW2/include/players.h`: `Player`; `MW2/src/ai.c`: file scope
-- `MW2_CHAT_KEY`: `MW2/src/inputmap.c`: `g_gameKeyNames`
-- `MW2_AMS_KEY`: `MW2/src/inputmap.c`: `g_gameKeyNames`
+- `MW2_FOURTEEN_WEAPON_SLOTS`: `MW2/include/cockpitpanel.h`: `enum`; `MW2/include/weaponslot.h`: file scope; `MW2/src/cockpitpanels.c`: file scope (4); `MW2/src/config.c`: `LoadCptFile`
+- `MW2_PILOT_TABLE`: `MW2/include/aiweapons.h`: file scope; `MW2/include/players.h`: `Player` (2); `MW2/src/ai.c`: `InitializeAI` (3), file scope (2); `MW2/src/aiweapons.c`: `RunAIWeapons`, the definition of `DecideAIFire`, the definition of `GroupAIWeapons`; `MW2/src/poolsizes.c`: `BuildStaticMemoryTable`
+- `MW2_STATIC_MANEUVER_TABLES`: `MW2/include/maneuvers.h`: file scope; `MW2/src/maneuvers.c`: `ChooseManeuver`, `ManeuverStupid`, file scope (3), the definition of `InitializeManeuvers`
+- `MW2_AI_FLAGS_INT`: `MW2/include/playerai.h`: `PlayerAi`; `MW2/src/ai.c`: `AssignStarObjective`, `LeadStar`, file scope
+- `MW2_CHAT_KEY`: `MW2/src/gamekeys.c`: `RunGameKey`; `MW2/src/inputmap.c`: `g_gameKeyNames`
+- `MW2_AMS_KEY`: `MW2/src/gamekeys.c`: `RunGameKey`, file scope; `MW2/src/inputmap.c`: `g_gameKeyNames`
 - `MW2_GHOST_BEAR_TITLES`: `MW2/src/debugprint.c`: `ShowMessage`; `MW2/src/refreshmode.c`: `ToggleFullScreen` (2); `MW2/src/simmain.c`: `SimMain`
 - `MW2_GBL_CD_DRIVER`: `MW2/src/gamecd.c`: `FindGameCdDrive`
 - `MW2_ENGAGEMENT_FLAGS_INT`: `MW2/include/ai.h`: file scope; `MW2/src/ai.c`: `GetEngagementAIFlags`
 - `MW2_TORSO_SNAP_ONE_DEGREE`: `MW2/src/mechclass.c`: file scope
+- `MW2_WEAPON_FUNCTIONS`: `MW2/include/effect.h`: `Effect`, file scope (2); `MW2/include/effectinfo.h`: `EffectInfo`, file scope (2); `MW2/include/shots.h`: `Shot` (2), file scope (4); `MW2/include/weapondata.h`: file scope; `MW2/include/weapondef.h`: `WeaponDef`, file scope; `MW2/include/weapons.h`: file scope (3); `MW2/src/shots.c`: `DamageMechsInRadius` (4), `DetonateShot` (2), `FirstShots`, `GuideMissileToTarget` (2), `ResetShotSlot`, `SpawnEffect`, `SpawnLaunchEffect`, `SpawnRotatedEffect`, `UpdateNuke`, `UpdateShot` (3), file scope, the definition of `SpawnEffectEx`, the definition of `UpdateEffects`; `MW2/src/weapondata.c`: file scope (3); `MW2/src/weaponpanel.c`: `DrawWeaponPanel`; `MW2/src/weapons.c`: `LoadWeaponSounds`, `SelectNextWeapon` (2), `SelectNextWeaponGroup` (2), `SelectNextWeaponInGroup` (2), `SelectWeaponGroup` (3), `SpawnLaunchFx` (2), `UpdateWeaponLock`, file scope, the definition of `FireWeaponGroup`, the definition of `SpawnShot`, the definition of `UpdateWeaponFireState`
+- `MW2_POSITIONAL_SOUND_FLAGS`: `MW2/include/soundfx.h`: file scope; `MW2/src/soundfx.c`: the definitions of `PlayPositionalSound`, `PlayPositionalSoundEx`
+- `MW2_THING_KILLS_FORGET_SHOOTER`: `MW2/src/shots.c`: `KillGameThing` (2)
+- `MW2_ABS_CALLS`: `MW2/src/ai.c`: `AssignStarTarget`, file scope; `MW2/src/bandpoly.c`: file scope; `MW2/src/gridobject.c`: file scope; `MW2/src/maneuvers.c`: file scope; `MW2/src/weapons.c`: file scope
+- `MW2_BEARING_LABS`: `MW2/src/targeting.c`: file scope
+- `MW2_BUILDINGS_FALL_AT_ONCE`: `MW2/src/shots.c`: `DamageGameThing` (3)
+- `MW2_WINDOWED_TEST_FIRST`: `MW2/src/refreshmode.c`: `InitRefreshMode`
+- `MW2_DESTROY_BLOWS_FIRST_BIN`: `MW2/src/mechdamage.c`: `DestroyCriticalSlot` (2), the definition of `DestroyMech`
+- `MW2_SELF_DESTRUCT_MESSAGE`: `MW2/src/mechdamage.c`: `EjectPlayer`
+- `MW2_KILLS_BY_LAST_SHOOTER`: `MW2/src/mechdamage.c`: `DestroyCriticalSlot` (2), `DestroySection`, the definition of `ApplyDamageToMech`, the definition of `KillMech`
+- `MW2_MORE_CRITICAL_HITS`: `MW2/src/mechdamage.c`: `DestroyCriticalSlot` (2)
+- `MW2_AI_STOPS_GROUP_FIRE`: `MW2/src/ai.c`: `AiStateAttack`, `AiStateMove`
+- `MW2_STRUCT_COPY_MEMCPY`: `MW2/src/ai.c`: `LogPlayerStatusLines`, file scope; `MW2/src/cockpitpanels.c`: `LayoutWeaponPanels` (2); `MW2/src/geocache.c`: `DestroyStaticObject`; `MW2/src/mechviewpanel.c`: `DrawMechViewPanel` (3), `SetMechViewRenderSettings`, file scope; `MW2/src/object.c`: `CreateObj`, `InitObj`, `SetObjLocalMatrix`, `SetObjTransform`, `SetObjWorldMatrix`, `UpdateObjWorld`; `MW2/src/ray.c`: `CopyRay`, file scope; `MW2/src/soundfx.c`: `StartSample`; `MW2/src/targeting.c`: `RemoveNavPoint`, file scope
+- `MW2_LOCAL_INSPECTION`: `MW2/src/targeting.c`: the definition of `UpdateTarget`
+- `MW2_CHEAT_TABLE`: `MW2/src/gamekeys.c`: `TypedCodeMatches`, file scope (2), the definitions of `DecodeCheatMessages`, `HandleCheatInput`
+- `MW2_INI_COMMENTS`: `MW2/include/inifile.h`: file scope; `MW2/src/inifile.c`: `GetIniValue` (3)
+- `MW2_NO_MOUSE_ERRORS`: `MW2/src/inputmap.c`: `ReportInputDeviceError`
+- `MW2_DEPTH_QUEUE_INDEX`: `MW2/src/depthsort.c`: `DrawDepthQueue` (2)
+- `MW2_LENGTH_SUM_FROM_Z`: `MW2/src/fixedsqrt.c`: `FloatVectorLength`
+- `MW2_SKIP_SHAPE_TYPE_20`: `MW2/src/depthsort.c`: `QueueObjTree`
+- `MW2_PT_MENU_KEYS`: `MW2/src/gamekeys.c`: `RunGameKey` (3)
+- `MW2_SCREENSHOT_ACQUIRE_IF`: `MW2/src/gamekeys.c`: `RunGameKey`
 
 ## Functions with a definition per edition
 
@@ -748,12 +806,16 @@ Where an edition's version of a function differs in its control flow or in more 
 | Function | File | Selected by | Definitions |
 |---|---|---|---|
 | `AddShapeFace` | `MW2/src/shape.c` | `defined(MW2_POWERVR)` | PowerVR; 1.1, ATI, S3, Matrox, GBL and 3Dfx |
+| `ApplyDamageToMech` | `MW2/src/mechdamage.c` | `defined(MW2_KILLS_BY_LAST_SHOOTER)` | GBL; 1.1, ATI, S3, Matrox, PowerVR and 3Dfx |
+| `CalculateHeat` | `MW2/src/mechdamage.c` | `defined(MW2_EXTERNAL_HEAT)` | GBL; 1.1, ATI, S3, Matrox, PowerVR and 3Dfx |
 | `ChooseArtResolution` | `MW2/src/setres.c` | `defined(MW2_ART_RESOLUTION_NEAREST)` | 3Dfx; S3; 1.1, ATI, Matrox, PowerVR and GBL |
 | `ChoosePlayerDetailLevels` | `MW2/src/classtable.c` | `defined(MW2_POWERVR)` | PowerVR; 1.1, ATI, S3, Matrox, GBL and 3Dfx |
 | `DdrawCreateSurfaces` | `MW2/src/directdraw.c` | `defined(MW2_S3)` | S3; 1.1, ATI, Matrox and GBL |
 | `DdrawPaletteFade` | `MW2/src/directdraw.c` | `defined(MW2_FADE_STEPS_ONLY)` | ATI and S3; 1.1, Matrox, PowerVR and GBL |
 | `DdrawWritePaletteEntries` | `MW2/src/directdraw.c` | `defined(MW2_DDRAW_PALETTE_UNSET)` | ATI, S3 and PowerVR; 1.1, Matrox and GBL |
 | `DdrawWritePaletteGamma` | `MW2/src/directdraw.c` | `defined(MW2_DDRAW_PALETTE_UNSET)` | ATI, S3 and PowerVR; 1.1, Matrox and GBL |
+| `DecideAIFire` | `MW2/src/aiweapons.c` | `defined(MW2_PILOT_TABLE)` | GBL; 1.1, ATI, S3, Matrox, PowerVR and 3Dfx |
+| `DestroyMech` | `MW2/src/mechdamage.c` | `defined(MW2_DESTROY_BLOWS_FIRST_BIN)` | GBL; 1.1, ATI, S3, Matrox, PowerVR and 3Dfx |
 | `DrawMapView` | `MW2/src/cockpit.c` | `defined(MW2_POWERVR)` | PowerVR; 1.1, ATI, S3, Matrox, GBL and 3Dfx |
 | `DrawMechViewPanel` | `MW2/src/mechviewpanel.c` | `defined(MW2_POWERVR)` | PowerVR; 1.1, ATI, S3, Matrox, GBL and 3Dfx |
 | `DrawObjectBrackets` | `MW2/src/hud.c` | `!defined(MW2_HUD_MARKER_LAG)` | 1.1, ATI, S3, Matrox, GBL and 3Dfx; PowerVR |
@@ -762,6 +824,7 @@ Where an edition's version of a function differs in its control flow or in more 
 | `DrawSkyAndGround` | `MW2/src/polydraw.c` | `defined(MW2_A3D)` | ATI, S3, Matrox, PowerVR and 3Dfx; 1.1 and GBL |
 | `DrawSkyAndGround` | `MW2/src/polydraw.c` | `defined(MW2_S3)` | S3; ATI, Matrox, PowerVR and 3Dfx |
 | `DrawTargetMarker` | `MW2/src/hud.c` | `!defined(MW2_HUD_MARKER_LAG)` | 1.1, ATI, S3, Matrox, GBL and 3Dfx; PowerVR |
+| `FireWeaponGroup` | `MW2/src/weapons.c` | `defined(MW2_WEAPON_FUNCTIONS)` | GBL; 1.1, ATI, S3, Matrox, PowerVR and 3Dfx |
 | `FirstRender` | `MW2/src/render.c` | `defined(MW2_POWERVR)` | PowerVR; 1.1, ATI, S3, Matrox, GBL and 3Dfx |
 | `FUN_100519b0` | `MW2/src/animation.c` | `defined(MW2_POWERVR)` | PowerVR; ATI, S3, Matrox and 3Dfx |
 | `FUN_10051c07` | `MW2/src/animation.c` | `defined(MW2_S3)` | S3; ATI, PowerVR and 3Dfx |
@@ -775,15 +838,24 @@ Where an edition's version of a function differs in its control flow or in more 
 | `FUN_100692db` | `MW2/src/polydraw.c` | `defined(MW2_S3)` | S3; ATI, Matrox, PowerVR and 3Dfx |
 | `FUN_100751a9` | `MW2/src/cockpit.c` | `defined(MW2_S3)` | S3; ATI, Matrox, PowerVR and 3Dfx |
 | `FUN_1008fad0` | `MW2/src/simmain.c` | `defined(MW2_POWERVR)` | PowerVR; ATI, S3, Matrox and 3Dfx |
+| `HandleCheatInput` | `MW2/src/gamekeys.c` | `defined(MW2_CHEAT_TABLE)` | GBL; 1.1, ATI, S3, Matrox, PowerVR and 3Dfx |
+| `InitializeManeuvers` | `MW2/src/maneuvers.c` | `defined(MW2_STATIC_MANEUVER_TABLES)` | GBL; 1.1, ATI, S3, Matrox, PowerVR and 3Dfx |
 | `JoystickPoll` | `MW2/src/joystick.c` | `defined(MW2_JOYSTICK_AXIS_SUMS)` | Matrox; PowerVR; 1.1, ATI, S3, GBL and 3Dfx |
+| `KillMech` | `MW2/src/mechdamage.c` | `defined(MW2_KILLS_BY_LAST_SHOOTER)` | GBL; 1.1, ATI, S3, Matrox, PowerVR and 3Dfx |
 | `LoadSkyGroundSettings` | `MW2/src/polydraw.c` | `defined(MW2_S3)` | S3; ATI, Matrox, PowerVR and 3Dfx |
+| `PlayPositionalSound` | `MW2/src/soundfx.c` | `defined(MW2_POSITIONAL_SOUND_FLAGS)` | GBL; 1.1, ATI, S3, Matrox, PowerVR and 3Dfx |
 | `RotateTexturePoint` | `MW2/src/animation.c` | `defined(MW2_S3)` | S3; ATI, Matrox, PowerVR and 3Dfx |
 | `SetGameResolution` | `MW2/src/simmain.c` | `defined(MW2_RES_800X600)` | 3Dfx; S3; PowerVR; 1.1, ATI, Matrox and GBL |
 | `ShowGridObject` | `MW2/src/gridobject.c` | `defined(MW2_GRID_OBJECT_HIDDEN)` | S3; 1.1, ATI, Matrox, PowerVR, GBL and 3Dfx |
 | `SimMain` | `MW2/src/simmain.c` | `defined(MW2_MATROX)` | Matrox; PowerVR; ATI, S3 and 3Dfx; 1.1 and GBL |
 | `SimWindowProc` | `MW2/src/simmain.c` | `defined(MW2_MATROX)` | Matrox; ATI, S3, PowerVR and 3Dfx; 1.1 and GBL |
+| `SpawnEffectEx` | `MW2/src/shots.c` | `defined(MW2_WEAPON_FUNCTIONS)` | GBL; 1.1, ATI, S3, Matrox, PowerVR and 3Dfx |
+| `SpawnShot` | `MW2/src/weapons.c` | `defined(MW2_WEAPON_FUNCTIONS)` | GBL; 1.1, ATI, S3, Matrox, PowerVR and 3Dfx |
 | `SwitchCockpitView` | `MW2/src/cockpit.c` | `defined(MW2_POWERVR)` | PowerVR; 1.1, ATI, S3, Matrox, GBL and 3Dfx |
+| `UpdateEffects` | `MW2/src/shots.c` | `defined(MW2_WEAPON_FUNCTIONS)` | GBL; 1.1, ATI, S3, Matrox, PowerVR and 3Dfx |
 | `UpdateMech` | `MW2/src/mechclass.c` | `defined(MW2_FLOAT_SCALARS)` | ATI, S3, Matrox, PowerVR and 3Dfx; 1.1 and GBL |
+| `UpdateTarget` | `MW2/src/targeting.c` | `defined(MW2_LOCAL_INSPECTION)` | GBL; 1.1, ATI, S3, Matrox, PowerVR and 3Dfx |
+| `UpdateWeaponFireState` | `MW2/src/weapons.c` | `defined(MW2_WEAPON_FUNCTIONS)` | GBL; 1.1, ATI, S3, Matrox, PowerVR and 3Dfx |
 
 ## Sites that test an edition
 

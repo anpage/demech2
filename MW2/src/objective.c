@@ -404,6 +404,7 @@ MechS32 IsTeamNearTarget(MechU8* p_target, MechS32 p_team)
 
 // Announces the local team's objective p_objective as successful (p_state 5) or failed (6), once.
 // FUNCTION: MW2 0x1001b0cb
+// FUNCTION: MW2GBL 0x100344d1
 // FUNCTION: MW2MATROX 0x1001f428
 // FUNCTION: MW23DFX 0x10009d60
 // FUNCTION: MW2ATI 0x1000a590
@@ -447,6 +448,7 @@ MechS32 AnnounceObjective(MechS32 p_star, MechS32 p_objective, MechS32 p_state)
 // In a network game with a single listed objective, a secondary one, picks the player with the
 // best kill score (kills of others minus kills of itself) as the winner, -2 on a tie.
 // FUNCTION: MW2 0x1001b21a
+// FUNCTION: MW2GBL 0x10034621
 // FUNCTION: MW2MATROX 0x1001f577
 // FUNCTION: MW23DFX 0x10009e70
 // FUNCTION: MW2ATI 0x1000a6a0
@@ -516,6 +518,7 @@ void ChooseNetworkWinner(void)
 // Announces the local team's mission result: successful (2), failed (3) or out of time (4). In a
 // network game, only the first result; a successful one names the local player the winner.
 // FUNCTION: MW2 0x1001b3f4
+// FUNCTION: MW2GBL 0x100347fb
 // FUNCTION: MW2MATROX 0x1001f751
 // FUNCTION: MW23DFX 0x10009f50
 // FUNCTION: MW2ATI 0x1000a780
@@ -564,6 +567,7 @@ MechS32 AnnounceMissionResult(MechS32 p_star, MechS32 p_status)
 
 // Returns whether condition p_condition of star p_star's objective p_objective holds.
 // FUNCTION: MW2 0x1001b580
+// FUNCTION: MW2GBL 0x10034988
 // FUNCTION: MW2MATROX 0x1001f8dd
 // FUNCTION: MW23DFX 0x1000a080
 // FUNCTION: MW2ATI 0x1000a8b0

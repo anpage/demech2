@@ -85,6 +85,7 @@ set(mw2gbl_sources
   "${DEMECH2_SOURCE_DIR}/MW2/src/fixedsqrt.c"
   "${DEMECH2_SOURCE_DIR}/MW2/src/sqrtguess.c"
   "${DEMECH2_SOURCE_DIR}/MW2/src/simmain.c"
+  "${DEMECH2_SOURCE_DIR}/MW2/src/gbl/ams.c"
   "${DEMECH2_SOURCE_DIR}/MW2/src/refreshmode.c"
   "${DEMECH2_SOURCE_DIR}/MW2/src/directdraw.c"
   "${DEMECH2_SOURCE_DIR}/MW2/src/inputmap.c"

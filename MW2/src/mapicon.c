@@ -20,6 +20,7 @@
 // Draws icon p_icon at the world position p_pos, if the map view shows it. The Matrox edition
 // takes the position by address.
 // FUNCTION: MW2 0x1003e40a
+// FUNCTION: MW2GBL 0x1004d75a
 // FUNCTION: MW2MATROX 0x1007426c
 // FUNCTION: MW23DFX 0x100038d0
 // FUNCTION: MW2ATI 0x10003560

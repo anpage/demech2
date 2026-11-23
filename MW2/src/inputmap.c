@@ -1931,6 +1931,7 @@ void FirstInputs(void)
 // while gameplay input is off) and reads the frame's key code. Alt+Enter toggles full screen
 // instead.
 // FUNCTION: MW2 0x1007b19b
+// FUNCTION: MW2GBL 0x1003325c
 // FUNCTION: MW2MATROX 0x1007d86f
 // FUNCTION: MW23DFX 0x1003a0a0
 // FUNCTION: MW2ATI 0x10038c60
@@ -2128,6 +2129,7 @@ MechS16 LookupGameKey(MechS16 p_keyCode)
 // Reports an input device error p_code in a message box: 0x6e a missing device, 0x6f a missing
 // channel, 0x70 a device that doesn't open. Cancel exits the game.
 // FUNCTION: MW2 0x1007b7b1
+// FUNCTION: MW2GBL 0x10033873
 // FUNCTION: MW2MATROX 0x1007dea0
 // FUNCTION: MW23DFX 0x1003a3f0
 // FUNCTION: MW2ATI 0x10038fb0
@@ -2138,6 +2140,12 @@ void ReportInputDeviceError(MechS32 p_code, MechChar* p_channel, MechChar* p_dev
 	MechS32 hidden;
 
 	hidden = FALSE;
+#ifdef MW2_NO_MOUSE_ERRORS
+	if (!strcmp("Mouse", p_device)) {
+		return;
+	}
+
+#endif
 	switch (p_code) {
 	case 0x6e:
 		sprintf(

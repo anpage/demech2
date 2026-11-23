@@ -1,0 +1,4 @@
+# The sizes of GBL's globals that reccmp's string scan would otherwise cut into: the pilot table's
+# entries point into g_maneuverTables, whose entry 9 on reads as "\r".
+address,type,name,size
+0x100a4170,global,g_maneuverTables,104

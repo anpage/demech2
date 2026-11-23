@@ -297,6 +297,7 @@ MechS32 CountMissionStream(BwdStream* p_stream)
 
 // Fills the static memory table from the mission's counts: each pool's tag and size.
 // FUNCTION: MW2 0x100567ed
+// FUNCTION: MW2GBL 0x1007ba2d
 // FUNCTION: MW2MATROX 0x10085aac
 // FUNCTION: MW23DFX 0x100412e0
 // FUNCTION: MW2ATI 0x1003ee90
@@ -304,7 +305,11 @@ MechS32 CountMissionStream(BwdStream* p_stream)
 // FUNCTION: MW2POWERVR 0x10039bf0
 StaticPoolSize* BuildStaticMemoryTable(void)
 {
+#ifdef MW2_PILOT_TABLE
+	g_staticPoolSizes[0].m_size = g_missionPlayers * 0x200; // GBL's players are larger
+#else
 	g_staticPoolSizes[0].m_size = g_missionPlayers * 0x1f2;
+#endif
 	g_staticPoolSizes[0].m_tag = g_staticPoolTags[0];
 	g_staticPoolSizes[1].m_size = GetMechAllocSize() * g_missionPlayers;
 	g_staticPoolSizes[1].m_tag = g_staticPoolTags[1];

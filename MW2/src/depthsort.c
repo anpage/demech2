@@ -382,6 +382,7 @@ void DrawShapeList(Shape* p_root)
 // Sorts the queue DrawShapeList built, moves its polygons to g_drawList in order, expanding
 // each whole shape into its own sorted run of polygons, and draws them.
 // FUNCTION: MW2 0x10033a06
+// FUNCTION: MW2GBL 0x100396b6
 // FUNCTION: MW2MATROX 0x100236a0
 // FUNCTION: MW23DFX 0x1002a170
 // FUNCTION: MW2ATI 0x10029da0
@@ -391,6 +392,9 @@ void DrawDepthQueue(void)
 	MechS32 i;
 	MechS32 start;
 	MechS32 count;
+#ifdef MW2_DEPTH_QUEUE_INDEX
+	MechS32 index;
+#endif
 
 	start = 0;
 	if (g_depthEntryCount > 1) {
@@ -402,8 +406,13 @@ void DrawDepthQueue(void)
 	g_depthList = g_drawList;
 	for (i = 0; i < count; i++) {
 		if (!(g_depthQueue[i].m_poly->m_count & 0x8000)) {
+#ifdef MW2_DEPTH_QUEUE_INDEX
+			index = g_depthEntryCount++;
+			memcpy(&g_drawList[index], &g_depthQueue[i], sizeof(DepthEntry));
+#else
 			memcpy(&g_drawList[g_depthEntryCount], &g_depthQueue[i], sizeof(DepthEntry));
 			g_depthEntryCount++;
+#endif
 		}
 		else if (g_queueHasRoom) {
 			start = g_depthEntryCount;
@@ -433,6 +442,7 @@ void DrawDepthQueue(void)
 
 // Queues the polygons of p_object's shape and of its descendants' shapes.
 // FUNCTION: MW2 0x10033c4b
+// FUNCTION: MW2GBL 0x10039900
 // FUNCTION: MW2MATROX 0x100237e0
 // FUNCTION: MW23DFX 0x1002a300
 // FUNCTION: MW2ATI 0x10029f30
@@ -447,7 +457,11 @@ void QueueObjTree(SceneObject* p_object)
 	}
 
 	shape = p_object->m_shape;
+#ifdef MW2_SKIP_SHAPE_TYPE_20
+	if (shape && (shape->m_kind & 0xf0) != 0x20) {
+#else
 	if (shape) {
+#endif
 		g_shapesConsidered++;
 		if (!(shape->m_flags & 0x1000) && !g_renderSettings.m_shapeFilter(shape)) {
 			g_shapesDrawn++;

@@ -26,6 +26,9 @@
 #include "weapons.h"
 
 #include <stdlib.h>
+#ifdef MW2_STRUCT_COPY_MEMCPY
+#include <string.h>
+#endif
 
 // Targeting: the nav points and the AI target ids (0x100 | nav, 0x200 | game piece, 0x400 |
 // game thing; 0x1000 marks the target lost), cycling the target through them, and the cockpit's
@@ -117,6 +120,7 @@ MechS32 AddNavPoint(MechU32 p_owner, MechScalar p_x, MechScalar p_y, MechScalar 
 // move down, and so do the players' targets, goals and navs pointing past it (not the local
 // player's own target). Returns the new nav count, or -1.
 // FUNCTION: MW2 0x1005ed4f
+// FUNCTION: MW2GBL 0x1007061f
 // FUNCTION: MW2MATROX 0x100065bf
 // FUNCTION: MW23DFX 0x1001cb40
 // FUNCTION: MW2ATI 0x1001ce70
@@ -142,7 +146,11 @@ MechS32 RemoveNavPoint(MechU32 p_owner, MechU32 p_nav)
 	}
 
 	for (i = index; i < g_navCount - 1; i++) {
+#ifdef MW2_STRUCT_COPY_MEMCPY
+		memcpy(&g_navTable[i], &g_navTable[i + 1], sizeof(NavPoint));
+#else
 		g_navTable[i] = g_navTable[i + 1];
+#endif
 	}
 
 	for (i = 0; i < g_playerCount; i++) {
@@ -178,6 +186,7 @@ MechS32 RemoveNavPoint(MechU32 p_owner, MechU32 p_nav)
 // the target missing (0x1000) when none qualifies, and a change of target outside the nav points
 // turns the autopilot's steering over.
 // FUNCTION: MW2 0x1005ef5e
+// FUNCTION: MW2GBL 0x10070832
 // FUNCTION: MW2MATROX 0x100067cc
 // FUNCTION: MW23DFX 0x1001cca0
 // FUNCTION: MW2ATI 0x1001cfd0
@@ -311,6 +320,7 @@ void ResetTargeting(void)
 // -4 when flag 0x10000 asks for a nav with flag 0x40, and -6 for a nav of another owner or team
 // (flag 0x100 accepts only a nav its owner placed).
 // FUNCTION: MW2 0x1005f2ae
+// FUNCTION: MW2GBL 0x10070b82
 // FUNCTION: MW2MATROX 0x10006b1c
 // FUNCTION: MW23DFX 0x1001cea0
 // FUNCTION: MW2ATI 0x1001d1d0
@@ -393,6 +403,7 @@ MechS32 TargetNavPoint(MechU32 p_player, MechS32 p_nav, MechU32 p_flags)
 // flag 0x10000 asks for a player with flag 0x40, -5 and -7 for targets the local player may not
 // pick, and -8 for a player without a shape.
 // FUNCTION: MW2 0x1005f4ac
+// FUNCTION: MW2GBL 0x10070d81
 // FUNCTION: MW2MATROX 0x10006d1a
 // FUNCTION: MW23DFX 0x1001d050
 // FUNCTION: MW2ATI 0x1001d380
@@ -582,6 +593,112 @@ MechS32 TargetGameThing(MechS32 p_player, MechS32 p_index, MechU32 p_flags)
 	return 1;
 }
 
+#ifdef MW2_LOCAL_INSPECTION
+// GBL's: only the local player inspects its target, which counts as inspected once anyone has, and
+// the request stays set.
+// FUNCTION: MW2GBL 0x100712ff
+MechS32 UpdateTarget(Player* p_player)
+{
+	MechS32 isLocal;
+	MechS32 claim;
+	MechS32 lost;
+	MechS32 kind;
+	MechS32 index;
+	MechScalar radius;
+	MechS32 inspect;
+
+	lost = TRUE;
+	claim = 0;
+	isLocal = FALSE;
+	if (p_player->m_index == g_localPlayerId) {
+		isLocal = TRUE;
+	}
+
+	index = p_player->m_targetInfo.m_target & 0xff;
+	kind = p_player->m_targetInfo.m_target & 0xf00;
+	switch (kind) {
+	case 0x200:
+		if (TargetGamePiece(p_player->m_index, index, 0) >= 0) {
+			lost = FALSE;
+		}
+		break;
+	case 0x400:
+		if (TargetGameThing(p_player->m_index, index, 0) >= 0) {
+			lost = FALSE;
+		}
+		break;
+	case 0x100:
+		if (TargetNavPoint(p_player->m_index, index, 0) >= 0) {
+			lost = FALSE;
+			if (g_navTable[index].m_radius > p_player->m_targetInfo.m_distance && p_player->m_mech->m_autopilot != 1 &&
+				p_player->m_index == g_localPlayerId) {
+				if (!(g_navTable[index].m_flags & 0x20)) {
+					g_navTable[index].m_flags |= 0x20;
+					g_navTable[index].m_teamsReached |= 1 << p_player->m_team;
+					PlaySoundEffect(0xe7, 100, 0x40, 5, 0x50);
+				}
+
+				CycleNavTarget(p_player, 1, 0);
+			}
+		}
+		break;
+	default:
+		break;
+	}
+
+	if (lost) {
+		p_player->m_targetInfo.m_target |= 0x1000;
+		return 0;
+	}
+
+	if (p_player->m_index == g_localPlayerId) {
+		inspect = p_player->m_steering->m_inspectTarget;
+		g_inspectResult = 0;
+		switch (kind) {
+		case 0x200:
+			if (!(g_players[index]->m_flags & 0x20)) {
+				radius = g_players[index]->m_mech->m_radius;
+				if (p_player->m_targetInfo.m_distance < radius + 20000) {
+					if (inspect) {
+						g_inspectResult = 1;
+						g_players[index]->m_flags |= 0x20;
+						g_players[index]->m_inspectedBy |= 1 << p_player->m_team;
+					}
+				}
+				else if (inspect) {
+					g_inspectResult = 2;
+				}
+			}
+			else if (inspect) {
+				g_inspectResult = 3;
+			}
+			break;
+		case 0x400:
+			if (!(g_gameThings[index].m_flags & 0x20)) {
+				radius = g_gameThings[index].m_radius;
+				if (p_player->m_targetInfo.m_distance < radius + 20000) {
+					if (inspect) {
+						g_inspectResult = 1;
+						g_gameThings[index].m_flags |= 0x20;
+						g_gameThings[index].m_teamsReached |= 1 << p_player->m_team;
+					}
+				}
+				else if (inspect) {
+					g_inspectResult = 2;
+				}
+			}
+			else if (inspect) {
+				g_inspectResult = 3;
+			}
+			break;
+		default:
+			break;
+		}
+	}
+
+	return 1;
+}
+#else
 // Revalidates p_player's target (m_targetInfo.m_target: a nav, player or game thing index) and
 // updates the target info. Reaching a nav target's radius marks the nav reached by the team; with
 // the inspect key (PlayerSteering::m_inspectTarget) pressed, a player or game thing within 20000
@@ -700,6 +817,7 @@ MechS32 UpdateTarget(Player* p_player)
 
 	return 1;
 }
+#endif
 
 // Returns the player the local player targets, or -1.
 // FUNCTION: MW2 0x1005fe63
@@ -860,6 +978,9 @@ void TargetAtReticle(void)
 #ifdef MW2_FLOAT_SCALARS
 #define BEARING_ABS(x) fabs(x)
 #define BEARING_DIV(p_a, p_b) ((p_a) / (p_b))
+#elif defined(MW2_BEARING_LABS)
+#define BEARING_ABS(x) labs(x)
+#define BEARING_DIV(p_a, p_b) FixedDiv29(p_a, p_b)
 #else
 #define BEARING_ABS(x) abs(x)
 #define BEARING_DIV(p_a, p_b) FixedDiv29(p_a, p_b)
@@ -869,6 +990,7 @@ void TargetAtReticle(void)
 // ground (*p_distance), its full length (*p_length) and its pitch (*p_pitch).
 // MW2MATROX: floats throughout (the divisions are plain, the zero tests FIXED_IS_NONZERO).
 // FUNCTION: MW2 0x10060197
+// FUNCTION: MW2GBL 0x10071a5c
 // FUNCTION: MW2MATROX 0x10007a32
 // FUNCTION: MW23DFX 0x1001d970
 // FUNCTION: MW2ATI 0x1001dc40

@@ -991,6 +991,7 @@ void DrawMapContents(CockpitLayout* p_layout)
 
 // Draws the other live players and the live game things, by side.
 // FUNCTION: MW2 0x1003e4cd
+// FUNCTION: MW2GBL 0x1004d81b
 // FUNCTION: MW2MATROX 0x10074102
 // FUNCTION: MW23DFX 0x10003960
 // FUNCTION: MW2ATI 0x100035f0
@@ -1055,6 +1056,7 @@ void DrawMapUnits(CockpitLayout* p_layout)
 
 // Draws the local player's target: in the view, or clamped to its edge when outside it.
 // FUNCTION: MW2 0x1003e689
+// FUNCTION: MW2GBL 0x1004d9d7
 // FUNCTION: MW2MATROX 0x1007432d
 // FUNCTION: MW23DFX 0x10003a60
 // FUNCTION: MW2ATI 0x100036f0
@@ -1266,6 +1268,7 @@ void DrawMapNavPoints(CockpitLayout* p_layout)
 
 // Draws the two lines of the view's field of view from the center, around heading p_heading.
 // FUNCTION: MW2 0x1003eb22
+// FUNCTION: MW2GBL 0x1004de71
 // FUNCTION: MW2MATROX 0x1007480f
 // FUNCTION: MW23DFX 0x10003d40
 // FUNCTION: MW2ATI 0x100039d0
@@ -1681,6 +1684,7 @@ MechU32 SatelliteFaceColor(Face* p_face, undefined4 p_unk0x04, MechU32 p_flags, 
 // shaded by height, textured ones (0x3000) drawn as bands, and the rest as usual; plain faces
 // (0) twice, the second time outlined (0x2000).
 // FUNCTION: MW2 0x1003f393
+// FUNCTION: MW2GBL 0x1004e6e2
 // FUNCTION: MW2MATROX 0x10075097
 // FUNCTION: MW23DFX 0x100042e0
 // FUNCTION: MW2ATI 0x10003f70

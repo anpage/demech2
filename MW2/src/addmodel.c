@@ -15,6 +15,7 @@
 // Allocates a model with room for the vertices, the faces and p_extra more bytes (returned in
 // p_extraData), inserts it into the shape's list by p_key and selects it.
 // FUNCTION: MW2 0x1003a5f3
+// FUNCTION: MW2GBL 0x10040863
 // FUNCTION: MW2MATROX 0x10027cb8
 // FUNCTION: MW23DFX 0x10029460
 // FUNCTION: MW2ATI 0x10029120

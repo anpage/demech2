@@ -391,6 +391,7 @@ MechS32 LoadPathTable(PathRecord* p_record)
 // Adds a formation to g_formationTemplates, or returns FALSE if the table or the formation is
 // full.
 // FUNCTION: MW2 0x1004f891
+// FUNCTION: MW2GBL 0x1005292a
 // FUNCTION: MW2MATROX 0x1004946c
 // FUNCTION: MW23DFX 0x10042bc0
 // FUNCTION: MW2ATI 0x10040760
@@ -482,6 +483,7 @@ MechS32 ExecuteInclude(IncludeRecord* p_record, BwdStreamFn p_fn)
 // Sets up the teams from a star record: each team's values, and its formation.
 // MW2MATROX: the local team is g_localStar itself, not the one after it.
 // FUNCTION: MW2 0x1004fb0b
+// FUNCTION: MW2GBL 0x10052ba4
 // FUNCTION: MW2MATROX 0x100496fe
 // FUNCTION: MW23DFX 0x10042d40
 // FUNCTION: MW2ATI 0x100408e0
@@ -805,6 +807,7 @@ void SetMangleBase(MechS32 p_base)
 // in the world or under its parent's object.
 // MW2MATROX: the record's transform is converted member by member.
 // FUNCTION: MW2 0x100500ef
+// FUNCTION: MW2GBL 0x10053186
 // FUNCTION: MW2MATROX 0x10049d9d
 // FUNCTION: MW23DFX 0x10043270
 // FUNCTION: MW2ATI 0x10040ac0

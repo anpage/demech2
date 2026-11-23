@@ -33,6 +33,7 @@ targets:
     data-sources:
       - reccmp/mw2gbl-ascii.csv
       - reccmp/mw2gbl-vfx.csv
+      - reccmp/mw2gbl-data.csv
     report:
       icon: assets/dll.png
   MW2MATROX:

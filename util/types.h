@@ -730,15 +730,18 @@ double __cdecl fabs(double);
 /* Mechs take heat from outside (Mech::m_externalHeat, which the radius damage adds to and
    CalculateHeat adds to the frame's heat) */
 #define MW2_EXTERNAL_HEAT
-/* Mechs have a second word of flags (Mech::m_unk0x112: UpdateAllShots sets bit 0) */
+/* Mechs have a second word of flags (Mech::m_unk0x112, whose bit 0 UpdateShot sets for a NARC hit) */
 #define MW2_MECH_SECOND_FLAGS
 /* Mechs have 14 weapon slots, not 10 (WEAPON_SLOT_COUNT) */
 #define MW2_FOURTEEN_WEAPON_SLOTS
 /* An AI player whose gunnery is above 6 takes its skills from a table of pilots, with two more
    values and a flag the AI's fire decisions test (Player::m_unk0x160, m_unk0x1b0, m_unk0x1b4) */
 #define MW2_PILOT_TABLE
-/* The player has a word after its AI state that nothing reads or writes (Player::m_unk0x154) */
-#define MW2_PLAYER_SPARE_WORD
+/* The maneuver tables are data, five of them the pilot table's, and each player has its table and a
+   range (Player::m_maneuverTable, m_unk0x1b0: InitializeManeuvers) */
+#define MW2_STATIC_MANEUVER_TABLES
+/* Representation: a player's AI flags are an int, not a short (PlayerAi::m_flags) */
+#define MW2_AI_FLAGS_INT
 /* The local star starts at 0, and the player's formation goes to it */
 #define MW2_LOCAL_STAR_FROM_ZERO
 /* The CHAT_MODE game key, action 66: the later actions are one higher (GAME_KEY_ACTION) */
@@ -761,6 +764,77 @@ double __cdecl fabs(double);
 #define MW2_VFX3D_ALIGNED_FILL
 /* A recentering torso snaps to the legs within 1 degree, not 4 (TORSO_SNAP_RANGE) */
 #define MW2_TORSO_SNAP_ONE_DEGREE
+/* Weapons work through their definitions: each has a launch function (SpawnShot for all but the
+   AMS), a function called each frame, flags (the launch sounds, an animation) and an animation, and
+   there are 35 of them; shots and effects carry the weapon's flags and a word more, and there are 255
+   of each and 36 effect types, with four more words each (WeaponDef, Shot, Effect, EffectInfo) */
+#define MW2_WEAPON_FUNCTIONS
+/* PlayPositionalSound takes the sample's flags (PlayPositionalSoundEx; the old entry point passes
+   0x32), and plays nothing beyond a cutoff distance, g_unk0x100ba608 hundred units, when that is set */
+#define MW2_POSITIONAL_SOUND_FLAGS
+/* A game thing's destruction counts for the local team whoever's shot destroyed it, and forgets the
+   shooter (KillGameThing) */
+#define MW2_THING_KILLS_FORGET_SHOOTER
+/* Artefact: weapons.c, ai.c, maneuvers.c and gridobject.c call the C runtime's abs, which GBL's
+   other units expand (MW2_GBL's pragma above), and bandpoly.c and AssignStarTarget its labs */
+#define MW2_ABS_CALLS
+/* Artefact: GetBearingAndRange compares with the C runtime's labs */
+#define MW2_BEARING_LABS
+/* A shot destroys a game thing whose shape is of kind 0xb0 at once, and every destroyed thing leaves
+   effect 0x20b (DamageGameThing) */
+#define MW2_BUILDINGS_FALL_AT_ONCE
+/* Artefact: InitRefreshMode tests for a window smaller than the screen first */
+#define MW2_WINDOWED_TEST_FIRST
+/* A destroyed mech blows the critical slot of its first ammunition bin, a bin blows whatever its
+   weapon's ammunition, and its pilot ejects when auto-eject is on or the mech isn't the local
+   player's (DestroyMech, DestroyCriticalSlot) */
+#define MW2_DESTROY_BLOWS_FIRST_BIN
+/* EjectPlayer tells the local player with cockpit message 4 when the mech goes without ejecting */
+#define MW2_SELF_DESTRUCT_MESSAGE
+/* A mech's kill counts for the player whose shot hit it last, the local player's outcome is 4 unless
+   they ejected, and in a network game only the local mech's death is played out (KillMech, which
+   DestroySection and DestroyCriticalSlot call whatever the game) */
+#define MW2_KILLS_BY_LAST_SHOOTER
+/* A critical hit on a flamer and on the AMS has a message of its own (DestroyCriticalSlot) */
+#define MW2_MORE_CRITICAL_HITS
+/* The AI's attack and target states stop the group fire as well as the fire (AiStateAttack,
+   AiStateMove) */
+#define MW2_AI_STOPS_GROUP_FIRE
+/* Artefact: GBL's source copies some structures with memcpy, which its build calls, where the
+   optimized editions show a structure assignment: nav points, rays, players, matrices, weapon slots,
+   render settings and sample headers (RemoveNavPoint, CopyRay, LogPlayerStatusLines, the object
+   matrices, LayoutWeaponPanels, the mech view panel, StartSample) */
+#define MW2_STRUCT_COPY_MEMCPY
+/* Only the local player inspects its target, which counts as inspected once anyone has, and the
+   inspect request stays set (UpdateTarget) */
+#define MW2_LOCAL_INSPECTION
+/* DdrawCreateSurfaces sets no DDSD_CAPS in its surface descriptions */
+#define MW2_DDRAW_NO_CAPS_FLAG
+/* The cheat codes are a table with the messages each shows, all stored XORed with 0xa, the messages
+   decoded at the first key typed; GBL has codes of its own, and six of them do nothing
+   (g_cheatCodes, HandleCheatInput) */
+#define MW2_CHEAT_TABLE
+/* GetIniValue cuts a value at a ';' and trims it, unless its second argument asks for the raw value
+   (which error.c's call doesn't pass) */
+#define MW2_INI_COMMENTS
+/* ReportInputDeviceError reports nothing about the mouse */
+#define MW2_NO_MOUSE_ERRORS
+/* Artefact: DrawDepthQueue takes the next entry's index into a local before it copies the entry */
+#define MW2_DEPTH_QUEUE_INDEX
+/* Artefact: FloatVectorLength sums the squares from z down, where 1.1 adds x's and y's first */
+#define MW2_LENGTH_SUM_FROM_Z
+/* QueueObjTree draws no shape of type 0x20 */
+#define MW2_SKIP_SHAPE_TYPE_20
+/* The ALL_PT_MENU, PT_2_MENU and PT_3_MENU game keys (actions 53 to 55) do what the first three
+   starmate menu keys do (RunGameKey) */
+#define MW2_PT_MENU_KEYS
+/* Artefact: RunGameKey's screenshot acquires the frame buffer in an if with an empty else, where 1.1
+   has a conditional expression */
+#define MW2_SCREENSHOT_ACQUIRE_IF
+/* Key 0x3e asks for power down in power state 7 too, where 1.1 ignores it */
+#define MW2_NO_STATE_7_POWER_TEST
+/* UpdateInputs compares an axis' rate pointer with its position's address */
+#define MW2_AXIS_RATE_POINTER_TEST
 #endif
 
 /* A game key action's number: with MW2_CHAT_KEY, the actions from 0x42 on are one higher. */

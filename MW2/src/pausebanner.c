@@ -156,6 +156,7 @@ void ResumeGame(void)
 // debug render flags and overlays, the difficulty switches, the objective state of the selected
 // star (g_debugStar) and objective (g_debugObjective), and a number and mech section selection.
 // FUNCTION: MW2 0x10009f8d
+// FUNCTION: MW2GBL 0x10012a3d
 // FUNCTION: MW2MATROX 0x1002ee0a
 // FUNCTION: MW23DFX 0x10036470
 // FUNCTION: MW2ATI 0x10035030
@@ -178,92 +179,92 @@ void HandleDebugKey(MechU16 p_key)
 	case 0xf:
 		DebugBreakpoint();
 		break;
-	case 0x5c:
+	case GAME_KEY_ACTION(0x5c):
 		g_debugSlot = 1;
 		break;
-	case 0x5d:
+	case GAME_KEY_ACTION(0x5d):
 		g_debugSlot = 2;
 		break;
-	case 0x5e:
+	case GAME_KEY_ACTION(0x5e):
 		g_debugSlot = 3;
 		break;
-	case 0x5f:
+	case GAME_KEY_ACTION(0x5f):
 		g_debugSlot = 4;
 		break;
-	case 0x60:
+	case GAME_KEY_ACTION(0x60):
 		g_debugSlot = 5;
 		break;
-	case 0x61:
+	case GAME_KEY_ACTION(0x61):
 		g_debugSlot = 6;
 		break;
-	case 0x62:
+	case GAME_KEY_ACTION(0x62):
 		g_debugSlot = 7;
 		break;
-	case 0x63:
+	case GAME_KEY_ACTION(0x63):
 		g_debugSlot = 8;
 		break;
-	case 0x64:
+	case GAME_KEY_ACTION(0x64):
 		g_debugSlot = 9;
 		break;
-	case 0x65:
+	case GAME_KEY_ACTION(0x65):
 		g_debugSlot = 0;
 		break;
-	case 0x66:
+	case GAME_KEY_ACTION(0x66):
 		sprintf(text, "Head Selected");
 		ShowInGameMessage(text, 1, 0x16a, 0x32);
 		g_debugSection = 1;
 		break;
-	case 0x67:
+	case GAME_KEY_ACTION(0x67):
 		sprintf(text, "Right Torso Selected");
 		ShowInGameMessage(text, 1, 0x16a, 0x32);
 		g_debugSection = 2;
 		break;
-	case 0x68:
+	case GAME_KEY_ACTION(0x68):
 		sprintf(text, "Center Torso Selected");
 		ShowInGameMessage(text, 1, 0x16a, 0x32);
 		g_debugSection = 3;
 		break;
-	case 0x69:
+	case GAME_KEY_ACTION(0x69):
 		sprintf(text, "Left Torso Selected");
 		ShowInGameMessage(text, 1, 0x16a, 0x32);
 		g_debugSection = 4;
 		break;
-	case 0x6a:
+	case GAME_KEY_ACTION(0x6a):
 		sprintf(text, "Right Arm Selected");
 		ShowInGameMessage(text, 1, 0x16a, 0x32);
 		g_debugSection = 5;
 		break;
-	case 0x6b:
+	case GAME_KEY_ACTION(0x6b):
 		sprintf(text, "Left Arm Selected");
 		ShowInGameMessage(text, 1, 0x16a, 0x32);
 		g_debugSection = 6;
 		break;
-	case 0x6c:
+	case GAME_KEY_ACTION(0x6c):
 		sprintf(text, "Right Leg Selected");
 		ShowInGameMessage(text, 1, 0x16a, 0x32);
 		g_debugSection = 7;
 		break;
-	case 0x6d:
+	case GAME_KEY_ACTION(0x6d):
 		sprintf(text, "Left Leg Selected");
 		ShowInGameMessage(text, 1, 0x16a, 0x32);
 		g_debugSection = 8;
 		break;
-	case 0x6e:
-	case 0x6f:
-	case 0x70:
-	case 0x71:
-	case 0x72:
-	case 0x73:
-	case 0x74:
-	case 0x75:
-	case 0x76:
-	case 0x77:
-		g_debugStar = (p_key & 0xff) - 0x6e;
+	case GAME_KEY_ACTION(0x6e):
+	case GAME_KEY_ACTION(0x6f):
+	case GAME_KEY_ACTION(0x70):
+	case GAME_KEY_ACTION(0x71):
+	case GAME_KEY_ACTION(0x72):
+	case GAME_KEY_ACTION(0x73):
+	case GAME_KEY_ACTION(0x74):
+	case GAME_KEY_ACTION(0x75):
+	case GAME_KEY_ACTION(0x76):
+	case GAME_KEY_ACTION(0x77):
+		g_debugStar = (p_key & 0xff) - GAME_KEY_ACTION(0x6e);
 		if (g_debugStar >= g_objectiveCount) {
 			g_debugStar = -1;
 		}
 		break;
-	case 0x78:
+	case GAME_KEY_ACTION(0x78):
 #ifdef MW2_CONDITIONAL_EXPRESSIONS
 		g_debugStar = g_debugStar == -1 ? -2 : -1;
 #else
@@ -275,40 +276,40 @@ void HandleDebugKey(MechU16 p_key)
 		}
 #endif
 		break;
-	case 0x79:
+	case GAME_KEY_ACTION(0x79):
 		g_debugObjective--;
 		break;
-	case 0x7a:
+	case GAME_KEY_ACTION(0x7a):
 		g_debugObjective++;
 		break;
-	case 0x7b:
+	case GAME_KEY_ACTION(0x7b):
 		if (g_debugStar != -1 && g_objectiveTable[g_debugStar].m_objectives[g_debugObjective].m_state == 3) {
 			g_objectiveTable[g_debugStar].m_objectives[g_debugObjective].m_state = 6;
 		}
 		break;
-	case 0x7c:
+	case GAME_KEY_ACTION(0x7c):
 		if (g_debugStar != -1 && g_objectiveTable[g_debugStar].m_objectives[g_debugObjective].m_state == 3) {
 			g_objectiveTable[g_debugStar].m_objectives[g_debugObjective].m_state = 5;
 		}
 		break;
-	case 0x7d:
+	case GAME_KEY_ACTION(0x7d):
 		ToggleTextureMaps(0x100);
 		break;
-	case 0x7e:
+	case GAME_KEY_ACTION(0x7e):
 		ToggleTextureMaps(0x200);
 		break;
-	case 0x7f:
+	case GAME_KEY_ACTION(0x7f):
 		ToggleTextureMaps(0x400);
 		break;
-	case 0x80:
+	case GAME_KEY_ACTION(0x80):
 		ToggleTextureMaps(0x800);
 		break;
-	case 0x82:
+	case GAME_KEY_ACTION(0x82):
 		g_showMemInfo = !g_showMemInfo;
 
 		g_showMemInfoMain = g_showMemInfo;
 		break;
-	case 0x84:
+	case GAME_KEY_ACTION(0x84):
 		switch (g_renderSettings.m_wireframeColors) {
 		case 1:
 			g_renderSettings.m_wireframeColors = 2;
@@ -321,22 +322,22 @@ void HandleDebugKey(MechU16 p_key)
 			break;
 		}
 		break;
-	case 0x85:
+	case GAME_KEY_ACTION(0x85):
 		g_showFrameRate = !g_showFrameRate;
 
 		g_showFrameRateMain = g_showFrameRate;
 		break;
-	case 0x87:
+	case GAME_KEY_ACTION(0x87):
 		g_showSceneInfo = !g_showSceneInfo;
 
 		g_showSceneInfoMain = g_showSceneInfo;
 		break;
-	case 0x88:
+	case GAME_KEY_ACTION(0x88):
 		g_showEyePosition = !g_showEyePosition;
 
 		g_showEyePositionMain = g_showEyePosition;
 		break;
-	case 0x8b:
+	case GAME_KEY_ACTION(0x8b):
 		if (!g_difficulty->m_splashDamage) {
 			g_difficulty->m_splashDamage = 1;
 			sprintf(text, "Splash Damage ON");
@@ -348,7 +349,7 @@ void HandleDebugKey(MechU16 p_key)
 			ShowInGameMessage(text, 1, 0x16a, 0x32);
 		}
 		break;
-	case 0x8c:
+	case GAME_KEY_ACTION(0x8c):
 		if (!g_difficulty->m_collisionDamage) {
 			g_difficulty->m_collisionDamage = 1;
 			sprintf(text, "Collision Damage ON");
@@ -360,7 +361,7 @@ void HandleDebugKey(MechU16 p_key)
 			ShowInGameMessage(text, 1, 0x16a, 0x32);
 		}
 		break;
-	case 0x8d:
+	case GAME_KEY_ACTION(0x8d):
 		if (!g_difficulty->m_heatTracking) {
 			g_difficulty->m_heatTracking = 1;
 			sprintf(text, "Heat Tracking ON");
@@ -372,7 +373,7 @@ void HandleDebugKey(MechU16 p_key)
 			ShowInGameMessage(text, 1, 0x16a, 0x32);
 		}
 		break;
-	case 0x8e:
+	case GAME_KEY_ACTION(0x8e):
 		if (g_lodQuality == 2) {
 			g_lodQuality = 1;
 			sprintf(text, "LOD Quality HIGH");
@@ -384,24 +385,24 @@ void HandleDebugKey(MechU16 p_key)
 			ShowInGameMessage(text, 1, 0x16a, 0x32);
 		}
 		break;
-	case 0x8f:
+	case GAME_KEY_ACTION(0x8f):
 		DumpResourceCache();
 		break;
-	case 0x90:
+	case GAME_KEY_ACTION(0x90):
 		break;
-	case 0x91:
+	case GAME_KEY_ACTION(0x91):
 		g_showFrameRate = !g_showFrameRate;
 		break;
-	case 0x86:
+	case GAME_KEY_ACTION(0x86):
 		g_cockpitPanels[c_panelRadar]->m_damage = !g_cockpitPanels[c_panelRadar]->m_damage;
 		break;
-	case 0x93:
+	case GAME_KEY_ACTION(0x93):
 		g_showEyePosition = !g_showEyePosition;
 		break;
-	case 0x94:
+	case GAME_KEY_ACTION(0x94):
 		g_showSceneInfo = !g_showSceneInfo;
 		break;
-	case 0x95:
+	case GAME_KEY_ACTION(0x95):
 		switch (g_renderSettings.m_wireframe) {
 		case 0:
 			g_renderSettings.m_wireframe = 2;
@@ -414,7 +415,7 @@ void HandleDebugKey(MechU16 p_key)
 			break;
 		}
 		break;
-	case 0x96:
+	case GAME_KEY_ACTION(0x96):
 		g_showPalette = !g_showPalette;
 		break;
 	default:

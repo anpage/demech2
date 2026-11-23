@@ -391,6 +391,7 @@ void DrawRuleUnderRow(PANE* p_target, Point p_pos, void* p_font, MechS32 p_color
 
 // Underlines text drawn at p_pos.
 // FUNCTION: MW2 0x100571ea
+// FUNCTION: MW2GBL 0x1000886a
 // FUNCTION: MW2MATROX 0x10071c27
 // FUNCTION: MW23DFX 0x10006520
 // FUNCTION: MW2ATI 0x10006ea0
@@ -414,6 +415,7 @@ void UnderlineText(PANE* p_target, MechChar* p_text, Point p_pos, void* p_font, 
 
 // Draws a box around text drawn at p_pos.m_x, p_pos.m_y.
 // FUNCTION: MW2 0x10057282
+// FUNCTION: MW2GBL 0x100088fd
 // FUNCTION: MW2MATROX 0x10071cc8
 // FUNCTION: MW23DFX 0x100065c0
 // FUNCTION: MW2ATI 0x10006f40

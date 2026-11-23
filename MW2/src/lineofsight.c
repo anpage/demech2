@@ -113,6 +113,7 @@ MechS32 IsGroundLevelToward(Player* p_player, MechS32 p_x, MechS32 p_y, MechS32 
 // Returns which of the weapon's range bands the player's target is in: 3 within the short
 // range, 2 within the long one, 1 right at it and 0 beyond it.
 // FUNCTION: MW2 0x1006cd45
+// FUNCTION: MW2GBL 0x1007e945
 // FUNCTION: MW2MATROX 0x1006d4b9
 // FUNCTION: MW23DFX 0x100151a0
 // FUNCTION: MW2ATI 0x100155b0

@@ -37,9 +37,16 @@
 #include "weapondata.h"
 #include "weapondef.h"
 #include "weaponslot.h"
+#ifdef MW2_WEAPON_FUNCTIONS
+#include "animation.h"
+#endif
 
 #include <stdio.h>
 #include <stdlib.h>
+
+#ifdef MW2_ABS_CALLS
+#pragma function(abs) // GBL calls abs in this unit (util/types.h)
+#endif
 
 // A mech's weapons: selecting them and their groups, firing volleys, the ammunition and the
 // target lock of guided weapons.
@@ -110,6 +117,239 @@ void ReleaseWeaponTriggers(Mech* p_mech)
 	}
 }
 
+#ifdef MW2_WEAPON_FUNCTIONS
+// GBL's: each weapon's frame function runs every frame, its launch function fires the shots (a
+// volley loses as many as it fires), and the launch sound plays at the first shot or every shot as
+// the weapon's flags say.
+// FUNCTION: MW2GBL 0x10047251
+void UpdateWeaponFireState(Mech* p_mech)
+{
+	MechScalar dy;
+	MechS32 first;
+	MechScalar dx;
+	MechScalar dz;
+	WeaponSlot* slot;
+	MechS32 time;
+	WeaponDef* def;
+	MechS32 i;
+	MechS32 pan;
+	MechS32 fired;
+
+	first = FALSE;
+	if (p_mech->m_powerState != 2) {
+		return;
+	}
+
+	p_mech->m_lastSelectedWeapon = p_mech->m_selectedWeapon;
+	if (p_mech->m_player->m_steering->m_toggleGroupFire) {
+		if (g_singleWeaponFire) {
+			g_singleWeaponFire = 0;
+			PlayCockpitSound(7, 1);
+		}
+		else {
+			g_singleWeaponFire = 1;
+			PlayCockpitSound(6, 1);
+		}
+	}
+
+	if (p_mech->m_flags & 0x4000) {
+		AddNextWeaponToGroup(p_mech);
+	}
+	else if (p_mech->m_selectedWeapon != -1) {
+		slot = &p_mech->m_weapons[p_mech->m_selectedWeapon];
+		def = &g_weaponDefs[slot->m_type];
+		if (!g_singleWeaponFire && p_mech->m_player->m_index == g_localPlayerId) {
+			p_mech->m_player->m_steering->m_weaponFireGroup = p_mech->m_player->m_steering->m_weaponFire;
+			p_mech->m_player->m_steering->m_weaponFire = 0;
+		}
+
+		if (p_mech->m_player->m_steering->m_weaponFireGroup) {
+			if (!(p_mech->m_flags & 1)) {
+				p_mech->m_flags |= 1;
+				FireWeaponGroup(p_mech);
+			}
+		}
+		else if (p_mech->m_player->m_steering->m_weaponFireGroup1) {
+			if (!(p_mech->m_flags & 1)) {
+				p_mech->m_flags |= 1;
+				if (SelectWeaponGroup(p_mech, 0)) {
+					FireWeaponGroup(p_mech);
+				}
+			}
+		}
+		else if (p_mech->m_player->m_steering->m_weaponFireGroup2) {
+			if (!(p_mech->m_flags & 1)) {
+				p_mech->m_flags |= 1;
+				if (SelectWeaponGroup(p_mech, 1)) {
+					FireWeaponGroup(p_mech);
+				}
+			}
+		}
+		else if (p_mech->m_player->m_steering->m_weaponFireGroup3) {
+			if (!(p_mech->m_flags & 1)) {
+				p_mech->m_flags |= 1;
+				if (SelectWeaponGroup(p_mech, 2)) {
+					FireWeaponGroup(p_mech);
+				}
+			}
+		}
+		else if (p_mech->m_player->m_steering->m_weaponFire) {
+			if (!(p_mech->m_flags & 1)) {
+				p_mech->m_flags |= 1;
+				if (slot->m_state == c_weaponReady) {
+					slot->m_state = c_weaponFiring;
+					slot->m_volley = def->m_volley;
+					slot->m_time = 0;
+					DodgeShot(slot, p_mech);
+					if (def->m_guided && (p_mech->m_flags & 0x80)) {
+						slot->m_target = p_mech->m_player->m_targetInfo.m_target & 0xff;
+						slot->m_targetKind = p_mech->m_player->m_targetInfo.m_target & 0xf00;
+					}
+					else {
+						slot->m_target = slot->m_targetKind = 0;
+					}
+				}
+				else {
+					PlaySoundEffect(0x149, 100, 0x40, 5, 0x32);
+				}
+			}
+		}
+		else if (p_mech->m_flags & 1) {
+			p_mech->m_flags &= ~1;
+			SelectNextWeaponInGroup(p_mech, 0);
+		}
+	}
+
+	for (i = 0; i < WEAPON_SLOT_COUNT; i++) {
+		slot = &p_mech->m_weapons[i];
+		if (slot->m_type < 0) {
+			continue;
+		}
+
+		def = &g_weaponDefs[slot->m_type];
+		if (def->m_frame) {
+			def->m_frame(p_mech->m_player, def, slot);
+		}
+
+		switch (slot->m_state) {
+		case c_weaponRecycling:
+			if (g_currentClock - slot->m_time >= def->m_recycle) {
+				slot->m_state = c_weaponReady;
+				slot->m_time = 0;
+			}
+			break;
+		case c_weaponHeld:
+			if (g_currentClock - slot->m_time >= def->m_recycle) {
+				if (&p_mech->m_weapons[p_mech->m_selectedWeapon] == slot ||
+					p_mech->m_player->m_steering->m_weaponFireGroup ||
+					p_mech->m_player->m_steering->m_weaponFireGroup1 ||
+					p_mech->m_player->m_steering->m_weaponFireGroup2 ||
+					p_mech->m_player->m_steering->m_weaponFireGroup3) {
+					slot->m_state = c_weaponFiring;
+				}
+				else {
+					slot->m_state = c_weaponReady;
+				}
+
+				slot->m_time = 0;
+			}
+			break;
+		case c_weaponFiring:
+			if (slot->m_volley > 0) {
+				if (slot->m_volley == def->m_volley) {
+					first = TRUE;
+				}
+
+				time = slot->m_time + g_deltaTime;
+				while (def->m_interval <= time && slot->m_volley > 0) {
+					p_mech->m_player->m_firingObj = p_mech->m_objects[slot->m_hardpoint];
+					fired = 0;
+					if (def->m_launch) {
+						fired = def->m_launch(p_mech->m_player, def, slot);
+					}
+
+					if (fired) {
+						SpawnLaunchEffect(def->m_launchEffect, p_mech->m_player);
+						SpawnLaunchEffect(def->m_launchEffect2, p_mech->m_player);
+						slot->m_volley -= fired;
+						time -= def->m_interval;
+						slot->m_time = time;
+						p_mech->m_deltaHeat += def->m_heat;
+
+						if (((def->m_flags & c_weaponSoundFirst) && first) || (def->m_flags & c_weaponSoundEach)) {
+							first = FALSE;
+							if (p_mech->m_player->m_index == g_localPlayerId) {
+								g_localWeaponsFired[slot->m_index] = 1;
+							}
+
+							if (def->m_sound > 0) {
+								if (p_mech->m_player->m_index == g_localPlayerId && g_inCockpitView) {
+									switch (slot->m_hardpoint) {
+									case 2:
+									case 5:
+										pan = 0x4f;
+										break;
+									case 4:
+									case 6:
+										pan = 0x2f;
+										break;
+									default:
+										pan = 0x40;
+									}
+
+									if (def->m_flags & c_weaponSoundEach) {
+										PlayDelayedSound(0, 0, def->m_sound, 0x32, pan, 0x432);
+									}
+									else {
+										PlayDelayedSound(0, 0, def->m_sound, 0x32, pan, 0x32);
+									}
+								}
+								else {
+									dx = g_eyepoint->m_x - p_mech->m_player->m_position.m_x;
+									dy = g_eyepoint->m_y - p_mech->m_player->m_position.m_y;
+									dz = g_eyepoint->m_z - p_mech->m_player->m_position.m_z;
+									if (def->m_flags & c_weaponSoundEach) {
+										PlayPositionalSoundEx(dx, dy, dz, def->m_sound, g_inCockpitView, 0x432);
+									}
+									else {
+										PlayPositionalSoundEx(dx, dy, dz, def->m_sound, g_inCockpitView, 0x32);
+									}
+								}
+							}
+						}
+
+						if (slot->m_volley <= 0 && def->m_autoRepeat &&
+							(p_mech->m_player->m_steering->m_weaponFire ||
+							 p_mech->m_player->m_steering->m_weaponFireGroup ||
+							 p_mech->m_player->m_steering->m_weaponFireGroup1 ||
+							 p_mech->m_player->m_steering->m_weaponFireGroup2 ||
+							 p_mech->m_player->m_steering->m_weaponFireGroup3)) {
+							slot->m_time = g_currentClock;
+							slot->m_state = c_weaponHeld;
+							slot->m_volley = def->m_volley;
+							break;
+						}
+					}
+					else {
+						p_mech->m_flags &= ~1;
+						slot->m_volley = 0;
+					}
+				}
+
+				if (slot->m_state != c_weaponHeld) {
+					slot->m_time = time;
+				}
+			}
+			else {
+				slot->m_time = g_currentClock;
+				slot->m_state = c_weaponRecycling;
+				slot->m_volley = 0;
+			}
+			break;
+		}
+	}
+}
+#else
 // FUNCTION: MW2 0x100447e1
 // FUNCTION: MW2MATROX 0x1002b581
 // FUNCTION: MW23DFX 0x100437a0
@@ -333,7 +573,126 @@ void UpdateWeaponFireState(Mech* p_mech)
 		}
 	}
 }
+#endif
 
+#ifdef MW2_WEAPON_FUNCTIONS
+// Launches one shot of the weapon p_def in p_slot from the player's current hardpoint: GBL's, every
+// weapon's launch function but the AMS's (WeaponDef::m_launch). Returns 0 when the weapon can't fire
+// again: no hardpoint, or out of ammunition.
+// FUNCTION: MW2GBL 0x10047bc0
+MechS32 SpawnShot(Player* p_player, WeaponDef* p_def, WeaponSlot* p_slot)
+{
+	MechS32 result;
+	Shot* shot;
+	MechS32 found;
+	MechScalar dx;
+	MechScalar dy;
+	MechScalar dz;
+	MechS32 i;
+	MechScalar speed;
+	MechS32 spread;
+	MechS32 j;
+
+	result = 1;
+	if (!p_player || !p_player->m_firingObj) {
+		return 0;
+	}
+
+	found = FALSE;
+	if (!p_slot->m_ammo) {
+		return 0;
+	}
+
+	if (p_player->m_index == g_localPlayerId) {
+		g_careerRecord.m_shotsFired++;
+	}
+
+	if (g_players[p_player->m_index]->m_team == g_players[g_localPlayerId]->m_team) {
+		g_careerRecord.m_teamShotsFired++;
+	}
+
+	if (p_slot->m_ammo != -1 && (!g_difficulty->m_unlimitedAmmo || p_player->m_index != g_localPlayerId)) {
+		p_slot->m_ammo--;
+		if (p_slot->m_bin->m_shots) {
+			p_slot->m_bin->m_shots--;
+		}
+		else {
+			p_slot->m_binIndex++;
+			if (p_slot->m_binCount == p_slot->m_binIndex) {
+				p_slot->m_binIndex--;
+			}
+			else {
+				p_slot->m_bin++;
+			}
+		}
+
+		if (p_slot->m_ammo == 0) {
+			p_slot->m_state = c_weaponEmpty;
+			result = 0;
+		}
+	}
+
+	if (p_def->m_launchesShot) {
+		for (i = 0; !found && i < SHOT_COUNT; i++) {
+			shot = &g_shots[i];
+			if (p_def->m_shotType == shot->m_type && !shot->m_flags && shot->m_object) {
+				found = TRUE;
+			}
+		}
+
+		if (found) {
+			if (p_player->m_index != g_localPlayerId) {
+				UpdateAimDistance(p_player);
+			}
+
+			shot->m_weaponFlags = p_def->m_flags;
+			shot->m_age = p_slot->m_time;
+			shot->m_lifetime = p_def->m_lifetime - p_slot->m_time;
+			shot->m_impact = p_def->m_impact;
+			shot->m_damage = p_def->m_damage;
+			shot->m_heat = p_def->m_shotHeat;
+			shot->m_flags = 1;
+			shot->m_unk0x3c = 0;
+			shot->m_target = p_slot->m_target;
+			shot->m_targetKind = p_slot->m_targetKind;
+			shot->m_shooter = p_player->m_index;
+			if (p_def->m_flags & c_weaponAnimation) {
+				for (j = 0; j < 8; j++) {
+					SetAnimFrame(p_def->m_animation + j, 0);
+					SetAnimMode(p_def->m_animation + j, 1);
+				}
+			}
+
+			speed = p_def->m_speed;
+			GetMechAimDirection(p_player, &dx, &dy, &dz);
+			NormalizeVectorGuarded(&dx, &dy, &dz);
+			shot->m_velocity[0] = dx * speed;
+			shot->m_velocity[1] = dy * speed;
+			shot->m_velocity[2] = dz * speed;
+			shot->m_steering[1] = FixedMul16(-g_gravity, p_def->m_gravity << 16);
+			shot->m_steering[0] = shot->m_steering[2] = 0;
+			spread = shot->m_type == 3 || shot->m_type == 10 || shot->m_type == 0xc || shot->m_type == 9 ||
+					 shot->m_type == 4;
+			SpawnLaunchFx(p_player, shot->m_object, dx, dy, dz, spread, p_def);
+			ShowObjTree(shot->m_object);
+			DisableObjTreeCollision(shot->m_object);
+			UpdateObj(shot->m_object);
+
+			if (p_player->m_index == g_localPlayerId) {
+				if (shot->m_type == 3 || shot->m_type == 4 || shot->m_type == 10 || shot->m_type == 0xc ||
+					shot->m_type == 9) {
+					g_lastLocalMissile = i - 1;
+				}
+				else {
+					g_lastLocalMissile = -1;
+				}
+			}
+		}
+	}
+
+	return result;
+}
+#else
 // Launches one shot of p_slot's weapon from the player's current hardpoint. Returns 0 when the
 // weapon can't fire again: no hardpoint, or out of ammunition.
 // FUNCTION: MW2 0x1004506c
@@ -397,7 +756,7 @@ MechS32 SpawnShot(Player* p_player, WeaponSlot* p_slot)
 	}
 
 	if (def->m_launchesShot) {
-		for (i = 0; !found && i < 0xaf; i++) {
+		for (i = 0; !found && i < SHOT_COUNT; i++) {
 			shot = &g_shots[i];
 			if (def->m_shotType == shot->m_type && !shot->m_flags && shot->m_object) {
 				found = TRUE;
@@ -419,6 +778,7 @@ MechS32 SpawnShot(Player* p_player, WeaponSlot* p_slot)
 			shot->m_target = p_slot->m_target;
 			shot->m_targetKind = p_slot->m_targetKind;
 			shot->m_shooter = p_player->m_index;
+
 			speed = def->m_speed;
 			GetMechAimDirection(p_player, &dx, &dy, &dz);
 			NormalizeVectorGuarded(&dx, &dy, &dz);
@@ -450,10 +810,12 @@ MechS32 SpawnShot(Player* p_player, WeaponSlot* p_slot)
 
 	return result;
 }
+#endif
 
 // Selects the next weapon of the selected one's group; p_wrap moves on to the next group when
 // there is none.
 // FUNCTION: MW2 0x10045449
+// FUNCTION: MW2GBL 0x10048016
 // FUNCTION: MW2MATROX 0x1002c1ef
 // FUNCTION: MW23DFX 0x10043f80
 // FUNCTION: MW2ATI 0x100417d0
@@ -467,6 +829,9 @@ void SelectNextWeaponInGroup(Mech* p_mech, MechS32 p_wrap)
 	MechS32 found;
 	MechS32 i;
 	MechS32 selected;
+#ifdef MW2_WEAPON_FUNCTIONS
+	WeaponDef* def;
+#endif
 
 	found = FALSE;
 	if (p_mech->m_weaponCount <= 0) {
@@ -484,7 +849,13 @@ void SelectNextWeaponInGroup(Mech* p_mech, MechS32 p_wrap)
 			continue;
 		}
 
+#ifdef MW2_WEAPON_FUNCTIONS
+		def = &g_weaponDefs[slot->m_type];
+		if (slot->m_status != -1 && slot->m_group == group && slot->m_state != c_weaponEmpty &&
+			(def->m_flags & c_weaponSelectable) && index != selected) {
+#else
 		if (slot->m_status != -1 && slot->m_group == group && slot->m_state != c_weaponEmpty && index != selected) {
+#endif
 			found = TRUE;
 			p_mech->m_selectedWeapon = index;
 			break;
@@ -498,6 +869,7 @@ void SelectNextWeaponInGroup(Mech* p_mech, MechS32 p_wrap)
 
 // Selects the next weapon that still has ammunition.
 // FUNCTION: MW2 0x10045567
+// FUNCTION: MW2GBL 0x10048159
 // FUNCTION: MW2MATROX 0x1002c30d
 // FUNCTION: MW23DFX 0x10044030
 // FUNCTION: MW2ATI 0x10041880
@@ -507,6 +879,10 @@ void SelectNextWeapon(Mech* p_mech)
 {
 	MechS32 done;
 	MechS32 tries;
+#ifdef MW2_WEAPON_FUNCTIONS
+	MechS32 type;
+	WeaponDef* def;
+#endif
 
 	done = FALSE;
 	tries = 0;
@@ -517,6 +893,23 @@ void SelectNextWeapon(Mech* p_mech)
 	while (!done) {
 		p_mech->m_selectedWeapon++;
 		p_mech->m_selectedWeapon %= WEAPON_SLOT_COUNT;
+#ifdef MW2_WEAPON_FUNCTIONS
+		type = p_mech->m_weapons[p_mech->m_selectedWeapon].m_type;
+		if (type < 0) {
+			continue;
+		}
+
+		def = &g_weaponDefs[type];
+		if (p_mech->m_weapons[p_mech->m_selectedWeapon].m_status == -1) {
+			p_mech->m_selectedWeapon = 0;
+		}
+
+		if ((p_mech->m_weapons[p_mech->m_selectedWeapon].m_state != c_weaponEmpty &&
+			 (def->m_flags & c_weaponSelectable)) ||
+			++tries == WEAPON_SLOT_COUNT) {
+			done = TRUE;
+		}
+#else
 		if (p_mech->m_weapons[p_mech->m_selectedWeapon].m_type < 0) {
 			continue;
 		}
@@ -532,11 +925,13 @@ void SelectNextWeapon(Mech* p_mech)
 		if (p_mech->m_weapons[p_mech->m_selectedWeapon].m_state != c_weaponEmpty || ++tries == WEAPON_SLOT_COUNT) {
 			done = TRUE;
 		}
+#endif
 	}
 }
 
 // Selects the first weapon of the next group that has one.
 // FUNCTION: MW2 0x1004567b
+// FUNCTION: MW2GBL 0x1004826f
 // FUNCTION: MW2MATROX 0x1002c421
 // FUNCTION: MW23DFX 0x100440c0
 // FUNCTION: MW2ATI 0x10041910
@@ -549,6 +944,10 @@ void SelectNextWeaponGroup(Mech* p_mech)
 	MechS32 found;
 	MechS32 selected;
 	MechS32 current;
+#ifdef MW2_WEAPON_FUNCTIONS
+	MechS32 type;
+	WeaponDef* def;
+#endif
 
 	i = 0;
 	found = FALSE;
@@ -562,12 +961,23 @@ void SelectNextWeaponGroup(Mech* p_mech)
 	group %= WEAPON_SLOT_COUNT;
 	while (group != current && !found) {
 		for (i = 0; i < WEAPON_SLOT_COUNT && !found; i++) {
+#ifdef MW2_WEAPON_FUNCTIONS
+			type = p_mech->m_weapons[i].m_type;
+			if (type < 0) {
+				continue;
+			}
+
+			def = &g_weaponDefs[type];
+			if (p_mech->m_weapons[i].m_status != -1 && p_mech->m_weapons[i].m_group == group &&
+				p_mech->m_weapons[i].m_state != c_weaponEmpty && (def->m_flags & c_weaponSelectable)) {
+#else
 			if (p_mech->m_weapons[i].m_type < 0) {
 				continue;
 			}
 
 			if (p_mech->m_weapons[i].m_status != -1 && p_mech->m_weapons[i].m_group == group &&
 				p_mech->m_weapons[i].m_state != c_weaponEmpty) {
+#endif
 				found = TRUE;
 				p_mech->m_selectedWeapon = selected = i;
 				break;
@@ -581,6 +991,7 @@ void SelectNextWeaponGroup(Mech* p_mech)
 
 // Selects the first weapon of p_group. Returns 1 if the group has one.
 // FUNCTION: MW2 0x100457d3
+// FUNCTION: MW2GBL 0x100483ef
 // FUNCTION: MW2MATROX 0x1002c579
 // FUNCTION: MW23DFX 0x10044160
 // FUNCTION: MW2ATI 0x100419b0
@@ -592,7 +1003,14 @@ MechS32 SelectWeaponGroup(Mech* p_mech, MechS32 p_group)
 	MechS32 found;
 	MechS32 selected;
 	MechS32 current;
+#ifdef MW2_WEAPON_FUNCTIONS
+	MechS32 type;
+	WeaponDef* def;
+#endif
 
+#ifdef MW2_WEAPON_FUNCTIONS
+	type = 0;
+#endif
 	i = 0;
 	found = FALSE;
 	if (p_group < 0 || p_group >= 3) {
@@ -609,12 +1027,23 @@ MechS32 SelectWeaponGroup(Mech* p_mech, MechS32 p_group)
 	}
 
 	for (i = 0; i < WEAPON_SLOT_COUNT && !found; i++) {
+#ifdef MW2_WEAPON_FUNCTIONS
+		type = p_mech->m_weapons[i].m_type;
+		if (type < 0) {
+			continue;
+		}
+
+		def = &g_weaponDefs[type];
+		if (p_mech->m_weapons[i].m_status != -1 && p_mech->m_weapons[i].m_group == p_group &&
+			p_mech->m_weapons[i].m_state != c_weaponEmpty && (def->m_flags & c_weaponSelectable)) {
+#else
 		if (p_mech->m_weapons[i].m_type < 0) {
 			continue;
 		}
 
 		if (p_mech->m_weapons[i].m_status != -1 && p_mech->m_weapons[i].m_group == p_group &&
 			p_mech->m_weapons[i].m_state != c_weaponEmpty) {
+#endif
 			found = TRUE;
 			p_mech->m_selectedWeapon = selected = i;
 			break;
@@ -651,6 +1080,7 @@ MechS32 IsSelectedWeaponReady(Mech* p_mech)
 
 // Dumps the selected weapon's ammunition.
 // FUNCTION: MW2 0x1004597b
+// FUNCTION: MW2GBL 0x100485c6
 // FUNCTION: MW2MATROX 0x1002c721
 // FUNCTION: MW23DFX 0x10044220
 // FUNCTION: MW2ATI 0x10041a70
@@ -681,6 +1111,7 @@ MechS32 JettisonAmmo(Mech* p_mech)
 
 // Loads the launch sounds of the weapons and the sounds of the effects.
 // FUNCTION: MW2 0x10045a5b
+// FUNCTION: MW2GBL 0x100486a6
 // FUNCTION: MW2MATROX 0x1002c801
 // FUNCTION: MW23DFX 0x100442e0
 // FUNCTION: MW2ATI 0x10041b20
@@ -691,14 +1122,18 @@ void LoadWeaponSounds(void)
 	MechS32 i;
 	WeaponDef* def;
 
+#ifdef MW2_WEAPON_FUNCTIONS
+	for (i = 0; i < WEAPON_DEF_COUNT; i++) {
+#else
 	for (i = 0; i < 30; i++) {
+#endif
 		def = &g_weaponDefs[i];
 		if (def->m_sound > 0) {
 			PreloadResource(def->m_sound, g_resTagSnds);
 		}
 	}
 
-	for (i = 0; i < 0x20; i++) {
+	for (i = 0; i < EFFECT_TYPE_COUNT; i++) {
 		if (g_effectInfo[i].m_sound > 0) {
 			PreloadResource(g_effectInfo[i].m_sound, g_resTagSnds);
 		}
@@ -757,6 +1192,7 @@ void CycleLocalWeaponGroup(void)
 
 // Fires the weapons g_remoteWeaponsFired lists from p_mech.
 // FUNCTION: MW2 0x10045bc8
+// FUNCTION: MW2GBL 0x10048817
 // FUNCTION: MW2MATROX 0x1002c96e
 // FUNCTION: MW23DFX 0x100443a0
 // FUNCTION: MW2ATI 0x10041bf0
@@ -789,6 +1225,42 @@ void FireRemoteWeapons(Mech* p_mech)
 	}
 }
 
+#ifdef MW2_WEAPON_FUNCTIONS
+// Fires every ready weapon of p_mech's selected group.
+// FUNCTION: MW2GBL 0x10048927
+void FireWeaponGroup(Mech* p_mech)
+{
+	MechS32 selected;
+	MechS32 first;
+	WeaponDef* def;
+	WeaponSlot* slot;
+
+	selected = p_mech->m_selectedWeapon;
+	SelectNextWeaponInGroup(p_mech, 0);
+	first = p_mech->m_selectedWeapon;
+	do {
+		slot = &p_mech->m_weapons[p_mech->m_selectedWeapon];
+		def = &g_weaponDefs[slot->m_type];
+		if (slot->m_state == c_weaponReady) {
+			slot->m_state = c_weaponFiring;
+			slot->m_volley = def->m_volley;
+			slot->m_time = 0;
+			DodgeShot(slot, p_mech);
+			if (def->m_guided && (p_mech->m_flags & 0x80)) {
+				slot->m_target = p_mech->m_player->m_targetInfo.m_target & 0xff;
+				slot->m_targetKind = p_mech->m_player->m_targetInfo.m_target & 0xf00;
+			}
+			else {
+				slot->m_target = slot->m_targetKind = 0;
+			}
+		}
+
+		SelectNextWeaponInGroup(p_mech, 0);
+	} while (p_mech->m_selectedWeapon != first);
+
+	p_mech->m_selectedWeapon = selected;
+}
+#else
 // Fires every ready weapon of the local player's selected group.
 // FUNCTION: MW2 0x10045cd8
 // FUNCTION: MW2MATROX 0x1002ca7e
@@ -830,6 +1302,7 @@ void FireWeaponGroup(void)
 
 	mech->m_selectedWeapon = selected;
 }
+#endif
 
 // Moves the next weapon into the selected one's group.
 // FUNCTION: MW2 0x10045e25
@@ -859,6 +1332,7 @@ void AddNextWeaponToGroup(Mech* p_mech)
 // within 16 degrees of the aim, it locks on after 0x16a ticks.
 // MW2MATROX: in floats (degrees).
 // FUNCTION: MW2 0x10045eac
+// FUNCTION: MW2GBL 0x10048ae9
 // FUNCTION: MW2MATROX 0x1002cc52
 // FUNCTION: MW23DFX 0x10044560
 // FUNCTION: MW2ATI 0x10041db0
@@ -885,6 +1359,17 @@ void UpdateWeaponLock(Mech* p_mech)
 		p_mech->m_flags &= 0x7fff;
 		p_mech->m_flags &= 0xffbf;
 	}
+#ifdef MW2_WEAPON_FUNCTIONS
+	else if (
+		(p_mech->m_player->m_targetInfo.m_target & 0x200) &&
+		(g_players[p_mech->m_player->m_targetInfo.m_target & 0xff]->m_mech->m_unk0x112 & 1)
+	) {
+		p_mech->m_stateTime = 0;
+		p_mech->m_flags |= 0x40;
+		p_mech->m_flags |= 0x80;
+		p_mech->m_flags |= 0x8000;
+	}
+#endif
 	else {
 		dx = p_mech->m_player->m_position.m_x - p_mech->m_player->m_targetInfo.m_position.m_x;
 		dy = p_mech->m_player->m_position.m_y - p_mech->m_player->m_targetInfo.m_position.m_y;
@@ -1125,6 +1610,7 @@ void PlaceAtFiringObj(Player* p_player, SceneObject* p_obj)
 // Places a launched shot's object at the player's hardpoint, pointing along the launch
 // direction, and sets it moving. p_spread moves it up to 100 units off the line.
 // FUNCTION: MW2 0x10046573
+// FUNCTION: MW2GBL 0x10049259
 // FUNCTION: MW2MATROX 0x1002d3e4
 // FUNCTION: MW23DFX 0x10044ac0
 // FUNCTION: MW2ATI 0x10042310
@@ -1137,6 +1623,10 @@ void SpawnLaunchFx(
 	MechScalar p_dy,
 	MechScalar p_dz,
 	MechS32 p_spread
+#ifdef MW2_WEAPON_FUNCTIONS
+	,
+	WeaponDef* p_def
+#endif
 )
 {
 	MechScalar x;
@@ -1189,6 +1679,15 @@ void SpawnLaunchFx(
 	}
 
 	SetObjPosition(p_obj, x, y, z);
+#ifdef MW2_WEAPON_FUNCTIONS
+	if (!(p_def->m_flags & c_weaponNoLaunchMove)) {
+		speed = p_obj->m_shape->m_radius * 2;
+		p_dx = FixedMul16(p_dx, speed);
+		p_dy = FixedMul16(p_dy, speed);
+		p_dz = FixedMul16(p_dz, speed);
+		MoveObj(p_obj, p_dx, p_dy, p_dz);
+	}
+#else
 	speed = p_obj->m_shape->m_radius * 2;
 #ifdef MW2_FLOAT_SCALARS
 	p_dx *= speed;
@@ -1200,4 +1699,5 @@ void SpawnLaunchFx(
 	p_dz = FixedMul16(p_dz, speed);
 #endif
 	MoveObj(p_obj, p_dx, p_dy, p_dz);
+#endif
 }

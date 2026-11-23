@@ -46,12 +46,19 @@
 
 #include <string.h>
 
+#ifdef MW2_WEAPON_FUNCTIONS
+DECOMP_SIZE_ASSERT(Shot, 0x58)
+DECOMP_SIZE_ASSERT(Effect, 0x2c)
+DECOMP_SIZE_ASSERT(EffectInfo, 0x2c)
+#else
 DECOMP_SIZE_ASSERT(Shot, 0x50)
 DECOMP_SIZE_ASSERT(Effect, 0x28)
 DECOMP_SIZE_ASSERT(EffectInfo, 0x1c)
+#endif
 DECOMP_SIZE_ASSERT(CareerRecord, 0xd6)
 
 // GLOBAL: MW2 0x100ad440
+// GLOBAL: MW2GBL 0x100b6900
 // GLOBAL: MW2MATROX 0x100ae0a4
 // GLOBAL: MW23DFX 0x1025a694
 // GLOBAL: MW2S3 0x10065078
@@ -59,6 +66,7 @@ DECOMP_SIZE_ASSERT(CareerRecord, 0xd6)
 MechS32 g_effectCameraActive = 0;
 
 // GLOBAL: MW2 0x100ad444
+// GLOBAL: MW2GBL 0x100b6904
 // GLOBAL: MW2MATROX 0x100ae0a8
 // GLOBAL: MW23DFX 0x1025a698
 // GLOBAL: MW2S3 0x1006507c
@@ -75,6 +83,7 @@ MechS32 g_effectCameraEffect = -1;
 MechS32 g_lastLocalMissile = -1;
 
 // GLOBAL: MW2 0x100ad44c
+// GLOBAL: MW2GBL 0x100b690c
 // GLOBAL: MW2MATROX 0x100ae0b0
 // GLOBAL: MW23DFX 0x1025a6a0
 // GLOBAL: MW2ATI 0x1018e998
@@ -83,6 +92,7 @@ MechS32 g_lastLocalMissile = -1;
 MechS32 g_trackedShot = -1;
 
 // GLOBAL: MW2 0x100ad450
+// GLOBAL: MW2GBL 0x100b6910
 // GLOBAL: MW2MATROX 0x100ae0b4
 // GLOBAL: MW23DFX 0x1025a6a4
 // GLOBAL: MW2ATI 0x1018e99c
@@ -100,6 +110,7 @@ MechS32 g_effectCameraEnabled = 1;
 
 // The player whose shot hit something last.
 // GLOBAL: MW2 0x100ad458
+// GLOBAL: MW2GBL 0x100b6918
 // GLOBAL: MW2MATROX 0x100ae0bc
 // GLOBAL: MW23DFX 0x1025a6ac
 // GLOBAL: MW2ATI 0x1018e9a4
@@ -117,7 +128,7 @@ MechS32 g_lastHitShooter = -1;
 MechS32 g_nukeTimeLeft = 0;
 
 // GLOBAL: MW2 0x100bee50
-// GLOBAL: MW2GBL 0x100bb728
+// GLOBAL: MW2GBL 0x100bb700
 // GLOBAL: MW2MATROX 0x10124724
 // GLOBAL: MW23DFX 0x1007dc6c
 // GLOBAL: MW2ATI 0x10072c6c
@@ -127,6 +138,7 @@ MechScalar g_nukeMaxRadius;
 
 // The view that follows a tracked shot: its position, heading and three more angles.
 // GLOBAL: MW2 0x100bee58
+// GLOBAL: MW2GBL 0x100bb708
 // GLOBAL: MW2MATROX 0x10124708
 // GLOBAL: MW23DFX 0x1007dc50
 // GLOBAL: MW2ATI 0x10072c50
@@ -144,6 +156,7 @@ MechScalar g_trackedShotView[7];
 MechScalar g_nukeRadius;
 
 // GLOBAL: MW2 0x100bee78
+// GLOBAL: MW2GBL 0x100bb728
 // GLOBAL: MW2MATROX 0x101246f8
 // GLOBAL: MW23DFX 0x1007dc40
 // GLOBAL: MW2ATI 0x10072c40
@@ -153,6 +166,7 @@ Vector3 g_nukePosition;
 
 // The eyepoint's settings while an effect has the camera.
 // GLOBAL: MW2 0x100c75f0
+// GLOBAL: MW2GBL 0x100bbb70
 // GLOBAL: MW2MATROX 0x1015d5c0
 // GLOBAL: MW23DFX 0x10159450
 // GLOBAL: MW2S3 0x1014d240
@@ -160,6 +174,7 @@ Vector3 g_nukePosition;
 MechScalar g_savedLightX;
 
 // GLOBAL: MW2 0x100c75f4
+// GLOBAL: MW2GBL 0x100bbb74
 // GLOBAL: MW2MATROX 0x1015d5c4
 // GLOBAL: MW23DFX 0x10159454
 // GLOBAL: MW2S3 0x1014d244
@@ -167,6 +182,7 @@ MechScalar g_savedLightX;
 MechScalar g_savedLightY;
 
 // GLOBAL: MW2 0x100c75f8
+// GLOBAL: MW2GBL 0x100bbb78
 // GLOBAL: MW2MATROX 0x1015d5c8
 // GLOBAL: MW23DFX 0x10159458
 // GLOBAL: MW2S3 0x1014d248
@@ -174,6 +190,7 @@ MechScalar g_savedLightY;
 MechScalar g_savedLightZ;
 
 // GLOBAL: MW2 0x100c75fc
+// GLOBAL: MW2GBL 0x100bbb7c
 // GLOBAL: MW2MATROX 0x1015d5cc
 // GLOBAL: MW23DFX 0x1015945c
 // GLOBAL: MW2S3 0x1014d24c
@@ -181,6 +198,7 @@ MechScalar g_savedLightZ;
 MechScalar g_savedDirectionalLight;
 
 // GLOBAL: MW2 0x100c7600
+// GLOBAL: MW2GBL 0x100bbb80
 // GLOBAL: MW2MATROX 0x1015d5d0
 // GLOBAL: MW23DFX 0x10159460
 // GLOBAL: MW2S3 0x1014d250
@@ -188,6 +206,7 @@ MechScalar g_savedDirectionalLight;
 MechS32 g_savedAmbientLight;
 
 // GLOBAL: MW2 0x100c7604
+// GLOBAL: MW2GBL 0x100bbb84
 // GLOBAL: MW2MATROX 0x1015d5d4
 // GLOBAL: MW23DFX 0x10159464
 // GLOBAL: MW2S3 0x1014d254
@@ -204,22 +223,25 @@ MechS32 g_savedDistanceFade;
 CareerRecord g_careerRecord;
 
 // GLOBAL: MW2 0x1017bac0
+// GLOBAL: MW2GBL 0x100e12f0
 // GLOBAL: MW2MATROX 0x10125970
 // GLOBAL: MW23DFX 0x101535a0
 // GLOBAL: MW2ATI 0x100875b0
 // GLOBAL: MW2S3 0x10084bd0
 // GLOBAL: MW2POWERVR 0x1007db90
-Shot g_shots[0xaf];
+Shot g_shots[SHOT_COUNT];
 
 // GLOBAL: MW2 0x1017f170
+// GLOBAL: MW2GBL 0x100e6aa0
 // GLOBAL: MW2MATROX 0x10129020
 // GLOBAL: MW23DFX 0x10156c50
 // GLOBAL: MW2ATI 0x1008ac60
 // GLOBAL: MW2S3 0x10088280
 // GLOBAL: MW2POWERVR 0x10081240
-Effect g_effects[0x100];
+Effect g_effects[EFFECT_COUNT];
 
 // FUNCTION: MW2 0x1006a230
+// FUNCTION: MW2GBL 0x1007be30
 // FUNCTION: MW2MATROX 0x1006ad30
 // FUNCTION: MW23DFX 0x10044c40
 // FUNCTION: MW2ATI 0x10042490
@@ -231,16 +253,19 @@ void FirstShots(void)
 	Shot* shot;
 	Effect* effect;
 
-	for (i = 0; i < 0xaf; i++) {
+	for (i = 0; i < SHOT_COUNT; i++) {
 		shot = &g_shots[i];
 		shot->m_type = -1;
 		shot->m_object = NULL;
 		ResetShotSlot(i);
 	}
 
-	for (i = 0; i < 0x100; i++) {
+	for (i = 0; i < EFFECT_COUNT; i++) {
 		effect = &g_effects[i];
 		effect->m_object = NULL;
+#ifdef MW2_WEAPON_FUNCTIONS
+		effect->m_attachedShape = NULL;
+#endif
 		effect->m_animation = -1;
 		effect->m_type = -1;
 		effect->m_owner = -1;
@@ -254,6 +279,7 @@ void FirstShots(void)
 }
 
 // FUNCTION: MW2 0x1006a349
+// FUNCTION: MW2GBL 0x1007bf60
 // FUNCTION: MW2MATROX 0x1006ae49
 // FUNCTION: MW23DFX 0x10044d60
 // FUNCTION: MW2ATI 0x100425b0
@@ -272,6 +298,7 @@ void ResetEffectSlot(MechS32 p_index)
 }
 
 // FUNCTION: MW2 0x1006a3b1
+// FUNCTION: MW2GBL 0x1007bfcd
 // FUNCTION: MW2MATROX 0x1006aeb1
 // FUNCTION: MW23DFX 0x10044dd0
 // FUNCTION: MW2ATI 0x10042620
@@ -293,10 +320,15 @@ void ResetShotSlot(MechS32 p_index)
 	shot->m_unk0x3c = 0;
 	shot->m_damage = shot->m_heat = 0;
 	shot->m_tracked = 0;
+#ifdef MW2_WEAPON_FUNCTIONS
+	shot->m_interceptRange = -1;
+	shot->m_weaponFlags = 0;
+#endif
 }
 
 // Ages every shot in flight by g_deltaTime and moves it on.
 // FUNCTION: MW2 0x1006a486
+// FUNCTION: MW2GBL 0x1007c0ba
 // FUNCTION: MW2MATROX 0x1006af86
 // FUNCTION: MW23DFX 0x10044eb0
 // FUNCTION: MW2ATI 0x10042700
@@ -307,7 +339,7 @@ void UpdateAllShots(void)
 	MechS32 i;
 	Shot* shot;
 
-	for (i = 0; i < 0xaf; i++) {
+	for (i = 0; i < SHOT_COUNT; i++) {
 		shot = &g_shots[i];
 		if (shot->m_flags && shot->m_object) {
 			shot->m_age += g_deltaTime;
@@ -329,6 +361,7 @@ void UpdateAllShots(void)
 // The Matrox edition applies the damage after RecordAttack; the 3Dfx edition skips the local
 // player's hit feedback while its flag 2 is set.
 // FUNCTION: MW2 0x1006a533
+// FUNCTION: MW2GBL 0x1007c16b
 // FUNCTION: MW2MATROX 0x1006b033
 // FUNCTION: MW23DFX 0x10044f60
 // FUNCTION: MW2ATI 0x100427b0
@@ -427,6 +460,12 @@ void UpdateShot(MechS32 p_index)
 			if (shot->m_type == 7) {
 				shot->m_impact |= 0x1000;
 			}
+
+#ifdef MW2_WEAPON_FUNCTIONS
+			if (shot->m_weaponFlags & c_weaponNarc) {
+				g_players[victim]->m_mech->m_unk0x112 |= 1;
+			}
+#endif
 
 			bearing = g_players[victim]->m_heading - FixedAtan2(shot->m_velocity[0], shot->m_velocity[2]);
 #ifdef MW2_FLOAT_SCALARS
@@ -551,10 +590,18 @@ void UpdateShot(MechS32 p_index)
 	}
 
 	if (hitResult) {
+#ifdef MW2_WEAPON_FUNCTIONS
+		DetonateShot(victim, hit, p_index, 1, hitX, hitY, hitZ, backX, backY, backZ);
+#else
 		DetonateShot(p_index, 1, hitX, hitY, hitZ, backX, backY, backZ);
+#endif
 	}
 	else if (shot->m_lifetime <= 0) {
+#ifdef MW2_WEAPON_FUNCTIONS
+		DetonateShot(victim, hit, p_index, 0, x, y, z, x, y, z);
+#else
 		DetonateShot(p_index, 0, x, y, z, x, y, z);
+#endif
 	}
 	else {
 		if (shot->m_targetKind && shot->m_age > 0) {
@@ -588,6 +635,7 @@ void UpdateShot(MechS32 p_index)
 // phase in m_swayPhase, and advances the phase.
 // MW2MATROX: in floats, with the phase in degrees (3.9779005 a tick) and no scaling of the sway.
 // FUNCTION: MW2 0x1006ad78
+// FUNCTION: MW2GBL 0x1007c9ff
 // FUNCTION: MW2MATROX 0x1006b93e
 // FUNCTION: MW23DFX 0x10045840
 void SwayShot(Shot* p_shot, MechScalar* p_x, MechScalar* p_y, MechScalar* p_z)
@@ -618,6 +666,7 @@ void SwayShot(Shot* p_shot, MechScalar* p_x, MechScalar* p_y, MechScalar* p_z)
 // Steers a guided missile at (p_x, p_y, p_z) toward its target, and arms its proximity fuse
 // within 100 units of it.
 // FUNCTION: MW2 0x1006ae5a
+// FUNCTION: MW2GBL 0x1007cae1
 // FUNCTION: MW2MATROX 0x1006ba0e
 // FUNCTION: MW23DFX 0x10045910
 // FUNCTION: MW2ATI 0x10043090
@@ -637,6 +686,12 @@ void GuideMissileToTarget(Shot* p_shot, MechScalar p_x, MechScalar p_y, MechScal
 	MechScalar vy;
 	MechScalar vz;
 	MechScalar targetX;
+#ifdef MW2_WEAPON_FUNCTIONS
+	MechScalar rate;
+	MechScalar ax;
+	MechScalar ay;
+	MechScalar az;
+#endif
 
 	if (p_shot->m_target < 0) {
 		return;
@@ -690,9 +745,26 @@ void GuideMissileToTarget(Shot* p_shot, MechScalar p_x, MechScalar p_y, MechScal
 	vy = p_shot->m_velocity[1];
 	vz = p_shot->m_velocity[2];
 	NormalizeVectorGuarded(&vx, &vy, &vz);
+#ifdef MW2_WEAPON_FUNCTIONS
+	if (p_shot->m_weaponFlags & c_weaponSlowTurn) {
+		rate = FixedDiv16(g_deltaTime, 0x2d4);
+		ax = FixedMul16(dx - vx - p_shot->m_steering[0], rate);
+		ay = FixedMul16(dy - vy - p_shot->m_steering[1], rate);
+		az = FixedMul16(dz - vz - p_shot->m_steering[2], rate);
+		p_shot->m_steering[0] += ax;
+		p_shot->m_steering[1] += ay;
+		p_shot->m_steering[2] += az;
+	}
+	else {
+		p_shot->m_steering[0] = dx - vx;
+		p_shot->m_steering[1] = dy - vy;
+		p_shot->m_steering[2] = dz - vz;
+	}
+#else
 	p_shot->m_steering[0] = dx - vx;
 	p_shot->m_steering[1] = dy - vy;
 	p_shot->m_steering[2] = dz - vz;
+#endif
 	targetY = FixedAtan2(vx, vz);
 #ifdef MW2_FLOAT_SCALARS
 	targetX = -FixedAsin(vy);
@@ -705,12 +777,17 @@ void GuideMissileToTarget(Shot* p_shot, MechScalar p_x, MechScalar p_y, MechScal
 // Removes the shot from the world and frees its slot; p_explode spawns the effect its impact
 // calls for at (p_x, p_y, p_z), with the camera looking from (p_camX, p_camY, p_camZ).
 // FUNCTION: MW2 0x1006b0b4
+// FUNCTION: MW2GBL 0x1007cdd2
 // FUNCTION: MW2MATROX 0x1006bc89
 // FUNCTION: MW23DFX 0x10045b90
 // FUNCTION: MW2ATI 0x10043310
 // FUNCTION: MW2S3 0x1001c3f0
 // FUNCTION: MW2POWERVR 0x1003e040
 void DetonateShot(
+#ifdef MW2_WEAPON_FUNCTIONS
+	MechS32 p_owner,
+	Shape* p_shape,
+#endif
 	MechS32 p_index,
 	MechS32 p_explode,
 	MechScalar p_x,
@@ -734,11 +811,16 @@ void DetonateShot(
 	impact = shot->m_impact;
 	ResetShotSlot(p_index);
 	if (p_explode) {
+#ifdef MW2_WEAPON_FUNCTIONS
+		SpawnEffectEx(p_owner, p_shape, impact, p_x, p_y, p_z, p_camX, p_camY, p_camZ, 0, 0, 0);
+#else
 		SpawnEffect(shot->m_shooter, impact, p_x, p_y, p_z, p_camX, p_camY, p_camZ);
+#endif
 	}
 }
 
 // FUNCTION: MW2 0x1006b152
+// FUNCTION: MW2GBL 0x1007ce7b
 // FUNCTION: MW2MATROX 0x1006bd27
 // FUNCTION: MW23DFX 0x10045c30
 // FUNCTION: MW2ATI 0x100433b0
@@ -755,10 +837,15 @@ void SpawnEffect(
 	MechScalar p_camZ
 )
 {
+#ifdef MW2_WEAPON_FUNCTIONS
+	SpawnEffectEx(p_owner, NULL, p_type, p_x, p_y, p_z, p_camX, p_camY, p_camZ, 0, 0, 0);
+#else
 	SpawnEffectEx(p_owner, p_type, p_x, p_y, p_z, p_camX, p_camY, p_camZ, 0, 0, 0);
+#endif
 }
 
 // FUNCTION: MW2 0x1006b18b
+// FUNCTION: MW2GBL 0x1007ceb6
 // FUNCTION: MW2MATROX 0x1006bd60
 // FUNCTION: MW23DFX 0x10045c70
 void SpawnRotatedEffect(
@@ -771,10 +858,15 @@ void SpawnRotatedEffect(
 	MechScalar p_z
 )
 {
+#ifdef MW2_WEAPON_FUNCTIONS
+	SpawnEffectEx(-2, NULL, p_type, p_x, p_y, p_z, p_x, p_y, p_z, p_rotX, p_rotY, p_rotZ);
+#else
 	SpawnEffectEx(-2, p_type, p_x, p_y, p_z, p_x, p_y, p_z, p_rotX, p_rotY, p_rotZ);
+#endif
 }
 
 // FUNCTION: MW2 0x1006b1c8
+// FUNCTION: MW2GBL 0x1007cef5
 // FUNCTION: MW2MATROX 0x1006bd9d
 // FUNCTION: MW23DFX 0x10045cc0
 // FUNCTION: MW2ATI 0x100433f0
@@ -783,9 +875,300 @@ void SpawnRotatedEffect(
 void SpawnLaunchEffect(MechS32 p_type, Player* p_player)
 {
 	g_launchEffectPlayer = p_player;
+#ifdef MW2_WEAPON_FUNCTIONS
+	SpawnEffectEx(-2, NULL, p_type, 0, 0, 0, 0, 0, 0, 0, 0, 0);
+#else
 	SpawnEffectEx(-2, p_type, 0, 0, 0, 0, 0, 0, 0, 0, 0);
+#endif
 }
 
+#ifdef MW2_WEAPON_FUNCTIONS
+// GBL's: p_shape is what the shot hit, which an effect type with c_effectAttaches follows (a mech's
+// object, the effect at its origin) or, failing that, plays for 181 ticks only. Effect types 0x22 and
+// 0x23 are missiles' like 3, and the launch effects are 0x17 to 0x21.
+// FUNCTION: MW2GBL 0x1007cf2a
+void SpawnEffectEx(
+	MechS32 p_owner,
+	Shape* p_shape,
+	MechS32 p_type,
+	MechScalar p_x,
+	MechScalar p_y,
+	MechScalar p_z,
+	MechScalar p_camX,
+	MechScalar p_camY,
+	MechScalar p_camZ,
+	MechScalar p_rotX,
+	MechScalar p_rotY,
+	MechScalar p_rotZ
+)
+{
+	MechS32 pieces;
+	MechScalar distance;
+	MechScalar dy;
+	MechS32 flags;
+	MechS32 chainType;
+	MechS32 chain;
+	MechScalar cameraX;
+	MechScalar dz;
+	MechS32 quiet;
+	MechScalar current;
+	EffectInfo* info;
+	MechS32 slot;
+	MechS32 i;
+	MechScalar cameraZ;
+	MechS32 volume;
+	MechS32 count;
+	MechS32 closer;
+	MechS32 take;
+	Effect* effect;
+	MechScalar dx;
+	SceneObject* object;
+
+	effect = NULL;
+	info = NULL;
+	quiet = 0;
+	chain = 0;
+	chainType = -1;
+	if (p_type < 0) {
+		return;
+	}
+
+	flags = p_type & 0xff00;
+	p_type &= 0xff;
+	if (p_type >= EFFECT_TYPE_COUNT) {
+		return;
+	}
+
+	if (flags & 0x4000) {
+		quiet = 1;
+	}
+
+	switch (p_type) {
+	case 5:
+		if (flags & c_impactMech) {
+			p_x = p_camX;
+			p_z = p_camZ;
+			p_type = 8;
+		}
+		else if (flags & c_impactGround) {
+			p_type = 9;
+		}
+		else if (flags & 0x2000) {
+			p_type = 0x12;
+		}
+		break;
+	case 3:
+	case 0x22:
+	case 0x23:
+		if (flags & c_impactGround) {
+			p_type = 0xc;
+		}
+		else if (flags & 0x2000) {
+			p_type = 0x11;
+		}
+		else if (flags & c_impactThing) {
+			p_type = 0x13;
+		}
+		chain = 1;
+		chainType = 0x10b;
+		break;
+	case 4:
+		if (flags & c_impactGround) {
+			p_type = 0xc;
+		}
+		else if (flags & 0x2000) {
+			p_type = 0x11;
+		}
+		else if (flags & c_impactThing) {
+			p_type = 0x14;
+		}
+		chain = 1;
+		chainType = 0x10b;
+		break;
+	case 0:
+		if (flags & 0x2000) {
+			p_type = 0xe;
+		}
+		else if (flags & c_impactGround) {
+			p_type = 9;
+		}
+		break;
+	case 1:
+		if (flags & 0x2000) {
+			p_type = 0xf;
+		}
+		else if (flags & c_impactGround) {
+			p_type = 9;
+		}
+		break;
+	case 2:
+		if (flags & 0x2000) {
+			p_type = 0x10;
+		}
+		else if (flags & c_impactGround) {
+			p_type = 9;
+		}
+		break;
+	case 6:
+		if (flags & c_impactGround) {
+			p_type = 0x15;
+		}
+		break;
+	case 0xb:
+		if (flags & 0x1000) {
+			pieces = 0x10;
+		}
+		else if (flags & c_impactMech) {
+			pieces = 4;
+		}
+		else if (flags & c_impactThing) {
+			pieces = 4;
+		}
+		else {
+			pieces = 8;
+		}
+
+		ScatterDebris(p_x, p_y, p_z, pieces);
+		return;
+	default:
+		break;
+	}
+
+	info = &g_effectInfo[p_type];
+	dx = g_eyepoint->m_x - p_x;
+	dy = g_eyepoint->m_y - p_y;
+	dz = g_eyepoint->m_z - p_z;
+	if (info->m_needsObject || info->m_camera) {
+		count = 0;
+		slot = -1;
+		for (i = 0; i < EFFECT_COUNT; i++) {
+			effect = &g_effects[i];
+			if (effect->m_type == p_type) {
+				if (effect->m_active) {
+					if ((effect->m_type < 0x17 || effect->m_type > 0x21) && !(info->m_flags & c_effectUncounted) &&
+						ApproximateVectorLength(
+							effect->m_position[0] - p_x,
+							effect->m_position[1] - p_y,
+							effect->m_position[2] - p_z
+						) < 500) {
+						count++;
+						if (g_lodQuality != 1 || count > 2) {
+							return;
+						}
+					}
+				}
+				else if (slot < 0 && (!info->m_needsObject || effect->m_object)) {
+					slot = i;
+				}
+			}
+		}
+
+		if (slot < 0) {
+			return;
+		}
+
+		effect = &g_effects[slot];
+		effect->m_active = 1;
+		effect->m_position[0] = p_x;
+		effect->m_position[1] = p_y;
+		effect->m_position[2] = p_z;
+		effect->m_timeLeft = info->m_duration + g_deltaTime;
+		effect->m_owner = p_owner;
+		effect->m_attachedShape = NULL;
+		if (effect->m_object) {
+			if (info->m_flags & c_effectAttaches) {
+				if (p_shape && !(p_shape->m_kind & 0x400) && (p_shape->m_kind & 0x100) &&
+					(object = GetShapeObject(p_shape))) {
+					p_x = p_y = p_z = 0;
+					effect->m_attachedShape = p_shape;
+					AttachObj(effect->m_object, object);
+				}
+				else {
+					effect->m_timeLeft = g_deltaTime + 0xb5;
+				}
+			}
+
+			if (p_type >= 0x17 && p_type <= 0x21 && g_launchEffectPlayer) {
+				PlaceAtFiringObj(g_launchEffectPlayer, effect->m_object);
+				g_launchEffectPlayer = NULL;
+			}
+			else {
+				SetObjRotation(effect->m_object, p_rotX, p_rotY, p_rotZ, 0);
+				SetObjPosition(effect->m_object, p_x, p_y, p_z);
+			}
+
+			ShowObjTree(effect->m_object);
+			DisableObjTreeCollision(effect->m_object);
+			UpdateObj(effect->m_object);
+			if (effect->m_animation != -1) {
+				SetAnimFrame(effect->m_animation, 0);
+				SetAnimMode(effect->m_animation, 2);
+			}
+		}
+
+		if (info->m_camera && g_effectCameraEnabled) {
+			closer = 0;
+			take = 1;
+			if (g_effectCameraActive) {
+				distance = dx * dx + dz * dz;
+				cameraX = g_eyepoint->m_lightX - g_eyepoint->m_x;
+				cameraZ = g_eyepoint->m_lightZ - g_eyepoint->m_z;
+				current = cameraX * cameraX + cameraZ * cameraZ;
+				if (current > distance) {
+					closer = 1;
+				}
+				else {
+					take = 0;
+				}
+			}
+
+			if (take) {
+				if (!closer) {
+					g_effectCameraActive = 1;
+					g_lightFollowsObject = 0;
+					g_savedLightX = g_eyepoint->m_lightX;
+					g_savedLightY = g_eyepoint->m_lightY;
+					g_savedLightZ = g_eyepoint->m_lightZ;
+					g_savedDirectionalLight = g_eyepoint->m_directionalLight;
+					g_savedAmbientLight = g_eyepoint->m_ambientLight;
+					g_eyepoint->m_ambientLight -= 10;
+					if (g_eyepoint->m_ambientLight > 0xff || g_eyepoint->m_ambientLight < 0) {
+						g_eyepoint->m_ambientLight = 0x40;
+					}
+
+					g_savedDistanceFade = g_renderSettings.m_distanceFade;
+					g_eyepoint->m_directionalLight = 0;
+					g_renderSettings.m_distanceFade = 0;
+				}
+
+				g_effectCameraEffect = slot;
+				effect->m_hasCamera = 1;
+				g_eyepoint->m_lightX = p_camX;
+				g_eyepoint->m_lightY = p_camY;
+				g_eyepoint->m_lightZ = p_camZ;
+				if (info->m_flash > -1) {
+					StartPaletteFlash(info->m_flash, info->m_duration, 1);
+				}
+			}
+		}
+	}
+
+	if (chain) {
+		SpawnEffect(p_owner, chainType, p_x, p_y, p_z, p_camX, p_camY, p_camZ);
+	}
+
+	if (info->m_sound > 0 && (info->m_soundChance == -1 || RandomIntBelow(100) < info->m_soundChance)) {
+		if (!GetViewMode() && !quiet) {
+			volume = 1;
+		}
+		else {
+			volume = 0;
+		}
+
+		PlaySoundAt(dx, dy, dz, info->m_sound, volume);
+	}
+}
+#else
 // Spawns an effect. The low byte of p_type is the effect; the high byte says what a shot hit
 // (c_impactMech etc.), which picks a variant of it, and 0x4000 keeps its sound at full volume.
 // The effect takes a free slot of its type (none if three of them already burn within 500
@@ -845,7 +1228,7 @@ void SpawnEffectEx(
 
 	flags = p_type & 0xff00;
 	p_type &= 0xff;
-	if (p_type >= 0x20) {
+	if (p_type >= EFFECT_TYPE_COUNT) {
 		return;
 	}
 
@@ -949,7 +1332,7 @@ void SpawnEffectEx(
 	if (info->m_needsObject || info->m_camera) {
 		count = 0;
 		slot = -1;
-		for (i = 0; i < 0x100; i++) {
+		for (i = 0; i < EFFECT_COUNT; i++) {
 			effect = &g_effects[i];
 			if (effect->m_type == p_type) {
 				if (effect->m_active) {
@@ -1075,7 +1458,119 @@ void SpawnEffectEx(
 		PlaySoundAt(dx, dy, dz, info->m_sound, volume);
 	}
 }
+#endif
 
+#ifdef MW2_WEAPON_FUNCTIONS
+// GBL's: an attached effect follows its object, each effect type has its own damage and heat, and
+// the nuke's (0x16) and effect 0x23's radius grows as they burn, damaging mechs whatever the splash
+// damage setting.
+// FUNCTION: MW2GBL 0x1007d7bd
+void UpdateEffects(void)
+{
+	MechS32 release;
+	MechS32 i;
+	MechS32 restore;
+	Effect* effect;
+	MechScalar x;
+	MechScalar y;
+	MechScalar z;
+	MechScalar radius;
+	EffectInfo* info;
+
+	info = NULL;
+	UpdateNuke();
+	if (g_difficulty->m_heatTracking) {
+		HeatMechsNearFires();
+	}
+
+	for (i = 0; i < EFFECT_COUNT; i++) {
+		effect = &g_effects[i];
+		if (effect->m_active) {
+			info = &g_effectInfo[effect->m_type];
+			if (info->m_flags & c_effectAttaches) {
+				GetObjPosition(
+					effect->m_object,
+					&effect->m_position[0],
+					&effect->m_position[1],
+					&effect->m_position[2]
+				);
+			}
+
+			if (g_effectInfo[effect->m_type].m_damages) {
+				x = effect->m_position[0];
+				y = effect->m_position[1];
+				z = effect->m_position[2];
+				switch (effect->m_type) {
+				case 0x16:
+					if (effect->m_timeLeft == info->m_duration) {
+						StartPaletteFade(0x12, effect->m_timeLeft, 2);
+					}
+
+					radius = (info->m_duration - effect->m_timeLeft) * 0x1c;
+					break;
+				case 0x23:
+					radius = (info->m_duration - effect->m_timeLeft) * 0x18;
+					break;
+				default:
+					radius = effect->m_object->m_shape->m_radius;
+					break;
+				}
+
+				if (g_difficulty->m_splashDamage || effect->m_type == 0x16 || effect->m_type == 0x23) {
+					DamageMechsInRadius(effect->m_owner, x, y, z, radius, info->m_damage, info->m_heat);
+				}
+
+				DamageThingsInRadius(effect->m_owner, x, y, z, radius, info->m_damage);
+				DamageChunksInRadius(x, y, z, radius, info->m_damage);
+			}
+
+			effect->m_timeLeft -= g_deltaTime;
+			if (effect->m_timeLeft <= 0) {
+				release = 1;
+				restore = 0;
+				if (effect->m_hasCamera && g_effectCameraActive && i == g_effectCameraEffect) {
+					if (!GetPaletteFadeSteps()) {
+						restore = 1;
+					}
+					else {
+						release = 0;
+					}
+				}
+
+				if (release) {
+					if (restore) {
+						g_lightFollowsObject = 1;
+						g_eyepoint->m_lightX = g_savedLightX;
+						g_eyepoint->m_lightY = g_savedLightY;
+						g_eyepoint->m_lightZ = g_savedLightZ;
+						g_eyepoint->m_directionalLight = g_savedDirectionalLight;
+						g_eyepoint->m_ambientLight = g_savedAmbientLight;
+						g_renderSettings.m_distanceFade = g_savedDistanceFade;
+						effect->m_hasCamera = 0;
+						g_effectCameraActive = 0;
+						g_effectCameraEffect = -1;
+					}
+
+					if (effect->m_object) {
+						if (GetObjParent(effect->m_object)) {
+							DetachObj(effect->m_object);
+						}
+
+						HideObjTree(effect->m_object);
+					}
+
+					if (effect->m_animation > 0) {
+						SetAnimMode(effect->m_animation, 0);
+						SetAnimFrame(effect->m_animation, 0);
+					}
+
+					ResetEffectSlot(i);
+				}
+			}
+		}
+	}
+}
+#else
 // Counts down the effects, lets the damaging ones hurt what is near them, and frees them when
 // their time runs out, giving the camera back if one had it.
 // GetPaletteFadeSteps (palette.c) has no MW2MATROX annotation yet.
@@ -1101,7 +1596,7 @@ void UpdateEffects(void)
 		HeatMechsNearFires();
 	}
 
-	for (i = 0; i < 0x100; i++) {
+	for (i = 0; i < EFFECT_COUNT; i++) {
 		effect = &g_effects[i];
 		if (effect->m_active) {
 			if (g_effectInfo[effect->m_type].m_damages) {
@@ -1159,10 +1654,12 @@ void UpdateEffects(void)
 		}
 	}
 }
+#endif
 
 // Damages every mech within p_radius (plus its own radius) of (p_x, p_y, p_z) by p_rate per
 // tick in each of its sections, twice as much when its power is off.
 // FUNCTION: MW2 0x1006bc13
+// FUNCTION: MW2GBL 0x1007db62
 // FUNCTION: MW2MATROX 0x1006c803
 // FUNCTION: MW23DFX 0x10046700
 // FUNCTION: MW2ATI 0x10043e30
@@ -1175,6 +1672,10 @@ void DamageMechsInRadius(
 	MechScalar p_z,
 	MechScalar p_radius,
 	MechScalar p_rate
+#ifdef MW2_WEAPON_FUNCTIONS
+	,
+	MechScalar p_heatRate
+#endif
 )
 {
 	Player* player;
@@ -1185,6 +1686,9 @@ void DamageMechsInRadius(
 	MechScalar dy;
 	MechScalar dz;
 	MechScalar damage;
+#ifdef MW2_WEAPON_FUNCTIONS
+	MechScalar heat;
+#endif
 
 	i = g_playerCount;
 	while (i--) {
@@ -1204,6 +1708,9 @@ void DamageMechsInRadius(
 		reach = mech->m_radius + p_radius;
 		if (ApproximateVectorLength(dx, dy, dz) < reach) {
 			damage = p_rate * g_deltaTime;
+#ifdef MW2_WEAPON_FUNCTIONS
+			heat = p_heatRate * g_deltaTime;
+#endif
 			if (mech->m_powerState == 4) {
 #ifdef MW2_FLOAT_SCALARS
 				damage *= 2;
@@ -1225,12 +1732,16 @@ void DamageMechsInRadius(
 			ApplyDamageToMech(p_owner, mech, damage, 6);
 			ApplyDamageToMech(p_owner, mech, damage, 7);
 			ApplyDamageToMech(p_owner, mech, damage, 8);
+#ifdef MW2_WEAPON_FUNCTIONS
+			mech->m_externalHeat += heat;
+#endif
 		}
 	}
 }
 
 // Damages every game thing whose shape comes within p_radius of (p_x, p_y, p_z).
 // FUNCTION: MW2 0x1006bdb4
+// FUNCTION: MW2GBL 0x1007dd1d
 // FUNCTION: MW2MATROX 0x1006c9d5
 // FUNCTION: MW23DFX 0x100468b0
 // FUNCTION: MW2ATI 0x10043fe0
@@ -1291,6 +1802,7 @@ void DamageThingsInRadius(
 }
 
 // FUNCTION: MW2 0x1006beb5
+// FUNCTION: MW2GBL 0x1007de1e
 // FUNCTION: MW2MATROX 0x1006cad9
 // FUNCTION: MW23DFX 0x100469b0
 // FUNCTION: MW2ATI 0x100440e0
@@ -1309,6 +1821,7 @@ MechScalar* GetTrackedShotView(void)
 
 // Starts tracking the local player's last shot, if it is still in flight.
 // FUNCTION: MW2 0x1006bf05
+// FUNCTION: MW2GBL 0x1007de71
 // FUNCTION: MW2MATROX 0x1006cb29
 // FUNCTION: MW23DFX 0x10046a00
 // FUNCTION: MW2ATI 0x10044130
@@ -1330,6 +1843,7 @@ MechS32 TrackLastShot(void)
 // Counts the destruction of game thing p_index for the last shooter's side and team, and
 // removes it.
 // FUNCTION: MW2 0x1006bf8c
+// FUNCTION: MW2GBL 0x1007df01
 // FUNCTION: MW2MATROX 0x1006cbb0
 // FUNCTION: MW23DFX 0x10046a90
 // FUNCTION: MW2ATI 0x100441c0
@@ -1348,7 +1862,11 @@ void KillGameThing(MechU32 p_index)
 		return;
 	}
 
+#ifdef MW2_THING_KILLS_FORGET_SHOOTER
+	if (g_lastHitShooter != -1) {
+#else
 	if (g_lastHitShooter >= 0) {
+#endif
 		if (g_lastHitShooter == g_localPlayerId) {
 			switch (GetThingSide(p_index)) {
 			case 0:
@@ -1363,6 +1881,21 @@ void KillGameThing(MechU32 p_index)
 			}
 		}
 
+#ifdef MW2_THING_KILLS_FORGET_SHOOTER
+		switch (GetThingSide(p_index)) {
+		case 0:
+			g_careerRecord.m_teamFriendlyThingKills++;
+			break;
+		case 2:
+			g_careerRecord.m_teamNeutralThingKills++;
+			break;
+		case 1:
+			g_careerRecord.m_teamThingKills++;
+			break;
+		}
+
+		g_lastHitShooter = -1;
+#else
 		if (g_players[g_localPlayerId]->m_team == g_players[g_lastHitShooter]->m_team) {
 			switch (GetThingSide(p_index)) {
 			case 0:
@@ -1376,6 +1909,7 @@ void KillGameThing(MechU32 p_index)
 				break;
 			}
 		}
+#endif
 	}
 
 	if (thing->m_flags & 0x40) {
@@ -1388,6 +1922,7 @@ void KillGameThing(MechU32 p_index)
 // Takes p_damage off the hit points of the game thing p_shape belongs to; when they run out,
 // blows it up and counts it destroyed.
 // FUNCTION: MW2 0x1006c11c
+// FUNCTION: MW2GBL 0x1007e076
 // FUNCTION: MW2MATROX 0x1006cd40
 // FUNCTION: MW23DFX 0x10046c20
 // FUNCTION: MW2ATI 0x10044350
@@ -1404,6 +1939,9 @@ void DamageGameThing(
 {
 	MechU32 index;
 	GameThing* thing;
+#ifdef MW2_BUILDINGS_FALL_AT_ONCE
+	MechS32 building;
+#endif
 
 	if (!p_shape) {
 		return;
@@ -1415,10 +1953,34 @@ void DamageGameThing(
 		return;
 	}
 
+#ifdef MW2_BUILDINGS_FALL_AT_ONCE
+	building = (GetStaticObjectShape(thing->m_staticObject)->m_kind & 0xf0) == 0xb0;
+#endif
 	if (!thing->m_hitPoints) {
 		return;
 	}
 
+#ifdef MW2_BUILDINGS_FALL_AT_ONCE
+	if (building) {
+		thing->m_hitPoints = 0;
+	}
+	else {
+		thing->m_hitPoints -= (MechS32) p_damage;
+	}
+
+	if (thing->m_hitPoints <= 0) {
+		thing->m_hitPoints = 0;
+		if (building) {
+			SpawnEffect(p_owner, 0xd, p_x, p_y, p_z, p_x, p_y, p_z);
+		}
+		else {
+			SpawnEffect(p_owner, 3, p_x, p_y, p_z, p_x, p_y, p_z);
+		}
+
+		SpawnEffect(p_owner, 0x20b, p_x, p_y, p_z, p_x, p_y, p_z);
+		KillGameThing(index);
+	}
+#else
 	thing->m_hitPoints -= (MechS32) p_damage;
 	if (thing->m_hitPoints <= 0) {
 		thing->m_hitPoints = 0;
@@ -1432,10 +1994,12 @@ void DamageGameThing(
 
 		KillGameThing(index);
 	}
+#endif
 }
 
 // Shows up to p_count free effects of type 0xb (all when 0) at (p_x, p_y, p_z) as debris.
 // FUNCTION: MW2 0x1006c237
+// FUNCTION: MW2GBL 0x1007e1d3
 // FUNCTION: MW2MATROX 0x1006ce62
 // FUNCTION: MW23DFX 0x10046d40
 // FUNCTION: MW2ATI 0x10044470
@@ -1453,10 +2017,10 @@ void ScatterDebris(MechScalar p_x, MechScalar p_y, MechScalar p_z, MechS32 p_cou
 	object = NULL;
 	shown = 0;
 	if (!p_count) {
-		p_count = 0x100;
+		p_count = EFFECT_COUNT;
 	}
 
-	for (i = 0; i < 0x100 && shown < p_count; i++) {
+	for (i = 0; i < EFFECT_COUNT && shown < p_count; i++) {
 		effect = &g_effects[i];
 		if (!effect->m_active && effect->m_type == 0xb && effect->m_object) {
 			object = effect->m_object;
@@ -1490,6 +2054,7 @@ void SaveCareerRecord(void)
 // MW2MATROX: in floats, with the heat scaled by FIXED_TO_SCALAR and a quarter where 1.1 shifts
 // by 3.
 // FUNCTION: MW2 0x1006c362
+// FUNCTION: MW2GBL 0x1007e303
 // FUNCTION: MW2MATROX 0x1006cf8d
 // FUNCTION: MW23DFX 0x10046e70
 // FUNCTION: MW2ATI 0x100445a0
@@ -1558,6 +2123,7 @@ void HeatMechsNearFires(void)
 // Sets off a nuke at the player's position: the palette flash, the effect, and the blast that
 // grows over the next ticks (UpdateNuke).
 // FUNCTION: MW2 0x1006c4e2
+// FUNCTION: MW2GBL 0x1007e484
 // FUNCTION: MW2MATROX 0x1006d136
 // FUNCTION: MW23DFX 0x10047020
 // FUNCTION: MW2ATI 0x10044750
@@ -1572,7 +2138,7 @@ void StartNuke(Player* p_player)
 
 	duration = g_effectInfo[0x16].m_duration * 2;
 	g_nukeMaxRadius = 400000;
-	i = 0x100;
+	i = EFFECT_COUNT;
 	while (i--) {
 		effect = &g_effects[i];
 		if (effect->m_type == 0x16 && effect->m_object && (shape = effect->m_object->m_shape)) {
@@ -1599,6 +2165,7 @@ void StartNuke(Player* p_player)
 
 // Grows the nuke's blast and damages everything in it.
 // FUNCTION: MW2 0x1006c5e7
+// FUNCTION: MW2GBL 0x1007e58e
 // FUNCTION: MW2MATROX 0x1006d239
 // FUNCTION: MW23DFX 0x10047130
 // FUNCTION: MW2ATI 0x10044860
@@ -1622,6 +2189,10 @@ void UpdateNuke(void)
 		g_nukePosition.m_z,
 		g_nukeRadius,
 		FIXED_RAW(0x1000)
+#ifdef MW2_WEAPON_FUNCTIONS
+			,
+		0
+#endif
 	);
 	DamageThingsInRadius(
 		-2,

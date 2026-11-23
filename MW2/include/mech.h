@@ -72,7 +72,7 @@ typedef struct Mech {
 	// between groups, 0x8000 the target is in the lock cone.
 	MechU16 m_flags; // 0x10c
 #ifdef MW2_MECH_SECOND_FLAGS
-	MechU16 m_unk0x112; // 0x112 — bit 0 set by UpdateAllShots
+	MechU16 m_unk0x112; // 0x112 — bit 0: hit by a NARC shot (UpdateShot)
 #endif
 } Mech;
 
