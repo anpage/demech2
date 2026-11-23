@@ -51,7 +51,7 @@ typedef struct Shot {
 	MechScalar m_heat;        // 0x48 — added to the heat of the mech it hits
 	MechS32 m_tracked;        // 0x4c — the tracked-shot view follows it
 #ifdef MW2_WEAPON_FUNCTIONS
-	MechS32 m_unk0x54; // 0x54 — -1 when free
+	MechS32 m_interceptRange; // 0x54 — the AMS detonates it this close to its mech (AmsIntercept), or -1
 #endif
 } Shot;
 

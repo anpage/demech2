@@ -321,7 +321,7 @@ void ResetShotSlot(MechS32 p_index)
 	shot->m_damage = shot->m_heat = 0;
 	shot->m_tracked = 0;
 #ifdef MW2_WEAPON_FUNCTIONS
-	shot->m_unk0x54 = -1;
+	shot->m_interceptRange = -1;
 	shot->m_weaponFlags = 0;
 #endif
 }

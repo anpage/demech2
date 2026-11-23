@@ -7,14 +7,16 @@ struct Player;
 struct WeaponDef;
 struct WeaponSlot;
 
-// The functions of gbl/ams.c that other units use: the AMS's weapon functions (g_weaponDefs).
+// The functions of gbl/ams.c that other units use.
 #ifdef __cplusplus
 extern "C"
 {
 #endif
 
-	void FUN_1002e997(struct Player* p_player, struct WeaponDef* p_def, struct WeaponSlot* p_slot);
-	MechS32 FUN_1002eb5f(struct Player* p_player, struct WeaponDef* p_def, struct WeaponSlot* p_slot);
+	void ToggleAms(void);
+	MechS32 AmsFrame(struct Player* p_player, struct WeaponDef* p_def, struct WeaponSlot* p_slot);
+	MechS32 AmsLaunch(struct Player* p_player, struct WeaponDef* p_def, struct WeaponSlot* p_slot);
+	MechS32 AmsIntercept(struct Player* p_player, struct WeaponDef* p_def, struct WeaponSlot* p_slot);
 
 #ifdef __cplusplus
 }

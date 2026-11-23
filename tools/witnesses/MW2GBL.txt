@@ -154,6 +154,9 @@
 0x1002d1af AddStaticPoolType staticmem.c rename i=zqae pool=zqad
 0x1002d270 FixedSqrt16 fixedsqrt.c pad 1 rename high=zqad low=zqaj n=zqai previous=zqaf root=zqah square=zqag steps=zqae
 0x1002e136 SimWindowProc simmain.c pad 10
+0x1002e8c0 ToggleAms ams.c rename i=zqaf mech=zqae message=zqag slot=zqah type=zqad
+0x1002e997 AmsFrame ams.c pad 1 rename dx=zqam dy=zqan dz=zqad i=zqai playerX=zqaj playerY=zqak playerZ=zqal shot=zqag side=zqao x=zqae y=zqaf z=zqah
+0x1002ecfd AmsIntercept ams.c pad 3 rename beyond=zqak distance=zqae dx=zqao dy=zqap dz=zqad i=zqaj playerX=zqal playerY=zqam playerZ=zqan shot=zqah side=zqaa x=zqaf y=zqag z=zqai
 0x1002f286 ProfileRefreshModes refreshmode.c pad 7
 0x1002f482 SelectFastestRefreshMode refreshmode.c pad 5
 0x10030ad7 DdrawWritePaletteEntries directdraw.c rename entries=zqaf i=zqad relock=zqae

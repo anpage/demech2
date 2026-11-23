@@ -12,7 +12,7 @@ struct WeaponSlot;
 
 // GBL's weapon functions: each frame's and each launch's. A launch returns
 // the shots it fired (SpawnShot), 0 when the weapon can't fire again.
-typedef void (*WeaponFrameFn)(struct Player* p_player, struct WeaponDef* p_def, struct WeaponSlot* p_slot);
+typedef MechS32 (*WeaponFrameFn)(struct Player* p_player, struct WeaponDef* p_def, struct WeaponSlot* p_slot);
 typedef MechS32 (*WeaponLaunchFn)(struct Player* p_player, struct WeaponDef* p_def, struct WeaponSlot* p_slot);
 
 // WeaponDef::m_flags.
