@@ -74,11 +74,11 @@
 0x1000f8e0 FUN_1000f8e0 unk1000f8e0.cpp rename desc=zqan dialog=zqap event=zqac index=zqaj listBox=zqal name=zqai player=zqam result=zqao session=zqab sessionName=zqak unused=zqaa
 0x1000fca7 FUN_1000fca7 unk1000f8e0.cpp rename event=zqal failed=zqaj name=zqai unused=zqak
 0x1000ffcf FUN_1000ffcf unk1000f8e0.cpp rename buffer=zqam dialog=zqao from=zqaj message=zqak msg=zqaa result=zqai running=zqal size=zqap to=zqan
-0x10010475 FUN_10010475 unk10010460.cpp pad 8 rename i=zqak score=zqai text=zqaj
-0x100105ee FUN_100105ee unk10010460.cpp rename command=zqap dc=zqal i=zqan info=zqak memoryDC=zqaj notify=zqam paint=zqai rect=zqao
-0x10010920 FUN_10010920 unk10010460.cpp pad 10 rename block=zqak i=zqai j=zqaj
-0x10010b7f FUN_10010b7f unk10010460.cpp rename file=zqaj handle=zqai read=zqak
-0x10010c06 FUN_10010c06 unk10010460.cpp rename best=zqai i=zqak j=zqal swap=zqaj
+0x10010475 FillResultsDialog unk10010460.cpp pad 8 rename i=zqak score=zqai text=zqaj
+0x100105ee ResultsDialogProc unk10010460.cpp rename command=zqap dc=zqal i=zqan info=zqak memoryDC=zqaj notify=zqam paint=zqai rect=zqao
+0x10010920 LoadResults unk10010460.cpp pad 10 rename block=zqak i=zqai j=zqaj
+0x10010b7f ReadNetResults unk10010460.cpp rename file=zqaj handle=zqai read=zqak
+0x10010c06 SortResultLines unk10010460.cpp rename best=zqai i=zqak j=zqal swap=zqaj
 0x10010d00 CdCheck unk10010460.cpp rename drive=zqam driveStrings=zqak findData=zqal hFindFile=zqaj path=zqai
 0x10010e50 WatchPlayersThread unk10010e50.cpp rename i=zqao msg=zqak ping=zqal player=zqam result=zqaj running=zqai status=zqan
 0x10010fab AddMissingPlayer unk10010e50.cpp rename index=zqaj name=zqai
