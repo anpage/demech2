@@ -225,6 +225,7 @@
 0x10041a40 IsSelectedWeaponReady weapons.c pad 11
 0x10041b70 SetWeaponGroup weapons.c pad 5
 0x10041c90 FireWeaponGroup weapons.c pad 23
+0x10042310 SpawnLaunchFx weapons.c pad 12
 0x10042490 FirstShots shots.c rename effect=zqai i=zqaj shot=zqak
 0x10042700 UpdateAllShots shots.c rename i=zqai shot=zqaj
 0x10043090 GuideMissileToTarget shots.c rename distance=zqap dx=zqal dy=zqan dz=zqao p_shot=zqae player=zqad targetX=zqaa targetY=zqab targetZ=zqac thing=zqai vx=zqaj vy=zqak vz=zqam

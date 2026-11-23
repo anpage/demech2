@@ -6,7 +6,6 @@
 
 0x100018d0 DrawCompass hud.c pad 3
 0x10001a80 DrawPlayerBrackets hud.c pad 4
-0x10001c50 DrawObjectBrackets hud.c pad 1
 0x10001e50 DrawHudShape hud.c pad 11
 0x100024d0 LockCacheEntry loadres.c pad 3
 0x10002680 FreeCacheEntry loadres.c pad 8
@@ -104,7 +103,7 @@
 0x10021fc0 UpdateAllPlayers players.c pad 15
 0x100220a0 ShutdownAllPlayers players.c pad 16
 0x10022190 AllocPlayer players.c pad 3
-0x100223b0 GetTerrainHeight collision.c pad 11
+0x100223b0 GetTerrainHeight collision.c pad 14
 0x10022520 GetHighestSurface collision.c pad 3
 0x10022980 TestShapeRay collision.c pad 5
 0x100230b0 IsPointInFaceXY collision.c pad 19

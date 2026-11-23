@@ -249,6 +249,7 @@
 0x10044220 JettisonAmmo weapons.c pad 4
 0x10044440 FireWeaponGroup weapons.c pad 5
 0x10044560 UpdateWeaponLock weapons.c pad 45
+0x10044ac0 SpawnLaunchFx weapons.c pad 12
 0x10044c40 FirstShots shots.c rename effect=zqai i=zqaj shot=zqak
 0x10044eb0 UpdateAllShots shots.c rename i=zqai shot=zqaj
 0x10045840 SwayShot shots.c rename p_shot=zqal p_x=zqam sideX=zqai sideY=zqaj sideZ=zqak

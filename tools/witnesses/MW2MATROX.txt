@@ -121,7 +121,7 @@
 0x1001d7b6 DrawCompass hud.c rename gauge=zqal heading=zqai offset=zqan target=zqam x=zqaj x2=zqak
 0x1001d942 ProjectAimPoint hud.c rename ray=zqai result=zqam x=zqaj y=zqak z=zqal
 0x1001d9cd DrawPlayerBrackets hud.c pad 15 rename bottomLeft=zqab bottomRight=zqai point=zqac size=zqaj sx=zqan sy=zqao topLeft=zqap topRight=zqaa x=zqak y=zqal z=zqam
-0x1001dc23 DrawObjectBrackets hud.c pad 1 rename bottomLeft=zqac bottomRight=zqai maxSize=zqap point=zqad size=zqaj sx=zqan sy=zqao topLeft=zqaa topRight=zqab x=zqak y=zqal z=zqam
+0x1001dc23 DrawObjectBrackets hud.c rename bottomLeft=zqac bottomRight=zqai maxSize=zqap point=zqad size=zqaj sx=zqan sy=zqao topLeft=zqaa topRight=zqab x=zqak y=zqal z=zqam
 0x1001df99 ClipRectToPane hud.c pad 1
 0x1001e01a FUN_1001e01a hud.c pad 3
 0x1001e0cb DrawPaneShape hud.c pad 8
@@ -151,6 +151,7 @@
 0x100235a0 DrawShapeList depthsort.c pad 2
 0x100237e0 QueueObjTree depthsort.c pad 2
 0x10023860 DrawObjTreeShapes depthsort.c pad 3
+0x100239fc GetTerrainHeight collision.c rename below=zqaj best=zqan getHeight=zqai root=zqak shape=zqal top=zqam type=zqao
 0x10023bc0 GetHighestSurface collision.c rename best=zqaj getHeight=zqai root=zqak shape=zqal top=zqam type=zqan
 0x10023d71 FindNearestShape collision.c rename best=zqal distance=zqak nearest=zqaj shape=zqai
 0x10023e51 TestSegmentCollision collision.c rename best=zqap distance=zqao hitRay=zqai length=zqaa nearest=zqam ray=zqan root=zqak shape=zqal surface=zqaj

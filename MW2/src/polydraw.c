@@ -2869,6 +2869,7 @@ void DrawSkyAndGround(Eyepoint* p_eyepoint)
 	MechS32 y1;
 	MechS32 x1;
 	MechS32 yLeft;
+	MechS32 yRight;
 	MechS32 corners;
 	MechS32 y0;
 	MechS32 x0;
@@ -2878,7 +2879,6 @@ void DrawSkyAndGround(Eyepoint* p_eyepoint)
 	MechS32 dz;
 	MechS32 xTop;
 	MechS32 xBottom;
-	MechS32 yRight;
 	MechS32 gradient;
 	Matrix roll;
 

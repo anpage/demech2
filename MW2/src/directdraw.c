@@ -279,8 +279,10 @@ void DdrawStop(void)
 		FUN_10010150();
 #endif
 		DdrawDestroySurfaces();
+#ifndef MW2_DDRAW_STOP_KEEPS_MODE
 		IDirectDraw_SetCooperativeLevel(g_ddraw, g_gameWindow, DDSCL_NORMAL);
 		IDirectDraw_RestoreDisplayMode(g_ddraw);
+#endif
 		if (g_ddrawPalette != NULL) {
 			IDirectDrawPalette_Release(g_ddrawPalette);
 			g_ddrawPalette = NULL;

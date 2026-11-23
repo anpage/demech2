@@ -1152,7 +1152,11 @@ void DrawMapTarget(CockpitLayout* p_layout)
 		row = 6;
 	}
 
+#ifdef MW2_MAP_ICON_FLAT_INDEX
+	icon = *(*p_layout->m_icons + row * 3 + side);
+#else
 	icon = p_layout->m_icons[row][side];
+#endif
 	if (!icon) {
 		return;
 	}

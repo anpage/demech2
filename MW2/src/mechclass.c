@@ -1189,6 +1189,36 @@ void UpdateMech(Mech* p_mech)
 			}
 		}
 
+#ifdef MW2_REMOTE_MECHS_STAY
+		if (!g_netRole || !(mech->m_player->m_flags & 1) || isLocal) {
+			if (mech->m_player->m_type == c_playerTypeTruck) {
+				posY = mech->m_height;
+			}
+
+			mech->m_player->m_position.m_x = posX;
+			mech->m_player->m_position.m_y = posY;
+			mech->m_player->m_position.m_z = posZ;
+			mech->m_player->m_heading += mech->m_turnRate.m_value * g_deltaTime / 0xb5;
+			mech->m_player->m_heading %= 0x1680000;
+			mech->m_velocityX = velX;
+			mech->m_velocityY = velY;
+			mech->m_velocityZ = velZ;
+
+			SetObjPosition(
+				mech->m_player->m_obj,
+				mech->m_player->m_position.m_x,
+				mech->m_player->m_position.m_y,
+				mech->m_player->m_position.m_z
+			);
+			SetObjRotation(
+				mech->m_player->m_obj,
+				mech->m_player->m_pitch,
+				mech->m_player->m_heading,
+				mech->m_player->m_roll,
+				0
+			);
+		}
+#else
 		mech->m_player->m_position.m_x = posX;
 		mech->m_player->m_position.m_y = posY;
 		mech->m_player->m_position.m_z = posZ;
@@ -1211,6 +1241,7 @@ void UpdateMech(Mech* p_mech)
 			mech->m_player->m_roll,
 			0
 		);
+#endif
 		if (isLocal) {
 			UpdateAimDistance(mech->m_player);
 		}

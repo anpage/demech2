@@ -1422,7 +1422,7 @@ BOOL PASCAL FindSessionCallback(LPDPSESSIONDESC p_desc, LPVOID p_context, LPDWOR
 // FUNCTION: MW2POWERVR 0x1002efb0
 BOOL PASCAL FindIpxProviderCallback(LPGUID p_guid, LPSTR p_name, DWORD p_major, DWORD p_minor, LPVOID p_context)
 {
-#ifdef MW2_IPX_NAME_STRCMP
+#ifdef MW2_NAME_STRCMP
 	if (strcmp(p_name, "WinSock IPX Connection For DirectPlay") == 0) {
 #else
 	if (memcmp(p_name, "WinSock IPX Connection For DirectPlay", 38) == 0) {

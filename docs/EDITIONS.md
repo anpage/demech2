@@ -281,7 +281,7 @@ tests an `MW2_` macro the table doesn't define, and when no target compiles a br
 
 ## Features
 
-From the table in `util/types.h` (207 features) and the 1395 conditional sites of the simulators' sources (`MW2/`, `common/`, `3rdparty/vfx`). A feature's cell is its value where it has one.
+From the table in `util/types.h` (209 features) and the 1403 conditional sites of the simulators' sources (`MW2/`, `common/`, `3rdparty/vfx`). A feature's cell is its value where it has one.
 
 ### The ATI, S3, Matrox, PowerVR and 3Dfx editions (`MW2_ACCEL`)
 
@@ -486,7 +486,6 @@ Every edition that has one of these has them all, so no binary separates one fro
 |---|:-:|:-:|:-:|:-:|:-:|:-:|:-:|--:|---|
 | `MW2_JUMP_JET_THRUST_FIRST` |  | yes |  |  |  |  |  | 4 | UpdateMech's jump jets add their thrust to accelX before the drag (the later editions add the drag and the thrust first, as for accelZ) |
 | `MW2_RES_512X384` |  | yes |  |  |  |  |  | 4 | VESA480.DLL is 512x384 when DirectDraw has the mode in 16 bits (FUN_100059b0), 640x480 otherwise |
-| `MW2_DDRAW_CAPS_DX1` |  | yes |  |  |  |  |  | 2 | *Artefact.* DdrawInit's DDCAPS is DirectX 1's, 0xac bytes (the edition was built with DirectX 1's headers) |
 | `MW2_DDRAW_FALLBACK_SURFACES_ONLY` |  | yes |  |  |  |  |  | 1 | DdrawCreateSurfaces makes the primary surface of the larger modes only the second way: with one back buffer when it flips, without video memory in refresh mode 3, and not at all in mode 2 |
 
 ### The ATI, S3 and PowerVR editions (`MW2_ATI`, `MW2_S3`, `MW2_POWERVR`)
@@ -499,6 +498,7 @@ Every edition that has one of these has them all, so no binary separates one fro
 
 | Feature | 1.1 | ATI | S3 | Matrox | PowerVR | GBL | 3Dfx | Sites | What it does |
 |---|:-:|:-:|:-:|:-:|:-:|:-:|:-:|--:|---|
+| `MW2_DDRAW_CAPS_DX1` |  | yes |  |  |  | yes |  | 2 | *Artefact.* DdrawInit's DDCAPS is DirectX 1's, 0xac bytes (the edition was built with DirectX 1's headers) |
 | `MW2_DDRAW_NO_CAPS_FLAG` |  | yes |  |  |  | yes |  | 3 | DdrawCreateSurfaces sets no DDSD_CAPS in its surface descriptions |
 
 ### The S3 edition (`MW2_S3`)
@@ -578,16 +578,15 @@ Every edition that has one of these has them all, so no binary separates one fro
 | `MW2_WEAPON_FUNCTIONS` |  |  |  |  |  | yes |  | 59 | Weapons work through their definitions: each has a launch function (SpawnShot for all but the AMS), a function called each frame, flags (the launch sounds, an animation) and an animation, and there are 35 of them; shots and effects carry the weapon's flags and a word more, and there are 255 of each and 36 effect types, with four more words each (WeaponDef, Shot, Effect, EffectInfo) |
 | `MW2_POSITIONAL_SOUND_FLAGS` |  |  |  |  |  | yes |  | 2 | PlayPositionalSound takes the sample's flags (PlayPositionalSoundEx; the old entry point passes 0x32), and plays nothing beyond a cutoff distance, g_unk0x100ba608 hundred units, when that is set |
 | `MW2_THING_KILLS_FORGET_SHOOTER` |  |  |  |  |  | yes |  | 2 | A game thing's destruction counts for the local team whoever's shot destroyed it, and forgets the shooter (KillGameThing) |
-| `MW2_ABS_CALLS` |  |  |  |  |  | yes |  | 6 | *Artefact.* Weapons.c, ai.c, maneuvers.c and gridobject.c call the C runtime's abs, which GBL's other units expand (MW2_GBL's pragma above), and bandpoly.c and AssignStarTarget its labs |
+| `MW2_ABS_CALLS` |  |  |  |  |  | yes |  | 7 | *Artefact.* Weapons.c, ai.c, maneuvers.c and gridobject.c call the C runtime's abs, which GBL's other units expand (MW2_GBL's pragma above), and bandpoly.c, AssignStarTarget and ChooseArtResolution its labs |
 | `MW2_BEARING_LABS` |  |  |  |  |  | yes |  | 1 | *Artefact.* GetBearingAndRange compares with the C runtime's labs |
 | `MW2_BUILDINGS_FALL_AT_ONCE` |  |  |  |  |  | yes |  | 3 | A shot destroys a game thing whose shape is of kind 0xb0 at once, and every destroyed thing leaves effect 0x20b (DamageGameThing) |
-| `MW2_WINDOWED_TEST_FIRST` |  |  |  |  |  | yes |  | 1 | *Artefact.* InitRefreshMode tests for a window smaller than the screen first |
 | `MW2_DESTROY_BLOWS_FIRST_BIN` |  |  |  |  |  | yes |  | 3 | A destroyed mech blows the critical slot of its first ammunition bin, a bin blows whatever its weapon's ammunition, and its pilot ejects when auto-eject is on or the mech isn't the local player's (DestroyMech, DestroyCriticalSlot) |
 | `MW2_SELF_DESTRUCT_MESSAGE` |  |  |  |  |  | yes |  | 1 | EjectPlayer tells the local player with cockpit message 4 when the mech goes without ejecting |
 | `MW2_KILLS_BY_LAST_SHOOTER` |  |  |  |  |  | yes |  | 5 | A mech's kill counts for the player whose shot hit it last, the local player's outcome is 4 unless they ejected, and in a network game only the local mech's death is played out (KillMech, which DestroySection and DestroyCriticalSlot call whatever the game) |
 | `MW2_MORE_CRITICAL_HITS` |  |  |  |  |  | yes |  | 2 | A critical hit on a flamer and on the AMS has a message of its own (DestroyCriticalSlot) |
 | `MW2_AI_STOPS_GROUP_FIRE` |  |  |  |  |  | yes |  | 2 | The AI's attack and target states stop the group fire as well as the fire (AiStateAttack, AiStateMove) |
-| `MW2_STRUCT_COPY_MEMCPY` |  |  |  |  |  | yes |  | 42 | *Artefact.* GBL's source copies some structures with memcpy, which its build calls, where the optimized editions show a structure assignment: nav points, rays, players, matrices, weapon slots, render settings, sample headers and session descriptions (RemoveNavPoint, CopyRay, LogPlayerStatusLines, the object matrices, LayoutWeaponPanels, the mech view panel, StartSample, FindSession) |
+| `MW2_STRUCT_COPY_MEMCPY` |  |  |  |  |  | yes |  | 43 | *Artefact.* GBL's source copies some structures with memcpy, which its build calls, where the optimized editions show a structure assignment: nav points, rays, players, matrices, weapon slots, render settings, sample headers and session descriptions (RemoveNavPoint, CopyRay, LogPlayerStatusLines, the object matrices, LayoutWeaponPanels, the mech view panel, StartSample, FindSession) |
 | `MW2_LOCAL_INSPECTION` |  |  |  |  |  | yes |  | 1 | Only the local player inspects its target, which counts as inspected once anyone has, and the inspect request stays set (UpdateTarget) |
 | `MW2_CHEAT_TABLE` |  |  |  |  |  | yes |  | 4 | The cheat codes are a table with the messages each shows, all stored XORed with 0xa, the messages decoded at the first key typed; GBL has codes of its own, and six of them do nothing (g_cheatCodes, HandleCheatInput) |
 | `MW2_INI_COMMENTS` |  |  |  |  |  | yes |  | 4 | GetIniValue cuts a value at a ';' and trims it, unless its second argument asks for the raw value (which error.c's call doesn't pass) |
@@ -598,7 +597,7 @@ Every edition that has one of these has them all, so no binary separates one fro
 | `MW2_PT_MENU_KEYS` |  |  |  |  |  | yes |  | 3 | The ALL_PT_MENU, PT_2_MENU and PT_3_MENU game keys (actions 53 to 55) do what the first three starmate menu keys do (RunGameKey) |
 | `MW2_SCREENSHOT_ACQUIRE_IF` |  |  |  |  |  | yes |  | 1 | *Artefact.* RunGameKey's screenshot acquires the frame buffer in an if with an empty else, where 1.1 has a conditional expression |
 | `MW2_LOST_MECH_FAILS_STAR` |  |  |  |  |  | yes |  | 2 | The local star's mission fails once the local mech is lost (UpdateObjectives, g_localMechLost) |
-| `MW2_IPX_NAME_STRCMP` |  |  |  |  |  | yes |  | 1 | *Artefact.* FindIpxProviderCallback compares the provider's name with strcmp, not memcmp |
+| `MW2_NAME_STRCMP` |  |  |  |  |  | yes |  | 2 | *Artefact.* FindIpxProviderCallback and FillJoystickDeviceInfo compare names with strcmp, not memcmp |
 | `MW2_MEM_HELPERS_CALL_CRT` |  |  |  |  |  | yes |  | 4 | MemCopy and MemSet return the C runtime's memcpy and memset, where 1.1's are assembly |
 | `MW2_SCROUNGE_STATIC_OBJECTS` |  |  |  |  |  | yes |  | 4 | A scrounge record whose id names no class takes a static object's shape, loading the object (BwdExecuteStream) |
 | `MW2_REMOTE_PLAYER_AI_MODE` |  |  |  |  |  | yes |  | 1 | A player the stream creates for another machine or the AI gets AI mode 1 in a network game and 2 otherwise (BwdExecuteStream) |
@@ -606,6 +605,9 @@ Every edition that has one of these has them all, so no binary separates one fro
 | `MW2_PLAYERS_BEFORE_LAUNCH` |  |  |  |  |  | yes |  | 1 | SimMain updates the players every frame, before a network launch too |
 | `MW2_SUPANIM_KEEPS_PALETTE` |  |  |  |  |  | yes |  | 1 | StartSupAnim leaves the palette's first 16 entries as the backdrop set them |
 | `MW2_SOUND_INFO_FILL_MINUS_ONE` |  |  |  |  |  | yes |  | 1 | *Artefact.* InitSoundInfo fills the table with -1, not 0xff (which GBL's memset call shows) |
+| `MW2_DDRAW_STOP_KEEPS_MODE` |  |  |  |  |  | yes |  | 1 | DdrawStop releases DirectDraw without returning the window to normal cooperation or restoring the display mode |
+| `MW2_REMOTE_MECHS_STAY` |  |  |  |  |  | yes |  | 1 | In a network game, UpdateMech leaves a player with flag 1 (another machine's) where it is unless it is the local one, and holds a truck at its object's height |
+| `MW2_MAP_ICON_FLAT_INDEX` |  |  |  |  |  | yes |  | 1 | *Artefact.* DrawMapTarget indexes the map icons as one array of three a row |
 
 ## Where each feature is tested
 
@@ -788,16 +790,15 @@ Every edition that has one of these has them all, so no binary separates one fro
 - `MW2_WEAPON_FUNCTIONS`: `MW2/include/effect.h`: `Effect`, file scope (2); `MW2/include/effectinfo.h`: `EffectInfo`, file scope (2); `MW2/include/shots.h`: `Shot` (2), file scope (4); `MW2/include/weapondata.h`: file scope; `MW2/include/weapondef.h`: `WeaponDef`, file scope; `MW2/include/weapons.h`: file scope (3); `MW2/src/shots.c`: `DamageMechsInRadius` (4), `DetonateShot` (2), `FirstShots`, `GuideMissileToTarget` (2), `ResetShotSlot`, `SpawnEffect`, `SpawnLaunchEffect`, `SpawnRotatedEffect`, `UpdateNuke`, `UpdateShot` (3), file scope, the definition of `SpawnEffectEx`, the definition of `UpdateEffects`; `MW2/src/weapondata.c`: file scope (3); `MW2/src/weaponpanel.c`: `DrawWeaponPanel`; `MW2/src/weapons.c`: `LoadWeaponSounds`, `SelectNextWeapon` (2), `SelectNextWeaponGroup` (2), `SelectNextWeaponInGroup` (2), `SelectWeaponGroup` (3), `SpawnLaunchFx` (2), `UpdateWeaponLock`, file scope, the definition of `FireWeaponGroup`, the definition of `SpawnShot`, the definition of `UpdateWeaponFireState`
 - `MW2_POSITIONAL_SOUND_FLAGS`: `MW2/include/soundfx.h`: file scope; `MW2/src/soundfx.c`: the definitions of `PlayPositionalSound`, `PlayPositionalSoundEx`
 - `MW2_THING_KILLS_FORGET_SHOOTER`: `MW2/src/shots.c`: `KillGameThing` (2)
-- `MW2_ABS_CALLS`: `MW2/src/ai.c`: `AssignStarTarget`, file scope; `MW2/src/bandpoly.c`: file scope; `MW2/src/gridobject.c`: file scope; `MW2/src/maneuvers.c`: file scope; `MW2/src/weapons.c`: file scope
+- `MW2_ABS_CALLS`: `MW2/src/ai.c`: `AssignStarTarget`, file scope; `MW2/src/bandpoly.c`: file scope; `MW2/src/gridobject.c`: file scope; `MW2/src/maneuvers.c`: file scope; `MW2/src/setres.c`: `ChooseArtResolution`; `MW2/src/weapons.c`: file scope
 - `MW2_BEARING_LABS`: `MW2/src/targeting.c`: file scope
 - `MW2_BUILDINGS_FALL_AT_ONCE`: `MW2/src/shots.c`: `DamageGameThing` (3)
-- `MW2_WINDOWED_TEST_FIRST`: `MW2/src/refreshmode.c`: `InitRefreshMode`
 - `MW2_DESTROY_BLOWS_FIRST_BIN`: `MW2/src/mechdamage.c`: `DestroyCriticalSlot` (2), the definition of `DestroyMech`
 - `MW2_SELF_DESTRUCT_MESSAGE`: `MW2/src/mechdamage.c`: `EjectPlayer`
 - `MW2_KILLS_BY_LAST_SHOOTER`: `MW2/src/mechdamage.c`: `DestroyCriticalSlot` (2), `DestroySection`, the definition of `ApplyDamageToMech`, the definition of `KillMech`
 - `MW2_MORE_CRITICAL_HITS`: `MW2/src/mechdamage.c`: `DestroyCriticalSlot` (2)
 - `MW2_AI_STOPS_GROUP_FIRE`: `MW2/src/ai.c`: `AiStateAttack`, `AiStateMove`
-- `MW2_STRUCT_COPY_MEMCPY`: `MW2/src/ai.c`: `LogPlayerStatusLines`, file scope; `MW2/src/cockpitpanels.c`: `LayoutWeaponPanels` (2); `MW2/src/depthsort.c`: `ClipPolygonToScreen` (17); `MW2/src/geocache.c`: `DestroyStaticObject`; `MW2/src/mechviewpanel.c`: `DrawMechViewPanel` (3), `SetMechViewRenderSettings`, file scope; `MW2/src/network.c`: `FindSession`, `FindSessionCallback`; `MW2/src/object.c`: `CreateObj`, `InitObj`, `SetObjLocalMatrix`, `SetObjTransform`, `SetObjWorldMatrix`, `UpdateObjWorld`; `MW2/src/objective.c`: `EndTheMission2`; `MW2/src/ray.c`: `CopyRay`, file scope; `MW2/src/soundfx.c`: `StartSample`; `MW2/src/targeting.c`: `RemoveNavPoint`, file scope; `MW2/src/targetpanel.c`: `DrawTargetPanel`
+- `MW2_STRUCT_COPY_MEMCPY`: `MW2/src/ai.c`: `LogPlayerStatusLines` (2), file scope; `MW2/src/cockpitpanels.c`: `LayoutWeaponPanels` (2); `MW2/src/depthsort.c`: `ClipPolygonToScreen` (17); `MW2/src/geocache.c`: `DestroyStaticObject`; `MW2/src/mechviewpanel.c`: `DrawMechViewPanel` (3), `SetMechViewRenderSettings`, file scope; `MW2/src/network.c`: `FindSession`, `FindSessionCallback`; `MW2/src/object.c`: `CreateObj`, `InitObj`, `SetObjLocalMatrix`, `SetObjTransform`, `SetObjWorldMatrix`, `UpdateObjWorld`; `MW2/src/objective.c`: `EndTheMission2`; `MW2/src/ray.c`: `CopyRay`, file scope; `MW2/src/soundfx.c`: `StartSample`; `MW2/src/targeting.c`: `RemoveNavPoint`, file scope; `MW2/src/targetpanel.c`: `DrawTargetPanel`
 - `MW2_LOCAL_INSPECTION`: `MW2/src/targeting.c`: the definition of `UpdateTarget`
 - `MW2_CHEAT_TABLE`: `MW2/src/gamekeys.c`: `TypedCodeMatches`, file scope (2), the definitions of `DecodeCheatMessages`, `HandleCheatInput`
 - `MW2_INI_COMMENTS`: `MW2/include/inifile.h`: file scope; `MW2/src/inifile.c`: `GetIniValue` (3)
@@ -808,7 +809,7 @@ Every edition that has one of these has them all, so no binary separates one fro
 - `MW2_PT_MENU_KEYS`: `MW2/src/gamekeys.c`: `RunGameKey` (3)
 - `MW2_SCREENSHOT_ACQUIRE_IF`: `MW2/src/gamekeys.c`: `RunGameKey`
 - `MW2_LOST_MECH_FAILS_STAR`: `MW2/src/objective.c`: `UpdateObjectives`, file scope
-- `MW2_IPX_NAME_STRCMP`: `MW2/src/network.c`: `FindIpxProviderCallback`
+- `MW2_NAME_STRCMP`: `MW2/src/joystick.c`: `FillJoystickDeviceInfo`; `MW2/src/network.c`: `FindIpxProviderCallback`
 - `MW2_MEM_HELPERS_CALL_CRT`: `MW2/src/loadres.c`: `MemCopy` (2), `MemSet` (2)
 - `MW2_SCROUNGE_STATIC_OBJECTS`: `MW2/include/geocache.h`: file scope (2); `MW2/src/world.c`: `BwdExecuteStream` (2)
 - `MW2_REMOTE_PLAYER_AI_MODE`: `MW2/src/world.c`: `BwdExecuteStream`
@@ -816,6 +817,9 @@ Every edition that has one of these has them all, so no binary separates one fro
 - `MW2_PLAYERS_BEFORE_LAUNCH`: `MW2/src/simmain.c`: `SimMain`
 - `MW2_SUPANIM_KEEPS_PALETTE`: `MW2/src/supanim.c`: `StartSupAnim`
 - `MW2_SOUND_INFO_FILL_MINUS_ONE`: `MW2/src/soundlimits.c`: `InitSoundInfo`
+- `MW2_DDRAW_STOP_KEEPS_MODE`: `MW2/src/directdraw.c`: `DdrawStop`
+- `MW2_REMOTE_MECHS_STAY`: `MW2/src/mechclass.c`: `UpdateMech`
+- `MW2_MAP_ICON_FLAT_INDEX`: `MW2/src/cockpit.c`: `DrawMapTarget`
 
 ## Functions with a definition per edition
 
@@ -934,8 +938,9 @@ What tests `MW2_ACCEL`, `MW2_MATROX` or `MW2_3DFX` itself rather than a feature,
 - Includes (16): `MW2/include/bandpoly.h`: file scope; `MW2/src/animation.c`: file scope (2); `MW2/src/bandpoly.c`: file scope; `MW2/src/classtable.c`: file scope; `MW2/src/cockpit.c`: file scope; `MW2/src/directdraw.c`: file scope; `MW2/src/eyepoint.c`: file scope; `MW2/src/mapview.c`: file scope; `MW2/src/mechreload.c`: file scope; `MW2/src/mechviewpanel.c`: file scope; `MW2/src/object.c`: file scope; `MW2/src/shape.c`: file scope; `MW2/src/shapelists.c`: file scope; `MW2/src/simmain.c`: file scope; `MW2/src/targetpanel.c`: file scope
 - Pragmas that reproduce a unit's flags (4): `MW2/src/accel/queueface.c`: file scope (2); `MW2/src/keyboard.c`: file scope (2)
 
-### `MW2_GBL` (5 sites)
+### `MW2_GBL` (8 sites)
 
+- In a function: the edition's back end, what the shared code does for it, or the same computation written another way (3): `MW2/src/mechcollision.c`: `MoveMechWithCollisions`; `MW2/src/quadtree.c`: `BuildQuadtreeChild`; `MW2/src/weapons.c`: `SelectNextWeaponInGroup`
 - A fragment included at the position of the object that holds it (3): `MW2/src/clock.c`: file scope; `MW2/src/config.c`: file scope; `MW2/src/objectanim.c`: file scope
 - Data and declarations that differ (2): `MW2/src/refreshmode.c`: file scope; `MW2/src/simmain.c`: file scope
 
