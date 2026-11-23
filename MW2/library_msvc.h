@@ -500,10 +500,10 @@
 // LIBRARY: MW2POWERVR 0x10063e08 SYMBOL
 // __chkstk
 
-// abs.obj
+// labs.obj
 
 // LIBRARY: MW2GBL 0x10084900 SYMBOL
-// _abs
+// _labs
 
 // 87ctran.obj
 
@@ -771,10 +771,10 @@
 // LIBRARY: MW2POWERVR 0x100657a3 SYMBOL
 // _rand
 
-// labs.obj
+// abs.obj
 
 // LIBRARY: MW2GBL 0x100824b0 SYMBOL
-// _labs
+// _abs
 
 // dbgheap.obj
 

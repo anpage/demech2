@@ -30,10 +30,6 @@
 #include <string.h>
 #endif
 
-#ifdef MW2_ABS_CALLS
-#pragma function(abs) // GBL calls abs in this unit (util/types.h)
-#endif
-
 // Targeting: the nav points and the AI target ids (0x100 | nav, 0x200 | game piece, 0x400 |
 // game thing; 0x1000 marks the target lost), cycling the target through them, and the cockpit's
 // map and satellite views. The flags of CycleTarget pick what it may select: 1 nav points only
@@ -982,6 +978,9 @@ void TargetAtReticle(void)
 #ifdef MW2_FLOAT_SCALARS
 #define BEARING_ABS(x) fabs(x)
 #define BEARING_DIV(p_a, p_b) ((p_a) / (p_b))
+#elif defined(MW2_BEARING_LABS)
+#define BEARING_ABS(x) labs(x)
+#define BEARING_DIV(p_a, p_b) FixedDiv29(p_a, p_b)
 #else
 #define BEARING_ABS(x) abs(x)
 #define BEARING_DIV(p_a, p_b) FixedDiv29(p_a, p_b)

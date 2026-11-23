@@ -131,8 +131,8 @@ struct Player {
 	MechU32 m_skillFlagsUnused : 25; // 0x19e
 	MechS8 m_placesTaken[8];         // 0x1a2 — the places around it (ChooseFlankPlace) that are taken
 #ifdef MW2_PILOT_TABLE
-	MechS32 m_unk0x1b0; // 0x1b0 — from the pilot table entry
-	MechS32 m_unk0x1b4; // 0x1b4 — from the pilot table entry
+	MechS32 m_unk0x1b0;                    // 0x1b0 — from the pilot table entry
+	struct ManeuverTable* m_maneuverTable; // 0x1b4 — the pilot table entry's, or the type's (InitializeManeuvers)
 #endif
 };
 

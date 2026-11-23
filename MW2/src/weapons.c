@@ -44,6 +44,10 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+#ifdef MW2_ABS_CALLS
+#pragma function(abs) // GBL calls abs in this unit (util/types.h)
+#endif
+
 // A mech's weapons: selecting them and their groups, firing volleys, the ammunition and the
 // target lock of guided weapons.
 
@@ -1401,8 +1405,6 @@ void UpdateWeaponLock(Mech* p_mech)
 
 #ifdef MW2_FLOAT_SCALARS
 		if (inRange && fabs(yaw) < 16 && fabs(pitch) < 16) {
-#elif defined(MW2_LOCK_LABS)
-		if (inRange && labs(yaw) < 0x100000 && labs(pitch) < 0x100000) {
 #else
 		if (inRange && abs(yaw) < 0x100000 && abs(pitch) < 0x100000) {
 #endif

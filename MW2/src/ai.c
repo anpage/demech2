@@ -27,6 +27,13 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#ifdef MW2_STRUCT_COPY_MEMCPY
+#include <string.h>
+#endif
+
+#ifdef MW2_ABS_CALLS
+#pragma function(abs) // GBL calls abs in this unit (util/types.h)
+#endif
 
 // The AI: each AI player runs a state machine (c_aiState…) driven by scripts, AIT resources
 // of rules. A script lists, for each state, the rules that apply in it; a rule waits for a
@@ -474,6 +481,36 @@ MechS16 g_helicopterScripts[15][2] = {
 	{8, 4},
 };
 
+#ifdef MW2_PILOT_TABLE
+// GBL's pilot table: an AI player whose gunnery is above 6 takes its skills, its maneuver table and
+// its range from an entry, gunnery 7 the first; with m_groupFire it fires its weapons as one group.
+typedef struct PilotEntry {
+	ManeuverTable* m_maneuverTable; // 0x00
+	MechS32 m_gunnery;              // 0x04
+	MechS32 m_piloting;             // 0x08
+	MechS32 m_range;                // 0x0c — Player::m_unk0x1b0
+	MechS32 m_unk0x10;              // 0x10 — -1 in every entry; InitializeAI tests it and does nothing
+	MechS32 m_groupFire;            // 0x14
+} PilotEntry;
+
+// The pilot table's groups of entries, a hundred gunnery values each.
+typedef struct PilotGroup {
+	MechS32 m_count;       // 0x00
+	PilotEntry* m_entries; // 0x04
+} PilotGroup;
+
+// GLOBAL: MW2GBL 0x100b6380
+PilotEntry g_pilotEntries[4] = {
+	{&g_maneuverTables[9], 1, 1, 0, -1, 0},
+	{&g_maneuverTables[10], 1, 1, 25000, -1, 0},
+	{&g_maneuverTables[11], 1, 1, 5000, -1, 1},
+	{&g_maneuverTables[12], 1, 1, 20000, -1, 0},
+};
+
+// GLOBAL: MW2GBL 0x100b63e0
+PilotGroup g_pilotGroups[1] = {{4, g_pilotEntries}};
+#endif
+
 // GLOBAL: MW2 0x100a90b4
 // GLOBAL: MW2GBL 0x100b63e8
 // GLOBAL: MW2MATROX 0x100bb7cc
@@ -782,12 +819,22 @@ void FirstAI(void)
 // local player's team) and, for an AI player, its scripts and its skills and ranges from the gpspec's
 // AI parameters.
 // FUNCTION: MW2 0x100516c5
+// FUNCTION: MW2GBL 0x10076328
 // FUNCTION: MW2MATROX 0x10080846
 void InitializeAI(Player* p_player)
 {
+#ifdef MW2_PILOT_TABLE
+	PilotEntry* entry;
+	MechS32 group;
+	MechS32 index;
+
+#endif
 	p_player->m_rules = g_aiRules[p_player->m_index];
 	p_player->m_ai.m_state = c_aiStateIdle;
 	p_player->m_nav = 0x1000;
+#ifdef MW2_PILOT_TABLE
+	p_player->m_unk0x160 = 0;
+#endif
 	ResetAI(p_player);
 
 	p_player->m_engageAtWill = p_player->m_team != g_players[g_localPlayerId]->m_team;
@@ -820,6 +867,36 @@ void InitializeAI(Player* p_player)
 			p_player->m_piloting = 1;
 		}
 
+#ifdef MW2_PILOT_TABLE
+		if (p_player->m_gunnery > 6) {
+			entry = NULL;
+			group = -1;
+			index = p_player->m_gunnery;
+			while (index >= 0) {
+				index -= 100;
+				group++;
+			}
+
+			index += 100;
+			if (--group >= 0 && group < 1 && index < g_pilotGroups[group].m_count) {
+				entry = &g_pilotGroups[group].m_entries[index];
+			}
+
+			p_player->m_gunnery = entry->m_gunnery;
+			p_player->m_piloting = entry->m_piloting;
+			p_player->m_unk0x1b0 = entry->m_range;
+			p_player->m_maneuverTable = entry->m_maneuverTable;
+			if (entry->m_unk0x10) {
+			}
+
+			if (entry->m_groupFire) {
+				p_player->m_unk0x160 = 1;
+				GroupAIWeapons(p_player, 0, -1);
+				SelectWeaponGroup(p_player->m_mech, 0);
+			}
+		}
+
+#endif
 		p_player->m_gunnery++;
 		p_player->m_leashRange *= 100;
 		p_player->m_restAlertRange *= 100;
@@ -879,6 +956,7 @@ void ClearAILog(void)
 }
 
 // FUNCTION: MW2 0x10051b6e
+// FUNCTION: MW2GBL 0x10076d32
 // FUNCTION: MW2MATROX 0x10080bca
 // FUNCTION: MW23DFX 0x10012150
 // FUNCTION: MW2ATI 0x100126b0
@@ -924,7 +1002,11 @@ void LogPlayerStatusLines(void)
 			target = player->m_ai.m_target;
 		}
 
+#ifdef MW2_STRUCT_COPY_MEMCPY
+		memcpy(&saved, player, sizeof(Player));
+#else
 		saved = *player;
+#endif
 		SetTarget(player, target);
 		if (player->m_targetInfo.m_distance < 0) {
 			DebugBreakpoint();
@@ -1421,6 +1503,7 @@ MechS32 IsTargetDetectable(Player* p_player, MechS16 p_target, MechS16 p_distanc
 // Finds the nearest of p_target's targets for p_player (*p_best) and the nearest that no
 // teammate already attacks (*p_nearest), both within p_arg. Returns the teammate that does.
 // FUNCTION: MW2 0x10052d8b
+// FUNCTION: MW2GBL 0x10078075
 // FUNCTION: MW2MATROX 0x10081f24
 Player* FindNearestTarget(Player* p_player, MechS16 p_target, MechS16 p_arg, MechS16* p_nearest, MechS16* p_best)
 {
@@ -1909,6 +1992,7 @@ MechScalar GetTargetRange(MechS16 p_target)
 // The throttle for p_player to close to p_range of its target: full beyond twice the range,
 // stopped inside it, slower while turning hard or running hot.
 // FUNCTION: MW2 0x10053811
+// FUNCTION: MW2GBL 0x10078b0d
 // FUNCTION: MW2MATROX 0x100829e1
 // FUNCTION: MW23DFX 0x100134c0
 // FUNCTION: MW2ATI 0x10013950
@@ -2058,6 +2142,7 @@ MechScalar SteerToTarget(Player* p_player)
 // Leaves p_player's AI state: ends its maneuver or releases its navs, and reports the end of an
 // order.
 // FUNCTION: MW2 0x10053a2e
+// FUNCTION: MW2GBL 0x10078d32
 // FUNCTION: MW2MATROX 0x10082c85
 // FUNCTION: MW23DFX 0x10013680
 // FUNCTION: MW2ATI 0x10013b10
@@ -2106,6 +2191,7 @@ void LeaveAIState(Player* p_player)
 
 // Enters AI state p_state for p_player, and logs it.
 // FUNCTION: MW2 0x10053be9
+// FUNCTION: MW2GBL 0x10078ecc
 // FUNCTION: MW2MATROX 0x10082e40
 // FUNCTION: MW23DFX 0x10013790
 // FUNCTION: MW2ATI 0x10013c20
@@ -2620,6 +2706,7 @@ void PlacePatrolNavs(Player* p_player)
 // Targets p_target and steps p_player's target on to the next of its own nav points, past its
 // anchor nav, and makes that its AI target.
 // FUNCTION: MW2 0x10054a30
+// FUNCTION: MW2GBL 0x10079cec
 // FUNCTION: MW2MATROX 0x10083caa
 // FUNCTION: MW23DFX 0x10014050
 // FUNCTION: MW2ATI 0x100144e0
@@ -2665,6 +2752,7 @@ void PlaceFormationNav(Player* p_player)
 // Makes player p_index attack player p_target (logging the first time), when it is the local
 // player or on a network game.
 // FUNCTION: MW2 0x10054b50
+// FUNCTION: MW2GBL 0x10079e0c
 // FUNCTION: MW2MATROX 0x10083dca
 // FUNCTION: MW23DFX 0x10014110
 // FUNCTION: MW2ATI 0x100145a0
@@ -2735,6 +2823,7 @@ MechS32 AiTransitionNotify(Player* p_player, AiRule* p_rule)
 
 // The local player's teammate in formation slot p_slot, or -1.
 // FUNCTION: MW2 0x10054ccc
+// FUNCTION: MW2GBL 0x10079f89
 // FUNCTION: MW2MATROX 0x10083f47
 // FUNCTION: MW23DFX 0x10014220
 // FUNCTION: MW2ATI 0x100146b0
@@ -2779,6 +2868,7 @@ void PostAIMessage(Player* p_player, MechS16 p_message, MechU16 p_target, MechS1
 // Orders the players of p_targets into p_state with p_target (the local player's orders to its
 // star). Returns how many it skipped.
 // FUNCTION: MW2 0x10054d88
+// FUNCTION: MW2GBL 0x1007a044
 // FUNCTION: MW2MATROX 0x10084002
 // FUNCTION: MW23DFX 0x10014290
 // FUNCTION: MW2ATI 0x10014720
@@ -2982,6 +3072,7 @@ void ResetStarOrders(MechS32 p_team)
 // Gives star p_team's AI players the script and state of its current objective: rest, shut down
 // or follow the leader.
 // FUNCTION: MW2 0x100551c6
+// FUNCTION: MW2GBL 0x1007a45d
 // FUNCTION: MW2MATROX 0x10084461
 // FUNCTION: MW23DFX 0x10014520
 // FUNCTION: MW2ATI 0x100149b0
@@ -3000,7 +3091,11 @@ void AssignStarObjective(MechS32 p_team)
 	MechU16 type;
 	StarMission* mission;
 	Player* member;
+#ifdef MW2_AI_FLAGS_INT
+	MechS32 flags;
+#else
 	MechS16 flags;
+#endif
 
 	target = 0;
 	leader = GetTeamLeader(p_team);
@@ -3072,6 +3167,7 @@ void AssignStarObjective(MechS32 p_team)
 
 // GBL's returns an int.
 // FUNCTION: MW2 0x10055485
+// FUNCTION: MW2GBL 0x1007a6f9
 // FUNCTION: MW2MATROX 0x10084720
 // FUNCTION: MW23DFX 0x100146e0
 // FUNCTION: MW2ATI 0x10014b70
@@ -3222,6 +3318,7 @@ void HandleStarOrder(MechS32 p_team, AiMessage* p_order)
 // Sends members of star p_team after p_target: every free one on objective 4, else the free one
 // nearest the target's value (or the leader). Whether one went.
 // FUNCTION: MW2 0x10055811
+// FUNCTION: MW2GBL 0x1007aa86
 // FUNCTION: MW2MATROX 0x10084aac
 // FUNCTION: MW23DFX 0x10014950
 // FUNCTION: MW2ATI 0x10014da0
@@ -3326,6 +3423,7 @@ MechS32 AssignStarTarget(MechS32 p_team, MechU16 p_target)
 // Run by star p_team's leader: hands its posted order on and sends an idle member after the
 // first target of the star's objective that isn't covered yet.
 // FUNCTION: MW2 0x10055bb7
+// FUNCTION: MW2GBL 0x1007ae16
 // FUNCTION: MW2MATROX 0x10084e52
 // FUNCTION: MW23DFX 0x10014ba0
 // FUNCTION: MW2ATI 0x10014ff0
@@ -3348,7 +3446,11 @@ void LeadStar(MechS32 p_team)
 	Player* player;
 	Team* team;
 	MissionObjective* objective;
+#ifdef MW2_AI_FLAGS_INT
+	MechS32 flags;
+#else
 	MechS16 flags;
+#endif
 
 	leader = GetTeamLeader(p_team);
 	if (leader == -1) {
@@ -3563,6 +3665,7 @@ void RunStarCommand(MechS32 p_command, MechS32 p_slot)
 // Sweeps a mech's torso pan from side to side, 5 degrees every 0x20 ticks (0x40 while stopped),
 // turning back past 45.
 // FUNCTION: MW2 0x100562b4
+// FUNCTION: MW2GBL 0x1007b4fc
 // FUNCTION: MW2MATROX 0x1008554f
 // FUNCTION: MW23DFX 0x10014ff0
 // FUNCTION: MW2ATI 0x10015400

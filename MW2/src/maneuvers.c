@@ -34,6 +34,10 @@
 #include <stdlib.h>
 #include <string.h>
 
+#ifdef MW2_ABS_CALLS
+#pragma function(abs) // GBL calls abs in this unit (util/types.h)
+#endif
+
 #ifdef MW2_FLOAT_SCALARS
 // The Matrox edition divides by a probe direction only when it isn't 1.
 #define PROBE_DIVIDE(p_n, p_d) ((MechFloat) ((p_d) == 1 ? (p_n) : (p_n) / (p_d)))
@@ -70,6 +74,7 @@ ProbeDirection g_probeDirections[16] = {
 // The maneuver tables: the maneuvers a mech chooses among and those that may follow each.
 
 // GLOBAL: MW2 0x100a2980
+// GLOBAL: MW2GBL 0x100a3b88
 // GLOBAL: MW2MATROX 0x100a4b88
 // GLOBAL: MW23DFX 0x1024cdf0
 // GLOBAL: MW2ATI 0x10181170
@@ -91,6 +96,7 @@ ManeuverEntry g_mechManeuvers[13] = {
 };
 
 // GLOBAL: MW2 0x100a2a70
+// GLOBAL: MW2GBL 0x100a3c78
 // GLOBAL: MW2MATROX 0x100a4c78
 // GLOBAL: MW23DFX 0x1024cee0
 // GLOBAL: MW2ATI 0x10181260
@@ -99,6 +105,7 @@ ManeuverEntry g_mechManeuvers[13] = {
 ManeuverEntry g_stupidManeuvers = {{0, 1, 0, 0, 0, 0, 0, 0, 0}};
 
 // GLOBAL: MW2 0x100a2a88
+// GLOBAL: MW2GBL 0x100a3c90
 // GLOBAL: MW2MATROX 0x100a4c90
 // GLOBAL: MW23DFX 0x1024cef8
 // GLOBAL: MW2ATI 0x10181278
@@ -106,6 +113,7 @@ ManeuverEntry g_stupidManeuvers = {{0, 1, 0, 0, 0, 0, 0, 0, 0}};
 ManeuverEntry g_circleManeuvers = {{12, 1, 12, 0, 0, 0, 0, 0, 0}};
 
 // GLOBAL: MW2 0x100a2aa0
+// GLOBAL: MW2GBL 0x100a3ca8
 // GLOBAL: MW2MATROX 0x100a4ca8
 // GLOBAL: MW23DFX 0x1024cf10
 // GLOBAL: MW2ATI 0x10181290
@@ -114,6 +122,7 @@ ManeuverEntry g_behindManeuvers = {{1, 1, 1, 0, 0, 0, 0, 0, 0}};
 
 // The table of a mech whose m_tons is 1 (ChooseManeuver).
 // GLOBAL: MW2 0x100a2ab8
+// GLOBAL: MW2GBL 0x100a3cc0
 // GLOBAL: MW2MATROX 0x100a4cc0
 // GLOBAL: MW23DFX 0x1024cf28
 // GLOBAL: MW2ATI 0x101812a8
@@ -134,24 +143,116 @@ ManeuverEntry g_altMechManeuvers[13] = {
 	{{0, 0, 0, 0, 0, 0, 0, 0, 0}},
 };
 
+#ifdef MW2_STATIC_MANEUVER_TABLES
+// GBL's tables of the pilot table's entries (g_maneuverTables[9] to [12]).
+// GLOBAL: MW2GBL 0x100a3db0
+ManeuverEntry g_unk0x100a3db0[13] = {
+	{{0, 7, 0, 1, 2, 3, 4, 4, 4}},
+	{{1, 6, 0, 1, 2, 3, 4, 4, 0}},
+	{{2, 4, 7, 8, 4, 4, 0, 0, 0}},
+	{{3, 4, 7, 8, 4, 4, 0, 0, 0}},
+	{{4, 3, 5, 5, 8, 0, 0, 0, 0}},
+	{{5, 2, 7, 8, 0, 0, 0, 0, 0}},
+	{{6, 1, 6, 0, 0, 0, 0, 0, 0}},
+	{{7, 5, 0, 1, 2, 8, 4, 0, 0}},
+	{{8, 6, 0, 1, 2, 3, 4, 4, 0}},
+	{{9, 3, 0, 8, 7, 0, 0, 0, 0}},
+	{{10, 4, 7, 7, 4, 4, 0, 0, 0}},
+	{{11, 1, 3, 0, 0, 0, 0, 0, 0}},
+	{{0, 0, 0, 0, 0, 0, 0, 0, 0}},
+};
+
+// GLOBAL: MW2GBL 0x100a3ea0
+ManeuverEntry g_unk0x100a3ea0[13] = {
+	{{0, 7, 0, 0, 0, 0, 0, 8, 8}},
+	{{1, 6, 0, 0, 0, 0, 0, 1, 0}},
+	{{2, 7, 0, 0, 0, 0, 0, 7, 1}},
+	{{3, 1, 0, 0, 0, 0, 0, 0, 0}},
+	{{4, 4, 0, 0, 8, 5, 0, 0, 0}},
+	{{5, 4, 0, 0, 7, 8, 0, 0, 0}},
+	{{6, 1, 6, 0, 0, 0, 0, 0, 0}},
+	{{7, 3, 0, 0, 8, 0, 0, 0, 0}},
+	{{8, 5, 0, 0, 0, 8, 0, 0, 0}},
+	{{9, 4, 0, 0, 8, 7, 0, 0, 0}},
+	{{10, 3, 0, 0, 7, 0, 0, 0, 0}},
+	{{11, 1, 0, 0, 0, 0, 0, 0, 0}},
+	{{0, 0, 0, 0, 0, 0, 0, 0, 0}},
+};
+
+// GLOBAL: MW2GBL 0x100a3f90
+ManeuverEntry g_unk0x100a3f90[13] = {
+	{{0, 6, 0, 1, 2, 3, 4, 4, 0}},
+	{{1, 5, 0, 1, 2, 3, 4, 0, 0}},
+	{{2, 2, 7, 4, 0, 0, 0, 0, 0}},
+	{{3, 1, 7, 0, 0, 0, 0, 0, 0}},
+	{{4, 3, 5, 5, 8, 0, 0, 0, 0}},
+	{{5, 2, 7, 8, 0, 0, 0, 0, 0}},
+	{{6, 1, 6, 0, 0, 0, 0, 0, 0}},
+	{{7, 2, 0, 1, 0, 0, 0, 0, 0}},
+	{{8, 5, 0, 1, 2, 3, 4, 0, 0}},
+	{{9, 3, 0, 8, 7, 0, 0, 0, 0}},
+	{{10, 3, 7, 7, 4, 0, 0, 0, 0}},
+	{{11, 2, 3, 1, 0, 0, 0, 0, 0}},
+	{{0, 0, 0, 0, 0, 0, 0, 0, 0}},
+};
+
+// GLOBAL: MW2GBL 0x100a4080
+ManeuverEntry g_unk0x100a4080[13] = {
+	{{0, 7, 0, 0, 0, 0, 0, 2, 8}},
+	{{1, 6, 0, 0, 0, 0, 0, 1, 0}},
+	{{2, 7, 0, 0, 0, 0, 0, 7, 1}},
+	{{3, 1, 0, 0, 0, 0, 0, 0, 0}},
+	{{4, 4, 0, 0, 8, 5, 0, 0, 0}},
+	{{5, 4, 0, 0, 7, 8, 0, 0, 0}},
+	{{6, 1, 6, 0, 0, 0, 0, 0, 0}},
+	{{7, 3, 0, 0, 8, 0, 0, 0, 0}},
+	{{8, 5, 0, 0, 0, 8, 0, 0, 0}},
+	{{9, 4, 0, 0, 8, 7, 0, 0, 0}},
+	{{10, 3, 0, 0, 7, 0, 0, 0, 0}},
+	{{11, 1, 0, 0, 0, 0, 0, 0, 0}},
+	{{0, 0, 0, 0, 0, 0, 0, 0, 0}},
+};
+#endif
+
+#ifndef MW2_STATIC_MANEUVER_TABLES
 // Set once InitializeManeuvers has filled g_maneuverTables.
 // GLOBAL: MW2 0x100a2ba4
-// GLOBAL: MW2GBL 0x100a41d8
 // GLOBAL: MW2MATROX 0x100a4dac
 // GLOBAL: MW23DFX 0x1024d014
 // GLOBAL: MW2ATI 0x10181394
 // GLOBAL: MW2S3 0x10064fbc
 // GLOBAL: MW2POWERVR 0x101ac2f4
 MechS32 g_maneuverTablesReady = 0;
+#endif
 
 // The maneuver table of each player type (m_type, 1 to 8), and in entry 8 the alternative to the
-// first.
+// first. GBL's are data, with the pilot table's in entries 9 to 12 and the stupid maneuver for every
+// type but the mech.
+#ifdef MW2_STATIC_MANEUVER_TABLES
+// GLOBAL: MW2GBL 0x100a4170
+ManeuverTable g_maneuverTables[13] = {
+	{13, 7, g_mechManeuvers},
+	{1, 0, &g_stupidManeuvers},
+	{1, 0, &g_stupidManeuvers},
+	{1, 0, &g_stupidManeuvers},
+	{1, 0, &g_stupidManeuvers},
+	{1, 0, &g_stupidManeuvers},
+	{1, 0, &g_stupidManeuvers},
+	{1, 0, &g_stupidManeuvers},
+	{13, 7, g_altMechManeuvers},
+	{13, 7, g_unk0x100a3db0},
+	{13, 7, g_unk0x100a3ea0},
+	{13, 7, g_unk0x100a3f90},
+	{13, 7, g_unk0x100a4080},
+};
+#else
 // GLOBAL: MW2 0x101748e0
 // GLOBAL: MW2MATROX 0x10212cf0
 // GLOBAL: MW23DFX 0x101de7b0
 // GLOBAL: MW2ATI 0x10112470
 // GLOBAL: MW2POWERVR 0x1013d130
 ManeuverTable g_maneuverTables[9];
+#endif
 
 // Runs p_player's current maneuver (m_maneuver) against p_target for a tick, and ends it when it
 // is done, when another is asked for (m_nextManeuver: out of ammunition, the mech jumps in or
@@ -310,6 +411,89 @@ void RunManeuver(Player* p_player, MechU16 p_target)
 	}
 }
 
+#ifdef MW2_STATIC_MANEUVER_TABLES
+// GBL's: a mech pilot without skill flag 3 keeps its torso straight, and the player takes its
+// maneuver table and range from the pilot table, or its type's table and 15000.
+// FUNCTION: MW2GBL 0x10029be9
+void InitializeManeuvers(Player* p_player)
+{
+	p_player->m_maneuver = -1;
+	p_player->m_lastManeuver = -1;
+	p_player->m_nextManeuver = 0;
+	p_player->m_avoidShape = NULL;
+	p_player->m_avoidSide = 0;
+	p_player->m_probeScale = 1;
+	p_player->m_nextAvoidCheck = 0;
+	memset(p_player->m_placesTaken, 0, sizeof(p_player->m_placesTaken));
+	if (p_player->m_piloting < 1 || p_player->m_piloting > 4) {
+		p_player->m_piloting = 1;
+	}
+
+	if (p_player->m_piloting <= 3) {
+		p_player->m_skillFlag0 = 1;
+	}
+	else {
+		p_player->m_skillFlag0 = 0;
+	}
+
+	if (p_player->m_piloting <= 3) {
+		p_player->m_skillFlag1 = 1;
+	}
+	else {
+		p_player->m_skillFlag1 = 0;
+	}
+
+	if (p_player->m_piloting <= 2) {
+		p_player->m_skillFlag2 = 1;
+	}
+	else {
+		p_player->m_skillFlag2 = 0;
+	}
+
+	if (p_player->m_type == c_playerTypeMech && p_player->m_piloting <= 5) {
+		p_player->m_skillFlag3 = 1;
+	}
+	else {
+		p_player->m_skillFlag3 = 0;
+	}
+
+	if (p_player->m_piloting <= 4) {
+		p_player->m_skillFlag4 = 1;
+	}
+	else {
+		p_player->m_skillFlag4 = 0;
+	}
+
+	if (p_player->m_type == c_playerTypeMech && p_player->m_piloting <= 1) {
+		p_player->m_skillFlag5 = 1;
+	}
+	else {
+		p_player->m_skillFlag5 = 0;
+	}
+
+	if (p_player->m_piloting <= 5) {
+		p_player->m_skillFlag6 = 1;
+	}
+	else {
+		p_player->m_skillFlag6 = 0;
+	}
+
+	if (p_player->m_type == c_playerTypeMech && !p_player->m_skillFlag3) {
+		p_player->m_mech->m_maxTorsoTwist = 0;
+	}
+
+	if (!p_player->m_maneuverTable) {
+		p_player->m_maneuverTable = &g_maneuverTables[p_player->m_type - 1];
+		if (p_player->m_mech->m_tons == 1) {
+			p_player->m_maneuverTable = &g_maneuverTables[8];
+		}
+	}
+
+	if (!p_player->m_unk0x1b0) {
+		p_player->m_unk0x1b0 = 15000;
+	}
+}
+#else
 // Resets p_player's maneuver state and sets the maneuvers its piloting (1 to 4) allows, and fills
 // the maneuver tables the first time.
 // FUNCTION: MW2 0x100139e9
@@ -434,11 +618,13 @@ void InitializeManeuvers(Player* p_player)
 		g_maneuverTablesReady = 1;
 	}
 }
+#endif
 
 // Picks p_player's next maneuver: one an order asked for, an AI player's escape, attack or chase
 // when it applies, or else one its maneuver table lets follow the previous one (any one at
 // first), redrawn until its conditions hold.
 // FUNCTION: MW2 0x10013d81
+// FUNCTION: MW2GBL 0x10029ec0
 // FUNCTION: MW2MATROX 0x10019969
 // FUNCTION: MW23DFX 0x1001f030
 // FUNCTION: MW2ATI 0x1001f300
@@ -452,11 +638,16 @@ MechS32 ChooseManeuver(Player* p_player)
 	MechS16 index;
 
 	choice = -1;
+#ifdef MW2_STATIC_MANEUVER_TABLES
+	table = p_player->m_maneuverTable;
+	mech = p_player->m_mech;
+#else
 	table = &g_maneuverTables[p_player->m_type - 1];
 	mech = p_player->m_mech;
 	if (mech->m_tons == 1) {
 		table = &g_maneuverTables[8];
 	}
+#endif
 
 	do {
 		SetTarget(p_player, p_player->m_ai.m_target);
@@ -872,6 +1063,7 @@ MechS32 IsSharpTurn(Player* p_player, MechScalar p_turn)
 
 // Steers p_player at p_target and closes to 15000, asking for c_maneuverAvoid within 4500.
 // FUNCTION: MW2 0x100149e7
+// FUNCTION: MW2GBL 0x1002ab09
 // FUNCTION: MW2MATROX 0x1001a709
 // FUNCTION: MW23DFX 0x1001f950
 // FUNCTION: MW2ATI 0x1001fc20
@@ -899,9 +1091,20 @@ void ManeuverStupid(Player* p_player, MechS16 p_target)
 		heading = GetTargetBearing(p_player);
 	}
 
+#ifdef MW2_STATIC_MANEUVER_TABLES
+	if (p_player->m_unk0x1b0 <= 15000) {
+		if (p_player->m_targetInfo.m_distance < 4500) {
+			p_player->m_nextManeuver = c_maneuverAvoid;
+		}
+	}
+	else if (p_player->m_targetInfo.m_distance < p_player->m_unk0x1b0) {
+		p_player->m_nextManeuver = c_maneuverAvoid;
+	}
+#else
 	if (p_player->m_targetInfo.m_distance < 4500) {
 		p_player->m_nextManeuver = c_maneuverAvoid;
 	}
+#endif
 
 	RunAIWeapons(p_player, heading);
 	JumpToTurn(p_player);
@@ -910,6 +1113,7 @@ void ManeuverStupid(Player* p_player, MechS16 p_target)
 // Turns p_player toward its goal and closes on its target; once stopped and turned more than 5
 // degrees away, turns in place (IsSharpTurn) until the target is more than 4500 away.
 // FUNCTION: MW2 0x10014aa8
+// FUNCTION: MW2GBL 0x1002ac07
 // FUNCTION: MW2MATROX 0x1001a7cb
 // FUNCTION: MW23DFX 0x1001f9d0
 // FUNCTION: MW2ATI 0x1001fca0
@@ -1194,6 +1398,7 @@ MechS32 ManeuverSprint(Player* p_player, MechS16 p_target)
 // still jumping (m_maneuverParam; it stops at 2). Whether it is done: on the ground, colliding, or unable to
 // jump on.
 // FUNCTION: MW2 0x10015172
+// FUNCTION: MW2GBL 0x1002b2d5
 // FUNCTION: MW2MATROX 0x1001aeb7
 // FUNCTION: MW23DFX 0x1001fe30
 // FUNCTION: MW2ATI 0x10020100
@@ -1443,6 +1648,7 @@ void SetJumpJets(Player* p_player, MechS8 p_value)
 // they hit, slowing down if the first one hits. Returns whether it steered. Between checks (every
 // 10 ticks for the local player, 90 or 181 for others) it returns whether it is avoiding a shape.
 // FUNCTION: MW2 0x10015709
+// FUNCTION: MW2GBL 0x1002b870
 // FUNCTION: MW2MATROX 0x1001b48d
 // FUNCTION: MW23DFX 0x100201c0
 // FUNCTION: MW2ATI 0x10020490
@@ -2005,6 +2211,7 @@ MechScalar GetClosingRate(Player* p_player)
 // twist, and stops them once it is inside, unless the maneuver works them itself. Only with the
 // piloting skill for it, and not while avoiding.
 // FUNCTION: MW2 0x100160eb
+// FUNCTION: MW2GBL 0x1002c256
 // FUNCTION: MW2MATROX 0x1001bf6d
 // FUNCTION: MW23DFX 0x10020950
 // FUNCTION: MW2ATI 0x10020c20

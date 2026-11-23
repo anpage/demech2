@@ -737,6 +737,9 @@ double __cdecl fabs(double);
 /* An AI player whose gunnery is above 6 takes its skills from a table of pilots, with two more
    values and a flag the AI's fire decisions test (Player::m_unk0x160, m_unk0x1b0, m_unk0x1b4) */
 #define MW2_PILOT_TABLE
+/* The maneuver tables are data, five of them the pilot table's, and each player has its table and a
+   range (Player::m_maneuverTable, m_unk0x1b0: InitializeManeuvers) */
+#define MW2_STATIC_MANEUVER_TABLES
 /* Representation: a player's AI flags are an int, not a short (PlayerAi::m_flags) */
 #define MW2_AI_FLAGS_INT
 /* The local star starts at 0, and the player's formation goes to it */
@@ -772,12 +775,11 @@ double __cdecl fabs(double);
 /* A game thing's destruction counts for the local team whoever's shot destroyed it, and forgets the
    shooter (KillGameThing) */
 #define MW2_THING_KILLS_FORGET_SHOOTER
-/* Artefact: UpdateWeaponLock tests the aim with the C runtime's labs. GBL links labs and abs, the
-   same code, and calls one here and the other in targeting.c: which is which isn't known */
-#define MW2_LOCK_LABS
-/* Artefact: GetBearingAndRange (targeting.c) calls abs, which GBL's other units expand (MW2_GBL's
-   pragma above) */
+/* Artefact: weapons.c, ai.c and maneuvers.c call the C runtime's abs, which GBL's other units expand
+   (MW2_GBL's pragma above) */
 #define MW2_ABS_CALLS
+/* Artefact: GetBearingAndRange compares with the C runtime's labs */
+#define MW2_BEARING_LABS
 /* A shot destroys a game thing whose shape is of kind 0xb0 at once, and every destroyed thing leaves
    effect 0x20b (DamageGameThing) */
 #define MW2_BUILDINGS_FALL_AT_ONCE
@@ -798,8 +800,9 @@ double __cdecl fabs(double);
 /* The AI's attack and target states stop the group fire as well as the fire (AiStateAttack,
    AiStateMove) */
 #define MW2_AI_STOPS_GROUP_FIRE
-/* Artefact: GBL's source copies a nav point and a ray with memcpy, which its build calls, where the
-   optimized editions show a structure assignment (RemoveNavPoint, CopyRay) */
+/* Artefact: GBL's source copies a nav point, a ray and a player with memcpy, which its build calls,
+   where the optimized editions show a structure assignment (RemoveNavPoint, CopyRay,
+   LogPlayerStatusLines) */
 #define MW2_STRUCT_COPY_MEMCPY
 /* Only the local player inspects its target, which counts as inspected once anyone has, and the
    inspect request stays set (UpdateTarget) */

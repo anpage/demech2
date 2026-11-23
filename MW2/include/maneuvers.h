@@ -41,6 +41,9 @@ extern "C"
 	// would shift the code of every unit that includes either one.
 	extern MechScalar g_jumpJetDrag;
 	extern MechScalar g_slideSlope;
+#ifdef MW2_STATIC_MANEUVER_TABLES
+	extern ManeuverTable g_maneuverTables[13];
+#endif
 
 	void RunManeuver(struct Player* p_player, MechU16 p_target);
 	void InitializeManeuvers(struct Player* p_player);
