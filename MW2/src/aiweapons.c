@@ -22,6 +22,7 @@
 // its goal and may fire (DecideAIFire). Then turns and pitches the torso. Returns whether it
 // fired.
 // FUNCTION: MW2 0x1004b5a0
+// FUNCTION: MW2GBL 0x10071dd0
 // FUNCTION: MW2MATROX 0x1007a850
 // FUNCTION: MW23DFX 0x100231a0
 // FUNCTION: MW2ATI 0x10023460
@@ -44,7 +45,16 @@ MechS32 RunAIWeapons(Player* p_player, MechScalar p_heading)
 				if (!roll) {
 					if (DecideAIFire(p_player)) {
 						if (!(p_player->m_skillFlag4) || CanSeeTarget(p_player, 1)) {
+#ifdef MW2_PILOT_TABLE
+							if (p_player->m_unk0x160) {
+								p_player->m_steering->m_weaponFireGroup = 1;
+							}
+							else {
+								p_player->m_steering->m_weaponFire = 1;
+							}
+#else
 							p_player->m_steering->m_weaponFire = 1;
+#endif
 							fired = TRUE;
 						}
 					}
@@ -66,6 +76,94 @@ MechS32 RunAIWeapons(Player* p_player, MechScalar p_heading)
 	return fired;
 }
 
+#ifdef MW2_PILOT_TABLE
+// GBL's: with the pilot table's flag set the AI fires the group, deciding by the heat and ammunition
+// of the ready weapons (its loop reads the selected weapon's slot each time, not each slot's).
+// FUNCTION: MW2GBL 0x10071f73
+MechS32 DecideAIFire(Player* p_player)
+{
+	MechS32 fire;
+	MechS32 type;
+	Mech* mech;
+	MechS32 i;
+	WeaponSlot* slot;
+	WeaponDef* def;
+	MechScalar heat;
+	MechS32 ammo;
+	MechS16 j;
+
+	mech = p_player->m_mech;
+	for (i = 0, fire = FALSE; i < mech->m_weaponCount && !fire; i++) {
+		fire = FALSE;
+		if (mech->m_selectedWeapon != -1) {
+			slot = &mech->m_weapons[mech->m_selectedWeapon];
+			type = slot->m_type;
+			def = &g_weaponDefs[type];
+			switch (GetTargetRangeBand(p_player, def)) {
+			case 1:
+			case 2:
+				fire = TRUE;
+				break;
+			default:
+				break;
+			}
+		}
+
+		if (fire) {
+			fire = FALSE;
+			if (p_player->m_unk0x160) {
+				heat = 0;
+				ammo = 0;
+				for (j = 0; j < mech->m_weaponCount; j++) {
+					slot = &mech->m_weapons[mech->m_selectedWeapon];
+					def = &g_weaponDefs[slot->m_type];
+					if (slot->m_state == c_weaponReady && slot->m_ammo) {
+						ammo += slot->m_ammo;
+						heat += def->m_heat;
+					}
+				}
+
+				if (ammo && (mech->m_heat + heat) >> 16 < 65.0 && !RandomIntBelow(def->m_recycle / 90 + 1)) {
+					fire = TRUE;
+				}
+			}
+			else {
+				if ((def->m_heat + mech->m_heat) >> 16 < 65.0 && IsSelectedWeaponReady(mech) == 1 && slot->m_ammo &&
+					!RandomIntBelow(def->m_recycle / 90 + 1)) {
+					fire = TRUE;
+				}
+			}
+		}
+
+		if (!fire) {
+			SelectNextWeaponInGroup(mech, 1);
+		}
+	}
+
+	if (fire) {
+		if (type == 0) {
+			p_player->m_steering->m_torsoTilt += FIXED_RAW(0x1e000);
+		}
+		else if (type == 4) {
+			p_player->m_steering->m_torsoTilt += FIXED_RAW(0x3c000);
+		}
+		else if (type == 21) {
+		}
+
+		if (g_weaponDefs[type].m_guided) {
+			if (p_player->m_gunnery <= 4 && !RandomIntBelow(p_player->m_gunnery + 1)) {
+				mech->m_flags |= 0x80;
+			}
+
+			if (p_player->m_ai.m_goal == (g_localPlayerId | 0x200)) {
+				PlaySoundEffect(0x6f, 100, 0x40, 5, 0x32);
+			}
+		}
+	}
+
+	return fire;
+}
+#else
 // Decides whether p_player's AI fires its selected weapon: in range of its target, cool enough, the
 // weapon ready and loaded, and by chance per recycle time; otherwise it selects the next weapon.
 // Firing weapon types 0 and 4 also steers; a guided weapon's volley may lock on.
@@ -142,3 +240,32 @@ MechS32 DecideAIFire(Player* p_player)
 
 	return fire;
 }
+#endif
+
+#ifdef MW2_PILOT_TABLE
+// Puts every weapon of p_player's mech into group p_group, for the pilot table's entries that fire
+// the group; p_unused is overwritten and never read. Returns 0 for a negative group or a mech
+// without one or two weapons, else 1.
+// FUNCTION: MW2GBL 0x100722dd
+MechS32 GroupAIWeapons(Player* p_player, MechS32 p_group, MechS32 p_unused)
+{
+	Mech* mech;
+	MechS32 i;
+
+	p_unused = -1;
+	mech = p_player->m_mech;
+	if (p_group < 0) {
+		return 0;
+	}
+
+	if (mech->m_weaponCount <= 0 || mech->m_weaponCount >= 3) {
+		return 0;
+	}
+
+	for (i = 0; i < mech->m_weaponCount; i++) {
+		SetWeaponGroup(mech, i, p_group);
+	}
+
+	return 1;
+}
+#endif

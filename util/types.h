@@ -798,6 +798,12 @@ double __cdecl fabs(double);
 /* The AI's attack and target states stop the group fire as well as the fire (AiStateAttack,
    AiStateMove) */
 #define MW2_AI_STOPS_GROUP_FIRE
+/* Artefact: GBL's source copies a nav point and a ray with memcpy, which its build calls, where the
+   optimized editions show a structure assignment (RemoveNavPoint, CopyRay) */
+#define MW2_STRUCT_COPY_MEMCPY
+/* Only the local player inspects its target, which counts as inspected once anyone has, and the
+   inspect request stays set (UpdateTarget) */
+#define MW2_LOCAL_INSPECTION
 #endif
 
 /* A game key action's number: with MW2_CHAT_KEY, the actions from 0x42 on are one higher. */

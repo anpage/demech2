@@ -8,8 +8,8 @@ MW2GBL 0x10006886 FillJoystickDeviceInfo 2872380adb30 compares the device name w
 MW2GBL 0x1002ef30 InitRefreshMode 63b76918efdf reads g_refreshModes and g_displayBackends, whose GBL annotations are left out until its DirectDraw back end is written (datacmp), and compares the width with the screen's in the other operand order; to investigate
 MW2GBL 0x1002fa30 DdrawStop e9975a95a1c0 tests a global of its own before 1.1's code (GBL's DirectDraw back end); to investigate
 MW2GBL 0x1002ff2d DdrawInit b4e3eea0583e GBL's own: a frame of 0x140 bytes against 1.1's 0xb0 (GBL's DirectDraw back end); to investigate
-MW2GBL 0x1004c9a9 CopyRay c53ca11b74f7 calls memcpy (GBL has no /Oi) where the source assigns the structure; memcpy needs <string.h> in ray.c, whose inclusion changes three functions of the optimized editions
 MW2GBL 0x1006d91f UpdateMech 3f276d6c51f2 GBL's changes to the mech update (its heat, weapons and jump jets members among them); to investigate
+MW2GBL 0x10072527 BuildQuadtreeChild b76fa7d4d7b0 its locals' slots and the order of a node's X bounds in their sum: a declaration order gives them at padding 10 but costs 1.1's (tools/declorder.py); to investigate
 MW2GBL 0x1007b743 CountMissionStream 480d05a2010b compares a tag in another byte order (shr 24 where 1.1 shifts by 8); to investigate
 MW2GBL 0x1008002e ChooseArtResolution 95f913e4b442 reads a table whose GBL annotation is left out (datacmp), and loads it into another register; to investigate
 MW2MATROX 0x10001b59 MultiplyRotations b93b7f6a221d the x87 sums of products are added in another term order (a flattened float chain), and the slot map then fails (a22 and a20 overlap): reordering a float sum isn't a rewrite the audit has
