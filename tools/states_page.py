@@ -11,7 +11,7 @@ script reads the ones it finds in a directory and writes one self-contained HTML
   first difference.
 
 A target with no audit there falls back to its TARGETSTATES.json (certify's alone: its unproven
-functions all count as not understood). The targets come in reccmp-project.yml's order. Everything
+functions all count as not understood). The targets come in targets.toml's order. Everything
 read from the reports is data: it is escaped, never markup.
 
 usage: python tools/states_page.py DIRECTORY [-o STATES.HTML] [--commit SHA] [--repository OWNER/NAME]
@@ -25,6 +25,9 @@ import re
 import sys
 from pathlib import Path
 
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+import targets as manifest  # noqa: E402
+
 ROOT = Path(__file__).resolve().parent.parent
 # The audit's verdicts, best first, and the column each counts in (tools/pr_comment.py's).
 COLUMN = {"exact": "identical", "witness": "proven", "classified": "explained", "known": "explained",
@@ -35,9 +38,8 @@ HEADINGS = {"identical": "Byte-identical", "proven": "Proven", "explained": "Exp
 WORDS = {"witness": "proven", "classified": "explained: compiler entropy", "known": "explained: known difference",
          "unexplained": "not understood"}
 RANK = {"unexplained": 0, "known": 1, "classified": 2, "witness": 3}
-EDITIONS = {"MW2SHELL": "1.1", "MW2": "1.1", "MW2GBL": "Ghost Bear's Legacy", "NETMECHW": "retail", "MECH2": "retail",
-            "MW2MATROX": "Matrox Mystique", "MW23DFX": "3Dfx",
-            "MW2ATI": "ATI 3D Rage", "MW2S3": "S3 ViRGE", "MW2POWERVR": "PowerVR"}
+MANIFEST = manifest.load()  # targets.toml
+EDITIONS = {name: t["edition"] for name, t in MANIFEST.items()}
 
 STYLE = """
 :root { color-scheme: light dark; --line: #8884; --dim: #8889; }
@@ -80,9 +82,8 @@ def esc(text):
 
 
 def project_targets():
-    """reccmp-project.yml's targets in order: [(id, file name)]."""
-    text = (ROOT / "reccmp-project.yml").read_text(encoding="utf-8")
-    return re.findall(r"^  (\w+):\s*\n\s+filename:\s*(\S+)", text, re.M)
+    """The targets in order: [(id, file name)]."""
+    return [(name, t["binary"]) for name, t in MANIFEST.items()]
 
 
 def load(directory, target):

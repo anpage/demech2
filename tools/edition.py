@@ -679,7 +679,7 @@ def main():
     p.add_argument("--write", action="store_true")
     p.set_defaults(fn=None)
     args = parser.parse_args()
-    if args.target in ("MW23DFX", "MW2ATI", "MW2S3", "MW2POWERVR"):
+    if args.target != "MW2MATROX":
         import edition_3dfx
 
         global TARGET

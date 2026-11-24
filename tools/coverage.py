@@ -22,7 +22,7 @@ with a body or alone, or an enum constant. Over-reaching only makes coverage rar
 in that both targets declare the same costs nothing, and one that differs (the compilers' own
 headers do, between VC++ 2.2 and 4.0) leaves the function uncovered.
 
-Which targets cover which (COVERERS): the 3Dfx edition only by the Matrox edition, whose C it
+Which targets cover which (COVERERS, targets.toml's covered-by): the 3Dfx edition only by the Matrox edition, whose C it
 shares (1.1's fixed-point code never covers it: the editions' float conversion changes the
 tokens), and the Matrox edition's optimized units (the depth sort) by 1.1, where the tokens agree.
 """
@@ -33,9 +33,9 @@ import shutil
 import subprocess
 from pathlib import Path
 
-from unitbuild import WINDOWS, to_tool
+from unitbuild import MANIFEST, WINDOWS, to_tool
 
-COVERERS = {"MW23DFX": ["MW2MATROX"], "MW2ATI": ["MW2MATROX"], "MW2S3": ["MW2MATROX"], "MW2POWERVR": ["MW2MATROX"], "MW2MATROX": ["MW2"]}
+COVERERS = {name: t["covered-by"] for name, t in MANIFEST.items() if t.get("covered-by")}  # targets.toml
 
 TOKEN = re.compile(r""""(?:\\.|[^"\\\n])*"|'(?:\\.|[^'\\\n])*'|[A-Za-z_$][\w$]*|\d[\w.]*|->|::|\S""")
 IDENTIFIER = re.compile(r"[A-Za-z_$][\w$]*$")

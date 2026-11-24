@@ -506,7 +506,7 @@ jobs:
 
           gh release upload continuous "${files[@]}" --clobber --repo "$GITHUB_REPOSITORY"
 
-      # GitHub Pages serves the progress reports the README embeds (GitHub
+      # GitHub Pages serves the progress reports the README links to (GitHub
       # serves release assets with a content type browsers refuse for SVG in
       # <img> tags). A deployment replaces the whole site, so the one
       # deployment publishes the public and the retail targets together.
