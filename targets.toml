@@ -17,7 +17,9 @@
 #   short        the edition's name in the tools' tables and prose (abbr: in narrow column heads)
 #   what         one line for the tables
 #   about        a paragraph for docs/TARGETS.md (Markdown)
-#   sha256, size, modified   the original this project targets
+#   sha256, size the original this project targets
+#   linked       the day it was linked: its PE header's timestamp, in UTC (a disc's file date is
+#                local time, and can be the day before)
 #   availability public (CI downloads it) or retail (CI reads it from a private repository)
 #   origin       where the original comes from (Markdown)
 #   sources      the directories its annotations are in (reccmp's source-root, decomplint's paths)
@@ -42,7 +44,7 @@ MechWarrior 2's shell (FMV, menus, settings, metagame), from the freely download
 built with VC++ 4.1 at `/Od`. A mixture of C and C++.'''
 sha256 = '1078ccb07fd45388bfd525719a8206ce7a01d6536776d30a5655ccb928900879'
 size = 545792
-modified = 1996-10-09
+linked = 1996-10-09
 availability = 'public'
 origin = 'The [1.1 patch](https://archive.org/details/mw2patch)'
 sources = ["MW2SHELL", "common"]
@@ -68,9 +70,12 @@ MechWarrior 2's simulator (in-mission gameplay), from the freely downloadable 1.
 VC++ 4.1 at `/Od`. Probably all C.'''
 sha256 = '6212d542f8f915a594b278ab189f20a27e522e7c08ac57ce68bf47f45b17bbb5'
 size = 827392
-modified = 1996-09-19
+linked = 1996-09-20
 availability = 'public'
-origin = 'The [1.1 patch](https://archive.org/details/mw2patch)'
+origin = '''
+The [1.1 patch](https://archive.org/details/mw2patch); the same file is on the
+[Windows 95 & MS-DOS + NetMech](http://redump.org/disc/25243/) disc and the
+[SoftKey](http://redump.org/disc/41925/) release'''
 sources = ["MW2", "common"]
 compiler = '4.1'
 language = 'C'
@@ -95,11 +100,11 @@ patch (`GBLPATCH.EXE`, linked 1996-10-18), built with VC++ 4.1 at `/Od`, without
 the simulator's sources (`MW2/`) with `MW2_GBL` defined.'''
 sha256 = '284f3c6abef28eb421fc7da97f52c6223bd1a956409c6cb041ebe2e95d847cb8'
 size = 806400
-modified = 1996-10-18
+linked = 1996-10-18
 availability = 'public'
 origin = '''
 The `MW2.DLL` of Ghost Bear's Legacy's [1.1 patch](https://archive.org/details/GBLPATCH), and the
-same file as the `MW2.DLL` of the [Windows 95 & MS-DOS](http://redump.org/disc/95676/) disc'''
+same file as the `MW2.DLL` of the [Windows 95 & MS-DOS](http://redump.org/disc/95676/) disc (the Alt 2 entry)'''
 sources = ["MW2", "common"]
 compiler = '4.1'
 language = 'C'
@@ -126,7 +131,7 @@ simulation's values as floats and draws through Matrox's `MSI95.DLL` instead of 
 builds the simulator's sources (`MW2/`) with `MW2_ACCEL` and `MW2_MATROX` defined.'''
 sha256 = '444e19ad054cbe852ec8a54ddb8a6ffa019de2ce7ab97571fea62f9666982220'
 size = 845824
-modified = 1996-08-22
+linked = 1996-08-22
 availability = 'retail'
 origin = '''
 The `MW2.DLL` of the [Enhanced for Matrox Mystique](http://redump.org/disc/43477/) disc (the Alt
@@ -157,7 +162,7 @@ floats, draws through Glide (`GLIDE.DLL`) and links 3dfx's Texus texture library
 simulator's sources (`MW2/`) with `MW2_ACCEL` and `MW2_3DFX` defined.'''
 sha256 = 'e15b8ca2013a365df11723aa97f9e7ea2914e1139090800f9b452fb7ea08282f'
 size = 724480
-modified = 1996-10-21
+linked = 1996-10-21
 availability = 'retail'
 origin = 'The `MW2.DLL` of the [3Dfx OEM](http://redump.org/disc/11391/) disc'
 sources = ["MW2", "common"]
@@ -182,14 +187,13 @@ edition = 'ATI 3D Rage'
 short = 'ATI'
 what = "The ATI 3D Rage edition's simulator"
 about = '''
-The simulator of the ATI 3D Rage edition (the `MW2.DLL` of its disc, linked 1996-04-11, registry key
-`MechWarrior 2\1.0`), the oldest edition of the simulator, built with VC++ 2.2 and optimized (`/Ox
-/Ow /G5 /Gr /Gy`). It keeps the simulation's values as floats and draws through ATI's 3D CIF
+The simulator of the ATI 3D Rage edition (the `MW2.DLL` of its disc, linked 1996-04-11), the oldest
+edition of the simulator, built with VC++ 2.2 and optimized (`/Ox /Ow /G5 /Gr /Gy`). It keeps the simulation's values as floats and draws through ATI's 3D CIF
 (`ati3dcif.dll`) on DirectDraw surfaces. It builds the simulator's sources (`MW2/`) with `MW2_ACCEL`
 and `MW2_ATI` defined.'''
 sha256 = 'c0509cefd31887301bd86ef8cca748211af224d9cce1a40cf87d2da6e942a739'
 size = 638976
-modified = 1996-04-11
+linked = 1996-04-11
 availability = 'retail'
 origin = 'The `MW2.DLL` of the [ATI 3D Rage Edition](http://redump.org/disc/46902/) disc'
 sources = ["MW2", "common"]
@@ -221,7 +225,7 @@ VFXREND. It builds the simulator's sources (`MW2/`) with `MW2_ACCEL` and `MW2_S3
 `vc41/` directory.'''
 sha256 = '97ea9f9d10425cc2a7991e0d6f0079ed2e15c2d0e5c863f1d9811ed44b16e590'
 size = 545792
-modified = 1996-07-12
+linked = 1996-07-12
 availability = 'retail'
 origin = 'The `MW2.DLL` of the [Enhanced for the S3 ViRGE](http://redump.org/disc/9708/) disc'
 sources = ["MW2", "common"]
@@ -253,7 +257,7 @@ through VideoLogic's SGL (`sgl.dll`), PowerVR's scene graph library. It builds t
 sources (`MW2/`) with `MW2_ACCEL` and `MW2_POWERVR` defined.'''
 sha256 = '4de37c948ce563d5fd00f51ecb5b710ad0b1b198401a4a3b916bcf8dd6a2f754'
 size = 634368
-modified = 1996-09-06
+linked = 1996-09-06
 availability = 'retail'
 origin = 'The `MW2.DLL` of the [PowerVR OEM](http://redump.org/disc/25180/) disc'
 sources = ["MW2", "common"]
@@ -292,7 +296,7 @@ messages, the chat, the player table, the `.MEK` mech files and their network fo
 (`unk10007c30.c`), and the mission files left for the simulator (`unk1000f0f0.cpp`, `bwdwriter.c`).'''
 sha256 = '3f4d1508238d847213127e46623a85b249985686d6053a3d9e1c6deea87c0095'
 size = 433152
-modified = 1995-12-08
+linked = 1995-12-09
 availability = 'retail'
 origin = '''
 The retail release: the [Windows 95 & MS-DOS + NetMech](http://redump.org/disc/25243/) disc, the
@@ -317,17 +321,21 @@ edition = 'retail'
 short = 'retail'
 what = 'Launcher that loads the DLLs'
 about = '''
-The retail release's launcher, which loads the shell, the lobby and the simulator, built with VC++
-2.2 (`cl` 9.10) at `/Od`. C, 21 game-code functions.'''
+The launcher, which loads the shell, the lobby and the simulator, built with VC++ 2.2 (`cl` 9.10) at
+`/Od`: the one launcher of the retail release and of the ATI, S3, PowerVR and 3Dfx editions (the
+Matrox edition has its own). C, 21 game-code functions.'''
 sha256 = '064a9f1f45cfd18f0bef1dea9711b7fd582755cfbb8a8e9694f8cef2e5c3690c'
 size = 53248
-modified = 1995-12-05
+linked = 1995-12-06
 availability = 'retail'
 origin = '''
-The retail release: the [Windows 95 & MS-DOS + NetMech](http://redump.org/disc/25243/) disc, the
-[Pentium Processor Edition](http://redump.org/disc/12864/), the [Microsoft SideWinder
-OEM](http://redump.org/disc/24336/) disc and the [SoftKey](http://redump.org/disc/41925/) release
-(as `MECH2.EX_`)'''
+The retail discs, where it is `MECH2.EX_` (uncompressed): the
+[Windows 95 & MS-DOS + NetMech](http://redump.org/disc/25243/) disc, the
+[Pentium Processor Edition](http://redump.org/disc/12864/), the
+[Microsoft SideWinder OEM](http://redump.org/disc/24336/) disc, the
+[SoftKey](http://redump.org/disc/41925/) release, and the
+[ATI 3D Rage](http://redump.org/disc/46902/), [S3 ViRGE](http://redump.org/disc/9708/),
+[PowerVR](http://redump.org/disc/25180/) and [3Dfx](http://redump.org/disc/11391/) editions' discs'''
 sources = ["MECH2"]
 compiler = '2.2'
 language = 'C'

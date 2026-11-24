@@ -90,7 +90,7 @@ from unitbuild import EDITION_MACROS, MANIFEST, ROOT, Target, edition_features, 
 
 # 1.1, the reference, then the other editions in the order they were built (their link dates).
 SIMULATORS = tuple(sorted((name for name, t in MANIFEST.items() if t["component"] == "simulator"),
-                          key=lambda name: (bool(MANIFEST[name]["macros"]), MANIFEST[name]["modified"])))
+                          key=lambda name: (bool(MANIFEST[name]["macros"]), MANIFEST[name]["linked"])))
 FEATURES = tuple(dict.fromkeys(f for fs in edition_features().values() for f in fs))
 EDITION_RE = re.compile(r"\b(%s)\b" % "|".join(EDITION_MACROS + FEATURES))
 SCAN_DIRS = ("MW2", "common", "3rdparty/vfx")

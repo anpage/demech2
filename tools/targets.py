@@ -31,7 +31,7 @@ DOC = ROOT / "docs" / "TARGETS.md"
 README = ROOT / "README.md"
 PAGES = "https://anpage.github.io/demech2"
 
-REQUIRED = ("binary", "component", "edition", "short", "what", "about", "sha256", "size", "modified", "availability",
+REQUIRED = ("binary", "component", "edition", "short", "what", "about", "sha256", "size", "linked", "availability",
             "origin", "sources", "compiler", "language", "cl", "crt", "link", "built-in", "output", "total",
             "game-code", "macros")
 COMPONENTS = ("launcher", "shell", "simulator", "lobby")
@@ -72,7 +72,7 @@ def simulators(targets=None, built=False):
     targets = targets or load()
     names = [name for name, t in targets.items() if t["component"] == "simulator"]
     if built:
-        names.sort(key=lambda name: (bool(targets[name]["macros"]), targets[name]["modified"]))
+        names.sort(key=lambda name: (bool(targets[name]["macros"]), targets[name]["linked"]))
     return names
 
 
@@ -122,9 +122,10 @@ def document(targets):
             "## The originals", "",
             "The project names each original after its target; the 3D-card editions' simulators and Ghost Bear's",
             "Legacy's are all `MW2.DLL` on their discs. A **public** original is freely downloadable, and CI",
-            "fetches it; a **retail** one isn't, and CI compares it from a private repository.", "",
-            table(("Binary", "Size", "SHA-256", "Modified", "Availability", "Where it comes from"),
-                  [("`%s`" % t["binary"], "{:,} bytes".format(t["size"]), "`%s`" % t["sha256"], date(t["modified"]),
+            "fetches it; a **retail** one isn't, and CI compares it from a private repository. **Linked** is the",
+            "day in the file's PE header, in UTC; a disc's file date is local time, and can be the day before.", "",
+            table(("Binary", "Size", "SHA-256", "Linked", "Availability", "Where it comes from"),
+                  [("`%s`" % t["binary"], "{:,} bytes".format(t["size"]), "`%s`" % t["sha256"], date(t["linked"]),
                     t["availability"], " ".join(t["origin"].split())) for t in targets.values()]), "",
             "## Build configuration", "",
             "Each target needs the compiler its original was built with ([BUILDING.md](BUILDING.md)). The",
