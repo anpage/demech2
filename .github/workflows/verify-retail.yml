@@ -541,7 +541,21 @@ jobs:
         with:
           path: progress/
 
+      # The run's artifact list can lag behind the upload that just finished:
+      # the deployment then finds no "github-pages" artifact and fails before
+      # it has created anything. So a failed deployment is tried once more,
+      # a minute later.
       - name: Deploy to GitHub Pages
+        id: deploy
+        continue-on-error: true
+        uses: actions/deploy-pages@v5
+
+      - name: Wait before deploying again
+        if: ${{ steps.deploy.outcome == 'failure' }}
+        run: sleep 60
+
+      - name: Deploy to GitHub Pages (second attempt)
+        if: ${{ steps.deploy.outcome == 'failure' }}
         uses: actions/deploy-pages@v5
 
   sweep:
