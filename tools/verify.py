@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 """Certify every target whose original is at hand, and print the counts the README's page shows.
 
-For each target of reccmp-project.yml this looks for the original (a file of the target's name in
+For each target of targets.toml this looks for the original (a file of the target's name in
 --originals, any case, or reccmp-user.yml's path), checks that it is the binary the project
-targets (the SHA-256 reccmp-project.yml carries) and runs tools/certify.py on it: every unit
+targets (the SHA-256 targets.toml carries) and runs tools/certify.py on it: every unit
 compiled again with the build's own commands, each witness record applied, every annotated
 function compared with the original. It adds nothing to certify; it only saves running it once
 per target with the right paths, and it is what the Docker image runs (docker/entrypoint.sh).
@@ -31,26 +31,14 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from funccmp import read_yaml_paths  # noqa: E402
-from unitbuild import ROOT, TARGETS  # noqa: E402
+from unitbuild import MANIFEST, ROOT, TARGETS  # noqa: E402
 
 WORDS = {"exact": "byte-identical", "witness": "proven", "unproven": "unproven"}
 
 
-def project_targets(root=ROOT):
-    """reccmp-project.yml's targets in its order: {target: (file name, sha256)}."""
-    out, target = {}, None
-    for line in (Path(root) / "reccmp-project.yml").read_text().split("\n"):
-        m = re.match(r"^  (\w+):\s*$", line)
-        if m:
-            target = m.group(1)
-            out[target] = [None, None]
-        m = re.match(r"^\s+filename:\s*(\S+)", line)
-        if m and target:
-            out[target][0] = m.group(1)
-        m = re.match(r"^\s+sha256:\s*([0-9a-fA-F]{64})", line)
-        if m and target:
-            out[target][1] = m.group(1).lower()
-    return {t: tuple(v) for t, v in out.items() if v[0]}
+def project_targets():
+    """The targets in targets.toml's order: {target: (file name, sha256)}."""
+    return {name: (t["binary"], t["sha256"]) for name, t in MANIFEST.items()}
 
 
 def find_original(target, filename, directory, user):
@@ -69,7 +57,7 @@ def find_original(target, filename, directory, user):
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__.split("\n\n")[0])
-    parser.add_argument("--originals", help="A directory of original binaries, named as reccmp-project.yml names them")
+    parser.add_argument("--originals", help="A directory of original binaries, named as targets.toml names them")
     parser.add_argument("--build", default="build-wine" if (ROOT / "build-wine").exists() else "build", help="The build tree")
     parser.add_argument("--wine", default=os.environ.get("WINE", "wine"), help="Wine, off Windows")
     parser.add_argument("--out", help="Where the lists go (default: <build>/states)")

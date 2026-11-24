@@ -11,25 +11,23 @@ jobs:
       matrix: ${{ steps.list.outputs.matrix }}
       all_matrix: ${{ steps.list.outputs.all_matrix }}
     steps:
+      - uses: actions/checkout@v6
+
       - name: List reccmp targets
         id: list
         run: |
-          # One line per reccmp target: "TARGET:--total", where --total is the
-          # game-code function count from the Ghidra original: everything
-          # below the import thunks (MW2SHELL, 0x100492a2) or the CRT (MW2,
-          # 0x10080490; MW2GBL, Ghost Bear's Legacy's simulator from its 1.1
-          # patch, 0x10080fa0). Progress is game code only: reccmp runs with --nolib,
-          # which drops the LIBRARY entries from both sides of the ratio.
-          # --total is only a floor: reccmp uses whichever is larger, the
-          # annotated function count or --total. Every per-target step below
-          # is driven from this list. It holds the public targets only: the
-          # retail ones (NETMECHW, MECH2, MW2MATROX, MW23DFX, MW2ATI, MW2S3, MW2POWERVR), whose originals aren't
-          # public, are listed in verify-retail.yml, the workflow that runs
-          # after this one.
-          entries="MW2SHELL:770 MW2:1537 MW2GBL:1546"
-          # The retail targets, for the jobs that need no original binary
-          # (decomplint), in reccmp-project.yml's order after the public ones.
-          retail="MW2MATROX MW23DFX MW2ATI MW2S3 MW2POWERVR NETMECHW MECH2"
+          # The targets are declared in targets.toml (docs/TARGETS.md). One entry per public
+          # target, "TARGET:--total", where --total is its game-code function count there.
+          # Progress is game code only: reccmp runs with --nolib, which drops the LIBRARY
+          # entries from both sides of the ratio. --total is only a floor: reccmp uses
+          # whichever is larger, the annotated function count or --total. Every per-target
+          # step below is driven from this list. It holds the public targets only: the retail
+          # ones, whose originals aren't public, are listed in verify-retail.yml, the workflow
+          # that runs after this one.
+          entries="$(python3 tools/targets.py --list --availability public --format totals | xargs)"
+          # The retail targets, for the jobs that need no original binary (decomplint), in
+          # targets.toml's order after the public ones.
+          retail="$(python3 tools/targets.py --list --availability retail | xargs)"
 
           {
             echo "entries=$entries"
@@ -215,7 +213,7 @@ jobs:
       - name: Compile the units and the witnesses
         shell: bash
         run: |
-          for target in MW2SHELL MW2 MW2GBL MW2MATROX MW23DFX MW2ATI MW2S3 MW2POWERVR NETMECHW MECH2; do
+          for target in $(python tools/targets.py --list | tr -d '\r'); do
             start=$(date +%s)
             python tools/certify.py --target "$target" --build build --compile-only --objects "certify/$target"
             echo "$target: $(( $(date +%s) - start )) s"
@@ -671,16 +669,30 @@ jobs:
       - name: Run decomplint
         if: ${{ steps.install.conclusion == 'success' && always() }}
         run: |
-          # A target's sources are the directory named after it, but the Matrox,
-          # 3Dfx, ATI, S3, PowerVR and GBL editions' (MW2MATROX, MW23DFX, MW2ATI, MW2S3, MW2POWERVR, MW2GBL) are MW2's.
-          dir=${{ matrix.target }}
-          if [ "$dir" = MW2MATROX ] || [ "$dir" = MW23DFX ] || [ "$dir" = MW2ATI ] || [ "$dir" = MW2S3 ] || [ "$dir" = MW2POWERVR ] || [ "$dir" = MW2GBL ]; then dir=MW2; fi
-          reccmp-decomplint "$dir" common --module ${{ matrix.target }} --warnfail
+          # A target's sources are its `sources` in targets.toml: every simulator's are MW2's.
+          reccmp-decomplint $(python tools/targets.py --sources ${{ matrix.target }}) --module ${{ matrix.target }} --warnfail
 
       - name: Check address padding
         if: ${{ steps.install.conclusion == 'success' && always() }}
         run: |
           python tools/reccmp_addr_padding.py
+
+  targets-manifest:
+    name: Targets manifest
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+
+      - name: Check what is generated from targets.toml and the lists kept by hand
+        run: |
+          # docs/TARGETS.md and the README's status table are current (python tools/targets.py --doc
+          # rewrites them), and reccmp-project.yml and verify-retail.yml's target list agree with targets.toml.
+          pip install ruamel.yaml
+          python tools/targets.py --check
 
   clang-format:
     name: clang-format

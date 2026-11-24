@@ -27,6 +27,7 @@ import struct
 import sys
 from collections import Counter
 
+import targets as manifest
 from port_annotations import (  # noqa: E402
     MARKER,
     Function,
@@ -36,24 +37,20 @@ from port_annotations import (  # noqa: E402
     read_map,
 )
 
-# Each optimized edition: its original, the rebuild's base name and its build directory (vc22, the
-# nested VC++ 2.2 build, unless "dir" says otherwise), where the
-# function search stops (CODE_END) and where the game code ends (THUNKS), and its name in messages.
+# Each optimized edition (its original, the rebuild's name and its build directory are
+# targets.toml's): where the function search stops (CODE_END) and where the game code ends (THUNKS), and its name in messages.
 EDITIONS = {
     # Texus starts at 0x10068270; the import thunks before it end the game code.
-    "MW23DFX": {"binary": "MW2_3DFX.DLL", "output": "MW2_3DFX", "code_end": 0x10068270, "thunks": 0x100680B2,
-                "name": "the 3Dfx edition"},
+    "MW23DFX": {"code_end": 0x10068270, "thunks": 0x100680B2, "name": "the 3Dfx edition"},
     # No Texus: the import thunks follow the renderer, then the C runtime.
-    "MW2ATI": {"binary": "MW2_ATI.DLL", "output": "MW2_ATI", "code_end": 0x10065066, "thunks": 0x10065066,
-               "name": "the ATI edition"},
+    "MW2ATI": {"code_end": 0x10065066, "thunks": 0x10065066, "name": "the ATI edition"},
     # The import thunks follow the 16-bit VFXA port, then the C runtime (VC++ 4.1's LIBC).
-    "MW2S3": {"binary": "MW2_S3.DLL", "output": "MW2_S3", "dir": "vc41", "code_end": 0x10051068, "thunks": 0x10051068,
-              "name": "the S3 edition"},
+    "MW2S3": {"code_end": 0x10051068, "thunks": 0x10051068, "name": "the S3 edition"},
     # SGL's import thunks follow the renderer, then the C runtime.
-    "MW2POWERVR": {"binary": "MW2_POWERVR.DLL", "output": "MW2_POWERVR", "code_end": 0x10062E80, "thunks": 0x10062E80,
-                   "name": "the PowerVR edition"},
+    "MW2POWERVR": {"code_end": 0x10062E80, "thunks": 0x10062E80, "name": "the PowerVR edition"},
 }
-MODULES = ["MW2SHELL", "MW2", "MW2GBL", "MW2MATROX", "MW23DFX", "MW2ATI", "MW2S3", "MW2POWERVR", "NETMECHW", "MECH2"]  # reccmp-project.yml's order
+MANIFEST = manifest.load()
+MODULES = list(MANIFEST)  # targets.toml's order, the annotations'
 DIRS = ["MW2", "common"]
 
 
@@ -61,8 +58,9 @@ def configure(target):
     """Select the edition the commands work on."""
     global TARGET, BINARY, OUTPUT, OUTPUT_DIR, CODE_END, THUNKS, EDITION_NAME
     edition = EDITIONS[target]
-    TARGET, BINARY, OUTPUT = target, edition["binary"], edition["output"]
-    OUTPUT_DIR = edition.get("dir", "vc22")
+    entry = MANIFEST[target]
+    TARGET, BINARY, OUTPUT = target, entry["binary"], os.path.splitext(entry["output"])[0]
+    OUTPUT_DIR = entry["built-in"]
     CODE_END, THUNKS, EDITION_NAME = edition["code_end"], edition["thunks"], edition["name"]
 
 

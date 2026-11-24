@@ -206,8 +206,8 @@ added to a shared header can move every unit that includes it.
   imports, globals and strings are most like its rebuilt version's (`state`, `report`, `auto`,
   `names`, `unpaired`). It is the 3Dfx edition's (its binary, its build folder, the end of its
   code): generalize it rather than copy it.
-- **The total.** The game-code function count is the `--total` in `verify-retail.yml`, the README
-  and `CLAUDE.md`: Ghidra's count below the C runtime for an `/Od` build; for a `/Gy` build
+- **The total.** The game-code function count is the target's `total` in `targets.toml` (and the
+  `--total` in `verify-retail.yml`, which CI checks against it): Ghidra's count below the C runtime for an `/Od` build; for a `/Gy` build
   `tools/edition.py`'s `functions` command, which traces the code (Ghidra missed 261 of the 3Dfx
   edition's 1574).
 - **The rest by name:** the C runtime in `MW2/library_msvc.h`, the VFX objects' static data in
@@ -269,9 +269,10 @@ yet, add the feature to the table with its comment before using it, and run `--d
   were found, its renderer and display back end, its library, the data it changed), the comments
   above its features and above its own definitions of functions, then `python
   tools/edition_sites.py --doc`.
-- **Elsewhere:** `CLAUDE.md` (the target list, the build table, the reccmp commands and totals,
-  and the working rules its compiler adds), the README (the progress badge, the requirements, the
-  build table) and the progress page's title in `tools/states_page.py`.
+- **Elsewhere:** its entry in `targets.toml`, then `python tools/targets.py --doc` (the README's
+  status table and `docs/TARGETS.md`) and `--check`, which names the lists still kept by hand
+  (`reccmp-project.yml`, `verify-retail.yml`); and the working rules its compiler or its build
+  adds, in `docs/EDITION_NOTES.md`.
 
 ## Keeping this document
 
@@ -894,23 +895,6 @@ What tests `MW2_ACCEL`, `MW2_MATROX` or `MW2_3DFX` itself rather than a feature,
 - Data and declarations that differ (10): `MW2/include/simmain.h`: file scope; `MW2/src/gdi.c`: file scope; `MW2/src/inputmap.c`: file scope (8)
 - Includes (4): `MW2/include/depthsort.h`: file scope; `MW2/src/classtable.c`: file scope; `MW2/src/simmain.c`: file scope; `MW2/src/view.c`: file scope
 
-### `MW2_MATROX` (17 sites)
-
-- In a function: the edition's back end, what the shared code does for it, or the same computation written another way (5): `MW2/src/animation.c`: `CalcAverageBitmapColors`, `DrawAnimatedPolygon`; `MW2/src/menucontrols.c`: `RunMenuStatus` (2); `MW2/src/shots.c`: `DamageThingsInRadius`
-- An edition's own definition of a function, or functions only some editions' objects have (3): `MW2/src/animation.c`: the definitions of `FUN_10051c07`, `FUN_10051dfe`, `FUN_10051ea2`; `MW2/src/simmain.c`: the definition of `SimMain`, the definition of `SimWindowProc`
-- A fragment included at the position of the object that holds it (1): `MW2/src/staticmem.c`: file scope
-- Data and declarations that differ (5): `MW2/include/accel/a3d.h`: file scope; `MW2/src/refreshmode.c`: `g_displayBackends`, `g_refreshModes`; `MW2/src/simmain.c`: file scope (2)
-- Includes (3): `MW2/src/refreshmode.c`: file scope; `MW2/src/simmain.c`: file scope (2)
-
-### `MW2_3DFX` (39 sites)
-
-- In a function: the edition's back end, what the shared code does for it, or the same computation written another way (19): `MW2/src/animation.c`: `DrawAnimatedPolygon`, `FUN_10051c07` (3), `FUN_10051ea2` (2), `FUN_10069591`; `MW2/src/cockpit.c`: `FUN_100751a9`; `MW2/src/mapview.c`: `BeginMapView`; `MW2/src/mechdamage.c`: `ApplyDamageToMech`; `MW2/src/mw2prj.c`: `CachePreloads`; `MW2/src/polydraw.c`: `DrawSkyAndGround`, `FUN_100688fe`, `FUN_10068b57` (2); `MW2/src/shots.c`: `SpawnEffectEx`; `MW2/src/simmain.c`: `SimMain`; `MW2/src/view.c`: `UpdateProjection` (2)
-- An edition's own definition of a function, or functions only some editions' objects have (4): `MW2/src/animation.c`: the definition of `FUN_1002cfd0`, the definition of `FUN_1002d760`; `MW2/src/simmain.c`: the definition of `SimMain`, the definition of `SimWindowProc`
-- A fragment included at the position of the object that holds it (1): `MW2/src/targeting.c`: file scope
-- Data and declarations that differ (9): `MW2/include/accel/a3d.h`: file scope; `MW2/include/accel/a3dvertex.h`: file scope; `MW2/include/animation.h`: file scope; `MW2/src/animation.c`: file scope; `MW2/src/bwdkeywords.c`: file scope; `MW2/src/damagepanel.c`: file scope; `MW2/src/refreshmode.c`: `g_displayBackends`, `g_refreshModes`; `MW2/src/simmain.c`: file scope
-- Includes (2): `MW2/src/refreshmode.c`: file scope; `MW2/src/simmain.c`: file scope
-- Pragmas that reproduce a unit's flags (4): `MW2/src/accel/queueface.c`: file scope (2); `MW2/src/keyboard.c`: file scope (2)
-
 ### `MW2_ATI` (34 sites)
 
 - In a function: the edition's back end, what the shared code does for it, or the same computation written another way (14): `MW2/src/animation.c`: `DrawAnimatedPolygon`, `FUN_10069591`; `MW2/src/cockpit.c`: `FUN_100751a9`; `MW2/src/directdraw.c`: `DdrawLockBuffer`; `MW2/src/mapview.c`: `BeginMapView`; `MW2/src/mechdamage.c`: `ApplyDamageToMech`; `MW2/src/polydraw.c`: `DrawSkyAndGround`, `FUN_100688fe`, `FUN_10068b57` (2); `MW2/src/shots.c`: `SpawnEffectEx`; `MW2/src/simmain.c`: `SimMain`; `MW2/src/view.c`: `UpdateProjection` (2)
@@ -930,6 +914,14 @@ What tests `MW2_ACCEL`, `MW2_MATROX` or `MW2_3DFX` itself rather than a feature,
 - Includes (6): `MW2/include/bandpoly.h`: file scope; `MW2/include/directdraw.h`: file scope; `MW2/src/animation.c`: file scope; `MW2/src/bandpoly.c`: file scope; `MW2/src/directdraw.c`: file scope; `MW2/src/simmain.c`: file scope
 - Pragmas that reproduce a unit's flags (4): `MW2/src/accel/queueface.c`: file scope (2); `MW2/src/keyboard.c`: file scope (2)
 
+### `MW2_MATROX` (17 sites)
+
+- In a function: the edition's back end, what the shared code does for it, or the same computation written another way (5): `MW2/src/animation.c`: `CalcAverageBitmapColors`, `DrawAnimatedPolygon`; `MW2/src/menucontrols.c`: `RunMenuStatus` (2); `MW2/src/shots.c`: `DamageThingsInRadius`
+- An edition's own definition of a function, or functions only some editions' objects have (3): `MW2/src/animation.c`: the definitions of `FUN_10051c07`, `FUN_10051dfe`, `FUN_10051ea2`; `MW2/src/simmain.c`: the definition of `SimMain`, the definition of `SimWindowProc`
+- A fragment included at the position of the object that holds it (1): `MW2/src/staticmem.c`: file scope
+- Data and declarations that differ (5): `MW2/include/accel/a3d.h`: file scope; `MW2/src/refreshmode.c`: `g_displayBackends`, `g_refreshModes`; `MW2/src/simmain.c`: file scope (2)
+- Includes (3): `MW2/src/refreshmode.c`: file scope; `MW2/src/simmain.c`: file scope (2)
+
 ### `MW2_POWERVR` (209 sites)
 
 - In a function: the edition's back end, what the shared code does for it, or the same computation written another way (78): `MW2/src/addmodel.c`: `AddModel` (2); `MW2/src/animation.c`: `AddAnimFrame` (2), `AdvanceAnimations` (2), `DrawAnimatedPolygon`, `FUN_10051ba1`, `InitAnimations` (2), `SetAnimMode`, `StartAnimation` (2); `MW2/src/classtable.c`: `LoadClassEntryShape` (5), `ReleaseClassEntryShape`, `ReleaseObjShape` (2), `ResetClassTable`; `MW2/src/cockpit.c`: `ToggleSatelliteView`; `MW2/src/cockpitpanel.c`: `InitCockpitPanel` (2); `MW2/src/cockpitpanels.c`: `InitCockpitPanels` (2); `MW2/src/directdraw.c`: `DdrawBlit`, `DdrawBlitFlip`, `DdrawBlitRect`, `DdrawFlip`, `DdrawLockBuffer`, `DdrawPaletteFade` (5), `DdrawStretchBlit`; `MW2/src/eyepoint.c`: `ApplyCameraFov`; `MW2/src/geocache.c`: `LoadStaticObject`; `MW2/src/joystick.c`: `JoystickOpenDevice` (2); `MW2/src/mapview.c`: `BeginMapView`, `DrawMapViewScene`; `MW2/src/mechdamage.c`: `ApplyDamageToMech`; `MW2/src/mechreload.c`: `RestoreMechSegments`; `MW2/src/object.c`: `CreateObj`, `DestroyObjTree`, `DetachObj`, `InitObj`, `MoveObj`, `RaisePartDamageLevel`, `RotateObj`, `RotateObjMatrix` (2), `SetObjLocalMatrix` (2), `SetObjPosition`, `SetObjRotation`, `SetObjRotationMatrix` (2), `SetObjShape`, `SetObjTransform` (2); `MW2/src/polydraw.c`: `DrawSkyAndGround`, `FUN_100688fe`, `FUN_10068b57` (2), `LoadSkyGroundSettings`; `MW2/src/render.c`: `ShutdownRender`; `MW2/src/shape.c`: `CreateShape`, `FreeShape`; `MW2/src/shapelists.c`: `HideShape`, `ShowShape`; `MW2/src/view.c`: `UpdateProjection` (2); `MW2/src/wtbshapes.c`: `LoadShapeRecord` (2)
@@ -945,5 +937,14 @@ What tests `MW2_ACCEL`, `MW2_MATROX` or `MW2_3DFX` itself rather than a feature,
 - In a function: the edition's back end, what the shared code does for it, or the same computation written another way (3): `MW2/src/mechcollision.c`: `MoveMechWithCollisions`; `MW2/src/quadtree.c`: `BuildQuadtreeChild`; `MW2/src/weapons.c`: `SelectNextWeaponInGroup`
 - A fragment included at the position of the object that holds it (3): `MW2/src/clock.c`: file scope; `MW2/src/config.c`: file scope; `MW2/src/objectanim.c`: file scope
 - Data and declarations that differ (2): `MW2/src/refreshmode.c`: file scope; `MW2/src/simmain.c`: file scope
+
+### `MW2_3DFX` (39 sites)
+
+- In a function: the edition's back end, what the shared code does for it, or the same computation written another way (19): `MW2/src/animation.c`: `DrawAnimatedPolygon`, `FUN_10051c07` (3), `FUN_10051ea2` (2), `FUN_10069591`; `MW2/src/cockpit.c`: `FUN_100751a9`; `MW2/src/mapview.c`: `BeginMapView`; `MW2/src/mechdamage.c`: `ApplyDamageToMech`; `MW2/src/mw2prj.c`: `CachePreloads`; `MW2/src/polydraw.c`: `DrawSkyAndGround`, `FUN_100688fe`, `FUN_10068b57` (2); `MW2/src/shots.c`: `SpawnEffectEx`; `MW2/src/simmain.c`: `SimMain`; `MW2/src/view.c`: `UpdateProjection` (2)
+- An edition's own definition of a function, or functions only some editions' objects have (4): `MW2/src/animation.c`: the definition of `FUN_1002cfd0`, the definition of `FUN_1002d760`; `MW2/src/simmain.c`: the definition of `SimMain`, the definition of `SimWindowProc`
+- A fragment included at the position of the object that holds it (1): `MW2/src/targeting.c`: file scope
+- Data and declarations that differ (9): `MW2/include/accel/a3d.h`: file scope; `MW2/include/accel/a3dvertex.h`: file scope; `MW2/include/animation.h`: file scope; `MW2/src/animation.c`: file scope; `MW2/src/bwdkeywords.c`: file scope; `MW2/src/damagepanel.c`: file scope; `MW2/src/refreshmode.c`: `g_displayBackends`, `g_refreshModes`; `MW2/src/simmain.c`: file scope
+- Includes (2): `MW2/src/refreshmode.c`: file scope; `MW2/src/simmain.c`: file scope
+- Pragmas that reproduce a unit's flags (4): `MW2/src/accel/queueface.c`: file scope (2); `MW2/src/keyboard.c`: file scope (2)
 
 <!-- generated: end -->

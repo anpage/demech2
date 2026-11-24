@@ -18,8 +18,14 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
 
-# The simulators' edition macros (vc40/targets.cmake, vc22/targets.cmake define them).
-EDITION_MACROS = ("MW2_ACCEL", "MW2_MATROX", "MW2_3DFX", "MW2_ATI", "MW2_S3", "MW2_POWERVR", "MW2_GBL")
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+import targets as manifest  # noqa: E402
+
+MANIFEST = manifest.load()  # targets.toml
+
+# The simulators' edition macros (vc40/targets.cmake, vc22/targets.cmake define them), in the order
+# the editions were built.
+EDITION_MACROS = tuple(dict.fromkeys(m for name in manifest.simulators(MANIFEST, built=True) for m in MANIFEST[name]["macros"]))
 
 
 def edition_features(root=ROOT):
@@ -46,18 +52,7 @@ WINDOWS = sys.platform == "win32"
 
 # The CMake target directory of each reccmp target, relative to the build tree, and the nested
 # build's environment file, if any.
-TARGETS = {
-    "MW2SHELL": ("CMakeFiles/mw2shell.dir", None),
-    "MW2": ("CMakeFiles/mw2.dir", None),
-    "MW2GBL": ("CMakeFiles/mw2gbl.dir", None),
-    "MW2MATROX": ("vc40/CMakeFiles/mw2matrox.dir", "vc40-env.cmake"),
-    "MW23DFX": ("vc22/CMakeFiles/mw23dfx.dir", "vc22-env.cmake"),
-    "MW2ATI": ("vc22/CMakeFiles/mw2ati.dir", "vc22-env.cmake"),
-    "MW2S3": ("vc41/CMakeFiles/mw2s3.dir", None),
-    "MW2POWERVR": ("vc22/CMakeFiles/mw2powervr.dir", "vc22-env.cmake"),
-    "NETMECHW": ("vc22/CMakeFiles/netmechw.dir", "vc22-env.cmake"),
-    "MECH2": ("vc22/CMakeFiles/mech2.dir", "vc22-env.cmake"),
-}
+TARGETS = {name: manifest.build_dir(t) for name, t in MANIFEST.items()}
 
 
 def to_host(path):

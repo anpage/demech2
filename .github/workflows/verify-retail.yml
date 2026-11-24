@@ -506,7 +506,7 @@ jobs:
 
           gh release upload continuous "${files[@]}" --clobber --repo "$GITHUB_REPOSITORY"
 
-      # GitHub Pages serves the progress reports the README embeds (GitHub
+      # GitHub Pages serves the progress reports the README links to (GitHub
       # serves release assets with a content type browsers refuse for SVG in
       # <img> tags). A deployment replaces the whole site, so the one
       # deployment publishes the public and the retail targets together.
@@ -517,12 +517,15 @@ jobs:
           path: src
           sparse-checkout: |
             tools/states_page.py
-            reccmp-project.yml
+            tools/targets.py
+            targets.toml
           sparse-checkout-cone-mode: false
 
       # STATES.HTML is every target's proof states on one page (the README
       # links to it), written from the audits downloaded above; it is the
-      # site's index too.
+      # site's index too. With it come the badges of the README's status
+      # table (TARGETBADGE.SVG). The script reads the targets from
+      # targets.toml through tools/targets.py.
       - name: Prepare Pages
         env:
           HEAD_SHA: ${{ github.event.workflow_run.head_sha }}

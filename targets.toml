@@ -1,0 +1,350 @@
+# The project's targets: the one place a target is declared.
+#
+# docs/TARGETS.md and the README's status table are generated from this file
+# (python tools/targets.py --doc), the tools read it (tools/targets.py's load(): TOML, so that no
+# tool needs more than Python's standard library for it), and CI checks that the generated
+# documents, reccmp-project.yml and the workflows' target lists agree with it
+# (python tools/targets.py --check).
+#
+# The order of the entries is the order of a shared function's annotations.
+#
+# Each entry stands on its own: no field's text refers to another entry ("the same patch", "built
+# like MW2"), so entries can be read, reordered, added and removed one at a time.
+#
+#   binary       the original's file name, as the project names it
+#   component    launcher, shell or simulator
+#   edition      which release's build of that component
+#   short        the edition's name in the tools' tables and prose (abbr: in narrow column heads)
+#   what         one line for the tables
+#   about        a paragraph for docs/TARGETS.md (Markdown)
+#   sha256, size the original this project targets
+#   linked       the day it was linked: its PE header's timestamp, in UTC (a disc's file date is
+#                local time, and can be the day before)
+#   availability public (CI downloads it) or retail (CI reads it from a private repository)
+#   origin       where the original comes from (Markdown)
+#   sources      the directories its annotations are in (reccmp's source-root, decomplint's paths)
+#   compiler     the Visual C++ release that built the original
+#   language, cl, crt, link   the build configuration
+#   built-in     the subdirectory of the build tree its binary is written to ("" for the root)
+#   output       the rebuilt binary's file name
+#   total        the game-code function count (reccmp's --total)
+#   game-code    where the game code ends and how the total was counted
+#   macros       the identity macros the build defines for it
+#   covered-by   (optimized editions) the /Od targets whose proof of the same source covers a
+#                function (tools/coverage.py)
+
+[targets.MW2SHELL]
+binary = 'MW2SHELL.DLL'
+component = 'shell'
+edition = '1.1 patch'
+short = '1.1'
+what = 'Shell: FMV, menus, settings, metagame'
+about = '''
+MechWarrior 2's shell (FMV, menus, settings, metagame), from the freely downloadable 1.1 patch,
+built with VC++ 4.1 at `/Od`. A mixture of C and C++.'''
+sha256 = '1078ccb07fd45388bfd525719a8206ce7a01d6536776d30a5655ccb928900879'
+size = 545792
+linked = 1996-10-09
+availability = 'public'
+origin = 'The [1.1 patch](https://archive.org/details/mw2patch)'
+sources = ["MW2SHELL", "common"]
+compiler = '4.1'
+language = 'C++ (C files: no `/GX`)'
+cl = '`/Od /Oi /G5 /Ob1 /GX`'
+crt = '`/MT` (static)'
+link = '`/DLL` (comparison build adds `/DEBUG /OPT:REF /INCREMENTAL:no`)'
+built-in = ''
+output = 'MW2SHELL.dll'
+total = 770
+game-code = 'below the import thunks at `0x100492a2`'
+macros = []
+
+[targets.MW2]
+binary = 'MW2.DLL'
+component = 'simulator'
+edition = 'retail / 1.1 patch'
+short = '1.1'
+what = 'Simulator (in-mission gameplay)'
+about = '''
+MechWarrior 2's simulator (in-mission gameplay), from the freely downloadable 1.1 patch, built with
+VC++ 4.1 at `/Od`. Probably all C.'''
+sha256 = '6212d542f8f915a594b278ab189f20a27e522e7c08ac57ce68bf47f45b17bbb5'
+size = 827392
+linked = 1996-09-20
+availability = 'public'
+origin = '''
+The [1.1 patch](https://archive.org/details/mw2patch); the same file is on the
+[Windows 95 & MS-DOS + NetMech](http://redump.org/disc/25243/) disc and the
+[SoftKey](http://redump.org/disc/41925/) release'''
+sources = ["MW2", "common"]
+compiler = '4.1'
+language = 'C'
+cl = '`/Od /Oi /G5`'
+crt = '`/MTd` (static debug, predefines `_DEBUG`)'
+link = '`/DLL /DEBUG /INCREMENTAL:no`'
+built-in = ''
+output = 'MW2.dll'
+total = 1537
+game-code = 'before the CRT at `0x10080490`'
+macros = []
+
+[targets.MW2GBL]
+binary = 'MW2_GBL.DLL'
+component = 'simulator'
+edition = "Ghost Bear's Legacy"
+short = 'GBL'
+what = "Ghost Bear's Legacy's simulator"
+about = '''
+The simulator of the expansion Ghost Bear's Legacy: the `MW2.DLL` of its freely downloadable 1.1
+patch (`GBLPATCH.EXE`, linked 1996-10-18), built with VC++ 4.1 at `/Od`, without `/Oi`. It builds
+the simulator's sources (`MW2/`) with `MW2_GBL` defined.'''
+sha256 = '284f3c6abef28eb421fc7da97f52c6223bd1a956409c6cb041ebe2e95d847cb8'
+size = 806400
+linked = 1996-10-18
+availability = 'public'
+origin = '''
+The `MW2.DLL` of Ghost Bear's Legacy's [1.1 patch](https://archive.org/details/GBLPATCH), and the
+same file as the `MW2.DLL` of the [Windows 95 & MS-DOS](http://redump.org/disc/95676/) disc (the Alt 2 entry)'''
+sources = ["MW2", "common"]
+compiler = '4.1'
+language = 'C'
+cl = '`/Od /G5`'
+crt = '`/MTd` (static debug, predefines `_DEBUG`)'
+link = '`/DLL /DEBUG /OPT:REF /INCREMENTAL:no` (the original: no `/DEBUG`)'
+built-in = ''
+output = 'MW2_GBL.dll'
+total = 1546
+game-code = 'before the CRT at `0x10080fa0`'
+macros = ["MW2_GBL"]
+
+[targets.MW2MATROX]
+binary = 'MW2_MATROX.DLL'
+component = 'simulator'
+edition = 'Matrox Mystique'
+short = 'Matrox'
+abbr = 'Mtx'
+what = "The Matrox Mystique edition's simulator"
+about = '''
+The simulator of the Matrox Mystique edition (the `MW2.DLL` of its disc, linked 1996-08-22), built
+with VC++ 4.0 (`cl` 10.00, LINK 3.00) at `/Od`, its renderer and depth sort optimized. It keeps the
+simulation's values as floats and draws through Matrox's `MSI95.DLL` instead of DirectDraw. It
+builds the simulator's sources (`MW2/`) with `MW2_ACCEL` and `MW2_MATROX` defined.'''
+sha256 = '444e19ad054cbe852ec8a54ddb8a6ffa019de2ce7ab97571fea62f9666982220'
+size = 845824
+linked = 1996-08-22
+availability = 'retail'
+origin = '''
+The `MW2.DLL` of the [Enhanced for Matrox Mystique](http://redump.org/disc/43477/) disc (the Alt
+entry)'''
+sources = ["MW2", "common"]
+compiler = '4.0'
+language = 'C'
+cl = '`/Od /Oi /G5`'
+crt = '`/MT` (static `LIBCMT`)'
+link = '`/DLL` (comparison build adds `/DEBUG /OPT:REF /INCREMENTAL:no`)'
+built-in = 'vc40'
+output = 'MW2_MATROX.dll'
+total = 1597
+game-code = 'before the CRT at `0x10092d30`'
+macros = ["MW2_ACCEL", "MW2_MATROX"]
+covered-by = ["MW2"]
+
+[targets.MW23DFX]
+binary = 'MW2_3DFX.DLL'
+component = 'simulator'
+edition = '3Dfx'
+short = '3Dfx'
+what = "The 3Dfx edition's simulator"
+about = '''
+The simulator of the 3Dfx edition (the `MW2.DLL` of the Diamond Monster 3D disc, linked 1996-10-21),
+built with VC++ 2.2 and optimized (`/Ox /Ow /G5 /Gr /Gy`). It keeps the simulation's values as
+floats, draws through Glide (`GLIDE.DLL`) and links 3dfx's Texus texture library. It builds the
+simulator's sources (`MW2/`) with `MW2_ACCEL` and `MW2_3DFX` defined.'''
+sha256 = 'e15b8ca2013a365df11723aa97f9e7ea2914e1139090800f9b452fb7ea08282f'
+size = 724480
+linked = 1996-10-21
+availability = 'retail'
+origin = 'The `MW2.DLL` of the [3Dfx OEM](http://redump.org/disc/11391/) disc'
+sources = ["MW2", "common"]
+compiler = '2.2'
+language = 'C'
+cl = '`/Ox /Ow /Oi /G5 /Gr /Gy /Z7` (three units `/Od`; Texus `/Ox /G5 /QIfdiv-`)'
+crt = '`/ML` (single-threaded `LIBC`)'
+link = '`/DLL /DEBUG /INCREMENTAL:no`'
+built-in = 'vc22'
+output = 'MW2_3DFX.dll'
+total = 1574
+game-code = '''
+before the import thunks that precede Texus, at `0x100680b2`: every function `tools/edition.py
+--target MW23DFX functions` finds by tracing the code (Ghidra finds 1313)'''
+macros = ["MW2_ACCEL", "MW2_3DFX"]
+covered-by = ["MW2MATROX"]
+
+[targets.MW2ATI]
+binary = 'MW2_ATI.DLL'
+component = 'simulator'
+edition = 'ATI 3D Rage'
+short = 'ATI'
+what = "The ATI 3D Rage edition's simulator"
+about = '''
+The simulator of the ATI 3D Rage edition (the `MW2.DLL` of its disc, linked 1996-04-11), the oldest
+edition of the simulator, built with VC++ 2.2 and optimized (`/Ox /Ow /G5 /Gr /Gy`). It keeps the simulation's values as floats and draws through ATI's 3D CIF
+(`ati3dcif.dll`) on DirectDraw surfaces. It builds the simulator's sources (`MW2/`) with `MW2_ACCEL`
+and `MW2_ATI` defined.'''
+sha256 = 'c0509cefd31887301bd86ef8cca748211af224d9cce1a40cf87d2da6e942a739'
+size = 638976
+linked = 1996-04-11
+availability = 'retail'
+origin = 'The `MW2.DLL` of the [ATI 3D Rage Edition](http://redump.org/disc/46902/) disc'
+sources = ["MW2", "common"]
+compiler = '2.2'
+language = 'C'
+cl = '`/Ox /Ow /Oi /G5 /Gr /Gy /Z7` (three units `/Od`)'
+crt = '`/ML` (single-threaded `LIBC`)'
+link = '`/DLL /DEBUG /OPT:REF /INCREMENTAL:no`'
+built-in = 'vc22'
+output = 'MW2_ATI.dll'
+total = 1427
+game-code = '''
+before the import thunks at `0x10065066`: every function `tools/edition.py --target MW2ATI
+functions` finds by tracing the code'''
+macros = ["MW2_ACCEL", "MW2_ATI"]
+covered-by = ["MW2MATROX"]
+
+[targets.MW2S3]
+binary = 'MW2_S3.DLL'
+component = 'simulator'
+edition = 'S3 ViRGE'
+short = 'S3'
+what = "The S3 ViRGE edition's simulator"
+about = '''
+The simulator of the S3 ViRGE edition (the `MW2.DLL` of its disc, linked 1996-07-12 by LINK 3.10),
+built with VC++ 4.1 and optimized (`/Ox /Ow /G5 /Gr /Gy`). It keeps the simulation's values as
+floats and draws through S3's toolkit (`S3DTKW.DLL`) on DirectDraw surfaces, without VFX3D and
+VFXREND. It builds the simulator's sources (`MW2/`) with `MW2_ACCEL` and `MW2_S3` defined, in the
+`vc41/` directory.'''
+sha256 = '97ea9f9d10425cc2a7991e0d6f0079ed2e15c2d0e5c863f1d9811ed44b16e590'
+size = 545792
+linked = 1996-07-12
+availability = 'retail'
+origin = 'The `MW2.DLL` of the [Enhanced for the S3 ViRGE](http://redump.org/disc/9708/) disc'
+sources = ["MW2", "common"]
+compiler = '4.1'
+language = 'C'
+cl = '`/Ox /Ow /Oi /G5 /Gr /Gy` (three units `/Od`)'
+crt = '`/ML` (single-threaded `LIBC`)'
+link = '`/DLL /DEBUG /OPT:REF /INCREMENTAL:no`'
+built-in = 'vc41'
+output = 'MW2_S3.dll'
+total = 1396
+game-code = '''
+before the import thunks at `0x10051068`: every function `tools/edition.py --target MW2S3 functions`
+finds by tracing the code'''
+macros = ["MW2_ACCEL", "MW2_S3"]
+covered-by = ["MW2MATROX"]
+
+[targets.MW2POWERVR]
+binary = 'MW2_POWERVR.DLL'
+component = 'simulator'
+edition = 'PowerVR'
+short = 'PowerVR'
+abbr = 'PVR'
+what = "The PowerVR edition's simulator"
+about = '''
+The simulator of the PowerVR edition (the `MW2.DLL` of its disc, linked 1996-09-06), built with VC++
+2.2 and optimized (`/Ox /Ow /G5 /Gr /Gy`). It keeps the simulation's values as floats and draws
+through VideoLogic's SGL (`sgl.dll`), PowerVR's scene graph library. It builds the simulator's
+sources (`MW2/`) with `MW2_ACCEL` and `MW2_POWERVR` defined.'''
+sha256 = '4de37c948ce563d5fd00f51ecb5b710ad0b1b198401a4a3b916bcf8dd6a2f754'
+size = 634368
+linked = 1996-09-06
+availability = 'retail'
+origin = 'The `MW2.DLL` of the [PowerVR OEM](http://redump.org/disc/25180/) disc'
+sources = ["MW2", "common"]
+compiler = '2.2'
+language = 'C'
+cl = '`/Ox /Ow /Oi /G5 /Gr /Gy /Z7` (three units `/Od`)'
+crt = '`/ML` (single-threaded `LIBC`)'
+link = '`/DLL /DEBUG /OPT:REF /INCREMENTAL:no`'
+built-in = 'vc22'
+output = 'MW2_POWERVR.dll'
+total = 1423
+game-code = '''
+before the import thunks at `0x10062e80`: every function `tools/edition.py --target MW2POWERVR
+functions` finds by tracing the code'''
+macros = ["MW2_ACCEL", "MW2_POWERVR"]
+covered-by = ["MW2MATROX"]
+
+[targets.NETMECHW]
+binary = 'NETMECHW.DLL'
+component = 'shell'
+edition = 'retail'
+short = 'retail'
+what = "NetMech's shell"
+about = '''
+NetMech's shell (what `MW2SHELL.DLL` is to single-player play, for multiplayer, lobby included:
+`MECH2.EXE` calls its `Launcher` export,
+then runs `MW2.DLL` with the launch record it fills in), from the retail release, built with VC++
+2.2 (`cl` 9.10, `_MSC_VER` 900) at `/Od`. A mixture of C and C++, 244 game-code functions in 42
+objects, no hand-written assembly. Every game function is decompiled: the units it shares with
+`MW2SHELL.DLL` are per-target copies (`debugout.c`, `mw2prj.c`, `prjfile.c`, `resourcecache.c`,
+`resourcefile.c`, `resourcename.c`, and the CD check, which NETMECHW links inside the results
+dialog's object, `unk10010460.cpp`), and so are the simulator's data-only `bwdkeywords.c` and
+`weapondata.c`. The rest is its own: `Launcher`, the lobby window and the pane switch
+(`unk10003660.cpp`), one dialog per pane (connection, sessions, host options, guest lobby, player
+slots, briefing, mech selection, launch, results), the DirectPlay session list, threads and
+messages, the chat, the player table, the `.MEK` mech files and their network form
+(`unk10007c30.c`), and the mission files left for the simulator (`unk1000f0f0.cpp`, `bwdwriter.c`).'''
+sha256 = '3f4d1508238d847213127e46623a85b249985686d6053a3d9e1c6deea87c0095'
+size = 433152
+linked = 1995-12-09
+availability = 'retail'
+origin = '''
+The retail release: the [Windows 95 & MS-DOS + NetMech](http://redump.org/disc/25243/) disc, the
+[Pentium Processor Edition](http://redump.org/disc/12864/), the [Microsoft SideWinder
+OEM](http://redump.org/disc/24336/) disc and the [SoftKey](http://redump.org/disc/41925/) release'''
+sources = ["NETMECHW"]
+compiler = '2.2'
+language = 'C and C++ (no `/GX`)'
+cl = '`/Od /Oi /Z7`'
+crt = '`/MT` (static `LIBCMT`)'
+link = '`/DLL` (comparison build adds `/DEBUG /OPT:REF /INCREMENTAL:no`)'
+built-in = 'vc22'
+output = 'NETMECHW.dll'
+total = 244
+game-code = 'before the DPLAY import thunks at `0x10013b70` (its CRT starts at `0x10013b7c`)'
+macros = []
+
+[targets.MECH2]
+binary = 'MECH2.EXE'
+component = 'launcher'
+edition = 'retail'
+short = 'retail'
+what = 'Launcher that loads the DLLs'
+about = '''
+The launcher, which loads the shell, NetMech's shell and the simulator, built with VC++ 2.2 (`cl` 9.10) at
+`/Od`: the one launcher of the retail release and of the ATI, S3, PowerVR and 3Dfx editions (the
+Matrox edition has its own). C, 21 game-code functions.'''
+sha256 = '064a9f1f45cfd18f0bef1dea9711b7fd582755cfbb8a8e9694f8cef2e5c3690c'
+size = 53248
+linked = 1995-12-06
+availability = 'retail'
+origin = '''
+The retail discs, where it is `MECH2.EX_` (uncompressed): the
+[Windows 95 & MS-DOS + NetMech](http://redump.org/disc/25243/) disc, the
+[Pentium Processor Edition](http://redump.org/disc/12864/), the
+[Microsoft SideWinder OEM](http://redump.org/disc/24336/) disc, the
+[SoftKey](http://redump.org/disc/41925/) release, and the
+[ATI 3D Rage](http://redump.org/disc/46902/), [S3 ViRGE](http://redump.org/disc/9708/),
+[PowerVR](http://redump.org/disc/25180/) and [3Dfx](http://redump.org/disc/11391/) editions' discs'''
+sources = ["MECH2"]
+compiler = '2.2'
+language = 'C'
+cl = '`/Od /Oi /G5 /Z7`'
+crt = '`/ML` (single-threaded `LIBC`)'
+link = 'incremental EXE (comparison build adds `/DEBUG`)'
+built-in = 'vc22'
+output = 'MECH2.exe'
+total = 21
+game-code = 'before the import thunks at `0x004022be`'
+macros = []

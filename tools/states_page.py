@@ -10,8 +10,11 @@ script reads the ones it finds in a directory and writes one self-contained HTML
 - per target, folded, every function that isn't byte-identical, with its recipe, its reason or its
   first difference.
 
+It also writes a badge per target next to the page, TARGETBADGE.SVG: how many of its functions are
+verified (byte-identical or proven) out of those annotated, for the README's status table.
+
 A target with no audit there falls back to its TARGETSTATES.json (certify's alone: its unproven
-functions all count as not understood). The targets come in reccmp-project.yml's order. Everything
+functions all count as not understood). The targets come in targets.toml's order. Everything
 read from the reports is data: it is escaped, never markup.
 
 usage: python tools/states_page.py DIRECTORY [-o STATES.HTML] [--commit SHA] [--repository OWNER/NAME]
@@ -25,6 +28,9 @@ import re
 import sys
 from pathlib import Path
 
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+import targets as manifest  # noqa: E402
+
 ROOT = Path(__file__).resolve().parent.parent
 # The audit's verdicts, best first, and the column each counts in (tools/pr_comment.py's).
 COLUMN = {"exact": "identical", "witness": "proven", "classified": "explained", "known": "explained",
@@ -35,9 +41,8 @@ HEADINGS = {"identical": "Byte-identical", "proven": "Proven", "explained": "Exp
 WORDS = {"witness": "proven", "classified": "explained: compiler entropy", "known": "explained: known difference",
          "unexplained": "not understood"}
 RANK = {"unexplained": 0, "known": 1, "classified": 2, "witness": 3}
-EDITIONS = {"MW2SHELL": "1.1", "MW2": "1.1", "MW2GBL": "Ghost Bear's Legacy", "NETMECHW": "retail", "MECH2": "retail",
-            "MW2MATROX": "Matrox Mystique", "MW23DFX": "3Dfx",
-            "MW2ATI": "ATI 3D Rage", "MW2S3": "S3 ViRGE", "MW2POWERVR": "PowerVR"}
+MANIFEST = manifest.load()  # targets.toml
+EDITIONS = {name: t["edition"] for name, t in MANIFEST.items()}
 
 STYLE = """
 :root { color-scheme: light dark; --line: #8884; --dim: #8889; }
@@ -80,9 +85,8 @@ def esc(text):
 
 
 def project_targets():
-    """reccmp-project.yml's targets in order: [(id, file name)]."""
-    text = (ROOT / "reccmp-project.yml").read_text(encoding="utf-8")
-    return re.findall(r"^  (\w+):\s*\n\s+filename:\s*(\S+)", text, re.M)
+    """The targets in order: [(id, file name)]."""
+    return [(name, t["binary"]) for name, t in MANIFEST.items()]
 
 
 def load(directory, target):
@@ -113,7 +117,8 @@ def what(function):
     return function.get("reason") or function.get("difference") or function.get("detail", "")
 
 
-def page(directory, commit, repository):
+def read_targets(directory):
+    """Every target with a report in the directory: [(id, file name, functions, counts)]."""
     targets = []
     for target, binary in project_targets():
         functions = load(directory, target)
@@ -124,6 +129,28 @@ def page(directory, commit, repository):
             targets.append((target, binary, functions, counts))
     if not targets:
         raise SystemExit("no TARGETAUDIT.json or TARGETSTATES.json in %s" % directory)
+    return targets
+
+
+def badge(counts):
+    """A badge, "N / M": the functions that are byte-identical or proven, of those annotated (the
+    README's column says what it counts). Green only when that is all of them. The text's width
+    is estimated (the page has no font metrics), with textLength making the renderer fit it."""
+    verified, total = counts["identical"] + counts["proven"], sum(counts.values())
+    message = "%d / %d" % (verified, total)
+    ratio = verified / total if total else 0.0
+    color = "#2da44e" if verified == total and total else "#7cb342" if ratio >= 0.95 else "#bf8700" if ratio >= 0.8 else "#cf222e"
+    width = 7 * len(message) + 12
+    return ('<svg xmlns="http://www.w3.org/2000/svg" width="%d" height="20" role="img" aria-label="verified: %s">'
+            "<title>%s of %s annotated functions are byte-identical to the original's or proven</title>"
+            '<rect width="%d" height="20" rx="3" fill="%s"/>'
+            '<text x="%d" y="14" textLength="%d" fill="#fff" text-anchor="middle" '
+            'font-family="Verdana,Geneva,DejaVu Sans,sans-serif" font-size="11">%s</text></svg>\n'
+            % (width, message, verified, total, width, color, width // 2, width - 12, message))
+
+
+def page(directory, commit, repository):
+    targets = read_targets(directory)
 
     out = ["<!DOCTYPE html>", '<html lang="en"><head><meta charset="utf-8">',
            '<meta name="viewport" content="width=device-width, initial-scale=1">',
@@ -185,6 +212,9 @@ def main():
     output = args.output or args.directory / "STATES.HTML"
     output.write_text(text, encoding="utf-8")
     print("wrote %s" % output)
+    for target, _, _, counts in read_targets(args.directory):
+        (output.parent / (target + "BADGE.SVG")).write_text(badge(counts), encoding="utf-8")
+        print("wrote %s" % (output.parent / (target + "BADGE.SVG")))
     return 0
 
 
