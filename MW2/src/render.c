@@ -746,6 +746,7 @@ void ShowBanner(void)
 	}
 }
 
+#ifndef MW2_NO_BOUNDING_SPHERES
 // Draws the bounding spheres (the "michelin" cheat) of the list p_root's colliding mech shapes
 // (kind 0x100 without flag 0x800) and of kind 0x50, as circles of their radius in color 0xf.
 // FUNCTION: MW2 0x100131f1
@@ -780,3 +781,4 @@ void DrawBoundingSpheres(Shape* p_root)
 		}
 	}
 }
+#endif

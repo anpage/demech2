@@ -19,7 +19,8 @@
 # object is a fragment both units include, one per target (config.c's cockpit panels end
 # staticmem.c's object, clock.c's rotation normalization transform.c's), and its float math
 # object is a unit of its own (accel/floatmath.c), which replaces fixedtrig.c and approxlen.c.
-# The rest of its own objects (the units it rewrote) aren't written yet. Its A3D renderer is
+# 1.1's units it has nothing of (the fixed-point helpers, directdraw.c, texpoly.c) aren't linked:
+# an /Od object without /Gy would be linked whole. Its A3D renderer is
 # optimized code: VC++ 4.0 at /Ox /G5 /Op, where everything else is /Od (CLAUDE.md, "The A3D layer"),
 # and so is its depth sort object (depthsort.c, with /Oa too).
 function(demech2_add_mw2matrox)
@@ -79,6 +80,8 @@ function(demech2_add_mw2matrox)
       "${DEMECH2_SOURCE_DIR}/MW2/src/cmdline.c"
       "${DEMECH2_SOURCE_DIR}/MW2/src/recordstacks.c"
       "${DEMECH2_SOURCE_DIR}/MW2/src/statuspanels.c"
+      # audiomenu.c has no code: placed by its data (0x100a5318), between statuspanels.c's and depthsort.c's.
+      "${DEMECH2_SOURCE_DIR}/MW2/src/audiomenu.c"
       "${DEMECH2_SOURCE_DIR}/MW2/src/depthsort.c"
       "${DEMECH2_SOURCE_DIR}/MW2/src/collision.c"
       "${DEMECH2_SOURCE_DIR}/MW2/src/wtbshapes.c"
@@ -188,31 +191,6 @@ function(demech2_add_mw2matrox)
       "${DEMECH2_SOURCE_DIR}/MW2/src/simmain.c"
       "${DEMECH2_SOURCE_DIR}/MW2/src/mechreload.c"
       "${DEMECH2_SOURCE_DIR}/MW2/src/menu.c"
-      # Not placed yet: units with nothing found in the Matrox edition (fixed-point helpers it may have
-      # replaced, and the units the renderer replaced, such as directdraw.c), linked after the others
-      # until the callers' Matrox versions are written, in MW2's order.
-      "${DEMECH2_SOURCE_DIR}/MW2/src/integrate.c"
-      "${DEMECH2_SOURCE_DIR}/MW2/src/inradius.c"
-      "${DEMECH2_SOURCE_DIR}/MW2/src/emptyfns.c"
-      "${DEMECH2_SOURCE_DIR}/MW2/src/muldiv14.c"
-      "${DEMECH2_SOURCE_DIR}/MW2/src/fixedsqrt.c"
-      "${DEMECH2_SOURCE_DIR}/MW2/src/sqrtguess.c"
-      "${DEMECH2_SOURCE_DIR}/MW2/src/fixeddiv29.c"
-      "${DEMECH2_SOURCE_DIR}/MW2/src/fixedmul29.c"
-      "${DEMECH2_SOURCE_DIR}/MW2/src/audiomenu.c"
-      "${DEMECH2_SOURCE_DIR}/MW2/src/scaledelta.c"
-      "${DEMECH2_SOURCE_DIR}/MW2/src/crossdiv.c"
-      "${DEMECH2_SOURCE_DIR}/MW2/src/lerp.c"
-      "${DEMECH2_SOURCE_DIR}/MW2/src/fixeddot27.c"
-      "${DEMECH2_SOURCE_DIR}/MW2/src/fixeddot29.c"
-      "${DEMECH2_SOURCE_DIR}/MW2/src/shiftdiv.c"
-      "${DEMECH2_SOURCE_DIR}/MW2/src/fixeddivu.c"
-      "${DEMECH2_SOURCE_DIR}/MW2/src/fixedmul30.c"
-      "${DEMECH2_SOURCE_DIR}/MW2/src/mulratio.c"
-      "${DEMECH2_SOURCE_DIR}/MW2/src/mulnorm16.c"
-      "${DEMECH2_SOURCE_DIR}/MW2/src/muladddiv.c"
-      "${DEMECH2_SOURCE_DIR}/MW2/src/texpoly.c"
-      "${DEMECH2_SOURCE_DIR}/MW2/src/directdraw.c"
       "${DEMECH2_SOURCE_DIR}/MW2/MW2.def"
     # ML gets the edition's features from util/types.h's table (cmake/editions.cmake): VFX's
     # assembly tests them too.
