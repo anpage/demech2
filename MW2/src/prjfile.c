@@ -16,6 +16,7 @@ DECOMP_SIZE_ASSERT(PrjFile, 0x14a)
 
 // GLOBAL: MW2 0x100ae734
 // GLOBAL: MW2GBL 0x100b59a0
+// GLOBAL: MW2PREMERCS 0x100bf024
 // GLOBAL: MW2MATROX 0x100a4580
 // GLOBAL: MW23DFX 0x102598fc
 // GLOBAL: MW2S3 0x1006626c
@@ -23,6 +24,7 @@ PrjAllocFn g_prjAlloc = NULL;
 
 // GLOBAL: MW2 0x100ae738
 // GLOBAL: MW2GBL 0x100b59a4
+// GLOBAL: MW2PREMERCS 0x100bf028
 // GLOBAL: MW2MATROX 0x100a4584
 // GLOBAL: MW23DFX 0x10259900
 // GLOBAL: MW2ATI 0x1018dc00
@@ -32,6 +34,7 @@ PrjFreeFn g_prjFree = NULL;
 
 // GLOBAL: MW2 0x100c3120
 // GLOBAL: MW2GBL 0x100bc950
+// GLOBAL: MW2PREMERCS 0x101571b0
 // GLOBAL: MW2MATROX 0x102157d0
 // GLOBAL: MW23DFX 0x10159c50
 // GLOBAL: MW2ATI 0x1008dc50
@@ -41,6 +44,7 @@ PrjFile g_prjFiles[1];
 
 // FUNCTION: MW2 0x10071ad0
 // FUNCTION: MW2GBL 0x1006b780
+// FUNCTION: MW2PREMERCS 0x10075170
 // FUNCTION: MW2MATROX 0x1000c110
 // FUNCTION: MW23DFX 0x1003d090
 // FUNCTION: MW2ATI 0x1003b050
@@ -54,6 +58,7 @@ void SetPrjAllocator(PrjAllocFn p_alloc, PrjFreeFn p_free)
 
 // FUNCTION: MW2 0x10071aeb
 // FUNCTION: MW2GBL 0x1006b79b
+// FUNCTION: MW2PREMERCS 0x1007518b
 // FUNCTION: MW2MATROX 0x1000c12b
 // FUNCTION: MW23DFX 0x1003d0a0
 // FUNCTION: MW2ATI 0x1003b060
@@ -66,6 +71,7 @@ void* PrjAlloc(MechU32 p_size)
 
 // FUNCTION: MW2 0x10071b08
 // FUNCTION: MW2GBL 0x1006b7b8
+// FUNCTION: MW2PREMERCS 0x100751a8
 // FUNCTION: MW2MATROX 0x1000c148
 // FUNCTION: MW23DFX 0x1003d0b0
 // FUNCTION: MW2ATI 0x1003b070
@@ -79,6 +85,7 @@ void PrjFreeBlock(void* p_block)
 // Writes in chunks of at most 16K. Returns p_length, or -1 on a short write.
 // FUNCTION: MW2 0x10071b20
 // FUNCTION: MW2GBL 0x1006b7d0
+// FUNCTION: MW2PREMERCS 0x100751c0
 // FUNCTION: MW2MATROX 0x1000c160
 // FUNCTION: MW23DFX 0x1003d0c0
 MechS32 WritePrjBytes(MechS32 p_fd, void* p_buffer, MechU32 p_length)
@@ -106,6 +113,7 @@ MechS32 WritePrjBytes(MechS32 p_fd, void* p_buffer, MechU32 p_length)
 // Reads in chunks of at most 16K. Returns p_length, or -1 on a short read.
 // FUNCTION: MW2 0x10071b9e
 // FUNCTION: MW2GBL 0x1006b84e
+// FUNCTION: MW2PREMERCS 0x1007523e
 // FUNCTION: MW2MATROX 0x1000c1de
 // FUNCTION: MW23DFX 0x1003d110
 // FUNCTION: MW2ATI 0x1003b080
@@ -137,6 +145,7 @@ MechS32 ReadPrjBytes(MechS32 p_fd, void* p_buffer, MechU32 p_length)
 // Returns its slot, -1 on failure or -2 for a rejected file.
 // FUNCTION: MW2 0x10071c1c
 // FUNCTION: MW2GBL 0x1006b8cc
+// FUNCTION: MW2PREMERCS 0x100752bc
 // FUNCTION: MW2MATROX 0x1000c25c
 // FUNCTION: MW23DFX 0x1003d160
 // FUNCTION: MW2ATI 0x1003b0d0
@@ -217,6 +226,7 @@ MechS32 OpenPrjFile(const MechChar* p_name, MechChar p_mode)
 
 // FUNCTION: MW2 0x10071f09
 // FUNCTION: MW2GBL 0x1006bbb9
+// FUNCTION: MW2PREMERCS 0x100755a9
 // FUNCTION: MW2MATROX 0x1000c549
 // FUNCTION: MW23DFX 0x1003d370
 // FUNCTION: MW2ATI 0x1003b2e0
@@ -248,6 +258,7 @@ MechS32 ClosePrjFile(MechS32 p_file)
 // Returns the type's index in the header, or 0xffff.
 // FUNCTION: MW2 0x100720b7
 // FUNCTION: MW2GBL 0x1006bd67
+// FUNCTION: MW2PREMERCS 0x10075757
 // FUNCTION: MW2MATROX 0x1000c6f7
 // FUNCTION: MW23DFX 0x1003d410
 // FUNCTION: MW2ATI 0x1003b380
@@ -284,6 +295,7 @@ MechU16 FindPrjType(MechS32 p_file, const MechChar* p_type)
 // Loads every type's index.
 // FUNCTION: MW2 0x1007218f
 // FUNCTION: MW2GBL 0x1006be3f
+// FUNCTION: MW2PREMERCS 0x1007582f
 // FUNCTION: MW2MATROX 0x1000c7cf
 // FUNCTION: MW23DFX 0x1003d4a0
 // FUNCTION: MW2ATI 0x1003b410
@@ -322,6 +334,7 @@ MechS32 LoadPrjIndexes(MechS32 p_file)
 
 // FUNCTION: MW2 0x100722f5
 // FUNCTION: MW2GBL 0x1006bfa5
+// FUNCTION: MW2PREMERCS 0x10075995
 // FUNCTION: MW2MATROX 0x1000c935
 // FUNCTION: MW23DFX 0x1003d580
 // FUNCTION: MW2ATI 0x1003b4f0
@@ -360,6 +373,7 @@ MechS32 GetPrjResourceSize(MechS32 p_file, const MechChar* p_type, MechU16 p_id)
 // 16-bit index compared with -1).
 // FUNCTION: MW2 0x10072405
 // FUNCTION: MW2GBL 0x1006c0b5
+// FUNCTION: MW2PREMERCS 0x10075aa5
 // FUNCTION: MW2MATROX 0x1000ca45
 // FUNCTION: MW23DFX 0x1003d620
 MechS32 SeekPrjResource(MechS32 p_file, const MechChar* p_type, MechU16 p_id, MechS32* p_offset, MechS32* p_size)
@@ -395,6 +409,7 @@ MechS32 SeekPrjResource(MechS32 p_file, const MechChar* p_type, MechU16 p_id, Me
 
 // FUNCTION: MW2 0x10072560
 // FUNCTION: MW2GBL 0x1006c210
+// FUNCTION: MW2PREMERCS 0x10075c00
 // FUNCTION: MW2MATROX 0x1000cba0
 // FUNCTION: MW23DFX 0x1003d6e0
 MechS32 ReadPrjAt(void* p_buffer, MechS32 p_file, MechS32 p_offset, MechU32 p_length)
@@ -406,6 +421,7 @@ MechS32 ReadPrjAt(void* p_buffer, MechS32 p_file, MechS32 p_offset, MechU32 p_le
 
 // FUNCTION: MW2 0x100725ae
 // FUNCTION: MW2GBL 0x1006c25e
+// FUNCTION: MW2PREMERCS 0x10075c4e
 // FUNCTION: MW2MATROX 0x1000cbee
 // FUNCTION: MW23DFX 0x1003d720
 // FUNCTION: MW2ATI 0x1003b590
@@ -450,6 +466,7 @@ MechS32 ReadPrjResource(MechS32 p_file, const MechChar* p_type, MechU16 p_id, vo
 // Returns a resource's offset in the file, and the file's descriptor.
 // FUNCTION: MW2 0x10072734
 // FUNCTION: MW2GBL 0x1006c3e4
+// FUNCTION: MW2PREMERCS 0x10075dd4
 // FUNCTION: MW2MATROX 0x1000cd74
 // FUNCTION: MW23DFX 0x1003d7f0
 MechS32 GetPrjResourceOffset(MechS32 p_file, const MechChar* p_type, MechU16 p_id, MechS32* p_fd)

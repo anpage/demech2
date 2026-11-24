@@ -142,6 +142,7 @@ MechS32 g_reelMotionError = 0;
 // The number of entries in g_paths.
 // GLOBAL: MW2 0x100a6d68
 // GLOBAL: MW2GBL 0x1009b03c
+// GLOBAL: MW2PREMERCS 0x100b0c7c
 // GLOBAL: MW2MATROX 0x100ae2b8
 // GLOBAL: MW23DFX 0x1024b32c
 // GLOBAL: MW2ATI 0x1017f6ac
@@ -151,6 +152,7 @@ MechS32 g_pathCount = 0;
 
 // GLOBAL: MW2 0x100a6d6c
 // GLOBAL: MW2GBL 0x1009b040
+// GLOBAL: MW2PREMERCS 0x100b0c80
 // GLOBAL: MW2MATROX 0x100ae2bc
 // GLOBAL: MW23DFX 0x1024b330
 // GLOBAL: MW2ATI 0x1017f6b0
@@ -161,6 +163,7 @@ MechS32 g_maxAnimNumber = 0;
 // The base of the animation numbers of the file being loaded.
 // GLOBAL: MW2 0x100a6d70
 // GLOBAL: MW2GBL 0x1009b044
+// GLOBAL: MW2PREMERCS 0x100b0c84
 // GLOBAL: MW2MATROX 0x100ae2c0
 // GLOBAL: MW23DFX 0x1024b334
 // GLOBAL: MW2ATI 0x1017f6b4
@@ -171,6 +174,7 @@ MechS32 g_animBase = 0;
 // The number of entries in g_animFiles.
 // GLOBAL: MW2 0x100a6d74
 // GLOBAL: MW2GBL 0x1009b048
+// GLOBAL: MW2PREMERCS 0x100b0c88
 // GLOBAL: MW2MATROX 0x100ae2c4
 // GLOBAL: MW23DFX 0x1024b338
 // GLOBAL: MW2ATI 0x1017f6b8
@@ -181,6 +185,7 @@ MechS32 g_animFileCount = 0;
 // Set to shade from the origin rather than the light (GetFaceShade).
 // GLOBAL: MW2 0x1010b530
 // GLOBAL: MW2GBL 0x100e99e0
+// GLOBAL: MW2PREMERCS 0x1017ba00
 // GLOBAL: MW2MATROX 0x101d6908
 // GLOBAL: MW23DFX 0x101b0e58
 // GLOBAL: MW2ATI 0x100e4e48
@@ -191,6 +196,7 @@ MechS32 g_directionalLight;
 // The outcodes of the polygon being built: any vertex's (or) and every vertex's (and).
 // GLOBAL: MW2 0x1010b53c
 // GLOBAL: MW2GBL 0x100e99ec
+// GLOBAL: MW2PREMERCS 0x1017ba0c
 // GLOBAL: MW2MATROX 0x101d6900
 // GLOBAL: MW23DFX 0x101b0e50
 // GLOBAL: MW2ATI 0x100e4e40
@@ -200,6 +206,7 @@ MechU8 g_polygonOrCodes;
 
 // GLOBAL: MW2 0x1010b5b8
 // GLOBAL: MW2GBL 0x100e9a68
+// GLOBAL: MW2PREMERCS 0x1017ba88
 // GLOBAL: MW2MATROX 0x101d6974
 // GLOBAL: MW23DFX 0x101b0ed4
 // GLOBAL: MW2ATI 0x100e4eb4
@@ -210,6 +217,7 @@ MechU8 g_polygonAndCodes;
 // The projected vertices of the polygon being built, and their count.
 // GLOBAL: MW2 0x1010b550
 // GLOBAL: MW2GBL 0x100e9a00
+// GLOBAL: MW2PREMERCS 0x1017ba20
 // GLOBAL: MW2MATROX 0x101d6910
 // GLOBAL: MW23DFX 0x101b0e70
 // GLOBAL: MW2ATI 0x100e4e50
@@ -219,6 +227,7 @@ ProjectedVertex* g_polygonPoints[20];
 
 // GLOBAL: MW2 0x1010b5b0
 // GLOBAL: MW2GBL 0x100e9a60
+// GLOBAL: MW2PREMERCS 0x1017ba80
 // GLOBAL: MW2MATROX 0x101d6978
 // GLOBAL: MW23DFX 0x101b0ed8
 // GLOBAL: MW2ATI 0x100e4eb8
@@ -264,6 +273,7 @@ MechS32 g_polygonsQueued;
 
 // GLOBAL: MW2 0x100ea8e0
 // GLOBAL: MW2GBL 0x1015e210
+// GLOBAL: MW2PREMERCS 0x101b76b0
 // GLOBAL: MW2MATROX 0x101315a0
 // GLOBAL: MW23DFX 0x101e8e20
 // GLOBAL: MW2ATI 0x1011cae0
@@ -274,6 +284,7 @@ Path g_paths[0x40];
 // The animations of the loaded animation files, by number.
 // GLOBAL: MW2 0x101079e0
 // GLOBAL: MW2GBL 0x1017b310
+// GLOBAL: MW2PREMERCS 0x101d47b0
 // GLOBAL: MW2MATROX 0x1014e880
 // GLOBAL: MW23DFX 0x10206100
 // GLOBAL: MW2ATI 0x10139dc0
@@ -283,6 +294,7 @@ Reel* g_reels[0x780];
 
 // GLOBAL: MW2 0x101097e0
 // GLOBAL: MW2GBL 0x1017d110
+// GLOBAL: MW2PREMERCS 0x101d65b0
 // GLOBAL: MW2MATROX 0x1014e6a0
 // GLOBAL: MW2ATI 0x10139be0
 // GLOBAL: MW2S3 0x10181ee0
@@ -691,6 +703,7 @@ MechS32 ReelMotionTask(MechS32 p_event, MechChar* p_data, MechS32 p_clock, MechS
 // Scales p_value by mode p_mode: 1 by 1.5, 3 by 0.75, any other mode leaves it.
 // FUNCTION: MW2 0x100472fe
 // FUNCTION: MW2GBL 0x10001d74
+// FUNCTION: MW2PREMERCS 0x100310e5
 // FUNCTION: MW2MATROX 0x1006f8d3
 // FUNCTION: MW23DFX 0x1000e600
 // FUNCTION: MW2ATI 0x1000ecf0
@@ -722,6 +735,7 @@ MechS32 ScaleBySpeedLevel(MechS32 p_mode, MechS32 p_value)
 // (g_animBase). Returns -1 if it was already loaded.
 // FUNCTION: MW2 0x10047380
 // FUNCTION: MW2GBL 0x10001df6
+// FUNCTION: MW2PREMERCS 0x10031167
 // FUNCTION: MW2MATROX 0x1006f955
 // FUNCTION: MW23DFX 0x1000e630
 // FUNCTION: MW2ATI 0x1000ed20
@@ -758,6 +772,7 @@ MechS32 LoadAnimFile(ResourceRef* p_ref)
 
 // FUNCTION: MW2 0x10047462
 // FUNCTION: MW2GBL 0x10001ed8
+// FUNCTION: MW2PREMERCS 0x10031249
 // FUNCTION: MW2MATROX 0x1006fa37
 // FUNCTION: MW23DFX 0x1000e6c0
 // FUNCTION: MW2ATI 0x1000edb0
@@ -770,6 +785,7 @@ MechS32 GetAnimBase(void)
 
 // FUNCTION: MW2 0x10047477
 // FUNCTION: MW2GBL 0x10001eed
+// FUNCTION: MW2PREMERCS 0x1003125e
 // FUNCTION: MW2MATROX 0x1006fa4c
 // FUNCTION: MW23DFX 0x1000e6d0
 MechS32 GetReelMotionSize(void)
@@ -781,6 +797,7 @@ MechS32 GetReelMotionSize(void)
 // "<star id>;<color>,<color>,...": up to sixteen colors, each a palette row.
 // FUNCTION: MW2 0x1004748c
 // FUNCTION: MW2GBL 0x10001f02
+// FUNCTION: MW2PREMERCS 0x10031273
 // FUNCTION: MW2MATROX 0x1006fa61
 // FUNCTION: MW23DFX 0x1000e6e0
 // FUNCTION: MW2ATI 0x1000edc0
@@ -1098,6 +1115,7 @@ MechS32 OrbitTask(MechS32 p_event, MechChar* p_data, MechS32 p_clock, MechS32 p_
 // "<star id>;<range>,<sound name>,<enabled>".
 // FUNCTION: MW2 0x10047d10
 // FUNCTION: MW2GBL 0x10002786
+// FUNCTION: MW2PREMERCS 0x10031af7
 // FUNCTION: MW2MATROX 0x100702a2
 // FUNCTION: MW23DFX 0x1000ec90
 // FUNCTION: MW2ATI 0x1000f370
@@ -1461,7 +1479,8 @@ MechS32 PathTask(MechS32 p_event, MechChar* p_data, MechS32 p_clock, MechS32 p_p
 }
 
 // The faces' projection: 1.1 has it here, the Matrox edition in an object of its own, after
-// mechcollision.c's, in floats (accel/queueface.c), and GBL in an object of its own at that place.
-#if !defined(MW2_A3D) && !defined(MW2_GBL)
+// mechcollision.c's, in floats (accel/queueface.c), and GBL in an object of its own at that place
+// (the Mercenaries disc's MW2.DLL builds GBL's units, until its own are placed).
+#if !defined(MW2_A3D) && !defined(MW2_GBL) && !defined(MW2_PREMERCS)
 #include "faceprojection.c"
 #endif

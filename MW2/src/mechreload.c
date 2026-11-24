@@ -201,6 +201,7 @@ void RememberMechSegments(Mech* p_mech)
 // The PowerVR edition also attaches each restored object's SGL list to its parent's.
 // FUNCTION: MW2 0x10080014
 // FUNCTION: MW2GBL 0x10017720
+// FUNCTION: MW2PREMERCS 0x10053abf
 // FUNCTION: MW2MATROX 0x10091403
 // FUNCTION: MW23DFX 0x10023a20
 // FUNCTION: MW2ATI 0x10023ce0
@@ -235,6 +236,7 @@ SceneObject* RestoreMechSegments(MechSegment* p_segment)
 
 // FUNCTION: MW2 0x100800e3
 // FUNCTION: MW2GBL 0x100177ef
+// FUNCTION: MW2PREMERCS 0x10053b8e
 // FUNCTION: MW2MATROX 0x100914d2
 // FUNCTION: MW23DFX 0x10023ae0
 // FUNCTION: MW2ATI 0x10023da0

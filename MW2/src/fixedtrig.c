@@ -16,6 +16,7 @@
 // interpolated, mirrored and negated by quadrant.
 // FUNCTION: MW2 0x100696c0
 // FUNCTION: MW2GBL 0x1007bb50
+// FUNCTION: MW2PREMERCS 0x10062620
 MechS32 FixedSin(MechS32 p_angle)
 {
 	MechS32 result;
@@ -80,6 +81,7 @@ positive:
 // Returns the cosine of p_angle (16.16 degrees): the sine 90 degrees on.
 // FUNCTION: MW2 0x1006973a
 // FUNCTION: MW2GBL 0x1007bbca
+// FUNCTION: MW2PREMERCS 0x1006269a
 MechS32 FixedCos(MechS32 p_angle)
 {
 #ifdef PORTABLE_C
@@ -93,6 +95,7 @@ MechS32 FixedCos(MechS32 p_angle)
 // binary search of the table's quarter wave, interpolated between the two entries found.
 // FUNCTION: MW2 0x1006975b
 // FUNCTION: MW2GBL 0x1007bbeb
+// FUNCTION: MW2PREMERCS 0x100626bb
 MechS32 FixedAsin(MechS32 p_sine)
 {
 #ifdef PORTABLE_C
@@ -240,6 +243,7 @@ scale:
 
 // FUNCTION: MW2 0x100698b9
 // FUNCTION: MW2GBL 0x1007bd49
+// FUNCTION: MW2PREMERCS 0x10062819
 MechS32 FixedAcos(MechS32 p_cosine)
 {
 	return 0x5a0000 - FixedAsin(p_cosine);
@@ -249,6 +253,7 @@ MechS32 FixedAcos(MechS32 p_cosine)
 // larger component from the table, folded into its octant. The result is also left in dx:ax.
 // FUNCTION: MW2 0x100698de
 // FUNCTION: MW2GBL 0x1007bd6e
+// FUNCTION: MW2PREMERCS 0x1006283e
 MechScalar FixedAtan2(MechScalar p_x, MechScalar p_z)
 {
 #if defined(PORTABLE_C)

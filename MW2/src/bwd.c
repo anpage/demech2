@@ -25,6 +25,7 @@ DECOMP_SIZE_ASSERT(BwdStream, 0x1f)
 // resource id.
 // GLOBAL: MW2 0x100a5bec
 // GLOBAL: MW2GBL 0x100af650
+// GLOBAL: MW2PREMERCS 0x100bf2f0
 // GLOBAL: MW2MATROX 0x100a5998
 // GLOBAL: MW23DFX 0x10259ea8
 // GLOBAL: MW2ATI 0x1018e1a0
@@ -35,6 +36,7 @@ MechS32 g_streamsFromFiles = 0;
 // Set by a command-line switch: OpenBwdStream logs each stream it opens to mw2debug.txt.
 // GLOBAL: MW2 0x100a5bf0
 // GLOBAL: MW2GBL 0x100af654
+// GLOBAL: MW2PREMERCS 0x100bf2f4
 // GLOBAL: MW2MATROX 0x100a599c
 // GLOBAL: MW23DFX 0x10259eac
 // GLOBAL: MW2ATI 0x1018e1a4
@@ -46,6 +48,7 @@ MechS32 g_logStreams = 0;
 // edition, each with other globals after it.
 // GLOBAL: MW2 0x10109c40
 // GLOBAL: MW2GBL 0x100e9890
+// GLOBAL: MW2PREMERCS 0x10156d90
 // GLOBAL: MW2MATROX 0x101d6830
 MechChar g_unk0x10109c40[28];
 
@@ -54,6 +57,7 @@ MechChar g_unk0x10109c40[28];
 // when there is no such file, from the resource file. Returns p_stream, or NULL.
 // FUNCTION: MW2 0x1003fb00
 // FUNCTION: MW2GBL 0x10044190
+// FUNCTION: MW2PREMERCS 0x1007ae30
 // FUNCTION: MW2MATROX 0x10029ef0
 // FUNCTION: MW23DFX 0x10040c60
 // FUNCTION: MW2ATI 0x1003e810
@@ -145,6 +149,7 @@ BwdStream* OpenBwdStream(BwdStreamKey* p_key, BwdStream* p_stream)
 // of a bad size.
 // FUNCTION: MW2 0x1003fdfb
 // FUNCTION: MW2GBL 0x10044464
+// FUNCTION: MW2PREMERCS 0x1007b104
 // FUNCTION: MW2MATROX 0x1002a1eb
 // FUNCTION: MW23DFX 0x10040eb0
 // FUNCTION: MW2ATI 0x1003ea60
@@ -181,6 +186,7 @@ BwdNode* GetNextNode(BwdStream* p_stream)
 // Frees a stream's data, or releases its resource.
 // FUNCTION: MW2 0x1003feb8
 // FUNCTION: MW2GBL 0x10044521
+// FUNCTION: MW2PREMERCS 0x1007b1c1
 // FUNCTION: MW2MATROX 0x1002a2a8
 // FUNCTION: MW23DFX 0x10040f20
 // FUNCTION: MW2ATI 0x1003ead0
@@ -227,6 +233,7 @@ MechChar* GetKeywordName(BwdTag p_code)
 // Appends a line to mw2debug.txt and shows it on screen.
 // FUNCTION: MW2 0x1003ff75
 // FUNCTION: MW2GBL 0x100445de
+// FUNCTION: MW2PREMERCS 0x1007b27e
 // FUNCTION: MW2MATROX 0x1002a365
 // FUNCTION: MW23DFX 0x10040fa0
 // FUNCTION: MW2ATI 0x1003eb50
@@ -247,6 +254,7 @@ void LogDebugLine(MechChar* p_text)
 // Logs a keyword's name with LogDebugLine.
 // FUNCTION: MW2 0x1003ffcf
 // FUNCTION: MW2GBL 0x10044638
+// FUNCTION: MW2PREMERCS 0x1007b2d8
 // FUNCTION: MW2MATROX 0x1002a3bf
 // FUNCTION: MW23DFX 0x10040fe0
 // FUNCTION: MW2ATI 0x1003eb90

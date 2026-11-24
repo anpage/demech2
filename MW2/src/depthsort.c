@@ -52,6 +52,7 @@ DECOMP_SIZE_ASSERT(QueuedPolygon, 0xc)
 // The number of entries in the list being built.
 // GLOBAL: MW2 0x100a54b0
 // GLOBAL: MW2GBL 0x100adaf0
+// GLOBAL: MW2PREMERCS 0x100b3bf4
 // GLOBAL: MW2MATROX 0x100a5540
 // GLOBAL: MW23DFX 0x1024e404
 // GLOBAL: MW2ATI 0x10182714
@@ -60,6 +61,7 @@ MechS32 g_depthEntryCount = 0;
 
 // GLOBAL: MW2 0x100a54b4
 // GLOBAL: MW2GBL 0x100adaf4
+// GLOBAL: MW2PREMERCS 0x100b3bf8
 // GLOBAL: MW2MATROX 0x100a5544
 // GLOBAL: MW23DFX 0x1024e408
 // GLOBAL: MW2ATI 0x10182718
@@ -68,6 +70,7 @@ MechS32 g_polygonCount = 0;
 
 // GLOBAL: MW2 0x100a54b8
 // GLOBAL: MW2GBL 0x100adaf8
+// GLOBAL: MW2PREMERCS 0x100b3bfc
 // GLOBAL: MW2MATROX 0x100a5548
 // GLOBAL: MW23DFX 0x1024e40c
 // GLOBAL: MW2ATI 0x1018271c
@@ -76,6 +79,7 @@ MechS32 g_maxPolygons = 0;
 
 // GLOBAL: MW2 0x1010b5a0
 // GLOBAL: MW2GBL 0x100e9a50
+// GLOBAL: MW2PREMERCS 0x1017ba70
 // GLOBAL: MW2MATROX 0x101d696c
 // GLOBAL: MW23DFX 0x101b0ecc
 // GLOBAL: MW2ATI 0x100e4eac
@@ -85,6 +89,7 @@ MechS32 g_shapesDrawn;
 // The depth the shapes are queued at.
 // GLOBAL: MW2 0x1010b5a4
 // GLOBAL: MW2GBL 0x100e9a54
+// GLOBAL: MW2PREMERCS 0x1017ba74
 // GLOBAL: MW2MATROX 0x101d6964
 // GLOBAL: MW23DFX 0x101b0ec4
 // GLOBAL: MW2ATI 0x100e4ea4
@@ -111,6 +116,7 @@ MechU32 g_queuedShapeFlags;
 
 // GLOBAL: MW2 0x1010b5cc
 // GLOBAL: MW2GBL 0x100e9a78
+// GLOBAL: MW2PREMERCS 0x1017ba9c
 // GLOBAL: MW2MATROX 0x101d6970
 // GLOBAL: MW23DFX 0x101b0ed0
 // GLOBAL: MW2ATI 0x100e4eb0
@@ -443,6 +449,7 @@ void DrawDepthQueue(void)
 // Queues the polygons of p_object's shape and of its descendants' shapes.
 // FUNCTION: MW2 0x10033c4b
 // FUNCTION: MW2GBL 0x10039900
+// FUNCTION: MW2PREMERCS 0x1005d40e
 // FUNCTION: MW2MATROX 0x100237e0
 // FUNCTION: MW23DFX 0x1002a300
 // FUNCTION: MW2ATI 0x10029f30
@@ -492,6 +499,7 @@ void DrawShapeListFrom(Shape* p_root, Eyepoint* p_eyepoint)
 // Draws a queued polygon, clipping it to the screen first if a vertex lies far outside it.
 // FUNCTION: MW2 0x10033d32
 // FUNCTION: MW2GBL 0x100399fc
+// FUNCTION: MW2PREMERCS 0x1005d557
 void DrawQueuedPolygon(QueuedPolygon* p_poly)
 {
 	ProjectedVertex* vertex;
@@ -790,6 +798,7 @@ MechS32 ClipPolygonToScreen(QueuedPolygon* p_poly, MechU32* p_points)
 // the screen column (p_isX) or row p_edge.
 // FUNCTION: MW2 0x10034499
 // FUNCTION: MW2GBL 0x1003a284
+// FUNCTION: MW2PREMERCS 0x1005dddf
 MechS32 GetEdgeCrossingDepth(MechS32 p_a0, MechS32 p_a1, MechS32 p_edge, MechS32 p_isX, MechS32 p_z0, MechS32 p_z1)
 {
 	MechS32 dz;
@@ -827,6 +836,7 @@ MechS32 GetEdgeCrossingDepth(MechS32 p_a0, MechS32 p_a1, MechS32 p_edge, MechS32
 // Stores in p_out the point where the edge from p_a to p_b crosses the screen column p_x.
 // FUNCTION: MW2 0x10034571
 // FUNCTION: MW2GBL 0x1003a35c
+// FUNCTION: MW2PREMERCS 0x1005deb7
 void ClipEdgeToColumn(ProjectedVertex* p_a, ProjectedVertex* p_b, MechS32 p_x, ProjectedVertex* p_out)
 {
 	MechS32 z;
@@ -867,6 +877,7 @@ void ClipEdgeToColumn(ProjectedVertex* p_a, ProjectedVertex* p_b, MechS32 p_x, P
 // Stores in p_out the point where the edge from p_a to p_b crosses the screen row p_y.
 // FUNCTION: MW2 0x10034779
 // FUNCTION: MW2GBL 0x1003a564
+// FUNCTION: MW2PREMERCS 0x1005e0bf
 void ClipEdgeToRow(ProjectedVertex* p_a, ProjectedVertex* p_b, MechS32 p_y, ProjectedVertex* p_out)
 {
 	MechS32 z;

@@ -20,6 +20,7 @@
 // 0 to 1 in 256 steps (16.16 degrees), each padded with two copies of its last value.
 // FUNCTION: MW2 0x1007c930
 // FUNCTION: MW2GBL 0x100809d0
+// FUNCTION: MW2PREMERCS 0x10058300
 MechS32 InitSinAtanTables(void)
 {
 	MechS32 i;
@@ -37,6 +38,7 @@ MechS32 InitSinAtanTables(void)
 // The cosines and sines of the angles whose tangents are 0 to 50 in steps of 1/16 (2.29).
 // FUNCTION: MW2 0x1007c9e3
 // FUNCTION: MW2GBL 0x10080a95
+// FUNCTION: MW2PREMERCS 0x100583c5
 MechS32 InitSlopeTables(void)
 {
 	MechS32 i;
@@ -55,6 +57,7 @@ MechS32 InitSlopeTables(void)
 // The square roots of 0 to 1023 (6.10 fixed point).
 // FUNCTION: MW2 0x1007ca8e
 // FUNCTION: MW2GBL 0x10080b47
+// FUNCTION: MW2PREMERCS 0x10058477
 MechS32 InitSqrtTable(void)
 {
 	MechS32 i;
@@ -70,6 +73,7 @@ MechS32 InitSqrtTable(void)
 #ifndef MW2_FLOAT_SCALARS
 // FUNCTION: MW2 0x1007caf7
 // FUNCTION: MW2GBL 0x10080bb9
+// FUNCTION: MW2PREMERCS 0x100584e9
 MechScalar Hypot2D(MechScalar p_x, MechScalar p_y)
 {
 	MechS32 length;
@@ -85,6 +89,7 @@ MechScalar Hypot2D(MechScalar p_x, MechScalar p_y)
 // Sets p_matrix to the rotation that points along (p_x, p_y, p_z).
 // FUNCTION: MW2 0x1007cb3d
 // FUNCTION: MW2GBL 0x10080c08
+// FUNCTION: MW2PREMERCS 0x10058538
 void BuildMatrixFromDirection(Matrix* p_matrix, MechS32 p_x, MechS32 p_y, MechS32 p_z)
 {
 	MechDouble pitch;

@@ -12,6 +12,7 @@
 // and the quotient by 6 after it.
 // FUNCTION: MW2 0x10013340
 // FUNCTION: MW2GBL 0x10023470
+// FUNCTION: MW2PREMERCS 0x10021850
 MechS32 ProjectRadius(MechS32 p_scale, MechS32 p_radius, MechS32 p_depth)
 {
 #ifdef PORTABLE_C

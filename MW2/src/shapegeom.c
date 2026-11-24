@@ -61,6 +61,7 @@ static MechS32 TransformRow(Matrix* p_matrix, MechS32 p_row, MechS32 p_x, MechS3
 // p_matrix. The products are an __asm block.
 // FUNCTION: MW2 0x10039a30
 // FUNCTION: MW2GBL 0x1003f240
+// FUNCTION: MW2PREMERCS 0x1005af80
 // FUNCTION: MW2MATROX 0x10028adb
 // FUNCTION: MW23DFX 0x10029ab0
 // FUNCTION: MW2ATI 0x100296e0
@@ -398,6 +399,7 @@ void TransformShape(struct Shape* p_shape, Matrix* p_matrix)
 // (p_dx, p_dz): (p_normalX * p_dx + p_normalZ * p_dz + p_distance) / p_normalY, in 64 bits.
 // FUNCTION: MW2 0x10039c96
 // FUNCTION: MW2GBL 0x1003f4a6
+// FUNCTION: MW2PREMERCS 0x1005b1e6
 MechS32 SolvePlaneY(
 	MechS32 p_normalX,
 	MechS32 p_normalY,
@@ -439,6 +441,7 @@ MechS32 SolvePlaneY(
 // the others) / 4 of the offsets, or 0x7fffffff outside its bounding sphere.
 // FUNCTION: MW2 0x10039ccc
 // FUNCTION: MW2GBL 0x1003f4dc
+// FUNCTION: MW2PREMERCS 0x1005b21c
 // FUNCTION: MW2MATROX 0x10028e14
 // FUNCTION: MW23DFX 0x10029cb0
 // FUNCTION: MW2ATI 0x100298e0
@@ -597,6 +600,7 @@ done:;
 #ifndef MW2_FLOAT_SCALARS
 // FUNCTION: MW2 0x10039dda
 // FUNCTION: MW2GBL 0x1003f5ea
+// FUNCTION: MW2PREMERCS 0x1005b32a
 MechS32 ComputeTriangleNormal(
 	MechScalar p_x0,
 	MechScalar p_y0,
@@ -901,6 +905,7 @@ normalize:
 // Returns p_value / (p_a - p_b) in 15.17 fixed point, or 0 if p_a and p_b are equal.
 // FUNCTION: MW2 0x1003a05d
 // FUNCTION: MW2GBL 0x1003f86d
+// FUNCTION: MW2PREMERCS 0x1005b5ad
 MechS32 DivDifference17(MechS32 p_a, MechS32 p_b, MechS32 p_value)
 {
 #ifdef PORTABLE_C
@@ -937,6 +942,7 @@ done:
 // 0x7fffffff when it misses the bounding sphere or ends first; 10 when the ray starts inside it.
 // FUNCTION: MW2 0x1003a096
 // FUNCTION: MW2GBL 0x1003f8a6
+// FUNCTION: MW2PREMERCS 0x1005b5e6
 // FUNCTION: MW2MATROX 0x10028f0e
 // FUNCTION: MW23DFX 0x10029db0
 // FUNCTION: MW2ATI 0x100299e0

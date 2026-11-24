@@ -14,6 +14,7 @@
 // FixedSqrtGuess's estimate, for at most 100 steps.
 // FUNCTION: MW2 0x100168f0
 // FUNCTION: MW2GBL 0x1002d270
+// FUNCTION: MW2PREMERCS 0x100645d0
 MechU32 FixedSqrt16(MechU32 p_value)
 {
 	MechU32 square;
@@ -56,6 +57,7 @@ MechU32 FixedSqrt16(MechU32 p_value)
 #ifndef MW2_FLOAT_SCALARS
 // FUNCTION: MW2 0x100169b4
 // FUNCTION: MW2GBL 0x1002d334
+// FUNCTION: MW2PREMERCS 0x10064694
 void NormalizeVectorGuarded(MechScalar* p_x, MechScalar* p_y, MechScalar* p_z)
 {
 	MechScalar length;
@@ -71,6 +73,7 @@ void NormalizeVectorGuarded(MechScalar* p_x, MechScalar* p_y, MechScalar* p_z)
 
 // FUNCTION: MW2 0x10016a2e
 // FUNCTION: MW2GBL 0x1002d3ae
+// FUNCTION: MW2PREMERCS 0x1006470e
 MechS32 FloatVectorLength(MechS32 p_x, MechS32 p_y, MechS32 p_z)
 {
 	MechDouble x = p_x;

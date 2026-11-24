@@ -12,6 +12,7 @@
 #ifndef MW2_FLOAT_SCALARS
 // FUNCTION: MW2 0x10004ec0
 // FUNCTION: MW2GBL 0x1000a940
+// FUNCTION: MW2PREMERCS 0x1002ae10
 MechS32 IsWithinRadius(MechS32 p_x, MechS32 p_y, MechS32 p_z, MechS32 p_radius)
 {
 #ifdef PORTABLE_C

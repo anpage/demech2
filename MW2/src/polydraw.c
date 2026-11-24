@@ -101,6 +101,7 @@ MechFloat g_skyScroll = 0;
 
 // GLOBAL: MW2 0x100a6be0
 // GLOBAL: MW2GBL 0x1009ed48
+// GLOBAL: MW2PREMERCS 0x100b3a28
 // GLOBAL: MW2MATROX 0x100addd0
 // GLOBAL: MW23DFX 0x1024e128
 // GLOBAL: MW2ATI 0x10182438
@@ -111,6 +112,7 @@ Eyepoint g_mainEyepoint = {0,       0, 0, 0, 0, 0,  FIXED_CONST(1), 1000, 10000,
 
 // GLOBAL: MW2 0x100a6cc0
 // GLOBAL: MW2GBL 0x1009ee28
+// GLOBAL: MW2PREMERCS 0x100b3b08
 // GLOBAL: MW2MATROX 0x100ade74
 // GLOBAL: MW23DFX 0x1024e1cc
 // GLOBAL: MW2ATI 0x101824dc
@@ -120,6 +122,7 @@ Eyepoint* g_eyepoint = &g_mainEyepoint;
 
 // GLOBAL: MW2 0x100a6cc8
 // GLOBAL: MW2GBL 0x1009ee30
+// GLOBAL: MW2PREMERCS 0x100b3b10
 // GLOBAL: MW2MATROX 0x100ade78
 // GLOBAL: MW23DFX 0x1024e1d0
 // GLOBAL: MW2ATI 0x101824e0
@@ -159,6 +162,7 @@ RenderSettings g_renderSettings = {
 
 // GLOBAL: MW2 0x100a6d30
 // GLOBAL: MW2GBL 0x1009ee98
+// GLOBAL: MW2PREMERCS 0x100b3b78
 // GLOBAL: MW2MATROX 0x100adee8
 // GLOBAL: MW23DFX 0x1024e240
 // GLOBAL: MW2ATI 0x10182550
@@ -720,10 +724,12 @@ MechS32 FUN_10067b90(MechU32 p_count, MechU32 p_edges, MechS32 p_unk0x08)
 // The end of the last line DrawLineTo drew.
 // GLOBAL: MW2 0x100be5d4
 // GLOBAL: MW2GBL 0x100b9058
+// GLOBAL: MW2PREMERCS 0x1017baa4
 MechS32 g_lineEndX;
 
 // GLOBAL: MW2 0x100be5d8
 // GLOBAL: MW2GBL 0x100b905c
+// GLOBAL: MW2PREMERCS 0x1017baa8
 MechS32 g_lineEndY;
 #endif
 
@@ -3230,6 +3236,7 @@ void FUN_1000d960(MechS32 p_count, ProjectedVertex** p_points, MechU32 p_color, 
 // Draws a closed polygon of five points.
 // FUNCTION: MW2 0x1004440d
 // FUNCTION: MW2GBL 0x10018ecd
+// FUNCTION: MW2PREMERCS 0x1005aab6
 // FUNCTION: MW2MATROX 0x1006ab1d
 // FUNCTION: MW23DFX 0x10027570
 // FUNCTION: MW2ATI 0x10027220
@@ -3338,6 +3345,7 @@ void FUN_1000d960(MechS32 p_count, ProjectedVertex** p_points, MechU32 p_color, 
 
 // FUNCTION: MW2 0x100444a6
 // FUNCTION: MW2GBL 0x10018f66
+// FUNCTION: MW2PREMERCS 0x1005ab4f
 // FUNCTION: MW2MATROX 0x1006abde
 // FUNCTION: MW23DFX 0x10027630
 // FUNCTION: MW2ATI 0x100272e0
@@ -3393,6 +3401,7 @@ void DrawQuad(
 
 // FUNCTION: MW2 0x10044527
 // FUNCTION: MW2GBL 0x10018fe7
+// FUNCTION: MW2PREMERCS 0x1005abd0
 // FUNCTION: MW2MATROX 0x1006ac8d
 // FUNCTION: MW23DFX 0x100276d0
 // FUNCTION: MW2ATI 0x10027380
@@ -3436,6 +3445,7 @@ void DrawTriangle(MechS32 p_x0, MechS32 p_y0, MechS32 p_x1, MechS32 p_y1, MechS3
 // Draws a line from the end of the last one to (p_x, p_y).
 // FUNCTION: MW2 0x10044590
 // FUNCTION: MW2GBL 0x10019050
+// FUNCTION: MW2PREMERCS 0x1005ac39
 void DrawLineTo(MechS32 p_x, MechS32 p_y, MechU32 p_color)
 {
 	VFX_line_draw(&g_currentPane, p_x, p_y, g_lineEndX, g_lineEndY, 0, p_color);
@@ -3447,6 +3457,7 @@ void DrawLineTo(MechS32 p_x, MechS32 p_y, MechU32 p_color)
 // allow, else through g_renderSettings's polygon callback, filled, outlined or both.
 // FUNCTION: MW2 0x100445d2
 // FUNCTION: MW2GBL 0x10019092
+// FUNCTION: MW2PREMERCS 0x1005ac7b
 void DrawPolygonOrLine(MechS32 p_count, MechU32* p_points, MechU32 p_flags)
 {
 	if (p_count == 1 && g_renderSettings.m_drawPixels) {

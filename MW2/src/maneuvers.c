@@ -47,6 +47,7 @@
 // and GetOffsetPoint's offsets.
 // GLOBAL: MW2 0x100a2900
 // GLOBAL: MW2GBL 0x100a3b08
+// GLOBAL: MW2PREMERCS 0x100b26d8
 // GLOBAL: MW2MATROX 0x100a4b08
 // GLOBAL: MW23DFX 0x1024cd70
 // GLOBAL: MW2ATI 0x101810f0
@@ -732,6 +733,7 @@ MechS32 ChooseManeuver(Player* p_player)
 // Returns the index of maneuver p_id in p_table, or -1.
 // FUNCTION: MW2 0x100140e4
 // FUNCTION: MW2GBL 0x1002a206
+// FUNCTION: MW2PREMERCS 0x1004c59d
 // FUNCTION: MW2MATROX 0x10019cd8
 // FUNCTION: MW23DFX 0x1001f260
 // FUNCTION: MW2ATI 0x1001f530
@@ -906,6 +908,7 @@ void EndManeuver(Player* p_player)
 // Places a nav point for p_player where GetOffsetPoint puts it, and makes it the player's target.
 // FUNCTION: MW2 0x10014723
 // FUNCTION: MW2GBL 0x1002a845
+// FUNCTION: MW2PREMERCS 0x1004cbf8
 // FUNCTION: MW2MATROX 0x1001a31b
 // FUNCTION: MW23DFX 0x1001f630
 // FUNCTION: MW2ATI 0x1001f900
@@ -937,6 +940,7 @@ void PlaceOffsetNav(Player* p_player, MechU32 p_target, MechS16 p_direction, Mec
 // The empty else arms give the original's jmp to the next statement after each offset.
 // FUNCTION: MW2 0x100147d0
 // FUNCTION: MW2GBL 0x1002a8f2
+// FUNCTION: MW2PREMERCS 0x1004cca5
 // FUNCTION: MW2MATROX 0x1001a3c8
 // FUNCTION: MW23DFX 0x1001f6b0
 // FUNCTION: MW2ATI 0x1001f980
@@ -1032,6 +1036,7 @@ void GetOffsetPoint(MechU32 p_target, MechS16 p_direction, MechS32* p_x, MechS32
 // then creeps forward.
 // FUNCTION: MW2 0x1001498c
 // FUNCTION: MW2GBL 0x1002aaae
+// FUNCTION: MW2PREMERCS 0x1004ce61
 // FUNCTION: MW2MATROX 0x1001a6a8
 // FUNCTION: MW23DFX 0x1001f910
 // FUNCTION: MW2ATI 0x1001fbe0
@@ -1170,6 +1175,7 @@ void ManeuverBehind(Player* p_player, MechS16 p_target)
 // 500000).
 // FUNCTION: MW2 0x10014c3d
 // FUNCTION: MW2GBL 0x1002ada0
+// FUNCTION: MW2PREMERCS 0x1004d130
 // FUNCTION: MW2MATROX 0x1001a978
 // FUNCTION: MW23DFX 0x1001faf0
 // FUNCTION: MW2ATI 0x1001fdc0
@@ -1251,6 +1257,7 @@ MechS32 ManeuverKama(Player* p_player, MechS16 p_target)
 // Backs p_player away from p_target at full throttle, facing it. Whether its mech collides.
 // FUNCTION: MW2 0x10014df1
 // FUNCTION: MW2GBL 0x1002af54
+// FUNCTION: MW2PREMERCS 0x1004d2e4
 // FUNCTION: MW2MATROX 0x1001ab25
 // FUNCTION: MW23DFX 0x1001fc00
 // FUNCTION: MW2ATI 0x1001fed0
@@ -1355,6 +1362,7 @@ MechS32 ManeuverWpeek(Player* p_player, MechS16 p_target)
 // Turns p_player toward p_target. Whether the player is at least 2000 above it.
 // FUNCTION: MW2 0x100150c1
 // FUNCTION: MW2GBL 0x1002b224
+// FUNCTION: MW2PREMERCS 0x1004d5b4
 // FUNCTION: MW2MATROX 0x1001ae00
 // FUNCTION: MW23DFX 0x1001fdd0
 // FUNCTION: MW2ATI 0x100200a0
@@ -1378,6 +1386,7 @@ MechS32 ManeuverAjmpin(Player* p_player, MechS16 p_target)
 // Turns p_player toward p_target.
 // FUNCTION: MW2 0x1001512e
 // FUNCTION: MW2GBL 0x1002b291
+// FUNCTION: MW2PREMERCS 0x1004d621
 // FUNCTION: MW2MATROX 0x1001ae73
 // FUNCTION: MW23DFX 0x1001fe10
 // FUNCTION: MW2ATI 0x100200e0
@@ -1476,6 +1485,7 @@ MechS32 ManeuverAdfa(Player* p_player, MechS16 p_target)
 // towards p_target.
 // FUNCTION: MW2 0x10015342
 // FUNCTION: MW2GBL 0x1002b4a9
+// FUNCTION: MW2PREMERCS 0x1004d839
 // FUNCTION: MW2MATROX 0x1001b0b1
 // FUNCTION: MW23DFX 0x1001ff70
 // FUNCTION: MW2ATI 0x10020240
@@ -1552,6 +1562,7 @@ MechS32 ManeuverCircle(Player* p_player, MechS16 p_target)
 // jump jets (its jump fuel not negative).
 // FUNCTION: MW2 0x10015520
 // FUNCTION: MW2GBL 0x1002b687
+// FUNCTION: MW2PREMERCS 0x1004daf1
 // FUNCTION: MW2MATROX 0x1001b292
 // FUNCTION: MW23DFX 0x10020090
 // FUNCTION: MW2ATI 0x10020360
@@ -1588,6 +1599,7 @@ MechS32 IsBelowHiddenTarget(Player* p_player)
 // Returns whether the player is on the ground.
 // FUNCTION: MW2 0x100155e1
 // FUNCTION: MW2GBL 0x1002b748
+// FUNCTION: MW2PREMERCS 0x1004dbb2
 // FUNCTION: MW2MATROX 0x1001b359
 // FUNCTION: MW23DFX 0x100200f0
 // FUNCTION: MW2ATI 0x100203c0
@@ -1633,6 +1645,7 @@ MechS32 BrakeFall(Player* p_player)
 // Fires (p_value set) or cuts p_player's jump jets.
 // FUNCTION: MW2 0x100156f2
 // FUNCTION: MW2GBL 0x1002b859
+// FUNCTION: MW2PREMERCS 0x1004dcc3
 // FUNCTION: MW2MATROX 0x1001b476
 // FUNCTION: MW23DFX 0x100201b0
 // FUNCTION: MW2ATI 0x10020480
@@ -1873,6 +1886,7 @@ MechS32 AvoidObstacles(Player* p_player)
 // Whether p_shape is solid ground to stand on: a flat enough face or a shape of type 0x50.
 // FUNCTION: MW2 0x10015b40
 // FUNCTION: MW2GBL 0x1002bcab
+// FUNCTION: MW2PREMERCS 0x1004e115
 // FUNCTION: MW2MATROX 0x1001b91f
 // FUNCTION: MW23DFX 0x100204b0
 // FUNCTION: MW2ATI 0x10020780
@@ -2004,6 +2018,7 @@ void BuildProbeRay(
 // Which side of p_player the point (p_x, p_y, p_z) is, seen from p_shape: 1 or -1.
 // FUNCTION: MW2 0x10015d2a
 // FUNCTION: MW2GBL 0x1002be95
+// FUNCTION: MW2PREMERCS 0x1004e33f
 // FUNCTION: MW2MATROX 0x1001bb6c
 // FUNCTION: MW23DFX 0x10020670
 // FUNCTION: MW2ATI 0x10020940
@@ -2062,6 +2077,7 @@ MechS16 GetAvoidSide(Player* p_player, Shape* p_shape, MechScalar p_x, MechScala
 // The heading from p_player to p_target (16.16 degrees, 0 to 360), keeping its target.
 // FUNCTION: MW2 0x10015dd6
 // FUNCTION: MW2GBL 0x1002bf41
+// FUNCTION: MW2PREMERCS 0x1004e3eb
 // FUNCTION: MW2MATROX 0x1001bc2c
 // FUNCTION: MW23DFX 0x10020710
 // FUNCTION: MW2ATI 0x100209e0
@@ -2086,6 +2102,7 @@ MechScalar GetHeadingTo(Player* p_player, MechS16 p_target)
 // Clamps p_value to +/- p_limit.
 // FUNCTION: MW2 0x10015e34
 // FUNCTION: MW2GBL 0x1002bf9f
+// FUNCTION: MW2PREMERCS 0x1004e449
 // FUNCTION: MW2MATROX 0x1001bc8e
 // FUNCTION: MW23DFX 0x10020760
 // FUNCTION: MW2ATI 0x10020a30
@@ -2106,6 +2123,7 @@ MechScalar ClampMagnitude(MechScalar p_value, MechScalar p_limit)
 // Whether the segment from p_player at height p_y to its target is clear, or hits the target.
 // FUNCTION: MW2 0x10015e74
 // FUNCTION: MW2GBL 0x1002bfdf
+// FUNCTION: MW2PREMERCS 0x1004e489
 // FUNCTION: MW2MATROX 0x1001bcd8
 // FUNCTION: MW23DFX 0x100207b0
 // FUNCTION: MW2ATI 0x10020a80
@@ -2175,6 +2193,7 @@ MechS32 IsOutOfAmmo(Mech* p_mech)
 // Fires p_player's jump jets forward (p_value set) or backward.
 // FUNCTION: MW2 0x10016057
 // FUNCTION: MW2GBL 0x1002c1c2
+// FUNCTION: MW2PREMERCS 0x1004e66e
 // FUNCTION: MW2MATROX 0x1001bebb
 // FUNCTION: MW23DFX 0x100208e0
 // FUNCTION: MW2ATI 0x10020bb0
@@ -2247,6 +2266,7 @@ void JumpToTurn(Player* p_player)
 // heat (16.16) under p_limit.
 // FUNCTION: MW2 0x10016222
 // FUNCTION: MW2GBL 0x1002c391
+// FUNCTION: MW2PREMERCS 0x1004e83d
 // FUNCTION: MW2MATROX 0x1001c0b2
 // FUNCTION: MW23DFX 0x10020a30
 // FUNCTION: MW2ATI 0x10020d00
@@ -2268,6 +2288,7 @@ MechS32 CanJump(Player* p_player, MechS32 p_limit)
 // The shape of the player or game thing an AI target id names, or NULL.
 // FUNCTION: MW2 0x1001627f
 // FUNCTION: MW2GBL 0x1002c3ee
+// FUNCTION: MW2PREMERCS 0x1004e89a
 // FUNCTION: MW2MATROX 0x1001c11d
 // FUNCTION: MW23DFX 0x10020a70
 // FUNCTION: MW2ATI 0x10020d40

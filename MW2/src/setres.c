@@ -23,6 +23,7 @@
 // The file name suffixes of the art resolutions (ShowBanner).
 // GLOBAL: MW2 0x100aa710
 // GLOBAL: MW2GBL 0x100b6998
+// GLOBAL: MW2PREMERCS 0x100ae210
 // GLOBAL: MW2MATROX 0x100bca48
 // GLOBAL: MW23DFX 0x10249298
 MechChar g_artResolutionSuffixes[4][2] = {"", "6", "k", ""};
@@ -30,6 +31,7 @@ MechChar g_artResolutionSuffixes[4][2] = {"", "6", "k", ""};
 // The largest coordinates of the three resolutions the art comes in.
 // GLOBAL: MW2 0x100aa718
 // GLOBAL: MW2GBL 0x100b69a0
+// GLOBAL: MW2PREMERCS 0x100ae218
 // GLOBAL: MW2MATROX 0x100bca50
 // GLOBAL: MW2ATI 0x1017d2a0
 // GLOBAL: MW2S3 0x10077060
@@ -38,6 +40,7 @@ Point g_artResolutionSizes[3] = {{319, 199}, {639, 479}, {1023, 767}};
 
 // GLOBAL: MW2 0x100e9610
 // GLOBAL: MW2GBL 0x100bbb58
+// GLOBAL: MW2PREMERCS 0x102140ac
 // GLOBAL: MW2MATROX 0x1012c1e0
 // GLOBAL: MW23DFX 0x102453c0
 // GLOBAL: MW2ATI 0x101791e0
@@ -57,6 +60,7 @@ MechS32 g_unk0x1012c1e4;
 
 // GLOBAL: MW2 0x100e9614
 // GLOBAL: MW2GBL 0x100bbb5c
+// GLOBAL: MW2PREMERCS 0x102140b0
 // GLOBAL: MW2MATROX 0x1012c1e8
 // GLOBAL: MW23DFX 0x102453c8
 // GLOBAL: MW2ATI 0x101791e8
@@ -66,6 +70,7 @@ MechS32 g_artResolution;
 
 // FUNCTION: MW2 0x1005d410
 // FUNCTION: MW2GBL 0x1007fff0
+// FUNCTION: MW2PREMERCS 0x1001d350
 // FUNCTION: MW2MATROX 0x1008c140
 // FUNCTION: MW23DFX 0x10002470
 // FUNCTION: MW2ATI 0x10002370
@@ -127,6 +132,7 @@ void ChooseArtResolution(GameWindowGeometry* p_geometry)
 // Picks the art resolution (g_artResolution) closest to the window's.
 // FUNCTION: MW2 0x1005d44e
 // FUNCTION: MW2GBL 0x1008002e
+// FUNCTION: MW2PREMERCS 0x1001d38e
 // FUNCTION: MW2MATROX 0x1008c195
 // FUNCTION: MW2ATI 0x100023b0
 // FUNCTION: MW2POWERVR 0x10002390
@@ -172,6 +178,7 @@ void ChooseArtResolution(GameWindowGeometry* p_geometry)
 // the resolution.
 // FUNCTION: MW2 0x1005d4d3
 // FUNCTION: MW2GBL 0x100800b9
+// FUNCTION: MW2PREMERCS 0x1001d419
 // FUNCTION: MW2MATROX 0x1008c280
 // FUNCTION: MW23DFX 0x10002520
 // FUNCTION: MW2ATI 0x10002430

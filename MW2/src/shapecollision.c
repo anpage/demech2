@@ -21,10 +21,12 @@
 
 // GLOBAL: MW2 0x100ad43c
 // GLOBAL: MW2GBL 0x1009f0dc
+// GLOBAL: MW2PREMERCS 0x100b0b90
 MechS32 g_rayBoxEntryBehind = 0;
 
 // FUNCTION: MW2 0x100699a0
 // FUNCTION: MW2GBL 0x1001b260
+// FUNCTION: MW2PREMERCS 0x1002dd00
 // FUNCTION: MW2MATROX 0x10052170
 // FUNCTION: MW23DFX 0x1000d1b0
 // FUNCTION: MW2ATI 0x1000d920
@@ -44,6 +46,7 @@ MechS32 TestPointInBox(Shape* p_shape, MechScalar p_x, MechScalar p_y, MechScala
 // p_top and an upward normal.
 // FUNCTION: MW2 0x100699da
 // FUNCTION: MW2GBL 0x1001b29a
+// FUNCTION: MW2PREMERCS 0x1002dd3a
 // FUNCTION: MW2MATROX 0x100521aa
 // FUNCTION: MW23DFX 0x1000d1f0
 // FUNCTION: MW2ATI 0x1000d960
@@ -239,6 +242,7 @@ MechS32 TestPointInBoxColumn(Shape* p_shape, MechScalar p_x, MechScalar p_y, Mec
 
 // FUNCTION: MW2 0x10069e54
 // FUNCTION: MW2GBL 0x1001b714
+// FUNCTION: MW2PREMERCS 0x1002e1b4
 // FUNCTION: MW2MATROX 0x10052696
 // FUNCTION: MW23DFX 0x1000d580
 // FUNCTION: MW2ATI 0x1000dcf0
@@ -251,6 +255,7 @@ MechS32 TestPointNever(Shape* p_shape, MechScalar p_x, MechScalar p_y, MechScala
 
 // FUNCTION: MW2 0x10069e66
 // FUNCTION: MW2GBL 0x1001b726
+// FUNCTION: MW2PREMERCS 0x1002e1c6
 // FUNCTION: MW2MATROX 0x100526a8
 // FUNCTION: MW23DFX 0x1000d590
 // FUNCTION: MW2ATI 0x1000dd00
@@ -264,6 +269,7 @@ MechS32 TestRayNever(Shape* p_shape, Ray* p_ray)
 // Finds the upward-facing face under (p_x, p_z) and tests whether p_y lies below it.
 // FUNCTION: MW2 0x10069e78
 // FUNCTION: MW2GBL 0x1001b738
+// FUNCTION: MW2PREMERCS 0x1002e1d8
 // FUNCTION: MW2MATROX 0x100526ba
 // FUNCTION: MW23DFX 0x1000d5a0
 // FUNCTION: MW2ATI 0x1000dd10
@@ -352,6 +358,7 @@ MechS32 GetTerrainShapeTop(Shape* p_shape, MechScalar p_x, MechScalar p_y, MechS
 // Finds the downward-facing face over (p_x, p_z) and tests whether p_y lies above it.
 // FUNCTION: MW2 0x1006a037
 // FUNCTION: MW2GBL 0x1001b8f7
+// FUNCTION: MW2PREMERCS 0x1002e397
 // FUNCTION: MW2MATROX 0x10052883
 // FUNCTION: MW23DFX 0x1000d6b0
 // FUNCTION: MW2ATI 0x1000de20
@@ -421,6 +428,7 @@ MechS32 TestPointAboveFaces(Shape* p_shape, MechScalar p_x, MechScalar p_y, Mech
 // Tests the ray against each face of the shape's model.
 // FUNCTION: MW2 0x1006a190
 // FUNCTION: MW2GBL 0x1001ba50
+// FUNCTION: MW2PREMERCS 0x1002e4f0
 // FUNCTION: MW2MATROX 0x100529df
 // FUNCTION: MW23DFX 0x1000d7b0
 // FUNCTION: MW2ATI 0x1000df20

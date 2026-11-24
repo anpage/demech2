@@ -11,6 +11,7 @@
 // Divides the 64-bit p_a * p_d - p_b * p_c by p_divisor.
 // FUNCTION: MW2 0x100349c0
 // FUNCTION: MW2GBL 0x1003a7a0
+// FUNCTION: MW2PREMERCS 0x1005e300
 MechS32 CrossDiv(MechS32 p_a, MechS32 p_b, MechS32 p_c, MechS32 p_d, MechS32 p_divisor)
 {
 #ifdef PORTABLE_C

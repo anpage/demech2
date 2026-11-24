@@ -27,6 +27,7 @@
 // (0xc9) lowers it, and its number key raises it too.
 // FUNCTION: MW2 0x10072840
 // FUNCTION: MW2GBL 0x10005ad0
+// FUNCTION: MW2PREMERCS 0x10082cc0
 // FUNCTION: MW2MATROX 0x1007e020
 // FUNCTION: MW23DFX 0x10064780
 // FUNCTION: MW2ATI 0x10061df0
@@ -208,6 +209,7 @@ void RunMenuSlider(MenuDefinition* p_menu, MenuControl* p_control, MechS32 p_ind
 // callbacks.
 // FUNCTION: MW2 0x10072dab
 // FUNCTION: MW2GBL 0x1000603b
+// FUNCTION: MW2PREMERCS 0x1008322b
 // FUNCTION: MW2MATROX 0x1007e58b
 // FUNCTION: MW23DFX 0x10064b60
 // FUNCTION: MW2ATI 0x100621d0
@@ -348,6 +350,7 @@ void RunMenuStatus(MenuDefinition* p_menu, MenuControl* p_control, MechS32 p_ind
 // (0xc9) the previous, wrapping, and its number key the next.
 // FUNCTION: MW2 0x10073136
 // FUNCTION: MW2GBL 0x100063c1
+// FUNCTION: MW2PREMERCS 0x100835b1
 // FUNCTION: MW2MATROX 0x1007e92e
 // FUNCTION: MW23DFX 0x10064d90
 // FUNCTION: MW2ATI 0x10062400
@@ -493,6 +496,7 @@ void RunMenuChoice(MenuDefinition* p_menu, MenuControl* p_control, MechS32 p_ind
 // first time. Reports 0 through m_preview unless the menu is being accepted or cancelled.
 // FUNCTION: MW2 0x100734ad
 // FUNCTION: MW2GBL 0x10006738
+// FUNCTION: MW2PREMERCS 0x10083928
 // FUNCTION: MW2MATROX 0x1007eca5
 // FUNCTION: MW23DFX 0x10064fa0
 // FUNCTION: MW2ATI 0x10062610

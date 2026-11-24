@@ -27,6 +27,7 @@ FloatPoint g_bandTexCoords[4] = {{0, 0}, {1.0f, 0}, {1.0f, 1.0f}, {0, 1.0f}};
 #else
 // GLOBAL: MW2 0x100a2330
 // GLOBAL: MW2GBL 0x1009e6a0
+// GLOBAL: MW2PREMERCS 0x100b3c20
 Point g_bandTexCoords[4] = {{0, 0}, {0x10000, 0}, {0x10000, 0x10000}, {0, 0x10000}};
 #endif
 
@@ -87,6 +88,7 @@ void FUN_1002a480(
 #ifndef MW2_A3D
 // FUNCTION: MW2 0x10010750
 // FUNCTION: MW2GBL 0x10016f90
+// FUNCTION: MW2PREMERCS 0x1005eba0
 void DrawBandPolygon(MechU32 p_flags, MechS32 p_count, MechU32* p_points, MechS32 p_unk0x0c)
 {
 	MechU32 color;
@@ -341,6 +343,7 @@ MechS32 DrawBand(MechU32 p_color, MechS32 p_count, MechS32* p_points, MechS32 p_
 #ifndef MW2_A3D
 // FUNCTION: MW2 0x10010a7f
 // FUNCTION: MW2GBL 0x100172c3
+// FUNCTION: MW2PREMERCS 0x1005eed3
 MechS32 DrawBandWithFlash(undefined4 p_unk0x00, MechS32 p_unk0x04, undefined4* p_unk0x08)
 {
 	MechS32 result;

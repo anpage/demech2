@@ -94,6 +94,7 @@ Point g_compassOrigin = {0x8000, 0x6666};
 
 // GLOBAL: MW2 0x100a5ee8
 // GLOBAL: MW2GBL 0x100b6948
+// GLOBAL: MW2PREMERCS 0x100b2fa8
 // GLOBAL: MW2MATROX 0x100a4e00
 // GLOBAL: MW23DFX 0x1024d0f0
 // GLOBAL: MW2ATI 0x10181470
@@ -105,6 +106,7 @@ Point g_hudGaugePositions[6] = {{0x73, 0x10}, {8, 0x4a}, {4, 0x28}, {4, 0x4a}, {
 // the altimeter.
 // GLOBAL: MW2 0x100a5f18
 // GLOBAL: MW2GBL 0x100b6978
+// GLOBAL: MW2PREMERCS 0x100b2fd8
 // GLOBAL: MW2MATROX 0x100a4e30
 // GLOBAL: MW23DFX 0x1024d120
 // GLOBAL: MW2ATI 0x101814a0
@@ -114,6 +116,7 @@ undefined4 g_showHud = 1;
 
 // GLOBAL: MW2 0x100a5f1c
 // GLOBAL: MW2GBL 0x100b697c
+// GLOBAL: MW2PREMERCS 0x100b2fdc
 // GLOBAL: MW2MATROX 0x100a4e34
 // GLOBAL: MW23DFX 0x1024d124
 // GLOBAL: MW2ATI 0x101814a4
@@ -123,6 +126,7 @@ MechS32 g_showCrosshair = 1;
 
 // GLOBAL: MW2 0x100a5f20
 // GLOBAL: MW2GBL 0x100b6980
+// GLOBAL: MW2PREMERCS 0x100b2fe0
 // GLOBAL: MW2MATROX 0x100a4e38
 // GLOBAL: MW23DFX 0x1024d128
 // GLOBAL: MW2ATI 0x101814a8
@@ -630,6 +634,7 @@ void InitHudGauges(void)
 // Returns the HUD gauges' positions (the compass's, then the altimeter's).
 // FUNCTION: MW2 0x100412c8
 // FUNCTION: MW2GBL 0x1007f318
+// FUNCTION: MW2PREMERCS 0x1005146c
 // FUNCTION: MW2MATROX 0x1001d1a4
 // FUNCTION: MW23DFX 0x10022700
 Point* GetHudGaugePositions(void)
@@ -1013,6 +1018,7 @@ void DrawCompass(MechS32 p_x, MechS32 p_y, MechScalar p_heading, MechScalar p_tw
 // and the point in p_x and p_y.
 // FUNCTION: MW2 0x10041998
 // FUNCTION: MW2GBL 0x1007f9e9
+// FUNCTION: MW2PREMERCS 0x100520f0
 // FUNCTION: MW2MATROX 0x1001d942
 // FUNCTION: MW23DFX 0x10022c40
 // FUNCTION: MW2ATI 0x10022f00
@@ -1474,6 +1480,7 @@ void DrawObjectBrackets(struct SceneObject* p_object, MechS32 p_side)
 // current pane.
 // FUNCTION: MW2 0x10041e98
 // FUNCTION: MW2GBL 0x1007fee9
+// FUNCTION: MW2PREMERCS 0x1005266e
 // FUNCTION: MW2MATROX 0x1001dee6
 // FUNCTION: MW23DFX 0x100230c0
 // FUNCTION: MW2ATI 0x10023380
@@ -1539,6 +1546,7 @@ void FUN_1001e01a(MechS32 p_x, MechS32 p_y, MechS32 p_id, PANE* p_target)
 // Draws frame 0 of the "SHP" resource p_id (relative to g_artResolution) at p_x, p_y.
 // FUNCTION: MW2 0x10041f06
 // FUNCTION: MW2GBL 0x1007ff55
+// FUNCTION: MW2PREMERCS 0x100526dc
 // FUNCTION: MW2MATROX 0x1001e0cb
 // FUNCTION: MW23DFX 0x10023120
 // FUNCTION: MW2ATI 0x100233e0
@@ -1558,6 +1566,7 @@ void DrawPaneShape(MechS32 p_x, MechS32 p_y, MechS32 p_id, PANE* p_target)
 // Draws DrawHudShape's shape at p_x, p_y of pane p_target.
 // FUNCTION: MW2 0x10041f73
 // FUNCTION: MW2GBL 0x1007ffc2
+// FUNCTION: MW2PREMERCS 0x10052749
 // FUNCTION: MW2MATROX 0x1001e136
 // FUNCTION: MW23DFX 0x10023180
 // FUNCTION: MW2ATI 0x10023440

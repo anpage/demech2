@@ -132,6 +132,7 @@ Point g_outlinePartOffsets[16] = {0};
 // Frames the outline's parts (OutlinePane) when set.
 // GLOBAL: MW2 0x100a5eb8
 // GLOBAL: MW2GBL 0x100b3098
+// GLOBAL: MW2PREMERCS 0x100b209c
 // GLOBAL: MW2MATROX 0x100ac8e8
 // GLOBAL: MW23DFX 0x1024c800
 // GLOBAL: MW2ATI 0x10180b80

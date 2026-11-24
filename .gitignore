@@ -33,6 +33,7 @@ MW2_ATI.DLL
 MW2_POWERVR.DLL
 MW2_S3.DLL
 MW2_GBL.DLL
+MW2_PREMERCS.DLL
 
 # Data / IDA database files
 /data/

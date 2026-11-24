@@ -15,6 +15,7 @@ In `targets.toml`'s order, which is also the order of a shared function's annota
 | `MW2SHELL` | `MW2SHELL.DLL` | shell | 1.1 patch | VC++ 4.1 | `MW2SHELL/`, `common/` |
 | `MW2` | `MW2.DLL` | simulator | retail / 1.1 patch | VC++ 4.1 | `MW2/`, `common/` |
 | `MW2GBL` | `MW2_GBL.DLL` | simulator | Ghost Bear's Legacy | VC++ 4.1 | `MW2/`, `common/` |
+| `MW2PREMERCS` | `MW2_PREMERCS.DLL` | simulator | Mercenaries' `MW2.DLL` | VC++ 4.1 | `MW2/`, `common/` |
 | `MW2MATROX` | `MW2_MATROX.DLL` | simulator | Matrox Mystique | VC++ 4.0 | `MW2/`, `common/` |
 | `MW23DFX` | `MW2_3DFX.DLL` | simulator | 3Dfx | VC++ 2.2 | `MW2/`, `common/` |
 | `MW2ATI` | `MW2_ATI.DLL` | simulator | ATI 3D Rage | VC++ 2.2 | `MW2/`, `common/` |
@@ -26,6 +27,7 @@ In `targets.toml`'s order, which is also the order of a shared function's annota
 - **MW2SHELL** (`MW2SHELL.DLL`): MechWarrior 2's shell (FMV, menus, settings, metagame), from the freely downloadable 1.1 patch, built with VC++ 4.1 at `/Od`. A mixture of C and C++.
 - **MW2** (`MW2.DLL`): MechWarrior 2's simulator (in-mission gameplay), from the freely downloadable 1.1 patch, built with VC++ 4.1 at `/Od`. Probably all C.
 - **MW2GBL** (`MW2_GBL.DLL`): The simulator of the expansion Ghost Bear's Legacy: the `MW2.DLL` of its freely downloadable 1.1 patch (`GBLPATCH.EXE`, linked 1996-10-18), built with VC++ 4.1 at `/Od`, without `/Oi`. It builds the simulator's sources (`MW2/`) with `MW2_GBL` defined.
+- **MW2PREMERCS** (`MW2_PREMERCS.DLL`): A simulator between Ghost Bear's Legacy and Mercenaries: the `MW2.DLL` the Mercenaries disc ships in its `/MERCS` folder beside Mercenaries' own simulator (`MERCSW.DLL`, linked 1996-09-16), linked 1996-07-08 from a tree its debug directory names `\mercs\mw2.dll` (its PDB `C:\mw2win\Mw2___Wi\mw2.pdb`). It is Ghost Bear's Legacy's code (its titles, its CD driver) with Mercenaries' first files (`mercs.hud`, `MW2CAR.CFG`), built with VC++ 4.1 at `/Od`, without `/Oi`. It builds the simulator's sources (`MW2/`) with `MW2_PREMERCS` defined.
 - **MW2MATROX** (`MW2_MATROX.DLL`): The simulator of the Matrox Mystique edition (the `MW2.DLL` of its disc, linked 1996-08-22), built with VC++ 4.0 (`cl` 10.00, LINK 3.00) at `/Od`, its renderer and depth sort optimized. It keeps the simulation's values as floats and draws through Matrox's `MSI95.DLL` instead of DirectDraw. It builds the simulator's sources (`MW2/`) with `MW2_ACCEL` and `MW2_MATROX` defined.
 - **MW23DFX** (`MW2_3DFX.DLL`): The simulator of the 3Dfx edition (the `MW2.DLL` of the Diamond Monster 3D disc, linked 1996-10-21), built with VC++ 2.2 and optimized (`/Ox /Ow /G5 /Gr /Gy`). It keeps the simulation's values as floats, draws through Glide (`GLIDE.DLL`) and links 3dfx's Texus texture library. It builds the simulator's sources (`MW2/`) with `MW2_ACCEL` and `MW2_3DFX` defined.
 - **MW2ATI** (`MW2_ATI.DLL`): The simulator of the ATI 3D Rage edition (the `MW2.DLL` of its disc, linked 1996-04-11), the oldest edition of the simulator, built with VC++ 2.2 and optimized (`/Ox /Ow /G5 /Gr /Gy`). It keeps the simulation's values as floats and draws through ATI's 3D CIF (`ati3dcif.dll`) on DirectDraw surfaces. It builds the simulator's sources (`MW2/`) with `MW2_ACCEL` and `MW2_ATI` defined.
@@ -46,6 +48,7 @@ day in the file's PE header, in UTC; a disc's file date is local time, and can b
 | `MW2SHELL.DLL` | 545,792 bytes | `1078ccb07fd45388bfd525719a8206ce7a01d6536776d30a5655ccb928900879` | 1996-10-09 | public | The [1.1 patch](https://archive.org/details/mw2patch) |
 | `MW2.DLL` | 827,392 bytes | `6212d542f8f915a594b278ab189f20a27e522e7c08ac57ce68bf47f45b17bbb5` | 1996-09-20 | public | The [1.1 patch](https://archive.org/details/mw2patch); the same file is on the [Windows 95 & MS-DOS + NetMech](http://redump.org/disc/25243/) disc and the [SoftKey](http://redump.org/disc/41925/) release |
 | `MW2_GBL.DLL` | 806,400 bytes | `284f3c6abef28eb421fc7da97f52c6223bd1a956409c6cb041ebe2e95d847cb8` | 1996-10-18 | public | The `MW2.DLL` of Ghost Bear's Legacy's [1.1 patch](https://archive.org/details/GBLPATCH), and the same file as the `MW2.DLL` of the [Windows 95 & MS-DOS](http://redump.org/disc/95676/) disc (the Alt 2 entry) |
+| `MW2_PREMERCS.DLL` | 882,176 bytes | `ab73bc22275a0d6fb48ff41172421148a4cfcb7d1c140928e42de2b069f00fdb` | 1996-07-08 | retail | The `/MERCS/MW2.DLL` of the Mercenaries disc, the same file on Mercenaries 1.05 and the Enhanced Direct 3D disc, and in the BattlePack, Ghost Bear's Legacy BattlePack and Titanium releases |
 | `MW2_MATROX.DLL` | 845,824 bytes | `444e19ad054cbe852ec8a54ddb8a6ffa019de2ce7ab97571fea62f9666982220` | 1996-08-22 | retail | The `MW2.DLL` of the [Enhanced for Matrox Mystique](http://redump.org/disc/43477/) disc (the Alt entry) |
 | `MW2_3DFX.DLL` | 724,480 bytes | `e15b8ca2013a365df11723aa97f9e7ea2914e1139090800f9b452fb7ea08282f` | 1996-10-21 | retail | The `MW2.DLL` of the [3Dfx OEM](http://redump.org/disc/11391/) disc |
 | `MW2_ATI.DLL` | 638,976 bytes | `c0509cefd31887301bd86ef8cca748211af224d9cce1a40cf87d2da6e942a739` | 1996-04-11 | retail | The `MW2.DLL` of the [ATI 3D Rage Edition](http://redump.org/disc/46902/) disc |
@@ -64,6 +67,7 @@ binaries are written to the build tree's root or the subdirectory given.
 | `MW2SHELL` | VC++ 4.1 | C++ (C files: no `/GX`) | `/Od /Oi /G5 /Ob1 /GX` | `/MT` (static) | `/DLL` (comparison build adds `/DEBUG /OPT:REF /INCREMENTAL:no`) | `MW2SHELL.dll` | none |
 | `MW2` | VC++ 4.1 | C | `/Od /Oi /G5` | `/MTd` (static debug, predefines `_DEBUG`) | `/DLL /DEBUG /INCREMENTAL:no` | `MW2.dll` | none |
 | `MW2GBL` | VC++ 4.1 | C | `/Od /G5` | `/MTd` (static debug, predefines `_DEBUG`) | `/DLL /DEBUG /OPT:REF /INCREMENTAL:no` (the original: no `/DEBUG`) | `MW2_GBL.dll` | `MW2_GBL` |
+| `MW2PREMERCS` | VC++ 4.1 | C | `/Od /G5` | `/MTd` (static debug, predefines `_DEBUG`) | `/DLL /DEBUG /INCREMENTAL:no` | `MW2_PREMERCS.dll` | `MW2_PREMERCS` |
 | `MW2MATROX` | VC++ 4.0 | C | `/Od /Oi /G5` | `/MT` (static `LIBCMT`) | `/DLL` (comparison build adds `/DEBUG /OPT:REF /INCREMENTAL:no`) | `vc40/MW2_MATROX.dll` | `MW2_ACCEL`, `MW2_MATROX` |
 | `MW23DFX` | VC++ 2.2 | C | `/Ox /Ow /Oi /G5 /Gr /Gy /Z7` (three units `/Od`; Texus `/Ox /G5 /QIfdiv-`) | `/ML` (single-threaded `LIBC`) | `/DLL /DEBUG /INCREMENTAL:no` | `vc22/MW2_3DFX.dll` | `MW2_ACCEL`, `MW2_3DFX` |
 | `MW2ATI` | VC++ 2.2 | C | `/Ox /Ow /Oi /G5 /Gr /Gy /Z7` (three units `/Od`) | `/ML` (single-threaded `LIBC`) | `/DLL /DEBUG /OPT:REF /INCREMENTAL:no` | `vc22/MW2_ATI.dll` | `MW2_ACCEL`, `MW2_ATI` |
@@ -82,6 +86,7 @@ functions in the original.
 | `MW2SHELL` | 770 | below the import thunks at `0x100492a2` |
 | `MW2` | 1537 | before the CRT at `0x10080490` |
 | `MW2GBL` | 1546 | before the CRT at `0x10080fa0` |
+| `MW2PREMERCS` | 1640 | before the import thunks at `0x1008aa62`, which precede the CRT |
 | `MW2MATROX` | 1597 | before the CRT at `0x10092d30` |
 | `MW23DFX` | 1574 | before the import thunks that precede Texus, at `0x100680b2`: every function `tools/edition.py --target MW23DFX functions` finds by tracing the code (Ghidra finds 1313) |
 | `MW2ATI` | 1427 | before the import thunks at `0x10065066`: every function `tools/edition.py --target MW2ATI functions` finds by tracing the code |
@@ -103,6 +108,8 @@ targets:
     path: path/to/MW2.DLL
   MW2GBL:
     path: path/to/MW2_GBL.DLL
+  MW2PREMERCS:
+    path: path/to/MW2_PREMERCS.DLL
   MW2MATROX:
     path: path/to/MW2_MATROX.DLL
   MW23DFX:

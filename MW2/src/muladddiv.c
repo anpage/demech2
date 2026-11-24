@@ -11,6 +11,7 @@
 // Returns (p_a * p_b + (p_c << 16)) / p_d, with a 64-bit intermediate.
 // FUNCTION: MW2 0x1004c860
 // FUNCTION: MW2GBL 0x1000aa60
+// FUNCTION: MW2PREMERCS 0x100645a0
 MechS32 MulAddDiv(MechS32 p_a, MechS32 p_b, MechS32 p_c, MechS32 p_d)
 {
 #ifdef PORTABLE_C

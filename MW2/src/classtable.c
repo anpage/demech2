@@ -79,6 +79,7 @@ MechS32 g_classEntryCount = 0;
 
 // GLOBAL: MW2 0x100a37d8
 // GLOBAL: MW2GBL 0x100ad874
+// GLOBAL: MW2PREMERCS 0x100b64f0
 // GLOBAL: MW2MATROX 0x100ae0e8
 // GLOBAL: MW23DFX 0x1024dbdc
 // GLOBAL: MW2ATI 0x10181eec
@@ -521,6 +522,7 @@ MechS32 LoadClassEntryShape(MechS32 p_index, MechS32 p_level, void* p_buffer)
 // Releases the shapes of the first player whose m_detailLevel names a level, and clears it.
 // FUNCTION: MW2 0x1001d88b
 // FUNCTION: MW2GBL 0x10036c1b
+// FUNCTION: MW2PREMERCS 0x10057ca2
 // FUNCTION: MW2MATROX 0x1006df87
 // FUNCTION: MW23DFX 0x100266e0
 void ReleasePendingDetailLevel(void)

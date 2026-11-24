@@ -107,6 +107,7 @@ typedef struct FormationNames {
 
 // GLOBAL: MW2 0x100a8608
 // GLOBAL: MW2GBL 0x100b2ce0
+// GLOBAL: MW2PREMERCS 0x100bfa80
 // GLOBAL: MW2MATROX 0x100a85e0
 // GLOBAL: MW23DFX 0x1025a5f8
 // GLOBAL: MW2ATI 0x1018e8f0
@@ -116,6 +117,7 @@ ScenarioTable* g_scenarios = NULL;
 
 // GLOBAL: MW2 0x100a860c
 // GLOBAL: MW2GBL 0x100b2ce4
+// GLOBAL: MW2PREMERCS 0x100bfa84
 // GLOBAL: MW2MATROX 0x100a85e4
 // GLOBAL: MW23DFX 0x1025a5fc
 // GLOBAL: MW2ATI 0x1018e8f4
@@ -126,6 +128,7 @@ void* g_unk0x100a860c = NULL;
 // The next name of g_scenarios ExecuteInclude substitutes.
 // GLOBAL: MW2 0x100a8610
 // GLOBAL: MW2GBL 0x100b2ce8
+// GLOBAL: MW2PREMERCS 0x100bfa88
 // GLOBAL: MW2MATROX 0x100a85e8
 // GLOBAL: MW23DFX 0x1025a600
 // GLOBAL: MW2ATI 0x1018e8f8
@@ -136,6 +139,7 @@ MechS32 g_nextScenario = 0;
 // The number of entries in g_thingRecordIndices, and the next one NextThingRecordObject returns.
 // GLOBAL: MW2 0x100a8620
 // GLOBAL: MW2GBL 0x100b2cf8
+// GLOBAL: MW2PREMERCS 0x100bfa98
 // GLOBAL: MW2MATROX 0x100a85f8
 // GLOBAL: MW23DFX 0x1025a610
 // GLOBAL: MW2ATI 0x1018e908
@@ -145,6 +149,7 @@ MechS32 g_thingRecordCount = 0;
 
 // GLOBAL: MW2 0x100a8624
 // GLOBAL: MW2GBL 0x100b2cfc
+// GLOBAL: MW2PREMERCS 0x100bfa9c
 // GLOBAL: MW2MATROX 0x100a85fc
 // GLOBAL: MW23DFX 0x1025a614
 // GLOBAL: MW2ATI 0x1018e90c
@@ -154,6 +159,7 @@ MechS32 g_nextThingRecord = 0;
 
 // GLOBAL: MW2 0x100a8628
 // GLOBAL: MW2GBL 0x100b2d00
+// GLOBAL: MW2PREMERCS 0x100bfaa0
 // GLOBAL: MW2MATROX 0x100a8600
 // GLOBAL: MW23DFX 0x1025a618
 // GLOBAL: MW2ATI 0x1018e910
@@ -164,6 +170,7 @@ MechS32 g_mangleBase = 0;
 // The mangle base of the world stream's next mangle_on section (BwdExecuteStream).
 // GLOBAL: MW2 0x100a862c
 // GLOBAL: MW2GBL 0x100b2d04
+// GLOBAL: MW2PREMERCS 0x100bfaa4
 // GLOBAL: MW2MATROX 0x100a8604
 // GLOBAL: MW23DFX 0x1025a61c
 // GLOBAL: MW2S3 0x10073154
@@ -173,6 +180,7 @@ MechS32 g_nextMangleBase = 0;
 // The formation LoadStarTable gives the player's team, or NULL to use the record's.
 // GLOBAL: MW2 0x100a8630
 // GLOBAL: MW2GBL 0x100b2d08
+// GLOBAL: MW2PREMERCS 0x100bfaa8
 // GLOBAL: MW2MATROX 0x100a8608
 // GLOBAL: MW23DFX 0x1025a620
 // GLOBAL: MW2ATI 0x1018e918
@@ -183,6 +191,7 @@ MechChar* g_playerTeamFormation = NULL;
 // The formation LoadStarTable gives the other teams, or NULL to use the record's.
 // GLOBAL: MW2 0x100a8634
 // GLOBAL: MW2GBL 0x100b2d0c
+// GLOBAL: MW2PREMERCS 0x100bfaac
 // GLOBAL: MW2MATROX 0x100a860c
 // GLOBAL: MW23DFX 0x1025a624
 // GLOBAL: MW2ATI 0x1018e91c
@@ -193,6 +202,7 @@ MechChar* g_otherTeamFormation = NULL;
 // The player the world stream (BwdExecuteStream) created last, for ReelMotionTask.
 // GLOBAL: MW2 0x100a8638
 // GLOBAL: MW2GBL 0x100b2d10
+// GLOBAL: MW2PREMERCS 0x100bfab0
 // GLOBAL: MW2MATROX 0x100a8610
 // GLOBAL: MW23DFX 0x1025a628
 // GLOBAL: MW2ATI 0x1018e920
@@ -214,6 +224,7 @@ TimedCallbackFn g_taskFns[6] = {SpinTask, ColorCycleTask, OrbitTask, ReelMotionT
 
 // GLOBAL: MW2 0x100ea500
 // GLOBAL: MW2GBL 0x100bf1d0
+// GLOBAL: MW2PREMERCS 0x10156a30
 // GLOBAL: MW2MATROX 0x101d4770
 // GLOBAL: MW23DFX 0x10159510
 // GLOBAL: MW2ATI 0x1008d520
@@ -224,6 +235,7 @@ MissionTable* g_missionTables[16];
 // The number of entries of each of g_missionTables.
 // GLOBAL: MW2 0x100ea540
 // GLOBAL: MW2GBL 0x100bf210
+// GLOBAL: MW2PREMERCS 0x10156a70
 // GLOBAL: MW2MATROX 0x101d4730
 // GLOBAL: MW23DFX 0x101594d0
 // GLOBAL: MW2ATI 0x1008d4e0
@@ -233,6 +245,7 @@ MechS32 g_missionTableCounts[16];
 
 // GLOBAL: MW2 0x100ea580
 // GLOBAL: MW2GBL 0x100bf250
+// GLOBAL: MW2PREMERCS 0x10156ab0
 // GLOBAL: MW2MATROX 0x101d47b0
 // GLOBAL: MW23DFX 0x10159550
 // GLOBAL: MW2ATI 0x1008d560
@@ -243,6 +256,7 @@ MechS32 g_thingRecordIndices[0x96];
 // The number of names in g_scenarios.
 // GLOBAL: MW2 0x100ea7d8
 // GLOBAL: MW2GBL 0x100bf4a8
+// GLOBAL: MW2PREMERCS 0x10156d08
 // GLOBAL: MW2MATROX 0x101d4720
 // GLOBAL: MW23DFX 0x101594cc
 // GLOBAL: MW2ATI 0x1008d4d8
@@ -253,6 +267,7 @@ MechS32 g_scenarioCount;
 // Copies a bitmap record's size to p_width and p_height and its data to p_data, each if not NULL.
 // FUNCTION: MW2 0x1004f3f0
 // FUNCTION: MW2GBL 0x10052490
+// FUNCTION: MW2PREMERCS 0x1007d8c0
 // FUNCTION: MW2MATROX 0x10048fb0
 // FUNCTION: MW23DFX 0x10042970
 // FUNCTION: MW2ATI 0x10040510
@@ -284,6 +299,7 @@ void LoadMapBitmap(BwdRecord* p_record, MechS32* p_width, MechS32* p_height, Mec
 // Replaces the scenario table with a copy of p_table.
 // FUNCTION: MW2 0x1004f47a
 // FUNCTION: MW2GBL 0x1005251a
+// FUNCTION: MW2PREMERCS 0x1007d94a
 // FUNCTION: MW2MATROX 0x1004903a
 // FUNCTION: MW23DFX 0x100429b0
 // FUNCTION: MW2ATI 0x10040550
@@ -317,6 +333,7 @@ MechS32 LoadScenarioTable(ScenarioTable* p_table)
 // Replaces the mission table in p_table's slot with a copy of it.
 // FUNCTION: MW2 0x1004f545
 // FUNCTION: MW2GBL 0x100525e1
+// FUNCTION: MW2PREMERCS 0x1007da11
 // FUNCTION: MW2MATROX 0x10049105
 // FUNCTION: MW23DFX 0x10042a50
 // FUNCTION: MW2ATI 0x100405f0
@@ -353,6 +370,7 @@ MechS32 LoadMissionTable(MissionTable* p_table)
 // Adds a path to g_paths, or returns FALSE if the table or the path is full.
 // FUNCTION: MW2 0x1004f64a
 // FUNCTION: MW2GBL 0x100526e3
+// FUNCTION: MW2PREMERCS 0x1007db13
 // FUNCTION: MW2MATROX 0x1004920a
 // FUNCTION: MW23DFX 0x10042b00
 // FUNCTION: MW2ATI 0x100406a0
@@ -393,6 +411,7 @@ MechS32 LoadPathTable(PathRecord* p_record)
 // full.
 // FUNCTION: MW2 0x1004f891
 // FUNCTION: MW2GBL 0x1005292a
+// FUNCTION: MW2PREMERCS 0x1007dd5a
 // FUNCTION: MW2MATROX 0x1004946c
 // FUNCTION: MW23DFX 0x10042bc0
 // FUNCTION: MW2ATI 0x10040760
@@ -485,6 +504,7 @@ MechS32 ExecuteInclude(IncludeRecord* p_record, BwdStreamFn p_fn)
 // MW2MATROX: the local team is g_localStar itself, not the one after it.
 // FUNCTION: MW2 0x1004fb0b
 // FUNCTION: MW2GBL 0x10052ba4
+// FUNCTION: MW2PREMERCS 0x1007dfd4
 // FUNCTION: MW2MATROX 0x100496fe
 // FUNCTION: MW23DFX 0x10042d40
 // FUNCTION: MW2ATI 0x100408e0
@@ -526,6 +546,7 @@ void LoadStarTable(StarTable* p_table)
 // Gives the sixteen teams the formations a record names.
 // FUNCTION: MW2 0x1004fc48
 // FUNCTION: MW2GBL 0x10052cdf
+// FUNCTION: MW2PREMERCS 0x1007e10f
 // FUNCTION: MW2MATROX 0x10049839
 // FUNCTION: MW23DFX 0x10042de0
 // FUNCTION: MW2ATI 0x10040980
@@ -546,6 +567,7 @@ void SetTeamFormations(FormationNames* p_record)
 // Runs p_fn on the stream a record names.
 // FUNCTION: MW2 0x1004fcac
 // FUNCTION: MW2GBL 0x10052d43
+// FUNCTION: MW2PREMERCS 0x1007e173
 // FUNCTION: MW2MATROX 0x1004989d
 // FUNCTION: MW23DFX 0x10042e10
 // FUNCTION: MW2ATI 0x100409b0
@@ -584,6 +606,7 @@ MechS32 RunIncludedStream(IncludeRecord2* p_record, BwdStreamFn p_fn)
 // Frees the mission tables' blocks.
 // FUNCTION: MW2 0x1004fd55
 // FUNCTION: MW2GBL 0x10052dec
+// FUNCTION: MW2PREMERCS 0x1007e21c
 // FUNCTION: MW2MATROX 0x10049946
 // FUNCTION: MW23DFX 0x10042e80
 // FUNCTION: MW2ATI 0x10040a20
@@ -617,6 +640,7 @@ void FreeMissionTables(void)
 // that small is left alone.
 // FUNCTION: MW2 0x1004fe0f
 // FUNCTION: MW2GBL 0x10052ea6
+// FUNCTION: MW2PREMERCS 0x1007e2d6
 // FUNCTION: MW2MATROX 0x10049a00
 // FUNCTION: MW23DFX 0x10042f00
 void ScaleNormal(MechFloat p_a, MechFloat p_b, MechFloat p_c, undefined4* p_x, undefined4* p_y, undefined4* p_z)
@@ -636,6 +660,7 @@ void ScaleNormal(MechFloat p_a, MechFloat p_b, MechFloat p_c, undefined4* p_x, u
 // Scales the plane (p_a, p_b, p_c, p_d) like ScaleNormal.
 // FUNCTION: MW2 0x1004fe85
 // FUNCTION: MW2GBL 0x10052f1c
+// FUNCTION: MW2PREMERCS 0x1007e34c
 // FUNCTION: MW2MATROX 0x10049acb
 // FUNCTION: MW23DFX 0x10042fb0
 void ScalePlane(
@@ -667,6 +692,7 @@ void ScalePlane(
 // by ScaleNormal.
 // FUNCTION: MW2 0x1004ff16
 // FUNCTION: MW2GBL 0x10052fad
+// FUNCTION: MW2PREMERCS 0x1007e3dd
 // FUNCTION: MW2MATROX 0x10049bc4
 // FUNCTION: MW23DFX 0x10043090
 void GetTriangleNormal(
@@ -995,6 +1021,7 @@ void CreateObjectNode(
 // Returns the object of the next entry of g_thingRecordIndices, or NULL after the last.
 // FUNCTION: MW2 0x100506d8
 // FUNCTION: MW2GBL 0x1005375f
+// FUNCTION: MW2PREMERCS 0x1007ebb9
 // FUNCTION: MW2MATROX 0x1004a45a
 // FUNCTION: MW23DFX 0x100436f0
 // FUNCTION: MW2ATI 0x10040f40
@@ -1020,6 +1047,7 @@ struct SceneObject* NextThingRecordObject(void)
 // Returns the next free game thing index, or -1 when all 254 are taken.
 // FUNCTION: MW2 0x1005072f
 // FUNCTION: MW2GBL 0x100537b6
+// FUNCTION: MW2PREMERCS 0x1007ec10
 // FUNCTION: MW2MATROX 0x1004a4b1
 // FUNCTION: MW23DFX 0x10043720
 // FUNCTION: MW2ATI 0x10040f70

@@ -46,8 +46,9 @@ typedef char MechChar;
    for 1.1, MW2_ACCEL for the accelerated (3D-card) editions, which share the Matrox edition's
    changes to 1.1, and with it MW2_MATROX (the Matrox Mystique edition), MW2_3DFX (the 3Dfx
    edition), MW2_ATI (the ATI 3D Rage edition), MW2_S3 (the S3 ViRGE edition) or MW2_POWERVR (the
-   PowerVR edition), and MW2_GBL alone for Ghost Bear's Legacy's simulator, 1.1's code a month
-   later. The code tests the features, named for what they do; an edition's own
+   PowerVR edition), MW2_GBL alone for Ghost Bear's Legacy's simulator, 1.1's code a month
+   later, and MW2_PREMERCS alone for the simulator the Mercenaries disc ships beside its own, Ghost
+   Bear's Legacy's code three months earlier. The code tests the features, named for what they do; an edition's own
    back end, and a computation one edition's source writes another way with the same behaviour, test the identity.
    Macros cost no unit anything here (types.h is already included), where a header of their own would move code: its
    first inclusion counts as a symbol on 4.0 and 4.1. Features no binary separates (the ones both accelerated editions
@@ -63,14 +64,17 @@ typedef char MechChar;
 	!defined(MW2_ACCEL)
 #error "an accelerated edition defines MW2_ACCEL"
 #endif
-#if defined(MW2_GBL) && defined(MW2_ACCEL)
-#error "MW2_GBL is no accelerated edition"
+#if (defined(MW2_GBL) || defined(MW2_PREMERCS)) && defined(MW2_ACCEL)
+#error "MW2_GBL and MW2_PREMERCS are no accelerated editions"
 #endif
-/* GBL's build has no /Oi (it calls memcpy, memset, strcmp and the math functions where 1.1 expands
-   them), but expands abs and fabs as 1.1 does. How it did that isn't known (a pragma like this one
-   or other headers); this reproduces it. VC++ 4.1 takes the pragma only for a function declared
-   ahead of it, hence the CRT's prototypes. */
-#ifdef MW2_GBL
+#if defined(MW2_GBL) && defined(MW2_PREMERCS)
+#error "MW2_GBL and MW2_PREMERCS are different editions"
+#endif
+/* GBL's build and the Mercenaries disc's MW2.DLL have no /Oi (they call memcpy, memset, strcmp and the
+   math functions where 1.1 expands them), but expand abs and fabs as 1.1 does. How it did that isn't known (a pragma
+   like this one or other headers); this reproduces it. VC++ 4.1 takes the pragma only for a function declared ahead of
+   it, hence the CRT's prototypes. */
+#if defined(MW2_GBL) || defined(MW2_PREMERCS)
 int __cdecl abs(int);
 double __cdecl fabs(double);
 #pragma intrinsic(abs, fabs)
@@ -727,6 +731,158 @@ double __cdecl fabs(double);
 #endif
 
 #ifdef MW2_GBL
+/* Mechs take heat from outside (Mech::m_externalHeat, which the radius damage adds to and
+   CalculateHeat adds to the frame's heat) */
+#define MW2_EXTERNAL_HEAT
+/* Mechs have a second word of flags (Mech::m_unk0x112, whose bit 0 UpdateShot sets for a NARC hit) */
+#define MW2_MECH_SECOND_FLAGS
+/* Mechs have 14 weapon slots, not 10 (WEAPON_SLOT_COUNT) */
+#define MW2_FOURTEEN_WEAPON_SLOTS
+/* An AI player whose gunnery is above 6 takes its skills from a table of pilots, with two more
+   values and a flag the AI's fire decisions test (Player::m_unk0x160, m_unk0x1b0, m_unk0x1b4) */
+#define MW2_PILOT_TABLE
+/* The maneuver tables are data, five of them the pilot table's, and each player has its table and a
+   range (Player::m_maneuverTable, m_unk0x1b0: InitializeManeuvers) */
+#define MW2_STATIC_MANEUVER_TABLES
+/* Representation: a player's AI flags are an int, not a short (PlayerAi::m_flags) */
+#define MW2_AI_FLAGS_INT
+/* The local star starts at 0, and the player's formation goes to it */
+#define MW2_LOCAL_STAR_FROM_ZERO
+/* The CHAT_MODE game key, action 66: the later actions are one higher (GAME_KEY_ACTION) */
+#define MW2_CHAT_KEY
+/* The TOGGLE_AMS game key, action 169 */
+#define MW2_AMS_KEY
+/* The message boxes and the refresh mode errors name Ghost Bear's Legacy */
+#define MW2_GHOST_BEAR_TITLES
+/* The game's CD is the drive with GBL_HERC.DRV */
+#define MW2_GBL_CD_DRIVER
+/* Representation: GetEngagementAIFlags returns an int, not a short */
+#define MW2_ENGAGEMENT_FLAGS_INT
+/* VFX as released (unaligned fills and runs, word-wise character copies), where 1.1 modified it; the
+   assembly gets it from cmake/editions.cmake */
+#define MW2_VFX_STOCK
+/* VFXA's VFX_lookaside_write, which sets one lookaside entry (cmake/editions.cmake) */
+#define MW2_VFX_LOOKASIDE_WRITE
+/* VFX3D's VFX_flat_polygon fills its spans with the destination aligned, as 1.1's modified VFX does,
+   where its other routines are VFX as released (the assembly gets it from cmake/editions.cmake) */
+#define MW2_VFX3D_ALIGNED_FILL
+/* A recentering torso snaps to the legs within 1 degree, not 4 (TORSO_SNAP_RANGE) */
+#define MW2_TORSO_SNAP_ONE_DEGREE
+/* Weapons work through their definitions: each has a launch function (SpawnShot for all but the
+   AMS), a function called each frame, flags (the launch sounds, an animation) and an animation, and
+   there are 35 of them; shots and effects carry the weapon's flags and a word more, and there are 255
+   of each and 36 effect types, with four more words each (WeaponDef, Shot, Effect, EffectInfo) */
+#define MW2_WEAPON_FUNCTIONS
+/* PlayPositionalSound takes the sample's flags (PlayPositionalSoundEx; the old entry point passes
+   0x32), and plays nothing beyond a cutoff distance, g_unk0x100ba608 hundred units, when that is set */
+#define MW2_POSITIONAL_SOUND_FLAGS
+/* A game thing's destruction counts for the local team whoever's shot destroyed it, and forgets the
+   shooter (KillGameThing) */
+#define MW2_THING_KILLS_FORGET_SHOOTER
+/* Artefact: weapons.c, ai.c, maneuvers.c and gridobject.c call the C runtime's abs, which GBL's
+   other units expand (MW2_GBL's pragma above), and bandpoly.c, AssignStarTarget and
+   ChooseArtResolution its labs */
+#define MW2_ABS_CALLS
+/* Artefact: GetBearingAndRange compares with the C runtime's labs */
+#define MW2_BEARING_LABS
+/* A shot destroys a game thing whose shape is of kind 0xb0 at once, and every destroyed thing leaves
+   effect 0x20b (DamageGameThing) */
+#define MW2_BUILDINGS_FALL_AT_ONCE
+/* A destroyed mech blows the critical slot of its first ammunition bin, a bin blows whatever its
+   weapon's ammunition, and its pilot ejects when auto-eject is on or the mech isn't the local
+   player's (DestroyMech, DestroyCriticalSlot) */
+#define MW2_DESTROY_BLOWS_FIRST_BIN
+/* EjectPlayer tells the local player with cockpit message 4 when the mech goes without ejecting */
+#define MW2_SELF_DESTRUCT_MESSAGE
+/* A mech's kill counts for the player whose shot hit it last, the local player's outcome is 4 unless
+   they ejected, and in a network game only the local mech's death is played out (KillMech, which
+   DestroySection and DestroyCriticalSlot call whatever the game) */
+#define MW2_KILLS_BY_LAST_SHOOTER
+/* A critical hit on a flamer and on the AMS has a message of its own (DestroyCriticalSlot) */
+#define MW2_MORE_CRITICAL_HITS
+/* The AI's attack and target states stop the group fire as well as the fire (AiStateAttack,
+   AiStateMove) */
+#define MW2_AI_STOPS_GROUP_FIRE
+/* Artefact: GBL's source copies some structures with memcpy, which its build calls, where the
+   optimized editions show a structure assignment: nav points, rays, players, matrices, weapon slots,
+   render settings, sample headers and session descriptions (RemoveNavPoint, CopyRay,
+   LogPlayerStatusLines, the object matrices, LayoutWeaponPanels, the mech view panel, StartSample,
+   FindSession) */
+#define MW2_STRUCT_COPY_MEMCPY
+/* Only the local player inspects its target, which counts as inspected once anyone has, and the
+   inspect request stays set (UpdateTarget) */
+#define MW2_LOCAL_INSPECTION
+/* DdrawCreateSurfaces sets no DDSD_CAPS in its surface descriptions */
+#define MW2_DDRAW_NO_CAPS_FLAG
+/* The cheat codes are a table with the messages each shows, all stored XORed with 0xa, the messages
+   decoded at the first key typed; GBL has codes of its own, and six of them do nothing
+   (g_cheatCodes, HandleCheatInput) */
+#define MW2_CHEAT_TABLE
+/* GetIniValue cuts a value at a ';' and trims it, unless its second argument asks for the raw value
+   (which error.c's call doesn't pass) */
+#define MW2_INI_COMMENTS
+/* ReportInputDeviceError reports nothing about the mouse */
+#define MW2_NO_MOUSE_ERRORS
+/* Artefact: DrawDepthQueue takes the next entry's index into a local before it copies the entry */
+#define MW2_DEPTH_QUEUE_INDEX
+/* Artefact: the vector lengths sum the squares from z down (FloatVectorLength, ScaleVectorToLength,
+   BuildMatrixFromDirection) */
+#define MW2_LENGTH_SUM_FROM_Z
+/* QueueObjTree draws no shape of type 0x20 */
+#define MW2_SKIP_SHAPE_TYPE_20
+/* The ALL_PT_MENU, PT_2_MENU and PT_3_MENU game keys (actions 53 to 55) do what the first three
+   starmate menu keys do (RunGameKey) */
+#define MW2_PT_MENU_KEYS
+/* Artefact: RunGameKey's screenshot acquires the frame buffer in an if with an empty else, where 1.1
+   has a conditional expression */
+#define MW2_SCREENSHOT_ACQUIRE_IF
+/* Key 0x3e asks for power down in power state 7 too, where 1.1 ignores it */
+#define MW2_NO_STATE_7_POWER_TEST
+/* UpdateInputs compares an axis' rate pointer with its position's address */
+#define MW2_AXIS_RATE_POINTER_TEST
+/* Restarting a star mission keeps its objectives' targets' listed flags */
+#define MW2_RESTART_KEEPS_LISTED
+/* IsTeamNearTarget tests only the team's leader */
+#define MW2_LEADER_NEAR_TARGET
+/* The local star's mission fails once the local mech is lost (UpdateObjectives, g_localMechLost) */
+#define MW2_LOST_MECH_FAILS_STAR
+/* UpdateObjective takes star N as player N in network games */
+#define MW2_NETWORK_STAR_PLAYERS
+/* Artefact: FindIpxProviderCallback and FillJoystickDeviceInfo compare names with strcmp, not memcmp */
+#define MW2_NAME_STRCMP
+/* MemCopy and MemSet return the C runtime's memcpy and memset, where 1.1's are assembly */
+#define MW2_MEM_HELPERS_CALL_CRT
+/* A scrounge record whose id names no class takes a static object's shape, loading the object
+   (BwdExecuteStream) */
+#define MW2_SCROUNGE_STATIC_OBJECTS
+/* A player the stream creates for another machine or the AI gets AI mode 1 in a network game and 2
+   otherwise (BwdExecuteStream) */
+#define MW2_REMOTE_PLAYER_AI_MODE
+/* A mech's heat sinks cool five times as well at -100 degrees or colder, on top of the cold bonus
+   (LoadMechConfig) */
+#define MW2_DEEP_COLD_COOLING
+/* SimMain updates the players every frame, before a network launch too */
+#define MW2_PLAYERS_BEFORE_LAUNCH
+/* StartSupAnim leaves the palette's first 16 entries as the backdrop set them */
+#define MW2_SUPANIM_KEEPS_PALETTE
+/* Artefact: InitSoundInfo fills the table with -1, not 0xff (which GBL's memset call shows) */
+#define MW2_SOUND_INFO_FILL_MINUS_ONE
+/* DdrawStop releases DirectDraw without returning the window to normal cooperation or restoring the
+   display mode */
+#define MW2_DDRAW_STOP_KEEPS_MODE
+/* Artefact: DdrawInit's DDCAPS is DirectX 1's, 0xac bytes (the edition was built with DirectX 1's headers) */
+#define MW2_DDRAW_CAPS_DX1
+/* In a network game, UpdateMech leaves a player with flag 1 (another machine's) where it is unless it
+   is the local one, and holds a truck at its object's height */
+#define MW2_REMOTE_MECHS_STAY
+#endif
+
+#ifdef MW2_PREMERCS
+/* The Mercenaries disc's MW2.DLL starts with every feature of Ghost Bear's Legacy, whose code it is: each
+   stays until its code shows otherwise */
+/* JoystickOpenDevice probes with joyGetPosEx alone, on an uncleared JOYINFOEX (GBL's later build
+   probes as 1.1 does) */
+#define MW2_JOYSTICK_OPEN_POSEX
 /* Mechs take heat from outside (Mech::m_externalHeat, which the radius damage adds to and
    CalculateHeat adds to the frame's heat) */
 #define MW2_EXTERNAL_HEAT

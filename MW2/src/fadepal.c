@@ -32,6 +32,7 @@
 // The launch sound of the local player's weapon, in the cockpit (p_shotType is unused).
 // FUNCTION: MW2 0x1004c890
 // FUNCTION: MW2GBL 0x1004fa30
+// FUNCTION: MW2PREMERCS 0x10046d80
 // FUNCTION: MW2MATROX 0x100450c0
 // FUNCTION: MW23DFX 0x1001bc30
 // FUNCTION: MW2ATI 0x1001bfc0
@@ -109,6 +110,7 @@ void RenderViewToPane(MechU32 p_target, MechScalar p_fovX, MechS32* p_view, stru
 // Flashes palette slot 0x11 (the ZAPPED palette, solid red) over two seconds (0x16a clock ticks).
 // FUNCTION: MW2 0x1004ca0d
 // FUNCTION: MW2GBL 0x1004fbad
+// FUNCTION: MW2PREMERCS 0x10046f8f
 // FUNCTION: MW2MATROX 0x1004526f
 // FUNCTION: MW23DFX 0x1001bd80
 // FUNCTION: MW2ATI 0x1001c110
@@ -122,6 +124,7 @@ void FlashZappedPalette(void)
 // Flashes palette slot 0x11 (ZAPPED) over p_level (0-15) fifteenths of two seconds.
 // FUNCTION: MW2 0x1004ca29
 // FUNCTION: MW2GBL 0x1004fbc9
+// FUNCTION: MW2PREMERCS 0x10046fab
 // FUNCTION: MW2MATROX 0x1004528b
 // FUNCTION: MW23DFX 0x1001bda0
 // FUNCTION: MW2ATI 0x1001c130
@@ -220,6 +223,7 @@ void EmitWreckSmoke(Mech* p_mech)
 // Breaks a destroyed mech's model into debris.
 // FUNCTION: MW2 0x1004cc27
 // FUNCTION: MW2GBL 0x1004fdc7
+// FUNCTION: MW2PREMERCS 0x10047198
 // FUNCTION: MW2MATROX 0x100454de
 // FUNCTION: MW23DFX 0x1001bf30
 void BreakUpMech(Mech* p_mech)
@@ -246,6 +250,7 @@ void BreakUpMech(Mech* p_mech)
 // Sets off the flames of the jump jets and plays their sound.
 // FUNCTION: MW2 0x1004ccba
 // FUNCTION: MW2GBL 0x1004fe5a
+// FUNCTION: MW2PREMERCS 0x1004722b
 // FUNCTION: MW2MATROX 0x10045571
 // FUNCTION: MW23DFX 0x1001bf90
 // FUNCTION: MW2ATI 0x1001c2c0
@@ -295,6 +300,7 @@ void FireJumpJetEffects(Mech* p_mech)
 // Plays a mech's landing: the thud, and the camera shake for the local player.
 // FUNCTION: MW2 0x1004ce3e
 // FUNCTION: MW2GBL 0x1004ffde
+// FUNCTION: MW2PREMERCS 0x100473af
 // FUNCTION: MW2MATROX 0x100456ef
 // FUNCTION: MW23DFX 0x1001c0a0
 // FUNCTION: MW2ATI 0x1001c3d0
@@ -323,6 +329,7 @@ void PlayMechLanding(Mech* p_mech, MechScalar p_speed)
 // MW2MATROX: the products are float products.
 // FUNCTION: MW2 0x1004cee2
 // FUNCTION: MW2GBL 0x10050082
+// FUNCTION: MW2PREMERCS 0x10047453
 // FUNCTION: MW2MATROX 0x100457ab
 // FUNCTION: MW23DFX 0x1001c120
 // FUNCTION: MW2ATI 0x1001c450
