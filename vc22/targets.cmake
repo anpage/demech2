@@ -377,33 +377,6 @@ function(demech2_add_mw23dfx)
     "${DEMECH2_SOURCE_DIR}/MW2/src/menu.c"
     "${DEMECH2_SOURCE_DIR}/MW2/src/accel/graphicsmenu.c"
     "${DEMECH2_SOURCE_DIR}/MW2/src/3dfx/a3d.c"
-    # Units the 3Dfx edition has nothing of (the fixed-point helpers it expands inline or
-    # replaced), linked after the others in the Matrox edition's order. Its display back end and
-    # renderer (3dfx/glidedraw.c, 3dfx/a3d.c) replace directdraw.c and the Matrox edition's.
-    "${DEMECH2_SOURCE_DIR}/MW2/src/namehash.c"
-    "${DEMECH2_SOURCE_DIR}/MW2/src/fixedmul.c"
-    "${DEMECH2_SOURCE_DIR}/MW2/src/fixeddiv.c"
-    "${DEMECH2_SOURCE_DIR}/MW2/src/muldiv.c"
-    "${DEMECH2_SOURCE_DIR}/MW2/src/integrate.c"
-    "${DEMECH2_SOURCE_DIR}/MW2/src/inradius.c"
-    "${DEMECH2_SOURCE_DIR}/MW2/src/emptyfns.c"
-    "${DEMECH2_SOURCE_DIR}/MW2/src/muldiv14.c"
-    "${DEMECH2_SOURCE_DIR}/MW2/src/fixedsqrt.c"
-    "${DEMECH2_SOURCE_DIR}/MW2/src/sqrtguess.c"
-    "${DEMECH2_SOURCE_DIR}/MW2/src/fixeddiv29.c"
-    "${DEMECH2_SOURCE_DIR}/MW2/src/fixedmul29.c"
-    "${DEMECH2_SOURCE_DIR}/MW2/src/scaledelta.c"
-    "${DEMECH2_SOURCE_DIR}/MW2/src/crossdiv.c"
-    "${DEMECH2_SOURCE_DIR}/MW2/src/lerp.c"
-    "${DEMECH2_SOURCE_DIR}/MW2/src/fixeddot27.c"
-    "${DEMECH2_SOURCE_DIR}/MW2/src/fixeddot29.c"
-    "${DEMECH2_SOURCE_DIR}/MW2/src/shiftdiv.c"
-    "${DEMECH2_SOURCE_DIR}/MW2/src/fixeddivu.c"
-    "${DEMECH2_SOURCE_DIR}/MW2/src/fixedmul30.c"
-    "${DEMECH2_SOURCE_DIR}/MW2/src/mulratio.c"
-    "${DEMECH2_SOURCE_DIR}/MW2/src/mulnorm16.c"
-    "${DEMECH2_SOURCE_DIR}/MW2/src/muladddiv.c"
-    "${DEMECH2_SOURCE_DIR}/MW2/src/texpoly.c"
   )
   foreach(source IN LISTS sources)
     if (source MATCHES "\\.c$" AND NOT source IN_LIST od)
@@ -441,8 +414,8 @@ endfunction()
 # interface), built the way the 3Dfx edition was six months later: VC++ 2.2, optimized with
 # __fastcall the default (/Gr), int3 between the functions, and 2.2's LIBC (no TLS or critical
 # section imports). MW2_ACCEL and MW2_ATI are defined. The flags and the units' order are the 3Dfx
-# edition's until probes settle them; its
-# display back end is DirectDraw's (directdraw.c), and ati/a3d.c its renderer, over the 3D CIF.
+# edition's (docs/EDITIONS.md, "The ATI edition", says what settled the flags); its display back
+# end is DirectDraw's (directdraw.c), and ati/a3d.c its renderer, over the 3D CIF.
 function(demech2_add_mw2ati)
   set(od
     "${DEMECH2_SOURCE_DIR}/MW2/src/network.c"
@@ -590,31 +563,6 @@ function(demech2_add_mw2ati)
     "${DEMECH2_SOURCE_DIR}/MW2/src/menu.c"
     "${DEMECH2_SOURCE_DIR}/MW2/src/accel/graphicsmenu.c"
     "${DEMECH2_SOURCE_DIR}/MW2/src/ati/a3d.c"
-    # Units not placed yet, linked after the others in the 3Dfx edition's order.
-    "${DEMECH2_SOURCE_DIR}/MW2/src/namehash.c"
-    "${DEMECH2_SOURCE_DIR}/MW2/src/fixedmul.c"
-    "${DEMECH2_SOURCE_DIR}/MW2/src/fixeddiv.c"
-    "${DEMECH2_SOURCE_DIR}/MW2/src/muldiv.c"
-    "${DEMECH2_SOURCE_DIR}/MW2/src/integrate.c"
-    "${DEMECH2_SOURCE_DIR}/MW2/src/inradius.c"
-    "${DEMECH2_SOURCE_DIR}/MW2/src/emptyfns.c"
-    "${DEMECH2_SOURCE_DIR}/MW2/src/muldiv14.c"
-    "${DEMECH2_SOURCE_DIR}/MW2/src/fixedsqrt.c"
-    "${DEMECH2_SOURCE_DIR}/MW2/src/sqrtguess.c"
-    "${DEMECH2_SOURCE_DIR}/MW2/src/fixeddiv29.c"
-    "${DEMECH2_SOURCE_DIR}/MW2/src/fixedmul29.c"
-    "${DEMECH2_SOURCE_DIR}/MW2/src/scaledelta.c"
-    "${DEMECH2_SOURCE_DIR}/MW2/src/crossdiv.c"
-    "${DEMECH2_SOURCE_DIR}/MW2/src/lerp.c"
-    "${DEMECH2_SOURCE_DIR}/MW2/src/fixeddot27.c"
-    "${DEMECH2_SOURCE_DIR}/MW2/src/fixeddot29.c"
-    "${DEMECH2_SOURCE_DIR}/MW2/src/shiftdiv.c"
-    "${DEMECH2_SOURCE_DIR}/MW2/src/fixeddivu.c"
-    "${DEMECH2_SOURCE_DIR}/MW2/src/fixedmul30.c"
-    "${DEMECH2_SOURCE_DIR}/MW2/src/mulratio.c"
-    "${DEMECH2_SOURCE_DIR}/MW2/src/mulnorm16.c"
-    "${DEMECH2_SOURCE_DIR}/MW2/src/muladddiv.c"
-    "${DEMECH2_SOURCE_DIR}/MW2/src/texpoly.c"
   )
   foreach(source IN LISTS sources)
     if (source MATCHES "\\.c$" AND NOT source IN_LIST od)
@@ -645,8 +593,8 @@ endfunction()
 # through VideoLogic's SGL (sgl.dll), PowerVR's scene graph library. Built like the ATI edition five
 # months earlier and the 3Dfx edition six weeks later: VC++ 2.2, optimized, __fastcall the default
 # (/Gr), int3 between the functions, and 2.2's LIBC. MW2_ACCEL and MW2_POWERVR are defined. The
-# flags and the units' order are the ATI edition's until probes settle them; powervr/a3d.c is its
-# renderer, over SGL.
+# flags and the units' order are the ATI edition's (docs/EDITIONS.md, "The ATI edition", says what
+# settled the flags); powervr/a3d.c is its renderer, over SGL.
 function(demech2_add_mw2powervr)
   set(od
     "${DEMECH2_SOURCE_DIR}/MW2/src/network.c"
@@ -794,31 +742,6 @@ function(demech2_add_mw2powervr)
     "${DEMECH2_SOURCE_DIR}/MW2/src/menu.c"
     "${DEMECH2_SOURCE_DIR}/MW2/src/accel/graphicsmenu.c"
     "${DEMECH2_SOURCE_DIR}/MW2/src/powervr/a3d.c"
-    # Units not placed yet, linked after the others in the ATI edition's order.
-    "${DEMECH2_SOURCE_DIR}/MW2/src/namehash.c"
-    "${DEMECH2_SOURCE_DIR}/MW2/src/fixedmul.c"
-    "${DEMECH2_SOURCE_DIR}/MW2/src/fixeddiv.c"
-    "${DEMECH2_SOURCE_DIR}/MW2/src/muldiv.c"
-    "${DEMECH2_SOURCE_DIR}/MW2/src/integrate.c"
-    "${DEMECH2_SOURCE_DIR}/MW2/src/inradius.c"
-    "${DEMECH2_SOURCE_DIR}/MW2/src/emptyfns.c"
-    "${DEMECH2_SOURCE_DIR}/MW2/src/muldiv14.c"
-    "${DEMECH2_SOURCE_DIR}/MW2/src/fixedsqrt.c"
-    "${DEMECH2_SOURCE_DIR}/MW2/src/sqrtguess.c"
-    "${DEMECH2_SOURCE_DIR}/MW2/src/fixeddiv29.c"
-    "${DEMECH2_SOURCE_DIR}/MW2/src/fixedmul29.c"
-    "${DEMECH2_SOURCE_DIR}/MW2/src/scaledelta.c"
-    "${DEMECH2_SOURCE_DIR}/MW2/src/crossdiv.c"
-    "${DEMECH2_SOURCE_DIR}/MW2/src/lerp.c"
-    "${DEMECH2_SOURCE_DIR}/MW2/src/fixeddot27.c"
-    "${DEMECH2_SOURCE_DIR}/MW2/src/fixeddot29.c"
-    "${DEMECH2_SOURCE_DIR}/MW2/src/shiftdiv.c"
-    "${DEMECH2_SOURCE_DIR}/MW2/src/fixeddivu.c"
-    "${DEMECH2_SOURCE_DIR}/MW2/src/fixedmul30.c"
-    "${DEMECH2_SOURCE_DIR}/MW2/src/mulratio.c"
-    "${DEMECH2_SOURCE_DIR}/MW2/src/mulnorm16.c"
-    "${DEMECH2_SOURCE_DIR}/MW2/src/muladddiv.c"
-    "${DEMECH2_SOURCE_DIR}/MW2/src/texpoly.c"
   )
   foreach(source IN LISTS sources)
     if (source MATCHES "\\.c$" AND NOT source IN_LIST od)

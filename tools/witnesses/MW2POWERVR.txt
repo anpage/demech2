@@ -210,7 +210,7 @@
 0x1003f5d0 UpdateNuke shots.c pad 9
 0x100597e0 InitPaletteFade palfade.c pad 5
 0x1005c5f0 PreviewBrightnessFraction brightnessmenu.c pad 6
-0x1005d380 RunMenuTextBox menucontrols.c pad 8
+0x1005d380 RunMenuTextBox menucontrols.c pad 10
 0x1005d890 FreeMenus menu.c pad 3
 0x1005f9b0 FUN_1005f9b0 a3d.c pad 7
 0x100607d0 FUN_100607d0 a3d.c pad 6

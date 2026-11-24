@@ -3,11 +3,6 @@
 # build's) or function (key: the function's original address).
 # The check fails on a finding not listed here, and on a listed one that no longer occurs.
 
-# The Matrox edition draws through MSI95, but its build still links directdraw.c, one of 1.1's
-# units its renderer replaced (vc40/targets.cmake links them after the others until their callers'
-# Matrox versions are written).
-MW2MATROX extra ddraw.dll!DirectDrawCreate
-
 # Optimized code that isn't the original's yet: the original keeps an import's address in a
 # register where the build calls through the slot each time, or the two load theirs in another order.
 MW2MATROX order 0x1005e2c0  # HEAPCACHE_loaditem (a3d.c, /Ox): the original keeps HeapFree in esi

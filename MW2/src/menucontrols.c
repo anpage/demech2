@@ -290,7 +290,7 @@ void RunMenuStatus(MenuDefinition* p_menu, MenuControl* p_control, MechS32 p_ind
 			value = p_control->m_value;
 		}
 		break;
-#ifndef MW2_3DFX
+#if !defined(MW2_ACCEL) || defined(MW2_MATROX)
 	case 2:
 		break;
 #endif
@@ -308,7 +308,7 @@ void RunMenuStatus(MenuDefinition* p_menu, MenuControl* p_control, MechS32 p_ind
 
 		apply = FALSE;
 		break;
-#ifndef MW2_3DFX
+#if !defined(MW2_ACCEL) || defined(MW2_MATROX)
 	case 3:
 		break;
 #endif

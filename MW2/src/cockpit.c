@@ -1833,10 +1833,17 @@ void FUN_100751a9(CockpitLayout* p_layout, MechS32 p_count, ProjectedVertex** p_
 		vertex->m_x = x;
 		vertex->m_y = y;
 		shade = GetMapHeightShade(p_layout, point->m_z);
-#ifdef MW2_3DFX
+		// The 3Dfx edition stores the color's components red first, the ATI and Matrox editions blue
+		// first, the ATI edition with an opaque alpha (as in polydraw.c's FUN_100688fe).
+#if defined(MW2_3DFX)
 		vertex->m_red = g_paletteRgb[shade | p_flags][0];
 		vertex->m_green = g_paletteRgb[shade | p_flags][1];
 		vertex->m_blue = g_paletteRgb[shade | p_flags][2];
+#elif defined(MW2_ATI)
+		vertex->m_blue = g_paletteRgb[shade | p_flags][2];
+		vertex->m_green = g_paletteRgb[shade | p_flags][1];
+		vertex->m_alpha = 255.0f;
+		vertex->m_red = g_paletteRgb[shade | p_flags][0];
 #else
 		vertex->m_blue = g_paletteRgb[shade | p_flags][2];
 		vertex->m_green = g_paletteRgb[shade | p_flags][1];
