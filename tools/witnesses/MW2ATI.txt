@@ -229,6 +229,7 @@
 0x10042700 UpdateAllShots shots.c rename i=zqai shot=zqaj
 0x10043090 GuideMissileToTarget shots.c rename distance=zqap dx=zqal dy=zqan dz=zqao p_shot=zqae player=zqad targetX=zqaa targetY=zqab targetZ=zqac thing=zqai vx=zqaj vy=zqak vz=zqam
 0x10043310 DetonateShot shots.c rename impact=zqai p_explode=zqal p_index=zqak shot=zqaj
+0x10043430 SpawnEffectEx shots.c pad 4 rename cameraX=zqaj cameraZ=zqal chain=zqan chainType=zqci closer=zqam count=zqac current=zqab distance=zqby dx=zqak dy=zqbw dz=zqbi effect=zqaa flags=zqbg i=zqap info=zqbm p_owner=zqad p_type=zqat pieces=zqai quiet=zqao slot=zqa1 take=zqaq volume=zqas
 0x10043bc0 UpdateEffects shots.c rename effect=zqak i=zqaj radius=zqam release=zqai restore=zqal x=zqan y=zqao z=zqap
 0x10043e30 DamageMechsInRadius shots.c pad 4 rename damage=zqap dx=zqai dy=zqaj dz=zqal i=zqam mech=zqak p_owner=zqaa player=zqao reach=zqan
 0x10043fe0 DamageThingsInRadius shots.c pad 8 rename distance=zqan dx=zqaj dy=zqak dz=zqal i=zqam p_owner=zqae radius=zqac reach=zqaa shape=zqad thing=zqai x=zqao y=zqap z=zqab
@@ -239,7 +240,7 @@
 0x10044860 UpdateNuke shots.c pad 9
 0x1005ea70 InitPaletteFade palfade.c pad 5
 0x10061880 PreviewBrightnessFraction brightnessmenu.c pad 6
-0x10062610 RunMenuTextBox menucontrols.c pad 8
+0x10062610 RunMenuTextBox menucontrols.c pad 10
 0x10062b20 FreeMenus menu.c pad 6
 0x10062b60 LayoutMenu menu.c pad 1
 0x10062da0 LoadMenuResources menu.c pad 24

@@ -211,7 +211,7 @@
 0x10041090 DamageCockpitPanels eyepoint.c pad 7
 0x100410e0 PlayCockpitWarnings eyepoint.c pad 8
 0x10041440 InitSoundInfo soundlimits.c pad 13
-0x10041cd0 RunMenuTextBox menucontrols.c pad 20
+0x10041cd0 RunMenuTextBox menucontrols.c pad 22
 0x10041ec0 FixedAtan2 floatmath.c pad 1
 0x10042090 ApproximateVectorLength floatmath.c pad 16
 0x10042150 Hypot2D floatmath.c pad 1

@@ -1329,11 +1329,17 @@ void FUN_10068b57(MechS32 p_count, ProjectedVertex** p_points, MechU32 p_color)
 #endif
 		vertex->m_x = point->m_screenX;
 		vertex->m_y = point->m_screenY;
-		// The 3Dfx edition stores the color's components red first, as in FUN_100688fe.
+		// The 3Dfx edition stores the color's components red first, the ATI edition blue first with
+		// an opaque alpha again, as in FUN_100688fe.
 #if defined(MW2_3DFX) || defined(MW2_S3) || defined(MW2_POWERVR)
 		vertex->m_red = g_paletteRgb[p_color][0];
 		vertex->m_green = g_paletteRgb[p_color][1];
 		vertex->m_blue = g_paletteRgb[p_color][2];
+#elif defined(MW2_ATI)
+		vertex->m_blue = g_paletteRgb[p_color][2];
+		vertex->m_green = g_paletteRgb[p_color][1];
+		vertex->m_alpha = 255.0f;
+		vertex->m_red = g_paletteRgb[p_color][0];
 #else
 		vertex->m_blue = g_paletteRgb[p_color][2];
 		vertex->m_green = g_paletteRgb[p_color][1];

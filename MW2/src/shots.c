@@ -1398,10 +1398,15 @@ void SpawnEffectEx(
 			if (g_effectCameraActive) {
 				distance = dx * dx + dz * dz;
 				cameraX = g_eyepoint->m_lightX - g_eyepoint->m_x;
+#if defined(MW2_ATI)
+				// The ATI edition assigns cameraZ inside the sum, which it adds from cameraZ's square.
+				current = (cameraZ = g_eyepoint->m_lightZ - g_eyepoint->m_z) * cameraZ + cameraX * cameraX;
+				if (current > distance) {
+#elif defined(MW2_3DFX)
 				cameraZ = g_eyepoint->m_lightZ - g_eyepoint->m_z;
-#ifdef MW2_3DFX
 				if ((current = cameraX * cameraX + cameraZ * cameraZ) > distance) {
 #else
+				cameraZ = g_eyepoint->m_lightZ - g_eyepoint->m_z;
 				current = cameraX * cameraX + cameraZ * cameraZ;
 				if (current > distance) {
 #endif
