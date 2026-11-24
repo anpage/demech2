@@ -8,7 +8,7 @@ Every binary the project rebuilds and compares is a **target**, declared once in
 
 - **The 1.1 patch** (VC++ 4.1, `/Od`): **MW2SHELL** (`MW2SHELL.DLL`, the shell: FMV, menus, settings, metagame; C and C++) and **MW2** (`MW2.DLL`, the simulator: in-mission gameplay; C).
 - **The simulator's other editions**, built from MW2's sources with identity macros: **MW2GBL** (Ghost Bear's Legacy, 4.1 `/Od`), **MW2MATROX** (4.0 `/Od`), and the optimized **MW2ATI**, **MW2POWERVR**, **MW23DFX** (2.2) and **MW2S3** (4.1). See `docs/EDITION_NOTES.md`.
-- **The retail release** (VC++ 2.2, `/Od`): **NETMECHW** (`NETMECHW.DLL`, NetMech's lobby; C and C++) and **MECH2** (`MECH2.EXE`, the launcher; C). See `docs/VC22.md`.
+- **The retail release** (VC++ 2.2, `/Od`): **NETMECHW** (`NETMECHW.DLL`, NetMech's shell, the multiplayer counterpart of MW2SHELL, lobby included; C and C++) and **MECH2** (`MECH2.EXE`, the launcher; C). See `docs/VC22.md`.
 
 The build uses 2.2 for NETMECHW, MECH2, MW23DFX, MW2ATI and MW2POWERVR, and 4.0 for MW2MATROX, when configured (see "Building"); otherwise it builds NETMECHW and MECH2 with the project's compiler, which cannot match the originals, and MW23DFX, MW2ATI and MW2POWERVR not at all.
 

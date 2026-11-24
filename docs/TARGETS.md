@@ -12,15 +12,15 @@ In `targets.toml`'s order, which is also the order of a shared function's annota
 
 | Target | Binary | Component | Edition | Compiler | Sources |
 | --- | --- | --- | --- | --- | --- |
-| `MW2SHELL` | `MW2SHELL.DLL` | shell | 1.1 | VC++ 4.1 | `MW2SHELL/`, `common/` |
-| `MW2` | `MW2.DLL` | simulator | 1.1 | VC++ 4.1 | `MW2/`, `common/` |
+| `MW2SHELL` | `MW2SHELL.DLL` | shell | 1.1 patch | VC++ 4.1 | `MW2SHELL/`, `common/` |
+| `MW2` | `MW2.DLL` | simulator | retail / 1.1 patch | VC++ 4.1 | `MW2/`, `common/` |
 | `MW2GBL` | `MW2_GBL.DLL` | simulator | Ghost Bear's Legacy | VC++ 4.1 | `MW2/`, `common/` |
 | `MW2MATROX` | `MW2_MATROX.DLL` | simulator | Matrox Mystique | VC++ 4.0 | `MW2/`, `common/` |
 | `MW23DFX` | `MW2_3DFX.DLL` | simulator | 3Dfx | VC++ 2.2 | `MW2/`, `common/` |
 | `MW2ATI` | `MW2_ATI.DLL` | simulator | ATI 3D Rage | VC++ 2.2 | `MW2/`, `common/` |
 | `MW2S3` | `MW2_S3.DLL` | simulator | S3 ViRGE | VC++ 4.1 | `MW2/`, `common/` |
 | `MW2POWERVR` | `MW2_POWERVR.DLL` | simulator | PowerVR | VC++ 2.2 | `MW2/`, `common/` |
-| `NETMECHW` | `NETMECHW.DLL` | lobby | retail | VC++ 2.2 | `NETMECHW/` |
+| `NETMECHW` | `NETMECHW.DLL` | shell | retail | VC++ 2.2 | `NETMECHW/` |
 | `MECH2` | `MECH2.EXE` | launcher | retail | VC++ 2.2 | `MECH2/` |
 
 - **MW2SHELL** (`MW2SHELL.DLL`): MechWarrior 2's shell (FMV, menus, settings, metagame), from the freely downloadable 1.1 patch, built with VC++ 4.1 at `/Od`. A mixture of C and C++.
@@ -31,8 +31,8 @@ In `targets.toml`'s order, which is also the order of a shared function's annota
 - **MW2ATI** (`MW2_ATI.DLL`): The simulator of the ATI 3D Rage edition (the `MW2.DLL` of its disc, linked 1996-04-11), the oldest edition of the simulator, built with VC++ 2.2 and optimized (`/Ox /Ow /G5 /Gr /Gy`). It keeps the simulation's values as floats and draws through ATI's 3D CIF (`ati3dcif.dll`) on DirectDraw surfaces. It builds the simulator's sources (`MW2/`) with `MW2_ACCEL` and `MW2_ATI` defined.
 - **MW2S3** (`MW2_S3.DLL`): The simulator of the S3 ViRGE edition (the `MW2.DLL` of its disc, linked 1996-07-12 by LINK 3.10), built with VC++ 4.1 and optimized (`/Ox /Ow /G5 /Gr /Gy`). It keeps the simulation's values as floats and draws through S3's toolkit (`S3DTKW.DLL`) on DirectDraw surfaces, without VFX3D and VFXREND. It builds the simulator's sources (`MW2/`) with `MW2_ACCEL` and `MW2_S3` defined, in the `vc41/` directory.
 - **MW2POWERVR** (`MW2_POWERVR.DLL`): The simulator of the PowerVR edition (the `MW2.DLL` of its disc, linked 1996-09-06), built with VC++ 2.2 and optimized (`/Ox /Ow /G5 /Gr /Gy`). It keeps the simulation's values as floats and draws through VideoLogic's SGL (`sgl.dll`), PowerVR's scene graph library. It builds the simulator's sources (`MW2/`) with `MW2_ACCEL` and `MW2_POWERVR` defined.
-- **NETMECHW** (`NETMECHW.DLL`): NetMech's lobby (the multiplayer counterpart of the shell: `MECH2.EXE` calls its `Launcher` export, then runs `MW2.DLL` with the launch record it fills in), from the retail release, built with VC++ 2.2 (`cl` 9.10, `_MSC_VER` 900) at `/Od`. A mixture of C and C++, 244 game-code functions in 42 objects, no hand-written assembly. Every game function is decompiled: the units it shares with `MW2SHELL.DLL` are per-target copies (`debugout.c`, `mw2prj.c`, `prjfile.c`, `resourcecache.c`, `resourcefile.c`, `resourcename.c`, and the CD check, which NETMECHW links inside the results dialog's object, `unk10010460.cpp`), and so are the simulator's data-only `bwdkeywords.c` and `weapondata.c`. The rest is the lobby: `Launcher`, the lobby window and the pane switch (`unk10003660.cpp`), one dialog per pane (connection, sessions, host options, guest lobby, player slots, briefing, mech selection, launch, results), the DirectPlay session list, threads and messages, the chat, the player table, the `.MEK` mech files and their network form (`unk10007c30.c`), and the mission files left for the simulator (`unk1000f0f0.cpp`, `bwdwriter.c`).
-- **MECH2** (`MECH2.EXE`): The launcher, which loads the shell, the lobby and the simulator, built with VC++ 2.2 (`cl` 9.10) at `/Od`: the one launcher of the retail release and of the ATI, S3, PowerVR and 3Dfx editions (the Matrox edition has its own). C, 21 game-code functions.
+- **NETMECHW** (`NETMECHW.DLL`): NetMech's shell (what `MW2SHELL.DLL` is to single-player play, for multiplayer, lobby included: `MECH2.EXE` calls its `Launcher` export, then runs `MW2.DLL` with the launch record it fills in), from the retail release, built with VC++ 2.2 (`cl` 9.10, `_MSC_VER` 900) at `/Od`. A mixture of C and C++, 244 game-code functions in 42 objects, no hand-written assembly. Every game function is decompiled: the units it shares with `MW2SHELL.DLL` are per-target copies (`debugout.c`, `mw2prj.c`, `prjfile.c`, `resourcecache.c`, `resourcefile.c`, `resourcename.c`, and the CD check, which NETMECHW links inside the results dialog's object, `unk10010460.cpp`), and so are the simulator's data-only `bwdkeywords.c` and `weapondata.c`. The rest is its own: `Launcher`, the lobby window and the pane switch (`unk10003660.cpp`), one dialog per pane (connection, sessions, host options, guest lobby, player slots, briefing, mech selection, launch, results), the DirectPlay session list, threads and messages, the chat, the player table, the `.MEK` mech files and their network form (`unk10007c30.c`), and the mission files left for the simulator (`unk1000f0f0.cpp`, `bwdwriter.c`).
+- **MECH2** (`MECH2.EXE`): The launcher, which loads the shell, NetMech's shell and the simulator, built with VC++ 2.2 (`cl` 9.10) at `/Od`: the one launcher of the retail release and of the ATI, S3, PowerVR and 3Dfx editions (the Matrox edition has its own). C, 21 game-code functions.
 
 ## The originals
 

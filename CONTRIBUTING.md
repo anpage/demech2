@@ -19,7 +19,7 @@ This repository currently has only one goal: accuracy to the original executable
 - [`MECH2`](/MECH2): Decompilation of the retail `MECH2.EXE` launcher — a reccmp target.
 - [`MW2SHELL`](/MW2SHELL): Decompilation of `MW2SHELL.DLL`.
 - [`MW2`](/MW2): Decompilation of `MW2.DLL`.
-- [`NETMECHW`](/NETMECHW): Decompilation of the retail `NETMECHW.DLL`, NetMech's lobby — a reccmp target.
+- [`NETMECHW`](/NETMECHW): Decompilation of the retail `NETMECHW.DLL`, NetMech's shell — a reccmp target.
 - [`util`](/util): Utility headers aiding in the decompilation effort.
 
 The source files use the extension of the language that matched: `.c` or `.cpp`, decided per translation unit. Most of `MW2` is C; `MW2SHELL` is mostly C++ with some C files, and `NETMECHW` mixes the two the same way.

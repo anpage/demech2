@@ -12,7 +12,7 @@
 # like MW2"), so entries can be read, reordered, added and removed one at a time.
 #
 #   binary       the original's file name, as the project names it
-#   component    launcher, shell, simulator or lobby
+#   component    launcher, shell or simulator
 #   edition      which release's build of that component
 #   short        the edition's name in the tools' tables and prose (abbr: in narrow column heads)
 #   what         one line for the tables
@@ -36,7 +36,7 @@
 [targets.MW2SHELL]
 binary = 'MW2SHELL.DLL'
 component = 'shell'
-edition = '1.1'
+edition = '1.1 patch'
 short = '1.1'
 what = 'Shell: FMV, menus, settings, metagame'
 about = '''
@@ -62,7 +62,7 @@ macros = []
 [targets.MW2]
 binary = 'MW2.DLL'
 component = 'simulator'
-edition = '1.1'
+edition = 'retail / 1.1 patch'
 short = '1.1'
 what = 'Simulator (in-mission gameplay)'
 about = '''
@@ -277,19 +277,20 @@ covered-by = ["MW2MATROX"]
 
 [targets.NETMECHW]
 binary = 'NETMECHW.DLL'
-component = 'lobby'
+component = 'shell'
 edition = 'retail'
 short = 'retail'
-what = "NetMech's lobby"
+what = "NetMech's shell"
 about = '''
-NetMech's lobby (the multiplayer counterpart of the shell: `MECH2.EXE` calls its `Launcher` export,
+NetMech's shell (what `MW2SHELL.DLL` is to single-player play, for multiplayer, lobby included:
+`MECH2.EXE` calls its `Launcher` export,
 then runs `MW2.DLL` with the launch record it fills in), from the retail release, built with VC++
 2.2 (`cl` 9.10, `_MSC_VER` 900) at `/Od`. A mixture of C and C++, 244 game-code functions in 42
 objects, no hand-written assembly. Every game function is decompiled: the units it shares with
 `MW2SHELL.DLL` are per-target copies (`debugout.c`, `mw2prj.c`, `prjfile.c`, `resourcecache.c`,
 `resourcefile.c`, `resourcename.c`, and the CD check, which NETMECHW links inside the results
 dialog's object, `unk10010460.cpp`), and so are the simulator's data-only `bwdkeywords.c` and
-`weapondata.c`. The rest is the lobby: `Launcher`, the lobby window and the pane switch
+`weapondata.c`. The rest is its own: `Launcher`, the lobby window and the pane switch
 (`unk10003660.cpp`), one dialog per pane (connection, sessions, host options, guest lobby, player
 slots, briefing, mech selection, launch, results), the DirectPlay session list, threads and
 messages, the chat, the player table, the `.MEK` mech files and their network form
@@ -321,7 +322,7 @@ edition = 'retail'
 short = 'retail'
 what = 'Launcher that loads the DLLs'
 about = '''
-The launcher, which loads the shell, the lobby and the simulator, built with VC++ 2.2 (`cl` 9.10) at
+The launcher, which loads the shell, NetMech's shell and the simulator, built with VC++ 2.2 (`cl` 9.10) at
 `/Od`: the one launcher of the retail release and of the ATI, S3, PowerVR and 3Dfx editions (the
 Matrox edition has its own). C, 21 game-code functions.'''
 sha256 = '064a9f1f45cfd18f0bef1dea9711b7fd582755cfbb8a8e9694f8cef2e5c3690c'
