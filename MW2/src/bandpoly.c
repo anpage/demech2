@@ -236,11 +236,11 @@ MechS32 DrawBand(MechU32 p_color, MechS32 p_count, MechS32* p_points, MechS32 p_
 	DrawAnimatedPolygon(p_color, 4, points, p_luma, 1, 0, p_unk0x14, 1);
 	return dx;
 #else
+	MechS32 step;
 	MechS32 y1;
 	MechS32 x0;
 	MechS32 y0;
 	MechS32 x1;
-	MechS32 step;
 	MechS32 flip;
 	MechS32 i;
 	MechS32 haveStart;

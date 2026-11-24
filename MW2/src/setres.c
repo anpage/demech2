@@ -138,8 +138,13 @@ void ChooseArtResolution(GameWindowGeometry* p_geometry)
 
 	best = 7;
 	for (i = 0; i < 3; i++) {
+#ifdef MW2_ABS_CALLS
+		distance = labs(g_artResolutionSizes[i].m_y - (p_geometry->m_height - 1)) +
+				   labs(g_artResolutionSizes[i].m_x - (p_geometry->m_width - 1));
+#else
 		distance = abs(g_artResolutionSizes[i].m_y - (p_geometry->m_height - 1)) +
 				   abs(g_artResolutionSizes[i].m_x - (p_geometry->m_width - 1));
+#endif
 		if (distance < best) {
 			best = distance;
 #ifdef MW2_HUD_ART

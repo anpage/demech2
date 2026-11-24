@@ -6,7 +6,6 @@
 
 0x100018d0 DrawCompass hud.c pad 3
 0x10001a80 DrawPlayerBrackets hud.c pad 4
-0x10001c50 DrawObjectBrackets hud.c pad 1
 0x10001e50 DrawHudShape hud.c pad 11
 0x100024d0 LockCacheEntry loadres.c pad 3
 0x10002680 FreeCacheEntry loadres.c pad 8
@@ -28,7 +27,6 @@
 0x10009090 SwitchCockpitView cockpit.c pad 24
 0x100094a0 DrawMapContents cockpit.c pad 19
 0x10009530 DrawMapIcon cockpit.c pad 4
-0x100096c0 DrawMapTarget cockpit.c pad 9
 0x1000aa90 DrawScenePolygon polydraw.c pad 1
 0x1000b180 FUN_100689f5 polydraw.c pad 5 early int~g_unk0x100aa1d0 16
 0x1000b8f0 FUN_100692db polydraw.c pad 8
@@ -104,7 +102,7 @@
 0x10021fc0 UpdateAllPlayers players.c pad 15
 0x100220a0 ShutdownAllPlayers players.c pad 16
 0x10022190 AllocPlayer players.c pad 3
-0x100223b0 GetTerrainHeight collision.c pad 11
+0x100223b0 GetTerrainHeight collision.c pad 14
 0x10022520 GetHighestSurface collision.c pad 3
 0x10022980 TestShapeRay collision.c pad 5
 0x100230b0 IsPointInFaceXY collision.c pad 19
@@ -189,7 +187,7 @@
 0x10038870 GetBearingAndRange targeting.c pad 4
 0x10038a20 TargetNearestEnemy targeting.c pad 14
 0x10039370 GetMechValue mekfile.c pad 3
-0x10039c90 DrawArmorBars damagepanel.c pad 10
+0x10039c90 DrawArmorBars damagepanel.c pad 12
 0x1003b200 UpdateCameraShake camerashake.c pad 5
 0x1003b8b0 RemoveTask callbacks.c pad 1
 0x1003bdc0 LoadAnim2d anim2d.c pad 1

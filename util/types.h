@@ -776,15 +776,14 @@ double __cdecl fabs(double);
    shooter (KillGameThing) */
 #define MW2_THING_KILLS_FORGET_SHOOTER
 /* Artefact: weapons.c, ai.c, maneuvers.c and gridobject.c call the C runtime's abs, which GBL's
-   other units expand (MW2_GBL's pragma above), and bandpoly.c and AssignStarTarget its labs */
+   other units expand (MW2_GBL's pragma above), and bandpoly.c, AssignStarTarget and
+   ChooseArtResolution its labs */
 #define MW2_ABS_CALLS
 /* Artefact: GetBearingAndRange compares with the C runtime's labs */
 #define MW2_BEARING_LABS
 /* A shot destroys a game thing whose shape is of kind 0xb0 at once, and every destroyed thing leaves
    effect 0x20b (DamageGameThing) */
 #define MW2_BUILDINGS_FALL_AT_ONCE
-/* Artefact: InitRefreshMode tests for a window smaller than the screen first */
-#define MW2_WINDOWED_TEST_FIRST
 /* A destroyed mech blows the critical slot of its first ammunition bin, a bin blows whatever its
    weapon's ammunition, and its pilot ejects when auto-eject is on or the mech isn't the local
    player's (DestroyMech, DestroyCriticalSlot) */
@@ -845,8 +844,8 @@ double __cdecl fabs(double);
 #define MW2_LOST_MECH_FAILS_STAR
 /* UpdateObjective takes star N as player N in network games */
 #define MW2_NETWORK_STAR_PLAYERS
-/* Artefact: FindIpxProviderCallback compares the provider's name with strcmp, not memcmp */
-#define MW2_IPX_NAME_STRCMP
+/* Artefact: FindIpxProviderCallback and FillJoystickDeviceInfo compare names with strcmp, not memcmp */
+#define MW2_NAME_STRCMP
 /* MemCopy and MemSet return the C runtime's memcpy and memset, where 1.1's are assembly */
 #define MW2_MEM_HELPERS_CALL_CRT
 /* A scrounge record whose id names no class takes a static object's shape, loading the object
@@ -864,6 +863,14 @@ double __cdecl fabs(double);
 #define MW2_SUPANIM_KEEPS_PALETTE
 /* Artefact: InitSoundInfo fills the table with -1, not 0xff (which GBL's memset call shows) */
 #define MW2_SOUND_INFO_FILL_MINUS_ONE
+/* DdrawStop releases DirectDraw without returning the window to normal cooperation or restoring the
+   display mode */
+#define MW2_DDRAW_STOP_KEEPS_MODE
+/* Artefact: DdrawInit's DDCAPS is DirectX 1's, 0xac bytes (the edition was built with DirectX 1's headers) */
+#define MW2_DDRAW_CAPS_DX1
+/* In a network game, UpdateMech leaves a player with flag 1 (another machine's) where it is unless it
+   is the local one, and holds a truck at its object's height */
+#define MW2_REMOTE_MECHS_STAY
 #endif
 
 /* A game key action's number: with MW2_CHAT_KEY, the actions from 0x42 on are one higher. */

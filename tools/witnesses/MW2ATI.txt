@@ -13,7 +13,6 @@
 0x100034c0 DrawMapContents cockpit.c pad 11
 0x10003560 DrawMapIcon cockpit.c pad 7
 0x100035f0 DrawMapUnits cockpit.c pad 6
-0x100036f0 DrawMapTarget cockpit.c pad 1
 0x100038a0 DrawMapNavPoints cockpit.c pad 14
 0x10003c90 ToggleSatelliteView cockpit.c pad 3
 0x10004b10 GdiBegin gdi.c pad 2
@@ -96,7 +95,7 @@
 0x10019280 GetTeamSlotPosition team.c pad 8
 0x100196a0 UpdateMech mechclass.c early struct~DifficultyCfg*~g_difficulty 14
 0x1001a530 LateUpdateMech mechclass.c pad 10
-0x1001bc20 DrawArmorBars damagepanel.c pad 13
+0x1001b9b0 DrawDamageOutline damagepanel.c pad 19
 0x1001c2c0 FireJumpJetEffects fadepal.c pad 1
 0x1001c3d0 PlayMechLanding fadepal.c pad 24
 0x1001ca80 DrawJumpFuelBar bargauges.c pad 2
@@ -225,6 +224,7 @@
 0x10041a40 IsSelectedWeaponReady weapons.c pad 11
 0x10041b70 SetWeaponGroup weapons.c pad 5
 0x10041c90 FireWeaponGroup weapons.c pad 23
+0x10042310 SpawnLaunchFx weapons.c pad 12
 0x10042490 FirstShots shots.c rename effect=zqai i=zqaj shot=zqak
 0x10042700 UpdateAllShots shots.c rename i=zqai shot=zqaj
 0x10043090 GuideMissileToTarget shots.c rename distance=zqap dx=zqal dy=zqan dz=zqao p_shot=zqae player=zqad targetX=zqaa targetY=zqab targetZ=zqac thing=zqai vx=zqaj vy=zqak vz=zqam

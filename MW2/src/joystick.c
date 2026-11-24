@@ -329,7 +329,11 @@ MechS32 FillJoystickDeviceInfo(MechS32 p_index, InputDeviceInfo* p_info)
 	axisShortNames[1] = g_leftRightAxisShortName;
 	i = 2;
 	if (caps.wCaps & JOYCAPS_HASZ) {
+#ifdef MW2_NAME_STRCMP
+		if (!strcmp(p_info->m_matchName, "tracker")) {
+#else
 		if (!memcmp(p_info->m_matchName, "tracker", 8)) {
+#endif
 			axisNames[i] = g_headRollAxisName;
 			axisShortNames[i] = g_headRollAxisShortName;
 			i++;

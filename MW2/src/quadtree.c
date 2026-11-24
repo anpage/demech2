@@ -108,6 +108,24 @@ void BuildShapeQuadtree(Shape* p_shape)
 // FUNCTION: MW2POWERVR 0x1000b970
 QuadtreeNode* BuildQuadtreeChild(QuadtreeNode* p_node, MechS32 p_quadrant, Model* p_model)
 {
+#ifdef MW2_GBL
+	MechScalar faceHigh;
+	MechScalar minX;
+	MechS32 j;
+	MechS32 i;
+	QuadtreeNode* node;
+	Face* entries[25];
+	MechScalar maxX;
+	MechScalar lowY;
+	MechScalar faceLow;
+	MechScalar minZ;
+	MechScalar maxZ;
+	MechS32 count;
+	QuadtreeNode* child;
+	Face* face;
+	MechScalar highY;
+	Face** faces;
+#else
 	MechS32 j;
 	MechS32 i;
 	QuadtreeNode* node;
@@ -124,6 +142,7 @@ QuadtreeNode* BuildQuadtreeChild(QuadtreeNode* p_node, MechS32 p_quadrant, Model
 	MechScalar faceHigh;
 	MechScalar highY;
 	Face** faces;
+#endif
 
 	if (p_quadrant & 1) {
 		minX = FIXED_SHR(p_node->m_maxX + p_node->m_minX, 1) + 1;

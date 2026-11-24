@@ -49,6 +49,25 @@ MechS32 MoveMechWithCollisions(
 	MechScalar* p_z
 )
 {
+#ifdef MW2_GBL
+	MechScalar bounce;
+	MechScalar nx;
+	MechScalar ny;
+	MechScalar nz;
+	MechScalar x0;
+	MechScalar over;
+	MechScalar y0;
+	MechS32 hit;
+	Shape* shape;
+	MechScalar x1;
+	MechScalar y1;
+	MechScalar length;
+	MechScalar z1;
+	MechScalar z0;
+	Ray ray;
+	MechScalar dot;
+	MechScalar lift;
+#else
 	MechScalar bounce;
 	MechScalar nx;
 	MechScalar ny;
@@ -66,6 +85,7 @@ MechS32 MoveMechWithCollisions(
 	Ray ray;
 	MechScalar dot;
 	MechScalar lift;
+#endif
 
 	x0 = p_mech->m_player->m_position.m_x;
 	y0 = p_mech->m_player->m_position.m_y;

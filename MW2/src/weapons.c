@@ -823,12 +823,21 @@ MechS32 SpawnShot(Player* p_player, WeaponSlot* p_slot)
 // FUNCTION: MW2POWERVR 0x1003c530
 void SelectNextWeaponInGroup(Mech* p_mech, MechS32 p_wrap)
 {
+#ifdef MW2_GBL
+	MechS32 selected;
+	MechS32 index;
+	MechS32 group;
+	WeaponSlot* slot;
+	MechS32 found;
+	MechS32 i;
+#else
 	MechS32 index;
 	MechS32 group;
 	WeaponSlot* slot;
 	MechS32 found;
 	MechS32 i;
 	MechS32 selected;
+#endif
 #ifdef MW2_WEAPON_FUNCTIONS
 	WeaponDef* def;
 #endif
@@ -1629,6 +1638,7 @@ void SpawnLaunchFx(
 #endif
 )
 {
+	MechScalar sideX;
 	MechScalar x;
 	MechScalar y;
 	MechScalar z;
@@ -1640,7 +1650,6 @@ void SpawnLaunchFx(
 	MechScalar upX;
 	MechScalar upY;
 	MechScalar upZ;
-	MechScalar sideX;
 	MechScalar sideY;
 
 	yaw = FixedAtan2(p_dx, p_dz);

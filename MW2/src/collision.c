@@ -198,10 +198,10 @@ MechS32 IsBelowFacePlane(
 // FUNCTION: MW2POWERVR 0x1000f470
 MechScalar GetTerrainHeight(MechScalar p_x, MechScalar p_y, MechScalar p_z)
 {
+	MechScalar top;
 	Shape* root;
 	MechScalar best;
 	MechScalar below;
-	MechScalar top;
 	Shape* shape;
 	MechS32 (*getHeight)(Shape*, MechScalar, MechScalar, MechScalar, MechScalar*);
 	MechS32 type;
@@ -407,13 +407,13 @@ MechS32 TestSegmentCollision(Ray* p_ray, Shape** p_hit, MechS32 p_exclude)
 #else
 	MechU16 surface;
 	MechS32 best;
+	MechS32 length;
 	Shape* root;
 	Ray hitRay;
 	MechS32 distance;
 	Shape* nearest;
 	Ray ray;
 	Shape* shape;
-	MechS32 length;
 #endif
 
 	nearest = NULL;

@@ -7,9 +7,9 @@
 0x10001600 LerpPaneRect recttransition.c pad 2
 0x10002050 LoadFramePrj anim2d.c pad 17
 0x10002220 DrawAnim2d anim2d.c pad 18
+0x100024d0 InitRefreshMode refreshmode.c early int~g_refreshModeFallback 6
 0x100028d0 LayoutMessageBoxes timedoverlays.c pad 20
 0x10003380 DrawMapContents cockpit.c pad 14
-0x100035b0 DrawMapTarget cockpit.c pad 4
 0x100039a0 DrawMapViewText cockpit.c pad 2
 0x10003b50 ToggleSatelliteView cockpit.c pad 3
 0x100042c0 GdiBegin gdi.c pad 2
@@ -85,8 +85,8 @@
 0x10017fd0 SetPlayerSlot team.c pad 10
 0x10018000 SetTeamLeader team.c pad 4
 0x100181c0 GetTeamSlotPosition team.c pad 8
-0x1001a8d0 DrawDamageOutline damagepanel.c pad 3
-0x1001ab40 DrawArmorBars damagepanel.c pad 1
+0x1001a8d0 DrawDamageOutline damagepanel.c pad 5
+0x1001ab40 DrawArmorBars damagepanel.c pad 2
 0x1001b1c0 PlayMechLanding fadepal.c pad 23
 0x1001b370 ScaleBarGauges bargauges.c pad 8
 0x1001b5c0 DrawHeatRateBar bargauges.c pad 3
@@ -196,6 +196,7 @@
 0x1003c7a0 IsSelectedWeaponReady weapons.c pad 1
 0x1003c940 FireRemoteWeapons weapons.c pad 19
 0x1003c9d0 FireWeaponGroup weapons.c pad 19
+0x1003d040 SpawnLaunchFx weapons.c pad 15
 0x1003d1c0 FirstShots shots.c rename effect=zqai i=zqaj shot=zqak
 0x1003d430 UpdateAllShots shots.c rename i=zqai shot=zqaj
 0x1003ddc0 GuideMissileToTarget shots.c rename distance=zqap dx=zqal dy=zqan dz=zqao p_shot=zqae player=zqad targetX=zqaa targetY=zqab targetZ=zqac thing=zqai vx=zqaj vy=zqak vz=zqam

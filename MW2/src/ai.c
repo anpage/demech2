@@ -1106,7 +1106,11 @@ void LogPlayerStatusLines(void)
 			WriteToMw2Log(invalidLine);
 		}
 
+#ifdef MW2_STRUCT_COPY_MEMCPY
+		memcpy(&player->m_targetInfo, &saved.m_targetInfo, sizeof(player->m_targetInfo));
+#else
 		player->m_targetInfo = saved.m_targetInfo;
+#endif
 	}
 }
 

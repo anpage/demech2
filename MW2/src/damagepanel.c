@@ -218,10 +218,8 @@ Point g_armorBarSize;
 void InitDamagePanel(void)
 {
 	MechS32 color;
-	MechS32 height2;
-	MechS32 width2;
-	MechS32 height1;
-	MechS32 width1;
+	Point size2;
+	Point size1;
 	Point min;
 	void* shape;
 	Mech* mech;
@@ -240,30 +238,30 @@ void InitDamagePanel(void)
 
 	shape = LoadCachedResource(g_mw2PrjHandle, g_hudLayoutValues[0], g_resTagShp, 0);
 	if (shape) {
-		height1 = VFX_shape_resolution(shape, 0);
+		size1.m_y = VFX_shape_resolution(shape, 0);
 		UnlockCachedResource(g_hudLayoutValues[0], g_resTagShp);
-		width1 = height1 >> 16;
-		height1 &= 0xffff;
+		size1.m_x = size1.m_y >> 16;
+		size1.m_y &= 0xffff;
 		shape = LoadCachedResource(g_mw2PrjHandle, g_hudLayoutValues[0] + g_artResolution, g_resTagShp, 0);
 	}
 
 	if (shape) {
-		height2 = VFX_shape_resolution(shape, 0);
+		size2.m_y = VFX_shape_resolution(shape, 0);
 		UnlockCachedResource(g_hudLayoutValues[0] + g_artResolution, g_resTagShp);
-		width2 = height2 >> 16;
-		height2 &= 0xffff;
+		size2.m_x = size2.m_y >> 16;
+		size2.m_y &= 0xffff;
 		g_outlineRect.m_window = &g_mainPixelBuffer;
-		g_outlineRect.m_x0 = (panel->m_width - width2) / 2 + panel->m_x;
-		g_outlineRect.m_y0 = (panel->m_height - height2) / 2 + panel->m_y;
-		g_outlineRect.m_x1 = g_outlineRect.m_x0 + width2 - 1;
-		g_outlineRect.m_y1 = g_outlineRect.m_y0 + height2 - 1;
+		g_outlineRect.m_x0 = (panel->m_width - size2.m_x) / 2 + panel->m_x;
+		g_outlineRect.m_y0 = (panel->m_height - size2.m_y) / 2 + panel->m_y;
+		g_outlineRect.m_x1 = g_outlineRect.m_x0 + size2.m_x - 1;
+		g_outlineRect.m_y1 = size2.m_y + g_outlineRect.m_y0 - 1;
 		i = 16;
 		while (i--) {
 			g_outlinePartRects[i].m_window = &g_mainPixelBuffer;
-			min.m_x = (MechDouble) g_outlinePartRects[i].m_x0 / width1 * 65536.0 + 0.5;
-			min.m_y = (MechDouble) g_outlinePartRects[i].m_y0 / height1 * 65536.0 + 0.5;
-			max.m_x = (MechDouble) g_outlinePartRects[i].m_x1 / width1 * 65536.0 + 0.5;
-			max.m_y = (MechDouble) g_outlinePartRects[i].m_y1 / height1 * 65536.0 + 0.5;
+			min.m_x = (MechDouble) g_outlinePartRects[i].m_x0 / size1.m_x * 65536.0 + 0.5;
+			min.m_y = (MechDouble) g_outlinePartRects[i].m_y0 / size1.m_y * 65536.0 + 0.5;
+			max.m_x = (MechDouble) g_outlinePartRects[i].m_x1 / size1.m_x * 65536.0 + 0.5;
+			max.m_y = (MechDouble) g_outlinePartRects[i].m_y1 / size1.m_y * 65536.0 + 0.5;
 			max.m_x += min.m_x - 1;
 			max.m_y += min.m_y - 1;
 			ScalePointToFrame(&g_outlineRect, &min, &min);

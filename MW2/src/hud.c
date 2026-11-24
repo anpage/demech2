@@ -1151,6 +1151,7 @@ void DrawObjectBrackets(struct SceneObject* p_object, MechS32 p_side)
 #ifndef MW2_BLOCK_SCOPED_LOCALS
 	MechScalar maxSize;
 #endif
+	MechScalar size;
 	MechS32 topLeft;
 	MechS32 topRight;
 	MechS32 bottomLeft;
@@ -1160,7 +1161,6 @@ void DrawObjectBrackets(struct SceneObject* p_object, MechS32 p_side)
 	MechScalar x;
 	MechScalar y;
 	MechScalar z;
-	MechScalar size;
 #ifndef MW2_BLOCK_SCOPED_LOCALS
 	Point point;
 #endif

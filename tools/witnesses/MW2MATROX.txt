@@ -121,7 +121,7 @@
 0x1001d7b6 DrawCompass hud.c rename gauge=zqal heading=zqai offset=zqan target=zqam x=zqaj x2=zqak
 0x1001d942 ProjectAimPoint hud.c rename ray=zqai result=zqam x=zqaj y=zqak z=zqal
 0x1001d9cd DrawPlayerBrackets hud.c pad 15 rename bottomLeft=zqab bottomRight=zqai point=zqac size=zqaj sx=zqan sy=zqao topLeft=zqap topRight=zqaa x=zqak y=zqal z=zqam
-0x1001dc23 DrawObjectBrackets hud.c pad 1 rename bottomLeft=zqac bottomRight=zqai maxSize=zqap point=zqad size=zqaj sx=zqan sy=zqao topLeft=zqaa topRight=zqab x=zqak y=zqal z=zqam
+0x1001dc23 DrawObjectBrackets hud.c rename bottomLeft=zqac bottomRight=zqai maxSize=zqap point=zqad size=zqaj sx=zqan sy=zqao topLeft=zqaa topRight=zqab x=zqak y=zqal z=zqam
 0x1001df99 ClipRectToPane hud.c pad 1
 0x1001e01a FUN_1001e01a hud.c pad 3
 0x1001e0cb DrawPaneShape hud.c pad 8
@@ -151,6 +151,7 @@
 0x100235a0 DrawShapeList depthsort.c pad 2
 0x100237e0 QueueObjTree depthsort.c pad 2
 0x10023860 DrawObjTreeShapes depthsort.c pad 3
+0x100239fc GetTerrainHeight collision.c rename below=zqaj best=zqan getHeight=zqai root=zqak shape=zqal top=zqam type=zqao
 0x10023bc0 GetHighestSurface collision.c rename best=zqaj getHeight=zqai root=zqak shape=zqal top=zqam type=zqan
 0x10023d71 FindNearestShape collision.c rename best=zqal distance=zqak nearest=zqaj shape=zqai
 0x10023e51 TestSegmentCollision collision.c rename best=zqap distance=zqao hitRay=zqai length=zqaa nearest=zqam ray=zqan root=zqak shape=zqal surface=zqaj
@@ -299,7 +300,7 @@
 0x100591b0 UpdateCameraShake camerashake.c rename base0c=zqaj base10=zqai base14=zqak x=zqal y=zqam z=zqan
 0x1005934c StartCameraShakeKey camerashake.c rename key=zqao off0c=zqaj off10=zqai off14=zqak seconds=zqal x=zqam y=zqan z=zqap
 0x10059831 FormatErrorMessage error.c rename args=zqai code=zqaj
-0x10059940 InitDamagePanel damagepanel.c rename color=zqaa height1=zqal height2=zqai i=zqao max=zqac mech=zqak min=zqab panel=zqan section=zqad shape=zqap width1=zqam width2=zqaj
+0x10059940 InitDamagePanel damagepanel.c pad 3 rename color=zqao i=zqam max=zqaa mech=zqaj min=zqap panel=zqal section=zqab shape=zqan size1=zqak size2=zqai
 0x10059e60 DrawDamageOutline damagepanel.c rename color=zqan front=zqaj i=zqap index=zqao level=zqal rear=zqam remap=zqai scale=zqak section=zqaa shape=zqab
 0x1005a18b DrawArmorBars damagepanel.c rename armor=zqam color=zqai font=zqak full=zqaj i=zqal section=zqan width=zqao
 0x10065710 FUN_10065710 a3d.c pad 5
