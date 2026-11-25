@@ -244,6 +244,7 @@ void ShutdownArtillery(Mech* p_mech)
 // Allocates p_player's mech, its weapons and sections, and sets them up.
 // FUNCTION: MW2 0x1005a637
 // FUNCTION: MW2GBL 0x10012027
+// FUNCTION: MW2PREMERCS 0x10050617
 // FUNCTION: MW2MATROX 0x1002eb54
 // FUNCTION: MW23DFX 0x10021c90
 // FUNCTION: MW2ATI 0x10021f60

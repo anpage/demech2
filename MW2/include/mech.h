@@ -74,6 +74,9 @@ typedef struct Mech {
 #ifdef MW2_MECH_SECOND_FLAGS
 	MechU16 m_unk0x112; // 0x112 — bit 0: hit by a NARC shot (UpdateShot)
 #endif
+#ifdef MW2_MECH_UNK_MEMBERS
+	undefined m_unk0x114[0x8f]; // 0x114
+#endif
 } Mech;
 
 #pragma pack(pop)

@@ -889,6 +889,9 @@ double __cdecl fabs(double);
 /* Players have 0x46 bytes more than GBL's, in three places nothing decompiled reads yet (Player::m_unk0xe8,
    m_unk0x184, m_unk0x1a0) */
 #define MW2_PLAYER_UNK_MEMBERS
+/* Mechs, their weapon slots and their ammunition bins have 0x8f, 0xc and 8 bytes more than GBL's, at their ends
+   (Mech::m_unk0x114, WeaponSlot::m_unk0x68, AmmoBin::m_unk0x14) */
+#define MW2_MECH_UNK_MEMBERS
 /* Mechs take heat from outside (Mech::m_externalHeat, which the radius damage adds to and
    CalculateHeat adds to the frame's heat) */
 #define MW2_EXTERNAL_HEAT

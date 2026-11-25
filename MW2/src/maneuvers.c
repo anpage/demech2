@@ -2179,6 +2179,7 @@ MechS32 HasLineToTarget(Player* p_player, MechScalar p_y)
 // Whether p_mech has weapons but none left that can fire: every one is out of ammunition.
 // FUNCTION: MW2 0x10015fa8
 // FUNCTION: MW2GBL 0x1002c113
+// FUNCTION: MW2PREMERCS 0x1004e5bd
 // FUNCTION: MW2MATROX 0x1001be0c
 // FUNCTION: MW23DFX 0x10020880
 // FUNCTION: MW2ATI 0x10020b50

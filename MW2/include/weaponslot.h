@@ -65,6 +65,9 @@ typedef struct WeaponSlot {
 	MechS32 m_index;      // 0x5c — its bit in the network weapons message
 	MechS32 m_binIndex;   // 0x60
 	WeaponBin* m_bin;     // 0x64
+#ifdef MW2_MECH_UNK_MEMBERS
+	undefined m_unk0x68[0xc]; // 0x68
+#endif
 } WeaponSlot;
 
 #endif // WEAPONSLOT_H

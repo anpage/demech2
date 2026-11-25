@@ -64,6 +64,7 @@ Shape* g_aimedShape = NULL;
 // The fire button fires only the selected weapon; cleared, it fires them all.
 // GLOBAL: MW2 0x100a6d38
 // GLOBAL: MW2GBL 0x100b006c
+// GLOBAL: MW2PREMERCS 0x100bfaf0
 // GLOBAL: MW2MATROX 0x100a61cc
 // GLOBAL: MW23DFX 0x1025a668
 // GLOBAL: MW2S3 0x10066288
@@ -97,6 +98,7 @@ MechS32 g_localWeaponsFired[WEAPON_SLOT_COUNT];
 
 // FUNCTION: MW2 0x10044740
 // FUNCTION: MW2GBL 0x100471b0
+// FUNCTION: MW2PREMERCS 0x1007ec70
 // FUNCTION: MW2MATROX 0x1002b4e0
 // FUNCTION: MW23DFX 0x10043760
 // FUNCTION: MW2ATI 0x10040fb0
@@ -882,6 +884,7 @@ void SelectNextWeaponInGroup(Mech* p_mech, MechS32 p_wrap)
 // Selects the next weapon that still has ammunition.
 // FUNCTION: MW2 0x10045567
 // FUNCTION: MW2GBL 0x10048159
+// FUNCTION: MW2PREMERCS 0x1007fcb2
 // FUNCTION: MW2MATROX 0x1002c30d
 // FUNCTION: MW23DFX 0x10044030
 // FUNCTION: MW2ATI 0x10041880
@@ -1004,6 +1007,7 @@ void SelectNextWeaponGroup(Mech* p_mech)
 // Selects the first weapon of p_group. Returns 1 if the group has one.
 // FUNCTION: MW2 0x100457d3
 // FUNCTION: MW2GBL 0x100483ef
+// FUNCTION: MW2PREMERCS 0x1007ff58
 // FUNCTION: MW2MATROX 0x1002c579
 // FUNCTION: MW23DFX 0x10044160
 // FUNCTION: MW2ATI 0x100419b0
@@ -1068,6 +1072,7 @@ MechS32 SelectWeaponGroup(Mech* p_mech, MechS32 p_group)
 // Returns 1 if the selected weapon is ready, 0 if not, -1 without one.
 // FUNCTION: MW2 0x10045919
 // FUNCTION: MW2GBL 0x10048564
+// FUNCTION: MW2PREMERCS 0x100800d7
 // FUNCTION: MW2MATROX 0x1002c6bf
 // FUNCTION: MW23DFX 0x100441f0
 // FUNCTION: MW2ATI 0x10041a40
@@ -1093,6 +1098,7 @@ MechS32 IsSelectedWeaponReady(Mech* p_mech)
 // Dumps the selected weapon's ammunition.
 // FUNCTION: MW2 0x1004597b
 // FUNCTION: MW2GBL 0x100485c6
+// FUNCTION: MW2PREMERCS 0x1008013b
 // FUNCTION: MW2MATROX 0x1002c721
 // FUNCTION: MW23DFX 0x10044220
 // FUNCTION: MW2ATI 0x10041a70
@@ -1154,6 +1160,7 @@ void LoadWeaponSounds(void)
 
 // FUNCTION: MW2 0x10045b14
 // FUNCTION: MW2GBL 0x10048763
+// FUNCTION: MW2PREMERCS 0x100802da
 // FUNCTION: MW2MATROX 0x1002c8ba
 // FUNCTION: MW23DFX 0x10044330
 // FUNCTION: MW2ATI 0x10041b70
@@ -1172,6 +1179,7 @@ void SetWeaponGroup(Mech* p_mech, MechS32 p_index, MechS32 p_group)
 // Moves the local player's selected weapon to p_group.
 // FUNCTION: MW2 0x10045b56
 // FUNCTION: MW2GBL 0x100487a5
+// FUNCTION: MW2PREMERCS 0x1008031e
 // FUNCTION: MW2MATROX 0x1002c8fc
 // FUNCTION: MW23DFX 0x10044350
 // FUNCTION: MW2ATI 0x10041ba0
@@ -1241,6 +1249,7 @@ void FireRemoteWeapons(Mech* p_mech)
 #ifdef MW2_WEAPON_FUNCTIONS
 // Fires every ready weapon of p_mech's selected group.
 // FUNCTION: MW2GBL 0x10048927
+// FUNCTION: MW2PREMERCS 0x100804b1
 void FireWeaponGroup(Mech* p_mech)
 {
 	MechS32 selected;
@@ -1320,6 +1329,7 @@ void FireWeaponGroup(void)
 // Moves the next weapon into the selected one's group.
 // FUNCTION: MW2 0x10045e25
 // FUNCTION: MW2GBL 0x10048a62
+// FUNCTION: MW2PREMERCS 0x100805ee
 // FUNCTION: MW2MATROX 0x1002cbcb
 // FUNCTION: MW23DFX 0x10044520
 // FUNCTION: MW2ATI 0x10041d70
@@ -1346,6 +1356,7 @@ void AddNextWeaponToGroup(Mech* p_mech)
 // MW2MATROX: in floats (degrees).
 // FUNCTION: MW2 0x10045eac
 // FUNCTION: MW2GBL 0x10048ae9
+// FUNCTION: MW2PREMERCS 0x10080679
 // FUNCTION: MW2MATROX 0x1002cc52
 // FUNCTION: MW23DFX 0x10044560
 // FUNCTION: MW2ATI 0x10041db0

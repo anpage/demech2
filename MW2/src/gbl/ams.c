@@ -35,6 +35,7 @@ enum AmsSlotState {
 
 // Turns the local mech's AMS off or back on (the TOGGLE_AMS game key), and says so.
 // FUNCTION: MW2GBL 0x1002e8c0
+// FUNCTION: MW2PREMERCS 0x10080ff0
 void ToggleAms(void)
 {
 	MechS32 message;

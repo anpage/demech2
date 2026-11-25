@@ -24,6 +24,9 @@ typedef struct AmmoBin {
 #endif
 	MechS32 m_shotHeat; // 0x0c (0x0e in the Matrox edition)
 	MechS32 m_heat;     // 0x10 (0x12 in the Matrox edition)
+#ifdef MW2_MECH_UNK_MEMBERS
+	undefined m_unk0x14[8]; // 0x14
+#endif
 } AmmoBin;
 
 #pragma pack(pop)

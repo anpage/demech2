@@ -265,6 +265,7 @@ void ShutdownDoor(Mech* p_mech)
 // Allocates p_player's mech, its weapons and sections, and sets them up.
 // FUNCTION: MW2 0x10068772
 // FUNCTION: MW2GBL 0x10015a62
+// FUNCTION: MW2PREMERCS 0x10050e52
 // FUNCTION: MW2MATROX 0x10088ed4
 // FUNCTION: MW23DFX 0x100221a0
 // FUNCTION: MW2ATI 0x10022470
