@@ -47,8 +47,8 @@ typedef char MechChar;
    changes to 1.1, and with it MW2_MATROX (the Matrox Mystique edition), MW2_3DFX (the 3Dfx
    edition), MW2_ATI (the ATI 3D Rage edition), MW2_S3 (the S3 ViRGE edition) or MW2_POWERVR (the
    PowerVR edition), MW2_GBL alone for Ghost Bear's Legacy's simulator, 1.1's code a month
-   later, and MW2_PREMERCS alone for the simulator the Mercenaries disc ships beside its own, Ghost
-   Bear's Legacy's code three months earlier. The code tests the features, named for what they do; an edition's own
+   later, and MW2_PREMERCS alone for an unused early build of Mercenaries' simulator, Ghost Bear's
+   Legacy's code three months earlier. The code tests the features, named for what they do; an edition's own
    back end, and a computation one edition's source writes another way with the same behaviour, test the identity.
    Macros cost no unit anything here (types.h is already included), where a header of their own would move code: its
    first inclusion counts as a symbol on 4.0 and 4.1. Features no binary separates (the ones both accelerated editions
@@ -70,7 +70,7 @@ typedef char MechChar;
 #if defined(MW2_GBL) && defined(MW2_PREMERCS)
 #error "MW2_GBL and MW2_PREMERCS are different editions"
 #endif
-/* GBL's build and the Mercenaries disc's MW2.DLL have no /Oi (they call memcpy, memset, strcmp and the
+/* GBL's build and the early Mercenaries build have no /Oi (they call memcpy, memset, strcmp and the
    math functions where 1.1 expands them), but expand abs and fabs as 1.1 does. How it did that isn't known (a pragma
    like this one or other headers); this reproduces it. VC++ 4.1 takes the pragma only for a function declared ahead of
    it, hence the CRT's prototypes. */
@@ -878,7 +878,7 @@ double __cdecl fabs(double);
 #endif
 
 #ifdef MW2_PREMERCS
-/* The Mercenaries disc's MW2.DLL starts with every feature of Ghost Bear's Legacy, whose code it is: each
+/* The early Mercenaries build starts with every feature of Ghost Bear's Legacy, whose code it is: each
    stays until its code shows otherwise */
 /* JoystickOpenDevice probes with joyGetPosEx alone, on an uncleared JOYINFOEX (GBL's later build
    probes as 1.1 does) */

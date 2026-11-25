@@ -5,8 +5,8 @@ name: Verify retail targets and comment
 # comment on pull requests opened from forks) and with the repository's
 # secrets: the deploy key that checks out the retail targets' originals
 # (NETMECHW.DLL, MECH2.EXE, the Matrox, 3Dfx, ATI, S3 and PowerVR editions'
-# MW2_MATROX.DLL, MW2_3DFX.DLL, MW2_ATI.DLL, MW2_S3.DLL and MW2_POWERVR.DLL, and the Mercenaries
-# disc's MW2.DLL, MW2_PREMERCS.DLL), which aren't freely
+# MW2_MATROX.DLL, MW2_3DFX.DLL, MW2_ATI.DLL, MW2_S3.DLL and MW2_POWERVR.DLL, and the unused early
+# Mercenaries build, MW2_PREMERCS.DLL), which aren't freely
 # downloadable the way mw2bin.yml
 # fetches the 1.1 patch.
 #
