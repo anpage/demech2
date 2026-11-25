@@ -24,6 +24,9 @@ typedef struct WeaponBin {
 #endif
 	MechScalar m_shotHeat; // 0x0c — WeaponDef::m_shotHeat (0x0e in the Matrox edition)
 	MechScalar m_heat;     // 0x10 — WeaponDef::m_heat (0x12 in the Matrox edition)
+#ifdef MW2_MECH_UNK_MEMBERS
+	undefined m_unk0x14[8]; // 0x14
+#endif
 } WeaponBin;
 #ifdef MW2_FLOAT_SCALARS
 #pragma pack(pop)
@@ -64,9 +67,12 @@ typedef struct WeaponSlot {
 	MechS32 m_bins[10];   // 0x34 — its ammunition bins, indices into Mech::m_ammoBins
 	MechS32 m_index;      // 0x5c — its bit in the network weapons message
 	MechS32 m_binIndex;   // 0x60
-	WeaponBin* m_bin;     // 0x64
 #ifdef MW2_MECH_UNK_MEMBERS
-	undefined m_unk0x68[0xc]; // 0x68
+	undefined4 m_unk0x64; // 0x64 — in the early Mercenaries build, whose m_bin is 4 bytes further on
+#endif
+	WeaponBin* m_bin; // 0x64
+#ifdef MW2_MECH_UNK_MEMBERS
+	undefined m_unk0x6c[8]; // 0x6c
 #endif
 } WeaponSlot;
 

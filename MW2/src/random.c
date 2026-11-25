@@ -94,6 +94,7 @@ void InitRandom(MechU32 p_seed)
 
 // FUNCTION: MW2 0x100736b3
 // FUNCTION: MW2GBL 0x10015ca7
+// FUNCTION: MW2PREMERCS 0x10075fb7
 // FUNCTION: MW2MATROX 0x1000bfdf
 // FUNCTION: MW23DFX 0x1003d910
 // FUNCTION: MW2ATI 0x1003b6f0
@@ -105,12 +106,19 @@ MechS32 RandomIntBelow(MechS32 p_max)
 
 	value = g_randomInts[g_randomIndex] % p_max;
 	g_randomIndex++;
+#ifdef MW2_RANDOM_INDEX_RESET
+	if (g_randomIndex == 127) {
+		g_randomIndex = 0;
+	}
+#else
 	g_randomIndex %= 127;
+#endif
 	return value;
 }
 
 // FUNCTION: MW2 0x100736f5
 // FUNCTION: MW2GBL 0x10015ce9
+// FUNCTION: MW2PREMERCS 0x10075ffd
 // FUNCTION: MW2MATROX 0x1000c021
 // FUNCTION: MW23DFX 0x1003d940
 // FUNCTION: MW2ATI 0x1003b720
@@ -122,12 +130,19 @@ MechS32 RandomNormal(void)
 
 	value = g_normalRandomInts[g_normalRandomIndex];
 	g_normalRandomIndex++;
+#ifdef MW2_RANDOM_INDEX_RESET
+	if (g_normalRandomIndex == 127) {
+		g_normalRandomIndex = 0;
+	}
+#else
 	g_normalRandomIndex %= 127;
+#endif
 	return value;
 }
 
 // FUNCTION: MW2 0x10073733
 // FUNCTION: MW2GBL 0x10015d27
+// FUNCTION: MW2PREMERCS 0x1007603f
 // FUNCTION: MW2MATROX 0x1000c05f
 // FUNCTION: MW23DFX 0x1003d970
 MechS32 RandomIntBelow2(MechS32 p_max)
@@ -142,6 +157,7 @@ MechS32 RandomIntBelow2(MechS32 p_max)
 
 // FUNCTION: MW2 0x10073775
 // FUNCTION: MW2GBL 0x10015d69
+// FUNCTION: MW2PREMERCS 0x10076081
 // FUNCTION: MW2MATROX 0x1000c0a1
 // FUNCTION: MW23DFX 0x1003d9a0
 MechS32 RandomNormal2(void)

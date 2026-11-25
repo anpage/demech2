@@ -96,7 +96,9 @@ extern "C"
 	void GuideMissileToTarget(Shot* p_shot, MechScalar p_x, MechScalar p_y, MechScalar p_z);
 	void DetonateShot(
 #ifdef MW2_WEAPON_FUNCTIONS
+#ifndef MW2_SHOT_OWNS_EFFECT
 		MechS32 p_owner,
+#endif
 		struct Shape* p_shape,
 #endif
 		MechS32 p_index,

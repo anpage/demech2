@@ -5,7 +5,9 @@
 #include "weapondef.h"
 
 // The weapon types.
-#ifdef MW2_WEAPON_FUNCTIONS
+#if defined(MW2_CLAN_AND_IS_WEAPONS)
+#define WEAPON_DEF_COUNT 66
+#elif defined(MW2_WEAPON_FUNCTIONS)
 #define WEAPON_DEF_COUNT 35
 #else
 #define WEAPON_DEF_COUNT 31

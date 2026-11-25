@@ -233,6 +233,7 @@ jmp_10048c72:
 // block.
 // FUNCTION: MW2 0x10048d46
 // FUNCTION: MW2GBL 0x10028dc6
+// FUNCTION: MW2PREMERCS 0x1005f8f6
 ProjectedVertex* ClipEdgeToNearPlane(Vertex* p_a, Vertex* p_b)
 {
 #ifdef PORTABLE_C

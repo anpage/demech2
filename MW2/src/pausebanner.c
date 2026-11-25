@@ -107,6 +107,7 @@ void DrawPausedBanner(void)
 
 // FUNCTION: MW2 0x10009ef1
 // FUNCTION: MW2GBL 0x100129a1
+// FUNCTION: MW2PREMERCS 0x1006ba41
 // FUNCTION: MW2MATROX 0x1002ed6e
 // FUNCTION: MW23DFX 0x100363f0
 // FUNCTION: MW2ATI 0x10034ff0
@@ -114,7 +115,11 @@ void DrawPausedBanner(void)
 // FUNCTION: MW2POWERVR 0x1002fa70
 void PlayPauseSound(void)
 {
+#ifdef MW2_PAUSE_SOUND
+	PlaySoundOnce(MW2_PAUSE_SOUND, 100, 0x40, RandomSampleRate());
+#else
 	PlaySoundOnce(0xc6, 100, 0x40, RandomSampleRate());
+#endif
 }
 
 // FUNCTION: MW2 0x10009f13

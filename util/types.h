@@ -731,6 +731,8 @@ double __cdecl fabs(double);
 #endif
 
 #ifdef MW2_GBL
+/* AmsLaunch tests the weapon's ammunition bin before it takes a shot from it */
+#define MW2_AMS_CHECKS_BIN
 /* Mechs take heat from outside (Mech::m_externalHeat, which the radius damage adds to and
    CalculateHeat adds to the frame's heat) */
 #define MW2_EXTERNAL_HEAT
@@ -886,15 +888,46 @@ double __cdecl fabs(double);
 /* The scene's shapes are filed in a grid of 12 by 12 cells, 25000 units each, around the origin, each shape
    keeping its cell (Shape::m_gridX, m_gridZ; shapelists.c) */
 #define MW2_SHAPE_GRID
-/* Players have 0x46 bytes more than GBL's, in three places nothing decompiled reads yet (Player::m_unk0xe8,
-   m_unk0x184, m_unk0x1a0) */
+/* Players have 0x46 bytes more than GBL's, in three places (Player::m_unk0xe8 to m_unk0x109, m_unk0x184,
+   m_unk0x1a0) */
 #define MW2_PLAYER_UNK_MEMBERS
-/* Mechs, their weapon slots and their ammunition bins have 0x8f, 0xc and 8 bytes more than GBL's, at their ends
-   (Mech::m_unk0x114, WeaponSlot::m_unk0x68, AmmoBin::m_unk0x14) */
+/* Mechs, their weapon slots and their ammunition bins have 0x8f, 0xc and 8 bytes more than GBL's (Mech::m_unk0x114,
+   WeaponSlot::m_unk0x64 and m_unk0x6c, AmmoBin::m_unk0x14 and WeaponBin::m_unk0x14) */
 #define MW2_MECH_UNK_MEMBERS
 /* Cockpit panels are 0xf0 bytes, their text origin first and a member and a setter of their own
    (CockpitPanel::m_unk0x34, m_unk0x9c, m_unk0xcc) */
 #define MW2_COCKPIT_PANEL_UNK_MEMBERS
+/* The weapons are the Clans' (GBL's, renamed and retuned) and 31 of the Inner Sphere (WEAPON_DEF_COUNT 66,
+   g_weaponDefs) */
+#define MW2_CLAN_AND_IS_WEAPONS
+/* SpawnShot fires with no ammunition left under the unlimited-ammunition cheat, and starts a tracer ahead of
+   each machine-gun shot (premercs/tracers.c) */
+#define MW2_SHOT_TRACERS
+/* A shot's effect belongs to its shooter, as 1.1's does: DetonateShot takes no owner (UpdateShot) */
+#define MW2_SHOT_OWNS_EFFECT
+/* ResetEffectSlot leaves the effect's owner as it was */
+#define MW2_RESET_EFFECT_KEEPS_OWNER
+/* SetShapeState, GetShapeState and SetShapeKind don't test the shape for NULL */
+#define MW2_SHAPE_ACCESSORS_UNCHECKED
+/* RandomIntBelow and RandomNormal set their table's index back to 0 at 127, where the later builds take it modulo
+   127 (RandomIntBelow2 and RandomNormal2 already do) */
+#define MW2_RANDOM_INDEX_RESET
+/* BWD streams have Mercenaries' campaign records, 15 node tags more (CPGN, PILT, TECH, NEWS…), which have no
+   names (g_bwdTypeCodes, GetKeywordName) */
+#define MW2_CAMPAIGN_BWD_TAGS
+/* The pause sound is another sound of the PRJ's (PlayPauseSound) */
+#define MW2_PAUSE_SOUND 0x149
+/* GetIniValue opens MW2.INI by that name in capitals (FindIniSection by mw2.ini) */
+#define MW2_INI_VALUE_UPPER_NAME
+/* An error's text is the raw value of its code in the "SystemError" section, its comment kept (FormatErrorMessage) */
+#define MW2_ERROR_TEXT_RAW
+/* ScatterDebris throws its pieces without showing their objects */
+#define MW2_DEBRIS_NOT_SHOWN
+/* Targeting at the reticle doesn't hand the steering to the autopilot for a player with bit 0 of Player::m_unk0x105
+   set (TargetAtReticle) */
+#define MW2_RETARGET_PLAYER_FLAG
+/* Players of a type 8 bank into their turns (FUN_10037d84 from UpdateAI) */
+#define MW2_BANKING_PLAYER_TYPE
 /* Mechs take heat from outside (Mech::m_externalHeat, which the radius damage adds to and
    CalculateHeat adds to the frame's heat) */
 #define MW2_EXTERNAL_HEAT
@@ -940,22 +973,12 @@ double __cdecl fabs(double);
 /* PlayPositionalSound takes the sample's flags (PlayPositionalSoundEx; the old entry point passes
    0x32), and plays nothing beyond a cutoff distance, g_unk0x100ba608 hundred units, when that is set */
 #define MW2_POSITIONAL_SOUND_FLAGS
-/* A game thing's destruction counts for the local team whoever's shot destroyed it, and forgets the
-   shooter (KillGameThing) */
-#define MW2_THING_KILLS_FORGET_SHOOTER
 /* Artefact: weapons.c, ai.c, maneuvers.c and gridobject.c call the C runtime's abs, which GBL's
    other units expand (MW2_GBL's pragma above), and bandpoly.c, AssignStarTarget and
    ChooseArtResolution its labs */
 #define MW2_ABS_CALLS
 /* Artefact: GetBearingAndRange compares with the C runtime's labs */
 #define MW2_BEARING_LABS
-/* A shot destroys a game thing whose shape is of kind 0xb0 at once, and every destroyed thing leaves
-   effect 0x20b (DamageGameThing) */
-#define MW2_BUILDINGS_FALL_AT_ONCE
-/* A destroyed mech blows the critical slot of its first ammunition bin, a bin blows whatever its
-   weapon's ammunition, and its pilot ejects when auto-eject is on or the mech isn't the local
-   player's (DestroyMech, DestroyCriticalSlot) */
-#define MW2_DESTROY_BLOWS_FIRST_BIN
 /* EjectPlayer tells the local player with cockpit message 4 when the mech goes without ejecting */
 #define MW2_SELF_DESTRUCT_MESSAGE
 /* A mech's kill counts for the player whose shot hit it last, the local player's outcome is 4 unless
@@ -1019,9 +1042,6 @@ double __cdecl fabs(double);
 /* A scrounge record whose id names no class takes a static object's shape, loading the object
    (BwdExecuteStream) */
 #define MW2_SCROUNGE_STATIC_OBJECTS
-/* A player the stream creates for another machine or the AI gets AI mode 1 in a network game and 2
-   otherwise (BwdExecuteStream) */
-#define MW2_REMOTE_PLAYER_AI_MODE
 /* A mech's heat sinks cool five times as well at -100 degrees or colder, on top of the cold bonus
    (LoadMechConfig) */
 #define MW2_DEEP_COLD_COOLING

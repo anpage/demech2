@@ -223,6 +223,7 @@ void ShowFatalError(const char** p_args)
 // neighbour on each side.
 // FUNCTION: MW2 0x1003bad1
 // FUNCTION: MW2GBL 0x10015291
+// FUNCTION: MW2PREMERCS 0x10074ef1
 // FUNCTION: MW2MATROX 0x10059831
 // FUNCTION: MW23DFX 0x1003ce80
 // FUNCTION: MW2ATI 0x1003ae50
@@ -235,7 +236,11 @@ MechChar* __cdecl FormatErrorMessage(MechChar* p_title, MechS32 p_code, const ch
 
 	sprintf(code, "%02X", p_code);
 	FindIniSection("SystemError");
+#ifdef MW2_ERROR_TEXT_RAW
+	sprintf(g_errorMessage, "%s #%02X: %s", p_title, p_code, GetIniValue(code, 1));
+#else
 	sprintf(g_errorMessage, "%s #%02X: %s", p_title, p_code, GetIniValue(code));
+#endif
 	if (*p_args) {
 		args = (va_list) (p_args + 1);
 		strcat(g_errorMessage, ": ");

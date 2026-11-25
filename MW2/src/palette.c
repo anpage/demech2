@@ -252,6 +252,7 @@ void GetViewCenter(Eyepoint* p_eyepoint, MechS32* p_x, MechS32* p_y)
 
 // FUNCTION: MW2 0x10002546
 // FUNCTION: MW2GBL 0x1001e306
+// FUNCTION: MW2PREMERCS 0x1005f0a7
 // FUNCTION: MW2MATROX 0x1002d6be
 // FUNCTION: MW23DFX 0x1002ac00
 // FUNCTION: MW2ATI 0x1002a820
@@ -259,11 +260,22 @@ void GetViewCenter(Eyepoint* p_eyepoint, MechS32* p_x, MechS32* p_y)
 // FUNCTION: MW2POWERVR 0x10026b00
 void ApplyPendingPalette(void)
 {
+	// The early Mercenaries build returns early.
+#ifdef MW2_PREMERCS
+	if (!g_palettePending || g_paletteFadeSteps > 0) {
+		return;
+	}
+
+	g_palettePending = 0;
+	ApplyPaletteResource(g_settledPalette);
+	g_currentPalette = g_settledPalette;
+#else
 	if (g_palettePending && g_paletteFadeSteps <= 0) {
 		g_palettePending = 0;
 		ApplyPaletteResource(g_settledPalette);
 		g_currentPalette = g_settledPalette;
 	}
+#endif
 }
 
 // FUNCTION: MW2 0x1000258d

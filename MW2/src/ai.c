@@ -35,6 +35,12 @@
 #pragma function(abs) // GBL calls abs in this unit (util/types.h)
 #endif
 
+#ifdef MW2_BANKING_PLAYER_TYPE
+// The early Mercenaries build's, which only this unit calls.
+void FUN_10037d84(Player* p_player);
+void FUN_10037da7(Player* p_player);
+#endif
+
 // The AI: each AI player runs a state machine (c_aiState…) driven by scripts, AIT resources
 // of rules. A script lists, for each state, the rules that apply in it; a rule waits for a
 // message (c_aiMessage…) about a target, and on it makes a transition (c_aiTransition…) and
@@ -643,6 +649,7 @@ MechS16 g_hiddenTargetCount;
 
 // GLOBAL: MW2 0x100e9e40
 // GLOBAL: MW2GBL 0x100bbc30
+// GLOBAL: MW2PREMERCS 0x101b70b0
 // GLOBAL: MW2MATROX 0x1012c3b0
 // GLOBAL: MW23DFX 0x101e8870
 // GLOBAL: MW2ATI 0x1011c530
@@ -705,6 +712,9 @@ void UpdateAI(Player* p_player)
 		}
 
 		SetTarget(p_player, p_player->m_ai.m_goal);
+#ifdef MW2_BANKING_PLAYER_TYPE
+		FUN_10037d84(p_player);
+#endif
 	}
 }
 
@@ -951,6 +961,7 @@ void InitializeAI(Player* p_player)
 // Returns the name of p_value in p_names, or NULL.
 // FUNCTION: MW2 0x10051ad8
 // FUNCTION: MW2GBL 0x10076c9c
+// FUNCTION: MW2PREMERCS 0x10037619
 // FUNCTION: MW2MATROX 0x10080a4e
 // FUNCTION: MW23DFX 0x10011f80
 // FUNCTION: MW2ATI 0x100124e0
@@ -1146,6 +1157,38 @@ void LogPlayerStatusLines(void)
 // The Matrox edition places TargetAttacker here.
 #ifdef MW2_ACCEL
 #include "aiattacker.c"
+#endif
+
+#ifdef MW2_BANKING_PLAYER_TYPE
+// The early Mercenaries build's: banks a player of type 8, a type GBL doesn't have, into its turn
+// (UpdateAI).
+// FUNCTION: MW2PREMERCS 0x10037d84
+void FUN_10037d84(Player* p_player)
+{
+	if (p_player->m_type == 8) {
+		FUN_10037da7(p_player);
+	}
+}
+
+// Rolls the player towards 90 degrees per unit of its steering's turn, 5 degrees a step while it
+// is more than 10 degrees off.
+// FUNCTION: MW2PREMERCS 0x10037da7
+void FUN_10037da7(Player* p_player)
+{
+	MechS32 scale;
+	MechScalar roll;
+	MechS32 sign;
+
+	scale = 0x1680;
+	roll = -((p_player->m_steering->m_turn >> 16) * scale);
+	if (abs(p_player->m_roll - roll) > FIXED_CONST(10)) {
+		sign = roll == 0 ? 0 : roll >= 0 ? 1 : -1;
+		p_player->m_roll += sign * FIXED_CONST(5);
+	}
+	else {
+		p_player->m_roll = roll;
+	}
+}
 #endif
 
 // Returns the distance between the points p_a and p_b.
@@ -2829,6 +2872,7 @@ void PlaceFormationNav(Player* p_player)
 // player or on a network game.
 // FUNCTION: MW2 0x10054b50
 // FUNCTION: MW2GBL 0x10079e0c
+// FUNCTION: MW2PREMERCS 0x1003aac3
 // FUNCTION: MW2MATROX 0x10083dca
 // FUNCTION: MW23DFX 0x10014110
 // FUNCTION: MW2ATI 0x100145a0
@@ -2949,6 +2993,7 @@ void PostAIMessage(Player* p_player, MechS16 p_message, MechU16 p_target, MechS1
 // star). Returns how many it skipped.
 // FUNCTION: MW2 0x10054d88
 // FUNCTION: MW2GBL 0x1007a044
+// FUNCTION: MW2PREMERCS 0x1003acfb
 // FUNCTION: MW2MATROX 0x10084002
 // FUNCTION: MW23DFX 0x10014290
 // FUNCTION: MW2ATI 0x10014720
@@ -3278,6 +3323,7 @@ MechS16 GetEngagementAIFlags(MechS32 p_value)
 // leader or a follower; -1 clears the slot.
 // FUNCTION: MW2 0x100554c8
 // FUNCTION: MW2GBL 0x1007a73d
+// FUNCTION: MW2PREMERCS 0x1003b3f6
 // FUNCTION: MW2MATROX 0x10084763
 // FUNCTION: MW23DFX 0x10014700
 // FUNCTION: MW2ATI 0x10014b90

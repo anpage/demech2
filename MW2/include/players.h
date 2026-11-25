@@ -88,7 +88,9 @@ struct Player {
 	// The early Mercenaries build has 0x28 bytes here, 0x2 after m_piloting and 0x1c after
 	// m_nextDetectCheck: its players are 0x1fe bytes, and the members after each sit that much
 	// further than their comments say.
-	undefined m_unk0xe8[0x28]; // 0xe8
+	undefined m_unk0xe8[0x105 - 0xe8];   // 0xe8
+	MechU32 m_unk0x105;                  // 0x105 — bit 0: retargeting leaves the autopilot alone (TargetAtReticle)
+	undefined m_unk0x109[0x110 - 0x109]; // 0x109
 #endif
 	MechChar m_name[0xfe - 0xe8];       // 0xe8
 	MechChar m_shortName[0x114 - 0xfe]; // 0xfe — for the target panel

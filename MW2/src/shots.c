@@ -40,6 +40,9 @@
 #include "soundfx.h"
 #include "team.h"
 #include "types.h"
+#ifdef MW2_SHOT_TRACERS
+#include "premercs/tracers.h"
+#endif
 #include "view.h"
 #include "weapondata.h"
 #include "weapons.h"
@@ -301,6 +304,7 @@ void FirstShots(void)
 
 // FUNCTION: MW2 0x1006a349
 // FUNCTION: MW2GBL 0x1007bf60
+// FUNCTION: MW2PREMERCS 0x10085790
 // FUNCTION: MW2MATROX 0x1006ae49
 // FUNCTION: MW23DFX 0x10044d60
 // FUNCTION: MW2ATI 0x100425b0
@@ -315,7 +319,9 @@ void ResetEffectSlot(MechS32 p_index)
 	effect->m_timeLeft = 0;
 	effect->m_active = 0;
 	effect->m_hasCamera = 0;
+#ifndef MW2_RESET_EFFECT_KEEPS_OWNER
 	effect->m_owner = -1;
+#endif
 }
 
 // FUNCTION: MW2 0x1006a3b1
@@ -613,17 +619,21 @@ void UpdateShot(MechS32 p_index)
 	}
 
 	if (hitResult) {
-#ifdef MW2_WEAPON_FUNCTIONS
+#if defined(MW2_SHOT_OWNS_EFFECT)
+		DetonateShot(hit, p_index, 1, hitX, hitY, hitZ, backX, backY, backZ);
+#elif defined(MW2_WEAPON_FUNCTIONS)
 		DetonateShot(victim, hit, p_index, 1, hitX, hitY, hitZ, backX, backY, backZ);
 #else
-		DetonateShot(p_index, 1, hitX, hitY, hitZ, backX, backY, backZ);
+	DetonateShot(p_index, 1, hitX, hitY, hitZ, backX, backY, backZ);
 #endif
 	}
 	else if (shot->m_lifetime <= 0) {
-#ifdef MW2_WEAPON_FUNCTIONS
+#if defined(MW2_SHOT_OWNS_EFFECT)
+		DetonateShot(hit, p_index, 0, x, y, z, x, y, z);
+#elif defined(MW2_WEAPON_FUNCTIONS)
 		DetonateShot(victim, hit, p_index, 0, x, y, z, x, y, z);
 #else
-		DetonateShot(p_index, 0, x, y, z, x, y, z);
+	DetonateShot(p_index, 0, x, y, z, x, y, z);
 #endif
 	}
 	else {
@@ -651,6 +661,25 @@ void UpdateShot(MechS32 p_index)
 			g_trackedShotView[6] = 1;
 #endif
 		}
+#ifdef MW2_SHOT_TRACERS
+
+		// The missiles leave a trail.
+		switch (shot->m_type) {
+		case 3:
+		case 4:
+		case 9:
+		case 10:
+		case 0xc:
+			FUN_10088c5c(x0, y0, z0, x - x0, y - y0, z - z0);
+			break;
+		case 5:
+		case 6:
+		case 7:
+		case 8:
+		case 0xb:
+			break;
+		}
+#endif
 	}
 }
 
@@ -803,6 +832,7 @@ void GuideMissileToTarget(Shot* p_shot, MechScalar p_x, MechScalar p_y, MechScal
 // calls for at (p_x, p_y, p_z), with the camera looking from (p_camX, p_camY, p_camZ).
 // FUNCTION: MW2 0x1006b0b4
 // FUNCTION: MW2GBL 0x1007cdd2
+// FUNCTION: MW2PREMERCS 0x1008667d
 // FUNCTION: MW2MATROX 0x1006bc89
 // FUNCTION: MW23DFX 0x10045b90
 // FUNCTION: MW2ATI 0x10043310
@@ -810,7 +840,9 @@ void GuideMissileToTarget(Shot* p_shot, MechScalar p_x, MechScalar p_y, MechScal
 // FUNCTION: MW2POWERVR 0x1003e040
 void DetonateShot(
 #ifdef MW2_WEAPON_FUNCTIONS
+#ifndef MW2_SHOT_OWNS_EFFECT
 	MechS32 p_owner,
+#endif
 	Shape* p_shape,
 #endif
 	MechS32 p_index,
@@ -837,7 +869,11 @@ void DetonateShot(
 	ResetShotSlot(p_index);
 	if (p_explode) {
 #ifdef MW2_WEAPON_FUNCTIONS
+#ifdef MW2_SHOT_OWNS_EFFECT
+		SpawnEffectEx(shot->m_shooter, p_shape, impact, p_x, p_y, p_z, p_camX, p_camY, p_camZ, 0, 0, 0);
+#else
 		SpawnEffectEx(p_owner, p_shape, impact, p_x, p_y, p_z, p_camX, p_camY, p_camZ, 0, 0, 0);
+#endif
 #else
 		SpawnEffect(shot->m_shooter, impact, p_x, p_y, p_z, p_camX, p_camY, p_camZ);
 #endif
@@ -1880,6 +1916,7 @@ MechS32 TrackLastShot(void)
 // removes it.
 // FUNCTION: MW2 0x1006bf8c
 // FUNCTION: MW2GBL 0x1007df01
+// FUNCTION: MW2PREMERCS 0x10087758
 // FUNCTION: MW2MATROX 0x1006cbb0
 // FUNCTION: MW23DFX 0x10046a90
 // FUNCTION: MW2ATI 0x100441c0
@@ -2036,6 +2073,7 @@ void DamageGameThing(
 // Shows up to p_count free effects of type 0xb (all when 0) at (p_x, p_y, p_z) as debris.
 // FUNCTION: MW2 0x1006c237
 // FUNCTION: MW2GBL 0x1007e1d3
+// FUNCTION: MW2PREMERCS 0x10087a27
 // FUNCTION: MW2MATROX 0x1006ce62
 // FUNCTION: MW23DFX 0x10046d40
 // FUNCTION: MW2ATI 0x10044470
@@ -2066,7 +2104,9 @@ void ScatterDebris(MechScalar p_x, MechScalar p_y, MechScalar p_z, MechS32 p_cou
 				effect->m_timeLeft = g_effectInfo[0xb].m_duration;
 				SetObjPosition(object, p_x, p_y, p_z);
 				ThrowDebrisPiece(piece);
+#ifndef MW2_DEBRIS_NOT_SHOWN
 				ShowObjTree(object);
+#endif
 				UpdateObj(object);
 				shown++;
 			}
