@@ -13,6 +13,8 @@
 #define SHAPE_GRID_ORIGIN 150000
 #define SHAPE_GRID_NONE 9999
 
+struct Eyepoint;
+
 // A cell of the grid: a list head like ShapeListHead, whose last word points back at the cell
 // (InitShapeLists).
 // SIZE 0x18
@@ -44,10 +46,21 @@ extern "C"
 	extern Shape* g_offGridShapes;
 	extern ShapeListHead g_offGridShapeHead;
 	extern ShapeGridCell g_shapeGrid[SHAPE_GRID_SIZE][SHAPE_GRID_SIZE];
+	extern Shape* g_shapeGridLists[SHAPE_GRID_SIZE * SHAPE_GRID_SIZE + 2];
 #endif
 
+#ifdef MW2_SHAPE_GRID
+	void EnableShapeGrid(void);
+	void DisableShapeGrid(void);
+	void InitShapeGridNeighbours(void);
+	void ListAllShapeGridCells(void);
+	void ListShapeGridCellsAhead(struct Eyepoint* p_eyepoint);
+	void ListShapeGridCellsAround(MechS32 p_x, MechS32 p_z);
+#endif
 	void InitShapeLists(void);
 #ifdef MW2_SHAPE_GRID
+	Shape* GetShapeGridList(MechS32 p_x, MechS32 p_z);
+	Shape* GetShapeGridHead(Shape* p_shape);
 	void MoveObjTreeOffGrid(struct SceneObject* p_obj);
 	void UpdateShapeGridCell(Shape* p_shape);
 	void MoveObjTreeToCell(struct SceneObject* p_obj, MechS32 p_x, MechS32 p_z);

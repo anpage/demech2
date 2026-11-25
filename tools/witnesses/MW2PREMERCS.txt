@@ -80,7 +80,7 @@
 0x1002b4f6 ClipRaySlab ray.c rename overflow=zqad quotient=zqai t0=zqaf t1=zqag toMax=zqah toMin=zqae
 0x1002b780 UpdateMotion gpanim.c rename height=zqaf offset=zqad position=zqae
 0x1002b932 UpdateMotionSounds gpanim.c rename id=zqad offset=zqaf sound=zqae
-0x1002bfbb CollideWithMechs mechcollision.c pad 9 rename dist=zqah dx=zqal dy=zqam dz=zqao i=zqaj id=zqaa mech=zqan otherRadius=zqae player=zqaf pos=zqak radius=zqad reach=zqag result=zqai speed=zqap
+0x1002bfbb CollideWithMechs mechcollision.c rename dist=zqah dx=zqal dy=zqam dz=zqao i=zqaj id=zqaa mech=zqan otherRadius=zqae player=zqaf pos=zqak radius=zqad reach=zqag result=zqai speed=zqap
 0x1002c87c DamageMechsInCollision mechcollision.c rename damage=zqad speed=zqae
 0x1002c922 ApplyCollisionDamage mechcollision.c rename angle=zqaf attacker=zqad damage=zqae
 0x1002cb2c DamageMechHittingShape mechcollision.c rename damage=zqad speed=zqae
@@ -95,8 +95,14 @@
 0x1002e397 TestPointAboveFaces shapecollision.c rename done=zqaf face=zqag height=zqah i=zqad vertex=zqai vertices=zqae
 0x1002e4f0 TestRayFaces shapecollision.c rename face=zqag i=zqaf model=zqad vertices=zqae
 0x1002e7a4 ComputeModelBounds boundbox.c rename count=zqaf model=zqad selected=zqag vertex=zqae
+0x1002ebf5 ListAllShapeGridCells shapelists.c pad 13 rename count=zqag list=zqad x=zqae z=zqaf
+0x1002ed05 ListShapeGridCellsAhead shapelists.c rename count=zqah heading=zqae octant=zqad x=zqaf z=zqag
+0x1002f253 ListShapeGridCellsAround shapelists.c pad 6 rename count=zqah quadrantX=zqaf quadrantZ=zqag x=zqad z=zqae
+0x1002f6c2 GetShapeGridHead shapelists.c pad 11 rename cellX=zqag cellZ=zqah list=zqae x=zqaf y=zqai z=zqad
 0x1002f82f UpdateShapeGridCell shapelists.c rename cellX=zqaf cellZ=zqag x=zqae y=zqah z=zqad
-0x1002fc65 RemoveSceneShape shapelists.c pad 9
+0x1002f91c MoveObjTreeToCell shapelists.c pad 2
+0x1002fa19 AddSceneShape shapelists.c pad 4 rename cellX=zqae cellZ=zqaf list=zqad x=zqah y=zqai z=zqag
+0x1002ffd0 ShowShape shapelists.c pad 3 rename cellX=zqad cellZ=zqae x=zqag y=zqah z=zqaf
 0x10031167 LoadAnimFile objectanim.c pad 8
 0x10031273 ColorCycleTask objectanim.c pad 5 rename cycle=zqae i=zqah id=zqaj offset=zqag slot=zqak star=zqai token=zqad vertexCount=zqaf
 0x10031505 SpinTask objectanim.c rename dx=zqan dy=zqap dz=zqad id=zqam period=zqaj slot=zqao spin=zqaf star=zqak t=zqal token=zqae x=zqag y=zqah z=zqai
@@ -106,9 +112,9 @@
 0x10033127 TransformShapeModel object.c rename model=zqae obj=zqad
 0x10033995 GetObjLastChild object.c rename child=zqad last=zqae
 0x100339e9 GetObjChild object.c rename child=zqae count=zqaf result=zqad
-0x10033b35 RaisePartDamageLevel object.c pad 7 rename child=zqad current=zqae shape=zqaf
+0x10033b35 RaisePartDamageLevel object.c pad 8 rename child=zqad current=zqae shape=zqaf
 0x100347cc TestShapeRay collision.c rename dx=zqai dy=zqaj dz=zqak i=zqal testPoint=zqae testRay=zqad type=zqaf x=zqam y=zqag z=zqah
-0x10034c41 IsPointInFace collision.c pad 1
+0x10034c41 IsPointInFace collision.c pad 2
 0x10034d17 IsPointInFaceXZ collision.c rename count=zqad i=zqah indices=zqag left=zqal offset=zqaj prev=zqae right=zqai sides=zqaf vertex=zqak
 0x1003507a IsPointInFaceXY collision.c rename count=zqad i=zqah indices=zqag left=zqal offset=zqaj prev=zqae right=zqai sides=zqaf vertex=zqak
 0x100353dd IsPointInFaceYZ collision.c rename count=zqad i=zqah indices=zqag left=zqal offset=zqaj prev=zqae right=zqai sides=zqaf vertex=zqak
@@ -173,19 +179,19 @@
 0x1005471c DumpResourceCache loadres.c rename file=zqah i=zqag item=zqae name=zqad type=zqaf
 0x100548cc LoadCachedResource loadres.c rename entry=zqad file=zqah file2=zqaj hash=zqaf item=zqae message=zqai message2=zqak size=zqag
 0x10055059 FindThingIdxById geocache.c pad 14
-0x100550ed FindStarIdxById geocache.c pad 6
+0x100550ed FindStarIdxById geocache.c pad 7
 0x10055225 PlaceStaticObject geocache.c rename entry=zqae index=zqad matrix=zqaf
-0x10055375 BeginBlock geocache.c pad 3 rename block=zqaj i=zqag matrix=zqai parent=zqaf rotation=zqad scale=zqah translate=zqae
+0x10055375 BeginBlock geocache.c rename block=zqaj i=zqag matrix=zqai parent=zqaf rotation=zqad scale=zqah translate=zqae
 0x10055999 FirstStaticCache geocache.c rename entry=zqae i=zqad
-0x10055a2d RunStaticObjectTasks geocache.c pad 6 rename entry=zqae i=zqad
+0x10055a2d RunStaticObjectTasks geocache.c pad 7 rename entry=zqae i=zqad
 0x10055b6f LinkStaticObjectThing geocache.c rename entry=zqae replacement=zqad
 0x10055c03 DestroyStaticObject geocache.c rename entry=zqag matrix=zqad obj=zqaf replacement=zqae shape=zqah thing=zqai
 0x10055d9d DestroyThingObject geocache.c rename current=zqad entry=zqag index=zqae thing=zqaf
-0x10055e5c PropagateStaticObjectStates geocache.c pad 1 rename entry=zqag i=zqae index=zqaf thing=zqad
-0x10055ff9 AreStaticObjectsComplete geocache.c pad 1
-0x10056553 GetStaticSceneObject geocache.c pad 9
-0x100565e6 GetStaticObjectPosition geocache.c pad 1 rename entry=zqae obj=zqad shape=zqaf
-0x100566c9 ToggleBlockBoxes geocache.c pad 8 rename block=zqam data=zqaa dx=zqai dy=zqah dz=zqag file=zqab i=zqan local=zqao matrix=zqap offset=zqak ref=zqaf result=zqad scale=zqaj shape=zqal size=zqae
+0x10055e5c PropagateStaticObjectStates geocache.c pad 2 rename entry=zqag i=zqae index=zqaf thing=zqad
+0x10055ff9 AreStaticObjectsComplete geocache.c pad 2
+0x10056553 GetStaticSceneObject geocache.c pad 10
+0x100565e6 GetStaticObjectPosition geocache.c pad 2 rename entry=zqae obj=zqad shape=zqaf
+0x100566c9 ToggleBlockBoxes geocache.c pad 9 rename block=zqam data=zqaa dx=zqai dy=zqah dz=zqag file=zqab i=zqan local=zqao matrix=zqap offset=zqak ref=zqaf result=zqad scale=zqaj shape=zqal size=zqae
 0x100569df ShowQuadtreeBoxes geocache.c rename data=zqag file=zqah local=zqaf ref=zqae size=zqad
 0x10056ae2 LoadQuadtreeBoxes geocache.c rename dx=zqag dy=zqaf dz=zqae i=zqam matrix=zqao offset=zqai result=zqad scale=zqah shape=zqak x=zqaj y=zqan z=zqal
 0x10056c8c FreeStaticObjectTree geocache.c rename entry=zqag i=zqaf result=zqad thing=zqae
@@ -200,11 +206,12 @@
 0x1005b21c ApproximateShapeDistance shapegeom.c rename deltaX=zqaf deltaY=zqag deltaZ=zqah radius=zqae result=zqad
 0x1005b32a ComputeTriangleNormal shapegeom.c rename nx=zqah nxAbs=zqae nxAbsHigh=zqan nxHigh=zqap ny=zqaj nyAbs=zqad nyAbsHigh=zqam nyHigh=zqag nz=zqal nzAbs=zqaf nzAbsHigh=zqao nzHigh=zqai shift=zqak
 0x1005b5e6 RayShapeDistance shapegeom.c rename deltaX=zqad deltaY=zqaf deltaZ=zqah excess=zqag radius=zqae t=zqai
-0x1005b7d3 AddModel shape.c pad 2 rename cursor=zqaf faceBytes=zqai memory=zqag model=zqad size=zqah vertexBytes=zqae
+0x1005b7d3 AddModel shape.c pad 3 rename cursor=zqaf faceBytes=zqai memory=zqag model=zqad size=zqah vertexBytes=zqae
 0x1005bc91 AddShapeFace shape.c rename face=zqad model=zqae
 0x1005bd81 RemoveSelectedModel shape.c rename cursor=zqad model=zqae
-0x1005c2a1 ComputeFaceNormal shape.c pad 4 rename a=zqaj area=zqam b=zqan best=zqak bestArea=zqao i=zqal length=zqad nx=zqae ny=zqag nz=zqah prev=zqai v0=zqap v1=zqaa v2=zqab vertex=zqaf
-0x1005c69a GetTransformedVertex shape.c pad 4
+0x1005c2a1 ComputeFaceNormal shape.c pad 5 rename a=zqaj area=zqam b=zqan best=zqak bestArea=zqao i=zqal length=zqad nx=zqae ny=zqag nz=zqah prev=zqai v0=zqap v1=zqaa v2=zqab vertex=zqaf
+0x1005c69a GetTransformedVertex shape.c pad 5
+0x1005c793 GetShapeFace shape.c pad 2
 0x1005c989 GetShapeMemorySize shape.c rename face=zqah i=zqag model=zqad size=zqaf vertex=zqae
 0x1005ca80 QueueShapeLod depthsort.c pad 1 rename cursor=zqaf face=zqae i=zqaj model=zqad n=zqai prev=zqak shape=zqal vertex=zqah vertices=zqag
 0x1005d557 DrawQueuedPolygon depthsort.c rename count=zqae i=zqai point=zqah points=zqag vertex=zqad vertices=zqaf x=zqaj y=zqak
@@ -286,12 +293,13 @@
 0x10073da6 ClearStringTable gifsave.c pad 2
 0x10073e35 InputByte gifsave.c pad 8
 0x10073eb1 WriteImageDescriptor gifsave.c pad 2
-0x100741c7 DrawPaletteGrid overlay.c pad 8 rename color=zqaf i=zqag x=zqad y=zqae
+0x10074070 DrawDebugOverlays overlay.c pad 1
+0x100741c7 DrawPaletteGrid overlay.c pad 10 rename color=zqaf i=zqag x=zqad y=zqae
 0x100742ce ShowFrameRate overlay.c rename rate=zqae text=zqad
 0x10074691 CountSceneShape overlay.c rename faceCount=zqae vertexCount=zqad
 0x1007490d ShowMemInfo overlay.c rename text=zqad value=zqae
 0x10074a45 MonoPrintLine overlay.c rename dst=zqaf i=zqae text=zqad
-0x10074b2c MonoPrint overlay.c pad 9 rename ch=zqae i=zqaf length=zqag newline=zqad
+0x10074b2c MonoPrint overlay.c pad 10 rename ch=zqae i=zqaf length=zqag newline=zqad
 0x100751c0 WritePrjBytes prjfile.c rename buffer=zqad chunk=zqaf left=zqae
 0x1007523e ReadPrjBytes prjfile.c rename buffer=zqad chunk=zqaf left=zqae
 0x100752bc OpenPrjFile prjfile.c rename fd=zqag header=zqad size=zqaf slot=zqae tag=zqah
@@ -317,11 +325,12 @@
 0x1007b36e ReadStaticMemoryTable poolsizes.c rename buffer=zqah key=zqae keyData=zqag result=zqaf stream=zqad
 0x1007ce29 LoadShapes wtbshapes.c rename count=zqaf next=zqad shape=zqae
 0x1007d8c0 LoadMapBitmap resource.c rename count=zqae i=zqad record=zqaf
-0x1007db13 LoadPathTable resource.c rename count=zqah i=zqae index=zqaf record=zqag result=zqad
-0x1007dd5a LoadFormationTable resource.c rename count=zqah i=zqaf index=zqae record=zqag result=zqad
+0x1007db13 LoadPathTable resource.c pad 2 rename count=zqah i=zqae index=zqaf record=zqag result=zqad
+0x1007dd5a LoadFormationTable resource.c pad 1 rename count=zqah i=zqaf index=zqae record=zqag result=zqad
 0x1007de71 ExecuteInclude resource.c rename buffer=zqai key=zqaf keyData=zqah ok=zqag record=zqaj result=zqad stream=zqae
+0x1007dfd4 LoadStarTable resource.c pad 2
 0x1007e173 RunIncludedStream resource.c rename buffer=zqaj id=zqah key=zqaf keyData=zqai record=zqag result=zqad stream=zqae
-0x1007e3dd GetTriangleNormal resource.c pad 1 rename a=zqad b=zqae c=zqaf ux=zqag uy=zqah uz=zqai vx=zqaj vy=zqak vz=zqal
+0x1007e3dd GetTriangleNormal resource.c pad 3 rename a=zqad b=zqae c=zqaf ux=zqag uy=zqah uz=zqai vx=zqaj vy=zqak vz=zqal
 0x1007ebb9 NextThingRecordObject resource.c rename id=zqad obj=zqae
 0x10080ae1 UpdateAimDistance weapons.c rename collided=zqad flags=zqae hit=zqaf length=zqag ray=zqah
 0x10080c5d BuildAimRay weapons.c rename dx=zqad dy=zqae dz=zqaf x=zqag y=zqah z=zqai
@@ -346,4 +355,4 @@
 0x10085660 FirstShots shots.c rename effect=zqaf i=zqad shot=zqae
 0x100858e0 UpdateAllShots shots.c rename i=zqad shot=zqae
 0x1008638c GuideMissileToTarget shots.c rename ax=zqac ay=zqap az=zqaa distance=zqak dx=zqah dy=zqag dz=zqai player=zqaf rate=zqab targetX=zqao targetY=zqad targetZ=zqae thing=zqaj vx=zqal vy=zqam vz=zqan
-0x10087574 DamageThingsInRadius shots.c pad 7 rename distance=zqad dx=zqag dy=zqah dz=zqai i=zqaf radius=zqal reach=zqak shape=zqaj thing=zqae x=zqam y=zqan z=zqao
+0x10087574 DamageThingsInRadius shots.c pad 9 rename distance=zqad dx=zqag dy=zqah dz=zqai i=zqaf radius=zqal reach=zqak shape=zqaj thing=zqae x=zqam y=zqan z=zqao
