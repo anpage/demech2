@@ -248,8 +248,7 @@ MechS32 g_windowActive = 0;
 // GLOBAL: MW2POWERVR 0x101a9e70
 MechS32 g_drawModeReady = 0;
 
-// GBL defines these three in refreshmode.c (and the early Mercenaries build, which uses GBL's
-// units until its own are placed).
+// GBL and the early Mercenaries build define these three in refreshmode.c.
 #if !defined(MW2_GBL) && !defined(MW2_PREMERCS)
 // GLOBAL: MW2 0x100acb7c
 // GLOBAL: MW2MATROX 0x100be528

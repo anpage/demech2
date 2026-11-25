@@ -1480,7 +1480,7 @@ MechS32 PathTask(MechS32 p_event, MechChar* p_data, MechS32 p_clock, MechS32 p_p
 
 // The faces' projection: 1.1 has it here, the Matrox edition in an object of its own, after
 // mechcollision.c's, in floats (accel/queueface.c), and GBL in an object of its own at that place
-// (the early Mercenaries build uses GBL's units, until its own are placed).
+// (and so does the early Mercenaries build, at its own place).
 #if !defined(MW2_A3D) && !defined(MW2_GBL) && !defined(MW2_PREMERCS)
 #include "faceprojection.c"
 #endif
