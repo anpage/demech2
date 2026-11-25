@@ -883,6 +883,9 @@ double __cdecl fabs(double);
 /* JoystickOpenDevice probes with joyGetPosEx alone, on an uncleared JOYINFOEX (GBL's later build
    probes as 1.1 does) */
 #define MW2_JOYSTICK_OPEN_POSEX
+/* The scene's shapes are filed in a grid of 12 by 12 cells, 25000 units each, around the origin, each shape
+   keeping its cell (Shape::m_gridX, m_gridZ; shapelists.c) */
+#define MW2_SHAPE_GRID
 /* Mechs take heat from outside (Mech::m_externalHeat, which the radius damage adds to and
    CalculateHeat adds to the frame's heat) */
 #define MW2_EXTERNAL_HEAT

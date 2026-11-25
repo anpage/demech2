@@ -672,6 +672,7 @@ MechS32 ObjectiveConditionsHold(MechS32 p_star, MechS32 p_objective)
 // 6 failed, 8 failed for another star, 3 still going.
 // FUNCTION: MW2 0x1001b79a
 // FUNCTION: MW2GBL 0x10034ba2
+// FUNCTION: MW2PREMERCS 0x10029792
 // FUNCTION: MW2MATROX 0x1001faf7
 // FUNCTION: MW23DFX 0x1000a1d0
 // FUNCTION: MW2ATI 0x1000aa00

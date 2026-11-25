@@ -31,6 +31,7 @@
 // place and starts its position ramps there.
 // FUNCTION: MW2 0x100680a0
 // FUNCTION: MW2GBL 0x10015390
+// FUNCTION: MW2PREMERCS 0x10050780
 // FUNCTION: MW2MATROX 0x100887e0
 // FUNCTION: MW23DFX 0x10021d20
 // FUNCTION: MW2ATI 0x10021ff0
@@ -92,6 +93,7 @@ void FirstDoor(Player* p_player)
 // FixedSin of a float angle (the cosine is FixedSin(heading + 90)), without the >> 13.
 // FUNCTION: MW2 0x1006831a
 // FUNCTION: MW2GBL 0x1001560a
+// FUNCTION: MW2PREMERCS 0x100509fa
 // FUNCTION: MW2MATROX 0x10088a5a
 // FUNCTION: MW23DFX 0x10021e60
 // FUNCTION: MW2ATI 0x10022130

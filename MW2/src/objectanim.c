@@ -891,6 +891,7 @@ MechS32 ColorCycleTask(MechS32 p_event, MechChar* p_data, MechS32 p_clock, MechS
 // MW2MATROX: the rates and the period are floats, the rates in degrees.
 // FUNCTION: MW2 0x1004771e
 // FUNCTION: MW2GBL 0x10002194
+// FUNCTION: MW2PREMERCS 0x10031505
 // FUNCTION: MW2MATROX 0x1006fcf3
 // FUNCTION: MW23DFX 0x1000e880
 // FUNCTION: MW2ATI 0x1000ef60
@@ -997,6 +998,7 @@ MechS32 SpinTask(MechS32 p_event, MechChar* p_data, MechS32 p_clock, MechS32 p_p
 // MW2MATROX: the angle, rates and steps are floats, the angle in degrees.
 // FUNCTION: MW2 0x100479ec
 // FUNCTION: MW2GBL 0x10002462
+// FUNCTION: MW2PREMERCS 0x100317d3
 // FUNCTION: MW2MATROX 0x1006ff89
 // FUNCTION: MW23DFX 0x1000ea50
 // FUNCTION: MW2ATI 0x1000f130

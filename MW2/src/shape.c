@@ -190,6 +190,7 @@ MechU32 FUN_1003a889(Shape* p_shape)
 // Allocates a shape with one model (AddModel).
 // FUNCTION: MW2 0x1003a8c1
 // FUNCTION: MW2GBL 0x10040b2d
+// FUNCTION: MW2PREMERCS 0x1005ba9d
 // FUNCTION: MW2MATROX 0x10027ec0
 // FUNCTION: MW23DFX 0x10029590
 // FUNCTION: MW2ATI 0x10029250
@@ -823,6 +824,7 @@ void GetTransformedVertex(Shape* p_shape, MechS32 p_index, MechS32* p_x, MechS32
 // Returns a vertex's position in the model.
 // FUNCTION: MW2 0x1003b55a
 // FUNCTION: MW2GBL 0x100417ce
+// FUNCTION: MW2PREMERCS 0x1005c717
 void GetVertexPosition(Shape* p_shape, MechS32 p_index, MechS32* p_x, MechS32* p_y, MechS32* p_z)
 {
 	Model* model;
@@ -1008,6 +1010,7 @@ void DestroyObjShape(Shape* p_shape)
 // Returns the bytes the shape, its models and its bounding data take.
 // FUNCTION: MW2 0x1003b7cc
 // FUNCTION: MW2GBL 0x10041a40
+// FUNCTION: MW2PREMERCS 0x1005c989
 // FUNCTION: MW2MATROX 0x100289f3
 // FUNCTION: MW23DFX 0x10029a40
 // FUNCTION: MW2ATI 0x10029670

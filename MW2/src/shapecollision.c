@@ -73,6 +73,7 @@ MechS32 GetBoxTop(Shape* p_shape, MechScalar p_x, MechScalar p_y, MechScalar p_z
 // within it, with the box's top in p_top, and p_inside when p_y does as well.
 // FUNCTION: MW2 0x10069a4b
 // FUNCTION: MW2GBL 0x1001b30b
+// FUNCTION: MW2PREMERCS 0x1002ddab
 // FUNCTION: MW2MATROX 0x1005221b
 // FUNCTION: MW23DFX 0x1000d250
 // FUNCTION: MW2ATI 0x1000d9c0
@@ -116,6 +117,7 @@ void ClassifyPointInBox(
 // ray's start to the entry point and sets the normal of the face it entered through.
 // FUNCTION: MW2 0x10069b2a
 // FUNCTION: MW2GBL 0x1001b3ea
+// FUNCTION: MW2PREMERCS 0x1002de8a
 // FUNCTION: MW2MATROX 0x10052318
 // FUNCTION: MW23DFX 0x1000d310
 // FUNCTION: MW2ATI 0x1000da80
@@ -222,6 +224,7 @@ MechS32 TestRayBox(Shape* p_shape, Ray* p_ray)
 // Tests whether (p_x, p_z) lies over the shape's bounding box.
 // FUNCTION: MW2 0x10069dd4
 // FUNCTION: MW2GBL 0x1001b694
+// FUNCTION: MW2PREMERCS 0x1002e134
 // FUNCTION: MW2MATROX 0x10052602
 // FUNCTION: MW23DFX 0x1000d520
 // FUNCTION: MW2ATI 0x1000dc90
@@ -313,6 +316,7 @@ MechS32 TestPointUnderFloor(Shape* p_shape, MechScalar p_x, MechScalar p_y, Mech
 
 // FUNCTION: MW2 0x10069f67
 // FUNCTION: MW2GBL 0x1001b827
+// FUNCTION: MW2PREMERCS 0x1002e2c7
 // FUNCTION: MW2MATROX 0x100527b3
 // FUNCTION: MW23DFX 0x1000d640
 // FUNCTION: MW2ATI 0x1000ddb0
@@ -333,6 +337,7 @@ MechS32 TestPointTerrain(Shape* p_shape, MechScalar p_x, MechScalar p_y, MechSca
 
 // FUNCTION: MW2 0x10069fd4
 // FUNCTION: MW2GBL 0x1001b894
+// FUNCTION: MW2PREMERCS 0x1002e334
 // FUNCTION: MW2MATROX 0x10052820
 // FUNCTION: MW23DFX 0x1000d680
 // FUNCTION: MW2ATI 0x1000ddf0
@@ -345,6 +350,7 @@ MechS32 TestRayTerrain(Shape* p_shape, Ray* p_ray)
 
 // FUNCTION: MW2 0x1006a001
 // FUNCTION: MW2GBL 0x1001b8c1
+// FUNCTION: MW2PREMERCS 0x1002e361
 // FUNCTION: MW2MATROX 0x1005284d
 // FUNCTION: MW23DFX 0x1000d690
 // FUNCTION: MW2ATI 0x1000de00

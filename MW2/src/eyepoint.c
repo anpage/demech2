@@ -738,6 +738,7 @@ MechS32 RestoreView(Eyepoint* p_eyepoint, MechScalar* p_view)
 // (p_home), skipping players who left or whose mechs are gone.
 // FUNCTION: MW2 0x100115f4
 // FUNCTION: MW2GBL 0x10055054
+// FUNCTION: MW2PREMERCS 0x100618d4
 // FUNCTION: MW2MATROX 0x10009362
 // FUNCTION: MW23DFX 0x1002e070
 // FUNCTION: MW2ATI 0x1002d1c0

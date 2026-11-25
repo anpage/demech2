@@ -11,7 +11,22 @@
 #include "accel/a3d.h"
 #endif
 
+#ifdef MW2_SHAPE_GRID
+#include "object.h"
+#endif
+
 DECOMP_SIZE_ASSERT(ShapeListHead, 0x18)
+#ifdef MW2_SHAPE_GRID
+DECOMP_SIZE_ASSERT(ShapeGridCell, 0x18)
+
+// Whether the shapes are filed in the grid. Nothing in the early Mercenaries build turns it on.
+// GLOBAL: MW2PREMERCS 0x100b0b98
+MechS32 g_shapeGridEnabled = 0;
+
+// The off-grid list, as g_sceneShapes is the scene's (InitShapeLists).
+// GLOBAL: MW2PREMERCS 0x100b0b9c
+Shape* g_offGridShapes = NULL;
+#endif
 
 // The shape lists, each a ShapeListHead posing as a shape: the scene's shapes (drawn; its head
 // also starts the collision list), the hidden ones (flag 0x1000: counted, not drawn), and the
@@ -66,6 +81,15 @@ ShapeListHead g_hiddenShapeHead;
 // GLOBAL: MW2POWERVR 0x1006f2e0
 ShapeListHead g_detachedShapeHead;
 
+#ifdef MW2_SHAPE_GRID
+// The shapes outside the grid, while it is on.
+// GLOBAL: MW2PREMERCS 0x100ca088
+ShapeListHead g_offGridShapeHead;
+
+// GLOBAL: MW2PREMERCS 0x100ca0b8
+ShapeGridCell g_shapeGrid[SHAPE_GRID_SIZE][SHAPE_GRID_SIZE];
+#endif
+
 // FUNCTION: MW2 0x1006d680
 // FUNCTION: MW2GBL 0x1003c0b0
 // FUNCTION: MW2MATROX 0x100035d0
@@ -87,6 +111,80 @@ void InitShapeLists(void)
 	g_sceneShapes = (Shape*) &g_sceneShapeHead;
 	g_hiddenShapes = (Shape*) &g_hiddenShapeHead;
 }
+
+#ifdef MW2_SHAPE_GRID
+// Moves the object's shape and its children's to the off-grid list.
+// FUNCTION: MW2PREMERCS 0x1002f796
+void MoveObjTreeOffGrid(SceneObject* p_obj)
+{
+	SceneObject* child;
+
+	if (!p_obj || !g_shapeGridEnabled) {
+		return;
+	}
+
+	UnlinkShape(p_obj->m_shape);
+	LinkShape(p_obj->m_shape, (Shape*) &g_offGridShapeHead);
+	p_obj->m_shape->m_gridX = SHAPE_GRID_NONE;
+	p_obj->m_shape->m_gridZ = SHAPE_GRID_NONE;
+	for (child = p_obj->m_firstChild; child; child = child->m_nextSibling) {
+		MoveObjTreeOffGrid(child);
+	}
+}
+
+// Files a visible shape in the cell its object stands in, with its object's children, when it
+// has moved out of the one it was in.
+// FUNCTION: MW2PREMERCS 0x1002f82f
+void UpdateShapeGridCell(Shape* p_shape)
+{
+	MechS32 x;
+	MechS32 cellX;
+	MechS32 cellZ;
+	MechS32 y;
+	MechS32 z;
+
+	if (!p_shape || !g_shapeGridEnabled || p_shape->m_flags & 0x1000) {
+		return;
+	}
+
+	GetObjPosition(p_shape->m_object, &x, &y, &z);
+	cellX = (x + SHAPE_GRID_ORIGIN) / SHAPE_GRID_CELL;
+	cellZ = (z + SHAPE_GRID_ORIGIN) / SHAPE_GRID_CELL;
+	if (p_shape->m_gridX != cellX || p_shape->m_gridZ != cellZ) {
+		if (cellX >= 0 && cellX < SHAPE_GRID_SIZE && cellZ >= 0 && cellZ < SHAPE_GRID_SIZE) {
+			MoveObjTreeToCell(p_shape->m_object, cellX, cellZ);
+		}
+		else {
+			MoveObjTreeOffGrid(p_shape->m_object);
+		}
+	}
+}
+
+// Moves the object's shape to the cell, and its children's but the hidden ones of type 0x70.
+// FUNCTION: MW2PREMERCS 0x1002f91c
+void MoveObjTreeToCell(SceneObject* p_obj, MechS32 p_x, MechS32 p_z)
+{
+	SceneObject* child;
+
+	if (!p_obj || !g_shapeGridEnabled) {
+		return;
+	}
+
+	if (!p_obj->m_shape) {
+		return;
+	}
+
+	UnlinkShape(p_obj->m_shape);
+	LinkShape(p_obj->m_shape, (Shape*) &g_shapeGrid[p_x][p_z]);
+	p_obj->m_shape->m_gridX = p_x;
+	p_obj->m_shape->m_gridZ = p_z;
+	for (child = p_obj->m_firstChild; child; child = child->m_nextSibling) {
+		if (child->m_shape && (!(child->m_shape->m_flags & 0x1000) || (child->m_shape->m_kind & 0xf0) != 0x70)) {
+			MoveObjTreeToCell(child, p_x, p_z);
+		}
+	}
+}
+#endif
 
 // Links a new shape into the scene, or the hidden list for flag 0x1000, and into the collision
 // list unless it has collision type 4 (none) or flag 0x800.
@@ -340,6 +438,7 @@ void FreeSceneShapes(void)
 // Unlinks the shape from its list.
 // FUNCTION: MW2 0x1006dbe2
 // FUNCTION: MW2GBL 0x1003c613
+// FUNCTION: MW2PREMERCS 0x100302e8
 // FUNCTION: MW2MATROX 0x10003b33
 // FUNCTION: MW23DFX 0x1000de00
 // FUNCTION: MW2ATI 0x1000e4f0
@@ -356,6 +455,12 @@ void UnlinkShape(Shape* p_shape)
 	}
 
 	p_shape->m_next = p_shape->m_prev = NULL;
+#ifdef MW2_SHAPE_GRID
+	if (g_shapeGridEnabled) {
+		p_shape->m_gridX = SHAPE_GRID_NONE;
+		p_shape->m_gridZ = SHAPE_GRID_NONE;
+	}
+#endif
 }
 
 // Links the shape in at the front of p_list.

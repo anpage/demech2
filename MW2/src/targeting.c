@@ -1150,6 +1150,7 @@ void CycleEnemyTarget(MechS32 p_step)
 // steering flag (PlayerSteering::m_autopilot).
 // FUNCTION: MW2 0x100603ae
 // FUNCTION: MW2GBL 0x10071c7b
+// FUNCTION: MW2PREMERCS 0x10049de4
 // FUNCTION: MW2MATROX 0x10007c8f
 // FUNCTION: MW23DFX 0x1001db60
 // FUNCTION: MW2ATI 0x1001de30

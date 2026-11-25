@@ -451,6 +451,7 @@ void RotateObjMatrix(SceneObject* p_obj, Matrix* p_matrix)
 // angles.
 // FUNCTION: MW2 0x1000180b
 // FUNCTION: MW2GBL 0x1001974a
+// FUNCTION: MW2PREMERCS 0x100330a7
 // FUNCTION: MW2MATROX 0x1004131d
 // FUNCTION: MW23DFX 0x1000f990
 // FUNCTION: MW2ATI 0x1000ffe0
@@ -481,6 +482,7 @@ void SetObjRotation(SceneObject* p_obj, MechScalar p_angleX, MechScalar p_angleY
 // The PowerVR edition turns the object's rotation transform first.
 // FUNCTION: MW2 0x1000184b
 // FUNCTION: MW2GBL 0x1001978a
+// FUNCTION: MW2PREMERCS 0x100330e7
 // FUNCTION: MW2MATROX 0x1004135d
 // FUNCTION: MW23DFX 0x1000f9d0
 // FUNCTION: MW2ATI 0x10010020
@@ -499,6 +501,7 @@ void RotateObj(SceneObject* p_obj, MechScalar p_angleX, MechScalar p_angleY, Mec
 
 // FUNCTION: MW2 0x1000188b
 // FUNCTION: MW2GBL 0x100197ca
+// FUNCTION: MW2PREMERCS 0x10033127
 // FUNCTION: MW2MATROX 0x1004139d
 // FUNCTION: MW23DFX 0x1000fa10
 // FUNCTION: MW2ATI 0x10010060
@@ -748,7 +751,11 @@ void UpdateObjWorld(SceneObject* p_obj)
 // FUNCTION: MW2ATI 0x10010290
 // FUNCTION: MW2S3 0x10004fe0
 // FUNCTION: MW2POWERVR 0x1000f0a0
+#ifdef MW2_SHAPE_GRID
+void UpdateObjTree(SceneObject* p_obj)
+#else
 void UpdateObj(SceneObject* p_obj)
+#endif
 {
 	SceneObject* child;
 
@@ -757,10 +764,27 @@ void UpdateObj(SceneObject* p_obj)
 	}
 	else if (p_obj->m_firstChild) {
 		for (child = p_obj->m_firstChild; child; child = child->m_nextSibling) {
+#ifdef MW2_SHAPE_GRID
+			UpdateObjTree(child);
+#else
 			UpdateObj(child);
+#endif
 		}
 	}
 }
+
+#ifdef MW2_SHAPE_GRID
+// The early Mercenaries build's UpdateObj: the tree updated, a root's shape is filed in the grid's
+// cell it now stands in (UpdateObjTree is the others' UpdateObj).
+// FUNCTION: MW2PREMERCS 0x10033604
+void UpdateObj(SceneObject* p_obj)
+{
+	UpdateObjTree(p_obj);
+	if (g_shapeGridEnabled && !p_obj->m_parent) {
+		UpdateShapeGridCell(p_obj->m_shape);
+	}
+}
+#endif
 
 // FUNCTION: MW2 0x10001d63
 // FUNCTION: MW2GBL 0x10019ca7
