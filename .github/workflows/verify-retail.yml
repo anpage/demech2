@@ -236,12 +236,11 @@ jobs:
           # its incremental link off), and the tool doesn't know an incremental
           # link's layout. MW23DFX, MW2ATI, MW2S3 and MW2POWERVR are built with /Gy, which the known
           # findings declare (`MW23DFX comdat`): only the order of their units is checked.
-          # Not for MW2PREMERCS until its units are placed: it builds GBL's for now.
           # The known findings are data: they come from the PR's checkout, like
           # the sources, so a PR can list the ones it adds.
           for entry in $RETAIL_ENTRIES; do
             target="${entry%%:*}"
-            if [ "$target" = MECH2 ] || [ "$target" = MW2PREMERCS ]; then
+            if [ "$target" = MECH2 ]; then
               continue
             fi
             python ../tools/check_units.py --target "$target" --expected tools/check_units_expected.txt

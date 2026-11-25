@@ -187,16 +187,19 @@ MechS32 g_windowMode = 0;
 // GLOBAL: MW2POWERVR 0x101a8670
 MechS32 g_refreshModeInactive = 1;
 
-// The other editions define these three in simmain.c (the early Mercenaries build uses GBL's
-// units, until its own are placed).
+// The other editions define these three in simmain.c (GBL and the early Mercenaries build
+// here).
 #if defined(MW2_GBL) || defined(MW2_PREMERCS)
 // GLOBAL: MW2GBL 0x100a4d9c
+// GLOBAL: MW2PREMERCS 0x100ae594
 undefined4 g_shouldToggleFullscreen = 0;
 
 // GLOBAL: MW2GBL 0x100a4da0
+// GLOBAL: MW2PREMERCS 0x100ae598
 MechS32 g_desktopWidth = 0;
 
 // GLOBAL: MW2GBL 0x100a4da4
+// GLOBAL: MW2PREMERCS 0x100ae59c
 MechS32 g_desktopHeight = 0;
 #endif
 

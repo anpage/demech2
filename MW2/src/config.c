@@ -65,8 +65,8 @@ enum FilePermission {
 };
 
 // The cockpit panels: 1.1 has them here, the Matrox edition at the end of staticmem.c's object,
-// the ATI and 3Dfx editions at the end of targeting.c's, and GBL (and the early Mercenaries
-// build, which uses GBL's units until its own are placed) in an object of their own.
+// the ATI and 3Dfx editions at the end of targeting.c's, and GBL and the early Mercenaries build
+// in an object of their own.
 #if !defined(MW2_ACCEL) && !defined(MW2_GBL) && !defined(MW2_PREMERCS)
 #include "cockpitpanels.c"
 #endif

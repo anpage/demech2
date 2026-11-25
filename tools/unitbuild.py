@@ -185,7 +185,12 @@ class Target:
             env["INCLUDE"], env["LIB"] = self.env["INCLUDE"], self.env["LIB"]
             path = self.env["PATH"]
         else:
-            root = re.sub(r"\\bin\\[^\\]+$", "", unit.compiler if unit.language != "ASM_MASM" else "C:\\msvc\\bin\\CL.EXE", flags=re.I)
+            # A batch takes its environment from its first unit, so a MASM unit (ML is MASM's,
+            # whose directory has no headers) takes the target's C compiler's, as its build does.
+            compiler = unit.compiler
+            if unit.language == "ASM_MASM":
+                compiler = next((u.compiler for u in self.units if u.language != "ASM_MASM"), "C:\\msvc\\bin\\CL.EXE")
+            root = re.sub(r"\\bin\\[^\\]+$", "", compiler, flags=re.I)
             env["INCLUDE"], env["LIB"] = root + "\\include", root + "\\lib"
             path = root + "\\bin"
         if WINDOWS:

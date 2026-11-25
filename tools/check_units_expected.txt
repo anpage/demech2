@@ -21,6 +21,12 @@ MW2GBL split 0x1001a6e0  # IsInsideWindow (mouse.c)
 MW2GBL split 0x10031410  # DdrawUnlock (directdraw.c)
 MW2GBL split 0x10031480  # DdrawRestore (directdraw.c)
 
+# The early Mercenaries build has them too.
+MW2PREMERCS split 0x1001cd60  # DisplayDibWindowMessage, from the DisplayDib header (dispdib.c)
+MW2PREMERCS split 0x10023d60  # DdrawUnlock (directdraw.c)
+MW2PREMERCS split 0x10023dd0  # DdrawRestore (directdraw.c)
+MW2PREMERCS split 0x1006b940  # IsInsideWindow (mouse.c)
+
 # NETMECHW builds without /Ob1 too: the methods defined in a class body are emitted out of line
 # after the unit's functions, each in its own 16-aligned section with 0xCC padding before it.
 NETMECHW split 0x10002080  # SessionList::Lock (sessionlist.cpp)
