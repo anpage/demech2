@@ -743,19 +743,10 @@ void UpdateObjWorld(SceneObject* p_obj)
 	}
 }
 
-// FUNCTION: MW2 0x10001cf8
-// FUNCTION: MW2GBL 0x10019c3c
-// FUNCTION: MW2PREMERCS 0x10033599
-// FUNCTION: MW2MATROX 0x1004180a
-// FUNCTION: MW23DFX 0x1000fc40
-// FUNCTION: MW2ATI 0x10010290
-// FUNCTION: MW2S3 0x10004fe0
-// FUNCTION: MW2POWERVR 0x1000f0a0
 #ifdef MW2_SHAPE_GRID
+// 1.1's UpdateObj, which the early Mercenaries build's UpdateObj (below) calls.
+// FUNCTION: MW2PREMERCS 0x10033599
 void UpdateObjTree(SceneObject* p_obj)
-#else
-void UpdateObj(SceneObject* p_obj)
-#endif
 {
 	SceneObject* child;
 
@@ -764,14 +755,32 @@ void UpdateObj(SceneObject* p_obj)
 	}
 	else if (p_obj->m_firstChild) {
 		for (child = p_obj->m_firstChild; child; child = child->m_nextSibling) {
-#ifdef MW2_SHAPE_GRID
 			UpdateObjTree(child);
-#else
-			UpdateObj(child);
-#endif
 		}
 	}
 }
+#else
+// FUNCTION: MW2 0x10001cf8
+// FUNCTION: MW2GBL 0x10019c3c
+// FUNCTION: MW2MATROX 0x1004180a
+// FUNCTION: MW23DFX 0x1000fc40
+// FUNCTION: MW2ATI 0x10010290
+// FUNCTION: MW2S3 0x10004fe0
+// FUNCTION: MW2POWERVR 0x1000f0a0
+void UpdateObj(SceneObject* p_obj)
+{
+	SceneObject* child;
+
+	if (p_obj->m_flags & c_objectDirty) {
+		UpdateObjWorld(p_obj);
+	}
+	else if (p_obj->m_firstChild) {
+		for (child = p_obj->m_firstChild; child; child = child->m_nextSibling) {
+			UpdateObj(child);
+		}
+	}
+}
+#endif
 
 #ifdef MW2_SHAPE_GRID
 // The early Mercenaries build's UpdateObj: the tree updated, a root's shape is filed in the grid's
