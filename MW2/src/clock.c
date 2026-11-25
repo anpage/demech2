@@ -217,7 +217,7 @@ MechS16 g_sqrtTableData[0x400];
 MechScalar g_atanTable[TRIG_TABLE_SIZE];
 
 // The tables, Hypot2D and BuildMatrixFromDirection: GBL has them in an object of their own (and
-// the Mercenaries disc's MW2.DLL builds GBL's units, until its own are placed).
+// the early Mercenaries build uses GBL's units, until its own are placed).
 #if !defined(MW2_GBL) && !defined(MW2_PREMERCS)
 #include "clockmath.c"
 #endif

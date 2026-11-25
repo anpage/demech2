@@ -120,14 +120,15 @@ macros = ["MW2_GBL"]
 [targets.MW2PREMERCS]
 binary = 'MW2_PREMERCS.DLL'
 component = 'simulator'
-edition = "Mercenaries' `MW2.DLL`"
+edition = 'Early Mercenaries (unused)'
 short = 'Pre-Mercs'
 abbr = 'PreM'
-what = "The simulator Mercenaries ships beside its own"
+what = "An unused early build of Mercenaries' simulator, between Ghost Bear's Legacy and Mercenaries"
 about = '''
-A simulator between Ghost Bear's Legacy and Mercenaries: the `MW2.DLL` the Mercenaries disc ships
-in its `/MERCS` folder beside Mercenaries' own simulator (`MERCSW.DLL`, linked 1996-09-16), linked
-1996-07-08 from a tree its debug directory names `\mercs\mw2.dll` (its PDB
+An unused, early transitional build between Ghost Bear's Legacy and Mercenaries: almost certainly
+an early build of Mercenaries' simulator, left by accident as `MW2.DLL` in the `/MERCS` folder of
+the Mercenaries discs, where nothing loads it (Mercenaries runs `MERCSW.DLL`, linked 1996-09-16).
+It was linked 1996-07-08 from a tree its debug directory names `\mercs\mw2.dll` (its PDB
 `C:\mw2win\Mw2___Wi\mw2.pdb`). It is Ghost Bear's Legacy's code (its titles, its CD driver) with
 Mercenaries' first files (`mercs.hud`, `MW2CAR.CFG`), built with VC++ 4.1 at `/Od`, without `/Oi`. It
 builds the simulator's sources (`MW2/`) with `MW2_PREMERCS` defined.'''
@@ -136,8 +137,9 @@ size = 882176
 linked = 1996-07-08
 availability = 'retail'
 origin = '''
-The `/MERCS/MW2.DLL` of the Mercenaries disc, the same file on Mercenaries 1.05 and the Enhanced
-Direct 3D disc, and in the BattlePack, Ghost Bear's Legacy BattlePack and Titanium releases'''
+Left unused as `/MERCS/MW2.DLL` on the Mercenaries disc, and the same file on Mercenaries 1.05
+and the Enhanced Direct 3D disc, and in the BattlePack, Ghost Bear's Legacy BattlePack and Titanium
+releases'''
 sources = ["MW2", "common"]
 compiler = '4.1'
 language = 'C'

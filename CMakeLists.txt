@@ -299,8 +299,9 @@ if (MSVC_FOR_DECOMP)
   set_property(TARGET mw2gbl PROPERTY DEMECH2_NO_INTRINSICS TRUE)
 endif()
 
-# MW2_PREMERCS.DLL: the simulator the Mercenaries disc ships beside its own (its /MERCS/MW2.DLL, linked
-# 1996-07-08 by LINK 3.10), Ghost Bear's Legacy's code built like MW2_GBL.DLL: no /Oi
+# MW2_PREMERCS.DLL: an unused early build of Mercenaries' simulator, between Ghost Bear's Legacy and
+# Mercenaries, left as /MERCS/MW2.DLL on the Mercenaries discs (linked 1996-07-08 by LINK 3.10): Ghost
+# Bear's Legacy's code built like MW2_GBL.DLL: no /Oi
 # (DEMECH2_NO_INTRINSICS), abs and fabs expanded all the same (util/types.h). MW2_PREMERCS is defined.
 # Its object order is its own; until its units are placed, it builds GBL's (MW2/sources_gbl.cmake).
 # It was linked with /DEBUG (it has a debug directory), so without /OPT:REF: it imports what 1.1
