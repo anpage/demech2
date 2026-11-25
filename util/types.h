@@ -883,6 +883,18 @@ double __cdecl fabs(double);
 /* JoystickOpenDevice probes with joyGetPosEx alone, on an uncleared JOYINFOEX (GBL's later build
    probes as 1.1 does) */
 #define MW2_JOYSTICK_OPEN_POSEX
+/* The scene's shapes are filed in a grid of 12 by 12 cells, 25000 units each, around the origin, each shape
+   keeping its cell (Shape::m_gridX, m_gridZ; shapelists.c) */
+#define MW2_SHAPE_GRID
+/* Players have 0x46 bytes more than GBL's, in three places nothing decompiled reads yet (Player::m_unk0xe8,
+   m_unk0x184, m_unk0x1a0) */
+#define MW2_PLAYER_UNK_MEMBERS
+/* Mechs, their weapon slots and their ammunition bins have 0x8f, 0xc and 8 bytes more than GBL's, at their ends
+   (Mech::m_unk0x114, WeaponSlot::m_unk0x68, AmmoBin::m_unk0x14) */
+#define MW2_MECH_UNK_MEMBERS
+/* Cockpit panels are 0xf0 bytes, their text origin first and a member and a setter of their own
+   (CockpitPanel::m_unk0x34, m_unk0x9c, m_unk0xcc) */
+#define MW2_COCKPIT_PANEL_UNK_MEMBERS
 /* Mechs take heat from outside (Mech::m_externalHeat, which the radius damage adds to and
    CalculateHeat adds to the frame's heat) */
 #define MW2_EXTERNAL_HEAT

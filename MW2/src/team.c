@@ -232,6 +232,7 @@ MechS32 SetTeamLeader(MechS32 p_team, MechS32 p_player)
 // Places the team's leader, then every member at its formation slot around the leader.
 // FUNCTION: MW2 0x1003bf40
 // FUNCTION: MW2GBL 0x1004bb7e
+// FUNCTION: MW2PREMERCS 0x1004216e
 // FUNCTION: MW2MATROX 0x1007304d
 // FUNCTION: MW23DFX 0x10018dd0
 // FUNCTION: MW2ATI 0x10019190

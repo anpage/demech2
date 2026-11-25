@@ -29,22 +29,37 @@ struct CockpitPanel {
 	MechS32 m_unk0x30; // 0x30 — set once the view's camera is placed
 	void* m_view;      // 0x34 — the renderer's A3DView of the panel's inset, or NULL
 #endif
-	PANE* m_target;                                      // 0x30
-	struct Point* m_textOrigin;                          // 0x34 — where its text goes
-	struct RectTransition* m_transition;                 // 0x38
-	MechS32 m_lastPowerState;                            // 0x3c — the power state it last drew in (g_cockpitPowerState)
-	MechS16 m_x;                                         // 0x40
-	MechS16 m_y;                                         // 0x42
-	MechS16 m_width;                                     // 0x44
-	MechS16 m_height;                                    // 0x46
-	void (*m_init)(CockpitPanel*);                       // 0x48
-	void (*m_shutdown)(CockpitPanel*);                   // 0x4c — ShutdownCockpitPanels calls it
-	void (*m_setLightUpTime)(CockpitPanel*, undefined4); // 0x50
-	void (*m_setWeapon)(CockpitPanel*, MechS32);         // 0x54
-	void (*m_setName)(CockpitPanel*, const MechChar*);   // 0x58
-	void (*m_setTarget)(CockpitPanel*, PANE*);           // 0x5c
-	void (*m_setTextOrigin)(CockpitPanel*, struct Point*);                // 0x60
-	void (*m_setTransition)(CockpitPanel*, struct RectTransition*);       // 0x64
+#ifdef MW2_COCKPIT_PANEL_UNK_MEMBERS
+	// The early Mercenaries build's panels are 0xf0 bytes: its text origin comes first, then 0x60
+	// bytes nothing decompiled uses, and a member of its own after the transition, so the members
+	// from m_x on sit 0x64 bytes further than their comments say, and from m_setRect on 0x68.
+	struct Point* m_textOrigin;          // 0x30
+	undefined m_unk0x34[0x94 - 0x34];    // 0x34
+	PANE* m_target;                      // 0x94
+	struct RectTransition* m_transition; // 0x98
+	undefined4 m_unk0x9c;                // 0x9c — FUN_1005360a sets it
+	MechS32 m_lastPowerState;            // 0xa0
+#else
+	PANE* m_target;                      // 0x30
+	struct Point* m_textOrigin;          // 0x34 — where its text goes
+	struct RectTransition* m_transition; // 0x38
+	MechS32 m_lastPowerState;            // 0x3c — the power state it last drew in (g_cockpitPowerState)
+#endif
+	MechS16 m_x;                                                    // 0x40
+	MechS16 m_y;                                                    // 0x42
+	MechS16 m_width;                                                // 0x44
+	MechS16 m_height;                                               // 0x46
+	void (*m_init)(CockpitPanel*);                                  // 0x48
+	void (*m_shutdown)(CockpitPanel*);                              // 0x4c — ShutdownCockpitPanels calls it
+	void (*m_setLightUpTime)(CockpitPanel*, undefined4);            // 0x50
+	void (*m_setWeapon)(CockpitPanel*, MechS32);                    // 0x54
+	void (*m_setName)(CockpitPanel*, const MechChar*);              // 0x58
+	void (*m_setTarget)(CockpitPanel*, PANE*);                      // 0x5c
+	void (*m_setTextOrigin)(CockpitPanel*, struct Point*);          // 0x60
+	void (*m_setTransition)(CockpitPanel*, struct RectTransition*); // 0x64
+#ifdef MW2_COCKPIT_PANEL_UNK_MEMBERS
+	void (*m_unk0xcc)(CockpitPanel*, undefined4); // 0xcc in the early Mercenaries build: FUN_1005360a
+#endif
 	void (*m_setRect)(CockpitPanel*, MechS32, MechS32, MechS32, MechS32); // 0x68
 	void (*m_setDamage)(CockpitPanel*, MechS32);                          // 0x6c
 	void (*m_enable)(CockpitPanel*);                                      // 0x70
@@ -112,6 +127,9 @@ extern "C"
 	void SetCockpitPanelTarget(CockpitPanel* p_panel, PANE* p_target);
 	void SetCockpitPanelTextOrigin(CockpitPanel* p_panel, Point* p_textOrigin);
 	void SetCockpitPanelTransition(CockpitPanel* p_panel, struct RectTransition* p_transition);
+#ifdef MW2_COCKPIT_PANEL_UNK_MEMBERS
+	void FUN_1005360a(CockpitPanel* p_panel, undefined4 p_unk0x9c);
+#endif
 	void SetCockpitPanelRect(CockpitPanel* p_panel, MechS32 p_x, MechS32 p_y, MechS32 p_width, MechS32 p_height);
 	void SetCockpitPanelDamage(CockpitPanel* p_panel, MechS32 p_damage);
 	void EnableCockpitPanel(CockpitPanel* p_panel);

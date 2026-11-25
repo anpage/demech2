@@ -80,6 +80,7 @@ static MechChar g_secondsText[16];
 // The chat message being typed. HandleChatKey edits it.
 // GLOBAL: MW2 0x10179e90
 // GLOBAL: MW2GBL 0x100e9860
+// GLOBAL: MW2PREMERCS 0x101b2a50
 // GLOBAL: MW2MATROX 0x101d6990
 // GLOBAL: MW23DFX 0x101e4200
 // GLOBAL: MW2ATI 0x10117ec0

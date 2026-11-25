@@ -413,6 +413,7 @@ void ShutdownRefreshMode(void)
 // then moves to the next one; after the last, SelectFastestRefreshMode picks the fastest.
 // FUNCTION: MW2 0x100770a8
 // FUNCTION: MW2GBL 0x1002f286
+// FUNCTION: MW2PREMERCS 0x1001d986
 // FUNCTION: MW2MATROX 0x1007b124
 // FUNCTION: MW23DFX 0x10002870
 // FUNCTION: MW2ATI 0x10002780

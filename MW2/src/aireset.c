@@ -32,6 +32,7 @@
 // Clears p_player's AI state, target, goal, scripts, stack and posted message.
 // FUNCTION: MW2 0x100518cd
 // FUNCTION: MW2GBL 0x10076647
+// FUNCTION: MW2PREMERCS 0x10036fb8
 // FUNCTION: MW2MATROX 0x10080aab
 // FUNCTION: MW23DFX 0x100124a0
 // FUNCTION: MW2ATI 0x10012a00

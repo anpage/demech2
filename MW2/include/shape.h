@@ -14,7 +14,7 @@ struct Vertex;
    detail and the one in use. CreateShape allocates it. */
 typedef struct Shape Shape;
 
-// SIZE 0x4c (0x50 in the PowerVR edition)
+// SIZE 0x4c (0x50 in the PowerVR edition, 0x54 in the early Mercenaries build)
 struct Shape {
 	MechU16 m_flags; // 0x00 — 0x10f: the load flags (SetShapeLoadFlags), 0xf0: the damage level (RaisePartDamageLevel),
 					 // 0x200: transformed bounds current, 0x800: not in the collision list, 0x1000: hidden
@@ -37,8 +37,14 @@ struct Shape {
 	MechScalar m_centerY;         // 0x38
 	MechScalar m_centerZ;         // 0x3c
 	MechScalar m_radius;          // 0x40 — the bounding sphere around the center
-	void* m_collisionData;        // 0x44 — a BoundBox (type 0) or a QuadtreeNode (type 5)
-	undefined4 m_transformCount;  // 0x48 — bumped per transform; Model::m_transformCount stamps it
+#ifdef MW2_SHAPE_GRID
+	// The early Mercenaries build keeps the shape's cell of the grid here, 9999 outside it, so the
+	// members after these sit 8 bytes further than their comments say.
+	MechS32 m_gridX; // 0x44
+	MechS32 m_gridZ; // 0x48
+#endif
+	void* m_collisionData;       // 0x44 — a BoundBox (type 0) or a QuadtreeNode (type 5)
+	undefined4 m_transformCount; // 0x48 — bumped per transform; Model::m_transformCount stamps it
 #ifdef MW2_POWERVR
 	// The PowerVR edition's shapes are 0x50 bytes, with the shape's SGL list (m_flags 0x2000: the
 	// shape is converted to SGL).

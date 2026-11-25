@@ -7,14 +7,17 @@
 
 #include <string.h>
 
-#ifdef MW2_POWERVR
+#if defined(MW2_POWERVR)
 DECOMP_SIZE_ASSERT(CockpitPanel, 0x98)
+#elif defined(MW2_COCKPIT_PANEL_UNK_MEMBERS)
+DECOMP_SIZE_ASSERT(CockpitPanel, 0xf0)
 #else
 DECOMP_SIZE_ASSERT(CockpitPanel, 0x88)
 #endif
 
 // FUNCTION: MW2 0x100746c0
 // FUNCTION: MW2GBL 0x10016d30
+// FUNCTION: MW2PREMERCS 0x100533d0
 // FUNCTION: MW2MATROX 0x1001c7d0
 // FUNCTION: MW23DFX 0x10023440
 // FUNCTION: MW2ATI 0x10023700
@@ -43,6 +46,9 @@ void InitCockpitPanel(CockpitPanel* p_panel)
 	p_panel->m_setTarget = SetCockpitPanelTarget;
 	p_panel->m_setTextOrigin = SetCockpitPanelTextOrigin;
 	p_panel->m_setTransition = SetCockpitPanelTransition;
+#ifdef MW2_COCKPIT_PANEL_UNK_MEMBERS
+	p_panel->m_unk0xcc = FUN_1005360a;
+#endif
 	p_panel->m_setRect = SetCockpitPanelRect;
 	p_panel->m_setDamage = SetCockpitPanelDamage;
 	p_panel->m_enable = EnableCockpitPanel;
@@ -111,6 +117,7 @@ void SetCockpitPanelName(CockpitPanel* p_panel, const MechChar* p_name)
 
 // FUNCTION: MW2 0x10074823
 // FUNCTION: MW2GBL 0x10016e97
+// FUNCTION: MW2PREMERCS 0x1005357a
 // FUNCTION: MW2MATROX 0x1001c933
 // FUNCTION: MW23DFX 0x10023530
 // FUNCTION: MW2ATI 0x100237f0
@@ -127,6 +134,7 @@ void SetCockpitPanelTarget(CockpitPanel* p_panel, PANE* p_target)
 
 // FUNCTION: MW2 0x10074879
 // FUNCTION: MW2GBL 0x10016eed
+// FUNCTION: MW2PREMERCS 0x100535df
 // FUNCTION: MW2MATROX 0x1001c989
 // FUNCTION: MW23DFX 0x10023560
 // FUNCTION: MW2ATI 0x10023820
@@ -139,6 +147,7 @@ void SetCockpitPanelTextOrigin(CockpitPanel* p_panel, Point* p_textOrigin)
 
 // FUNCTION: MW2 0x1007488d
 // FUNCTION: MW2GBL 0x10016f01
+// FUNCTION: MW2PREMERCS 0x100535f3
 // FUNCTION: MW2MATROX 0x1001c99d
 // FUNCTION: MW23DFX 0x10023570
 // FUNCTION: MW2ATI 0x10023830
@@ -149,8 +158,17 @@ void SetCockpitPanelTransition(CockpitPanel* p_panel, RectTransition* p_transiti
 	p_panel->m_transition = p_transition;
 }
 
+#ifdef MW2_COCKPIT_PANEL_UNK_MEMBERS
+// FUNCTION: MW2PREMERCS 0x1005360a
+void FUN_1005360a(CockpitPanel* p_panel, undefined4 p_unk0x9c)
+{
+	p_panel->m_unk0x9c = p_unk0x9c;
+}
+#endif
+
 // FUNCTION: MW2 0x100748a1
 // FUNCTION: MW2GBL 0x10016f15
+// FUNCTION: MW2PREMERCS 0x10053621
 // FUNCTION: MW2MATROX 0x1001c9b1
 // FUNCTION: MW23DFX 0x10023580
 // FUNCTION: MW2ATI 0x10023840

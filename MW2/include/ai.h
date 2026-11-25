@@ -204,9 +204,19 @@ MechS16 GetEngagementAIFlags(MechS32 p_value);
 // UpdateAI
 
 // FUNCTION: MW2GBL 0x1007687f
+// FUNCTION: MW2PREMERCS 0x100371fc
 // RunAIRules
 
 // FUNCTION: MW2GBL 0x10076a4a
 // CollectAIRules
+
+// The early Mercenaries build places these before LogAIStatus, out of ai.c's order, so they are
+// annotated here, by name.
+
+// FUNCTION: MW2PREMERCS 0x10038c7e
+// IsTargetDetectable
+
+// FUNCTION: MW2PREMERCS 0x10038d52
+// FindNearestTarget
 
 #endif // AI_H

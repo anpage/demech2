@@ -277,6 +277,7 @@ void TransformModel(Model* p_model, Matrix* p_matrix)
 // transform count (m_transformCount). The products are an __asm block.
 // FUNCTION: MW2 0x10039b94
 // FUNCTION: MW2GBL 0x1003f3a4
+// FUNCTION: MW2PREMERCS 0x1005b0e4
 // FUNCTION: MW2MATROX 0x10028cf4
 // FUNCTION: MW23DFX 0x10029c10
 // FUNCTION: MW2ATI 0x10029840
@@ -378,6 +379,7 @@ void TransformShapeCenter(struct Shape* p_shape, Matrix* p_matrix)
 // Transforms a shape and each of its models by p_matrix.
 // FUNCTION: MW2 0x10039c36
 // FUNCTION: MW2GBL 0x1003f446
+// FUNCTION: MW2PREMERCS 0x1005b186
 // FUNCTION: MW2MATROX 0x10028db4
 // FUNCTION: MW23DFX 0x10029c80
 // FUNCTION: MW2ATI 0x100298b0

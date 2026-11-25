@@ -649,6 +649,7 @@ MechS32 PlaceStaticObject(
 // the array).
 // FUNCTION: MW2 0x1001fa05
 // FUNCTION: MW2GBL 0x10049a66
+// FUNCTION: MW2PREMERCS 0x10055375
 // FUNCTION: MW2MATROX 0x100530a5
 // FUNCTION: MW23DFX 0x10024ba0
 // FUNCTION: MW2ATI 0x10024dc0
@@ -1213,6 +1214,7 @@ void FUN_10062af0(struct SceneObject* p_obj, MechS32 p_parent);
 // shouldn't be: a hidden entry (0x800), or a destroyed game thing's (without explosion chunks).
 // FUNCTION: MW2 0x10020704
 // FUNCTION: MW2GBL 0x1004a768
+// FUNCTION: MW2PREMERCS 0x1005607a
 // FUNCTION: MW2MATROX 0x10053e4e
 // FUNCTION: MW23DFX 0x10025450
 // FUNCTION: MW2ATI 0x10025620

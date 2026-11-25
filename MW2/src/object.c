@@ -451,6 +451,7 @@ void RotateObjMatrix(SceneObject* p_obj, Matrix* p_matrix)
 // angles.
 // FUNCTION: MW2 0x1000180b
 // FUNCTION: MW2GBL 0x1001974a
+// FUNCTION: MW2PREMERCS 0x100330a7
 // FUNCTION: MW2MATROX 0x1004131d
 // FUNCTION: MW23DFX 0x1000f990
 // FUNCTION: MW2ATI 0x1000ffe0
@@ -481,6 +482,7 @@ void SetObjRotation(SceneObject* p_obj, MechScalar p_angleX, MechScalar p_angleY
 // The PowerVR edition turns the object's rotation transform first.
 // FUNCTION: MW2 0x1000184b
 // FUNCTION: MW2GBL 0x1001978a
+// FUNCTION: MW2PREMERCS 0x100330e7
 // FUNCTION: MW2MATROX 0x1004135d
 // FUNCTION: MW23DFX 0x1000f9d0
 // FUNCTION: MW2ATI 0x10010020
@@ -499,6 +501,7 @@ void RotateObj(SceneObject* p_obj, MechScalar p_angleX, MechScalar p_angleY, Mec
 
 // FUNCTION: MW2 0x1000188b
 // FUNCTION: MW2GBL 0x100197ca
+// FUNCTION: MW2PREMERCS 0x10033127
 // FUNCTION: MW2MATROX 0x1004139d
 // FUNCTION: MW23DFX 0x1000fa10
 // FUNCTION: MW2ATI 0x10010060
@@ -740,9 +743,25 @@ void UpdateObjWorld(SceneObject* p_obj)
 	}
 }
 
+#ifdef MW2_SHAPE_GRID
+// 1.1's UpdateObj, which the early Mercenaries build's UpdateObj (below) calls.
+// FUNCTION: MW2PREMERCS 0x10033599
+void UpdateObjTree(SceneObject* p_obj)
+{
+	SceneObject* child;
+
+	if (p_obj->m_flags & c_objectDirty) {
+		UpdateObjWorld(p_obj);
+	}
+	else if (p_obj->m_firstChild) {
+		for (child = p_obj->m_firstChild; child; child = child->m_nextSibling) {
+			UpdateObjTree(child);
+		}
+	}
+}
+#else
 // FUNCTION: MW2 0x10001cf8
 // FUNCTION: MW2GBL 0x10019c3c
-// FUNCTION: MW2PREMERCS 0x10033599
 // FUNCTION: MW2MATROX 0x1004180a
 // FUNCTION: MW23DFX 0x1000fc40
 // FUNCTION: MW2ATI 0x10010290
@@ -761,6 +780,20 @@ void UpdateObj(SceneObject* p_obj)
 		}
 	}
 }
+#endif
+
+#ifdef MW2_SHAPE_GRID
+// The early Mercenaries build's UpdateObj: the tree updated, a root's shape is filed in the grid's
+// cell it now stands in (UpdateObjTree is the others' UpdateObj).
+// FUNCTION: MW2PREMERCS 0x10033604
+void UpdateObj(SceneObject* p_obj)
+{
+	UpdateObjTree(p_obj);
+	if (g_shapeGridEnabled && !p_obj->m_parent) {
+		UpdateShapeGridCell(p_obj->m_shape);
+	}
+}
+#endif
 
 // FUNCTION: MW2 0x10001d63
 // FUNCTION: MW2GBL 0x10019ca7
@@ -889,6 +922,7 @@ void SetObjWorldMatrix(SceneObject* p_obj, Matrix* p_matrix)
 // scene's.
 // FUNCTION: MW2 0x10001e32
 // FUNCTION: MW2GBL 0x10019d80
+// FUNCTION: MW2PREMERCS 0x1003371c
 // FUNCTION: MW2MATROX 0x10041944
 // FUNCTION: MW23DFX 0x1000fd10
 // FUNCTION: MW2ATI 0x10010310
@@ -934,6 +968,7 @@ void DetachObj(SceneObject* p_obj)
 // Links the object under p_parent, keeping its world placement.
 // FUNCTION: MW2 0x10001ef8
 // FUNCTION: MW2GBL 0x10019e4b
+// FUNCTION: MW2PREMERCS 0x100337e7
 // FUNCTION: MW2MATROX 0x10041a0a
 // FUNCTION: MW23DFX 0x1000fd70
 void AttachObj(SceneObject* p_obj, SceneObject* p_parent)

@@ -82,6 +82,9 @@ extern "C"
 	void SetObjTreeCollisionType(SceneObject* p_obj, MechS32 p_collisionType);
 	void ClearObjTreeKind(SceneObject* p_obj, MechS32 p_flags);
 	void UpdateObjWorld(SceneObject* p_obj);
+#ifdef MW2_SHAPE_GRID
+	void UpdateObjTree(SceneObject* p_obj);
+#endif
 	void UpdateObj(SceneObject* p_obj);
 	SceneObject* GetObjRoot(SceneObject* p_obj);
 	SceneObject* GetObjParent(SceneObject* p_obj);

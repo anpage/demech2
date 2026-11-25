@@ -127,6 +127,7 @@ MechS32 g_shapesConsidered;
 // eyepoint, lies beyond it, or the last) and queues its faces. Returns 1 if it has no model.
 // FUNCTION: MW2 0x100335d0
 // FUNCTION: MW2GBL 0x10039280
+// FUNCTION: MW2PREMERCS 0x1005ca80
 // FUNCTION: MW2MATROX 0x100232f0
 // FUNCTION: MW23DFX 0x10029f00
 // FUNCTION: MW2ATI 0x10029b30

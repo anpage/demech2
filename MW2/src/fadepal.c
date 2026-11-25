@@ -186,6 +186,7 @@ void FadeToEndPalette(MechS32 p_alternate)
 // Sets off the smoke of a wrecked mech, or now and then a spark while m_stateTime is set.
 // FUNCTION: MW2 0x1004cb11
 // FUNCTION: MW2GBL 0x1004fcb1
+// FUNCTION: MW2PREMERCS 0x10047082
 // FUNCTION: MW2MATROX 0x10045388
 // FUNCTION: MW23DFX 0x1001be40
 // FUNCTION: MW2ATI 0x1001c1d0

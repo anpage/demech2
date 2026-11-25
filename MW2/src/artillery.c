@@ -27,6 +27,7 @@
 // its object up where it is and clears the player's steering.
 // FUNCTION: MW2 0x10059fc0
 // FUNCTION: MW2GBL 0x100119b0
+// FUNCTION: MW2PREMERCS 0x1004ffa0
 // FUNCTION: MW2MATROX 0x1002e4b0
 // FUNCTION: MW23DFX 0x100218b0
 // FUNCTION: MW2ATI 0x10021b80
@@ -87,6 +88,7 @@ void FirstArtillery(Player* p_player)
 // torso objects (m_pitchObj by the pitch, m_torsoObj by the player's view angles with the twist).
 // FUNCTION: MW2 0x1005a203
 // FUNCTION: MW2GBL 0x10011bf3
+// FUNCTION: MW2PREMERCS 0x100501e3
 // FUNCTION: MW2MATROX 0x1002e6f3
 // FUNCTION: MW23DFX 0x100219e0
 // FUNCTION: MW2ATI 0x10021cb0
@@ -242,6 +244,7 @@ void ShutdownArtillery(Mech* p_mech)
 // Allocates p_player's mech, its weapons and sections, and sets them up.
 // FUNCTION: MW2 0x1005a637
 // FUNCTION: MW2GBL 0x10012027
+// FUNCTION: MW2PREMERCS 0x10050617
 // FUNCTION: MW2MATROX 0x1002eb54
 // FUNCTION: MW23DFX 0x10021c90
 // FUNCTION: MW2ATI 0x10021f60

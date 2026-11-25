@@ -278,6 +278,7 @@ MechS32 HasTeamReachedTarget(MechU8* p_target, MechS32 p_team)
 // nav's radius). The local player reaching a nav marks it reached and plays sound 0xe7.
 // FUNCTION: MW2 0x1001ad5b
 // FUNCTION: MW2GBL 0x1003426b
+// FUNCTION: MW2PREMERCS 0x10028e5b
 // FUNCTION: MW2MATROX 0x1001f0f8
 // FUNCTION: MW23DFX 0x10009b80
 // FUNCTION: MW2ATI 0x1000a3b0
@@ -672,6 +673,7 @@ MechS32 ObjectiveConditionsHold(MechS32 p_star, MechS32 p_objective)
 // 6 failed, 8 failed for another star, 3 still going.
 // FUNCTION: MW2 0x1001b79a
 // FUNCTION: MW2GBL 0x10034ba2
+// FUNCTION: MW2PREMERCS 0x10029792
 // FUNCTION: MW2MATROX 0x1001faf7
 // FUNCTION: MW23DFX 0x1000a1d0
 // FUNCTION: MW2ATI 0x1000aa00

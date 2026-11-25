@@ -23,6 +23,7 @@ DECOMP_SIZE_ASSERT(ShapeCollisionFns, 0xc)
 // The collision tests of each shape type (Shape::m_collisionType).
 // GLOBAL: MW2 0x100a54c0
 // GLOBAL: MW2GBL 0x100adb00
+// GLOBAL: MW2PREMERCS 0x100b0cf8
 // GLOBAL: MW2MATROX 0x100a5550
 // GLOBAL: MW23DFX 0x1024b3a8
 // GLOBAL: MW2ATI 0x1017f728
