@@ -123,6 +123,7 @@ compiler with optimization.
 - **Its starting point.** By bytes, 1134 of GBL's functions are in it (1032 of 1.1's), and it expands what GBL expands, so it starts as GBL: `MW2_PREMERCS` has every feature of `MW2_GBL` (each stays until its code shows otherwise), and it builds GBL's units in GBL's order, with GBL's fragments as units. One feature already separates it from GBL: its `JoystickOpenDevice` probes with `joyGetPosEx` alone, on an uncleared `JOYINFOEX` (`MW2_JOYSTICK_OPEN_POSEX`, as the Matrox edition's), where GBL's October build probes as 1.1 does (the original imports no `joyGetPos`). Its own object order is neither GBL's nor 1.1's (the functions it shares with each keep their order in runs of about a quarter of them).
 - **Placement.** `MW2/sources_premercs.cmake` lists GBL's units in its object order, and `tools/check_units.py` passes with it. The functions it shares with GBL place most of them; the eight whose code changed (`mechviewpanel.c`, `damagepanel.c`, `weaponpanel.c`, `targetpanel.c`, `emptyfns.c`, `mekfile.c`, `gbl/ams.c` and `settings.c`) were placed by their functions' sizes and calls, and the units that hold only data (`cockpitlayouts.c`, `bwdkeywords.c`, `weapondata.c` and the menus) by their data. Its VFX objects come first, right after the two MASM units, where GBL has VFXA after `mw2prj.c` and VFX3D and VFXREND after `eyepoint.c`; the AMS (`gbl/ams.c`) follows `weapons.c`; and like GBL it has the cockpit panels, the faces' projection and `clock.c`'s tables as objects of their own, and `g_shouldToggleFullscreen`, `g_desktopWidth` and `g_desktopHeight` among `refreshmode.c`'s data. Two objects after `shots.c` (`0x10087ee0`, 19 functions, and `0x10089830`, 12) have no counterpart in GBL: they create, move and draw objects through its `UpdateObj` (below).
 - **Its players** (`MW2_PLAYER_UNK_MEMBERS`) are 0x1fe bytes, where GBL's are 0x1b8 (`AllocPlayer`'s size): 0x28 bytes more between the target information and the name, 2 after `m_piloting` and 0x1c after `m_nextDetectCheck`, found from the offsets the AI's and the maneuvers' functions read (the names' terminators that `BwdExecuteStream` writes moved with them). Nothing decompiled reads them yet. Its mechs are larger too (`MW2_MECH_UNK_MEMBERS`): `GetMechAllocSize` adds 0x1a3 bytes for the mech, 0x74 per weapon slot and 0x1c per ammunition bin, where GBL's are 0x114, 0x68 and 0x14. `InitMechArrays` sets up the slots' and bins' members at GBL's offsets, and the rebuild matches the most functions with the extra bytes at each structure's end (0x8f, 0xc and 8). Its cockpit panels (`MW2_COCKPIT_PANEL_UNK_MEMBERS`) are 0xf0 bytes, where GBL's are 0x88 (`InitCockpitPanels`' allocation): `InitCockpitPanel` shows the text origin first, 0x60 unknown bytes, the target and transition, and a member of its own with its setter (`FUN_1005360a`) between the transition's and the rectangle's. It has 34 panels where GBL has 30, and its set differs: six of them are mech views, in six modes (panels 2, 22, 26 and 31 to 33), and the status panels sit around them; that set, and `cockpitpanels.c`'s tables and `InitCockpitPanels` with it, aren't decompiled yet.
+- **Its weapons** (`MW2_CLAN_AND_IS_WEAPONS`) are Mercenaries' two technologies: 66 types (`g_weaponDefs`), GBL's 35 as the Clans' (their names prefixed with c, "cLRM20", their damage and ranges retuned) followed by 31 of the Inner Sphere's ("LRM20", "AC20", "erPPC", "LBAC10"…). `SpawnShot` (`MW2_SHOT_TRACERS`) is GBL's but for two things: it fires with no ammunition left under the unlimited-ammunition cheat, and it starts a tracer ahead of each machine-gun shot (shot type 5) in an object of its own after `shots.c` (`premercs/tracers.c`, a stub so far). Its weapon slots keep 4 more bytes before their bin pointer, and the bins are 0x1c bytes, like the ammunition bins. Its `AmsLaunch` takes a shot from the weapon's bin without testing it (GBL's tests it: `MW2_AMS_CHECKS_BIN`), and its `AmsFrame` sums the dot product with the missile's velocity in another order.
 - **The shape grid** (`MW2_SHAPE_GRID`). Its scene files the shapes in a grid of 12 by 12 cells of 25000 units, the first cell's corner at -150000 in x and z (`g_shapeGrid`, in `shapelists.c`), with a list for the shapes outside it: each cell is a list head that points at itself, and a shape keeps its cell in two members inserted before `m_collisionData`, so its shapes are 0x54 bytes, not 0x4c. The functions that touch the shapes' later members differ from GBL's by those 8 bytes alone. `UpdateObj` (`0x10033604`) updates the tree (1.1's `UpdateObj`, here `UpdateObjTree`) and then, for a root while the grid is on, files the root's shape and its children's in the cell it has moved to (`UpdateShapeGridCell`), or in the off-grid list. `UnlinkShape` resets a shape's cell, and the lists' other functions file a shape in its cell, or in the off-grid list, where 1.1's take the scene's list. Three functions list cells for the renderer and the collisions to go through (`g_shapeGridLists`, the scene's list alone while the grid is off): every cell (`ListAllShapeGridCells`), the cells around the eyepoint's, the farthest first, in rings whose start follows its heading (`ListShapeGridCellsAhead`, which the scene's drawing calls), and a point's cell with three of its neighbours (`ListShapeGridCellsAround`, for the collisions); that one picks the quadrant from the position modulo 12, not modulo the cell, so the neighbours it takes don't follow the point's place in its cell, and its third quadrant takes a neighbour on the other side. But nothing turns the grid on: the two functions that set and clear `g_shapeGridEnabled` (`EnableShapeGrid`, `DisableShapeGrid`) have no caller or reference, so the build draws and collides as GBL does. `shapelists.c`'s grid code is decompiled; its callers, which go through the lists, are not yet.
 - **Annotations** were ported by bytes from GBL's original, then from 1.1's for the functions GBL lacks (`tools/port_annotations.py`), GBL's address taken where the two disagreed (`g_effectInfo`), and again from the rebuild once the shapes had their grid members; the C runtime's `strcpy` and `strcat` are `strcat.obj`'s. The functions that stayed unproven after the witness search were left out, as the globals datacmp then reported (most of them tables of pointers to functions not annotated yet).
 
@@ -298,7 +299,7 @@ tests an `MW2_` macro the table doesn't define, and when no target compiles a br
 
 ## Features
 
-From the table in `util/types.h` (212 features) and the 1439 conditional sites of the simulators' sources (`MW2/`, `common/`, `3rdparty/vfx`). A feature's cell is its value where it has one.
+From the table in `util/types.h` (215 features) and the 1445 conditional sites of the simulators' sources (`MW2/`, `common/`, `3rdparty/vfx`). A feature's cell is its value where it has one.
 
 ### The ATI, S3, Matrox, PowerVR and 3Dfx editions (`MW2_ACCEL`)
 
@@ -576,6 +577,12 @@ Every edition that has one of these has them all, so no binary separates one fro
 | `MW2_NO_MAP_DAMAGE_ANIM` |  |  |  |  |  | yes |  |  | 1 | The damaged map view flickers its gauge without drawing the view's damage animation (DrawDamagedMapView) |
 | `MW2_MOUSE_PEEK_BREAKS` |  |  |  |  |  | yes |  |  | 1 | HandleMessages stops skipping mouse messages when its PeekMessage finds nothing, and handles the last one it had |
 
+### The GBL edition (`MW2_GBL`)
+
+| Feature | 1.1 | ATI | Pre-Mercs | S3 | Matrox | PowerVR | GBL | 3Dfx | Sites | What it does |
+|---|:-:|:-:|:-:|:-:|:-:|:-:|:-:|:-:|--:|---|
+| `MW2_AMS_CHECKS_BIN` |  |  |  |  |  |  | yes |  | 1 | AmsLaunch tests the weapon's ammunition bin before it takes a shot from it |
+
 ### The Pre-Mercs and GBL editions (`MW2_GBL`, `MW2_PREMERCS`)
 
 | Feature | 1.1 | ATI | Pre-Mercs | S3 | Matrox | PowerVR | GBL | 3Dfx | Sites | What it does |
@@ -631,8 +638,10 @@ Every edition that has one of these has them all, so no binary separates one fro
 |---|:-:|:-:|:-:|:-:|:-:|:-:|:-:|:-:|--:|---|
 | `MW2_SHAPE_GRID` |  |  | yes |  |  |  |  |  | 25 | The scene's shapes are filed in a grid of 12 by 12 cells, 25000 units each, around the origin, each shape keeping its cell (Shape::m_gridX, m_gridZ; shapelists.c) |
 | `MW2_PLAYER_UNK_MEMBERS` |  |  | yes |  |  |  |  |  | 4 | Players have 0x46 bytes more than GBL's, in three places nothing decompiled reads yet (Player::m_unk0xe8, m_unk0x184, m_unk0x1a0) |
-| `MW2_MECH_UNK_MEMBERS` |  |  | yes |  |  |  |  |  | 4 | Mechs, their weapon slots and their ammunition bins have 0x8f, 0xc and 8 bytes more than GBL's, at their ends (Mech::m_unk0x114, WeaponSlot::m_unk0x68, AmmoBin::m_unk0x14) |
+| `MW2_MECH_UNK_MEMBERS` |  |  | yes |  |  |  |  |  | 6 | Mechs, their weapon slots and their ammunition bins have 0x8f, 0xc and 8 bytes more than GBL's (Mech::m_unk0x114, WeaponSlot::m_unk0x64 and m_unk0x6c, AmmoBin::m_unk0x14 and WeaponBin::m_unk0x14) |
 | `MW2_COCKPIT_PANEL_UNK_MEMBERS` |  |  | yes |  |  |  |  |  | 6 | Cockpit panels are 0xf0 bytes, their text origin first and a member and a setter of their own (CockpitPanel::m_unk0x34, m_unk0x9c, m_unk0xcc) |
+| `MW2_CLAN_AND_IS_WEAPONS` |  |  | yes |  |  |  |  |  | 2 | The weapons are the Clans' (GBL's, renamed and retuned) and 31 of the Inner Sphere (WEAPON_DEF_COUNT 66, g_weaponDefs) |
+| `MW2_SHOT_TRACERS` |  |  | yes |  |  |  |  |  | 2 | SpawnShot fires with no ammunition left under the unlimited-ammunition cheat, and starts a tracer ahead of each machine-gun shot (premercs/tracers.c) |
 
 ## Where each feature is tested
 
@@ -800,6 +809,7 @@ Every edition that has one of these has them all, so no binary separates one fro
 - `MW2_HASH_NAME_ROL32`: `MW2/include/namehash.h`: `HashName`
 - `MW2_NO_MAP_DAMAGE_ANIM`: `MW2/src/cockpit.c`: `DrawDamagedMapView`
 - `MW2_MOUSE_PEEK_BREAKS`: `MW2/src/simmain.c`: `HandleMessages`
+- `MW2_AMS_CHECKS_BIN`: `MW2/src/gbl/ams.c`: `AmsLaunch`
 - `MW2_EXTERNAL_HEAT`: `MW2/include/mech.h`: `Mech`; `MW2/src/mechclass.c`: file scope; `MW2/src/mechdamage.c`: the definition of `CalculateHeat`
 - `MW2_MECH_SECOND_FLAGS`: `MW2/include/mech.h`: `Mech`; `MW2/src/mechclass.c`: file scope
 - `MW2_FOURTEEN_WEAPON_SLOTS`: `MW2/include/cockpitpanel.h`: `enum`; `MW2/include/weaponslot.h`: file scope; `MW2/src/cockpitpanels.c`: file scope (4); `MW2/src/config.c`: `LoadCptFile`
@@ -846,8 +856,10 @@ Every edition that has one of these has them all, so no binary separates one fro
 - `MW2_REMOTE_MECHS_STAY`: `MW2/src/mechclass.c`: `UpdateMech`
 - `MW2_SHAPE_GRID`: `MW2/include/object.h`: file scope; `MW2/include/shape.h`: `Shape`; `MW2/include/shapelists.h`: file scope (4); `MW2/src/object.c`: the definition of `UpdateObj`, the definitions of `UpdateObj`, `UpdateObjTree`; `MW2/src/shapelists.c`: `AddSceneShape` (3), `EnableShapeCollision`, `FreeSceneShapes`, `InitShapeLists` (2), `ShowDensityShapes` (2), `ShowShape` (2), `UnlinkShape`, file scope (3), the definitions of `DisableShapeGrid`, `EnableShapeGrid`, `InitShapeGridNeighbours`, `ListAllShapeGridCells`, `ListShapeGridCellsAhead`, `ListShapeGridCellsAround`, the definitions of `GetShapeGridHead`, `GetShapeGridList`, `MoveObjTreeOffGrid`, `MoveObjTreeToCell`, `UpdateShapeGridCell`
 - `MW2_PLAYER_UNK_MEMBERS`: `MW2/include/players.h`: `Player` (3); `MW2/src/ai.c`: file scope
-- `MW2_MECH_UNK_MEMBERS`: `MW2/include/ammobin.h`: `AmmoBin`; `MW2/include/mech.h`: `Mech`; `MW2/include/weaponslot.h`: `WeaponSlot`; `MW2/src/mechclass.c`: file scope
+- `MW2_MECH_UNK_MEMBERS`: `MW2/include/ammobin.h`: `AmmoBin`; `MW2/include/mech.h`: `Mech`; `MW2/include/weaponslot.h`: `WeaponBin`, `WeaponSlot` (2); `MW2/src/mechclass.c`: file scope
 - `MW2_COCKPIT_PANEL_UNK_MEMBERS`: `MW2/include/cockpitpanel.h`: `CockpitPanel` (2), file scope; `MW2/src/cockpitpanel.c`: `InitCockpitPanel`, file scope, the definition of `FUN_1005360a`
+- `MW2_CLAN_AND_IS_WEAPONS`: `MW2/include/weapondata.h`: file scope; `MW2/src/weapondata.c`: file scope
+- `MW2_SHOT_TRACERS`: `MW2/src/weapons.c`: file scope, the definition of `SpawnShot`
 
 ## Functions with a definition per edition
 
@@ -900,7 +912,7 @@ Where an edition's version of a function differs in its control flow or in more 
 | `SimMain` | `MW2/src/simmain.c` | `defined(MW2_MATROX)` | Matrox; PowerVR; ATI, S3 and 3Dfx; 1.1, Pre-Mercs and GBL |
 | `SimWindowProc` | `MW2/src/simmain.c` | `defined(MW2_MATROX)` | Matrox; ATI, S3, PowerVR and 3Dfx; 1.1, Pre-Mercs and GBL |
 | `SpawnEffectEx` | `MW2/src/shots.c` | `defined(MW2_WEAPON_FUNCTIONS)` | Pre-Mercs and GBL; 1.1, ATI, S3, Matrox, PowerVR and 3Dfx |
-| `SpawnShot` | `MW2/src/weapons.c` | `defined(MW2_WEAPON_FUNCTIONS)` | Pre-Mercs and GBL; 1.1, ATI, S3, Matrox, PowerVR and 3Dfx |
+| `SpawnShot` | `MW2/src/weapons.c` | `defined(MW2_SHOT_TRACERS)` | Pre-Mercs; GBL; 1.1, ATI, S3, Matrox, PowerVR and 3Dfx |
 | `SwitchCockpitView` | `MW2/src/cockpit.c` | `defined(MW2_POWERVR)` | PowerVR; 1.1, ATI, Pre-Mercs, S3, Matrox, GBL and 3Dfx |
 | `UpdateEffects` | `MW2/src/shots.c` | `defined(MW2_WEAPON_FUNCTIONS)` | Pre-Mercs and GBL; 1.1, ATI, S3, Matrox, PowerVR and 3Dfx |
 | `UpdateMech` | `MW2/src/mechclass.c` | `defined(MW2_FLOAT_SCALARS)` | ATI, S3, Matrox, PowerVR and 3Dfx; 1.1, Pre-Mercs and GBL |
@@ -929,8 +941,9 @@ What tests `MW2_ACCEL`, `MW2_MATROX` or `MW2_3DFX` itself rather than a feature,
 - Includes (4): `MW2/include/bandpoly.h`: file scope; `MW2/include/directdraw.h`: file scope; `MW2/src/animation.c`: file scope; `MW2/src/bandpoly.c`: file scope
 - Pragmas that reproduce a unit's flags (4): `MW2/src/accel/queueface.c`: file scope (2); `MW2/src/keyboard.c`: file scope (2)
 
-### `MW2_PREMERCS` (5 sites)
+### `MW2_PREMERCS` (7 sites)
 
+- In a function: the edition's back end, what the shared code does for it, or the same computation written another way (2): `MW2/src/gbl/ams.c`: `AmsFrame` (2)
 - A fragment included at the position of the object that holds it (3): `MW2/src/clock.c`: file scope; `MW2/src/config.c`: file scope; `MW2/src/objectanim.c`: file scope
 - Data and declarations that differ (2): `MW2/src/refreshmode.c`: file scope; `MW2/src/simmain.c`: file scope
 

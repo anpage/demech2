@@ -73,8 +73,23 @@ void ToggleAms(void)
 // The AMS's frame function (WeaponDef::m_frame): a ready AMS fires a volley when an enemy missile
 // within its reach closes on the player.
 // FUNCTION: MW2GBL 0x1002e997
+// FUNCTION: MW2PREMERCS 0x100810c9
 MechS32 AmsFrame(Player* p_player, WeaponDef* p_def, WeaponSlot* p_slot)
 {
+#ifdef MW2_PREMERCS
+	MechS32 side;
+	MechS32 i;
+	Shot* shot;
+	MechScalar x;
+	MechScalar y;
+	MechScalar z;
+	MechScalar dx;
+	MechScalar dy;
+	MechScalar playerX;
+	MechScalar playerY;
+	MechScalar playerZ;
+	MechScalar dz;
+#else
 	MechS32 side;
 	MechS32 i;
 	Shot* shot;
@@ -87,6 +102,7 @@ MechS32 AmsFrame(Player* p_player, WeaponDef* p_def, WeaponSlot* p_slot)
 	MechScalar playerX;
 	MechScalar playerY;
 	MechScalar playerZ;
+#endif
 
 	if (p_slot->m_state != c_weaponReady) {
 		return 1;
@@ -106,8 +122,14 @@ MechS32 AmsFrame(Player* p_player, WeaponDef* p_def, WeaponSlot* p_slot)
 			dx = playerX - x;
 			dy = playerY - y;
 			dz = playerZ - z;
+			// The early Mercenaries build sums the dot product in another order.
+#ifdef MW2_PREMERCS
+			if (ApproximateVectorLength(dx, dy, dz) <= AMS_REACH &&
+				shot->m_velocity[0] * dx + shot->m_velocity[2] * dz + shot->m_velocity[1] * dy > 0) {
+#else
 			if (ApproximateVectorLength(dx, dy, dz) <= AMS_REACH &&
 				shot->m_velocity[2] * dz + shot->m_velocity[1] * dy + shot->m_velocity[0] * dx > 0) {
+#endif
 				p_slot->m_state = c_weaponFiring;
 				p_slot->m_volley = p_def->m_volley;
 				p_slot->m_time = 0;
@@ -124,6 +146,7 @@ MechS32 AmsFrame(Player* p_player, WeaponDef* p_def, WeaponSlot* p_slot)
 // gives the missiles it reaches their ranges. Returns the rounds fired, 0 when the AMS can't fire
 // again.
 // FUNCTION: MW2GBL 0x1002eb5f
+// FUNCTION: MW2PREMERCS 0x10081291
 MechS32 AmsLaunch(Player* p_player, WeaponDef* p_def, WeaponSlot* p_slot)
 {
 	MechS32 fired;
@@ -152,7 +175,11 @@ MechS32 AmsLaunch(Player* p_player, WeaponDef* p_def, WeaponSlot* p_slot)
 			p_slot->m_ammo = 0;
 		}
 
+#ifdef MW2_AMS_CHECKS_BIN
 		if (p_slot->m_bin && p_slot->m_bin->m_shots) {
+#else
+		if (p_slot->m_bin->m_shots) {
+#endif
 			p_slot->m_bin->m_shots--;
 		}
 		else {
@@ -180,6 +207,7 @@ MechS32 AmsLaunch(Player* p_player, WeaponDef* p_def, WeaponSlot* p_slot)
 // the player at which it detonates: three times in four a random one beyond AMS_MIN_INTERCEPT,
 // otherwise none; and detonates the missiles within theirs. p_def and p_slot go unused.
 // FUNCTION: MW2GBL 0x1002ecfd
+// FUNCTION: MW2PREMERCS 0x10081422
 MechS32 AmsIntercept(Player* p_player, WeaponDef* p_def, WeaponSlot* p_slot)
 {
 	MechS32 side;

@@ -363,15 +363,18 @@
 0x1007e173 RunIncludedStream resource.c rename buffer=zqaj id=zqah key=zqaf keyData=zqai record=zqag result=zqad stream=zqae
 0x1007e3dd GetTriangleNormal resource.c rename a=zqad b=zqae c=zqaf ux=zqag uy=zqah uz=zqai vx=zqaj vy=zqak vz=zqal
 0x1007ebb9 NextThingRecordObject resource.c rename id=zqad obj=zqae
+0x1007f69c SpawnShot weapons.c pad 15 rename dx=zqag dy=zqai dz=zqak found=zqaf i=zqam j=zqap result=zqad shot=zqae speed=zqao spread=zqan x=zqah y=zqaj z=zqal
 0x1007fcb2 SelectNextWeapon weapons.c rename def=zqag done=zqae tries=zqad type=zqaf
 0x1007ff58 SelectWeaponGroup weapons.c rename current=zqad def=zqag found=zqah i=zqai selected=zqae type=zqaf
-0x100802da SetWeaponGroup weapons.c pad 1
+0x1008021d LoadWeaponSounds weapons.c rename def=zqae i=zqad
 0x100804b1 FireWeaponGroup weapons.c rename def=zqag first=zqad selected=zqaf slot=zqae
 0x10080679 UpdateWeaponLock weapons.c rename bearing=zqah def=zqak dx=zqaj dy=zqal dz=zqad heading=zqam inRange=zqai pitch=zqaf twist=zqae yaw=zqag
 0x10080ae1 UpdateAimDistance weapons.c rename collided=zqad flags=zqae hit=zqaf length=zqag ray=zqah
 0x10080c5d BuildAimRay weapons.c rename dx=zqad dy=zqae dz=zqaf x=zqag y=zqah z=zqai
-0x10080e0e SpawnLaunchFx weapons.c pad 2 rename offset=zqak pitch=zqag sideX=zqao sideY=zqap sideZ=zqaj speed=zqai upX=zqal upY=zqam upZ=zqan x=zqad y=zqae yaw=zqah z=zqaf
+0x10080e0e SpawnLaunchFx weapons.c rename offset=zqak pitch=zqag sideX=zqao sideY=zqap sideZ=zqaj speed=zqai upX=zqal upY=zqam upZ=zqan x=zqad y=zqae yaw=zqah z=zqaf
 0x10080ff0 ToggleAms ams.c rename i=zqaf mech=zqae message=zqag slot=zqah type=zqad
+0x100810c9 AmsFrame ams.c pad 1 rename dx=zqam dy=zqan dz=zqad i=zqai playerX=zqaj playerY=zqak playerZ=zqal shot=zqag side=zqao x=zqae y=zqaf z=zqah
+0x10081422 AmsIntercept ams.c pad 5 rename beyond=zqak distance=zqae dx=zqao dy=zqap dz=zqad i=zqaj playerX=zqal playerY=zqam playerZ=zqan shot=zqah side=zqaa x=zqaf y=zqag z=zqai
 0x10081650 InitPaletteCycle palfade.c rename dst=zqaf i=zqae working=zqad
 0x10081805 InitPaletteFade palfade.c rename accum=zqae block=zqah delta=zqag i=zqaf palette=zqad
 0x10081919 StepPaletteFade palfade.c rename accum=zqae delta=zqag i=zqaf palette=zqad

@@ -37,6 +37,9 @@
 #include "weapondata.h"
 #include "weapondef.h"
 #include "weaponslot.h"
+#ifdef MW2_SHOT_TRACERS
+#include "premercs/tracers.h"
+#endif
 #ifdef MW2_WEAPON_FUNCTIONS
 #include "animation.h"
 #endif
@@ -580,7 +583,138 @@ void UpdateWeaponFireState(Mech* p_mech)
 }
 #endif
 
-#ifdef MW2_WEAPON_FUNCTIONS
+#if defined(MW2_SHOT_TRACERS)
+// Launches one shot of the weapon p_def in p_slot from the player's current hardpoint: the early
+// Mercenaries build's, which fires with no ammunition left under the unlimited-ammunition cheat and
+// starts a tracer ahead of each machine-gun shot. Returns 0 when the weapon can't fire again.
+// FUNCTION: MW2PREMERCS 0x1007f69c
+MechS32 SpawnShot(Player* p_player, WeaponDef* p_def, WeaponSlot* p_slot)
+{
+	MechS32 result;
+	Shot* shot;
+	MechS32 found;
+	MechScalar dx;
+	MechScalar dy;
+	MechScalar dz;
+	MechS32 i;
+	MechScalar speed;
+	MechS32 spread;
+	MechS32 j;
+	MechScalar x;
+	MechScalar y;
+	MechScalar z;
+
+	result = 1;
+	if (!p_player || !p_player->m_firingObj) {
+		return 0;
+	}
+
+	found = FALSE;
+	if (!p_slot->m_ammo && !g_difficulty->m_unlimitedAmmo) {
+		return 0;
+	}
+
+	if (p_player->m_index == g_localPlayerId) {
+		g_careerRecord.m_shotsFired++;
+	}
+
+	if (g_players[p_player->m_index]->m_team == g_players[g_localPlayerId]->m_team) {
+		g_careerRecord.m_teamShotsFired++;
+	}
+
+	if (p_slot->m_ammo != -1 && (!g_difficulty->m_unlimitedAmmo || p_player->m_index != g_localPlayerId)) {
+		p_slot->m_ammo--;
+		if (p_slot->m_bin->m_shots) {
+			p_slot->m_bin->m_shots--;
+		}
+		else {
+			p_slot->m_binIndex++;
+			if (p_slot->m_binCount == p_slot->m_binIndex) {
+				p_slot->m_binIndex--;
+			}
+			else {
+				p_slot->m_bin++;
+			}
+		}
+
+		if (p_slot->m_ammo == 0) {
+			p_slot->m_state = c_weaponEmpty;
+			result = 0;
+		}
+	}
+
+	if (p_def->m_launchesShot) {
+		for (i = 0; !found && i < SHOT_COUNT; i++) {
+			shot = &g_shots[i];
+			if (p_def->m_shotType == shot->m_type && !shot->m_flags && shot->m_object) {
+				found = TRUE;
+			}
+		}
+
+		if (found) {
+			if (p_player->m_index != g_localPlayerId) {
+				UpdateAimDistance(p_player);
+			}
+
+			shot->m_weaponFlags = p_def->m_flags;
+			shot->m_age = p_slot->m_time;
+			shot->m_lifetime = p_def->m_lifetime - p_slot->m_time;
+			shot->m_impact = p_def->m_impact;
+			shot->m_damage = p_def->m_damage;
+			shot->m_heat = p_def->m_shotHeat;
+			shot->m_flags = 1;
+			shot->m_unk0x3c = 0;
+			shot->m_target = p_slot->m_target;
+			shot->m_targetKind = p_slot->m_targetKind;
+			shot->m_shooter = p_player->m_index;
+			if (p_def->m_flags & c_weaponAnimation) {
+				for (j = 0; j < 8; j++) {
+					SetAnimFrame(p_def->m_animation + j, 0);
+					SetAnimMode(p_def->m_animation + j, 1);
+				}
+			}
+
+			speed = p_def->m_speed;
+			GetMechAimDirection(p_player, &dx, &dy, &dz);
+			NormalizeVectorGuarded(&dx, &dy, &dz);
+			shot->m_velocity[0] = dx * speed;
+			shot->m_velocity[1] = dy * speed;
+			shot->m_velocity[2] = dz * speed;
+			shot->m_steering[1] = FixedMul16(-g_gravity, p_def->m_gravity << 16);
+			shot->m_steering[0] = shot->m_steering[2] = 0;
+			spread = shot->m_type == 3 || shot->m_type == 10 || shot->m_type == 0xc || shot->m_type == 9 ||
+					 shot->m_type == 4;
+			SpawnLaunchFx(p_player, shot->m_object, dx, dy, dz, spread, p_def);
+			ShowObjTree(shot->m_object);
+			DisableObjTreeCollision(shot->m_object);
+			UpdateObj(shot->m_object);
+			GetObjPosition(shot->m_object, &x, &y, &z);
+			if (shot->m_type == 5) {
+				FUN_10089624(
+					shot->m_velocity[0] * 2 + x,
+					shot->m_velocity[1] * 2 + y,
+					shot->m_velocity[2] * 2 + z,
+					shot->m_velocity[0],
+					shot->m_velocity[1],
+					shot->m_velocity[2]
+				);
+			}
+
+			if (p_player->m_index == g_localPlayerId) {
+				if (shot->m_type == 3 || shot->m_type == 4 || shot->m_type == 10 || shot->m_type == 0xc ||
+					shot->m_type == 9) {
+					g_lastLocalMissile = i - 1;
+				}
+				else {
+					g_lastLocalMissile = -1;
+				}
+			}
+		}
+	}
+
+	return result;
+}
+#elif defined(MW2_WEAPON_FUNCTIONS)
 // Launches one shot of the weapon p_def in p_slot from the player's current hardpoint: GBL's, every
 // weapon's launch function but the AMS's (WeaponDef::m_launch). Returns 0 when the weapon can't fire
 // again: no hardpoint, or out of ammunition.
@@ -1130,6 +1264,7 @@ MechS32 JettisonAmmo(Mech* p_mech)
 // Loads the launch sounds of the weapons and the sounds of the effects.
 // FUNCTION: MW2 0x10045a5b
 // FUNCTION: MW2GBL 0x100486a6
+// FUNCTION: MW2PREMERCS 0x1008021d
 // FUNCTION: MW2MATROX 0x1002c801
 // FUNCTION: MW23DFX 0x100442e0
 // FUNCTION: MW2ATI 0x10041b20
