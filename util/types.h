@@ -886,6 +886,9 @@ double __cdecl fabs(double);
 /* The scene's shapes are filed in a grid of 12 by 12 cells, 25000 units each, around the origin, each shape
    keeping its cell (Shape::m_gridX, m_gridZ; shapelists.c) */
 #define MW2_SHAPE_GRID
+/* Players have 0x46 bytes more than GBL's, in three places nothing decompiled reads yet (Player::m_unk0xe8,
+   m_unk0x184, m_unk0x1a0) */
+#define MW2_PLAYER_UNK_MEMBERS
 /* Mechs take heat from outside (Mech::m_externalHeat, which the radius damage adds to and
    CalculateHeat adds to the frame's heat) */
 #define MW2_EXTERNAL_HEAT

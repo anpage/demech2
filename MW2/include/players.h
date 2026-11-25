@@ -73,17 +73,23 @@ struct Player {
 	MechS32 m_collidedWith;          // 0x7c — the player its mech ran into this tick, or -1
 	// 0x80: 0x1 animating, 0x2 the frame is a stride (the speed eases, MASC can fail), 0x4 airborne,
 	// 0x8 the frame plays m_pendingSound, 0x10 restart the animation.
-	MechU32 m_animFlags;                // 0x80
-	MechS32 m_motionState;              // 0x84 — the animation state it reached, whose sound plays (gpanim.c)
-	MechS32 m_nextMotionState;          // 0x88 — the one it wants: 0 moving, 1 at full throttle, 2 reversing, or -1
-	MechS32 m_speedLevel;               // 0x8c — 0 to 3, from the throttle
-	MechS32 m_pendingSound;             // 0x90 — a sound to play once, or -1
-	MechS32 m_animRate;                 // 0x94
-	Ramp m_aimRange;                    // 0x98 — eases towards m_aimDistance's
-	Ramp m_aimDistance;                 // 0xa8 — the distance the weapons converge at
-	MechScalar m_headingCos;            // 0xb8 — 16.16 (UpdateDoor)
-	MechScalar m_headingSin;            // 0xbc — 16.16
-	PlayerTargetInfo m_targetInfo;      // 0xc0
+	MechU32 m_animFlags;           // 0x80
+	MechS32 m_motionState;         // 0x84 — the animation state it reached, whose sound plays (gpanim.c)
+	MechS32 m_nextMotionState;     // 0x88 — the one it wants: 0 moving, 1 at full throttle, 2 reversing, or -1
+	MechS32 m_speedLevel;          // 0x8c — 0 to 3, from the throttle
+	MechS32 m_pendingSound;        // 0x90 — a sound to play once, or -1
+	MechS32 m_animRate;            // 0x94
+	Ramp m_aimRange;               // 0x98 — eases towards m_aimDistance's
+	Ramp m_aimDistance;            // 0xa8 — the distance the weapons converge at
+	MechScalar m_headingCos;       // 0xb8 — 16.16 (UpdateDoor)
+	MechScalar m_headingSin;       // 0xbc — 16.16
+	PlayerTargetInfo m_targetInfo; // 0xc0
+#ifdef MW2_PLAYER_UNK_MEMBERS
+	// The early Mercenaries build has 0x28 bytes here, 0x2 after m_piloting and 0x1c after
+	// m_nextDetectCheck: its players are 0x1fe bytes, and the members after each sit that much
+	// further than their comments say.
+	undefined m_unk0xe8[0x28]; // 0xe8
+#endif
 	MechChar m_name[0xfe - 0xe8];       // 0xe8
 	MechChar m_shortName[0x114 - 0xfe]; // 0xfe — for the target panel
 	MechS32 m_killer;                   // 0x114 — the player who destroyed its mech
@@ -99,15 +105,21 @@ struct Player {
 	MechS32 m_engageAtWill; // 0x154 — it may be sent to attack: the "Engage at Will" order toggles it
 	MechS8 m_gunnery;       // 0x158 — lower is better: it fires on one roll in m_gunnery
 	MechS8 m_piloting;      // 0x159 — 1 (best) to 4: the maneuvers it may make
+#ifdef MW2_PLAYER_UNK_MEMBERS
+	undefined2 m_unk0x184; // 0x184 in the early Mercenaries build
+#endif
 	MechS32 m_nextFireTime; // 0x15a — the clock when it next rolls to fire
 #ifdef MW2_PILOT_TABLE
 	MechS32 m_unk0x160; // 0x160 — the pilot table entry's flag, which the fire decisions test
 #endif
-	MechS32 m_restAlertRange;        // 0x15e — the rules' range -1: enemies within it wake a resting player
-	MechS32 m_alertRange;            // 0x162 — the rules' range -2: enemies within it are reported or engaged
-	MechS32 m_leashRange;            // 0x166 — the rules' range -4: a chase this far from its anchor nav ends
-	MechS32 m_nav;                   // 0x16a — a nav target id the AI placed, or 0x1000
-	MechS16 m_nextDetectCheck;       // 0x16e — the clock (truncated) when IsTargetDetectable next looks
+	MechS32 m_restAlertRange;  // 0x15e — the rules' range -1: enemies within it wake a resting player
+	MechS32 m_alertRange;      // 0x162 — the rules' range -2: enemies within it are reported or engaged
+	MechS32 m_leashRange;      // 0x166 — the rules' range -4: a chase this far from its anchor nav ends
+	MechS32 m_nav;             // 0x16a — a nav target id the AI placed, or 0x1000
+	MechS16 m_nextDetectCheck; // 0x16e — the clock (truncated) when IsTargetDetectable next looks
+#ifdef MW2_PLAYER_UNK_MEMBERS
+	undefined m_unk0x1a0[0x1c]; // 0x1a0 in the early Mercenaries build
+#endif
 	MechS16 m_maneuver;              // 0x170 — c_maneuver…, or -1
 	MechS16 m_lastManeuver;          // 0x172 — the previous maneuver, or -1
 	MechS32 m_nextManeuver;          // 0x174 — one asked for (0 none), or -2 to flee

@@ -167,6 +167,7 @@ void SelectFormation(MechS32 p_formation, MechS32 p_value)
 // Returns the AI state of the player in AI slot p_index, plus one (0: none).
 // FUNCTION: MW2 0x10066272
 // FUNCTION: MW2GBL 0x100055b4
+// FUNCTION: MW2PREMERCS 0x10082952
 // FUNCTION: MW2MATROX 0x1008e963
 // FUNCTION: MW23DFX 0x10064570
 // FUNCTION: MW2ATI 0x10061be0

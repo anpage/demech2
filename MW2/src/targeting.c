@@ -126,6 +126,7 @@ MechS32 AddNavPoint(MechU32 p_owner, MechScalar p_x, MechScalar p_y, MechScalar 
 // player's own target). Returns the new nav count, or -1.
 // FUNCTION: MW2 0x1005ed4f
 // FUNCTION: MW2GBL 0x1007061f
+// FUNCTION: MW2PREMERCS 0x100486bf
 // FUNCTION: MW2MATROX 0x100065bf
 // FUNCTION: MW23DFX 0x1001cb40
 // FUNCTION: MW2ATI 0x1001ce70

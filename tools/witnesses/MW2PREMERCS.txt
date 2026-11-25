@@ -110,6 +110,7 @@
 0x10031af7 AmbientSoundTask objectanim.c rename id=zqag name=zqai slot=zqah sound=zqae star=zqaf token=zqad
 0x10032a40 CreateObj object.c rename last=zqae obj=zqad
 0x10033127 TransformShapeModel object.c rename model=zqae obj=zqad
+0x1003371c DetachObj object.c rename first=zqaf parent=zqad sibling=zqae
 0x10033995 GetObjLastChild object.c rename child=zqad last=zqae
 0x100339e9 GetObjChild object.c rename child=zqae count=zqaf result=zqad
 0x10033b35 RaisePartDamageLevel object.c pad 8 rename child=zqad current=zqae shape=zqaf
@@ -120,12 +121,20 @@
 0x100353dd IsPointInFaceYZ collision.c rename count=zqad i=zqah indices=zqag left=zqal offset=zqaj prev=zqae right=zqai sides=zqaf vertex=zqak
 0x10035760 SetGridObject gridobject.c pad 1 rename count=zqaj depth=zqad maxX=zqak maxZ=zqal minX=zqae minZ=zqag model=zqaf span=zqai vertex=zqah
 0x10036ac0 FirstAI ai.c pad 3
+0x100371fc RunAIRules ai.c rename arg=zqag i=zqah posted=zqaf rule=zqae target=zqad valid=zqai
 0x1003810f GetPointDistance ai.c rename distance=zqae unused=zqad
 0x10038162 ChooseTeamLeader ai.c pad 10 rename count=zqag i=zqae leader=zqad member=zqai members=zqaf newLeader=zqah
 0x100389af AiMessageProx ai.c pad 6 rename limit=zqag nearest=zqae nearestTarget=zqah result=zqaf target=zqad
 0x10038aa6 LogAIStatus ai.c pad 15
+0x10038d52 FindNearestTarget ai.c rename blocker=zqai closer=zqan count=zqam i=zqah member=zqag members=zqal mission=zqae nearest=zqaj objective=zqak target=zqad type=zqaf
+0x1003953a FindAttacker ai.c rename i=zqae index=zqad players=zqaf
 0x100398e8 SteerToTarget ai.c rename degrees=zqaf delta=zqad scaled=zqae
+0x10039f5e NextTarget ai.c rename home=zqaf index=zqae result=zqad
 0x1003a2f8 IsTargetDone ai.c rename flags=zqah index=zqad mask=zqae result=zqaf type=zqag
+0x1003a55e HasAIState ai.c rename i=zqad j=zqaf script=zqae
+0x1003a6ec ReleaseNavPoints ai.c pad 3
+0x1003a7c4 PlacePatrolNavs ai.c rename found=zqaj index=zqad nav=zqal owner=zqag player=zqak range=zqae x=zqaf y=zqah z=zqai
+0x1003aa06 PlaceFormationNav ai.c rename heading=zqae nav=zqag x=zqad z=zqaf
 0x1003ac40 FindStarSlotPlayer ai.c early int~g_playerCount 7 rename i=zqaf local=zqad player=zqae
 0x1003ae9d OrderStarSlot ai.c rename index=zqaf local=zqad speech=zqae target=zqag
 0x1003b62c GetTeamMembers ai.c rename count=zqag i=zqaf mask=zqah player=zqae team=zqad
@@ -143,6 +152,7 @@
 0x10041787 LateUpdateAllPlayers players.c pad 4
 0x100418ab ShutdownAllPlayers players.c pad 4 rename i=zqae shutdown=zqad
 0x10042046 SetTeamLeader team.c rename dx=zqah dz=zqaf i=zqae player=zqag result=zqad
+0x1004216e PlaceTeam team.c rename heading=zqah i=zqaj leader=zqaf player=zqag result=zqad x=zqai z=zqae
 0x100422ae GetTeamSlotPosition team.c rename leader=zqae matrix=zqaf obj=zqag slot=zqad team=zqai y=zqah
 0x1004241f AssignTeamSlots team.c rename i=zqaf leader=zqah player=zqae slot=zqag team=zqad
 0x10047198 BreakUpMech fadepal.c rename lower=zqae lowerIndex=zqah obj=zqaf objIndex=zqag upper=zqai upperIndex=zqad
@@ -150,22 +160,29 @@
 0x10047453 PlayPlayerHitFeedback fadepal.c rename off0c=zqae off10=zqad off14=zqaf
 0x10048466 DrawHorizontalBar bargauges.c pad 10 rename dark=zqae darker=zqag end=zqaf half=zqad i=zqai right=zqah
 0x100485f0 AddNavPoint targeting.c rename index=zqad nav=zqae
+0x100486bf RemoveNavPoint targeting.c pad 10 rename i=zqae index=zqad player=zqaf
 0x10049881 GetLocalTargetGamePiece targeting.c rename index=zqad kind=zqaf player=zqae
 0x100498dc GetLocalTargetGameThing targeting.c rename index=zqad kind=zqaf player=zqae
 0x10049974 GetLocalTargetObject targeting.c rename id=zqah index=zqad kind=zqag obj=zqaf player=zqae
 0x10049bc5 GetBearingAndRange targeting.c rename cosine=zqae ground=zqaf heading=zqag length=zqai pitch=zqad pitchCosine=zqaj sine=zqah
 0x10049de4 TargetNearestEnemy targeting.c pad 1 rename autopilot=zqad best=zqag bestDistance=zqaj distance=zqai player=zqaf saved=zqah target=zqae
+0x1004c257 ChooseManeuver maneuvers.c rename choice=zqae index=zqad mech=zqag table=zqaf
 0x1004c59d FindManeuver maneuvers.c pad 6
 0x1004cbf8 PlaceOffsetNav maneuvers.c rename nav=zqag x=zqad y=zqae z=zqaf
 0x1004cca5 GetOffsetPoint maneuvers.c rename index=zqad matrix=zqaf obj=zqag thing=zqae y=zqah
 0x1004d130 ManeuverAchick maneuvers.c rename heading=zqae result=zqaf scale=zqad
 0x1004d2e4 ManeuverWbackp maneuvers.c rename heading=zqad result=zqae
+0x1004d416 ManeuverWpeek maneuvers.c rename heading=zqad result=zqae
+0x1004d665 ManeuverAdfa maneuvers.c rename mech=zqah rate=zqad result=zqae side=zqag targetMech=zqai turn=zqaf
+0x1004d8dd ManeuverCircle maneuvers.c rename heading=zqad result=zqae
 0x1004daf1 IsBelowHiddenTarget maneuvers.c rename below=zqae index=zqad
 0x1004dbb2 BrakeFall maneuvers.c rename mech=zqad value=zqae
+0x1004dcda AvoidObstacles maneuvers.c rename hit=zqae i=zqah length=zqad mech=zqag ray=zqaf throttle=zqaj turn=zqai
 0x1004e33f GetAvoidSide maneuvers.c rename distance=zqaf dx=zqai dy=zqaj dz=zqad heading=zqag length=zqah unused=zqae
 0x1004e449 ClampMagnitude maneuvers.c pad 9
 0x1004e489 HasLineToTarget maneuvers.c rename flags=zqad hit=zqaf ray=zqag target=zqae
 0x1004e89a GetTargetShape maneuvers.c rename id=zqae index=zqad obj=zqaf
+0x1004ecd2 ChooseFlankPlace maneuvers.c rename angle=zqad found=zqag i=zqae leader=zqah place=zqaf
 0x100502ca LateUpdateArtillery artillery.c rename delta=zqaf mech=zqad twist=zqae
 0x10050b2e LateUpdateDoor door.c rename dx=zqap dy=zqaa dz=zqag mech=zqad nav=zqah navX=zqaj navY=zqam navZ=zqao objective=zqaf step=zqak team=zqae x=zqai y=zqal z=zqan
 0x100520f0 ProjectAimPoint hud.c rename ray=zqag result=zqah x=zqad y=zqae z=zqaf
@@ -189,6 +206,7 @@
 0x10055d9d DestroyThingObject geocache.c rename current=zqad entry=zqag index=zqae thing=zqaf
 0x10055e5c PropagateStaticObjectStates geocache.c pad 2 rename entry=zqag i=zqae index=zqaf thing=zqad
 0x10055ff9 AreStaticObjectsComplete geocache.c pad 2
+0x1005607a LoadStaticObject geocache.c rename data=zqaf entry=zqai kind=zqah matrix=zqaj offset=zqad parent=zqag size=zqak thing=zqae
 0x10056553 GetStaticSceneObject geocache.c pad 10
 0x100565e6 GetStaticObjectPosition geocache.c pad 2 rename entry=zqae obj=zqad shape=zqaf
 0x100566c9 ToggleBlockBoxes geocache.c pad 9 rename block=zqam data=zqaa dx=zqai dy=zqah dz=zqag file=zqab i=zqan local=zqao matrix=zqap offset=zqak ref=zqaf result=zqad scale=zqaj shape=zqal size=zqae
@@ -227,6 +245,7 @@
 0x10060930 InitAnimations animation.c pad 1
 0x10060d60 UpdateCameraShake camerashake.c rename base0c=zqag base10=zqaf base14=zqah x=zqai y=zqad z=zqae
 0x10060f08 StartCameraShakeKey camerashake.c pad 5 rename key=zqae off0c=zqah off10=zqag off14=zqai seconds=zqaj x=zqak y=zqad z=zqaf
+0x100613d7 UpdateEyepoint eyepoint.c rename climb=zqae mode=zqad pan=zqaj pitch=zqai speed=zqah strafe=zqaf turn=zqag
 0x100618d4 CycleTrackedPlayer eyepoint.c pad 10
 0x100619a3 GetPlayerEyeView eyepoint.c rename player=zqag x=zqad y=zqae z=zqaf
 0x10062124 GetCockpitEyeView eyepoint.c rename pan=zqae tilt=zqad
@@ -253,6 +272,7 @@
 0x1006557e GetCdAudioTracks cdaudio.c rename count=zqaf parms=zqad track=zqae
 0x10065df8 StartSpeech speech.c rename id=zqad slot=zqaf suffix=zqae
 0x100662e8 ResumeSpeech speech.c rename slot=zqad volume=zqae
+0x10066fef DoAudio audio.c pad 4
 0x100674ff ServeSamples soundfx.c rename buffer=zqaf i=zqad size=zqae
 0x1006785d PlaySample soundfx.c pad 5
 0x10068077 SampleEosCallback soundfx.c rename data=zqae done=zqah id=zqad next=zqaf slot=zqag
@@ -260,17 +280,19 @@
 0x100685db UpdateAmbientSound soundfx.c rename bearing=zqaj distance=zqai i=zqae sample=zqad started=zqah volume=zqaf x=zqag y=zqak z=zqal
 0x10068c73 PlayMidiSequence midi.c rename data=zqad i=zqae sequence=zqag slot=zqaf
 0x10068e5f AnyMidiPlaying midi.c rename i=zqad playing=zqae
+0x10069a33 SendStateMsg network.c rename i=zqag mech=zqaf player=zqad section=zqah steering=zqai thing=zqae
 0x1006a8d5 ReceiveWeaponsMsg network.c rename bit=zqaf i=zqah mech=zqag msg=zqae player=zqad
-0x1006aa13 ReceiveCollisionMsg network.c pad 4
+0x1006aa13 ReceiveCollisionMsg network.c pad 2
 0x1006ac2b SendThingsMsg network.c rename bits=zqag count=zqaf i=zqae out=zqad
 0x1006acec ReceiveThingsMsg network.c rename bits=zqah count=zqag i=zqaf in=zqad msgCount=zqae
-0x1006ae71 CountPlayersCallback network.c pad 7
+0x1006ae71 CountPlayersCallback network.c pad 5
 0x1006af31 FindSession network.c rename desc=zqad result=zqae
 0x1006b492 ElectMaster network.c pad 7
 0x1006b940 IsInsideWindow mouse.c pad 11
 0x1006c687 TypedCodeMatches gamekeys.c rename c=zqaf n=zqae typed=zqad
 0x1006c6fe DecodeCheatMessages gamekeys.c pad 12 rename i=zqaf j=zqag length=zqae message=zqad
 0x1006c7e6 HandleCheatInput gamekeys.c rename target=zqad victim=zqae
+0x1006ce5a HandleChatKey gamekeys.c rename c=zqae text=zqad to=zqaf
 0x1006e900 ProcessCmdLineArgs cmdline.c rename arg=zqae rate=zqag result=zqad value=zqaf
 0x1006ee50 RegisterInputDevice inputmap.c rename count=zqag driver=zqae i=zqaf index=zqad
 0x1006f082 FindInputDevice inputmap.c pad 5 rename i=zqae index=zqad
@@ -340,6 +362,7 @@
 0x10081919 StepPaletteFade palfade.c rename accum=zqae delta=zqag i=zqaf palette=zqad
 0x10081bf6 FleeToWindowsAction dorcs.c rename digit=zqad player=zqaf selected=zqae
 0x10081d4c UpdateDorcs dorcs.c rename i=zqah index=zqae rect=zqad saved=zqaf target=zqag
+0x10082952 GetSlotAiState lancemenu.c rename ai=zqae index=zqaf player=zqad state=zqag
 0x100829f4 InstallGoalSuffix lancemenu.c rename choices=zqae old=zqad
 0x10082cc0 RunMenuSlider menucontrols.c rename apply=zqao bar=zqaa font=zqam height=zqai knob=zqap knobX=zqaj left=zqa2 pressed=zqad right=zqar selected=zqag shapes=zqaf size=zqak state=zqah step=zqae target=zqan value=zqab width=zqbk x=zqal
 0x1008322b RunMenuStatus menucontrols.c rename apply=zqal pressed=zqad room=zqai selected=zqag state=zqah step=zqaj suffix=zqaf target=zqak text=zqam value=zqae

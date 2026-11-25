@@ -45,7 +45,9 @@
 // MW2.PRJ.
 
 DECOMP_SIZE_ASSERT(AiRule, 0x0c)
-#if defined(MW2_PILOT_TABLE) && defined(MW2_AI_FLAGS_INT)
+#if defined(MW2_PLAYER_UNK_MEMBERS)
+DECOMP_SIZE_ASSERT(Player, 0x1fe)
+#elif defined(MW2_PILOT_TABLE) && defined(MW2_AI_FLAGS_INT)
 DECOMP_SIZE_ASSERT(Player, 0x1b8)
 #else
 DECOMP_SIZE_ASSERT(Player, 0x1aa)
@@ -605,6 +607,7 @@ AiMessageFn g_aiMessageFns[8] = {
 
 // GLOBAL: MW2 0x100a9120
 // GLOBAL: MW2GBL 0x100b65d0
+// GLOBAL: MW2PREMERCS 0x100b1700
 // GLOBAL: MW2MATROX 0x100bb838
 // GLOBAL: MW23DFX 0x1024bc90
 // GLOBAL: MW2ATI 0x10180010
@@ -630,6 +633,7 @@ void* g_aiScripts[10];
 
 // GLOBAL: MW2 0x100e9e38
 // GLOBAL: MW2GBL 0x100bbc28
+// GLOBAL: MW2PREMERCS 0x101b70a8
 // GLOBAL: MW2MATROX 0x1012c374
 // GLOBAL: MW23DFX 0x101e8834
 // GLOBAL: MW2ATI 0x1011c4f4
@@ -1288,6 +1292,7 @@ MechS16 AiMessageFalse(Player* p_player, MechS16 p_target, MechS16 p_arg)
 // range); reaching its anchor nav releases it, and a patrol moves on to the next nav.
 // FUNCTION: MW2 0x10052338
 // FUNCTION: MW2GBL 0x10077625
+// FUNCTION: MW2PREMERCS 0x100388a2
 // FUNCTION: MW2MATROX 0x10081476
 // FUNCTION: MW23DFX 0x10012a80
 // FUNCTION: MW2ATI 0x10012fe0
@@ -1772,6 +1777,7 @@ void AiStateIdle(Player* p_player)
 // Drives p_player towards p_target, or away from it when fleeing.
 // FUNCTION: MW2 0x10053275
 // FUNCTION: MW2GBL 0x1007855d
+// FUNCTION: MW2PREMERCS 0x100391b8
 // FUNCTION: MW2MATROX 0x10082431
 // FUNCTION: MW23DFX 0x100130f0
 // FUNCTION: MW2ATI 0x10013580
@@ -1883,6 +1889,7 @@ MechS32 AiTransitionNull(Player* p_player, AiRule* p_rule)
 
 // FUNCTION: MW2 0x100534da
 // FUNCTION: MW2GBL 0x100787d6
+// FUNCTION: MW2PREMERCS 0x10039431
 // FUNCTION: MW2MATROX 0x100826a0
 // FUNCTION: MW23DFX 0x100132b0
 // FUNCTION: MW2ATI 0x10013740
@@ -1896,6 +1903,7 @@ MechS32 AiTransitionClearStack(Player* p_player, AiRule* p_rule)
 
 // FUNCTION: MW2 0x100534fb
 // FUNCTION: MW2GBL 0x100787f7
+// FUNCTION: MW2PREMERCS 0x10039452
 // FUNCTION: MW2MATROX 0x100826c1
 // FUNCTION: MW23DFX 0x100132c0
 // FUNCTION: MW2ATI 0x10013750
@@ -1923,6 +1931,7 @@ MechS32 AiTransitionPush(Player* p_player, AiRule* p_rule)
 
 // FUNCTION: MW2 0x10053577
 // FUNCTION: MW2GBL 0x10078873
+// FUNCTION: MW2PREMERCS 0x100394ce
 // FUNCTION: MW2MATROX 0x1008273d
 // FUNCTION: MW23DFX 0x10013320
 // FUNCTION: MW2ATI 0x100137b0
@@ -1944,6 +1953,7 @@ MechS32 AiTransitionPop(Player* p_player, AiRule* p_rule)
 
 // FUNCTION: MW2 0x100535e3
 // FUNCTION: MW2GBL 0x100788df
+// FUNCTION: MW2PREMERCS 0x1003953a
 // FUNCTION: MW2MATROX 0x100827a9
 // FUNCTION: MW23DFX 0x10013370
 // FUNCTION: MW2ATI 0x10013800
@@ -2381,6 +2391,7 @@ void EnterAIState(Player* p_player, MechU16 p_state)
 // once, or each player a symbolic target names. Returns -1 after the last.
 // FUNCTION: MW2 0x10054043
 // FUNCTION: MW2GBL 0x100792ff
+// FUNCTION: MW2PREMERCS 0x10039f5e
 // FUNCTION: MW2MATROX 0x10083294
 // FUNCTION: MW23DFX 0x10013a50
 // FUNCTION: MW2ATI 0x10013ee0
@@ -2584,6 +2595,7 @@ MechS32 IsTargetDone(MechU16 p_target, MechS32 p_check)
 // Enters p_state for p_player now, or after its pushed state when it has one.
 // FUNCTION: MW2 0x10054584
 // FUNCTION: MW2GBL 0x10079840
+// FUNCTION: MW2PREMERCS 0x1003a4f8
 // FUNCTION: MW2MATROX 0x100837ea
 // FUNCTION: MW23DFX 0x10013d40
 // FUNCTION: MW2ATI 0x100141d0
@@ -2606,6 +2618,7 @@ void QueueAIState(Player* p_player, MechS16 p_state, MechU16 p_target)
 // Whether one of p_player's scripts has rules for p_state.
 // FUNCTION: MW2 0x100545ea
 // FUNCTION: MW2GBL 0x100798a6
+// FUNCTION: MW2PREMERCS 0x1003a55e
 // FUNCTION: MW2MATROX 0x10083850
 // FUNCTION: MW23DFX 0x10013d90
 // FUNCTION: MW2ATI 0x10014220
@@ -2637,6 +2650,7 @@ MechS32 HasAIState(Player* p_player, MechS16 p_state)
 // scripts have the state.
 // FUNCTION: MW2 0x10054684
 // FUNCTION: MW2GBL 0x10079940
+// FUNCTION: MW2PREMERCS 0x1003a5f8
 // FUNCTION: MW2MATROX 0x100838ea
 // FUNCTION: MW23DFX 0x10013e00
 // FUNCTION: MW2ATI 0x10014290
@@ -2670,6 +2684,7 @@ void SetAIState(Player* p_player, MechS16 p_state, MechS16 p_target, MechS32 p_p
 // Releases the nav points p_player placed, except its anchor.
 // FUNCTION: MW2 0x10054778
 // FUNCTION: MW2GBL 0x10079a34
+// FUNCTION: MW2PREMERCS 0x1003a6ec
 // FUNCTION: MW2MATROX 0x100839de
 // FUNCTION: MW23DFX 0x10013e90
 // FUNCTION: MW2ATI 0x10014320
@@ -2698,6 +2713,7 @@ void ReleaseNavPoints(Player* p_player)
 // Places four nav points around p_player's target and targets them.
 // FUNCTION: MW2 0x10054851
 // FUNCTION: MW2GBL 0x10079b0d
+// FUNCTION: MW2PREMERCS 0x1003a7c4
 // FUNCTION: MW2MATROX 0x10083ab7
 // FUNCTION: MW23DFX 0x10013f00
 // FUNCTION: MW2ATI 0x10014390
@@ -2765,6 +2781,7 @@ void PlacePatrolNavs(Player* p_player)
 // anchor nav, and makes that its AI target.
 // FUNCTION: MW2 0x10054a30
 // FUNCTION: MW2GBL 0x10079cec
+// FUNCTION: MW2PREMERCS 0x1003a9a3
 // FUNCTION: MW2MATROX 0x10083caa
 // FUNCTION: MW23DFX 0x10014050
 // FUNCTION: MW2ATI 0x100144e0
@@ -2784,6 +2801,7 @@ void AdvanceNavTarget(Player* p_player, MechS16 p_target)
 // Places a nav point at p_player's place in its star's formation and targets it.
 // FUNCTION: MW2 0x10054a93
 // FUNCTION: MW2GBL 0x10079d4f
+// FUNCTION: MW2PREMERCS 0x1003aa06
 // FUNCTION: MW2MATROX 0x10083d0d
 // FUNCTION: MW23DFX 0x100140a0
 // FUNCTION: MW2ATI 0x10014530
@@ -2910,6 +2928,7 @@ MechS32 FindStarSlotPlayer(MechS32 p_slot)
 // Posts a message to p_player unless one is waiting.
 // FUNCTION: MW2 0x10054d4c
 // FUNCTION: MW2GBL 0x1007a008
+// FUNCTION: MW2PREMERCS 0x1003acbf
 // FUNCTION: MW2MATROX 0x10083fc6
 // FUNCTION: MW23DFX 0x10014270
 // FUNCTION: MW2ATI 0x10014700
@@ -3691,6 +3710,7 @@ void LeadStar(MechS32 p_team)
 // without the nav type bits, so the anchor stays placed.
 // FUNCTION: MW2 0x100561ea
 // FUNCTION: MW2GBL 0x1007b432
+// FUNCTION: MW2PREMERCS 0x1003c0e7
 // FUNCTION: MW2MATROX 0x10085485
 // FUNCTION: MW23DFX 0x10014f60
 // FUNCTION: MW2ATI 0x100153b0
@@ -3741,6 +3761,7 @@ void RunStarCommand(MechS32 p_command, MechS32 p_slot)
 // turning back past 45.
 // FUNCTION: MW2 0x100562b4
 // FUNCTION: MW2GBL 0x1007b4fc
+// FUNCTION: MW2PREMERCS 0x1003c1b1
 // FUNCTION: MW2MATROX 0x1008554f
 // FUNCTION: MW23DFX 0x10014ff0
 // FUNCTION: MW2ATI 0x10015400

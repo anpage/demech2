@@ -76,6 +76,7 @@ ProbeDirection g_probeDirections[16] = {
 
 // GLOBAL: MW2 0x100a2980
 // GLOBAL: MW2GBL 0x100a3b88
+// GLOBAL: MW2PREMERCS 0x100b2758
 // GLOBAL: MW2MATROX 0x100a4b88
 // GLOBAL: MW23DFX 0x1024cdf0
 // GLOBAL: MW2ATI 0x10181170
@@ -124,6 +125,7 @@ ManeuverEntry g_behindManeuvers = {{1, 1, 1, 0, 0, 0, 0, 0, 0}};
 // The table of a mech whose m_tons is 1 (ChooseManeuver).
 // GLOBAL: MW2 0x100a2ab8
 // GLOBAL: MW2GBL 0x100a3cc0
+// GLOBAL: MW2PREMERCS 0x100b28d0
 // GLOBAL: MW2MATROX 0x100a4cc0
 // GLOBAL: MW23DFX 0x1024cf28
 // GLOBAL: MW2ATI 0x101812a8
@@ -416,6 +418,7 @@ void RunManeuver(Player* p_player, MechU16 p_target)
 // GBL's: a mech pilot without skill flag 3 keeps its torso straight, and the player takes its
 // maneuver table and range from the pilot table, or its type's table and 15000.
 // FUNCTION: MW2GBL 0x10029be9
+// FUNCTION: MW2PREMERCS 0x1004bf80
 void InitializeManeuvers(Player* p_player)
 {
 	p_player->m_maneuver = -1;
@@ -626,6 +629,7 @@ void InitializeManeuvers(Player* p_player)
 // first), redrawn until its conditions hold.
 // FUNCTION: MW2 0x10013d81
 // FUNCTION: MW2GBL 0x10029ec0
+// FUNCTION: MW2PREMERCS 0x1004c257
 // FUNCTION: MW2MATROX 0x10019969
 // FUNCTION: MW23DFX 0x1001f030
 // FUNCTION: MW2ATI 0x1001f300
@@ -848,6 +852,7 @@ void StartManeuver(Player* p_player)
 // and makes the goal the target again.
 // FUNCTION: MW2 0x1001450e
 // FUNCTION: MW2GBL 0x1002a630
+// FUNCTION: MW2PREMERCS 0x1004c9e3
 // FUNCTION: MW2MATROX 0x1001a106
 // FUNCTION: MW23DFX 0x1001f500
 // FUNCTION: MW2ATI 0x1001f7d0
@@ -1119,6 +1124,7 @@ void ManeuverStupid(Player* p_player, MechS16 p_target)
 // degrees away, turns in place (IsSharpTurn) until the target is more than 4500 away.
 // FUNCTION: MW2 0x10014aa8
 // FUNCTION: MW2GBL 0x1002ac07
+// FUNCTION: MW2PREMERCS 0x1004cf97
 // FUNCTION: MW2MATROX 0x1001a7cb
 // FUNCTION: MW23DFX 0x1001f9d0
 // FUNCTION: MW2ATI 0x1001fca0
@@ -1230,6 +1236,7 @@ MechS32 ManeuverAchick(Player* p_player, MechS16 p_target)
 // self-destructs within 2000 of it. Whether it did.
 // FUNCTION: MW2 0x10014d4e
 // FUNCTION: MW2GBL 0x1002aeb1
+// FUNCTION: MW2PREMERCS 0x1004d241
 // FUNCTION: MW2MATROX 0x1001aa79
 // FUNCTION: MW23DFX 0x1001fb90
 // FUNCTION: MW2ATI 0x1001fe60
@@ -1280,6 +1287,7 @@ MechS32 ManeuverWbackp(Player* p_player, MechS16 p_target)
 // Turns p_player toward its goal and closes on its target. Whether it is within 3000.
 // FUNCTION: MW2 0x10014e5e
 // FUNCTION: MW2GBL 0x1002afc1
+// FUNCTION: MW2PREMERCS 0x1004d351
 // FUNCTION: MW2MATROX 0x1001ab92
 // FUNCTION: MW23DFX 0x1001fc40
 // FUNCTION: MW2ATI 0x1001ff10
@@ -1309,6 +1317,7 @@ MechS32 ManeuverWchick(Player* p_player, MechS16 p_target)
 // while it can fire and has a line to it, then for a second, then BrakeFall. Whether that ended.
 // FUNCTION: MW2 0x10014f23
 // FUNCTION: MW2GBL 0x1002b086
+// FUNCTION: MW2PREMERCS 0x1004d416
 // FUNCTION: MW2MATROX 0x1001ac60
 // FUNCTION: MW23DFX 0x1001fcc0
 // FUNCTION: MW2ATI 0x1001ff90
@@ -1408,6 +1417,7 @@ MechS32 ManeuverSprint(Player* p_player, MechS16 p_target)
 // jump on.
 // FUNCTION: MW2 0x10015172
 // FUNCTION: MW2GBL 0x1002b2d5
+// FUNCTION: MW2PREMERCS 0x1004d665
 // FUNCTION: MW2MATROX 0x1001aeb7
 // FUNCTION: MW23DFX 0x1001fe30
 // FUNCTION: MW2ATI 0x10020100
@@ -1518,6 +1528,7 @@ void ManeuverAvoid(Player* p_player, MechS16 p_target)
 // within 3000.
 // FUNCTION: MW2 0x100153e6
 // FUNCTION: MW2GBL 0x1002b54d
+// FUNCTION: MW2PREMERCS 0x1004d8dd
 // FUNCTION: MW2MATROX 0x1001b155
 // FUNCTION: MW23DFX 0x1001ffd0
 // FUNCTION: MW2ATI 0x100202a0
@@ -1662,6 +1673,7 @@ void SetJumpJets(Player* p_player, MechS8 p_value)
 // 10 ticks for the local player, 90 or 181 for others) it returns whether it is avoiding a shape.
 // FUNCTION: MW2 0x10015709
 // FUNCTION: MW2GBL 0x1002b870
+// FUNCTION: MW2PREMERCS 0x1004dcda
 // FUNCTION: MW2MATROX 0x1001b48d
 // FUNCTION: MW23DFX 0x100201c0
 // FUNCTION: MW2ATI 0x10020490
@@ -2208,6 +2220,7 @@ void SetJumpDirection(Player* p_player, MechS16 p_value)
 // How fast p_player closes on its target since the last call, per tick.
 // FUNCTION: MW2 0x10016093
 // FUNCTION: MW2GBL 0x1002c1fe
+// FUNCTION: MW2PREMERCS 0x1004e6aa
 // FUNCTION: MW2MATROX 0x1001bef7
 // FUNCTION: MW23DFX 0x100208f0
 // FUNCTION: MW2ATI 0x10020bc0
@@ -2231,6 +2244,7 @@ MechScalar GetClosingRate(Player* p_player)
 // piloting skill for it, and not while avoiding.
 // FUNCTION: MW2 0x100160eb
 // FUNCTION: MW2GBL 0x1002c256
+// FUNCTION: MW2PREMERCS 0x1004e702
 // FUNCTION: MW2MATROX 0x1001bf6d
 // FUNCTION: MW23DFX 0x10020950
 // FUNCTION: MW2ATI 0x10020c20
@@ -2461,6 +2475,7 @@ void DodgeShot(WeaponSlot* p_slot, Mech* p_mech)
 // the place.
 // FUNCTION: MW2 0x100166b1
 // FUNCTION: MW2GBL 0x1002c820
+// FUNCTION: MW2PREMERCS 0x1004ecd2
 // FUNCTION: MW2MATROX 0x1001c584
 // FUNCTION: MW23DFX 0x10020d00
 // FUNCTION: MW2ATI 0x10020fd0
@@ -2543,6 +2558,7 @@ MechS16 ChooseFlankPlace(Player* p_player)
 // Whether p_mech is stuck: colliding, not reversing, and not in a maneuver that jumps or avoids.
 // FUNCTION: MW2 0x10016880
 // FUNCTION: MW2GBL 0x1002c9ef
+// FUNCTION: MW2PREMERCS 0x1004eea1
 // FUNCTION: MW2MATROX 0x1001c761
 // FUNCTION: MW23DFX 0x10020e00
 // FUNCTION: MW2ATI 0x100210d0

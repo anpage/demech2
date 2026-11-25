@@ -913,6 +913,7 @@ void SetObjWorldMatrix(SceneObject* p_obj, Matrix* p_matrix)
 // scene's.
 // FUNCTION: MW2 0x10001e32
 // FUNCTION: MW2GBL 0x10019d80
+// FUNCTION: MW2PREMERCS 0x1003371c
 // FUNCTION: MW2MATROX 0x10041944
 // FUNCTION: MW23DFX 0x1000fd10
 // FUNCTION: MW2ATI 0x10010310
@@ -958,6 +959,7 @@ void DetachObj(SceneObject* p_obj)
 // Links the object under p_parent, keeping its world placement.
 // FUNCTION: MW2 0x10001ef8
 // FUNCTION: MW2GBL 0x10019e4b
+// FUNCTION: MW2PREMERCS 0x100337e7
 // FUNCTION: MW2MATROX 0x10041a0a
 // FUNCTION: MW23DFX 0x1000fd70
 void AttachObj(SceneObject* p_obj, SceneObject* p_parent)

@@ -136,6 +136,7 @@ MechS32 g_timeCompressionCheat = 0;
 // The length of the chat message being typed (HandleChatKey).
 // GLOBAL: MW2 0x100aa2b8
 // GLOBAL: MW2GBL 0x1009db08
+// GLOBAL: MW2PREMERCS 0x100b5830
 // GLOBAL: MW2MATROX 0x100a7ce0
 // GLOBAL: MW23DFX 0x10250534
 // GLOBAL: MW2S3 0x10062654
@@ -730,6 +731,7 @@ void ShiftCharacter(MechChar* p_char)
 // everyone (-2), and printable characters are added up to 40. Returns whether it took the key.
 // FUNCTION: MW2 0x1005c057
 // FUNCTION: MW2GBL 0x10013c8a
+// FUNCTION: MW2PREMERCS 0x1006ce5a
 // FUNCTION: MW2MATROX 0x1004278d
 // FUNCTION: MW23DFX 0x10037310
 // FUNCTION: MW2ATI 0x10035ed0
