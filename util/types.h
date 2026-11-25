@@ -892,6 +892,9 @@ double __cdecl fabs(double);
 /* Mechs, their weapon slots and their ammunition bins have 0x8f, 0xc and 8 bytes more than GBL's, at their ends
    (Mech::m_unk0x114, WeaponSlot::m_unk0x68, AmmoBin::m_unk0x14) */
 #define MW2_MECH_UNK_MEMBERS
+/* Cockpit panels are 0xf0 bytes, their text origin first and a member and a setter of their own
+   (CockpitPanel::m_unk0x34, m_unk0x9c, m_unk0xcc) */
+#define MW2_COCKPIT_PANEL_UNK_MEMBERS
 /* Mechs take heat from outside (Mech::m_externalHeat, which the radius damage adds to and
    CalculateHeat adds to the frame's heat) */
 #define MW2_EXTERNAL_HEAT

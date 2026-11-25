@@ -887,6 +887,7 @@ MechS32 IsPlayerInView(Player* p_player)
 // Draws a panel as static (animation 0).
 // FUNCTION: MW2 0x1007c6df
 // FUNCTION: MW2GBL 0x1001cbc6
+// FUNCTION: MW2PREMERCS 0x1004fd2a
 // FUNCTION: MW2MATROX 0x10018db0
 // FUNCTION: MW23DFX 0x10021710
 // FUNCTION: MW2ATI 0x100219e0
