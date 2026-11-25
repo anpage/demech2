@@ -28,6 +28,7 @@
 0x1002011c MapShapeFilter cockpit.c rename flags=zqae kind=zqag skip=zqaf type=zqad
 0x10020622 GetMapHeightShade cockpit.c rename fraction=zqaf height=zqae shade=zqad
 0x1002077c PowerUpMapView cockpit.c pad 11
+0x1002085d DrawSatelliteStatic cockpit.c early int~g_currentClock 16
 0x100209e0 DrawDamagedMapView cockpit.c rename anim=zqag layout=zqaf threshold=zqad viewport=zqae
 0x10020b14 PowerDownMapView cockpit.c pad 11
 0x10020dad FirstRender render.c rename oldProtect=zqaf segment=zqad size=zqae start=zqag
@@ -122,15 +123,16 @@
 0x100353dd IsPointInFaceYZ collision.c rename count=zqad i=zqah indices=zqag left=zqal offset=zqaj prev=zqae right=zqai sides=zqaf vertex=zqak
 0x10035760 SetGridObject gridobject.c pad 1 rename count=zqaj depth=zqad maxX=zqak maxZ=zqal minX=zqae minZ=zqag model=zqaf span=zqai vertex=zqah
 0x100367c0 DrawMechViewFrame mechviewpanel.c rename target=zqae x=zqad y=zqaf
+0x10036ac0 FirstAI ai.c pad 9
 0x100371fc RunAIRules ai.c rename arg=zqag i=zqah posted=zqaf rule=zqae target=zqad valid=zqai
-0x100373c7 CollectAIRules ai.c pad 5 rename count=zqal found=zqak i=zqag j=zqaj pos=zqai rule=zqae ruleCount=zqad script=zqah skip=zqaf
-0x10037619 FindAIName ai.c pad 12
+0x100373c7 CollectAIRules ai.c pad 1 rename count=zqal found=zqak i=zqag j=zqaj pos=zqai rule=zqae ruleCount=zqad script=zqah skip=zqaf
+0x10037619 FindAIName ai.c pad 8
+0x10037da7 FUN_10037da7 ai.c rename roll=zqae scale=zqad sign=zqaf
 0x10038035 LogPlayerSkillLines ai.c pad 9 rename color=zqag i=zqaf line=zqae player=zqad
 0x1003810f GetPointDistance ai.c rename distance=zqae unused=zqad
-0x10038162 ChooseTeamLeader ai.c pad 11 rename count=zqag i=zqae leader=zqad member=zqai members=zqaf newLeader=zqah
-0x100389af AiMessageProx ai.c pad 7 rename limit=zqag nearest=zqae nearestTarget=zqah result=zqaf target=zqad
-0x10038aa6 LogAIStatus ai.c pad 15
-0x10038d52 FindNearestTarget ai.c rename blocker=zqai closer=zqan count=zqam i=zqah member=zqag members=zqal mission=zqae nearest=zqaj objective=zqak target=zqad type=zqaf
+0x10038162 ChooseTeamLeader ai.c pad 14 rename count=zqag i=zqae leader=zqad member=zqai members=zqaf newLeader=zqah
+0x100389af AiMessageProx ai.c pad 10 rename limit=zqag nearest=zqae nearestTarget=zqah result=zqaf target=zqad
+0x10038d52 FindNearestTarget ai.c pad 2 rename blocker=zqai closer=zqan count=zqam i=zqah member=zqag members=zqal mission=zqae nearest=zqaj objective=zqak target=zqad type=zqaf
 0x1003953a FindAttacker ai.c rename i=zqae index=zqad players=zqaf
 0x100398e8 SteerToTarget ai.c rename degrees=zqaf delta=zqad scaled=zqae
 0x10039f5e NextTarget ai.c rename home=zqaf index=zqae result=zqad
@@ -138,8 +140,8 @@
 0x1003a55e HasAIState ai.c rename i=zqad j=zqaf script=zqae
 0x1003a7c4 PlacePatrolNavs ai.c rename found=zqaj index=zqad nav=zqal owner=zqag player=zqak range=zqae x=zqaf y=zqah z=zqai
 0x1003aa06 PlaceFormationNav ai.c rename heading=zqae nav=zqag x=zqad z=zqaf
-0x1003aac3 RecordAttack ai.c pad 7 rename line=zqae player=zqad
-0x1003ac40 FindStarSlotPlayer ai.c early int~g_playerCount 8 rename i=zqaf local=zqad player=zqae
+0x1003aac3 RecordAttack ai.c pad 3 rename line=zqae player=zqad
+0x1003ac40 FindStarSlotPlayer ai.c pad 11 rename i=zqaf local=zqad player=zqae
 0x1003acfb OrderPlayers ai.c rename player=zqae skipped=zqad target=zqaf
 0x1003ae9d OrderStarSlot ai.c rename index=zqaf local=zqad speech=zqae target=zqag
 0x1003b62c GetTeamMembers ai.c rename count=zqag i=zqaf mask=zqah player=zqae team=zqad

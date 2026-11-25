@@ -926,6 +926,8 @@ double __cdecl fabs(double);
 /* Targeting at the reticle doesn't hand the steering to the autopilot for a player with bit 0 of Player::m_unk0x105
    set (TargetAtReticle) */
 #define MW2_RETARGET_PLAYER_FLAG
+/* Players of a type 8 bank into their turns (FUN_10037d84 from UpdateAI) */
+#define MW2_BANKING_PLAYER_TYPE
 /* Mechs take heat from outside (Mech::m_externalHeat, which the radius damage adds to and
    CalculateHeat adds to the frame's heat) */
 #define MW2_EXTERNAL_HEAT

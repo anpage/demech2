@@ -856,6 +856,7 @@
 // abs.obj
 
 // LIBRARY: MW2GBL 0x100824b0 SYMBOL
+// LIBRARY: MW2PREMERCS 0x1008cbe0 SYMBOL
 // _abs
 
 // dbgheap.obj

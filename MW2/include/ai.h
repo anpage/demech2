@@ -201,6 +201,7 @@ MechS16 GetEngagementAIFlags(MechS32 p_value);
 // GBL places these after FirstAI, out of ai.c's order, so they are annotated here, by name.
 
 // FUNCTION: MW2GBL 0x1007672e
+// FUNCTION: MW2PREMERCS 0x1003709f
 // UpdateAI
 
 // FUNCTION: MW2GBL 0x1007687f

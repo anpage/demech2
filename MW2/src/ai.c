@@ -35,6 +35,12 @@
 #pragma function(abs) // GBL calls abs in this unit (util/types.h)
 #endif
 
+#ifdef MW2_BANKING_PLAYER_TYPE
+// The early Mercenaries build's, which only this unit calls.
+void FUN_10037d84(Player* p_player);
+void FUN_10037da7(Player* p_player);
+#endif
+
 // The AI: each AI player runs a state machine (c_aiState…) driven by scripts, AIT resources
 // of rules. A script lists, for each state, the rules that apply in it; a rule waits for a
 // message (c_aiMessage…) about a target, and on it makes a transition (c_aiTransition…) and
@@ -706,6 +712,9 @@ void UpdateAI(Player* p_player)
 		}
 
 		SetTarget(p_player, p_player->m_ai.m_goal);
+#ifdef MW2_BANKING_PLAYER_TYPE
+		FUN_10037d84(p_player);
+#endif
 	}
 }
 
@@ -1148,6 +1157,38 @@ void LogPlayerStatusLines(void)
 // The Matrox edition places TargetAttacker here.
 #ifdef MW2_ACCEL
 #include "aiattacker.c"
+#endif
+
+#ifdef MW2_BANKING_PLAYER_TYPE
+// The early Mercenaries build's: banks a player of type 8, a type GBL doesn't have, into its turn
+// (UpdateAI).
+// FUNCTION: MW2PREMERCS 0x10037d84
+void FUN_10037d84(Player* p_player)
+{
+	if (p_player->m_type == 8) {
+		FUN_10037da7(p_player);
+	}
+}
+
+// Rolls the player towards 90 degrees per unit of its steering's turn, 5 degrees a step while it
+// is more than 10 degrees off.
+// FUNCTION: MW2PREMERCS 0x10037da7
+void FUN_10037da7(Player* p_player)
+{
+	MechS32 scale;
+	MechScalar roll;
+	MechS32 sign;
+
+	scale = 0x1680;
+	roll = -((p_player->m_steering->m_turn >> 16) * scale);
+	if (abs(p_player->m_roll - roll) > FIXED_CONST(10)) {
+		sign = roll == 0 ? 0 : roll >= 0 ? 1 : -1;
+		p_player->m_roll += sign * FIXED_CONST(5);
+	}
+	else {
+		p_player->m_roll = roll;
+	}
+}
 #endif
 
 // Returns the distance between the points p_a and p_b.
