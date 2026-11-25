@@ -60,6 +60,7 @@
 0x100257f8 GetEllipseNeedleAt screenscale.c rename angle=zqad dx=zqag dy=zqah half=zqaf quadrant=zqae
 0x1002594d GetEllipseEdgeAtAngle screenscale.c rename center=zqag radius=zqad radiusY=zqae result=zqaf
 0x10025a80 InitGammaTable brightness.c rename exponent=zqah i=zqaf j=zqae row=zqag x=zqad
+0x100262bb UpdateTimeOfDay environment.c pad 2 rename i=zqad phase=zqag seconds=zqaf time=zqae
 0x1002648a SetInfrared environment.c pad 7
 0x10026530 QuadrupleMechCooling environment.c pad 6 rename i=zqad mech=zqae
 0x1002657b QuarterMechCooling environment.c rename i=zqad mech=zqae
@@ -129,23 +130,21 @@
 0x100373c7 CollectAIRules ai.c rename count=zqal found=zqak i=zqag j=zqaj pos=zqai rule=zqae ruleCount=zqad script=zqah skip=zqaf
 0x10037619 FindAIName ai.c pad 7
 0x10037da7 FUN_10037da7 ai.c rename roll=zqae scale=zqad sign=zqaf
-0x10038035 LogPlayerSkillLines ai.c pad 8 rename color=zqag i=zqaf line=zqae player=zqad
+0x10038035 LogPlayerSkillLines ai.c pad 9 rename color=zqag i=zqaf line=zqae player=zqad
 0x1003810f GetPointDistance ai.c rename distance=zqae unused=zqad
 0x10038162 ChooseTeamLeader ai.c pad 13 rename count=zqag i=zqae leader=zqad member=zqai members=zqaf newLeader=zqah
 0x10038765 RetargetGoals ai.c rename i=zqad player=zqae
-0x100389af AiMessageProx ai.c pad 9 rename limit=zqag nearest=zqae nearestTarget=zqah result=zqaf target=zqad
-0x10038d52 FindNearestTarget ai.c pad 1 rename blocker=zqai closer=zqan count=zqam i=zqah member=zqag members=zqal mission=zqae nearest=zqaj objective=zqak target=zqad type=zqaf
+0x100389af AiMessageProx ai.c pad 12 rename limit=zqag nearest=zqae nearestTarget=zqah result=zqaf target=zqad
+0x10038d52 FindNearestTarget ai.c pad 4 rename blocker=zqai closer=zqan count=zqam i=zqah member=zqag members=zqal mission=zqae nearest=zqaj objective=zqak target=zqad type=zqaf
 0x1003953a FindAttacker ai.c rename i=zqae index=zqad players=zqaf
-0x10039768 GetApproachThrottle ai.c pad 1
 0x100398e8 SteerToTarget ai.c rename degrees=zqaf delta=zqad scaled=zqae
 0x10039f5e NextTarget ai.c rename home=zqaf index=zqae result=zqad
 0x1003a2f8 IsTargetDone ai.c rename flags=zqah index=zqad mask=zqae result=zqaf type=zqag
 0x1003a55e HasAIState ai.c rename i=zqad j=zqaf script=zqae
 0x1003a7c4 PlacePatrolNavs ai.c rename found=zqaj index=zqad nav=zqal owner=zqag player=zqak range=zqae x=zqaf y=zqah z=zqai
-0x1003a9a3 AdvanceNavTarget ai.c pad 1
 0x1003aa06 PlaceFormationNav ai.c rename heading=zqae nav=zqag x=zqad z=zqaf
-0x1003aac3 RecordAttack ai.c pad 9 rename line=zqae player=zqad
-0x1003ac40 FindStarSlotPlayer ai.c pad 9 rename i=zqaf local=zqad player=zqae
+0x1003aac3 RecordAttack ai.c rename line=zqae player=zqad
+0x1003ac40 FindStarSlotPlayer ai.c pad 12 rename i=zqaf local=zqad player=zqae
 0x1003acfb OrderPlayers ai.c rename player=zqae skipped=zqad target=zqaf
 0x1003ae9d OrderStarSlot ai.c rename index=zqaf local=zqad speech=zqae target=zqag
 0x1003b62c GetTeamMembers ai.c rename count=zqag i=zqaf mask=zqah player=zqae team=zqad
@@ -337,6 +336,7 @@
 0x10071519 NetReceive netio.c rename from=zqad result=zqae size=zqaf to=zqag
 0x10071636 FillJoystickDeviceInfo joystick.c rename axisNames=zqah axisShortNames=zqae buttonNames=zqaf buttonShortNames=zqai caps=zqad data=zqaj i=zqag
 0x10071b72 JoystickOpenDevice joystick.c rename button=zqag caps=zqad data=zqah infoEx=zqae range=zqaf
+0x10072850 FindIniSection inifile.c rename buffer=zqad end=zqae file=zqag line=zqaf
 0x100729ad GetIniValue inifile.c rename end=zqah file=zqag length=zqae line=zqad value=zqaf
 0x10072c99 ScreenshotWritePalette screenshot.c pad 2 rename color=zqaf i=zqae numColors=zqad
 0x10072d19 ScreenshotWriteImage screenshot.c rename height=zqaf result=zqae width=zqad
@@ -404,7 +404,7 @@
 0x10080679 UpdateWeaponLock weapons.c rename bearing=zqah def=zqak dx=zqaj dy=zqal dz=zqad heading=zqam inRange=zqai pitch=zqaf twist=zqae yaw=zqag
 0x10080ae1 UpdateAimDistance weapons.c rename collided=zqad flags=zqae hit=zqaf length=zqag ray=zqah
 0x10080c5d BuildAimRay weapons.c rename dx=zqad dy=zqae dz=zqaf x=zqag y=zqah z=zqai
-0x10080e0e SpawnLaunchFx weapons.c pad 1 rename offset=zqak pitch=zqag sideX=zqao sideY=zqap sideZ=zqaj speed=zqai upX=zqal upY=zqam upZ=zqan x=zqad y=zqae yaw=zqah z=zqaf
+0x10080e0e SpawnLaunchFx weapons.c rename offset=zqak pitch=zqag sideX=zqao sideY=zqap sideZ=zqaj speed=zqai upX=zqal upY=zqam upZ=zqan x=zqad y=zqae yaw=zqah z=zqaf
 0x10080ff0 ToggleAms ams.c rename i=zqaf mech=zqae message=zqag slot=zqah type=zqad
 0x100810c9 AmsFrame ams.c pad 2 rename dx=zqam dy=zqan dz=zqad i=zqai playerX=zqaj playerY=zqak playerZ=zqal shot=zqag side=zqao x=zqae y=zqaf z=zqah
 0x10081422 AmsIntercept ams.c pad 6 rename beyond=zqak distance=zqae dx=zqao dy=zqap dz=zqad i=zqaj playerX=zqal playerY=zqam playerZ=zqan shot=zqah side=zqaa x=zqaf y=zqag z=zqai
@@ -433,3 +433,4 @@
 0x10087574 DamageThingsInRadius shots.c pad 3 rename distance=zqad dx=zqag dy=zqah dz=zqai i=zqaf radius=zqal reach=zqak shape=zqaj thing=zqae x=zqam y=zqan z=zqao
 0x10087758 KillGameThing shots.c pad 3
 0x10087a27 ScatterDebris shots.c rename effect=zqah i=zqag object=zqae piece=zqaf shown=zqad
+0x10087d08 StartNuke shots.c rename duration=zqae effect=zqaf i=zqad shape=zqag

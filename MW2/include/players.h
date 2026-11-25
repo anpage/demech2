@@ -120,7 +120,9 @@ struct Player {
 	MechS32 m_nav;             // 0x16a — a nav target id the AI placed, or 0x1000
 	MechS16 m_nextDetectCheck; // 0x16e — the clock (truncated) when IsTargetDetectable next looks
 #ifdef MW2_PLAYER_UNK_MEMBERS
-	undefined m_unk0x1a0[0x1c]; // 0x1a0 in the early Mercenaries build
+	MechS32 m_unk0x1a0; // 0x1a0 in the early Mercenaries build — set, a player in the target state takes the nearest
+						// target (ResolveTarget)
+	undefined m_unk0x1a4[0x18]; // 0x1a4 in the early Mercenaries build
 #endif
 	MechS16 m_maneuver;              // 0x170 — c_maneuver…, or -1
 	MechS16 m_lastManeuver;          // 0x172 — the previous maneuver, or -1

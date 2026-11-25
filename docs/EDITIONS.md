@@ -299,7 +299,7 @@ tests an `MW2_` macro the table doesn't define, and when no target compiles a br
 
 ## Features
 
-From the table in `util/types.h` (233 features) and the 1482 conditional sites of the simulators' sources (`MW2/`, `common/`, `3rdparty/vfx`). A feature's cell is its value where it has one.
+From the table in `util/types.h` (238 features) and the 1490 conditional sites of the simulators' sources (`MW2/`, `common/`, `3rdparty/vfx`). A feature's cell is its value where it has one.
 
 ### The ATI, S3, Matrox, PowerVR and 3Dfx editions (`MW2_ACCEL`)
 
@@ -642,7 +642,7 @@ Every edition that has one of these has them all, so no binary separates one fro
 | Feature | 1.1 | ATI | Pre-Mercs | S3 | Matrox | PowerVR | GBL | 3Dfx | Sites | What it does |
 |---|:-:|:-:|:-:|:-:|:-:|:-:|:-:|:-:|--:|---|
 | `MW2_SHAPE_GRID` |  |  | yes |  |  |  |  |  | 25 | The scene's shapes are filed in a grid of 12 by 12 cells, 25000 units each, around the origin, each shape keeping its cell (Shape::m_gridX, m_gridZ; shapelists.c) |
-| `MW2_PLAYER_UNK_MEMBERS` |  |  | yes |  |  |  |  |  | 4 | Players have 0x46 bytes more than GBL's, in three places (Player::m_unk0xe8 to m_unk0x109, m_unk0x184, m_unk0x1a0) |
+| `MW2_PLAYER_UNK_MEMBERS` |  |  | yes |  |  |  |  |  | 4 | Players have 0x46 bytes more than GBL's, in three places (Player::m_unk0xe8 to m_unk0x109, m_unk0x184, m_unk0x1a0 and m_unk0x1a4) |
 | `MW2_MECH_UNK_MEMBERS` |  |  | yes |  |  |  |  |  | 6 | Mechs, their weapon slots and their ammunition bins have 0x8f, 0xc and 8 bytes more than GBL's (Mech::m_unk0x114, WeaponSlot::m_unk0x64 and m_unk0x6c, AmmoBin::m_unk0x14 and WeaponBin::m_unk0x14) |
 | `MW2_COCKPIT_PANEL_UNK_MEMBERS` |  |  | yes |  |  |  |  |  | 6 | Cockpit panels are 0xf0 bytes, their text origin first and a member and a setter of their own (CockpitPanel::m_unk0x34, m_unk0x9c, m_unk0xcc) |
 | `MW2_CLAN_AND_IS_WEAPONS` |  |  | yes |  |  |  |  |  | 2 | The weapons are the Clans' (GBL's, renamed and retuned) and 31 of the Inner Sphere (WEAPON_DEF_COUNT 66, g_weaponDefs) |
@@ -653,7 +653,7 @@ Every edition that has one of these has them all, so no binary separates one fro
 | `MW2_RANDOM_INDEX_RESET` |  |  | yes |  |  |  |  |  | 2 | RandomIntBelow and RandomNormal set their table's index back to 0 at 127, where the later builds take it modulo 127 (RandomIntBelow2 and RandomNormal2 already do) |
 | `MW2_CAMPAIGN_BWD_TAGS` |  |  | yes |  |  |  |  |  | 2 | BWD streams have Mercenaries' campaign records, 15 node tags more (CPGN, PILT, TECH, NEWS…), which have no names (g_bwdTypeCodes, GetKeywordName) |
 | `MW2_PAUSE_SOUND` |  |  | 0x149 |  |  |  |  |  | 1 | The pause sound is another sound of the PRJ's (PlayPauseSound) |
-| `MW2_INI_VALUE_UPPER_NAME` |  |  | yes |  |  |  |  |  | 1 | GetIniValue opens MW2.INI by that name in capitals (FindIniSection by mw2.ini) |
+| `MW2_INI_UPPER_NAME` |  |  | yes |  |  |  |  |  | 2 | FindIniSection and GetIniValue open MW2.INI by that name in capitals |
 | `MW2_ERROR_TEXT_RAW` |  |  | yes |  |  |  |  |  | 1 | An error's text is the raw value of its code in the "SystemError" section, its comment kept (FormatErrorMessage) |
 | `MW2_DEBRIS_NOT_SHOWN` |  |  | yes |  |  |  |  |  | 1 | ScatterDebris throws its pieces without showing their objects |
 | `MW2_RETARGET_PLAYER_FLAG` |  |  | yes |  |  |  |  |  | 1 | Targeting at the reticle doesn't hand the steering to the autopilot for a player with bit 0 of Player::m_unk0x105 set (TargetAtReticle) |
@@ -665,6 +665,11 @@ Every edition that has one of these has them all, so no binary separates one fro
 | `MW2_EYE_POSITION_WIDTH` |  |  | 0x32 |  |  |  |  |  | 1 | The eye position's overlay line is this many characters wide (HideEyePosition) |
 | `MW2_BLIT_DRAWS_OVERLAYS` |  |  | yes |  |  |  |  |  | 2 | Blit draws the timed and debug overlays and advances the palette fade, which the later builds' SimMain does |
 | `MW2_BANNER_BLEND_STEPS` |  |  | 0x3c |  |  |  |  |  | 1 | The banner's palette blends in over this many steps (ShowBanner) |
+| `MW2_INI_ERROR_CODES` |  |  | yes |  |  |  |  |  | 2 | FindIniSection's errors are 0x41 and 0x4a, the error codes numbered on from GBL's |
+| `MW2_INI_SECTION_HEADERS` |  |  | yes |  |  |  |  |  | 1 | FindIniSection reads only the lines that open with a bracket, as section headers, and looks past the bracket |
+| `MW2_NUKE_RADIUS` |  |  | 10000 |  |  |  |  |  | 2 | A nuke's blast reaches this far, whatever its effect's shape (StartNuke) |
+| `MW2_RESOLVE_NEAREST_FLAG` |  |  | yes |  |  |  |  |  | 1 | A player in the target state resolves a symbolic target to the nearest one when Player::m_unk0x1a0 is set, else to the best, whatever g_aiSpreadTargets (ResolveTarget) |
+| `MW2_EYE_AIM_ADDS_PITCH` |  |  | yes |  |  |  |  |  | 1 | With bit 2 of Mech::m_unk0x112 set the weapons aim along the eye tilted by the torso's pitch, not at the torso's pitch (GetEyeAimDirection) |
 
 ## Where each feature is tested
 
@@ -889,7 +894,7 @@ Every edition that has one of these has them all, so no binary separates one fro
 - `MW2_RANDOM_INDEX_RESET`: `MW2/src/random.c`: `RandomIntBelow`, `RandomNormal`
 - `MW2_CAMPAIGN_BWD_TAGS`: `MW2/include/bwdkeywords.h`: file scope; `MW2/src/bwdkeywords.c`: `g_bwdTypeCodes`
 - `MW2_PAUSE_SOUND`: `MW2/src/pausebanner.c`: `PlayPauseSound`
-- `MW2_INI_VALUE_UPPER_NAME`: `MW2/src/inifile.c`: `GetIniValue`
+- `MW2_INI_UPPER_NAME`: `MW2/src/inifile.c`: `FindIniSection`, `GetIniValue`
 - `MW2_ERROR_TEXT_RAW`: `MW2/src/error.c`: `FormatErrorMessage`
 - `MW2_DEBRIS_NOT_SHOWN`: `MW2/src/shots.c`: `ScatterDebris`
 - `MW2_RETARGET_PLAYER_FLAG`: `MW2/src/targeting.c`: `TargetAtReticle`
@@ -901,6 +906,11 @@ Every edition that has one of these has them all, so no binary separates one fro
 - `MW2_EYE_POSITION_WIDTH`: `MW2/src/overlay.c`: `HideEyePosition`
 - `MW2_BLIT_DRAWS_OVERLAYS`: `MW2/src/render.c`: `Blit`, file scope
 - `MW2_BANNER_BLEND_STEPS`: `MW2/src/render.c`: `ShowBanner`
+- `MW2_INI_ERROR_CODES`: `MW2/src/inifile.c`: `FindIniSection` (2)
+- `MW2_INI_SECTION_HEADERS`: `MW2/src/inifile.c`: `FindIniSection`
+- `MW2_NUKE_RADIUS`: `MW2/src/shots.c`: `StartNuke` (2)
+- `MW2_RESOLVE_NEAREST_FLAG`: `MW2/src/ai.c`: `ResolveTarget`
+- `MW2_EYE_AIM_ADDS_PITCH`: `MW2/src/weapons.c`: `GetEyeAimDirection`
 
 ## Functions with a definition per edition
 

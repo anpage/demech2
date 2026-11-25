@@ -1273,6 +1273,7 @@ void RetargetGoals(MechS32 p_team, MechS32 p_index, MechS32 p_target)
 // Resolves the symbolic target p_target for p_player (FindNearestTarget).
 // FUNCTION: MW2 0x10052284
 // FUNCTION: MW2GBL 0x10077571
+// FUNCTION: MW2PREMERCS 0x10038808
 // FUNCTION: MW2MATROX 0x100813c2
 // FUNCTION: MW23DFX 0x10012a00
 // FUNCTION: MW2ATI 0x10012f60
@@ -1288,6 +1289,9 @@ MechS16 ResolveTarget(Player* p_player, MechS16 p_target)
 	}
 
 	FindNearestTarget(p_player, p_target, -3, &nearest, &best);
+#ifdef MW2_RESOLVE_NEAREST_FLAG
+	return p_player->m_ai.m_state == c_aiStateTarget && p_player->m_unk0x1a0 ? nearest : best;
+#else
 	if (p_player->m_ai.m_state == c_aiStateTarget) {
 		if (nearest) {
 			return nearest;
@@ -1301,6 +1305,7 @@ MechS16 ResolveTarget(Player* p_player, MechS16 p_target)
 	}
 
 	return best;
+#endif
 }
 
 // The rule message functions (g_aiMessageFns): each returns the target the message matches

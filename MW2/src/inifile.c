@@ -32,6 +32,7 @@ MechChar g_iniLine[0x85];
 // be opened or 0x3f when the section isn't there. A line starting with '[' ends the search.
 // FUNCTION: MW2 0x1006c6c0
 // FUNCTION: MW2GBL 0x1001d8c0
+// FUNCTION: MW2PREMERCS 0x10072850
 // FUNCTION: MW2MATROX 0x1000a170
 // FUNCTION: MW23DFX 0x1003b370
 // FUNCTION: MW2ATI 0x10039f30
@@ -45,22 +46,42 @@ MechS32 FindIniSection(MechChar* p_section)
 	MechChar buffer[0x85];
 
 	g_iniSectionOffset = -1;
+#ifdef MW2_INI_UPPER_NAME
+	file = fopen("MW2.INI", "rt");
+#else
 	file = fopen("mw2.ini", "rt");
+#endif
 	if (!file) {
+#ifdef MW2_INI_ERROR_CODES
+		return 0x41;
+#else
 		return 0x36;
+#endif
 	}
 
 	p_section = TrimWhitespace(p_section);
 	for (;;) {
 		if (!fgets(buffer, 0x85, file)) {
 			fclose(file);
+#ifdef MW2_INI_ERROR_CODES
+			return 0x4a;
+#else
 			return 0x3f;
+#endif
 		}
 
 		line = buffer + strspn(buffer, " \t");
+#ifdef MW2_INI_SECTION_HEADERS
+		if (*line != '[') {
+			continue;
+		}
+
+		line++;
+#else
 		if (*line == '[') {
 			break;
 		}
+#endif
 
 		end = strchr(line, ']');
 		if (!end) {
@@ -102,7 +123,7 @@ MechChar* GetIniValue(MechChar* p_key)
 	size_t end;
 #endif
 
-#ifdef MW2_INI_VALUE_UPPER_NAME
+#ifdef MW2_INI_UPPER_NAME
 	if (g_iniSectionOffset == -1 || !(file = fopen("MW2.INI", "rt"))) {
 #else
 	if (g_iniSectionOffset == -1 || !(file = fopen("mw2.ini", "rt"))) {

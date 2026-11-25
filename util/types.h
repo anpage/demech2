@@ -889,7 +889,7 @@ double __cdecl fabs(double);
    keeping its cell (Shape::m_gridX, m_gridZ; shapelists.c) */
 #define MW2_SHAPE_GRID
 /* Players have 0x46 bytes more than GBL's, in three places (Player::m_unk0xe8 to m_unk0x109, m_unk0x184,
-   m_unk0x1a0) */
+   m_unk0x1a0 and m_unk0x1a4) */
 #define MW2_PLAYER_UNK_MEMBERS
 /* Mechs, their weapon slots and their ammunition bins have 0x8f, 0xc and 8 bytes more than GBL's (Mech::m_unk0x114,
    WeaponSlot::m_unk0x64 and m_unk0x6c, AmmoBin::m_unk0x14 and WeaponBin::m_unk0x14) */
@@ -917,8 +917,8 @@ double __cdecl fabs(double);
 #define MW2_CAMPAIGN_BWD_TAGS
 /* The pause sound is another sound of the PRJ's (PlayPauseSound) */
 #define MW2_PAUSE_SOUND 0x149
-/* GetIniValue opens MW2.INI by that name in capitals (FindIniSection by mw2.ini) */
-#define MW2_INI_VALUE_UPPER_NAME
+/* FindIniSection and GetIniValue open MW2.INI by that name in capitals */
+#define MW2_INI_UPPER_NAME
 /* An error's text is the raw value of its code in the "SystemError" section, its comment kept (FormatErrorMessage) */
 #define MW2_ERROR_TEXT_RAW
 /* ScatterDebris throws its pieces without showing their objects */
@@ -944,6 +944,18 @@ double __cdecl fabs(double);
 #define MW2_BLIT_DRAWS_OVERLAYS
 /* The banner's palette blends in over this many steps (ShowBanner) */
 #define MW2_BANNER_BLEND_STEPS 0x3c
+/* FindIniSection's errors are 0x41 and 0x4a, the error codes numbered on from GBL's */
+#define MW2_INI_ERROR_CODES
+/* FindIniSection reads only the lines that open with a bracket, as section headers, and looks past the bracket */
+#define MW2_INI_SECTION_HEADERS
+/* A nuke's blast reaches this far, whatever its effect's shape (StartNuke) */
+#define MW2_NUKE_RADIUS 10000
+/* A player in the target state resolves a symbolic target to the nearest one when Player::m_unk0x1a0 is set, else
+   to the best, whatever g_aiSpreadTargets (ResolveTarget) */
+#define MW2_RESOLVE_NEAREST_FLAG
+/* With bit 2 of Mech::m_unk0x112 set the weapons aim along the eye tilted by the torso's pitch, not at the torso's
+   pitch (GetEyeAimDirection) */
+#define MW2_EYE_AIM_ADDS_PITCH
 /* Mechs take heat from outside (Mech::m_externalHeat, which the radius damage adds to and
    CalculateHeat adds to the frame's heat) */
 #define MW2_EXTERNAL_HEAT

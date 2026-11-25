@@ -2201,6 +2201,7 @@ void HeatMechsNearFires(void)
 // grows over the next ticks (UpdateNuke).
 // FUNCTION: MW2 0x1006c4e2
 // FUNCTION: MW2GBL 0x1007e484
+// FUNCTION: MW2PREMERCS 0x10087d08
 // FUNCTION: MW2MATROX 0x1006d136
 // FUNCTION: MW23DFX 0x10047020
 // FUNCTION: MW2ATI 0x10044750
@@ -2214,12 +2215,20 @@ void StartNuke(Player* p_player)
 	Shape* shape;
 
 	duration = g_effectInfo[0x16].m_duration * 2;
+#ifdef MW2_NUKE_RADIUS
+	g_nukeMaxRadius = MW2_NUKE_RADIUS;
+#else
 	g_nukeMaxRadius = 400000;
+#endif
 	i = EFFECT_COUNT;
 	while (i--) {
 		effect = &g_effects[i];
 		if (effect->m_type == 0x16 && effect->m_object && (shape = effect->m_object->m_shape)) {
+#ifdef MW2_NUKE_RADIUS
+			g_nukeMaxRadius = MW2_NUKE_RADIUS;
+#else
 			g_nukeMaxRadius = shape->m_radius * 100;
+#endif
 			break;
 		}
 	}
