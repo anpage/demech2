@@ -790,6 +790,7 @@ void ApplyMenuKey(MechS32 p_key, MechS32 p_itemType, MechS32* p_action, MechS32*
 // Finally opens the selected item's subpage (state 3) or closes the page (states 4 and 5).
 // FUNCTION: MW2 0x1003d1a7
 // FUNCTION: MW2GBL 0x10074e6b
+// FUNCTION: MW2PREMERCS 0x10084d5b
 // FUNCTION: MW2MATROX 0x100923b4
 // FUNCTION: MW23DFX 0x10065df0
 // FUNCTION: MW2ATI 0x100633a0
@@ -797,6 +798,27 @@ void ApplyMenuKey(MechS32 p_key, MechS32 p_itemType, MechS32* p_action, MechS32*
 // FUNCTION: MW2POWERVR 0x1005e110
 void RunMenuItems(MenuDefinition* p_menu)
 {
+#ifdef MW2_PREMERCS
+	MechS32 move;
+	MechS32 back;
+	MechChar number[40];
+	Point cursor;
+	MechS32 numberWidth;
+	MenuPage* page;
+	MechS32 selected;
+	Point textPos;
+	MechS32 offset;
+	MechS32 i;
+	PANE* target;
+	void* font;
+	MechS32 key;
+	MechS32 hasHeading;
+	MechS32 height;
+	MenuItem* item;
+	MechS32 heading;
+	MechS32 n;
+	Point controlPos;
+#else
 	MechS32 back;
 	MechChar number[40];
 	Point cursor;
@@ -816,6 +838,7 @@ void RunMenuItems(MenuDefinition* p_menu)
 	MechS32 heading;
 	MechS32 n;
 	Point controlPos;
+#endif
 
 	heading = 0x10;
 	hasHeading = 0;

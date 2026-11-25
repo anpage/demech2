@@ -838,6 +838,7 @@ MechS32 JoystickPoll(JoystickData* p_data, MechS32* p_axes, MechU32* p_buttons)
 // The 3Dfx edition's is 1.1's, without clearing the JOYINFOEX or setting its size.
 // FUNCTION: MW2 0x1004aa6b
 // FUNCTION: MW2GBL 0x10007473
+// FUNCTION: MW2PREMERCS 0x100721b1
 // FUNCTION: MW23DFX 0x1003ae80
 // FUNCTION: MW2ATI 0x10039a40
 // FUNCTION: MW2S3 0x10005b00

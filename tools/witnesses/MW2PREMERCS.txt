@@ -32,6 +32,7 @@
 0x100209e0 DrawDamagedMapView cockpit.c rename anim=zqag layout=zqaf threshold=zqad viewport=zqae
 0x10020b14 PowerDownMapView cockpit.c pad 11
 0x10020dad FirstRender render.c rename oldProtect=zqaf segment=zqad size=zqae start=zqag
+0x100214b6 ShowBanner render.c rename gif=zqad palette=zqah path=zqag state=zqaf target=zqae
 0x100216fa DrawBoundingSpheres render.c rename color=zqad radius=zqai radiusY=zqaj shape=zqae x=zqaf y=zqag z=zqah
 0x10021880 GdiBegin gdi.c pad 1
 0x1002287d DdrawInit directdraw.c rename caps=zqad entries=zqae
@@ -169,6 +170,7 @@
 0x100425cd OnSameSide team.c pad 1
 0x10045d3e CreateMech mechclass.c rename buffer=zqad i=zqae mech=zqag size=zqaf
 0x10045df5 InitMechArrays mechclass.c rename bin=zqad bins=zqaf i=zqag sections=zqai slot=zqae weapons=zqah
+0x10047004 FadeToEndPalette fadepal.c rename palette=zqae slot=zqad
 0x10047198 BreakUpMech fadepal.c rename lower=zqae lowerIndex=zqah obj=zqaf objIndex=zqag upper=zqai upperIndex=zqad
 0x1004722b FireJumpJetEffects fadepal.c rename fired=zqai jet=zqad player=zqae x=zqaf y=zqag z=zqah
 0x10047453 PlayPlayerHitFeedback fadepal.c rename off0c=zqae off10=zqad off14=zqaf
@@ -293,9 +295,10 @@
 0x100651eb SkipCdTracks cdaudio.c rename position=zqad status=zqae track=zqaf
 0x1006530f PlayCdTrack cdaudio.c rename position=zqad status=zqaf tracks=zqae
 0x1006557e GetCdAudioTracks cdaudio.c rename count=zqaf parms=zqad track=zqae
+0x100658a0 QueueSpeech speech.c pad 13 rename cur=zqad entry=zqag i=zqaf prev=zqae
 0x10065df8 StartSpeech speech.c rename id=zqad slot=zqaf suffix=zqae
+0x100660e5 FlushSpeechQueue speech.c rename cur=zqaf prev=zqad remove=zqae
 0x100662e8 ResumeSpeech speech.c rename slot=zqad volume=zqae
-0x10066fef DoAudio audio.c pad 1
 0x100674ff ServeSamples soundfx.c rename buffer=zqaf i=zqad size=zqae
 0x1006785d PlaySample soundfx.c pad 5
 0x10067a45 StartSample soundfx.c pad 1 rename flags=zqah i=zqaf sample=zqad slot=zqag victim=zqae
@@ -382,6 +385,7 @@
 0x1007b36e ReadStaticMemoryTable poolsizes.c rename buffer=zqah key=zqae keyData=zqag result=zqaf stream=zqad
 0x1007b463 CountMissionStream poolsizes.c pad 9 rename known=zqah node=zqaf result=zqad rev=zqae table=zqag type=zqai
 0x1007ce29 LoadShapes wtbshapes.c rename count=zqaf next=zqad shape=zqae
+0x1007cf05 LoadShapeRecord wtbshapes.c pad 16 rename checksum=zqat count=zqak extra=zqah extraSize=zqai face=zqa0 faces=zqbl facesSize=zqag header=zqc8 i=zqcx id=zqal indices=zqae j=zqd4 key=zqaf name=zqao obj=zqaj polygon=zqep record=zqdd size=zqap suffix=zqad u=zqam v=zqan vertex=zqe0 vertexCount=zqbi vertices=zqbg x=zqbj y=zqch z=zqdt
 0x1007d8c0 LoadMapBitmap resource.c rename count=zqae i=zqad record=zqaf
 0x1007db13 LoadPathTable resource.c rename count=zqah i=zqae index=zqaf record=zqag result=zqad
 0x1007dd5a LoadFormationTable resource.c pad 3 rename count=zqah i=zqaf index=zqae record=zqag result=zqad
@@ -421,10 +425,11 @@
 0x100847d4 UpdateMenuKey menu.c rename flags=zqae menu=zqad
 0x10084a45 UpdateMenus menu.c pad 7 rename done=zqag requested=zqad slot=zqaf state=zqae
 0x10084b4a DrawAndRunMenu menu.c rename backgroundTarget=zqaf result=zqad target=zqae
+0x10084d5b RunMenuItems menu.c pad 6 rename back=zqee controlPos=zqad cursor=zqdy font=zqae hasHeading=zqcl heading=zqa4 height=zqb0 i=zqa5 item=zqbp key=zqdh move=zqdx n=zqat number=zqd9 numberWidth=zqdi offset=zqba page=zqcm selected=zqb1 target=zqau textPos=zqbq
 0x10085619 GetMenuSlotState menu.c rename result=zqae slot=zqad
 0x10085660 FirstShots shots.c rename effect=zqaf i=zqad shot=zqae
 0x100858e0 UpdateAllShots shots.c rename i=zqad shot=zqae
 0x1008638c GuideMissileToTarget shots.c rename ax=zqac ay=zqap az=zqaa distance=zqak dx=zqah dy=zqag dz=zqai player=zqaf rate=zqab targetX=zqao targetY=zqad targetZ=zqae thing=zqaj vx=zqal vy=zqam vz=zqan
-0x10087574 DamageThingsInRadius shots.c pad 4 rename distance=zqad dx=zqag dy=zqah dz=zqai i=zqaf radius=zqal reach=zqak shape=zqaj thing=zqae x=zqam y=zqan z=zqao
+0x10087574 DamageThingsInRadius shots.c pad 3 rename distance=zqad dx=zqag dy=zqah dz=zqai i=zqaf radius=zqal reach=zqak shape=zqaj thing=zqae x=zqam y=zqan z=zqao
 0x10087758 KillGameThing shots.c pad 3
 0x10087a27 ScatterDebris shots.c rename effect=zqah i=zqag object=zqae piece=zqaf shown=zqad

@@ -230,7 +230,7 @@ MechS32 g_speechLocked = 0;
 
 // GLOBAL: MW2 0x100bea10
 // GLOBAL: MW2GBL 0x100b9d80
-// GLOBAL: MW2PREMERCS 0x102166c4
+// GLOBAL: MW2PREMERCS 0x100cb570
 // GLOBAL: MW2MATROX 0x10125430
 // GLOBAL: MW23DFX 0x1007c890
 // GLOBAL: MW2ATI 0x10071890
@@ -242,6 +242,7 @@ SpeechEntry g_speechEntries[8];
 // was queued.
 // FUNCTION: MW2 0x10059390
 // FUNCTION: MW2GBL 0x10041b30
+// FUNCTION: MW2PREMERCS 0x100658a0
 // FUNCTION: MW2MATROX 0x1008b510
 // FUNCTION: MW23DFX 0x10031150
 // FUNCTION: MW2ATI 0x1002ff40
@@ -537,6 +538,7 @@ void PlayVoiceVolumeTest(void)
 // messages of priority 0x50 and above.
 // FUNCTION: MW2 0x10059be3
 // FUNCTION: MW2GBL 0x10042375
+// FUNCTION: MW2PREMERCS 0x100660e5
 // FUNCTION: MW2MATROX 0x1008bd63
 // FUNCTION: MW23DFX 0x10031640
 // FUNCTION: MW2ATI 0x10030430
@@ -548,6 +550,11 @@ void FlushSpeechQueue(MechS32 p_keep)
 	MechS32 remove;
 	SpeechEntry* cur;
 
+#ifdef MW2_SPEECH_LOCKED_AFTER_FLUSH
+	if (!g_speechQueue || g_speechLocked) {
+		return;
+	}
+#else
 	if (g_speechLocked) {
 		return;
 	}
@@ -556,6 +563,7 @@ void FlushSpeechQueue(MechS32 p_keep)
 	if (!g_speechQueue) {
 		return;
 	}
+#endif
 
 	if (g_speechQueue->m_id > 0 && g_speechQueue->m_priority < 0x50) {
 		if (g_speechSample) {
@@ -585,6 +593,10 @@ void FlushSpeechQueue(MechS32 p_keep)
 			cur = cur->m_next;
 		}
 	}
+#ifdef MW2_SPEECH_LOCKED_AFTER_FLUSH
+
+	g_speechLocked = 1;
+#endif
 }
 
 // Frees an entry's sound data. Returns the next entry.

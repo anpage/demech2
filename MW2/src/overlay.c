@@ -807,12 +807,20 @@ void ShowEyePosition(Eyepoint* p_eyepoint)
 
 // FUNCTION: MW2 0x10058ee0
 // FUNCTION: MW2GBL 0x10073c00
+// FUNCTION: MW2PREMERCS 0x1007483b
 void HideEyePosition(void)
 {
+#ifdef MW2_EYE_POSITION_WIDTH
+	MechChar text[MW2_EYE_POSITION_WIDTH + 2];
+	MechChar format[MW2_EYE_POSITION_WIDTH + 2];
+
+	sprintf(format, "%%%d.%ds", MW2_EYE_POSITION_WIDTH, MW2_EYE_POSITION_WIDTH);
+#else
 	MechChar text[28];
 	MechChar format[28];
 
 	sprintf(format, "%%%d.%ds", 0x18, 0x18);
+#endif
 	sprintf(text, format, g_blankText);
 	DRAW_DEBUG_TEXT();
 	DRAW_DEBUG_TEXT();

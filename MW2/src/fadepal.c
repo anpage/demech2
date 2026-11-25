@@ -158,6 +158,7 @@ void FlashZappedPaletteLevel(MechU32 p_level)
 // that slot.
 // FUNCTION: MW2 0x1004ca82
 // FUNCTION: MW2GBL 0x1004fc22
+// FUNCTION: MW2PREMERCS 0x10047004
 // FUNCTION: MW2MATROX 0x100452f9
 // FUNCTION: MW23DFX 0x1001bde0
 // FUNCTION: MW2ATI 0x1001c170
@@ -177,7 +178,9 @@ void FadeToEndPalette(MechS32 p_alternate)
 
 	palette = LoadCachedResource(g_mw2PrjHandle, g_paletteResourceIds[slot], g_resTagPal, 0);
 	if (palette) {
+#ifndef MW2_FADE_TO_END_UNBLENDED
 		g_currentDisplayBackend->m_blendPalettes(palette, 0x3c);
+#endif
 		UnlockCachedResource(g_paletteResourceIds[slot], g_resTagPal);
 		ApplyPaletteResource(slot);
 	}

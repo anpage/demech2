@@ -932,6 +932,18 @@ double __cdecl fabs(double);
 #define MW2_TORSO_TILT_TAKES_PITCH
 /* The class table's entries have a member more (ClassEntry::m_unk0x44) */
 #define MW2_CLASS_ENTRY_UNK_MEMBER
+/* JoystickPoll neither clears its JOYINFOEX nor sets its size */
+#define MW2_JOYINFOEX_UNCLEARED
+/* FlushSpeechQueue sets g_speechLocked once it has flushed the queue, and not at all when the queue is empty */
+#define MW2_SPEECH_LOCKED_AFTER_FLUSH
+/* FadeToEndPalette applies the end palette without blending to it first */
+#define MW2_FADE_TO_END_UNBLENDED
+/* The eye position's overlay line is this many characters wide (HideEyePosition) */
+#define MW2_EYE_POSITION_WIDTH 0x32
+/* Blit draws the timed and debug overlays and advances the palette fade, which the later builds' SimMain does */
+#define MW2_BLIT_DRAWS_OVERLAYS
+/* The banner's palette blends in over this many steps (ShowBanner) */
+#define MW2_BANNER_BLEND_STEPS 0x3c
 /* Mechs take heat from outside (Mech::m_externalHeat, which the radius damage adds to and
    CalculateHeat adds to the frame's heat) */
 #define MW2_EXTERNAL_HEAT

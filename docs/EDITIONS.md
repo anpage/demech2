@@ -299,7 +299,7 @@ tests an `MW2_` macro the table doesn't define, and when no target compiles a br
 
 ## Features
 
-From the table in `util/types.h` (228 features) and the 1472 conditional sites of the simulators' sources (`MW2/`, `common/`, `3rdparty/vfx`). A feature's cell is its value where it has one.
+From the table in `util/types.h` (233 features) and the 1482 conditional sites of the simulators' sources (`MW2/`, `common/`, `3rdparty/vfx`). A feature's cell is its value where it has one.
 
 ### The ATI, S3, Matrox, PowerVR and 3Dfx editions (`MW2_ACCEL`)
 
@@ -345,7 +345,6 @@ Every edition that has one of these has them all, so no binary separates one fro
 | `MW2_COLLISION_DAMAGE_X2` |  | yes |  | yes | yes | yes |  | yes | 1 | Damage from below scales by twice the mass ratio, not four times |
 | `MW2_RADIUS_HEAD_DAMAGE_HALF` |  | yes |  | yes | yes | yes |  | yes | 1 | Radius (fire) damage to the head is half, not a quarter |
 | `MW2_NO_ENGINE_NOTE` |  | yes |  | yes | yes | yes |  | yes | 1 | StartEngineNote returns at once |
-| `MW2_JOYINFOEX_UNCLEARED` |  | yes |  | yes | yes | yes |  | yes | 1 | JoystickPoll neither clears its JOYINFOEX nor sets its size |
 | `MW2_NO_FULLSCREEN_KEY` |  | yes |  | yes | yes | yes |  | yes | 1 | Key code 0x40d no longer toggles full screen |
 | `MW2_LEMMY_CHEAT` |  | yes |  | yes | yes | yes |  | yes | 1 | The "lemmy" cheat |
 | `MW2_NO_DORCS_CHEAT` |  | yes |  | yes | yes | yes |  | yes | 1 | 1.1's "dorcs" cheat is gone |
@@ -362,6 +361,12 @@ Every edition that has one of these has them all, so no binary separates one fro
 | `MW2_NETWORK_STAR_PLAYERS` |  | yes | yes | yes | yes | yes | yes | yes | 2 | UpdateObjective takes star N as player N in network games |
 | `MW2_RESTART_KEEPS_LISTED` |  | yes | yes | yes | yes | yes | yes | yes | 1 | Restarting a star mission keeps its objectives' targets' listed flags |
 | `MW2_AXIS_RATE_POINTER_TEST` |  | yes | yes | yes | yes | yes | yes | yes | 1 | UpdateInputs compares an axis' rate pointer with its position's address |
+
+### The ATI, Pre-Mercs, S3, Matrox, PowerVR and 3Dfx editions (`MW2_ACCEL`, `MW2_PREMERCS`)
+
+| Feature | 1.1 | ATI | Pre-Mercs | S3 | Matrox | PowerVR | GBL | 3Dfx | Sites | What it does |
+|---|:-:|:-:|:-:|:-:|:-:|:-:|:-:|:-:|--:|---|
+| `MW2_JOYINFOEX_UNCLEARED` |  | yes | yes | yes | yes | yes |  | yes | 1 | JoystickPoll neither clears its JOYINFOEX nor sets its size |
 
 ### The ATI, Pre-Mercs, Matrox and 3Dfx editions (`MW2_MATROX`, `MW2_3DFX`, `MW2_ATI`, `MW2_PREMERCS`)
 
@@ -655,6 +660,11 @@ Every edition that has one of these has them all, so no binary separates one fro
 | `MW2_BANKING_PLAYER_TYPE` |  |  | yes |  |  |  |  |  | 3 | Players of a type 8 bank into their turns (FUN_10037d84 from UpdateAI) |
 | `MW2_TORSO_TILT_TAKES_PITCH` |  |  | yes |  |  |  |  |  | 4 | AimTorsoTilt takes the pitch it aims at, which its callers pass (the target's or another) |
 | `MW2_CLASS_ENTRY_UNK_MEMBER` |  |  | yes |  |  |  |  |  | 2 | The class table's entries have a member more (ClassEntry::m_unk0x44) |
+| `MW2_SPEECH_LOCKED_AFTER_FLUSH` |  |  | yes |  |  |  |  |  | 2 | FlushSpeechQueue sets g_speechLocked once it has flushed the queue, and not at all when the queue is empty |
+| `MW2_FADE_TO_END_UNBLENDED` |  |  | yes |  |  |  |  |  | 1 | FadeToEndPalette applies the end palette without blending to it first |
+| `MW2_EYE_POSITION_WIDTH` |  |  | 0x32 |  |  |  |  |  | 1 | The eye position's overlay line is this many characters wide (HideEyePosition) |
+| `MW2_BLIT_DRAWS_OVERLAYS` |  |  | yes |  |  |  |  |  | 2 | Blit draws the timed and debug overlays and advances the palette fade, which the later builds' SimMain does |
+| `MW2_BANNER_BLEND_STEPS` |  |  | 0x3c |  |  |  |  |  | 1 | The banner's palette blends in over this many steps (ShowBanner) |
 
 ## Where each feature is tested
 
@@ -886,6 +896,11 @@ Every edition that has one of these has them all, so no binary separates one fro
 - `MW2_BANKING_PLAYER_TYPE`: `MW2/src/ai.c`: `UpdateAI`, file scope, the definitions of `FUN_10037d84`, `FUN_10037da7`
 - `MW2_TORSO_TILT_TAKES_PITCH`: `MW2/include/ai.h`: file scope; `MW2/src/ai.c`: `AimTorsoTilt` (2); `MW2/src/aiweapons.c`: `RunAIWeapons`
 - `MW2_CLASS_ENTRY_UNK_MEMBER`: `MW2/include/classentry.h`: `ClassEntry`; `MW2/src/classtable.c`: file scope
+- `MW2_SPEECH_LOCKED_AFTER_FLUSH`: `MW2/src/speech.c`: `FlushSpeechQueue` (2)
+- `MW2_FADE_TO_END_UNBLENDED`: `MW2/src/fadepal.c`: `FadeToEndPalette`
+- `MW2_EYE_POSITION_WIDTH`: `MW2/src/overlay.c`: `HideEyePosition`
+- `MW2_BLIT_DRAWS_OVERLAYS`: `MW2/src/render.c`: `Blit`, file scope
+- `MW2_BANNER_BLEND_STEPS`: `MW2/src/render.c`: `ShowBanner`
 
 ## Functions with a definition per edition
 
@@ -967,9 +982,9 @@ What tests `MW2_ACCEL`, `MW2_MATROX` or `MW2_3DFX` itself rather than a feature,
 - Includes (4): `MW2/include/bandpoly.h`: file scope; `MW2/include/directdraw.h`: file scope; `MW2/src/animation.c`: file scope; `MW2/src/bandpoly.c`: file scope
 - Pragmas that reproduce a unit's flags (4): `MW2/src/accel/queueface.c`: file scope (2); `MW2/src/keyboard.c`: file scope (2)
 
-### `MW2_PREMERCS` (9 sites)
+### `MW2_PREMERCS` (12 sites)
 
-- In a function: the edition's back end, what the shared code does for it, or the same computation written another way (4): `MW2/src/gbl/ams.c`: `AmsFrame` (2); `MW2/src/palette.c`: `ApplyPendingPalette`; `MW2/src/weapons.c`: `SelectNextWeaponInGroup`
+- In a function: the edition's back end, what the shared code does for it, or the same computation written another way (7): `MW2/src/audio.c`: `StartMissionMusic`; `MW2/src/gbl/ams.c`: `AmsFrame` (2); `MW2/src/menu.c`: `RunMenuItems`; `MW2/src/palette.c`: `ApplyPendingPalette`; `MW2/src/render.c`: `InitDisplayGeometry`; `MW2/src/weapons.c`: `SelectNextWeaponInGroup`
 - A fragment included at the position of the object that holds it (3): `MW2/src/clock.c`: file scope; `MW2/src/config.c`: file scope; `MW2/src/objectanim.c`: file scope
 - Data and declarations that differ (2): `MW2/src/refreshmode.c`: file scope; `MW2/src/simmain.c`: file scope
 
