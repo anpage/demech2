@@ -171,6 +171,7 @@
 0x10049881 GetLocalTargetGamePiece targeting.c rename index=zqad kind=zqaf player=zqae
 0x100498dc GetLocalTargetGameThing targeting.c rename index=zqad kind=zqaf player=zqae
 0x10049974 GetLocalTargetObject targeting.c rename id=zqah index=zqad kind=zqag obj=zqaf player=zqae
+0x10049a2e TargetAtReticle targeting.c rename autopilot=zqad player=zqae previous=zqag shape=zqah target=zqaf
 0x10049bc5 GetBearingAndRange targeting.c rename cosine=zqae ground=zqaf heading=zqag length=zqai pitch=zqad pitchCosine=zqaj sine=zqah
 0x10049de4 TargetNearestEnemy targeting.c pad 1 rename autopilot=zqad best=zqag bestDistance=zqaj distance=zqai player=zqaf saved=zqah target=zqae
 0x1004b8b5 DrawWeaponPanelStartup weaponpanel.c rename clock=zqaf font=zqag mech=zqae weapon=zqad
@@ -249,7 +250,7 @@
 0x1005dddf GetEdgeCrossingDepth depthsort.c rename da=zqag dz=zqad t=zqae z=zqaf
 0x1005ea80 DrawTexturedPolygon texpoly.c rename i=zqaf mode=zqah points=zqae rows=zqag texture=zqai unk0x08=zqad
 0x1005f1ed StartPaletteFade palette.c rename from=zqag fromSlot=zqae result=zqad steps=zqaf to=zqah
-0x1005f3f4 StartPaletteFlash palette.c pad 12
+0x1005f3f4 StartPaletteFlash palette.c pad 11
 0x1005f800 GetViewVertex faceprojection.c rename deltaX=zqag deltaY=zqah deltaZ=zqai result=zqaf u=zqad v=zqae
 0x1005f8f6 ClipEdgeToNearPlane faceprojection.c rename a=zqah b=zqai result=zqak u0=zqaf u1=zqag v0=zqaj v1=zqal x0=zqam x1=zqan y0=zqao y1=zqap z0=zqad z1=zqae
 0x1005fcd7 GetFaceShade faceprojection.c rename nx=zqah ny=zqai nz=zqaj shade=zqag vertex=zqak x=zqad y=zqae z=zqaf
@@ -325,6 +326,7 @@
 0x10071519 NetReceive netio.c rename from=zqad result=zqae size=zqaf to=zqag
 0x10071636 FillJoystickDeviceInfo joystick.c rename axisNames=zqah axisShortNames=zqae buttonNames=zqaf buttonShortNames=zqai caps=zqad data=zqaj i=zqag
 0x10071b72 JoystickOpenDevice joystick.c rename button=zqag caps=zqad data=zqah infoEx=zqae range=zqaf
+0x100729ad GetIniValue inifile.c rename end=zqah file=zqag length=zqae line=zqad value=zqaf
 0x10072c99 ScreenshotWritePalette screenshot.c pad 2 rename color=zqaf i=zqae numColors=zqad
 0x10072d19 ScreenshotWriteImage screenshot.c rename height=zqaf result=zqae width=zqad
 0x10072f55 UpdateWrappedRamp ramp.c pad 4
@@ -343,6 +345,7 @@
 0x1007490d ShowMemInfo overlay.c rename text=zqad value=zqae
 0x10074a45 MonoPrintLine overlay.c rename dst=zqaf i=zqae text=zqad
 0x10074b2c MonoPrint overlay.c pad 10 rename ch=zqae i=zqaf length=zqag newline=zqad
+0x10074ef1 FormatErrorMessage error.c rename args=zqae code=zqad
 0x100751c0 WritePrjBytes prjfile.c rename buffer=zqad chunk=zqaf left=zqae
 0x1007523e ReadPrjBytes prjfile.c rename buffer=zqad chunk=zqaf left=zqae
 0x100752bc OpenPrjFile prjfile.c rename fd=zqag header=zqad size=zqaf slot=zqae tag=zqah
@@ -379,6 +382,7 @@
 0x1007e58d MapResourceId resource.c pad 4
 0x1007ebb9 NextThingRecordObject resource.c rename id=zqad obj=zqae
 0x1007f69c SpawnShot weapons.c pad 9 rename dx=zqag dy=zqai dz=zqak found=zqaf i=zqam j=zqap result=zqad shot=zqae speed=zqao spread=zqan x=zqah y=zqaj z=zqal
+0x1007fb6b SelectNextWeaponInGroup weapons.c pad 1 rename def=zqag found=zqah group=zqae i=zqai index=zqad selected=zqaj slot=zqaf
 0x1007fcb2 SelectNextWeapon weapons.c rename def=zqag done=zqae tries=zqad type=zqaf
 0x1007fdce SelectNextWeaponGroup weapons.c pad 5 rename current=zqad def=zqag found=zqah group=zqaj i=zqai selected=zqae type=zqaf
 0x1007ff58 SelectWeaponGroup weapons.c rename current=zqad def=zqag found=zqah i=zqai selected=zqae type=zqaf
@@ -414,3 +418,4 @@
 0x1008638c GuideMissileToTarget shots.c rename ax=zqac ay=zqap az=zqaa distance=zqak dx=zqah dy=zqag dz=zqai player=zqaf rate=zqab targetX=zqao targetY=zqad targetZ=zqae thing=zqaj vx=zqal vy=zqam vz=zqan
 0x10087574 DamageThingsInRadius shots.c pad 4 rename distance=zqad dx=zqag dy=zqah dz=zqai i=zqaf radius=zqal reach=zqak shape=zqaj thing=zqae x=zqam y=zqan z=zqao
 0x10087758 KillGameThing shots.c pad 3
+0x10087a27 ScatterDebris shots.c rename effect=zqah i=zqag object=zqae piece=zqaf shown=zqad

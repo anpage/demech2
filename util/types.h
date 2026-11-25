@@ -888,8 +888,8 @@ double __cdecl fabs(double);
 /* The scene's shapes are filed in a grid of 12 by 12 cells, 25000 units each, around the origin, each shape
    keeping its cell (Shape::m_gridX, m_gridZ; shapelists.c) */
 #define MW2_SHAPE_GRID
-/* Players have 0x46 bytes more than GBL's, in three places nothing decompiled reads yet (Player::m_unk0xe8,
-   m_unk0x184, m_unk0x1a0) */
+/* Players have 0x46 bytes more than GBL's, in three places (Player::m_unk0xe8 to m_unk0x109, m_unk0x184,
+   m_unk0x1a0) */
 #define MW2_PLAYER_UNK_MEMBERS
 /* Mechs, their weapon slots and their ammunition bins have 0x8f, 0xc and 8 bytes more than GBL's (Mech::m_unk0x114,
    WeaponSlot::m_unk0x64 and m_unk0x6c, AmmoBin::m_unk0x14 and WeaponBin::m_unk0x14) */
@@ -917,6 +917,15 @@ double __cdecl fabs(double);
 #define MW2_CAMPAIGN_BWD_TAGS
 /* The pause sound is another sound of the PRJ's (PlayPauseSound) */
 #define MW2_PAUSE_SOUND 0x149
+/* GetIniValue opens MW2.INI by that name in capitals (FindIniSection by mw2.ini) */
+#define MW2_INI_VALUE_UPPER_NAME
+/* An error's text is the raw value of its code in the "SystemError" section, its comment kept (FormatErrorMessage) */
+#define MW2_ERROR_TEXT_RAW
+/* ScatterDebris throws its pieces without showing their objects */
+#define MW2_DEBRIS_NOT_SHOWN
+/* Targeting at the reticle doesn't hand the steering to the autopilot for a player with bit 0 of Player::m_unk0x105
+   set (TargetAtReticle) */
+#define MW2_RETARGET_PLAYER_FLAG
 /* Mechs take heat from outside (Mech::m_externalHeat, which the radius damage adds to and
    CalculateHeat adds to the frame's heat) */
 #define MW2_EXTERNAL_HEAT

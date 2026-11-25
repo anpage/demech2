@@ -955,6 +955,7 @@ MechS32 SpawnShot(Player* p_player, WeaponSlot* p_slot)
 // there is none.
 // FUNCTION: MW2 0x10045449
 // FUNCTION: MW2GBL 0x10048016
+// FUNCTION: MW2PREMERCS 0x1007fb6b
 // FUNCTION: MW2MATROX 0x1002c1ef
 // FUNCTION: MW23DFX 0x10043f80
 // FUNCTION: MW2ATI 0x100417d0
@@ -999,8 +1000,14 @@ void SelectNextWeaponInGroup(Mech* p_mech, MechS32 p_wrap)
 
 #ifdef MW2_WEAPON_FUNCTIONS
 		def = &g_weaponDefs[slot->m_type];
+		// The early Mercenaries build tests the index before the flag.
+#ifdef MW2_PREMERCS
+		if (slot->m_status != -1 && slot->m_group == group && slot->m_state != c_weaponEmpty && index != selected &&
+			(def->m_flags & c_weaponSelectable)) {
+#else
 		if (slot->m_status != -1 && slot->m_group == group && slot->m_state != c_weaponEmpty &&
 			(def->m_flags & c_weaponSelectable) && index != selected) {
+#endif
 #else
 		if (slot->m_status != -1 && slot->m_group == group && slot->m_state != c_weaponEmpty && index != selected) {
 #endif

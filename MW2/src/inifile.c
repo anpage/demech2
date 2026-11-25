@@ -82,6 +82,7 @@ MechS32 FindIniSection(MechChar* p_section)
 // value's last character (the newline) is cut off.
 // FUNCTION: MW2 0x1006c817
 // FUNCTION: MW2GBL 0x1001da17
+// FUNCTION: MW2PREMERCS 0x100729ad
 // FUNCTION: MW2MATROX 0x1000a2a0
 // FUNCTION: MW23DFX 0x1003b450
 // FUNCTION: MW2ATI 0x1003a010
@@ -101,7 +102,11 @@ MechChar* GetIniValue(MechChar* p_key)
 	size_t end;
 #endif
 
+#ifdef MW2_INI_VALUE_UPPER_NAME
+	if (g_iniSectionOffset == -1 || !(file = fopen("MW2.INI", "rt"))) {
+#else
 	if (g_iniSectionOffset == -1 || !(file = fopen("mw2.ini", "rt"))) {
+#endif
 		return "";
 	}
 

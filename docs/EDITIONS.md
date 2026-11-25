@@ -299,7 +299,7 @@ tests an `MW2_` macro the table doesn't define, and when no target compiles a br
 
 ## Features
 
-From the table in `util/types.h` (221 features) and the 1459 conditional sites of the simulators' sources (`MW2/`, `common/`, `3rdparty/vfx`). A feature's cell is its value where it has one.
+From the table in `util/types.h` (225 features) and the 1465 conditional sites of the simulators' sources (`MW2/`, `common/`, `3rdparty/vfx`). A feature's cell is its value where it has one.
 
 ### The ATI, S3, Matrox, PowerVR and 3Dfx editions (`MW2_ACCEL`)
 
@@ -637,7 +637,7 @@ Every edition that has one of these has them all, so no binary separates one fro
 | Feature | 1.1 | ATI | Pre-Mercs | S3 | Matrox | PowerVR | GBL | 3Dfx | Sites | What it does |
 |---|:-:|:-:|:-:|:-:|:-:|:-:|:-:|:-:|--:|---|
 | `MW2_SHAPE_GRID` |  |  | yes |  |  |  |  |  | 25 | The scene's shapes are filed in a grid of 12 by 12 cells, 25000 units each, around the origin, each shape keeping its cell (Shape::m_gridX, m_gridZ; shapelists.c) |
-| `MW2_PLAYER_UNK_MEMBERS` |  |  | yes |  |  |  |  |  | 4 | Players have 0x46 bytes more than GBL's, in three places nothing decompiled reads yet (Player::m_unk0xe8, m_unk0x184, m_unk0x1a0) |
+| `MW2_PLAYER_UNK_MEMBERS` |  |  | yes |  |  |  |  |  | 4 | Players have 0x46 bytes more than GBL's, in three places (Player::m_unk0xe8 to m_unk0x109, m_unk0x184, m_unk0x1a0) |
 | `MW2_MECH_UNK_MEMBERS` |  |  | yes |  |  |  |  |  | 6 | Mechs, their weapon slots and their ammunition bins have 0x8f, 0xc and 8 bytes more than GBL's (Mech::m_unk0x114, WeaponSlot::m_unk0x64 and m_unk0x6c, AmmoBin::m_unk0x14 and WeaponBin::m_unk0x14) |
 | `MW2_COCKPIT_PANEL_UNK_MEMBERS` |  |  | yes |  |  |  |  |  | 6 | Cockpit panels are 0xf0 bytes, their text origin first and a member and a setter of their own (CockpitPanel::m_unk0x34, m_unk0x9c, m_unk0xcc) |
 | `MW2_CLAN_AND_IS_WEAPONS` |  |  | yes |  |  |  |  |  | 2 | The weapons are the Clans' (GBL's, renamed and retuned) and 31 of the Inner Sphere (WEAPON_DEF_COUNT 66, g_weaponDefs) |
@@ -648,6 +648,10 @@ Every edition that has one of these has them all, so no binary separates one fro
 | `MW2_RANDOM_INDEX_RESET` |  |  | yes |  |  |  |  |  | 2 | RandomIntBelow and RandomNormal set their table's index back to 0 at 127, where the later builds take it modulo 127 (RandomIntBelow2 and RandomNormal2 already do) |
 | `MW2_CAMPAIGN_BWD_TAGS` |  |  | yes |  |  |  |  |  | 2 | BWD streams have Mercenaries' campaign records, 15 node tags more (CPGN, PILT, TECH, NEWS…), which have no names (g_bwdTypeCodes, GetKeywordName) |
 | `MW2_PAUSE_SOUND` |  |  | 0x149 |  |  |  |  |  | 1 | The pause sound is another sound of the PRJ's (PlayPauseSound) |
+| `MW2_INI_VALUE_UPPER_NAME` |  |  | yes |  |  |  |  |  | 1 | GetIniValue opens MW2.INI by that name in capitals (FindIniSection by mw2.ini) |
+| `MW2_ERROR_TEXT_RAW` |  |  | yes |  |  |  |  |  | 1 | An error's text is the raw value of its code in the "SystemError" section, its comment kept (FormatErrorMessage) |
+| `MW2_DEBRIS_NOT_SHOWN` |  |  | yes |  |  |  |  |  | 1 | ScatterDebris throws its pieces without showing their objects |
+| `MW2_RETARGET_PLAYER_FLAG` |  |  | yes |  |  |  |  |  | 1 | Targeting at the reticle doesn't hand the steering to the autopilot for a player with bit 0 of Player::m_unk0x105 set (TargetAtReticle) |
 
 ## Where each feature is tested
 
@@ -872,6 +876,10 @@ Every edition that has one of these has them all, so no binary separates one fro
 - `MW2_RANDOM_INDEX_RESET`: `MW2/src/random.c`: `RandomIntBelow`, `RandomNormal`
 - `MW2_CAMPAIGN_BWD_TAGS`: `MW2/include/bwdkeywords.h`: file scope; `MW2/src/bwdkeywords.c`: `g_bwdTypeCodes`
 - `MW2_PAUSE_SOUND`: `MW2/src/pausebanner.c`: `PlayPauseSound`
+- `MW2_INI_VALUE_UPPER_NAME`: `MW2/src/inifile.c`: `GetIniValue`
+- `MW2_ERROR_TEXT_RAW`: `MW2/src/error.c`: `FormatErrorMessage`
+- `MW2_DEBRIS_NOT_SHOWN`: `MW2/src/shots.c`: `ScatterDebris`
+- `MW2_RETARGET_PLAYER_FLAG`: `MW2/src/targeting.c`: `TargetAtReticle`
 
 ## Functions with a definition per edition
 
@@ -953,9 +961,9 @@ What tests `MW2_ACCEL`, `MW2_MATROX` or `MW2_3DFX` itself rather than a feature,
 - Includes (4): `MW2/include/bandpoly.h`: file scope; `MW2/include/directdraw.h`: file scope; `MW2/src/animation.c`: file scope; `MW2/src/bandpoly.c`: file scope
 - Pragmas that reproduce a unit's flags (4): `MW2/src/accel/queueface.c`: file scope (2); `MW2/src/keyboard.c`: file scope (2)
 
-### `MW2_PREMERCS` (7 sites)
+### `MW2_PREMERCS` (9 sites)
 
-- In a function: the edition's back end, what the shared code does for it, or the same computation written another way (2): `MW2/src/gbl/ams.c`: `AmsFrame` (2)
+- In a function: the edition's back end, what the shared code does for it, or the same computation written another way (4): `MW2/src/gbl/ams.c`: `AmsFrame` (2); `MW2/src/palette.c`: `ApplyPendingPalette`; `MW2/src/weapons.c`: `SelectNextWeaponInGroup`
 - A fragment included at the position of the object that holds it (3): `MW2/src/clock.c`: file scope; `MW2/src/config.c`: file scope; `MW2/src/objectanim.c`: file scope
 - Data and declarations that differ (2): `MW2/src/refreshmode.c`: file scope; `MW2/src/simmain.c`: file scope
 

@@ -2073,6 +2073,7 @@ void DamageGameThing(
 // Shows up to p_count free effects of type 0xb (all when 0) at (p_x, p_y, p_z) as debris.
 // FUNCTION: MW2 0x1006c237
 // FUNCTION: MW2GBL 0x1007e1d3
+// FUNCTION: MW2PREMERCS 0x10087a27
 // FUNCTION: MW2MATROX 0x1006ce62
 // FUNCTION: MW23DFX 0x10046d40
 // FUNCTION: MW2ATI 0x10044470
@@ -2103,7 +2104,9 @@ void ScatterDebris(MechScalar p_x, MechScalar p_y, MechScalar p_z, MechS32 p_cou
 				effect->m_timeLeft = g_effectInfo[0xb].m_duration;
 				SetObjPosition(object, p_x, p_y, p_z);
 				ThrowDebrisPiece(piece);
+#ifndef MW2_DEBRIS_NOT_SHOWN
 				ShowObjTree(object);
+#endif
 				UpdateObj(object);
 				shown++;
 			}

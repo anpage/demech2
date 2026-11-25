@@ -933,6 +933,7 @@ SceneObject* GetLocalTargetObject(void)
 // new target, the old one comes back, with the autopilot.
 // FUNCTION: MW2 0x10060010
 // FUNCTION: MW2GBL 0x100718d5
+// FUNCTION: MW2PREMERCS 0x10049a2e
 // FUNCTION: MW2MATROX 0x100078ab
 // FUNCTION: MW23DFX 0x1001d870
 // FUNCTION: MW2ATI 0x1001db40
@@ -969,7 +970,11 @@ void TargetAtReticle(void)
 
 		if (target != -1 && player->m_targetInfo.m_target != target) {
 			player->m_targetInfo.m_target = target;
+#ifdef MW2_RETARGET_PLAYER_FLAG
+			if (!(player->m_unk0x105 & 1) && player->m_mech->m_autopilot) {
+#else
 			if (player->m_mech->m_autopilot) {
+#endif
 				player->m_steering->m_autopilot = 1;
 			}
 
