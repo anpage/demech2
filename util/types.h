@@ -912,6 +912,11 @@ double __cdecl fabs(double);
 /* RandomIntBelow and RandomNormal set their table's index back to 0 at 127, where the later builds take it modulo
    127 (RandomIntBelow2 and RandomNormal2 already do) */
 #define MW2_RANDOM_INDEX_RESET
+/* BWD streams have Mercenaries' campaign records, 15 node tags more (CPGN, PILT, TECH, NEWS…), which have no
+   names (g_bwdTypeCodes, GetKeywordName) */
+#define MW2_CAMPAIGN_BWD_TAGS
+/* The pause sound is another sound of the PRJ's (PlayPauseSound) */
+#define MW2_PAUSE_SOUND 0x149
 /* Mechs take heat from outside (Mech::m_externalHeat, which the radius damage adds to and
    CalculateHeat adds to the frame's heat) */
 #define MW2_EXTERNAL_HEAT

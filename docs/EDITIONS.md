@@ -299,7 +299,7 @@ tests an `MW2_` macro the table doesn't define, and when no target compiles a br
 
 ## Features
 
-From the table in `util/types.h` (219 features) and the 1456 conditional sites of the simulators' sources (`MW2/`, `common/`, `3rdparty/vfx`). A feature's cell is its value where it has one.
+From the table in `util/types.h` (221 features) and the 1459 conditional sites of the simulators' sources (`MW2/`, `common/`, `3rdparty/vfx`). A feature's cell is its value where it has one.
 
 ### The ATI, S3, Matrox, PowerVR and 3Dfx editions (`MW2_ACCEL`)
 
@@ -646,6 +646,8 @@ Every edition that has one of these has them all, so no binary separates one fro
 | `MW2_RESET_EFFECT_KEEPS_OWNER` |  |  | yes |  |  |  |  |  | 1 | ResetEffectSlot leaves the effect's owner as it was |
 | `MW2_SHAPE_ACCESSORS_UNCHECKED` |  |  | yes |  |  |  |  |  | 3 | SetShapeState, GetShapeState and SetShapeKind don't test the shape for NULL |
 | `MW2_RANDOM_INDEX_RESET` |  |  | yes |  |  |  |  |  | 2 | RandomIntBelow and RandomNormal set their table's index back to 0 at 127, where the later builds take it modulo 127 (RandomIntBelow2 and RandomNormal2 already do) |
+| `MW2_CAMPAIGN_BWD_TAGS` |  |  | yes |  |  |  |  |  | 2 | BWD streams have Mercenaries' campaign records, 15 node tags more (CPGN, PILT, TECH, NEWS…), which have no names (g_bwdTypeCodes, GetKeywordName) |
+| `MW2_PAUSE_SOUND` |  |  | 0x149 |  |  |  |  |  | 1 | The pause sound is another sound of the PRJ's (PlayPauseSound) |
 
 ## Where each feature is tested
 
@@ -868,6 +870,8 @@ Every edition that has one of these has them all, so no binary separates one fro
 - `MW2_RESET_EFFECT_KEEPS_OWNER`: `MW2/src/shots.c`: `ResetEffectSlot`
 - `MW2_SHAPE_ACCESSORS_UNCHECKED`: `MW2/src/shape.c`: `GetShapeState`, `SetShapeKind`, `SetShapeState`
 - `MW2_RANDOM_INDEX_RESET`: `MW2/src/random.c`: `RandomIntBelow`, `RandomNormal`
+- `MW2_CAMPAIGN_BWD_TAGS`: `MW2/include/bwdkeywords.h`: file scope; `MW2/src/bwdkeywords.c`: `g_bwdTypeCodes`
+- `MW2_PAUSE_SOUND`: `MW2/src/pausebanner.c`: `PlayPauseSound`
 
 ## Functions with a definition per edition
 

@@ -207,6 +207,7 @@ void UnloadResource(BwdStream* p_stream)
 // Returns the name of the keyword with tag p_code, or "unknown".
 // FUNCTION: MW2 0x1003ff09
 // FUNCTION: MW2GBL 0x10044572
+// FUNCTION: MW2PREMERCS 0x1007b212
 // FUNCTION: MW2MATROX 0x1002a2f9
 // FUNCTION: MW23DFX 0x10040f60
 // FUNCTION: MW2ATI 0x1003eb10
@@ -216,13 +217,14 @@ MechChar* GetKeywordName(BwdTag p_code)
 {
 	MechS32 i;
 
-	for (i = 0; i < 0x48; i++) {
+	for (i = 0; i < BWD_TYPE_CODE_COUNT; i++) {
 		if (g_bwdTypeCodes[i].m_code == p_code.m_code) {
 			break;
 		}
 	}
 
-	if (i < 0x48) {
+	if (i < BWD_TYPE_CODE_COUNT) {
+		// The early Mercenaries build reads a name past the table's end for its campaign records.
 		return g_bwdKeywordNames[i];
 	}
 	else {

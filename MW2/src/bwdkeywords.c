@@ -85,7 +85,7 @@ MechChar g_bwdExtension[8] = "BWD";
 // GLOBAL: MW2ATI 0x1018e7a0
 // GLOBAL: MW2S3 0x10060160
 // GLOBAL: MW2POWERVR 0x101b9a88
-BwdTag g_bwdTypeCodes[0x48] = {
+BwdTag g_bwdTypeCodes[BWD_TYPE_CODE_COUNT] = {
 	0x00445742, // BWD
 	0x00564552, // REV
 	0x4c425444, // DTBL
@@ -158,4 +158,22 @@ BwdTag g_bwdTypeCodes[0x48] = {
 	0x43534450, // PDSC
 	0x43534453, // SDSC
 	0x53505553, // SUPS
+#ifdef MW2_CAMPAIGN_BWD_TAGS
+	// The early Mercenaries build's campaign records.
+	0x4e475043, // CPGN
+	0x544c4950, // PILT
+	0x48434554, // TECH
+	0x5357454e, // NEWS
+	0x544e5443, // CTNT
+	0x52535344, // DSSR
+	0x544c484d, // MHLT
+	0x544c4e57, // WNLT
+	0x544c4854, // THLT
+	0x4c484d53, // SMHL
+	0x4c4e5753, // SWNL
+	0x544c5450, // PTLT
+	0x54534c53, // SLST
+	0x54534c46, // FLST
+	0x52485457, // WTHR
+#endif
 };

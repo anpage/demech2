@@ -72,6 +72,14 @@ enum {
 	c_bwdHiddenText = 68
 };
 
+// The node tags BWD streams have (g_bwdTypeCodes): the early Mercenaries build's 15 more have no
+// names in g_bwdKeywordNames.
+#ifdef MW2_CAMPAIGN_BWD_TAGS
+#define BWD_TYPE_CODE_COUNT 0x57
+#else
+#define BWD_TYPE_CODE_COUNT 0x48
+#endif
+
 // The globals of bwdkeywords.c.
 #ifdef __cplusplus
 extern "C"
@@ -81,7 +89,7 @@ extern "C"
 	extern MechChar g_bwdVersion[];
 	extern MechChar* g_bwdKeywordNames[0x48];
 	extern MechChar g_bwdExtension[8];
-	extern BwdTag g_bwdTypeCodes[0x48];
+	extern BwdTag g_bwdTypeCodes[BWD_TYPE_CODE_COUNT];
 
 #ifdef __cplusplus
 }
