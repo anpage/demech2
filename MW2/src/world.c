@@ -269,6 +269,7 @@ typedef struct BwdAnim2dRecord {
 // Set by the local player's gpspec record: its hudfile record loads the HUD once.
 // GLOBAL: MW2 0x100a173c
 // GLOBAL: MW2GBL 0x100a3acc
+// GLOBAL: MW2PREMERCS 0x100bf0ac
 // GLOBAL: MW2MATROX 0x100a85c8
 // GLOBAL: MW23DFX 0x10259c74
 // GLOBAL: MW2S3 0x100770a0
@@ -278,6 +279,7 @@ MechS32 g_loadHudFile = 0;
 // The next g_shots slot a booyowthing record fills.
 // GLOBAL: MW2 0x100a1740
 // GLOBAL: MW2GBL 0x100a3ad0
+// GLOBAL: MW2PREMERCS 0x100bf0b0
 // GLOBAL: MW2MATROX 0x100a85cc
 // GLOBAL: MW23DFX 0x10259c78
 // GLOBAL: MW2S3 0x100770a4
@@ -287,6 +289,7 @@ MechS32 g_nextShotRecord = 0;
 // The next g_effects slot an xplode record fills.
 // GLOBAL: MW2 0x100a1744
 // GLOBAL: MW2GBL 0x100a3ad4
+// GLOBAL: MW2PREMERCS 0x100bf0b4
 // GLOBAL: MW2MATROX 0x100a85d0
 // GLOBAL: MW23DFX 0x10259c7c
 // GLOBAL: MW2ATI 0x1018df7c
@@ -297,6 +300,7 @@ MechS32 g_nextEffectRecord = 0;
 // The name of the mission's music (the world stream's music record).
 // GLOBAL: MW2 0x100e9330
 // GLOBAL: MW2GBL 0x101332a0
+// GLOBAL: MW2PREMERCS 0x10212e10
 // GLOBAL: MW2MATROX 0x10125870
 // GLOBAL: MW23DFX 0x102441b0
 // GLOBAL: MW2S3 0x100abf60
@@ -306,6 +310,7 @@ MechChar g_musicName[12];
 // The mission's "MUS" resource.
 // GLOBAL: MW2 0x100e9340
 // GLOBAL: MW2GBL 0x101332b0
+// GLOBAL: MW2PREMERCS 0x10212e20
 // GLOBAL: MW2MATROX 0x1012587c
 // GLOBAL: MW23DFX 0x102441bc
 // GLOBAL: MW2ATI 0x10177e7c
@@ -316,6 +321,7 @@ MechS32 g_musicResource;
 // Widens p_flags: any of the bits 0x730 sets them all, as does either of the bits 3.
 // FUNCTION: MW2 0x1000a9c0
 // FUNCTION: MW2GBL 0x10023f90
+// FUNCTION: MW2PREMERCS 0x10076240
 // FUNCTION: MW2MATROX 0x100461c0
 // FUNCTION: MW23DFX 0x1003ddf0
 // FUNCTION: MW2ATI 0x1003bb50
@@ -1442,6 +1448,7 @@ MechS32 BwdExecuteStream(BwdStream* p_stream)
 // thing table and the shape offset, then executes its BWD stream. Returns whether it loaded.
 // FUNCTION: MW2 0x1000d30f
 // FUNCTION: MW2GBL 0x10026936
+// FUNCTION: MW2PREMERCS 0x10078c28
 // FUNCTION: MW2MATROX 0x10048c6d
 // FUNCTION: MW23DFX 0x1003f5e0
 // FUNCTION: MW2ATI 0x1003d340

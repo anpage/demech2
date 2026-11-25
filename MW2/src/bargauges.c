@@ -509,6 +509,7 @@ void DrawVerticalBar(PANE* p_target, MechS32 p_x, MechS32 p_y, MechS32 p_width, 
 // Draws a bar p_width across from (p_x, p_y), shaded darker towards its edges.
 // FUNCTION: MW2 0x1004d8ae
 // FUNCTION: MW2GBL 0x1006b5fe
+// FUNCTION: MW2PREMERCS 0x10048466
 // FUNCTION: MW2MATROX 0x10089931
 // FUNCTION: MW23DFX 0x1001c960
 // FUNCTION: MW2ATI 0x1001cc90

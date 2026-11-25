@@ -4,8 +4,9 @@ name: Verify retail targets and comment
 # executes in the base-repo context, with a writable token (which lets it
 # comment on pull requests opened from forks) and with the repository's
 # secrets: the deploy key that checks out the retail targets' originals
-# (NETMECHW.DLL, MECH2.EXE, and the Matrox, 3Dfx, ATI, S3 and PowerVR editions'
-# MW2_MATROX.DLL, MW2_3DFX.DLL, MW2_ATI.DLL, MW2_S3.DLL and MW2_POWERVR.DLL), which aren't freely
+# (NETMECHW.DLL, MECH2.EXE, the Matrox, 3Dfx, ATI, S3 and PowerVR editions'
+# MW2_MATROX.DLL, MW2_3DFX.DLL, MW2_ATI.DLL, MW2_S3.DLL and MW2_POWERVR.DLL, and the Mercenaries
+# disc's MW2.DLL, MW2_PREMERCS.DLL), which aren't freely
 # downloadable the way mw2bin.yml
 # fetches the 1.1 patch.
 #
@@ -34,11 +35,12 @@ env:
   # functions before its import thunks at 0x10065066, counted the same way;
   # MW2S3: the 1396 functions before its import thunks at 0x10051068, and
   # MW2POWERVR: the 1423 functions before its import thunks at 0x10062e80,
-  # counted the same way).
+  # counted the same way; MW2PREMERCS: the 1640 functions before its import
+  # thunks at 0x1008aa62, which precede its CRT).
   # The list lives
   # here rather than in Build's targets job: a workflow_run job can't read the
   # Build run's outputs.
-  RETAIL_ENTRIES: "NETMECHW:NETMECHW.DLL:244 MECH2:MECH2.EXE:21 MW2MATROX:MW2_MATROX.DLL:1597 MW23DFX:MW2_3DFX.DLL:1574 MW2ATI:MW2_ATI.DLL:1427 MW2S3:MW2_S3.DLL:1396 MW2POWERVR:MW2_POWERVR.DLL:1423"
+  RETAIL_ENTRIES: "NETMECHW:NETMECHW.DLL:244 MECH2:MECH2.EXE:21 MW2MATROX:MW2_MATROX.DLL:1597 MW23DFX:MW2_3DFX.DLL:1574 MW2ATI:MW2_ATI.DLL:1427 MW2S3:MW2_S3.DLL:1396 MW2POWERVR:MW2_POWERVR.DLL:1423 MW2PREMERCS:MW2_PREMERCS.DLL:1640"
   # The targets whose block layout check is reported but doesn't fail the
   # job yet: reccmp can't resolve some of the element types in the Matrox
   # edition's LINK 3.00 PDB, and falls back on the gap to the next symbol.
@@ -99,6 +101,7 @@ jobs:
           c0509cefd31887301bd86ef8cca748211af224d9cce1a40cf87d2da6e942a739 *MW2_ATI.DLL
           97ea9f9d10425cc2a7991e0d6f0079ed2e15c2d0e5c863f1d9811ed44b16e590 *MW2_S3.DLL
           4de37c948ce563d5fd00f51ecb5b710ad0b1b198401a4a3b916bcf8dd6a2f754 *MW2_POWERVR.DLL
+          ab73bc22275a0d6fb48ff41172421148a4cfcb7d1c140928e42de2b069f00fdb *MW2_PREMERCS.DLL
           SUMS
 
       - name: Download the Build run's binaries
@@ -145,7 +148,8 @@ jobs:
       # targets' originals aren't here, so detect warns about them; only the
       # retail targets are compared. The artifact keeps the nested builds'
       # layout: NETMECHW.DLL, MECH2.EXE, MW2_3DFX.DLL, MW2_ATI.DLL and MW2_POWERVR.DLL sit in build/vc22
-      # (VC++ 2.2), MW2_MATROX.DLL in build/vc40 (VC++ 4.0), MW2_S3.DLL in build/vc41.
+      # (VC++ 2.2), MW2_MATROX.DLL in build/vc40 (VC++ 4.0), MW2_S3.DLL in build/vc41,
+      # MW2_PREMERCS.DLL in build (VC++ 4.1).
       - name: Detect binaries
         id: detection
         shell: bash
@@ -232,11 +236,12 @@ jobs:
           # its incremental link off), and the tool doesn't know an incremental
           # link's layout. MW23DFX, MW2ATI, MW2S3 and MW2POWERVR are built with /Gy, which the known
           # findings declare (`MW23DFX comdat`): only the order of their units is checked.
+          # Not for MW2PREMERCS until its units are placed: it builds GBL's for now.
           # The known findings are data: they come from the PR's checkout, like
           # the sources, so a PR can list the ones it adds.
           for entry in $RETAIL_ENTRIES; do
             target="${entry%%:*}"
-            if [ "$target" = MECH2 ]; then
+            if [ "$target" = MECH2 ] || [ "$target" = MW2PREMERCS ]; then
               continue
             fi
             python ../tools/check_units.py --target "$target" --expected tools/check_units_expected.txt
@@ -318,7 +323,7 @@ jobs:
           # run's (MW2, MW2GBL). A report, published with the progress reports; it fails nothing.
           if [ -f ../certify/edition-sites.json ] && [ -f ../public-report/MW2STATES.json ]; then
             python ../tools/edition_sites.py --sites ../certify/edition-sites.json \
-              --states MW2=../public-report/MW2STATES.json --states MW2GBL=../public-report/MW2GBLSTATES.json --states MW2MATROX=MW2MATROXSTATES.json --states MW23DFX=MW23DFXSTATES.json --states MW2ATI=MW2ATISTATES.json --states MW2S3=MW2S3STATES.json --states MW2POWERVR=MW2POWERVRSTATES.json \
+              --states MW2=../public-report/MW2STATES.json --states MW2GBL=../public-report/MW2GBLSTATES.json --states MW2MATROX=MW2MATROXSTATES.json --states MW23DFX=MW23DFXSTATES.json --states MW2ATI=MW2ATISTATES.json --states MW2S3=MW2S3STATES.json --states MW2POWERVR=MW2POWERVRSTATES.json --states MW2PREMERCS=MW2PREMERCSSTATES.json \
               --json EDITIONSITES.json --markdown EDITIONSITES.md || rm -f EDITIONSITES.json EDITIONSITES.md
             # main's, for the PR comment's line
             curl -fLSs -o EDITIONSITES-main.json "$RELEASE_URL/EDITIONSITES.json" || rm -f EDITIONSITES-main.json

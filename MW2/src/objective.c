@@ -36,6 +36,7 @@
 // Set to end the mission as successful (a cheat).
 // GLOBAL: MW2 0x100a3748
 // GLOBAL: MW2GBL 0x100ad7e4
+// GLOBAL: MW2PREMERCS 0x100b09cc
 // GLOBAL: MW2MATROX 0x100a4ed4
 // GLOBAL: MW23DFX 0x1024b15c
 // GLOBAL: MW2ATI 0x1017f5ac
@@ -46,6 +47,7 @@ MechS32 g_forceMissionSuccess = 0;
 // Set once the local team's mission result has been announced (AnnounceMissionResult).
 // GLOBAL: MW2 0x100a374c
 // GLOBAL: MW2GBL 0x100ad7e8
+// GLOBAL: MW2PREMERCS 0x100b09d0
 // GLOBAL: MW2MATROX 0x100a4ed8
 // GLOBAL: MW23DFX 0x1024b160
 // GLOBAL: MW2ATI 0x1017f5b0
@@ -56,6 +58,7 @@ MechS32 g_missionResultAnnounced = 0;
 // The tag of the mission result EndTheMission2 writes.
 // GLOBAL: MW2 0x100a37bc
 // GLOBAL: MW2GBL 0x100ad858
+// GLOBAL: MW2PREMERCS 0x100b0a40
 // GLOBAL: MW2MATROX 0x100a4f48
 // GLOBAL: MW23DFX 0x1024b1d0
 // GLOBAL: MW2ATI 0x1017f620
@@ -65,6 +68,7 @@ MechU32 g_missionResultTag = 0x4d32574d;
 
 // GLOBAL: MW2 0x10138710
 // GLOBAL: MW2GBL 0x100f69d0
+// GLOBAL: MW2PREMERCS 0x101d6b60
 // GLOBAL: MW2MATROX 0x101d69e0
 // GLOBAL: MW23DFX 0x10207ff0
 // GLOBAL: MW2ATI 0x1013bcb0
@@ -74,6 +78,7 @@ MechS32 g_missionTime;
 
 // GLOBAL: MW2 0x10138720
 // GLOBAL: MW2GBL 0x100f69e0
+// GLOBAL: MW2PREMERCS 0x101d6b70
 // GLOBAL: MW2MATROX 0x101d69f0
 // GLOBAL: MW23DFX 0x10208000
 // GLOBAL: MW2ATI 0x1013bcc0
@@ -84,6 +89,7 @@ MechS32 g_currentObjective[16]; // by team
 // Whether each objective of the local team has been announced (AnnounceObjective).
 // GLOBAL: MW2 0x10138760
 // GLOBAL: MW2GBL 0x100f6a20
+// GLOBAL: MW2PREMERCS 0x101d6bb0
 // GLOBAL: MW2MATROX 0x101d6a30
 // GLOBAL: MW23DFX 0x10208040
 // GLOBAL: MW2ATI 0x1013bd00
@@ -92,6 +98,7 @@ MechS32 g_objectiveAnnounced[48];
 
 // GLOBAL: MW2 0x10138820
 // GLOBAL: MW2GBL 0x100f6ae0
+// GLOBAL: MW2PREMERCS 0x101d6c70
 // GLOBAL: MW2MATROX 0x101d6af0
 // GLOBAL: MW23DFX 0x10208100
 // GLOBAL: MW2ATI 0x1013bdc0
@@ -101,6 +108,7 @@ MechS32 g_objectiveCount;
 
 // GLOBAL: MW2 0x10138830
 // GLOBAL: MW2GBL 0x100f6af0
+// GLOBAL: MW2PREMERCS 0x101d6c80
 // GLOBAL: MW2MATROX 0x101d6b00
 // GLOBAL: MW23DFX 0x10208110
 // GLOBAL: MW2ATI 0x1013bdd0
@@ -111,6 +119,7 @@ StarMission g_objectiveTable[16];
 // Collapses each run of whitespace after a character of p_text into one space.
 // FUNCTION: MW2 0x1001a910
 // FUNCTION: MW2GBL 0x10033e20
+// FUNCTION: MW2PREMERCS 0x10028a10
 // FUNCTION: MW2MATROX 0x1001ecb0
 // FUNCTION: MW23DFX 0x100098f0
 // FUNCTION: MW2ATI 0x1000a120
@@ -143,6 +152,7 @@ void CollapseWhitespace(MechChar* p_text)
 // ((MechU16) (kind << 8) == 0x100); the mask compiles to a byte compare.
 // FUNCTION: MW2 0x1001aa02
 // FUNCTION: MW2GBL 0x10033f12
+// FUNCTION: MW2PREMERCS 0x10028b02
 // FUNCTION: MW2MATROX 0x1001eda2
 // FUNCTION: MW23DFX 0x10009990
 // FUNCTION: MW2ATI 0x1000a1c0
@@ -190,6 +200,7 @@ MechS32 DoFirstObjtv(StarMission* p_mission, MechS32 p_team)
 // is an AI target id stored as two bytes, the index and the type.
 // FUNCTION: MW2 0x1001ab4a
 // FUNCTION: MW2GBL 0x1003405a
+// FUNCTION: MW2PREMERCS 0x10028c4a
 // FUNCTION: MW2MATROX 0x1001eee7
 // FUNCTION: MW23DFX 0x10009a50
 // FUNCTION: MW2ATI 0x1000a280
@@ -221,6 +232,7 @@ MechS32 GetObjectiveTargetState(MechU8* p_target)
 // Returns whether team p_team has reached an objective target.
 // FUNCTION: MW2 0x1001ac06
 // FUNCTION: MW2GBL 0x10034116
+// FUNCTION: MW2PREMERCS 0x10028d06
 // FUNCTION: MW2MATROX 0x1001efa3
 // FUNCTION: MW23DFX 0x10009ab0
 // FUNCTION: MW2ATI 0x1000a2e0
@@ -453,6 +465,7 @@ MechS32 AnnounceObjective(MechS32 p_star, MechS32 p_objective, MechS32 p_state)
 // best kill score (kills of others minus kills of itself) as the winner, -2 on a tie.
 // FUNCTION: MW2 0x1001b21a
 // FUNCTION: MW2GBL 0x10034621
+// FUNCTION: MW2PREMERCS 0x10029211
 // FUNCTION: MW2MATROX 0x1001f577
 // FUNCTION: MW23DFX 0x10009e70
 // FUNCTION: MW2ATI 0x1000a6a0
@@ -523,6 +536,7 @@ void ChooseNetworkWinner(void)
 // network game, only the first result; a successful one names the local player the winner.
 // FUNCTION: MW2 0x1001b3f4
 // FUNCTION: MW2GBL 0x100347fb
+// FUNCTION: MW2PREMERCS 0x100293eb
 // FUNCTION: MW2MATROX 0x1001f751
 // FUNCTION: MW23DFX 0x10009f50
 // FUNCTION: MW2ATI 0x1000a780
@@ -572,6 +586,7 @@ MechS32 AnnounceMissionResult(MechS32 p_star, MechS32 p_status)
 // Returns whether condition p_condition of star p_star's objective p_objective holds.
 // FUNCTION: MW2 0x1001b580
 // FUNCTION: MW2GBL 0x10034988
+// FUNCTION: MW2PREMERCS 0x10029578
 // FUNCTION: MW2MATROX 0x1001f8dd
 // FUNCTION: MW23DFX 0x1000a080
 // FUNCTION: MW2ATI 0x1000a8b0
@@ -601,6 +616,7 @@ MechS32 TestObjectiveCondition(MechS32 p_star, MechS32 p_objective, MechS32 p_co
 // every one. A finished objective's don't; a type 0x10 objective's always do.
 // FUNCTION: MW2 0x1001b66c
 // FUNCTION: MW2GBL 0x10034a74
+// FUNCTION: MW2PREMERCS 0x10029664
 // FUNCTION: MW2MATROX 0x1001f9c9
 // FUNCTION: MW23DFX 0x1000a110
 // FUNCTION: MW2ATI 0x1000a940
@@ -1114,6 +1130,7 @@ void UpdateObjectives(void)
 // Counts the mission time in seconds.
 // FUNCTION: MW2 0x1001c9d5
 // FUNCTION: MW2GBL 0x10035e2e
+// FUNCTION: MW2PREMERCS 0x1002aa1e
 // FUNCTION: MW2MATROX 0x10020d39
 // FUNCTION: MW23DFX 0x1000ab80
 // FUNCTION: MW2ATI 0x1000b3b0
@@ -1129,6 +1146,7 @@ void EndTheMission1(void)
 // status and the objectives listed on the objectives panel. Returns whether it could.
 // FUNCTION: MW2 0x1001c9f7
 // FUNCTION: MW2GBL 0x10035e50
+// FUNCTION: MW2PREMERCS 0x1002aa40
 // FUNCTION: MW2MATROX 0x10020d5b
 // FUNCTION: MW23DFX 0x1000aba0
 // FUNCTION: MW2ATI 0x1000b3d0
@@ -1184,6 +1202,7 @@ MechS32 EndTheMission2(void)
 // it names is listed on the objectives panel (not in the Matrox edition).
 // FUNCTION: MW2 0x1001cc5c
 // FUNCTION: MW2GBL 0x100360b3
+// FUNCTION: MW2PREMERCS 0x1002aca3
 // FUNCTION: MW2MATROX 0x10020fde
 // FUNCTION: MW23DFX 0x1000acd0
 // FUNCTION: MW2ATI 0x1000b500
@@ -1218,6 +1237,7 @@ void RestartStarMission(MechS32 p_star)
 
 // FUNCTION: MW2 0x1001cdd1
 // FUNCTION: MW2GBL 0x1003615b
+// FUNCTION: MW2PREMERCS 0x1002ad4b
 // FUNCTION: MW2MATROX 0x10021086
 // FUNCTION: MW23DFX 0x1000ad40
 // FUNCTION: MW2ATI 0x1000b570
@@ -1230,6 +1250,7 @@ void FUN_1001cdd1(void)
 
 // FUNCTION: MW2 0x1001cde1
 // FUNCTION: MW2GBL 0x1003616b
+// FUNCTION: MW2PREMERCS 0x1002ad5b
 // FUNCTION: MW2MATROX 0x10021096
 // FUNCTION: MW23DFX 0x1000ad50
 // FUNCTION: MW2ATI 0x1000b580
@@ -1244,6 +1265,7 @@ MechS32 FUN_1001cde1(MechU16 p_unk0x00)
 // first target: the AI's "home" nav.
 // FUNCTION: MW2 0x1001cdf6
 // FUNCTION: MW2GBL 0x10036180
+// FUNCTION: MW2PREMERCS 0x1002ad70
 // FUNCTION: MW2MATROX 0x100210ab
 // FUNCTION: MW23DFX 0x1000ad60
 // FUNCTION: MW2ATI 0x1000b590

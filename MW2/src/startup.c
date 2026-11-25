@@ -8,6 +8,7 @@
 // Prints the revision strings of the simulator and of its project file.
 // FUNCTION: MW2 0x10071790
 // FUNCTION: MW2GBL 0x100050f0
+// FUNCTION: MW2PREMERCS 0x1002ae70
 // FUNCTION: MW2MATROX 0x1007ac30
 // FUNCTION: MW23DFX 0x1000adc0
 void PrintVersion(void)
@@ -22,6 +23,7 @@ void PrintVersion(void)
 // Always returns 0. SimMain raises Error(0x51) if it doesn't, so it's a stubbed-out startup check.
 // FUNCTION: MW2 0x100717bf
 // FUNCTION: MW2GBL 0x1000511f
+// FUNCTION: MW2PREMERCS 0x1002ae9f
 // FUNCTION: MW2MATROX 0x1007ac5f
 // FUNCTION: MW23DFX 0x1000adf0
 // FUNCTION: MW2ATI 0x1000b5f0

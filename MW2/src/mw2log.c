@@ -10,6 +10,7 @@
 // Set by the command line; SimMain opens mw2.log when it is.
 // GLOBAL: MW2 0x100ae6d4
 // GLOBAL: MW2GBL 0x1009b72c
+// GLOBAL: MW2PREMERCS 0x100bf04c
 // GLOBAL: MW2MATROX 0x100b19ec
 // GLOBAL: MW23DFX 0x10259924
 // GLOBAL: MW2ATI 0x1018dc24
@@ -19,6 +20,7 @@ MechS32 g_logFileEnabled = 0;
 
 // GLOBAL: MW2 0x100ae6d8
 // GLOBAL: MW2GBL 0x1009b730
+// GLOBAL: MW2PREMERCS 0x100bf050
 // GLOBAL: MW2MATROX 0x100b19f0
 // GLOBAL: MW23DFX 0x10259928
 // GLOBAL: MW2ATI 0x1018dc28
@@ -29,6 +31,7 @@ FILE* g_mw2Log = NULL;
 // Opens mw2.log and writes the build date and the time to it. Returns whether it could.
 // FUNCTION: MW2 0x100717e0
 // FUNCTION: MW2GBL 0x10005140
+// FUNCTION: MW2PREMERCS 0x100760f0
 // FUNCTION: MW2MATROX 0x1007ac80
 // FUNCTION: MW23DFX 0x1003d9f0
 // FUNCTION: MW2ATI 0x1003b750
@@ -55,6 +58,7 @@ MechS32 OpenMw2Log(void)
 // Writes the time to mw2.log and closes it. Returns whether it was open.
 // FUNCTION: MW2 0x10071869
 // FUNCTION: MW2GBL 0x100051c9
+// FUNCTION: MW2PREMERCS 0x10076179
 // FUNCTION: MW2MATROX 0x1007ad09
 // FUNCTION: MW23DFX 0x1003da60
 // FUNCTION: MW2ATI 0x1003b7c0
@@ -79,6 +83,7 @@ MechS32 CloseMw2Log(void)
 // Writes a line to mw2.log. Returns whether logging is on and the log is open.
 // FUNCTION: MW2 0x100718da
 // FUNCTION: MW2GBL 0x1000523a
+// FUNCTION: MW2PREMERCS 0x100761ea
 // FUNCTION: MW2MATROX 0x1007ad7a
 // FUNCTION: MW23DFX 0x1003dac0
 // FUNCTION: MW2ATI 0x1003b820

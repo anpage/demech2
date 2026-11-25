@@ -116,6 +116,7 @@ static MechS32 Interpolate(MechS32 p_from, MechS32 p_to, MechS32 p_toPlane, Mech
 // __asm block.
 // FUNCTION: MW2 0x10048c50
 // FUNCTION: MW2GBL 0x10028cd0
+// FUNCTION: MW2PREMERCS 0x1005f800
 ProjectedVertex* GetViewVertex(Vertex* p_vertex)
 {
 #ifdef PORTABLE_C_LABELS
@@ -449,6 +450,7 @@ jmp_10048e8f:
 // polygon being built and adds the vertex to its list (up to 20). The body is an __asm block.
 // FUNCTION: MW2 0x10048ebe
 // FUNCTION: MW2GBL 0x10028f3e
+// FUNCTION: MW2PREMERCS 0x1005fbe6
 ProjectedVertex* ProjectVertex(ProjectedVertex* p_vertex)
 {
 #ifdef PORTABLE_C_LABELS
@@ -562,6 +564,7 @@ jmp_10048f8c:
 // shading is an __asm block.
 // FUNCTION: MW2 0x10048faf
 // FUNCTION: MW2GBL 0x1002902f
+// FUNCTION: MW2PREMERCS 0x1005fcd7
 MechS32 GetFaceShade(Face* p_face, Vertex* p_vertices)
 {
 #ifdef PORTABLE_C_LABELS

@@ -124,6 +124,7 @@ SceneObject* g_targetViewObject = NULL;
 // with other globals after it.
 // GLOBAL: MW2 0x100c26a0
 // GLOBAL: MW2GBL 0x1013bcb0
+// GLOBAL: MW2PREMERCS 0x101ac140
 // GLOBAL: MW2MATROX 0x10212d40
 // GLOBAL: MW23DFX 0x101de7a0
 // GLOBAL: MW2ATI 0x10112460

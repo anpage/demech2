@@ -17,6 +17,7 @@
 // is never seen.
 // FUNCTION: MW2 0x1006ca60
 // FUNCTION: MW2GBL 0x1007e660
+// FUNCTION: MW2PREMERCS 0x1003c2e0
 // FUNCTION: MW2MATROX 0x1006d320
 // FUNCTION: MW23DFX 0x10015090
 // FUNCTION: MW2ATI 0x100154a0
@@ -69,6 +70,7 @@ MechS32 CanSeeTarget(Player* p_player, MechS32 p_ahead)
 // that the terrain stays within 1000 units of height 0 all the way.
 // FUNCTION: MW2 0x1006cbe7
 // FUNCTION: MW2GBL 0x1007e7e7
+// FUNCTION: MW2PREMERCS 0x1003c467
 MechS32 IsGroundLevelToward(Player* p_player, MechS32 p_x, MechS32 p_y, MechS32 p_z)
 {
 	MechS32 steps;
@@ -114,6 +116,7 @@ MechS32 IsGroundLevelToward(Player* p_player, MechS32 p_x, MechS32 p_y, MechS32 
 // range, 2 within the long one, 1 right at it and 0 beyond it.
 // FUNCTION: MW2 0x1006cd45
 // FUNCTION: MW2GBL 0x1007e945
+// FUNCTION: MW2PREMERCS 0x1003c5c5
 // FUNCTION: MW2MATROX 0x1006d4b9
 // FUNCTION: MW23DFX 0x100151a0
 // FUNCTION: MW2ATI 0x100155b0

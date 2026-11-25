@@ -1,0 +1,4 @@
+# Ported from mw2gbl-ascii.csv by tools/port_annotations.py.
+address,type,x-text
+0x100a9344,string,
+0x100beec4,string,PAL

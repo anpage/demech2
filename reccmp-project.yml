@@ -36,6 +36,18 @@ targets:
       - reccmp/mw2gbl-data.csv
     report:
       icon: assets/dll.png
+  MW2PREMERCS:
+    filename: MW2_PREMERCS.DLL
+    source-root:
+      - MW2
+      - common
+    hash:
+      sha256: ab73bc22275a0d6fb48ff41172421148a4cfcb7d1c140928e42de2b069f00fdb
+    data-sources:
+      - reccmp/mw2premercs-ascii.csv
+      - reccmp/mw2premercs-vfx.csv
+    report:
+      icon: assets/dll.png
   MW2MATROX:
     filename: MW2_MATROX.DLL
     source-root:

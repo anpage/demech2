@@ -14,6 +14,7 @@
 // values.
 // FUNCTION: MW2 0x100035c0
 // FUNCTION: MW2GBL 0x10005090
+// FUNCTION: MW2PREMERCS 0x1002b630
 MechS32 ApproximateVectorLength(MechS32 p_x, MechS32 p_y, MechS32 p_z)
 {
 #ifdef PORTABLE_C

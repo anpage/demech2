@@ -11,6 +11,7 @@ DECOMP_SIZE_ASSERT(VFX_TEXTURE, 0xc)
 // bitmap p_pixels, through the code block's routines.
 // FUNCTION: MW2 0x1006dd50
 // FUNCTION: MW2GBL 0x10021670
+// FUNCTION: MW2PREMERCS 0x1005ea80
 void DrawTexturedPolygon(
 	PANE* p_target,
 	MechU8* p_pixels,

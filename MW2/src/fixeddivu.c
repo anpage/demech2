@@ -11,6 +11,7 @@
 // Divides two 16.16 fixed-point values like FixedDiv16, but with an unsigned divide.
 // FUNCTION: MW2 0x10044700
 // FUNCTION: MW2GBL 0x100191c0
+// FUNCTION: MW2PREMERCS 0x1005ada0
 MechS32 FixedDivU16(MechS32 p_a, MechS32 p_b)
 {
 #ifdef PORTABLE_C

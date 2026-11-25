@@ -56,6 +56,7 @@
 
 // GLOBAL: MW2 0x100aa290
 // GLOBAL: MW2GBL 0x1009dae0
+// GLOBAL: MW2PREMERCS 0x100b5808
 // GLOBAL: MW2MATROX 0x100a7cb8
 // GLOBAL: MW23DFX 0x1025050c
 // GLOBAL: MW2ATI 0x1018481c
@@ -103,6 +104,7 @@ MechS32 g_mechViewMode = 1;
 
 // GLOBAL: MW2 0x100aa2a8
 // GLOBAL: MW2GBL 0x1009daf8
+// GLOBAL: MW2PREMERCS 0x100b5820
 // GLOBAL: MW2MATROX 0x100a7cd0
 // GLOBAL: MW23DFX 0x10250524
 // GLOBAL: MW2ATI 0x10184834
@@ -112,6 +114,7 @@ MechS32 g_missionEnded = 0;
 
 // GLOBAL: MW2 0x100aa2ac
 // GLOBAL: MW2GBL 0x1009dafc
+// GLOBAL: MW2PREMERCS 0x100b5824
 // GLOBAL: MW2MATROX 0x100a7cd4
 // GLOBAL: MW23DFX 0x10250528
 // GLOBAL: MW2ATI 0x10184838
@@ -122,6 +125,7 @@ MechS32 g_missionTimerStopped = 0;
 // The "meepmeep" cheat: enables the time compression key.
 // GLOBAL: MW2 0x100aa2b0
 // GLOBAL: MW2GBL 0x1009db00
+// GLOBAL: MW2PREMERCS 0x100b5828
 // GLOBAL: MW2MATROX 0x100a7cd8
 // GLOBAL: MW23DFX 0x1025052c
 // GLOBAL: MW2ATI 0x1018483c
@@ -140,6 +144,7 @@ MechS32 g_chatLength = 0;
 
 // GLOBAL: MW2 0x100aa2bc
 // GLOBAL: MW2GBL 0x1009db0c
+// GLOBAL: MW2PREMERCS 0x100b5834
 // GLOBAL: MW2MATROX 0x100a7ce4
 // GLOBAL: MW23DFX 0x10250538
 // GLOBAL: MW2ATI 0x10184848
@@ -150,6 +155,7 @@ MechS32 g_missionResolved = 0;
 #ifdef MW2_CHEAT_TABLE
 // Set once the cheat messages are decoded (DecodeCheatMessages).
 // GLOBAL: MW2GBL 0x1009db10
+// GLOBAL: MW2PREMERCS 0x100b5838
 MechS32 g_cheatMessagesDecoded = 0;
 #endif
 
@@ -175,6 +181,7 @@ typedef struct CheatCode {
 // The cheat codes, in HandleCheatInput's order; the table ends with an empty entry. "dei", "fuck",
 // "hangaround", "idkfa", "lairdo" and "shit" are listed but do nothing.
 // GLOBAL: MW2GBL 0x1009db18
+// GLOBAL: MW2PREMERCS 0x100b5840
 CheatCode g_cheatCodes[CHEAT_CODE_COUNT + 1] = {
 	// "kent" / "Invulnerbility ON." / "Invulnerbility OFF."
 	{"aod~", "Cd|\177fdoxhcfc~s*ED$", "Cd|\177fdoxhcfc~s*ELL$"},
@@ -224,6 +231,7 @@ CheatCode g_cheatCodes[CHEAT_CODE_COUNT + 1] = {
 // The last 15 characters typed, the newest last.
 // GLOBAL: MW2 0x100e9620
 // GLOBAL: MW2GBL 0x1015dd20
+// GLOBAL: MW2PREMERCS 0x10157410
 // GLOBAL: MW2MATROX 0x101d4a80
 // GLOBAL: MW23DFX 0x10159f50
 // GLOBAL: MW2ATI 0x1008df50
@@ -233,6 +241,7 @@ MechChar g_typedKeys[0xf];
 
 // GLOBAL: MW2 0x100ea3e4
 // GLOBAL: MW2GBL 0x1015dd30
+// GLOBAL: MW2PREMERCS 0x101b7654
 // GLOBAL: MW2MATROX 0x1012c1ec
 // GLOBAL: MW23DFX 0x101e8e10
 // GLOBAL: MW2ATI 0x1011cad0
@@ -243,6 +252,7 @@ MechS32 g_frontViewForRear;
 // Appends a character key (key code type 7) to the typed keys. Returns whether it was one.
 // FUNCTION: MW2 0x1005b7c0
 // FUNCTION: MW2GBL 0x10013470
+// FUNCTION: MW2PREMERCS 0x1006c640
 // FUNCTION: MW2MATROX 0x10041ed0
 // FUNCTION: MW23DFX 0x10036d10
 // FUNCTION: MW2ATI 0x100358d0
@@ -263,6 +273,7 @@ MechS32 AppendTypedKey(MechS16 p_key)
 // with 0x1a.
 // FUNCTION: MW2 0x1005b807
 // FUNCTION: MW2GBL 0x100134b7
+// FUNCTION: MW2PREMERCS 0x1006c687
 // FUNCTION: MW2MATROX 0x10041f17
 // FUNCTION: MW23DFX 0x10036d40
 // FUNCTION: MW2ATI 0x10035900
@@ -292,6 +303,7 @@ MechS32 TypedCodeMatches(MechChar* p_code)
 #ifdef MW2_CHEAT_TABLE
 // Decodes the cheat messages in place (g_cheatCodes; the codes stay encoded).
 // FUNCTION: MW2GBL 0x1001352e
+// FUNCTION: MW2PREMERCS 0x1006c6fe
 void DecodeCheatMessages(void)
 {
 	MechS32 i;
@@ -321,6 +333,7 @@ void DecodeCheatMessages(void)
 // Takes a typed key for the cheat codes: decodes the messages at the first key, and when the last
 // keys typed spell a code of g_cheatCodes (TypedCodeMatches), toggles or runs its cheat and says so.
 // FUNCTION: MW2GBL 0x10013616
+// FUNCTION: MW2PREMERCS 0x1006c7e6
 void HandleCheatInput(MechS16 p_key)
 {
 	MechS32 target;
@@ -687,6 +700,7 @@ void HandleCheatInput(MechS16 p_key)
 // Turns a typed character into the one its key gives with shift held (the US layout).
 // FUNCTION: MW2 0x1005bf7c
 // FUNCTION: MW2GBL 0x10013baf
+// FUNCTION: MW2PREMERCS 0x1006cd7f
 // FUNCTION: MW2MATROX 0x100426b2
 // FUNCTION: MW23DFX 0x10037280
 // FUNCTION: MW2ATI 0x10035e40

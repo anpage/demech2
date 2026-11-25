@@ -12,6 +12,7 @@
 // FixedSqrt16 to refine.
 // FUNCTION: MW2 0x10016a90
 // FUNCTION: MW2GBL 0x1002d420
+// FUNCTION: MW2PREMERCS 0x10064780
 MechU32 FixedSqrtGuess(MechU32 p_value)
 {
 #ifdef PORTABLE_C

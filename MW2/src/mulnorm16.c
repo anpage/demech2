@@ -10,6 +10,7 @@
 // fits in 16 bits, and *p_shift is increased by the shift.
 // FUNCTION: MW2 0x1004c820
 // FUNCTION: MW2GBL 0x1000a9a0
+// FUNCTION: MW2PREMERCS 0x10064560
 void MulNormalize16(MechS32* p_low, MechS32* p_scaled, MechS16* p_shift, MechU32 p_a, MechU32 p_b)
 {
 #ifdef PORTABLE_C

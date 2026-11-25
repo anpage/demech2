@@ -13,6 +13,7 @@ DECOMP_SIZE_ASSERT(SoundTableEntry, 0x08)
 // values (-1: unset).
 // GLOBAL: MW2 0x100a24a0
 // GLOBAL: MW2GBL 0x100b54b0
+// GLOBAL: MW2PREMERCS 0x100b3e90
 // GLOBAL: MW2MATROX 0x100a4110
 // GLOBAL: MW23DFX 0x1024e6a8
 SoundTableEntry g_soundTable[0x8c] = {
@@ -45,6 +46,7 @@ SoundTableEntry g_soundTable[0x8c] = {
 // Fills g_soundInfo from the sound table.
 // FUNCTION: MW2 0x10013370
 // FUNCTION: MW2GBL 0x1006acb0
+// FUNCTION: MW2PREMERCS 0x100647c0
 // FUNCTION: MW2MATROX 0x1000be30
 // FUNCTION: MW23DFX 0x10030590
 // FUNCTION: MW2ATI 0x1002f5f0

@@ -299,6 +299,31 @@ if (MSVC_FOR_DECOMP)
   set_property(TARGET mw2gbl PROPERTY DEMECH2_NO_INTRINSICS TRUE)
 endif()
 
+# MW2_PREMERCS.DLL: the simulator the Mercenaries disc ships beside its own (its /MERCS/MW2.DLL, linked
+# 1996-07-08 by LINK 3.10), Ghost Bear's Legacy's code built like MW2_GBL.DLL: no /Oi
+# (DEMECH2_NO_INTRINSICS), abs and fabs expanded all the same (util/types.h). MW2_PREMERCS is defined.
+# Its object order is its own; until its units are placed, it builds GBL's (MW2/sources_gbl.cmake).
+# It was linked with /DEBUG (it has a debug directory), so without /OPT:REF: it imports what 1.1
+# does from the C runtime. Modern compilers don't build it: it is MW2.DLL's code.
+if (MSVC_FOR_DECOMP)
+  demech2_edition_masm_defines(premercs_masm_defines MW2_PREMERCS)
+  demech2_add_dll(mw2premercs
+    ID MW2PREMERCS
+    SOURCE_DIR MW2
+    OUTPUT_NAME MW2_PREMERCS
+    # a one-letter directory, as GBL's, for LINK 3.10's response file (cmake/decomp_flags.cmake)
+    LINK_DIR p
+    RUNTIME MultiThreadedDebug
+    SOURCES
+      ${mw2gbl_sources}
+      MW2/MW2.def
+    COMPILE_OPTIONS "$<$<COMPILE_LANGUAGE:C,CXX>:/G5;/DMW2_PREMERCS>" "$<$<COMPILE_LANGUAGE:ASM_MASM>:${premercs_masm_defines}>"
+    LINK_OPTIONS /DEBUG /INCREMENTAL:no
+    LIBRARIES winmm.lib wail32 ddraw dplay kernel32.lib user32.lib gdi32.lib advapi32.lib
+  )
+  set_property(TARGET mw2premercs PROPERTY DEMECH2_NO_INTRINSICS TRUE)
+endif()
+
 # MW2_S3.DLL, the S3 ViRGE edition's simulator, was built with VC++ 4.1 like MW2.DLL but optimized:
 # the vc41/ directory defines it, where its sources' optimization flags reach only its own target.
 # Modern compilers don't build it: it is MW2.DLL's code.

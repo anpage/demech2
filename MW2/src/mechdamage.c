@@ -58,6 +58,7 @@ MechScalar g_otherArmorPerLevel = 4;
 
 // GLOBAL: MW2 0x100a1598
 // GLOBAL: MW2GBL 0x100a04bc
+// GLOBAL: MW2PREMERCS 0x100b1a2c
 // GLOBAL: MW2MATROX 0x100a4620
 // GLOBAL: MW23DFX 0x1024bfc4
 // GLOBAL: MW2ATI 0x10180344
@@ -67,6 +68,7 @@ MechScalar g_localArmorPerLevel = 4;
 
 // GLOBAL: MW2 0x100a159c
 // GLOBAL: MW2GBL 0x100a04c0
+// GLOBAL: MW2PREMERCS 0x100b1a30
 // GLOBAL: MW2MATROX 0x100a4624
 // GLOBAL: MW23DFX 0x1024bfc8
 MechS32 g_localMechHidden = 0;
@@ -893,6 +895,7 @@ void KillMech(MechS32 p_killer, Mech* p_mech)
 // Calls DestroyCriticalSlot once for each of section p_section's m_slotCount.
 // FUNCTION: MW2 0x10008938
 // FUNCTION: MW2GBL 0x1001f9c1
+// FUNCTION: MW2PREMERCS 0x1003e41c
 // FUNCTION: MW2MATROX 0x100111e6
 // FUNCTION: MW23DFX 0x10016600
 // FUNCTION: MW2ATI 0x10016a10
@@ -1690,6 +1693,7 @@ void ApplyDamageToMech(MechS32 p_attacker, Mech* p_mech, MechScalar p_damage, Me
 // ejects with a sound, or hears that the ejection system is disabled, and the mech is destroyed.
 // FUNCTION: MW2 0x10009d2a
 // FUNCTION: MW2GBL 0x10020e94
+// FUNCTION: MW2PREMERCS 0x1003fb21
 // FUNCTION: MW2MATROX 0x100126e4
 // FUNCTION: MW23DFX 0x100174f0
 // FUNCTION: MW2ATI 0x100178f0
@@ -1723,6 +1727,7 @@ void EjectPlayer(Mech* p_mech, MechS32 p_eject)
 // Toggles the local player's object between HideObjTree and ShowObjTree.
 // FUNCTION: MW2 0x10009dd2
 // FUNCTION: MW2GBL 0x10020f61
+// FUNCTION: MW2PREMERCS 0x1003fbee
 // FUNCTION: MW2MATROX 0x1001278c
 // FUNCTION: MW23DFX 0x10017560
 void ToggleLocalMechVisible(void)

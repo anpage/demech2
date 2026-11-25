@@ -19,6 +19,7 @@
 // are 12 bytes from 0x0c: a name of 10 bytes, each stored as 0x100 minus the character, and the id.
 // FUNCTION: MW2 0x100737e0
 // FUNCTION: MW2GBL 0x10021be0
+// FUNCTION: MW2PREMERCS 0x10056fb0
 // FUNCTION: MW2MATROX 0x100734f0
 // FUNCTION: MW23DFX 0x10025eb0
 // FUNCTION: MW2ATI 0x10025c20
@@ -72,6 +73,7 @@ MechS32 FindResourceIdByName(MechS32 p_table, MechChar* p_name)
 // is copied into the static pool. Stores the id found (-1 for a file) and returns the data.
 // FUNCTION: MW2 0x10073922
 // FUNCTION: MW2GBL 0x10021d22
+// FUNCTION: MW2PREMERCS 0x100570f2
 // FUNCTION: MW2MATROX 0x10073632
 // FUNCTION: MW23DFX 0x10025f70
 // FUNCTION: MW2ATI 0x10025ce0

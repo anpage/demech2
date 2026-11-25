@@ -238,6 +238,7 @@ MechS32 MoveMechWithCollisions(
 // (KnockMechOver) instead. Returns 1 on a collision, with *p_hit the other mech's player.
 // FUNCTION: MW2 0x10075d7b
 // FUNCTION: MW2GBL 0x10027f5b
+// FUNCTION: MW2PREMERCS 0x1002bfbb
 // FUNCTION: MW2MATROX 0x10075f6c
 // FUNCTION: MW23DFX 0x1000ba20
 // FUNCTION: MW2ATI 0x1000c190
@@ -590,6 +591,7 @@ MechS32 CollideWithBuildings(Mech* p_mech, MechScalar* p_x, MechScalar* p_y, Mec
 // they met faster than 200000.
 // FUNCTION: MW2 0x100765f8
 // FUNCTION: MW2GBL 0x100287d8
+// FUNCTION: MW2PREMERCS 0x1002c87c
 // FUNCTION: MW2MATROX 0x1007685c
 // FUNCTION: MW23DFX 0x1000c160
 // FUNCTION: MW2ATI 0x1000c8d0
@@ -624,6 +626,7 @@ void DamageMechsInCollision(Mech* p_mech, Mech* p_other)
 // otherwise the section facing the normal. p_other is NULL for a building or the ground.
 // FUNCTION: MW2 0x1007669e
 // FUNCTION: MW2GBL 0x1002887e
+// FUNCTION: MW2PREMERCS 0x1002c922
 // FUNCTION: MW2MATROX 0x10076927
 // FUNCTION: MW23DFX 0x1000c1f0
 // FUNCTION: MW2ATI 0x1000c960
@@ -705,6 +708,7 @@ void ApplyCollisionDamage(Mech* p_mech, Mech* p_other, MechScalar p_damage)
 // when it can be damaged. In a network game, a shape of kind 0xb0 destroys both legs and itself.
 // FUNCTION: MW2 0x100768a8
 // FUNCTION: MW2GBL 0x10028a88
+// FUNCTION: MW2PREMERCS 0x1002cb2c
 // FUNCTION: MW2MATROX 0x10076bc3
 // FUNCTION: MW23DFX 0x1000c3c0
 // FUNCTION: MW2ATI 0x1000cb30

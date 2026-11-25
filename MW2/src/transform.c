@@ -53,6 +53,7 @@ static MechS32 TransformRow(Matrix* p_matrix, MechS32 p_row, MechS32 p_x, MechS3
 // The products are an __asm block.
 // FUNCTION: MW2 0x1000d650
 // FUNCTION: MW2GBL 0x100377e0
+// FUNCTION: MW2PREMERCS 0x10062900
 // FUNCTION: MW2MATROX 0x10001870
 // FUNCTION: MW23DFX 0x1002eb50
 // FUNCTION: MW2ATI 0x1002dca0
@@ -152,6 +153,7 @@ void TransformPoint(Matrix* p_matrix, MechScalar* p_x, MechScalar* p_y, MechScal
 // block.
 // FUNCTION: MW2 0x1000d708
 // FUNCTION: MW2GBL 0x10037898
+// FUNCTION: MW2PREMERCS 0x100629b8
 // FUNCTION: MW2MATROX 0x10001913
 // FUNCTION: MW23DFX 0x1002ebc0
 // FUNCTION: MW2ATI 0x1002dd10
@@ -248,6 +250,7 @@ void RotatePoint(Matrix* p_matrix, MechScalar* p_x, MechScalar* p_y, MechScalar*
 // which makes it orthogonal to them again. The products are an __asm block.
 // FUNCTION: MW2 0x1000d7c0
 // FUNCTION: MW2GBL 0x10037950
+// FUNCTION: MW2PREMERCS 0x10062a70
 // FUNCTION: MW2MATROX 0x100019a4
 // FUNCTION: MW23DFX 0x1002ec20
 // FUNCTION: MW2ATI 0x1002dd70
@@ -441,6 +444,7 @@ void OrthogonalizeMatrixColumn(Matrix* p_matrix, MechS32 p_column)
 // Multiplies two 2.29 fixed-point values. The body is an __asm block.
 // FUNCTION: MW2 0x1000d9a8
 // FUNCTION: MW2GBL 0x10037b38
+// FUNCTION: MW2PREMERCS 0x10062c58
 MechS32 MatrixMul29(MechS32 p_a, MechS32 p_b)
 {
 #ifdef PORTABLE_C
@@ -464,6 +468,7 @@ MechS32 MatrixMul29(MechS32 p_a, MechS32 p_b)
 // __asm block.
 // FUNCTION: MW2 0x1000d9ce
 // FUNCTION: MW2GBL 0x10037b5e
+// FUNCTION: MW2PREMERCS 0x10062c7e
 MechS32 MatrixDot29(MechS32 p_ax, MechS32 p_ay, MechS32 p_az, MechS32 p_bx, MechS32 p_by, MechS32 p_bz)
 {
 #ifdef PORTABLE_C
@@ -497,6 +502,7 @@ MechS32 MatrixDot29(MechS32 p_ax, MechS32 p_ay, MechS32 p_az, MechS32 p_bx, Mech
 // products are an __asm block.
 // FUNCTION: MW2 0x1000da0c
 // FUNCTION: MW2GBL 0x10037b9c
+// FUNCTION: MW2PREMERCS 0x10062cbc
 // FUNCTION: MW2MATROX 0x10001b59
 // FUNCTION: MW23DFX 0x1002ed60
 // FUNCTION: MW2ATI 0x1002deb0
@@ -748,6 +754,7 @@ void MultiplyRotations(Matrix* p_a, Matrix* p_b, Matrix* p_dst)
 // translation transformed by p_a.
 // FUNCTION: MW2 0x1000dbba
 // FUNCTION: MW2GBL 0x10037d4a
+// FUNCTION: MW2PREMERCS 0x10062e6a
 // FUNCTION: MW2MATROX 0x10001d1d
 // FUNCTION: MW23DFX 0x1002ef10
 // FUNCTION: MW2ATI 0x1002e060
@@ -774,6 +781,7 @@ void MultiplyMatrix(Matrix* p_a, Matrix* p_b, Matrix* p_dst)
 // Transposes the rotation of p_src into p_dst.
 // FUNCTION: MW2 0x1000dc33
 // FUNCTION: MW2GBL 0x10037dc3
+// FUNCTION: MW2PREMERCS 0x10062ee3
 // FUNCTION: MW2MATROX 0x10001d96
 // FUNCTION: MW23DFX 0x1002ef80
 // FUNCTION: MW2ATI 0x1002e0d0
@@ -800,6 +808,7 @@ void TransposeRotation(Matrix* p_src, Matrix* p_dst)
 // Inverts a rigid transform: the transposed rotation, and the negated translation rotated by it.
 // FUNCTION: MW2 0x1000dcbd
 // FUNCTION: MW2GBL 0x10037e4d
+// FUNCTION: MW2PREMERCS 0x10062f6d
 // FUNCTION: MW2MATROX 0x10001e20
 // FUNCTION: MW23DFX 0x1002efc0
 void InvertMatrix(Matrix* p_src, Matrix* p_dst)
@@ -823,6 +832,7 @@ void InvertMatrix(Matrix* p_src, Matrix* p_dst)
 
 // FUNCTION: MW2 0x1000dd4d
 // FUNCTION: MW2GBL 0x10037edd
+// FUNCTION: MW2PREMERCS 0x10062ffd
 // FUNCTION: MW2MATROX 0x10001eb0
 // FUNCTION: MW23DFX 0x1002f030
 // FUNCTION: MW2ATI 0x1002e110
@@ -842,6 +852,7 @@ void SetIdentityMatrix(Matrix* p_matrix)
 
 // FUNCTION: MW2 0x1000dddf
 // FUNCTION: MW2GBL 0x10037f6f
+// FUNCTION: MW2PREMERCS 0x1006308f
 // FUNCTION: MW2MATROX 0x10001f42
 // FUNCTION: MW23DFX 0x1002f060
 // FUNCTION: MW2ATI 0x1002e140
@@ -854,6 +865,7 @@ void CopyMatrix(Matrix* p_src, Matrix* p_dst)
 
 // FUNCTION: MW2 0x1000ddfc
 // FUNCTION: MW2GBL 0x10037f8c
+// FUNCTION: MW2PREMERCS 0x100630ac
 void CopyRotation(Matrix* p_src, Matrix* p_dst)
 {
 	MemCopy(p_dst, p_src, sizeof(Matrix));
@@ -865,6 +877,7 @@ void CopyRotation(Matrix* p_src, Matrix* p_dst)
 // only is built directly. The products are __asm blocks.
 // FUNCTION: MW2 0x1000de3b
 // FUNCTION: MW2GBL 0x10037fcb
+// FUNCTION: MW2PREMERCS 0x100630eb
 // FUNCTION: MW2MATROX 0x10001f5f
 // FUNCTION: MW23DFX 0x1002f070
 // FUNCTION: MW2ATI 0x1002e150
@@ -1309,6 +1322,7 @@ void BuildMatrixEx(
 
 // FUNCTION: MW2 0x1000e2b9
 // FUNCTION: MW2GBL 0x10038449
+// FUNCTION: MW2PREMERCS 0x10063569
 // FUNCTION: MW2MATROX 0x1000230e
 // FUNCTION: MW23DFX 0x1002f380
 // FUNCTION: MW2ATI 0x1002e460
@@ -1332,6 +1346,7 @@ void BuildMatrix(
 // the yaw is taken as 90 degrees and the roll from the first row.
 // FUNCTION: MW2 0x1000e2ea
 // FUNCTION: MW2GBL 0x1003847a
+// FUNCTION: MW2PREMERCS 0x1006359a
 // FUNCTION: MW2MATROX 0x1000233f
 // FUNCTION: MW23DFX 0x1002f3b0
 // FUNCTION: MW2ATI 0x1002e490

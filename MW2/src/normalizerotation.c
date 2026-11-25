@@ -12,6 +12,7 @@
 // Normalizes the rows and columns of the rotation (2.29 fixed point).
 // FUNCTION: MW2 0x1007cbf1
 // FUNCTION: MW2GBL 0x10080cdd
+// FUNCTION: MW2PREMERCS 0x1005860d
 // FUNCTION: MW2MATROX 0x10002479
 // FUNCTION: MW23DFX 0x1002f500
 // FUNCTION: MW2ATI 0x1002e5e0

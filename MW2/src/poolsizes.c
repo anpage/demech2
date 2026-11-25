@@ -50,6 +50,7 @@ typedef struct DtblRecord {
 // ANFL, OBJI, CID and CINS.
 // GLOBAL: MW2 0x100a9428
 // GLOBAL: MW2GBL 0x100b68d8
+// GLOBAL: MW2PREMERCS 0x100bf380
 // GLOBAL: MW2MATROX 0x100bbb40
 // GLOBAL: MW23DFX 0x10259f38
 // GLOBAL: MW2ATI 0x1018e230
@@ -145,6 +146,7 @@ MechS32 g_missionAnimFrameBytes;
 // The mission's static memory table, which ReadStaticMemoryTable fills.
 // GLOBAL: MW2 0x100e9dc0
 // GLOBAL: MW2GBL 0x100bbbb0
+// GLOBAL: MW2PREMERCS 0x10156d40
 // GLOBAL: MW2MATROX 0x1012c320
 // GLOBAL: MW23DFX 0x101597e0
 // GLOBAL: MW2ATI 0x1008d7f0
@@ -155,6 +157,7 @@ StaticPoolSize g_staticPoolSizes[10];
 // Returns the size of the table's entry at an index, or 0.
 // FUNCTION: MW2 0x100563d0
 // FUNCTION: MW2GBL 0x1007b610
+// FUNCTION: MW2PREMERCS 0x1007b330
 // FUNCTION: MW2MATROX 0x10085690
 // FUNCTION: MW23DFX 0x10041020
 // FUNCTION: MW2ATI 0x1003ebd0
@@ -176,6 +179,7 @@ MechU32 GetStaticPoolSize(MechS32 p_index)
 // named by a number is looked up by that resource id.
 // FUNCTION: MW2 0x1005640e
 // FUNCTION: MW2GBL 0x1007b64e
+// FUNCTION: MW2PREMERCS 0x1007b36e
 // FUNCTION: MW2MATROX 0x100856ce
 // FUNCTION: MW23DFX 0x10041040
 // FUNCTION: MW2ATI 0x1003ebf0
