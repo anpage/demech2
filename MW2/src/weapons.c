@@ -1081,6 +1081,7 @@ void SelectNextWeapon(Mech* p_mech)
 // Selects the first weapon of the next group that has one.
 // FUNCTION: MW2 0x1004567b
 // FUNCTION: MW2GBL 0x1004826f
+// FUNCTION: MW2PREMERCS 0x1007fdce
 // FUNCTION: MW2MATROX 0x1002c421
 // FUNCTION: MW23DFX 0x100440c0
 // FUNCTION: MW2ATI 0x10041910

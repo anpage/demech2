@@ -907,6 +907,11 @@ double __cdecl fabs(double);
 #define MW2_SHOT_OWNS_EFFECT
 /* ResetEffectSlot leaves the effect's owner as it was */
 #define MW2_RESET_EFFECT_KEEPS_OWNER
+/* SetShapeState, GetShapeState and SetShapeKind don't test the shape for NULL */
+#define MW2_SHAPE_ACCESSORS_UNCHECKED
+/* RandomIntBelow and RandomNormal set their table's index back to 0 at 127, where the later builds take it modulo
+   127 (RandomIntBelow2 and RandomNormal2 already do) */
+#define MW2_RANDOM_INDEX_RESET
 /* Mechs take heat from outside (Mech::m_externalHeat, which the radius damage adds to and
    CalculateHeat adds to the frame's heat) */
 #define MW2_EXTERNAL_HEAT

@@ -314,6 +314,7 @@ MechS32 PlaySample(
 // plays it only once, 0x1000 loops.
 // FUNCTION: MW2 0x1007e1cf
 // FUNCTION: MW2GBL 0x1003d345
+// FUNCTION: MW2PREMERCS 0x10067a45
 // FUNCTION: MW2MATROX 0x1008689b
 // FUNCTION: MW2S3 0x100358f0
 MechS32 StartSample(MechS32 p_id, void* p_data, MechU16 p_flags, MechS16 p_slot, MechS32* p_userData)

@@ -448,6 +448,7 @@ void FreeShape(Shape* p_shape)
 
 // FUNCTION: MW2 0x1003acbe
 // FUNCTION: MW2GBL 0x10040f2a
+// FUNCTION: MW2PREMERCS 0x1005be9a
 // FUNCTION: MW2MATROX 0x100282ef
 // FUNCTION: MW23DFX 0x10029800
 // FUNCTION: MW2ATI 0x10029460
@@ -455,9 +456,13 @@ void FreeShape(Shape* p_shape)
 // FUNCTION: MW2POWERVR 0x10026300
 void SetShapeState(Shape* p_shape, MechS32 p_flags)
 {
+#ifdef MW2_SHAPE_ACCESSORS_UNCHECKED
+	p_shape->m_flags = (p_shape->m_flags & ~0x7ef0) | (p_flags & 0x7ef0) | 0x8000;
+#else
 	if (p_shape) {
 		p_shape->m_flags = (p_shape->m_flags & ~0x7ef0) | (p_flags & 0x7ef0) | 0x8000;
 	}
+#endif
 }
 
 #ifdef MW2_POWERVR
@@ -474,6 +479,7 @@ void SetShapeDamageLevel(Shape* p_shape, MechU16 p_level)
 
 // FUNCTION: MW2 0x1003acf7
 // FUNCTION: MW2GBL 0x10040f63
+// FUNCTION: MW2PREMERCS 0x1005bec9
 // FUNCTION: MW2MATROX 0x10028328
 // FUNCTION: MW23DFX 0x10029820
 // FUNCTION: MW2ATI 0x10029480
@@ -481,16 +487,21 @@ void SetShapeDamageLevel(Shape* p_shape, MechU16 p_level)
 // FUNCTION: MW2POWERVR 0x10026340
 MechU32 GetShapeState(Shape* p_shape)
 {
+#ifdef MW2_SHAPE_ACCESSORS_UNCHECKED
+	return p_shape->m_flags & 0x7ef0;
+#else
 	if (p_shape) {
 		return p_shape->m_flags & 0x7ef0;
 	}
 	else {
 		return 0;
 	}
+#endif
 }
 
 // FUNCTION: MW2 0x1003ad2d
 // FUNCTION: MW2GBL 0x10040f99
+// FUNCTION: MW2PREMERCS 0x1005bee9
 // FUNCTION: MW2MATROX 0x1002835e
 // FUNCTION: MW23DFX 0x10029830
 // FUNCTION: MW2ATI 0x10029490
@@ -498,9 +509,13 @@ MechU32 GetShapeState(Shape* p_shape)
 // FUNCTION: MW2POWERVR 0x10026350
 void SetShapeKind(Shape* p_shape, MechS32 p_kind)
 {
+#ifdef MW2_SHAPE_ACCESSORS_UNCHECKED
+	p_shape->m_kind = p_kind;
+#else
 	if (p_shape) {
 		p_shape->m_kind = p_kind;
 	}
+#endif
 }
 
 // FUNCTION: MW2 0x1003ad4c
