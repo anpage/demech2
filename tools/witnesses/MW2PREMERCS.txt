@@ -71,10 +71,10 @@
 0x10028c4a GetObjectiveTargetState objective.c rename index=zqad kind=zqae player=zqaf thing=zqag
 0x10028d06 HasTeamReachedTarget objective.c rename index=zqad kind=zqae nav=zqai player=zqag reached=zqaf thing=zqah
 0x10028e5b IsTeamNearTarget objective.c rename index=zqae kind=zqaf leader=zqad nav=zqam radius=zqal target=zqag thing=zqah x=zqai y=zqaj z=zqak
-0x10029211 ChooseNetworkWinner objective.c pad 9 rename best=zqae deathmatch=zqam i=zqah listed=zqao mission=zqaj objective=zqad player=zqai score=zqal secondary=zqan team=zqaf victim=zqak winner=zqag
+0x10029211 ChooseNetworkWinner objective.c pad 8 rename best=zqae deathmatch=zqam i=zqah listed=zqao mission=zqaj objective=zqad player=zqai score=zqal secondary=zqan team=zqaf victim=zqak winner=zqag
 0x10029578 TestObjectiveCondition objective.c rename kind=zqah objective=zqad other=zqaf star=zqae state=zqag
-0x10029664 ObjectiveConditionsHold objective.c pad 10 rename all=zqad holds=zqah i=zqag objective=zqae result=zqaf
-0x10029792 UpdateObjective objective.c pad 1 rename alive=zqaj done=zqad expired=zqaf failTarget=zqam i=zqag j=zqap lost=zqal objective=zqae reset=zqan restartTarget=zqaa restarted=zqao state=zqai succeedTarget=zqab untouched=zqah won=zqak
+0x10029664 ObjectiveConditionsHold objective.c pad 9 rename all=zqad holds=zqah i=zqag objective=zqae result=zqaf
+0x10029792 UpdateObjective objective.c rename alive=zqaj done=zqad expired=zqaf failTarget=zqam i=zqag j=zqap lost=zqal objective=zqae reset=zqan restartTarget=zqaa restarted=zqao state=zqai succeedTarget=zqab untouched=zqah won=zqak
 0x1002aa40 EndTheMission2 objective.c rename count=zqad file=zqah i=zqae mission=zqaf result=zqag
 0x1002aca3 RestartStarMission objective.c rename i=zqae mission=zqaf objective=zqad
 0x1002ad70 GetTeamHomeTarget objective.c rename i=zqad mission=zqae
@@ -123,25 +123,28 @@
 0x100353dd IsPointInFaceYZ collision.c rename count=zqad i=zqah indices=zqag left=zqal offset=zqaj prev=zqae right=zqai sides=zqaf vertex=zqak
 0x10035760 SetGridObject gridobject.c pad 1 rename count=zqaj depth=zqad maxX=zqak maxZ=zqal minX=zqae minZ=zqag model=zqaf span=zqai vertex=zqah
 0x100367c0 DrawMechViewFrame mechviewpanel.c rename target=zqae x=zqad y=zqaf
-0x10036ac0 FirstAI ai.c pad 9
+0x10036ac0 FirstAI ai.c pad 8
 0x100371fc RunAIRules ai.c rename arg=zqag i=zqah posted=zqaf rule=zqae target=zqad valid=zqai
-0x100373c7 CollectAIRules ai.c pad 1 rename count=zqal found=zqak i=zqag j=zqaj pos=zqai rule=zqae ruleCount=zqad script=zqah skip=zqaf
-0x10037619 FindAIName ai.c pad 8
+0x100373c7 CollectAIRules ai.c rename count=zqal found=zqak i=zqag j=zqaj pos=zqai rule=zqae ruleCount=zqad script=zqah skip=zqaf
+0x10037619 FindAIName ai.c pad 7
 0x10037da7 FUN_10037da7 ai.c rename roll=zqae scale=zqad sign=zqaf
-0x10038035 LogPlayerSkillLines ai.c pad 9 rename color=zqag i=zqaf line=zqae player=zqad
+0x10038035 LogPlayerSkillLines ai.c pad 8 rename color=zqag i=zqaf line=zqae player=zqad
 0x1003810f GetPointDistance ai.c rename distance=zqae unused=zqad
-0x10038162 ChooseTeamLeader ai.c pad 14 rename count=zqag i=zqae leader=zqad member=zqai members=zqaf newLeader=zqah
-0x100389af AiMessageProx ai.c pad 10 rename limit=zqag nearest=zqae nearestTarget=zqah result=zqaf target=zqad
-0x10038d52 FindNearestTarget ai.c pad 2 rename blocker=zqai closer=zqan count=zqam i=zqah member=zqag members=zqal mission=zqae nearest=zqaj objective=zqak target=zqad type=zqaf
+0x10038162 ChooseTeamLeader ai.c pad 13 rename count=zqag i=zqae leader=zqad member=zqai members=zqaf newLeader=zqah
+0x10038765 RetargetGoals ai.c rename i=zqad player=zqae
+0x100389af AiMessageProx ai.c pad 9 rename limit=zqag nearest=zqae nearestTarget=zqah result=zqaf target=zqad
+0x10038d52 FindNearestTarget ai.c pad 1 rename blocker=zqai closer=zqan count=zqam i=zqah member=zqag members=zqal mission=zqae nearest=zqaj objective=zqak target=zqad type=zqaf
 0x1003953a FindAttacker ai.c rename i=zqae index=zqad players=zqaf
+0x10039768 GetApproachThrottle ai.c pad 1
 0x100398e8 SteerToTarget ai.c rename degrees=zqaf delta=zqad scaled=zqae
 0x10039f5e NextTarget ai.c rename home=zqaf index=zqae result=zqad
 0x1003a2f8 IsTargetDone ai.c rename flags=zqah index=zqad mask=zqae result=zqaf type=zqag
 0x1003a55e HasAIState ai.c rename i=zqad j=zqaf script=zqae
 0x1003a7c4 PlacePatrolNavs ai.c rename found=zqaj index=zqad nav=zqal owner=zqag player=zqak range=zqae x=zqaf y=zqah z=zqai
+0x1003a9a3 AdvanceNavTarget ai.c pad 1
 0x1003aa06 PlaceFormationNav ai.c rename heading=zqae nav=zqag x=zqad z=zqaf
-0x1003aac3 RecordAttack ai.c pad 3 rename line=zqae player=zqad
-0x1003ac40 FindStarSlotPlayer ai.c pad 11 rename i=zqaf local=zqad player=zqae
+0x1003aac3 RecordAttack ai.c pad 9 rename line=zqae player=zqad
+0x1003ac40 FindStarSlotPlayer ai.c pad 9 rename i=zqaf local=zqad player=zqae
 0x1003acfb OrderPlayers ai.c rename player=zqae skipped=zqad target=zqaf
 0x1003ae9d OrderStarSlot ai.c rename index=zqaf local=zqad speech=zqae target=zqag
 0x1003b62c GetTeamMembers ai.c rename count=zqag i=zqaf mask=zqah player=zqae team=zqad
@@ -153,15 +156,17 @@
 0x1003d03c PushDebrisPiece debris.c pad 5 rename length=zqad piece=zqaf speed=zqae
 0x1003d27d FindDebrisPiece debris.c rename i=zqae index=zqad
 0x1003d2dc DamageChunksInRadius debris.c pad 4 rename chunk=zqam dx=zqai dy=zqak dz=zqal i=zqaf radius=zqae reach=zqad x=zqag y=zqah z=zqaj
-0x1003e41c DestroySectionSlots mechdamage.c pad 1 rename count=zqaf i=zqad section=zqae
+0x1003e41c DestroySectionSlots mechdamage.c rename count=zqaf i=zqad section=zqae
 0x1003fdad GetTextWidth statuspanels.c rename c=zqad width=zqae
 0x10041719 UpdateAllPlayers players.c pad 4
 0x10041787 LateUpdateAllPlayers players.c pad 4
 0x100418ab ShutdownAllPlayers players.c pad 4 rename i=zqae shutdown=zqad
+0x10041e85 SetTeamFormationByName team.c pad 1
 0x10042046 SetTeamLeader team.c rename dx=zqah dz=zqaf i=zqae player=zqag result=zqad
 0x1004216e PlaceTeam team.c rename heading=zqah i=zqaj leader=zqaf player=zqag result=zqad x=zqai z=zqae
 0x100422ae GetTeamSlotPosition team.c rename leader=zqae matrix=zqaf obj=zqag slot=zqad team=zqai y=zqah
 0x1004241f AssignTeamSlots team.c rename i=zqaf leader=zqah player=zqae slot=zqag team=zqad
+0x100425cd OnSameSide team.c pad 1
 0x10045d3e CreateMech mechclass.c rename buffer=zqad i=zqae mech=zqag size=zqaf
 0x10045df5 InitMechArrays mechclass.c rename bin=zqad bins=zqaf i=zqag sections=zqai slot=zqae weapons=zqah
 0x10047198 BreakUpMech fadepal.c rename lower=zqae lowerIndex=zqah obj=zqaf objIndex=zqag upper=zqai upperIndex=zqad
@@ -178,7 +183,7 @@
 0x10049de4 TargetNearestEnemy targeting.c pad 1 rename autopilot=zqad best=zqag bestDistance=zqaj distance=zqai player=zqaf saved=zqah target=zqae
 0x1004b8b5 DrawWeaponPanelStartup weaponpanel.c rename clock=zqaf font=zqag mech=zqae weapon=zqad
 0x1004c257 ChooseManeuver maneuvers.c rename choice=zqae index=zqad mech=zqag table=zqaf
-0x1004c59d FindManeuver maneuvers.c pad 6
+0x1004c59d FindManeuver maneuvers.c pad 5
 0x1004cbf8 PlaceOffsetNav maneuvers.c rename nav=zqag x=zqad y=zqae z=zqaf
 0x1004cca5 GetOffsetPoint maneuvers.c rename index=zqad matrix=zqaf obj=zqag thing=zqae y=zqah
 0x1004d130 ManeuverAchick maneuvers.c rename heading=zqae result=zqaf scale=zqad
@@ -190,7 +195,7 @@
 0x1004dbb2 BrakeFall maneuvers.c rename mech=zqad value=zqae
 0x1004dcda AvoidObstacles maneuvers.c rename hit=zqae i=zqah length=zqad mech=zqag ray=zqaf throttle=zqaj turn=zqai
 0x1004e33f GetAvoidSide maneuvers.c rename distance=zqaf dx=zqai dy=zqaj dz=zqad heading=zqag length=zqah unused=zqae
-0x1004e449 ClampMagnitude maneuvers.c pad 9
+0x1004e449 ClampMagnitude maneuvers.c pad 8
 0x1004e489 HasLineToTarget maneuvers.c rename flags=zqad hit=zqaf ray=zqag target=zqae
 0x1004e5bd IsOutOfAmmo maneuvers.c rename found=zqaf i=zqad slot=zqae
 0x1004e89a GetTargetShape maneuvers.c rename id=zqae index=zqad obj=zqaf
@@ -231,6 +236,7 @@
 0x10056c8c FreeStaticObjectTree geocache.c rename entry=zqag i=zqaf result=zqad thing=zqae
 0x10056fb0 FindResourceIdByName resourcename.c rename c=zqaj entry=zqah header=zqae i=zqai j=zqad name=zqak result=zqaf table=zqag
 0x100570f2 LoadResourceByRef resourcename.c rename data=zqah fromResource=zqae handle=zqaf id=zqag loaded=zqad name=zqai
+0x10057d94 GetClassObject classtable.c pad 4
 0x100583c5 InitSlopeTables clockmath.c rename cosine=zqae i=zqad
 0x10058538 BuildMatrixFromDirection clockmath.c rename pitch=zqad yaw=zqae
 0x1005ade0 IsAboveHorizon horizon.c rename a=zqad b=zqae c=zqag d=zqaf e=zqah offsetX=zqai offsetY=zqaj
@@ -314,7 +320,7 @@
 0x1006b492 ElectMaster network.c pad 7
 0x1006b940 IsInsideWindow mouse.c pad 11
 0x1006c687 TypedCodeMatches gamekeys.c rename c=zqaf n=zqae typed=zqad
-0x1006c6fe DecodeCheatMessages gamekeys.c pad 10 rename i=zqaf j=zqag length=zqae message=zqad
+0x1006c6fe DecodeCheatMessages gamekeys.c pad 9 rename i=zqaf j=zqag length=zqae message=zqad
 0x1006c7e6 HandleCheatInput gamekeys.c rename target=zqad victim=zqae
 0x1006ce5a HandleChatKey gamekeys.c rename c=zqae text=zqad to=zqaf
 0x1006e900 ProcessCmdLineArgs cmdline.c rename arg=zqae rate=zqag result=zqad value=zqaf
@@ -360,6 +366,7 @@
 0x10075ee0 InitRandom random.c rename i=zqaf j=zqag range=zqah scale=zqae sum=zqad
 0x10076179 CloseMw2Log mw2log.c rename line=zqae now=zqad
 0x10078c28 LoadWorld world.c rename buffer=zqai i=zqag key=zqae keyData=zqah result=zqaf stream=zqad
+0x10078dbf AfterWorldLoader world.c rename i=zqae obj=zqad
 0x10078f60 AddBwdName bwdnames.c rename node=zqae result=zqad
 0x1007900e FindBwdName bwdnames.c pad 15 rename found=zqad node=zqae
 0x10079df0 LoadMgdFile config.c rename cursor=zqaf data=zqae file=zqag size=zqad
@@ -377,11 +384,11 @@
 0x1007ce29 LoadShapes wtbshapes.c rename count=zqaf next=zqad shape=zqae
 0x1007d8c0 LoadMapBitmap resource.c rename count=zqae i=zqad record=zqaf
 0x1007db13 LoadPathTable resource.c rename count=zqah i=zqae index=zqaf record=zqag result=zqad
-0x1007dd5a LoadFormationTable resource.c rename count=zqah i=zqaf index=zqae record=zqag result=zqad
+0x1007dd5a LoadFormationTable resource.c pad 3 rename count=zqah i=zqaf index=zqae record=zqag result=zqad
 0x1007de71 ExecuteInclude resource.c rename buffer=zqai key=zqaf keyData=zqah ok=zqag record=zqaj result=zqad stream=zqae
 0x1007e173 RunIncludedStream resource.c rename buffer=zqaj id=zqah key=zqaf keyData=zqai record=zqag result=zqad stream=zqae
 0x1007e3dd GetTriangleNormal resource.c rename a=zqad b=zqae c=zqaf ux=zqag uy=zqah uz=zqai vx=zqaj vy=zqak vz=zqal
-0x1007e58d MapResourceId resource.c pad 4
+0x1007e58d MapResourceId resource.c pad 3
 0x1007ebb9 NextThingRecordObject resource.c rename id=zqad obj=zqae
 0x1007f69c SpawnShot weapons.c pad 9 rename dx=zqag dy=zqai dz=zqak found=zqaf i=zqam j=zqap result=zqad shot=zqae speed=zqao spread=zqan x=zqah y=zqaj z=zqal
 0x1007fb6b SelectNextWeaponInGroup weapons.c pad 1 rename def=zqag found=zqah group=zqae i=zqai index=zqad selected=zqaj slot=zqaf

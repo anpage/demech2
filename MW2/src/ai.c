@@ -1250,6 +1250,7 @@ MechS32 ChooseTeamLeader(MechS32 p_team)
 // player p_target instead.
 // FUNCTION: MW2 0x100521e0
 // FUNCTION: MW2GBL 0x100774ce
+// FUNCTION: MW2PREMERCS 0x10038765
 // FUNCTION: MW2MATROX 0x1008131f
 // FUNCTION: MW23DFX 0x100126d0
 // FUNCTION: MW2ATI 0x10012c30
@@ -2187,16 +2188,25 @@ MechScalar AimTorsoPan(Player* p_player, MechScalar p_angle, MechS32 p_delta)
 // The torso tilt towards the target, off by p_delta (AddClamped).
 // FUNCTION: MW2 0x10053954
 // FUNCTION: MW2GBL 0x10078c58
+// FUNCTION: MW2PREMERCS 0x100398b3
 // FUNCTION: MW2MATROX 0x10082b8f
 // FUNCTION: MW23DFX 0x100135d0
 // FUNCTION: MW2ATI 0x10013a60
 // FUNCTION: MW2S3 0x10016ce0
 // FUNCTION: MW2POWERVR 0x100129a0
+#ifdef MW2_TORSO_TILT_TAKES_PITCH
+MechScalar AimTorsoTilt(Player* p_player, MechScalar p_pitch, MechS32 p_delta)
+#else
 MechScalar AimTorsoTilt(Player* p_player, MechS32 p_delta)
+#endif
 {
 	MechScalar value;
 
+#ifdef MW2_TORSO_TILT_TAKES_PITCH
+	value = p_pitch / 0xf00;
+#else
 	value = p_player->m_targetInfo.m_pitch / 0xf00;
+#endif
 	return AddClamped(value, p_delta * 2, TRUE);
 }
 

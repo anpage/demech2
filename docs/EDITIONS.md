@@ -299,7 +299,7 @@ tests an `MW2_` macro the table doesn't define, and when no target compiles a br
 
 ## Features
 
-From the table in `util/types.h` (226 features) and the 1468 conditional sites of the simulators' sources (`MW2/`, `common/`, `3rdparty/vfx`). A feature's cell is its value where it has one.
+From the table in `util/types.h` (228 features) and the 1472 conditional sites of the simulators' sources (`MW2/`, `common/`, `3rdparty/vfx`). A feature's cell is its value where it has one.
 
 ### The ATI, S3, Matrox, PowerVR and 3Dfx editions (`MW2_ACCEL`)
 
@@ -653,6 +653,8 @@ Every edition that has one of these has them all, so no binary separates one fro
 | `MW2_DEBRIS_NOT_SHOWN` |  |  | yes |  |  |  |  |  | 1 | ScatterDebris throws its pieces without showing their objects |
 | `MW2_RETARGET_PLAYER_FLAG` |  |  | yes |  |  |  |  |  | 1 | Targeting at the reticle doesn't hand the steering to the autopilot for a player with bit 0 of Player::m_unk0x105 set (TargetAtReticle) |
 | `MW2_BANKING_PLAYER_TYPE` |  |  | yes |  |  |  |  |  | 3 | Players of a type 8 bank into their turns (FUN_10037d84 from UpdateAI) |
+| `MW2_TORSO_TILT_TAKES_PITCH` |  |  | yes |  |  |  |  |  | 4 | AimTorsoTilt takes the pitch it aims at, which its callers pass (the target's or another) |
+| `MW2_CLASS_ENTRY_UNK_MEMBER` |  |  | yes |  |  |  |  |  | 2 | The class table's entries have a member more (ClassEntry::m_unk0x44) |
 
 ## Where each feature is tested
 
@@ -882,6 +884,8 @@ Every edition that has one of these has them all, so no binary separates one fro
 - `MW2_DEBRIS_NOT_SHOWN`: `MW2/src/shots.c`: `ScatterDebris`
 - `MW2_RETARGET_PLAYER_FLAG`: `MW2/src/targeting.c`: `TargetAtReticle`
 - `MW2_BANKING_PLAYER_TYPE`: `MW2/src/ai.c`: `UpdateAI`, file scope, the definitions of `FUN_10037d84`, `FUN_10037da7`
+- `MW2_TORSO_TILT_TAKES_PITCH`: `MW2/include/ai.h`: file scope; `MW2/src/ai.c`: `AimTorsoTilt` (2); `MW2/src/aiweapons.c`: `RunAIWeapons`
+- `MW2_CLASS_ENTRY_UNK_MEMBER`: `MW2/include/classentry.h`: `ClassEntry`; `MW2/src/classtable.c`: file scope
 
 ## Functions with a definition per edition
 

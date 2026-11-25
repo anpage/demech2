@@ -86,6 +86,7 @@ MechS32 g_killCount = 0;
 // Set while the local player has been warned of critical heat (CalculateHeat).
 // GLOBAL: MW2 0x100a15a4
 // GLOBAL: MW2GBL 0x100a04c8
+// GLOBAL: MW2PREMERCS 0x100b1a38
 // GLOBAL: MW2MATROX 0x100a462c
 // GLOBAL: MW23DFX 0x1024bfd0
 // GLOBAL: MW2S3 0x100621d0
@@ -95,6 +96,7 @@ MechS32 g_criticalHeatWarned = 0;
 // When the warning was given.
 // GLOBAL: MW2 0x100bdff0
 // GLOBAL: MW2GBL 0x100b9118
+// GLOBAL: MW2PREMERCS 0x100caef0
 // GLOBAL: MW2MATROX 0x100c1e24
 // GLOBAL: MW23DFX 0x1007c310
 // GLOBAL: MW2S3 0x1007cab4

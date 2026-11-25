@@ -928,6 +928,10 @@ double __cdecl fabs(double);
 #define MW2_RETARGET_PLAYER_FLAG
 /* Players of a type 8 bank into their turns (FUN_10037d84 from UpdateAI) */
 #define MW2_BANKING_PLAYER_TYPE
+/* AimTorsoTilt takes the pitch it aims at, which its callers pass (the target's or another) */
+#define MW2_TORSO_TILT_TAKES_PITCH
+/* The class table's entries have a member more (ClassEntry::m_unk0x44) */
+#define MW2_CLASS_ENTRY_UNK_MEMBER
 /* Mechs take heat from outside (Mech::m_externalHeat, which the radius damage adds to and
    CalculateHeat adds to the frame's heat) */
 #define MW2_EXTERNAL_HEAT

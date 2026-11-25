@@ -113,7 +113,11 @@ extern "C"
 	MechScalar GetTargetRange(MechS16 p_target);
 	MechScalar GetApproachThrottle(struct Player* p_player, MechScalar p_range);
 	MechScalar AimTorsoPan(struct Player* p_player, MechScalar p_angle, MechS32 p_delta);
-	MechScalar AimTorsoTilt(struct Player* p_player, MechS32 p_delta);
+#ifdef MW2_TORSO_TILT_TAKES_PITCH
+	MechScalar AimTorsoTilt(struct Player* p_player, MechScalar p_pitch, MechS32 p_delta);
+#else
+MechScalar AimTorsoTilt(struct Player* p_player, MechS32 p_delta);
+#endif
 	MechScalar SteerToTarget(struct Player* p_player);
 	void LeaveAIState(struct Player* p_player);
 	void EnterAIState(struct Player* p_player, MechU16 p_state);

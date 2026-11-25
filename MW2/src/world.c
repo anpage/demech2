@@ -1506,6 +1506,7 @@ MechS32 LoadWorld(MechChar* p_name)
 // object's shape. In a network game, every player's team but the local one is on side 1.
 // FUNCTION: MW2 0x1000d4a6
 // FUNCTION: MW2GBL 0x10026acd
+// FUNCTION: MW2PREMERCS 0x10078dbf
 // FUNCTION: MW2MATROX 0x10048e04
 // FUNCTION: MW23DFX 0x1003f6f0
 // FUNCTION: MW2ATI 0x1003d450
