@@ -10,7 +10,22 @@ extern "C"
 {
 #endif
 
-	void FUN_10089624(MechScalar p_x, MechScalar p_y, MechScalar p_z, MechScalar p_dx, MechScalar p_dy, MechScalar p_dz);
+	void FUN_10088c5c(
+		MechScalar p_x,
+		MechScalar p_y,
+		MechScalar p_z,
+		MechScalar p_dx,
+		MechScalar p_dy,
+		MechScalar p_dz
+	);
+	void FUN_10089624(
+		MechScalar p_x,
+		MechScalar p_y,
+		MechScalar p_z,
+		MechScalar p_dx,
+		MechScalar p_dy,
+		MechScalar p_dz
+	);
 
 #ifdef __cplusplus
 }
