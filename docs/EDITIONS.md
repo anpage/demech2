@@ -298,7 +298,7 @@ tests an `MW2_` macro the table doesn't define, and when no target compiles a br
 
 ## Features
 
-From the table in `util/types.h` (212 features) and the 1440 conditional sites of the simulators' sources (`MW2/`, `common/`, `3rdparty/vfx`). A feature's cell is its value where it has one.
+From the table in `util/types.h` (212 features) and the 1439 conditional sites of the simulators' sources (`MW2/`, `common/`, `3rdparty/vfx`). A feature's cell is its value where it has one.
 
 ### The ATI, S3, Matrox, PowerVR and 3Dfx editions (`MW2_ACCEL`)
 
@@ -629,7 +629,7 @@ Every edition that has one of these has them all, so no binary separates one fro
 
 | Feature | 1.1 | ATI | Pre-Mercs | S3 | Matrox | PowerVR | GBL | 3Dfx | Sites | What it does |
 |---|:-:|:-:|:-:|:-:|:-:|:-:|:-:|:-:|--:|---|
-| `MW2_SHAPE_GRID` |  |  | yes |  |  |  |  |  | 26 | The scene's shapes are filed in a grid of 12 by 12 cells, 25000 units each, around the origin, each shape keeping its cell (Shape::m_gridX, m_gridZ; shapelists.c) |
+| `MW2_SHAPE_GRID` |  |  | yes |  |  |  |  |  | 25 | The scene's shapes are filed in a grid of 12 by 12 cells, 25000 units each, around the origin, each shape keeping its cell (Shape::m_gridX, m_gridZ; shapelists.c) |
 | `MW2_PLAYER_UNK_MEMBERS` |  |  | yes |  |  |  |  |  | 4 | Players have 0x46 bytes more than GBL's, in three places nothing decompiled reads yet (Player::m_unk0xe8, m_unk0x184, m_unk0x1a0) |
 | `MW2_MECH_UNK_MEMBERS` |  |  | yes |  |  |  |  |  | 4 | Mechs, their weapon slots and their ammunition bins have 0x8f, 0xc and 8 bytes more than GBL's, at their ends (Mech::m_unk0x114, WeaponSlot::m_unk0x68, AmmoBin::m_unk0x14) |
 | `MW2_COCKPIT_PANEL_UNK_MEMBERS` |  |  | yes |  |  |  |  |  | 6 | Cockpit panels are 0xf0 bytes, their text origin first and a member and a setter of their own (CockpitPanel::m_unk0x34, m_unk0x9c, m_unk0xcc) |
@@ -844,7 +844,7 @@ Every edition that has one of these has them all, so no binary separates one fro
 - `MW2_SOUND_INFO_FILL_MINUS_ONE`: `MW2/src/soundlimits.c`: `InitSoundInfo`
 - `MW2_DDRAW_STOP_KEEPS_MODE`: `MW2/src/directdraw.c`: `DdrawStop`
 - `MW2_REMOTE_MECHS_STAY`: `MW2/src/mechclass.c`: `UpdateMech`
-- `MW2_SHAPE_GRID`: `MW2/include/object.h`: file scope; `MW2/include/shape.h`: `Shape`; `MW2/include/shapelists.h`: file scope (4); `MW2/src/object.c`: `UpdateObjTree` (2), the definition of `UpdateObj`; `MW2/src/shapelists.c`: `AddSceneShape` (3), `EnableShapeCollision`, `FreeSceneShapes`, `InitShapeLists` (2), `ShowDensityShapes` (2), `ShowShape` (2), `UnlinkShape`, file scope (3), the definitions of `DisableShapeGrid`, `EnableShapeGrid`, `InitShapeGridNeighbours`, `ListAllShapeGridCells`, `ListShapeGridCellsAhead`, `ListShapeGridCellsAround`, the definitions of `GetShapeGridHead`, `GetShapeGridList`, `MoveObjTreeOffGrid`, `MoveObjTreeToCell`, `UpdateShapeGridCell`
+- `MW2_SHAPE_GRID`: `MW2/include/object.h`: file scope; `MW2/include/shape.h`: `Shape`; `MW2/include/shapelists.h`: file scope (4); `MW2/src/object.c`: the definition of `UpdateObj`, the definitions of `UpdateObj`, `UpdateObjTree`; `MW2/src/shapelists.c`: `AddSceneShape` (3), `EnableShapeCollision`, `FreeSceneShapes`, `InitShapeLists` (2), `ShowDensityShapes` (2), `ShowShape` (2), `UnlinkShape`, file scope (3), the definitions of `DisableShapeGrid`, `EnableShapeGrid`, `InitShapeGridNeighbours`, `ListAllShapeGridCells`, `ListShapeGridCellsAhead`, `ListShapeGridCellsAround`, the definitions of `GetShapeGridHead`, `GetShapeGridList`, `MoveObjTreeOffGrid`, `MoveObjTreeToCell`, `UpdateShapeGridCell`
 - `MW2_PLAYER_UNK_MEMBERS`: `MW2/include/players.h`: `Player` (3); `MW2/src/ai.c`: file scope
 - `MW2_MECH_UNK_MEMBERS`: `MW2/include/ammobin.h`: `AmmoBin`; `MW2/include/mech.h`: `Mech`; `MW2/include/weaponslot.h`: `WeaponSlot`; `MW2/src/mechclass.c`: file scope
 - `MW2_COCKPIT_PANEL_UNK_MEMBERS`: `MW2/include/cockpitpanel.h`: `CockpitPanel` (2), file scope; `MW2/src/cockpitpanel.c`: `InitCockpitPanel`, file scope, the definition of `FUN_1005360a`
