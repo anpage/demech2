@@ -129,14 +129,30 @@ class LineFunction:
 
 # The edition macros each target defines (vc40/targets.cmake, vc22/targets.cmake), and the
 # features util/types.h defines for them: they decide which of a function's #ifdef'd definitions
-# a by-name marker names.
+# a by-name marker names. They come from the tree the annotations are read from, which needn't
+# be the tools' own (the retail verify runs the base branch's tools on a PR's tree, whose
+# util/types.h can have features the base branch's lacks).
+_TREE_DEFINES = {}
+
+
+def tree_defines(root=ROOT):
+    """({target: the macros and features it defines}, the macros and features that decide an
+    #ifdef) of the source tree at `root`, from its util/types.h."""
+    key = Path(root).resolve()
+    if key not in _TREE_DEFINES:
+        features = edition_features(key)
+        names = tuple(dict.fromkeys(f for m in EDITION_MACROS for f in features[m]))
+        defines = {
+            target: set(macros) | {f for m in macros for f in features[m]}
+            for target, macros in ((name, t["macros"]) for name, t in MANIFEST.items() if t["macros"])
+        }
+        _TREE_DEFINES[key] = (defines, set(EDITION_MACROS) | set(names))
+    return _TREE_DEFINES[key]
+
+
 EDITION_FEATURES = edition_features()
 FEATURES = tuple(dict.fromkeys(f for m in EDITION_MACROS for f in EDITION_FEATURES[m]))
-EDITION_DEFINES = {
-    target: set(macros) | {f for m in macros for f in EDITION_FEATURES[m]}
-    for target, macros in ((name, t["macros"]) for name, t in MANIFEST.items() if t["macros"])
-}
-DECIDED = set(EDITION_MACROS) | set(FEATURES)
+EDITION_DEFINES, DECIDED = tree_defines()
 BLANKED = re.compile(r"//[^\n]*|/\*.*?\*/|\"(?:\\.|[^\"\\\n])*\"|'(?:\\.|[^'\\\n])*'", re.S)
 CONDITIONAL = re.compile(r"\s*#\s*(ifdef|ifndef|if|elif|else|endif)\b(.*)")
 
@@ -146,10 +162,13 @@ def code_only(text):
     return BLANKED.sub(lambda m: re.sub(r"[^\n]", " ", m.group()), text)
 
 
-def active_lines(text, defines):
+def active_lines(text, defines, decided=None):
     """Per line (0-based), whether the line is compiled: an #ifdef, #ifndef or #if [!]defined() of
-    an edition macro or a feature, or #if 0 or 1, decides by `defines`; any other condition takes its first
-    branch (so that each function's braces are counted once, as a consistent build sees them)."""
+    an edition macro or a feature (`decided`: the tools' own tree's by default), or #if 0 or 1, decides by
+    `defines`; any other condition takes its first branch (so that each function's braces are counted once,
+    as a consistent build sees them)."""
+    if decided is None:
+        decided = DECIDED
     out, stack = [], []  # per open #if: (this branch is active, a branch was taken)
     for line in text.split("\n"):
         m = CONDITIONAL.match(line)
@@ -160,7 +179,7 @@ def active_lines(text, defines):
                 macro = rest.split()[0] if kind != "if" and rest else c and (c.group(2) or c.group(3))
                 if kind == "if" and rest in ("0", "1"):
                     value = rest == "1"
-                elif macro in DECIDED:
+                elif macro in decided:
                     value = (macro in defines) != (kind == "ifndef" or bool(c and c.group(1)))
                 else:
                     value = True
@@ -176,10 +195,10 @@ def active_lines(text, defines):
     return out
 
 
-def compiled_code(text, defines=()):
+def compiled_code(text, defines=(), decided=None):
     """The text as definition_lines reads it: comments, strings and the lines the preprocessor
     skips blanked (see active_lines)."""
-    active = active_lines(text, set(defines))
+    active = active_lines(text, set(defines), decided)
     return "\n".join(line if on else " " * len(line) for line, on in zip(code_only(text).split("\n"), active))
 
 
@@ -254,7 +273,8 @@ class Annotations:
         # it like any other (its file's lines are what witness records rename).
         sources = [p for p in files if p.suffix.lower() in (".c", ".cpp")]
         texts, codes = {}, {}
-        defines = EDITION_DEFINES.get(target, ())
+        tree_target_defines, decided = tree_defines(root)
+        defines = tree_target_defines.get(target, ())
         for name, markers in self.by_name.items():
             if name in self.functions or len(markers) != 1 or not re.match(r"[A-Za-z_]\w*$", name):
                 continue
@@ -265,7 +285,7 @@ class Annotations:
                 if name not in texts[path]:
                     continue
                 if path not in codes:
-                    codes[path] = compiled_code(texts[path], defines)
+                    codes[path] = compiled_code(texts[path], defines, decided)
                 definitions += [(path, lines) for lines in definition_lines(texts[path], name, defines, codes[path])]
             if len(definitions) == 1:
                 path, (first, last) = definitions[0]
