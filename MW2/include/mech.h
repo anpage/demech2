@@ -75,7 +75,11 @@ typedef struct Mech {
 	MechU16 m_unk0x112; // 0x112 — bit 0: hit by a NARC shot (UpdateShot)
 #endif
 #ifdef MW2_MECH_UNK_MEMBERS
-	undefined m_unk0x114[0x8f]; // 0x114
+	undefined m_unk0x114[0x120 - 0x114]; // 0x114
+	MechS32 m_unk0x120;                  // 0x120 — set at random when a leg goes (DestroySectionEx)
+	undefined m_unk0x124[0x13c - 0x124]; // 0x124
+	MechS32 m_headHits;                  // 0x13c — head hits that shut the mech down instead (DestroySection)
+	undefined m_unk0x140[0x1a3 - 0x140]; // 0x140
 #endif
 } Mech;
 

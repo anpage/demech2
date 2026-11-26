@@ -299,7 +299,7 @@ tests an `MW2_` macro the table doesn't define, and when no target compiles a br
 
 ## Features
 
-From the table in `util/types.h` (256 features) and the 1590 conditional sites of the simulators' sources (`MW2/`, `common/`, `3rdparty/vfx`). A feature's cell is its value where it has one.
+From the table in `util/types.h` (261 features) and the 1601 conditional sites of the simulators' sources (`MW2/`, `common/`, `3rdparty/vfx`). A feature's cell is its value where it has one.
 
 ### The ATI, S3, Matrox, PowerVR and 3Dfx editions (`MW2_ACCEL`)
 
@@ -652,7 +652,7 @@ Every edition that has one of these has them all, so no binary separates one fro
 | `MW2_NETWORK_KEEPS_DAMAGE_RULES` |  |  | yes |  |  |  |  |  | 1 | A network game keeps the difficulty file's heat tracking, ammunition and damage settings (LoadDifficultyCfg doesn't force them) |
 | `MW2_SATELLITE_KIND_FOUR_BITS` |  |  | yes |  |  |  |  |  | 1 | SatelliteDrawPolygon takes a polygon's kind from bits 12-15 of its flags, not 12-14, as the 3D editions do |
 | `MW2_RELOAD_RESETS_TORSO` |  |  | yes |  |  |  |  |  | 3 | ReloadPlayerMech presses the torso's reset buttons and clears the mech's NARC mark (Mech::m_unk0x112), and copies its fourth argument over its third |
-| `MW2_NAV_TARGET_KEPT` |  |  | yes |  |  |  |  |  | 5 | A player keeps a second target, the nav point TargetNavPoint last targeted and CycleTarget chose (Player::m_navTargetInfo), which the local player's autopilot steers for (GetTargetBearing), and retargeting hands the steering to the autopilot only while it has none (CycleTarget, TargetAtReticle) |
+| `MW2_NAV_TARGET_KEPT` |  |  | yes |  |  |  |  |  | 6 | A player keeps a second target, the nav point TargetNavPoint last targeted and CycleTarget chose (Player::m_navTargetInfo), which the local player's autopilot steers for (GetTargetBearing), and retargeting hands the steering to the autopilot only while it has none (CycleTarget, TargetAtReticle) |
 | `MW2_AIM_AT_FEET` |  |  | yes |  |  |  |  |  | 1 | A player with Player::m_unk0x1b4 1 targets a mech at its feet: its object's origin less its height (TargetGamePiece) |
 | `MW2_STAR_QUEUES_TARGET` |  |  | yes |  |  |  |  |  | 1 | AssignStarObjective queues the members' state with the objective's target (the leader they follow), not 2 |
 | `MW2_LEAVE_STATE_STOPS_GROUP_FIRE` |  |  | yes |  |  |  |  |  | 1 | LeaveAIState releases the group fire button too (PlayerSteering::m_weaponFireGroup) |
@@ -661,6 +661,11 @@ Every edition that has one of these has them all, so no binary separates one fro
 | `MW2_LOCK_BOXES` |  |  | yes |  |  |  |  |  | 12 | A box closes in on the local player's new target, turning as it shrinks and trailed by two more, before the brackets show (UpdateLockBox, hud.c); the HUD marks the nav target too (DrawNavTargetMarker) |
 | `MW2_TILED_SKY` |  |  | yes |  |  |  |  |  | 13 | The software renderer textures the sky and the ground (skygnd.par: LoadSkyGroundSettings, DrawSkyQuad, DrawGroundQuad, as the accelerated editions do), clipping their quads to depths (ClipPolygonDepth) |
 | `MW2_SCALED_GAUGE_ELLIPSES` |  |  | yes |  |  |  |  |  | 2 | The gauge ellipse can be drawn and filled at a percentage of its pane (DrawScaledGaugeEllipse) |
+| `MW2_QUIET_MECH_RECORDS` |  |  | yes |  |  |  |  |  | 2 | RememberLoadMech and RememberMechSegments don't log a player index out of range |
+| `MW2_PART_TREES` |  |  | yes |  |  |  |  |  | 3 | An object turns about a point of its own (RotateObjAbout), and a part's objects can be destroyed with their children (DestroyPartTree, object.c) |
+| `MW2_HEAD_SHUTDOWN` |  |  | yes |  |  |  |  |  | 2 | A hit to the head of an AI player's mech shuts it down its first ten times (Mech::m_headHits), and a leg's first loss cripples an AI mech 95 times in 100 (DestroySection, DestroySectionEx) |
+| `MW2_LANCEMATE_VOICES` |  |  | yes |  |  |  |  |  | 3 | The lancemates acknowledge orders and report kills in voices of their own (g_lancemateVoices, SayLancemateAck, SayLancemateKill) |
+| `MW2_LOCAL_STAR_UNSET` |  |  | yes |  |  |  |  |  | 1 | The local star starts at -1, as 1.1's does (g_localStar), though the stars count from 0 (MW2_LOCAL_STAR_FROM_ZERO) |
 | `MW2_CLAN_AND_IS_WEAPONS` |  |  | yes |  |  |  |  |  | 2 | The weapons are the Clans' (GBL's, renamed and retuned) and 31 of the Inner Sphere (WEAPON_DEF_COUNT 66, g_weaponDefs) |
 | `MW2_SHOT_TRACERS` |  |  | yes |  |  |  |  |  | 4 | SpawnShot fires with no ammunition left under the unlimited-ammunition cheat, and starts a tracer ahead of each machine-gun shot (premercs/tracers.c) |
 | `MW2_SHOT_OWNS_EFFECT` |  |  | yes |  |  |  |  |  | 5 | A shot's effect belongs to its shooter, as 1.1's does: DetonateShot takes no owner (UpdateShot) |
@@ -911,7 +916,7 @@ Every edition that has one of these has them all, so no binary separates one fro
 - `MW2_NETWORK_KEEPS_DAMAGE_RULES`: `MW2/src/config.c`: `LoadDifficultyCfg`
 - `MW2_SATELLITE_KIND_FOUR_BITS`: `MW2/src/cockpit.c`: `SatelliteDrawPolygon`
 - `MW2_RELOAD_RESETS_TORSO`: `MW2/src/mechreload.c`: `ReloadPlayerMech` (3)
-- `MW2_NAV_TARGET_KEPT`: `MW2/src/ai.c`: `GetTargetBearing`; `MW2/src/targeting.c`: `CycleTarget` (2), `TargetAtReticle`, `TargetNavPoint`
+- `MW2_NAV_TARGET_KEPT`: `MW2/src/ai.c`: `GetTargetBearing`; `MW2/src/mechdamage.c`: file scope; `MW2/src/targeting.c`: `CycleTarget` (2), `TargetAtReticle`, `TargetNavPoint`
 - `MW2_AIM_AT_FEET`: `MW2/src/targeting.c`: `TargetGamePiece`
 - `MW2_STAR_QUEUES_TARGET`: `MW2/src/ai.c`: `AssignStarObjective`
 - `MW2_LEAVE_STATE_STOPS_GROUP_FIRE`: `MW2/src/ai.c`: `LeaveAIState`
@@ -920,6 +925,11 @@ Every edition that has one of these has them all, so no binary separates one fro
 - `MW2_LOCK_BOXES`: `MW2/include/hud.h`: file scope; `MW2/include/polydraw.h`: file scope; `MW2/src/hud.c`: `DrawObjectBrackets` (3), `DrawPlayerBrackets` (2), `DrawTargetMarker`, `InitHudGauges`, file scope (2), the definitions of `DrawLockBox`, `DrawNavTargetMarker`, `RotateHudPoint`, `UpdateLockBox`
 - `MW2_TILED_SKY`: `MW2/include/animation.h`: file scope (2); `MW2/include/depthsort.h`: file scope; `MW2/include/objectanim.h`: file scope; `MW2/include/polydraw.h`: file scope (2); `MW2/src/animation.c`: the definition of `FUN_10051dfe`; `MW2/src/depthsort.c`: the definitions of `ClipPolygonToScreen`, `ClipPolygonToScreenEdges`; `MW2/src/faceprojection.c`: the definition of `ClipEdgeToFarPlane`; `MW2/src/polydraw.c`: file scope (3), the definitions of `ClipPolygonDepth`, `DrawFaceFlat`, `DrawGroundQuad`, `DrawSkyQuad`, `DrawTiledPolygon`, `FUN_10059503`, `LoadSkyGroundSettings`, `ReadTextLine`
 - `MW2_SCALED_GAUGE_ELLIPSES`: `MW2/include/screenscale.h`: file scope; `MW2/src/screenscale.c`: the definitions of `DrawScaledGaugeEllipse`, `FillScaledGaugeEllipse`
+- `MW2_QUIET_MECH_RECORDS`: `MW2/src/mechreload.c`: `RememberLoadMech`, `RememberMechSegments`
+- `MW2_PART_TREES`: `MW2/include/object.h`: file scope; `MW2/src/object.c`: the definitions of `DestroyObjPart`, `DestroyPartObjects`, `DestroyPartTree`, the definitions of `MultiplyObjMatrix`, `RotateObjAbout`
+- `MW2_HEAD_SHUTDOWN`: `MW2/include/mechdamage.h`: file scope; `MW2/src/mechdamage.c`: the definitions of `DestroySection`, `DestroySectionEx`
+- `MW2_LANCEMATE_VOICES`: `MW2/include/speech.h`: file scope; `MW2/src/speech.c`: file scope, the definitions of `SayLancemateAck`, `SayLancemateKill`, `SayLancemateName`, `SayLancemateReport`
+- `MW2_LOCAL_STAR_UNSET`: `MW2/src/team.c`: file scope
 - `MW2_CLAN_AND_IS_WEAPONS`: `MW2/include/weapondata.h`: file scope; `MW2/src/weapondata.c`: file scope
 - `MW2_SHOT_TRACERS`: `MW2/src/shots.c`: `UpdateShot`, file scope; `MW2/src/weapons.c`: file scope, the definition of `SpawnShot`
 - `MW2_SHOT_OWNS_EFFECT`: `MW2/include/shots.h`: file scope; `MW2/src/shots.c`: `DetonateShot` (2), `UpdateShot` (2)
@@ -966,6 +976,7 @@ Where an edition's version of a function differs in its control flow or in more 
 | `DdrawWritePaletteGamma` | `MW2/src/directdraw.c` | `defined(MW2_DDRAW_PALETTE_UNSET)` | ATI, S3 and PowerVR; 1.1, Pre-Mercs and GBL |
 | `DecideAIFire` | `MW2/src/aiweapons.c` | `defined(MW2_PILOT_TABLE)` | Pre-Mercs and GBL; 1.1, ATI, S3, Matrox, PowerVR and 3Dfx |
 | `DestroyMech` | `MW2/src/mechdamage.c` | `defined(MW2_DESTROY_BLOWS_FIRST_BIN)` | GBL; 1.1, ATI, Pre-Mercs, S3, Matrox, PowerVR and 3Dfx |
+| `DestroySection` | `MW2/src/mechdamage.c` | `defined(MW2_HEAD_SHUTDOWN)` | Pre-Mercs; 1.1, ATI, S3, Matrox, PowerVR, GBL and 3Dfx |
 | `DrawArmorBars` | `MW2/src/damagepanel.c` | `defined(MW2_MFD_PANELS)` | Pre-Mercs; 1.1, ATI, S3, Matrox, PowerVR, GBL and 3Dfx |
 | `DrawDamageOutline` | `MW2/src/damagepanel.c` | `defined(MW2_MFD_PANELS)` | Pre-Mercs; 1.1, ATI, S3, Matrox, PowerVR, GBL and 3Dfx |
 | `DrawHeatBar` | `MW2/src/bargauges.c` | `defined(MW2_MFD_PANELS)` | Pre-Mercs; 1.1, ATI, S3, Matrox, PowerVR, GBL and 3Dfx |
@@ -1004,6 +1015,7 @@ Where an edition's version of a function differs in its control flow or in more 
 | `LoadSkyGroundSettings` | `MW2/src/polydraw.c` | `defined(MW2_S3)` | S3; ATI, Matrox, PowerVR and 3Dfx |
 | `PlayPositionalSound` | `MW2/src/soundfx.c` | `defined(MW2_POSITIONAL_SOUND_FLAGS)` | Pre-Mercs and GBL; 1.1, ATI, S3, Matrox, PowerVR and 3Dfx |
 | `RotateTexturePoint` | `MW2/src/animation.c` | `defined(MW2_S3)` | S3; ATI, Matrox, PowerVR and 3Dfx |
+| `SayLancemateReport` | `MW2/src/speech.c` | `defined(MW2_LANCEMATE_VOICES)` | Pre-Mercs; 1.1, ATI, S3, Matrox, PowerVR, GBL and 3Dfx |
 | `ScaleBarGauges` | `MW2/src/bargauges.c` | `defined(MW2_MFD_PANELS)` | Pre-Mercs; 1.1, ATI, S3, Matrox, PowerVR, GBL and 3Dfx |
 | `SetGameResolution` | `MW2/src/simmain.c` | `defined(MW2_RES_800X600)` | 3Dfx; S3; PowerVR; 1.1, ATI, Pre-Mercs, Matrox and GBL |
 | `ShowGridObject` | `MW2/src/gridobject.c` | `defined(MW2_GRID_OBJECT_HIDDEN)` | S3; 1.1, ATI, Pre-Mercs, Matrox, PowerVR, GBL and 3Dfx |

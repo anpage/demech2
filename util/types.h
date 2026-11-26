@@ -943,6 +943,19 @@ double __cdecl fabs(double);
 #define MW2_TILED_SKY
 /* The gauge ellipse can be drawn and filled at a percentage of its pane (DrawScaledGaugeEllipse) */
 #define MW2_SCALED_GAUGE_ELLIPSES
+/* RememberLoadMech and RememberMechSegments don't log a player index out of range */
+#define MW2_QUIET_MECH_RECORDS
+/* An object turns about a point of its own (RotateObjAbout), and a part's objects can be destroyed with their
+   children (DestroyPartTree, object.c) */
+#define MW2_PART_TREES
+/* A hit to the head of an AI player's mech shuts it down its first ten times (Mech::m_headHits), and a leg's
+   first loss cripples an AI mech 95 times in 100 (DestroySection, DestroySectionEx) */
+#define MW2_HEAD_SHUTDOWN
+/* The lancemates acknowledge orders and report kills in voices of their own (g_lancemateVoices, SayLancemateAck,
+   SayLancemateKill) */
+#define MW2_LANCEMATE_VOICES
+/* The local star starts at -1, as 1.1's does (g_localStar), though the stars count from 0 (MW2_LOCAL_STAR_FROM_ZERO) */
+#define MW2_LOCAL_STAR_UNSET
 /* The weapons are the Clans' (GBL's, renamed and retuned) and 31 of the Inner Sphere (WEAPON_DEF_COUNT 66,
    g_weaponDefs) */
 #define MW2_CLAN_AND_IS_WEAPONS

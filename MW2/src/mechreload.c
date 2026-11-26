@@ -161,6 +161,7 @@ MechS32 ReloadPlayerMech(MechS32 p_player, MechS32 p_force, undefined4 p_unk0x08
 
 // FUNCTION: MW2 0x1007fecf
 // FUNCTION: MW2GBL 0x100175ff
+// FUNCTION: MW2PREMERCS 0x100539b8
 // FUNCTION: MW2MATROX 0x100912be
 // FUNCTION: MW23DFX 0x100238c0
 // FUNCTION: MW2ATI 0x10023b80
@@ -176,7 +177,9 @@ void RememberLoadMech(Mech* p_mech, MechChar* p_name, MechS32 p_id, MechChar* p_
 
 	id = p_mech->m_player->m_index;
 	if (id > 60) {
+#ifndef MW2_QUIET_MECH_RECORDS
 		DebugPrint("RememberLoadMech(): gp_id > DEFAULT_GAMEPIECES\n");
+#endif
 		return;
 	}
 
@@ -187,6 +190,7 @@ void RememberLoadMech(Mech* p_mech, MechChar* p_name, MechS32 p_id, MechChar* p_
 
 // FUNCTION: MW2 0x1007ff9c
 // FUNCTION: MW2GBL 0x100176a8
+// FUNCTION: MW2PREMERCS 0x10053a54
 // FUNCTION: MW2MATROX 0x1009138b
 // FUNCTION: MW23DFX 0x100239a0
 // FUNCTION: MW2ATI 0x10023c60
@@ -204,7 +208,9 @@ void RememberMechSegments(Mech* p_mech)
 
 	id = p_mech->m_player->m_index;
 	if (id > 60) {
+#ifndef MW2_QUIET_MECH_RECORDS
 		DebugPrint("RememberMechSegments(): gp_id > DEFAULT_GAMEPIECES\n");
+#endif
 		return;
 	}
 

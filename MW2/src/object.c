@@ -447,6 +447,47 @@ void RotateObjMatrix(SceneObject* p_obj, Matrix* p_matrix)
 	}
 }
 
+#ifdef MW2_PART_TREES
+// RotateObjMatrix with the matrix multiplied in whole (translation too), renormalized when the
+// countdown reaches 0.
+// FUNCTION: MW2PREMERCS 0x10032f8a
+void MultiplyObjMatrix(SceneObject* p_obj, Matrix* p_matrix)
+{
+	MultiplyMatrix(&p_obj->m_local, p_matrix, &p_obj->m_local);
+	p_obj->m_flags |= c_objectDirty;
+	p_obj->m_renormalizeCountdown--;
+	if (p_obj->m_renormalizeCountdown <= 0) {
+		p_obj->m_renormalizeCountdown = g_nextRenormalizeCountdown;
+		g_nextRenormalizeCountdown = ((g_nextRenormalizeCountdown + 7) & 0x7f) + 0x40;
+		NormalizeRotation(&p_obj->m_local);
+	}
+}
+
+// Rotates p_obj by (p_angleX, p_angleY, p_angleZ) about the point (p_x, p_y, p_z) of its frame.
+// FUNCTION: MW2PREMERCS 0x10032ff6
+void RotateObjAbout(
+	SceneObject* p_obj,
+	MechScalar p_angleX,
+	MechScalar p_angleY,
+	MechScalar p_angleZ,
+	MechU32 p_flags,
+	MechScalar p_x,
+	MechScalar p_y,
+	MechScalar p_z
+)
+{
+	Matrix matrix;
+
+	p_obj->m_flags |= c_objectDirty;
+	BuildMatrixEx(&matrix, 0, 0, 0, -p_x, -p_y, -p_z, p_flags);
+	MultiplyObjMatrix(p_obj, &matrix);
+	BuildMatrixEx(&matrix, p_angleX, p_angleY, p_angleZ, 0, 0, 0, p_flags);
+	MultiplyObjMatrix(p_obj, &matrix);
+	BuildMatrixEx(&matrix, 0, 0, 0, p_x, p_y, p_z, p_flags);
+	MultiplyObjMatrix(p_obj, &matrix);
+}
+#endif
+
 // The PowerVR edition copies the rotation itself, and sets the object's rotation transform from the
 // angles.
 // FUNCTION: MW2 0x1000180b
@@ -1185,6 +1226,62 @@ void RaisePartDamageLevel(SceneObject* p_obj, MechS32 p_level, MechU32 p_partId)
 	}
 }
 
+#ifdef MW2_PART_TREES
+// Takes p_obj out of the scene: its shape becomes kind 0x50, and the object is detached, hidden,
+// left out of collisions and its shape released.
+// FUNCTION: MW2PREMERCS 0x10033c03
+void DestroyObjPart(SceneObject* p_obj)
+{
+	if (!p_obj || !p_obj->m_shape) {
+		return;
+	}
+
+	SetShapeKind(p_obj->m_shape, 0x50);
+	DetachObj(p_obj);
+	HideObjTree(p_obj);
+	DisableObjTreeCollision(p_obj);
+	UpdateObj(p_obj);
+	ReleaseObjShape(p_obj);
+}
+
+// DestroyObjPart on p_obj, its children and its later siblings.
+// FUNCTION: MW2PREMERCS 0x10033c77
+void DestroyPartObjects(SceneObject* p_obj)
+{
+	if (!p_obj) {
+		return;
+	}
+
+	if (p_obj->m_nextSibling) {
+		DestroyPartObjects(p_obj->m_nextSibling);
+	}
+
+	if (p_obj->m_firstChild) {
+		DestroyPartObjects(p_obj->m_firstChild);
+	}
+
+	DestroyObjPart(p_obj);
+}
+
+// Destroys the objects of part p_partId, with their children, in p_obj's tree.
+// FUNCTION: MW2PREMERCS 0x10033cd5
+void DestroyPartTree(SceneObject* p_obj, MechU32 p_partId)
+{
+	if (!p_obj) {
+		return;
+	}
+
+	DestroyPartTree(p_obj->m_nextSibling, p_partId);
+	if (p_obj->m_shape && p_obj->m_shape->m_partId == p_partId) {
+		DestroyPartObjects(p_obj->m_firstChild);
+		DestroyObjPart(p_obj);
+	}
+	else {
+		DestroyPartTree(p_obj->m_firstChild, p_partId);
+	}
+}
+
+#endif
 // Blows mech part p_partId's objects off the tree as debris.
 // FUNCTION: MW2 0x10002314
 // FUNCTION: MW2GBL 0x1001a267

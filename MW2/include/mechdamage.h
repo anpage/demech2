@@ -25,6 +25,9 @@ extern "C"
 	void KillMech(MechS32 p_killer, struct Mech* p_mech);
 	void DestroySectionSlots(MechS32 p_attacker, struct Mech* p_mech, MechU32 p_section);
 	void DestroySection(MechS32 p_attacker, struct Mech* p_mech, MechU32 p_section);
+#ifdef MW2_HEAD_SHUTDOWN
+	void DestroySectionEx(MechS32 p_attacker, struct Mech* p_mech, MechU32 p_section, MechS32 p_quiet);
+#endif
 	void DestroyCriticalSlot(
 		MechS32 p_attacker,
 		struct Mech* p_mech,

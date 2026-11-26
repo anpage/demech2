@@ -20,9 +20,102 @@
 #include <string.h>
 #include <windows.h>
 
+#ifdef MW2_LANCEMATE_VOICES
+// The early Mercenaries build's lancemates have voices of their own: each voice's lines, its
+// acknowledgements first, then its kills.
+// GLOBAL: MW2PREMERCS 0x100b4308
+SpeechLine g_voice0Lines[3] = {
+	{599, "Roger That", NULL},
+	{600, "You Got it", NULL},
+	{601, "Nailed Him", NULL},
+};
+
+// GLOBAL: MW2PREMERCS 0x100b4330
+SpeechLine g_voice1Lines[3] = {
+	{602, "Sir, Yes sir", NULL},
+	{603, "Sir, Yes sir", NULL},
+	{604, "Target eliminated, sir", NULL},
+};
+
+// GLOBAL: MW2PREMERCS 0x100b4358
+SpeechLine g_voice2Lines[3] = {
+	{605, "Yo", NULL},
+	{606, "My Pleasure", NULL},
+	{607, "Scratch one bogey", NULL},
+};
+
+// GLOBAL: MW2PREMERCS 0x100b4380
+SpeechLine g_voice3Lines[3] = {
+	{608, "Roger that sir", NULL},
+	{609, "Yes sir", NULL},
+	{610, "Target destroyed", NULL},
+};
+
+// GLOBAL: MW2PREMERCS 0x100b43a8
+SpeechLine g_voice4Lines[4] = {
+	{611, "Affirmative", NULL},
+	{612, "Affirmative sir", NULL},
+	{613, "Sir, yes sir", NULL},
+	{614, "Target destroyed", NULL},
+};
+
+// GLOBAL: MW2PREMERCS 0x100b43d8
+SpeechLine g_voice5Lines[3] = {
+	{615, "I hear ya", NULL},
+	{616, "Got it", NULL},
+	{617, "You are a feeble man, die like the dog you are", NULL},
+};
+
+// GLOBAL: MW2PREMERCS 0x100b4400
+SpeechLine g_voice6Lines[3] = {
+	{618, "Right", NULL},
+	{619, "Yes Commander", NULL},
+	{620, "I got the kill", NULL},
+};
+
+// GLOBAL: MW2PREMERCS 0x100b4428
+SpeechLine g_voice7Lines[3] = {
+	{621, "Roger commander", NULL},
+	{622, "Affirmative sir", NULL},
+	{623, "Finished him", NULL},
+};
+
+// Each voice's acknowledgements and kills: how many, and the first in m_lines.
+typedef struct LancemateVoice {
+	MechS32 m_ackCount;  // 0x00
+	MechS32 m_ackFirst;  // 0x04
+	MechS32 m_killCount; // 0x08
+	MechS32 m_killFirst; // 0x0c
+	SpeechLine* m_lines; // 0x10
+} LancemateVoice;
+
+// GLOBAL: MW2PREMERCS 0x100b4450
+LancemateVoice g_lancemateVoices[8] = {
+	{2, 0, 1, 2, g_voice0Lines},
+	{2, 0, 1, 2, g_voice1Lines},
+	{2, 0, 1, 2, g_voice2Lines},
+	{2, 0, 1, 2, g_voice3Lines},
+	{3, 0, 1, 3, g_voice4Lines},
+	{2, 0, 1, 2, g_voice5Lines},
+	{2, 0, 1, 2, g_voice6Lines},
+	{2, 0, 1, 2, g_voice7Lines},
+};
+
+// Points 2's and 3's voices, and the next acknowledgement and kill each says.
+typedef struct LancemateVoiceState {
+	MechS32 m_voice;    // 0x00 — in g_lancemateVoices
+	MechS32 m_nextAck;  // 0x04
+	MechS32 m_nextKill; // 0x08
+} LancemateVoiceState;
+
+// GLOBAL: MW2PREMERCS 0x100b44f0
+LancemateVoiceState g_lancemateVoiceStates[2] = {{2, 0, 0}, {5, 0, 0}};
+
+#endif
 // The lancemates a message addresses.
 // GLOBAL: MW2 0x100a96c8
 // GLOBAL: MW2GBL 0x100ae860
+// GLOBAL: MW2PREMERCS 0x100b4508
 // GLOBAL: MW2MATROX 0x100bbe98
 // GLOBAL: MW23DFX 0x1024eb40
 // GLOBAL: MW2ATI 0x10182e50
@@ -36,11 +129,13 @@ SpeechLine g_slotSpeech[3] = {
 
 // GLOBAL: MW2 0x100a96ec
 // GLOBAL: MW2GBL 0x100ae884
+// GLOBAL: MW2PREMERCS 0x100b452c
 MechS32 g_unk0x100a96ec = 0;
 
 // What a lancemate reports.
 // GLOBAL: MW2 0x100a96f0
 // GLOBAL: MW2GBL 0x100ae888
+// GLOBAL: MW2PREMERCS 0x100b4530
 // GLOBAL: MW2MATROX 0x100bbec0
 // GLOBAL: MW23DFX 0x1024ec58
 // GLOBAL: MW2ATI 0x10182f68
@@ -679,6 +774,131 @@ void ResumeSpeech(void)
 	}
 }
 
+#ifdef MW2_LANCEMATE_VOICES
+// Says the name of lancemate p_slot (0: all points).
+// FUNCTION: MW2PREMERCS 0x10066360
+void SayLancemateName(MechS32 p_slot)
+{
+	SpeechLine* line;
+
+	if (p_slot <= -1 || p_slot >= 3) {
+		return;
+	}
+
+	line = &g_slotSpeech[p_slot];
+	QueueSpeech(line, NULL, -1);
+}
+
+// Lancemate p_slot acknowledges an order in its voice, after its name with p_name (all points:
+// points 2 and 3 both).
+// FUNCTION: MW2PREMERCS 0x100663a7
+void SayLancemateAck(MechS32 p_slot, undefined4 p_unused, MechS32 p_name)
+{
+	SpeechLine* first;
+	MechS32 index;
+	SpeechLine* second;
+	MechS32 voice;
+
+	if (p_slot <= -1 || p_slot >= 3) {
+		return;
+	}
+
+	if (p_name) {
+		SayLancemateName(p_slot);
+	}
+
+	if (p_slot == 0) {
+		voice = g_lancemateVoiceStates[0].m_voice;
+		index = g_lancemateVoiceStates[0].m_nextAck;
+		first = &g_lancemateVoices[voice].m_lines[g_lancemateVoices[voice].m_ackFirst + index];
+		g_lancemateVoiceStates[0].m_nextAck = (index + 1) % g_lancemateVoices[voice].m_ackCount;
+		voice = g_lancemateVoiceStates[1].m_voice;
+		index = g_lancemateVoiceStates[1].m_nextAck;
+		second = &g_lancemateVoices[voice].m_lines[g_lancemateVoices[voice].m_ackFirst + index];
+		g_lancemateVoiceStates[1].m_nextAck = (index + 1) % g_lancemateVoices[voice].m_ackCount;
+	}
+	else {
+		voice = g_lancemateVoiceStates[p_slot - 1].m_voice;
+		index = g_lancemateVoiceStates[p_slot - 1].m_nextAck;
+		first = &g_lancemateVoices[voice].m_lines[g_lancemateVoices[voice].m_ackFirst + index];
+		g_lancemateVoiceStates[p_slot - 1].m_nextAck = (index + 1) % g_lancemateVoices[voice].m_ackCount;
+		second = NULL;
+	}
+
+	QueueSpeech(first, second, -1);
+}
+
+// Lancemate p_slot reports a kill in its voice (all points: points 2 and 3 both).
+// FUNCTION: MW2PREMERCS 0x10066510
+void SayLancemateKill(MechS32 p_slot, undefined4 p_unused)
+{
+	SpeechLine* first;
+	MechS32 index;
+	SpeechLine* second;
+	MechS32 voice;
+
+	if (p_slot <= -1 || p_slot >= 3) {
+		return;
+	}
+
+	if (p_slot == 0) {
+		voice = g_lancemateVoiceStates[0].m_voice;
+		index = g_lancemateVoiceStates[0].m_nextKill;
+		first = &g_lancemateVoices[voice].m_lines[g_lancemateVoices[voice].m_killFirst + index];
+		g_lancemateVoiceStates[0].m_nextKill = (index + 1) % g_lancemateVoices[voice].m_killCount;
+		voice = g_lancemateVoiceStates[1].m_voice;
+		index = g_lancemateVoiceStates[1].m_nextKill;
+		second = &g_lancemateVoices[voice].m_lines[g_lancemateVoices[voice].m_killFirst + index];
+		g_lancemateVoiceStates[1].m_nextKill = (index + 1) % g_lancemateVoices[voice].m_killCount;
+	}
+	else {
+		voice = g_lancemateVoiceStates[p_slot - 1].m_voice;
+		index = g_lancemateVoiceStates[p_slot - 1].m_nextKill;
+		first = &g_lancemateVoices[voice].m_lines[g_lancemateVoices[voice].m_killFirst + index];
+		g_lancemateVoiceStates[p_slot - 1].m_nextKill = (index + 1) % g_lancemateVoices[voice].m_killCount;
+		second = NULL;
+	}
+
+	QueueSpeech(first, second, -1);
+}
+
+// The early Mercenaries build's acknowledgements (1, 2, 3, 9) and kills (5) are in the
+// lancemate's voice, and 10 says nothing.
+// FUNCTION: MW2PREMERCS 0x10066663
+void SayLancemateReport(MechS32 p_message, MechS32 p_slot)
+{
+	SpeechLine* slot;
+	SpeechLine* message;
+
+	if (p_message == -1 || p_message >= 11) {
+		return;
+	}
+
+	if (p_slot != -1) {
+		slot = &g_slotSpeech[p_slot];
+	}
+	else {
+		slot = NULL;
+	}
+
+	message = &g_lancemateSpeech[p_message];
+	switch (p_message) {
+	case 1:
+	case 2:
+	case 3:
+	case 9:
+		SayLancemateAck(p_slot, 0, 0);
+		break;
+	case 5:
+		SayLancemateKill(p_slot, 0);
+		break;
+	case 10:
+		break;
+	default:
+		QueueSpeech(slot, message, -1);
+	}
+}
+#else
 // A lancemate's report: p_message of g_lancemateSpeech, addressed by p_slot (-1: none).
 // FUNCTION: MW2 0x10059e63
 // FUNCTION: MW2GBL 0x100425f5
@@ -706,6 +926,7 @@ void SayLancemateReport(MechS32 p_message, MechS32 p_slot)
 	message = &g_lancemateSpeech[p_message];
 	QueueSpeech(slot, message, -1);
 }
+#endif
 
 // FUNCTION: MW2 0x10059ed2
 // FUNCTION: MW2GBL 0x10042664
