@@ -27,6 +27,7 @@ MechS32 g_lanceOrders[8] = {7, 7, 7, 7, 7, 0, 0, 0};
 // templates 7 and 6.
 // FUNCTION: MW2 0x10065f50
 // FUNCTION: MW2GBL 0x10005290
+// FUNCTION: MW2PREMERCS 0x10082630
 // FUNCTION: MW2MATROX 0x1008e640
 // FUNCTION: MW23DFX 0x10064390
 // FUNCTION: MW2ATI 0x10061a00
@@ -77,6 +78,7 @@ MechS32 PrepareCommandComputerPage(MenuDefinition* p_menu, MenuPage* p_page)
 // items.
 // FUNCTION: MW2 0x100660c2
 // FUNCTION: MW2GBL 0x10005403
+// FUNCTION: MW2PREMERCS 0x100827a2
 // FUNCTION: MW2MATROX 0x1008e7b2
 // FUNCTION: MW23DFX 0x10064480
 // FUNCTION: MW2ATI 0x10061af0
@@ -361,6 +363,7 @@ void OrderShutdown(MechS32 p_index, MechS32 p_value)
 // Returns the name of the goal of the control's AI player: a nav, a player or a game thing.
 // FUNCTION: MW2 0x100664cb
 // FUNCTION: MW2GBL 0x1000580d
+// FUNCTION: MW2PREMERCS 0x10082bab
 // FUNCTION: MW2MATROX 0x1008ebbc
 // FUNCTION: MW23DFX 0x100646f0
 // FUNCTION: MW2ATI 0x10061d60

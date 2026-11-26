@@ -32,6 +32,7 @@
 // free); *p_hit is the shape it hit and *p_player the mech's player.
 // FUNCTION: MW2 0x100758a0
 // FUNCTION: MW2GBL 0x10027a80
+// FUNCTION: MW2PREMERCS 0x1002bae0
 // FUNCTION: MW2MATROX 0x10075a80
 // FUNCTION: MW23DFX 0x1000b5e0
 // FUNCTION: MW2ATI 0x1000bd50

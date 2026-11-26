@@ -24,6 +24,11 @@
 #include "targeting.h"
 #include "team.h"
 #include "types.h"
+#ifdef MW2_BANKING_PLAYER_TYPE
+#include "object.h"
+#include "premercs/tracers.h"
+#include "transform.h"
+#endif
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -39,6 +44,9 @@
 // The early Mercenaries build's, which only this unit calls.
 void FUN_10037d84(Player* p_player);
 void FUN_10037da7(Player* p_player);
+#endif
+#ifdef MW2_PILOT_SKILLS
+void InitializePilot(Player* p_player);
 #endif
 
 // The AI: each AI player runs a state machine (c_aiState…) driven by scripts, AIT resources
@@ -513,7 +521,42 @@ MechS16 g_helicopterScripts[15][2] = {
 	{8, 4},
 };
 
-#ifdef MW2_PILOT_TABLE
+#if defined(MW2_PILOT_SKILLS)
+// The early Mercenaries build's pilot table: a mech's AI takes its maneuver table, its range, whether
+// it fires its weapons as one group, its heat limit (a percentage of 65), its lock chance, whether it
+// aims at a mech's feet and whether it leads its target from the entry its m_pilotIndex names.
+typedef struct PilotEntry {
+	ManeuverTable* m_maneuverTable; // 0x00
+	MechS32 m_range;                // 0x04 — Player::m_unk0x1b0
+	MechS32 m_groupFire;            // 0x08
+	MechS32 m_heat;                 // 0x0c — percent of 65
+	MechS32 m_lockChance;           // 0x10
+	MechS32 m_aimAtFeet;            // 0x14
+	MechS32 m_leadsTarget;          // 0x18
+} PilotEntry;
+
+// The pilot table's entries.
+typedef struct PilotGroup {
+	MechS32 m_count;       // 0x00
+	PilotEntry* m_entries; // 0x04
+} PilotGroup;
+
+// GLOBAL: MW2PREMERCS 0x100b1420
+PilotEntry g_pilotEntries[9] = {
+	{NULL, 0, 0, 75, 25, 0, 0},
+	{&g_maneuverTables[9], 20000, 0, 75, 25, 0, 0},
+	{&g_maneuverTables[10], 20000, 1, 100, 15, 0, 0},
+	{&g_maneuverTables[11], 15000, 2, 75, 25, 1, 0},
+	{&g_maneuverTables[12], 15000, 2, 75, 60, 0, 0},
+	{&g_maneuverTables[13], 25000, 0, 75, 100, 0, 0},
+	{&g_maneuverTables[14], 15000, 0, 80, 85, 0, 1},
+	{&g_maneuverTables[15], 25000, 0, 75, 25, 0, 0},
+	{&g_maneuverTables[16], 30000, 0, 75, 35, 0, 1},
+};
+
+// GLOBAL: MW2PREMERCS 0x100b1520
+PilotGroup g_pilotGroup = {8, g_pilotEntries};
+#elif defined(MW2_PILOT_TABLE)
 // GBL's pilot table: an AI player whose gunnery is above 6 takes its skills, its maneuver table and
 // its range from an entry, gunnery 7 the first; with m_groupFire it fires its weapons as one group.
 typedef struct PilotEntry {
@@ -597,6 +640,7 @@ AiStateFn g_aiStateFns[14] = {
 
 // GLOBAL: MW2 0x100a9100
 // GLOBAL: MW2GBL 0x100b65b0
+// GLOBAL: MW2PREMERCS 0x100b16e0
 // GLOBAL: MW2MATROX 0x100bb818
 // GLOBAL: MW23DFX 0x1024bc70
 // GLOBAL: MW2ATI 0x1017fff0
@@ -863,6 +907,122 @@ void FirstAI(void)
 	}
 }
 
+#ifdef MW2_PILOT_SKILLS
+// Sets up p_player's AI: its rules, state and anchor nav, whether it may engage (an enemy of the
+// local player's team) and, for an AI player, its scripts, its skills and ranges from the gpspec's
+// AI parameters, its pilot (InitializePilot) and its maneuvers.
+// FUNCTION: MW2PREMERCS 0x10036b18
+void InitializeAI(Player* p_player)
+{
+	p_player->m_rules = g_aiRules[p_player->m_index];
+	p_player->m_ai.m_state = c_aiStateIdle;
+	p_player->m_nav = 0x1000;
+	p_player->m_unk0x160 = 0;
+	ResetAI(p_player);
+
+	p_player->m_engageAtWill = p_player->m_team != g_players[g_localPlayerId]->m_team;
+
+	if (p_player->m_aiMode == 2) {
+		SetAIScript(p_player, 0, 0, GetTeamLeader(p_player->m_team));
+
+		p_player->m_gunnery = p_player->m_aiParams[0];
+		if (!p_player->m_gunnery) {
+			p_player->m_gunnery = 1;
+		}
+
+		p_player->m_leashRange = p_player->m_aiParams[1];
+		if (!p_player->m_leashRange) {
+			p_player->m_leashRange = 250;
+		}
+
+		p_player->m_restAlertRange = p_player->m_aiParams[2];
+		if (!p_player->m_restAlertRange) {
+			p_player->m_restAlertRange = 250;
+		}
+
+		p_player->m_alertRange = p_player->m_aiParams[3];
+		if (!p_player->m_alertRange) {
+			p_player->m_alertRange = 250;
+		}
+
+		p_player->m_piloting = p_player->m_aiParams[4];
+		if (!p_player->m_piloting) {
+			p_player->m_piloting = 1;
+		}
+
+		p_player->m_unk0x184 = p_player->m_aiParams[5];
+		if (!p_player->m_unk0x184) {
+			p_player->m_unk0x184 = 0;
+		}
+
+		p_player->m_pilotIndex = p_player->m_aiParams[6];
+		if (!p_player->m_pilotIndex) {
+			p_player->m_pilotIndex = 0;
+		}
+
+		InitializePilot(p_player);
+		p_player->m_gunnery++;
+		p_player->m_leashRange *= 100;
+		p_player->m_restAlertRange *= 100;
+		p_player->m_alertRange *= 100;
+		InitializeManeuvers(p_player);
+	}
+}
+
+// Gives p_player's AI its pilot table entry's skills (a mech's: m_pilotIndex), and by m_unk0x184 three
+// more settings; other players get the defaults: no group fire, a heat limit of 65 and a lock chance of
+// 25.
+// FUNCTION: MW2PREMERCS 0x10036d95
+void InitializePilot(Player* p_player)
+{
+	PilotEntry* entry;
+
+	entry = NULL;
+	if (p_player->m_type != c_playerTypeMech) {
+		p_player->m_maneuverTable = NULL;
+		p_player->m_unk0x1b0 = 0;
+		p_player->m_unk0x160 = 0;
+		p_player->m_heatLimit = 65;
+		p_player->m_lockChance = 25;
+		p_player->m_unk0x1b0Mercs = 0;
+		p_player->m_unk0x1a4 = 0x21;
+		p_player->m_unk0x1b4 = 0;
+		p_player->m_leadsTarget = 0;
+		p_player->m_unk0x1a0 = 1;
+	}
+	else {
+		switch (p_player->m_unk0x184) {
+		case 0:
+			p_player->m_unk0x1a0 = 1;
+			p_player->m_unk0x1b0Mercs = 0;
+			p_player->m_unk0x1a4 = 0x21;
+			break;
+		case 1:
+			p_player->m_unk0x1a0 = 1;
+			p_player->m_unk0x1b0Mercs = 2;
+			p_player->m_unk0x1a4 = 0x21;
+			break;
+		case 2:
+			p_player->m_unk0x1a0 = 0;
+			p_player->m_unk0x1b0Mercs = 2;
+			p_player->m_unk0x1a4 = 100;
+			break;
+		}
+
+		entry = &g_pilotGroup.m_entries[p_player->m_pilotIndex];
+		p_player->m_maneuverTable = entry->m_maneuverTable;
+		p_player->m_unk0x1b0 = entry->m_range;
+		p_player->m_unk0x160 = entry->m_groupFire;
+		p_player->m_heatLimit = (MechS32) (entry->m_heat / 100.0 * 65.0);
+		p_player->m_lockChance = entry->m_lockChance;
+		p_player->m_unk0x1b4 = entry->m_aimAtFeet;
+		p_player->m_leadsTarget = entry->m_leadsTarget;
+		if (p_player->m_unk0x160) {
+			SelectWeaponGroup(p_player->m_mech, 0);
+		}
+	}
+}
+#else
 // Sets up p_player's AI: its rules, state and anchor nav, whether it may engage (an enemy of the
 // local player's team) and, for an AI player, its scripts and its skills and ranges from the gpspec's
 // AI parameters.
@@ -953,6 +1113,7 @@ void InitializeAI(Player* p_player)
 
 	InitializeManeuvers(p_player);
 }
+#endif
 
 #ifndef MW2_ACCEL
 #include "aiattacker.c"
@@ -1190,6 +1351,51 @@ void FUN_10037da7(Player* p_player)
 	else {
 		p_player->m_roll = roll;
 	}
+}
+
+// Moves the height *p_y by p_player's throttle, to within 300 units of its own, and pitches it a
+// degree a call towards 45 degrees up or down the way it climbs.
+// FUNCTION: MW2PREMERCS 0x10037e3e
+void FUN_10037e3e(Player* p_player, MechScalar* p_y)
+{
+	MechScalar y;
+	MechS32 step;
+	MechScalar delta;
+
+	step = (*p_y >> 1) / 1024;
+	delta = p_player->m_steering->m_throttle * step;
+	y = *p_y - delta;
+	delta = p_player->m_position.m_y - y;
+	if (abs(delta) > 300) {
+		y = p_player->m_position.m_y - (delta == 0 ? 0 : delta >= 0 ? 1 : -1) * 300;
+	}
+
+	*p_y = y;
+	y = (delta == 0 ? 0 : delta >= 0 ? 1 : -1) * FIXED_CONST(45);
+	if (p_player->m_pitch != y) {
+		p_player->m_pitch -= (p_player->m_pitch - y == 0 ? 0 : p_player->m_pitch - y >= 0 ? 1 : -1) * FIXED_CONST(1);
+	}
+}
+
+// Starts a missile trail ahead of p_player's object: from 1000 to 1300 units along its -z.
+// FUNCTION: MW2PREMERCS 0x10037f95
+void FUN_10037f95(Player* p_player)
+{
+	MechScalar y2;
+	MechScalar x;
+	MechScalar y;
+	MechScalar x2;
+	MechScalar z;
+	Matrix* matrix;
+	MechScalar z2;
+
+	x = y = x2 = y2 = 0;
+	z = -1000;
+	z2 = -1300;
+	matrix = GetObjWorldMatrix(p_player->m_obj);
+	TransformPoint(matrix, &x, &y, &z);
+	TransformPoint(matrix, &x2, &y2, &z2);
+	StartMissileTrail(x, y, z, x2 - x, y2 - y, z2 - z);
 }
 #endif
 
@@ -1733,9 +1939,11 @@ void LogAIStatus(void)
 }
 
 // M_TGTABLE: the nearest of p_target's targets within p_arg hundreds (-2: p_player's alert range,
-// -1: its resting one).
+// -1: its resting one): with g_aiSpreadTargets (in the early Mercenaries build, m_unk0x1a0) the
+// first FindNearestTarget gives.
 // FUNCTION: MW2 0x100530f7
 // FUNCTION: MW2GBL 0x100783e1
+// FUNCTION: MW2PREMERCS 0x10039039
 // FUNCTION: MW2MATROX 0x1008229a
 // FUNCTION: MW23DFX 0x10012fd0
 // FUNCTION: MW2ATI 0x10013480
@@ -1761,7 +1969,11 @@ MechS16 AiMessageTargetable(Player* p_player, MechS16 p_target, MechS16 p_arg)
 	}
 
 	FindNearestTarget(p_player, p_target, p_arg, &nearest, &best);
+#ifdef MW2_RESOLVE_NEAREST_FLAG
+	if (p_player->m_unk0x1a0) {
+#else
 	if (g_aiSpreadTargets) {
+#endif
 		return nearest;
 	}
 	else {

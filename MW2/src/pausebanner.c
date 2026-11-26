@@ -27,6 +27,11 @@
 #include "timedoverlays.h"
 #include "types.h"
 #include "view.h"
+#ifdef MW2_PAUSE_UNTIL_KEY
+#include "inputmap.h"
+#include "menu.h"
+#include "refreshmode.h"
+#endif
 
 #include <stdio.h>
 
@@ -122,6 +127,44 @@ void PlayPauseSound(void)
 #endif
 }
 
+#ifdef MW2_PAUSE_UNTIL_KEY
+// Outside menus and network games, pauses with the pause sound and banner until a key is pressed.
+// FUNCTION: MW2PREMERCS 0x1006ba63
+void FUN_1006ba63(void)
+{
+	void* shape;
+
+	if (!GetMenuSlotState(4) && !g_netRole) {
+		PauseGame();
+		PlaySoundOnce(0xc6, 100, 0x40, RandomSampleRate());
+		shape = LoadCachedResource(g_mw2PrjHandle, HUD_ART_RESOLUTION + 0x5e, g_resTagShp, 0);
+		if (shape) {
+			if (g_pausedBannerUnscaled) {
+				g_pausedBannerRect.m_window = &g_mainPixelBuffer;
+				ScaleRectToScreen(&g_mainPixelBuffer, &g_pausedBannerRect, &g_pausedBannerRect);
+				FitRectToShape(&g_pausedBannerRect, &g_pausedBannerRect, shape, 0);
+				g_pausedBannerUnscaled = 0;
+			}
+
+			VFX_shape_draw(&g_pausedBannerRect, shape, 0, 0, 0);
+			if (g_windowActive) {
+				g_currentRefreshMode->m_flip();
+			}
+		}
+
+		g_localSteering.m_keyCode = 0;
+		while (!g_localSteering.m_keyCode) {
+			UpdateInputs();
+			DoAudio();
+		}
+
+		g_localSteering.m_keyCode = 0;
+		PlaySoundOnce(0xf1, 0x32, 0x40, RandomSampleRate());
+		ResumeGame();
+	}
+}
+#endif
+
 // FUNCTION: MW2 0x10009f13
 // FUNCTION: MW2GBL 0x100129c3
 // FUNCTION: MW2PREMERCS 0x1006bba0
@@ -168,6 +211,7 @@ void ResumeGame(void)
 // star (g_debugStar) and objective (g_debugObjective), and a number and mech section selection.
 // FUNCTION: MW2 0x10009f8d
 // FUNCTION: MW2GBL 0x10012a3d
+// FUNCTION: MW2PREMERCS 0x1006bc1a
 // FUNCTION: MW2MATROX 0x1002ee0a
 // FUNCTION: MW23DFX 0x10036470
 // FUNCTION: MW2ATI 0x10035030

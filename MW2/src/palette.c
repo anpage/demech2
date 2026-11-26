@@ -615,6 +615,7 @@ void SetBasePalette(MechS32 p_palette)
 // to the loader, so it always loads PAL resource 1 (SimMain has the same test).
 // FUNCTION: MW2 0x10002a75
 // FUNCTION: MW2GBL 0x1001e83c
+// FUNCTION: MW2PREMERCS 0x1005f5e2
 // FUNCTION: MW2MATROX 0x1002dd33
 // FUNCTION: MW23DFX 0x1002b0c0
 // FUNCTION: MW2ATI 0x1002ac00
@@ -655,7 +656,11 @@ void StartPalettes(MechS32 p_dissolve)
 		palette = LoadCachedResource(g_mw2PrjHandle, hasPalette, g_resTagPal, 0);
 		if (palette) {
 			if (p_dissolve == 0) {
+#ifdef MW2_BANNER_BLEND_STEPS
+				g_currentDisplayBackend->m_blendPalettes((PaletteColor*) palette, MW2_BANNER_BLEND_STEPS);
+#else
 				g_currentDisplayBackend->m_blendPalettes((PaletteColor*) palette, 30);
+#endif
 				UnlockCachedResource(hasPalette, g_resTagPal);
 				g_currentDisplayBackend->m_setPaletteWithBrightness((PaletteColor*) palette);
 			}

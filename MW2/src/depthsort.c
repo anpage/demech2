@@ -285,6 +285,144 @@ void DrawQueuedPolygon(QueuedPolygon* p_poly)
 }
 #endif
 
+#ifdef MW2_DEPTH_ENTRY_UNK_MEMBERS
+// Whether p_entry is drawn before p_pivot: farther, unless both are polygons whose bounds overlap; then
+// p_pivot's face is tested against p_entry's plane and p_entry's against p_pivot's, a test that never
+// counts a vertex (p_pivot first when none is in front of the plane, p_entry when none of its own is).
+// FUNCTION: MW2PREMERCS 0x1005cc3e
+MechS32 IsDrawnBefore(DepthEntry* p_pivot, DepthEntry* p_entry)
+{
+	Face* face;
+	Vertex* vertices;
+	Face* otherFace;
+	Vertex* otherVertices;
+	MechScalar nx;
+	MechS32 ahead;
+	Vertex* vertex;
+	MechScalar ny;
+	MechScalar nz;
+	MechScalar x;
+	MechS32 i;
+	MechScalar y;
+	MechS32 otherAhead;
+	MechScalar z;
+	MechS32 count;
+	MechS32 otherCount;
+
+	if (!p_entry->m_poly || p_pivot->m_minX > p_entry->m_maxX || p_pivot->m_maxX < p_entry->m_minX ||
+		p_pivot->m_minY > p_entry->m_maxY || p_entry->m_minY > p_pivot->m_maxY || p_pivot->m_minZ > p_entry->m_maxZ ||
+		p_entry->m_minZ > p_pivot->m_maxZ || !(p_entry->m_poly->m_count & 0x8000) ||
+		!(p_pivot->m_poly->m_count & 0x8000)) {
+		return p_entry->m_depth > p_pivot->m_depth;
+	}
+	else {
+		face = p_pivot->m_poly->m_face;
+		otherFace = p_entry->m_poly->m_face;
+		vertices = (Vertex*) (face->m_shape->m_model + 1);
+		otherVertices = (Vertex*) (otherFace->m_shape->m_model + 1);
+		x = otherVertices->m_worldX;
+		y = otherVertices->m_worldY;
+		z = otherVertices->m_worldZ;
+		nx = otherFace->m_normal[0];
+		ny = otherFace->m_normal[1];
+		nz = otherFace->m_normal[2];
+		ahead = count = 0;
+		for (i = 0; i < face->m_indexCount && !ahead; i++) {
+			vertex = &vertices[((MechU8*) face)[face->m_indexOffset + i]];
+			if (((vertex->m_worldZ - z) * nz + (vertex->m_worldX - x) * nx + (vertex->m_worldY - y) * ny == 0) < 0) {
+				ahead++;
+			}
+		}
+
+		if (!ahead) {
+			return TRUE;
+		}
+
+		x = vertices->m_worldX;
+		y = vertices->m_worldY;
+		z = vertices->m_worldZ;
+		nx = face->m_normal[0];
+		ny = face->m_normal[1];
+		nz = face->m_normal[2];
+		otherAhead = otherCount = 0;
+		for (i = 0; i < otherFace->m_indexCount && !otherAhead; i++) {
+			vertex = &otherVertices[((MechU8*) otherFace)[otherFace->m_indexOffset + i]];
+			if (((vertex->m_worldZ - z) * nz + (vertex->m_worldX - x) * nx + (vertex->m_worldY - y) * ny == 0) < 0) {
+				otherAhead++;
+			}
+		}
+
+		if (!otherAhead) {
+			return FALSE;
+		}
+	}
+
+	return p_entry->m_depth > p_pivot->m_depth;
+}
+
+// Sorts the entries from p_first to p_last, the ones drawn first first (a quicksort, IsDrawnBefore).
+// FUNCTION: MW2PREMERCS 0x1005cf28
+void SortDepthEntries(DepthEntry* p_first, DepthEntry* p_last)
+{
+	MechScalar unusedDepth;
+	DepthEntry* pivot;
+	DepthEntry* lo;
+	DepthEntry* hi;
+
+	if (p_last <= p_first) {
+		return;
+	}
+
+	lo = p_first;
+	hi = p_last + 1;
+	unusedDepth = lo->m_depth;
+	pivot = lo;
+	for (;;) {
+		do {
+			lo++;
+		} while (IsDrawnBefore(pivot, lo));
+
+		do {
+			hi--;
+		} while (IsDrawnBefore(hi, pivot));
+
+		if (hi <= lo) {
+			break;
+		}
+
+		{
+			QueuedPolygon* poly = lo->m_poly;
+			lo->m_poly = hi->m_poly;
+			hi->m_poly = poly;
+		}
+		{
+			MechScalar depth = lo->m_depth;
+			lo->m_depth = hi->m_depth;
+			hi->m_depth = depth;
+		}
+	}
+
+	lo = p_first;
+	{
+		QueuedPolygon* pivotPoly = lo->m_poly;
+		lo->m_poly = hi->m_poly;
+		hi->m_poly = pivotPoly;
+	}
+	{
+		MechScalar pivotDepth = lo->m_depth;
+		lo->m_depth = hi->m_depth;
+		hi->m_depth = pivotDepth;
+	}
+
+	if (hi - 1 > p_first) {
+		SortDepthEntries(p_first, hi - 1);
+	}
+
+	if (hi + 1 < p_last) {
+		SortDepthEntries(hi + 1, p_last);
+	}
+}
+#else
 // Sorts the entries from p_first to p_last, farthest first (a quicksort).
 // FUNCTION: MW2 0x1003378e
 // FUNCTION: MW2GBL 0x1003943e
@@ -350,6 +488,7 @@ void SortDepthEntries(DepthEntry* p_first, DepthEntry* p_last)
 		SortDepthEntries(hi + 1, p_last);
 	}
 }
+#endif
 
 // Draws the shapes of the list p_root heads, farthest first. Shapes flagged 0x100 are queued
 // whole and expanded after the sort (DrawDepthQueue).

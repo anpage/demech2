@@ -977,6 +977,20 @@ void InitCockpitPanels(void)
 }
 #endif
 
+#ifdef MW2_MFD_PANELS
+// Toggles g_unk0x100b20f8 and enables or disables panels 3 to 16 with it.
+// FUNCTION: MW2PREMERCS 0x1004ad0f
+void FUN_1004ad0f(void)
+{
+	MechS32 i;
+
+	g_unk0x100b20f8 = !g_unk0x100b20f8;
+	for (i = 3; i <= 16; i++) {
+		g_cockpitPanels[i]->m_enabled = g_unk0x100b20f8;
+	}
+}
+#endif
+
 // Lays out the local mech's weapon panels again and resets every panel to its settings.
 // FUNCTION: MW2 0x1006ff7b
 // FUNCTION: MW2GBL 0x1000483d

@@ -88,6 +88,12 @@
 #include "videodriverchoice.h"
 #include "weapons.h"
 #include "world.h"
+#ifdef MW2_SHOT_TRACERS
+#include "premercs/tracers.h"
+#endif
+#ifdef MW2_WEATHER_RECORD
+#include "premercs/precipitation.h"
+#endif
 
 #include <excpt.h>
 #include <stdlib.h>
@@ -1614,6 +1620,7 @@ int __stdcall SimMain(
 // starts when the go state is 3: the network's bit (1) and the bit each main-loop pass sets (2).
 // FUNCTION: MW2 0x10066a50
 // FUNCTION: MW2GBL 0x1002d460
+// FUNCTION: MW2PREMERCS 0x100275a0
 int __stdcall SimMain(
 	HINSTANCE p_module,
 	undefined4 p_unk0x0c,
@@ -1801,6 +1808,12 @@ int __stdcall SimMain(
 
 		DebugPrint("StopSupAnim()\n");
 		StopSupAnim();
+#ifdef MW2_SHOT_TRACERS
+		InitTracers();
+#endif
+#ifdef MW2_WEATHER_RECORD
+		InitPrecipitation();
+#endif
 		if (GetDeviceCaps(GetDC(g_gameWindow), NUMCOLORS) == -1 || g_windowMode == c_windowModeFullscreen) {
 			DebugPrint("StartPalettes()\n");
 			StartPalettes(0);
@@ -1877,6 +1890,12 @@ int __stdcall SimMain(
 			UpdateLocalPlayer();
 			LateUpdateAllPlayers();
 			UpdateDebris();
+#ifdef MW2_SHOT_TRACERS
+			UpdateTracers();
+#endif
+#ifdef MW2_WEATHER_RECORD
+			UpdatePrecipitation();
+#endif
 			if (g_refreshModeFallback) {
 				while (g_refreshModeFallback) {
 					if (g_currentDisplayBackend->m_id == 0) {

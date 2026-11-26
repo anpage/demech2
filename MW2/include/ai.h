@@ -119,6 +119,10 @@ extern "C"
 MechScalar AimTorsoTilt(struct Player* p_player, MechS32 p_delta);
 #endif
 	MechScalar SteerToTarget(struct Player* p_player);
+#ifdef MW2_BANKING_PLAYER_TYPE
+	void FUN_10037e3e(struct Player* p_player, MechScalar* p_y);
+	void FUN_10037f95(struct Player* p_player);
+#endif
 	void LeaveAIState(struct Player* p_player);
 	void EnterAIState(struct Player* p_player, MechU16 p_state);
 	MechS16 NextTarget(struct Player* p_player, MechS16 p_target, MechS16 p_previous);
@@ -216,14 +220,18 @@ MechS16 GetEngagementAIFlags(MechS32 p_value);
 // FUNCTION: MW2PREMERCS 0x100373c7
 // CollectAIRules
 
-// The early Mercenaries build places these out of ai.c's order (LogPlayerSkillLines and LogStarMissionLines among
-// aidist.c's, the last two before LogAIStatus), so they are annotated here, by name.
+// The early Mercenaries build places these out of ai.c's order (TargetAttacker after LogPlayerStatusLines,
+// LogPlayerSkillLines and LogStarMissionLines among aidist.c's, the last two before LogAIStatus), so they are
+// annotated here, by name.
 
 // FUNCTION: MW2PREMERCS 0x10038035
 // LogPlayerSkillLines
 
 // FUNCTION: MW2PREMERCS 0x10038218
 // LogStarMissionLines
+
+// FUNCTION: MW2PREMERCS 0x10037c53
+// TargetAttacker
 
 // FUNCTION: MW2PREMERCS 0x10038c7e
 // IsTargetDetectable

@@ -64,6 +64,7 @@ MechS32 AddStaticPoolType(MechS32 p_size, BwdTag p_tag);
 // first, and allocates the groups. Returns whether it could read the sizes.
 // FUNCTION: MW2 0x100498b0
 // FUNCTION: MW2GBL 0x1002ccc0
+// FUNCTION: MW2PREMERCS 0x10053c60
 // FUNCTION: MW2MATROX 0x10078f20
 // FUNCTION: MW23DFX 0x10023bb0
 // FUNCTION: MW2ATI 0x10023e70
