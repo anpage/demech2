@@ -58,6 +58,11 @@ MechS32 IsInsideGaugeEllipse(PANE* p_target, MechS32 p_x, MechS32 p_y);
 	);
 	PANE* ScaleRectAboutCenter(PANE* p_src, PANE* p_dst, Point p_scale);
 
+#ifdef MW2_SCALED_GAUGE_ELLIPSES
+	void DrawScaledGaugeEllipse(PANE* p_target, MechS32 p_color, MechU32 p_percent);
+	void FillScaledGaugeEllipse(PANE* p_target, MechS32 p_color, MechU32 p_percent);
+#endif
+
 #ifdef __cplusplus
 }
 #endif

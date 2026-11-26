@@ -933,6 +933,16 @@ double __cdecl fabs(double);
    target and the speed, jump jet, heat and heat rate panels; SAVE_HUD keeps their modes in MERCS.HUD
    (mechviewpanel.c) */
 #define MW2_MFD_PANELS
+/* The HUD has no altimeter (DrawAltimeter): the jump jet MFD shows the altitude */
+#define MW2_NO_HUD_ALTIMETER
+/* A box closes in on the local player's new target, turning as it shrinks and trailed by two more, before the
+   brackets show (UpdateLockBox, hud.c); the HUD marks the nav target too (DrawNavTargetMarker) */
+#define MW2_LOCK_BOXES
+/* The software renderer textures the sky and the ground (skygnd.par: LoadSkyGroundSettings, DrawSkyQuad,
+   DrawGroundQuad, as the accelerated editions do), clipping their quads to depths (ClipPolygonDepth) */
+#define MW2_TILED_SKY
+/* The gauge ellipse can be drawn and filled at a percentage of its pane (DrawScaledGaugeEllipse) */
+#define MW2_SCALED_GAUGE_ELLIPSES
 /* The weapons are the Clans' (GBL's, renamed and retuned) and 31 of the Inner Sphere (WEAPON_DEF_COUNT 66,
    g_weaponDefs) */
 #define MW2_CLAN_AND_IS_WEAPONS

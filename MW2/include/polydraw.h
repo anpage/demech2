@@ -9,6 +9,10 @@
 #include "rendersettings.h"
 #include "types.h"
 
+#ifdef MW2_TILED_SKY
+#include <stdio.h>
+#endif
+
 // The functions and globals of polydraw.c that other units use.
 #ifdef __cplusplus
 extern "C"
@@ -17,6 +21,10 @@ extern "C"
 
 	extern Eyepoint* g_eyepoint;
 	extern Eyepoint g_mainEyepoint;
+#ifdef MW2_LOCK_BOXES
+	extern MechS32 g_lineEndX;
+	extern MechS32 g_lineEndY;
+#endif
 	extern RenderSettings g_renderSettings;
 	extern MechS32 g_horizonBandHeight;
 #ifdef MW2_A3D
@@ -71,6 +79,30 @@ void DrawScenePolygon(MechS32 p_count, MechU32* p_points, MechU32 p_flags);
 #ifndef MW2_A3D
 	void DrawLineTo(MechS32 p_x, MechS32 p_y, MechU32 p_color);
 	void DrawPolygonOrLine(MechS32 p_count, MechU32* p_points, MechU32 p_flags);
+#endif
+
+#ifdef MW2_TILED_SKY
+	extern MechS32 g_skyTile;
+	extern MechS32 g_skyExtent;
+	extern MechS32 g_groundTile;
+	extern MechS32 g_groundExtent;
+	extern MechS32 g_groundClipNear;
+	extern MechS32 g_groundClipMiddle;
+	extern MechS32 g_groundClipFar;
+	extern MechS32 g_skyScroll;
+	extern MechS32 g_skyScrollEnd;
+	extern MechS32 g_skyScrollSpeed;
+	extern MechS32 g_tileLuma;
+	extern MechS32 g_tileLumaStep;
+
+	MechU32 ReadTextLine(FILE* p_file, MechChar* p_buffer, MechS32 p_size);
+	void LoadSkyGroundSettings(const MechChar* p_mission);
+	MechS32 DrawTiledPolygon(MechS32 p_texture, struct ProjectedVertex** p_points, MechS32 p_count, MechS32 p_animate);
+	MechS32 ClipPolygonDepth(struct Vertex* p_vertices, MechU32 p_count, MechS32 p_near, MechS32 p_far);
+	void DrawFaceFlat(struct Face* p_face);
+	void FUN_10059503(void);
+	void DrawGroundQuad(MechS32 p_near, MechS32 p_far, MechS32 p_texture);
+	void DrawSkyQuad(void);
 #endif
 
 #ifdef __cplusplus

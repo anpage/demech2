@@ -60,7 +60,14 @@ extern "C"
 	void DrawCompass(MechS32 p_x, MechS32 p_y, MechScalar p_heading, MechScalar p_twist);
 	MechS32 ProjectAimPoint(Mech* p_mech, MechS32* p_x, MechS32* p_y);
 	void DrawPlayerBrackets(struct Player* p_player, MechS32 p_side);
-	void DrawObjectBrackets(struct SceneObject* p_object, MechS32 p_side);
+#ifdef MW2_LOCK_BOXES
+	void DrawObjectBrackets(MechS32 p_thing, struct SceneObject* p_object, MechS32 p_side);
+	void DrawNavTargetMarker(Mech* p_mech);
+	void RotateHudPoint(MechS32* p_outX, MechS32* p_outY, MechS32 p_x, MechS32 p_y, MechS32 p_angle);
+	MechS32 UpdateLockBox(MechS32 p_hidden, MechS32 p_target, MechS32 p_x, MechS32 p_y, MechS32 p_side);
+#else
+void DrawObjectBrackets(struct SceneObject* p_object, MechS32 p_side);
+#endif
 	void DrawHudShape(MechS32 p_x, MechS32 p_y, MechS32 p_id);
 #ifdef MW2_KEY_COLOR
 	void ClipRectToPane(PANE* p_pane, Rect* p_rect);

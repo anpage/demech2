@@ -989,9 +989,54 @@ void DrawGaugeEllipse(PANE* p_target, MechS32 p_color)
 #endif
 }
 
+#ifdef MW2_SCALED_GAUGE_ELLIPSES
+// DrawGaugeEllipse at p_percent (16.16) of the pane's size.
+// FUNCTION: MW2PREMERCS 0x1002540b
+void DrawScaledGaugeEllipse(PANE* p_target, MechS32 p_color, MechU32 p_percent)
+{
+	MechS32 aspect;
+	MechS32 centerX;
+	MechS32 centerY;
+	MechS32 radius;
+	MechS32 radiusY;
+	MechS32 scale;
+
+	aspect = g_eyepoint->m_pixelAspect;
+	centerX = (p_target->m_x1 - p_target->m_x0 + 1) >> 1;
+	centerY = (p_target->m_y1 - p_target->m_y0 + 1) >> 1;
+	radius = (p_target->m_x1 - p_target->m_x0 + 1) / 2 - 1;
+	scale = FixedDiv16(p_percent, FIXED_CONST(100));
+	radius = FixedMul16(radius, scale);
+	radiusY = FixedMul16(radius, aspect);
+	VFX_ellipse_draw(p_target, centerX, centerY, radius, radiusY, p_color);
+}
+
+// The same ellipse, filled.
+// FUNCTION: MW2PREMERCS 0x100254b8
+void FillScaledGaugeEllipse(PANE* p_target, MechS32 p_color, MechU32 p_percent)
+{
+	MechS32 aspect;
+	MechS32 centerX;
+	MechS32 centerY;
+	MechS32 radius;
+	MechS32 radiusY;
+	MechS32 scale;
+
+	aspect = g_eyepoint->m_pixelAspect;
+	centerX = (p_target->m_x1 - p_target->m_x0 + 1) >> 1;
+	centerY = (p_target->m_y1 - p_target->m_y0 + 1) >> 1;
+	radius = (p_target->m_x1 - p_target->m_x0 + 1) / 2 - 1;
+	scale = FixedDiv16(p_percent, FIXED_CONST(100));
+	radius = FixedMul16(radius, scale);
+	radiusY = FixedMul16(radius, aspect);
+	VFX_ellipse_fill(p_target, centerX, centerY, radius, radiusY, p_color);
+}
+
+#endif
 // Fills the part of the ellipse inscribed in a pane that lies in p_rect.
 // FUNCTION: MW2 0x10057edc
 // FUNCTION: MW2GBL 0x10009538
+// FUNCTION: MW2PREMERCS 0x10025565
 void FillGaugeEllipse(PANE* p_target, Rect* p_rect, MechS32 p_color)
 {
 	PANE clip;
@@ -1020,6 +1065,7 @@ void FillGaugeEllipse(PANE* p_target, Rect* p_rect, MechS32 p_color)
 // The Matrox edition takes the point as a Point and divides by the float aspect.
 // FUNCTION: MW2 0x10057fbe
 // FUNCTION: MW2GBL 0x1000961a
+// FUNCTION: MW2PREMERCS 0x10025647
 // FUNCTION: MW2MATROX 0x10072834
 // FUNCTION: MW23DFX 0x10006ef0
 // FUNCTION: MW2ATI 0x10007870

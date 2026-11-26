@@ -34,6 +34,9 @@ extern "C"
 	extern AnimFrame g_animFrames[0x200][0x20];
 	extern MechS32 g_lumaResourceId;
 	extern Animation g_animations[0x200];
+#ifdef MW2_TILED_SKY
+	extern MechU16* g_lumaTables;
+#endif
 #ifdef MW2_A3D
 	extern MechS32 g_unk0x100aa1d0;
 #ifdef MW2_S3
@@ -79,6 +82,9 @@ MechS32 DrawAnimatedPolygon(
 #endif
 	void FUN_10069591(void);
 	void FreeAnimations(void);
+#ifdef MW2_TILED_SKY
+	MechU16* FUN_10051dfe(MechS32 p_index, MechS16* p_width, MechS16* p_height);
+#endif
 #ifdef MW2_A3D
 	MechS32 FUN_100519b0(MechS32 p_index, MechFloat* p_red, MechFloat* p_green, MechFloat* p_blue);
 	void FUN_10051ba1(MechS32 p_index, MechFloat* p_red, MechFloat* p_green, MechFloat* p_blue);

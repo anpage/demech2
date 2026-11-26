@@ -82,6 +82,7 @@ MechS32 g_classEntryCount = 0;
 
 // GLOBAL: MW2 0x100a37d8
 // GLOBAL: MW2GBL 0x100ad874
+// GLOBAL: MW2PREMERCS 0x100b39ec
 // GLOBAL: MW2MATROX 0x100ae0e8
 // GLOBAL: MW23DFX 0x1024dbdc
 // GLOBAL: MW2ATI 0x10181eec
@@ -102,6 +103,7 @@ ClassEntry g_classTable[0x30c];
 // Loads the shapes of p_player's entries for its base level (m_baseLevel) into one pool block.
 // FUNCTION: MW2 0x1001ce90
 // FUNCTION: MW2GBL 0x10036220
+// FUNCTION: MW2PREMERCS 0x100572c0
 // FUNCTION: MW2MATROX 0x1006d550
 // FUNCTION: MW23DFX 0x100260e0
 // FUNCTION: MW2ATI 0x10025e50
@@ -251,6 +253,7 @@ void ResetClassTable(void)
 // Gives the entries added since the last call (owner -2) to p_player.
 // FUNCTION: MW2 0x1001d220
 // FUNCTION: MW2GBL 0x100365b0
+// FUNCTION: MW2PREMERCS 0x10057648
 // FUNCTION: MW2MATROX 0x1006d8e0
 // FUNCTION: MW23DFX 0x100262f0
 // FUNCTION: MW2ATI 0x10026060
@@ -276,6 +279,7 @@ void ClaimNewClassEntries(Player* p_player)
 // shape already loaded. Returns 0 when a shape doesn't load.
 // FUNCTION: MW2 0x1001d292
 // FUNCTION: MW2GBL 0x10036622
+// FUNCTION: MW2PREMERCS 0x100576b7
 // FUNCTION: MW2MATROX 0x1006d952
 // FUNCTION: MW23DFX 0x10026330
 // FUNCTION: MW2ATI 0x100260a0
@@ -966,6 +970,7 @@ void ChoosePlayerDetailLevels(void)
 // Releases the shape of the entry whose object is p_obj.
 // FUNCTION: MW2 0x1001ddf2
 // FUNCTION: MW2GBL 0x10037182
+// FUNCTION: MW2PREMERCS 0x100581fd
 // FUNCTION: MW2MATROX 0x1006e63c
 // FUNCTION: MW23DFX 0x100269a0
 // FUNCTION: MW2ATI 0x10026660

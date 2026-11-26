@@ -55,7 +55,6 @@ void PlayWeaponLaunchSound(undefined4 p_shotType, MechS32 p_sound, undefined4 p_
 // and the pending palette.
 // FUNCTION: MW2 0x1004c8bd
 // FUNCTION: MW2GBL 0x1004fa5d
-// FUNCTION: MW2PREMERCS 0x10046dad
 // FUNCTION: MW2MATROX 0x100450ed
 // FUNCTION: MW23DFX 0x1001bc50
 // FUNCTION: MW2ATI 0x1001bfe0
@@ -118,6 +117,7 @@ void RenderViewToPane(MechU32 p_target, MechScalar p_fovX, MechS32* p_view, stru
 #ifdef MW2_MFD_PANELS
 // The early Mercenaries build's RenderViewToPane renders the shape grid's cells ahead of the
 // eyepoint, and over p_mech's view its crosshair (RenderViewToPaneFor).
+// FUNCTION: MW2PREMERCS 0x10046dad
 void RenderViewToPane(MechU32 p_target, MechScalar p_fovX, MechS32* p_view, struct SceneObject* p_object)
 {
 	RenderViewToPaneFor(p_target, p_fovX, p_view, p_object, NULL);

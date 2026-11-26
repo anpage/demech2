@@ -156,6 +156,7 @@ MechS32 g_mapShadeRange = 0x1900;
 // The gauge functions of the cockpit layouts, by index.
 // GLOBAL: MW2 0x100a5a40
 // GLOBAL: MW2GBL 0x100b1e80
+// GLOBAL: MW2PREMERCS 0x100ae840
 CockpitGaugeFn g_cockpitGauges[10] = {
 	NULL,
 	(CockpitGaugeFn) OutlinePane,

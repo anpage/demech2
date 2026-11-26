@@ -574,6 +574,7 @@ void PreloadCockpitSounds(void)
 // at odd ones, renumbering their bins, and clears the slots left empty.
 // FUNCTION: MW2 0x1006f4fa
 // FUNCTION: MW2GBL 0x10003daa
+// FUNCTION: MW2PREMERCS 0x10049faa
 // FUNCTION: MW2MATROX 0x1007954a
 // FUNCTION: MW23DFX 0x1001dcc0
 // FUNCTION: MW2ATI 0x1001df90

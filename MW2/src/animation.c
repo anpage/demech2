@@ -1495,6 +1495,38 @@ void FreeAnimations(void)
 	}
 }
 
+#ifdef MW2_TILED_SKY
+// Returns the pixels of animation p_index's current frame (its CEL resource, from the cache), and
+// its size; NULL if it has none (the 3D editions' FUN_10051dfe).
+// FUNCTION: MW2PREMERCS 0x10060c89
+MechU16* FUN_10051dfe(MechS32 p_index, MechS16* p_width, MechS16* p_height)
+{
+	MechU16* data;
+	AnimFrame* frame;
+	Animation* anim;
+
+	data = NULL;
+	anim = &g_animations[p_index];
+	frame = &g_animFrames[anim->m_set][anim->m_frame];
+	if (frame->m_resourceId < 1) {
+		return NULL;
+	}
+
+	data = frame->m_data;
+	if (!data) {
+		data = LoadCachedResource(g_mw2PrjHandle, frame->m_resourceId, g_resTagCel, 0);
+		if (!data) {
+			return NULL;
+		}
+	}
+
+	*p_width = data[0];
+	*p_height = data[1];
+	data += 2;
+	return data;
+}
+
+#endif
 #ifdef MW2_A3D
 #ifdef MW2_FRAME_TEXELS
 // Returns the pixels of animation p_index's current frame (its CEL resource, from the cache), and
