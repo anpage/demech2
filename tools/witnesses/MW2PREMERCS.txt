@@ -199,6 +199,7 @@
 0x10041787 LateUpdateAllPlayers players.c pad 4
 0x100418ab ShutdownAllPlayers players.c pad 4 rename i=zqae shutdown=zqad
 0x10041e85 SetTeamFormationByName team.c pad 1
+0x10041f7b SetTeamFormation team.c pad 2
 0x10041ffa SetPlayerSlot team.c pad 1
 0x10042046 SetTeamLeader team.c pad 13 rename dx=zqah dz=zqaf i=zqae player=zqag result=zqad
 0x1004216e PlaceTeam team.c rename heading=zqah i=zqaj leader=zqaf player=zqag result=zqad x=zqai z=zqae
@@ -440,7 +441,7 @@
 0x10075ee0 InitRandom random.c rename i=zqaf j=zqag range=zqah scale=zqae sum=zqad
 0x10076179 CloseMw2Log mw2log.c rename line=zqae now=zqad
 0x10078c28 LoadWorld world.c rename buffer=zqai i=zqag key=zqae keyData=zqah result=zqaf stream=zqad
-0x10078dbf AfterWorldLoader world.c pad 10 rename i=zqae obj=zqad
+0x10078dbf AfterWorldLoader world.c rename i=zqae obj=zqad
 0x10078f60 AddBwdName bwdnames.c rename node=zqae result=zqad
 0x1007900e FindBwdName bwdnames.c pad 15 rename found=zqad node=zqae
 0x10079120 SetUpStarMission missionsetup.c pad 11
@@ -456,7 +457,7 @@
 0x1007b104 GetNextNode bwd.c pad 2 rename next=zqad result=zqaf size=zqae
 0x1007b2d8 LogKeywordName bwd.c rename line=zqae name=zqad
 0x1007b36e ReadStaticMemoryTable poolsizes.c rename buffer=zqah key=zqae keyData=zqag result=zqaf stream=zqad
-0x1007b463 CountMissionStream poolsizes.c pad 7 rename known=zqah node=zqaf result=zqad rev=zqae table=zqag type=zqai
+0x1007b463 CountMissionStream poolsizes.c pad 6 rename known=zqah node=zqaf result=zqad rev=zqae table=zqag type=zqai
 0x1007ce29 LoadShapes wtbshapes.c rename count=zqaf next=zqad shape=zqae
 0x1007cf05 LoadShapeRecord wtbshapes.c pad 13 rename checksum=zqat count=zqak extra=zqah extraSize=zqai face=zqa0 faces=zqbl facesSize=zqag header=zqc8 i=zqcx id=zqal indices=zqae j=zqd4 key=zqaf name=zqao obj=zqaj polygon=zqep record=zqdd size=zqap suffix=zqad u=zqam v=zqan vertex=zqe0 vertexCount=zqbi vertices=zqbg x=zqbj y=zqch z=zqdt
 0x1007d8c0 LoadMapBitmap resource.c rename count=zqae i=zqad record=zqaf
@@ -468,11 +469,11 @@
 0x1007e3dd GetTriangleNormal resource.c rename a=zqad b=zqae c=zqaf ux=zqag uy=zqah uz=zqai vx=zqaj vy=zqak vz=zqal
 0x1007e528 GetPointNormalPlane resource.c pad 13
 0x1007ebb9 NextThingRecordObject resource.c rename id=zqad obj=zqae
-0x1007f69c SpawnShot weapons.c rename dx=zqag dy=zqai dz=zqak found=zqaf i=zqam j=zqap result=zqad shot=zqae speed=zqao spread=zqan x=zqah y=zqaj z=zqal
-0x1007fb6b SelectNextWeaponInGroup weapons.c pad 9 rename def=zqag found=zqah group=zqae i=zqai index=zqad selected=zqaj slot=zqaf
+0x1007f69c SpawnShot weapons.c pad 1 rename dx=zqag dy=zqai dz=zqak found=zqaf i=zqam j=zqap result=zqad shot=zqae speed=zqao spread=zqan x=zqah y=zqaj z=zqal
+0x1007fb6b SelectNextWeaponInGroup weapons.c pad 10 rename def=zqag found=zqah group=zqae i=zqai index=zqad selected=zqaj slot=zqaf
 0x1007fcb2 SelectNextWeapon weapons.c rename def=zqag done=zqae tries=zqad type=zqaf
-0x1007fdce SelectNextWeaponGroup weapons.c pad 13 rename current=zqad def=zqag found=zqah group=zqaj i=zqai selected=zqae type=zqaf
-0x1007ff58 SelectWeaponGroup weapons.c rename current=zqad def=zqag found=zqah i=zqai selected=zqae type=zqaf
+0x1007fdce SelectNextWeaponGroup weapons.c rename current=zqad def=zqag found=zqah group=zqaj i=zqai selected=zqae type=zqaf
+0x1007ff58 SelectWeaponGroup weapons.c pad 1 rename current=zqad def=zqag found=zqah i=zqai selected=zqae type=zqaf
 0x1008021d LoadWeaponSounds weapons.c rename def=zqae i=zqad
 0x100804b1 FireWeaponGroup weapons.c rename def=zqag first=zqad selected=zqaf slot=zqae
 0x10080679 UpdateWeaponLock weapons.c rename bearing=zqah def=zqak dx=zqaj dy=zqal dz=zqad heading=zqam inRange=zqai pitch=zqaf twist=zqae yaw=zqag
@@ -504,9 +505,28 @@
 0x10085660 FirstShots shots.c rename effect=zqaf i=zqad shot=zqae
 0x100858e0 UpdateAllShots shots.c rename i=zqad shot=zqae
 0x1008638c GuideMissileToTarget shots.c rename ax=zqac ay=zqap az=zqaa distance=zqak dx=zqah dy=zqag dz=zqai player=zqaf rate=zqab targetX=zqao targetY=zqad targetZ=zqae thing=zqaj vx=zqal vy=zqam vz=zqan
-0x10087574 DamageThingsInRadius shots.c pad 10 rename distance=zqad dx=zqag dy=zqah dz=zqai i=zqaf radius=zqal reach=zqak shape=zqaj thing=zqae x=zqam y=zqan z=zqao
+0x100873ba DamageMechsInRadius shots.c pad 5 rename damage=zqak dx=zqah dy=zqai dz=zqaj heat=zqal i=zqag mech=zqaf player=zqad reach=zqae
+0x10087574 DamageThingsInRadius shots.c pad 11 rename distance=zqad dx=zqag dy=zqah dz=zqai i=zqaf radius=zqal reach=zqak shape=zqaj thing=zqae x=zqam y=zqan z=zqao
 0x10087758 KillGameThing shots.c pad 1
 0x100878e8 DamageGameThing shots.c rename index=zqad thing=zqae
 0x10087a27 ScatterDebris shots.c rename effect=zqah i=zqag object=zqae piece=zqaf shown=zqad
 0x10087d08 StartNuke shots.c rename duration=zqae effect=zqaf i=zqad shape=zqag
 0x10087e08 UpdateNuke shots.c pad 14
+0x10087f64 UnlinkTracer tracers.c rename next=zqad prev=zqae
+0x10088049 FreeTracer tracers.c pad 11
+0x1008861d StopTracer tracers.c pad 12
+0x10088680 SetTracersEnabled tracers.c pad 4 rename i=zqad tracer=zqae
+0x100887a8 UpdateTracers tracers.c rename i=zqae stopped=zqad tracer=zqaf
+0x100888ab DrawTracer tracers.c pad 15
+0x100889fe DrawMissileTrail tracers.c pad 10 rename color=zqai dx=zqan dy=zqap dz=zqae endX=zqao endY=zqad endZ=zqag i=zqak sx=zqaj sy=zqal sz=zqam x=zqaa y=zqaf z=zqah
+0x10088c5c StartMissileTrail tracers.c rename i=zqaj point=zqae shape=zqak stepX=zqam stepY=zqad stepZ=zqaf tracer=zqal x=zqag y=zqah z=zqai
+0x10088f92 DrawSparks tracers.c rename color=zqaf i=zqah sx=zqag sy=zqai sz=zqaj x=zqak y=zqad z=zqae
+0x10089149 StartSparks tracers.c rename i=zqaj point=zqae shape=zqak stepX=zqam stepY=zqad stepZ=zqaf tracer=zqal x=zqag y=zqah z=zqai
+0x1008946d DrawGunTracer tracers.c rename color=zqaf i=zqah sx=zqag sy=zqai sz=zqaj x=zqak y=zqad z=zqae
+0x10089624 StartGunTracer tracers.c rename i=zqaj point=zqae shape=zqak stepX=zqam stepY=zqad stepZ=zqaf tracer=zqal x=zqag y=zqah z=zqai
+0x10089925 InitPrecipitation precipitation.c rename drop=zqad i=zqag j=zqai x=zqaf z=zqah zone=zqae
+0x10089da8 UpdateRaindrop precipitation.c pad 14
+0x10089eae DrawRaindrop precipitation.c rename color=zqaj drop=zqai dx=zqao dy=zqaa dz=zqae ex=zqap ey=zqad ez=zqag i=zqal sx=zqak sy=zqam sz=zqan x=zqab y=zqaf z=zqah
+0x1008a076 StartRaindrop precipitation.c rename drop=zqag i=zqak point=zqae shape=zqal stepX=zqan stepY=zqad stepZ=zqaf tracer=zqam x=zqah y=zqai z=zqaj
+0x1008a405 DrawSnowflake precipitation.c pad 12 rename color=zqax drop=zqa6 dx=zqal dy=zqam dz=zqae ex=zqbh ey=zqad ez=zqaf i=zqay j=zqaz size=zqag sizeY=zqbg sx=zqai sy=zqaj sz=zqak vertices=zqah x=zqbi y=zqau z=zqav
+0x1008a7c0 StartSnowflake precipitation.c rename drop=zqag i=zqak point=zqae shape=zqal stepX=zqan stepY=zqad stepZ=zqaf tracer=zqam x=zqah y=zqai z=zqaj

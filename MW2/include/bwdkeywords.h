@@ -69,7 +69,10 @@ enum {
 	c_bwdLuma = 65,
 	c_bwdPath = 66,
 	c_bwdFormation = 67,
-	c_bwdHiddenText = 68
+	c_bwdHiddenText = 68,
+#ifdef MW2_CAMPAIGN_BWD_TAGS
+	c_bwdWeather = 86
+#endif
 };
 
 // The node tags BWD streams have (g_bwdTypeCodes): the early Mercenaries build's 15 more have no

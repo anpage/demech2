@@ -974,6 +974,8 @@ double __cdecl fabs(double);
 /* BWD streams have Mercenaries' campaign records, 15 node tags more (CPGN, PILT, TECH, NEWS…), which have no
    names (g_bwdTypeCodes, GetKeywordName) */
 #define MW2_CAMPAIGN_BWD_TAGS
+/* A BWD stream's WTHR record starts rain or snow (StartPrecipitation, premercs/precipitation.c) */
+#define MW2_WEATHER_RECORD
 /* The pause sound is another sound of the PRJ's (PlayPauseSound) */
 #define MW2_PAUSE_SOUND 0x149
 /* FindIniSection and GetIniValue open MW2.INI by that name in capitals */

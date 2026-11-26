@@ -57,6 +57,10 @@
 #include "wtbshapes.h"
 #include "xform.h"
 
+#ifdef MW2_WEATHER_RECORD
+#include "premercs/precipitation.h"
+#endif
+
 #include <ctype.h>
 #include <stdlib.h>
 #include <string.h>
@@ -263,6 +267,14 @@ typedef struct BwdAnim2dRecord {
 	BwdRecord m_header;   // 0x00
 	BwdAnim2dSpec m_spec; // 0x08
 } BwdAnim2dRecord;
+
+#ifdef MW2_WEATHER_RECORD
+// weather.
+typedef struct BwdWeatherRecord {
+	BwdRecord m_header; // 0x00
+	MechS32 m_kind;     // 0x08 — c_precipitationRain or c_precipitationSnow
+} BwdWeatherRecord;
+#endif
 
 #pragma pack(pop)
 
@@ -1429,6 +1441,15 @@ MechS32 BwdExecuteStream(BwdStream* p_stream)
 			spec = &anim2d->m_spec;
 			LoadAnim2d(spec->m_flags, spec->m_frameTime, spec->m_type, &spec->m_resourceId);
 		}
+#ifdef MW2_WEATHER_RECORD
+		else if (type.m_code == g_bwdTypeCodes[c_bwdWeather].m_code) {
+			PrecipitationSpec spec;
+			BwdWeatherRecord* weather = (BwdWeatherRecord*) node;
+
+			spec.m_kind = weather->m_kind;
+			StartPrecipitation(&spec);
+		}
+#endif
 		else if (type.m_code == g_bwdTypeCodes[c_bwdRev].m_code) {
 		}
 		else if (type.m_code == g_bwdTypeCodes[c_bwdDtbl].m_code) {

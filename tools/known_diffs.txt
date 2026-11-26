@@ -36,16 +36,17 @@ MW2PREMERCS 0x10059503 FUN_10059503 4f1b4bfcac17 the original is empty but for a
 MW2PREMERCS 0x1005980e DrawSkyAndGround e5495a60af98 the original draws the tiled sky and ground (DrawSkyQuad, and DrawGroundQuad between g_groundClipNear, Middle and Far) and indexes a table by 8 where the rebuild indexes by 4: to investigate
 MW2PREMERCS 0x10070b9e UpdateInputs 522ea94ad178 the original lacks the rebuild's first loop over the input devices (0x70 instructions): to investigate
 MW2PREMERCS 0x10074454 ShowSceneInfo efe6c622c6dc the original counts each of the shape grid's cells' lists (g_shapeGridLists, MW2_SHAPE_GRID) where the rebuild counts g_sceneShapes': to investigate
-MW2PREMERCS 0x10076275 BwdExecuteStream e9668f3292d8 the original's frame is 0x14 bytes larger, it tests two more globals near the start, copies a mech member 0xd0 to 0x138 and handles one more record (a call on a local's member 8): to investigate
+MW2PREMERCS 0x10076275 BwdExecuteStream 904dc04b660f the original tests two more globals near the start and copies a mech member 0xd0 to 0x138: to investigate
 MW2PREMERCS 0x1007a20a LoadHudFile 91c593123b4a the original fills each of eight HUD layouts (a loop to 8, 0x140 bytes apart) where the rebuild fills one: to investigate
 MW2PREMERCS 0x1007e471 GetTrianglePlane 6f056478065b the original sums the distance's products in another order and stores c with fstp and reloads it: to investigate
 MW2PREMERCS 0x1007e5b8 CreateObjectNode 2fc6790b892f the original handles a -1 from a lookup by calling a function with (1, it + 0x3a), and passes one more argument to a call (0x24 bytes); also a mirrored comparison: to investigate
 MW2PREMERCS 0x1007ed13 UpdateWeaponFireState c2fee854baf4 the original also tests the steering's m_weaponCycleGroup (0x2b) before m_weaponFire, and its switch's jump table differs: to investigate
 MW2PREMERCS 0x10080392 FireRemoteWeapons 9cbe73d65ce0 the original indexes the weapon slots with the base loaded first (another slot size or grouping), and tests one more global: to investigate
-MW2PREMERCS 0x10085991 UpdateShot 5d120592212b an operand order (a global against a local) the witness search doesn't settle, and its switch's jump table differs: to investigate
-MW2PREMERCS 0x100867d8 SpawnEffectEx 02d22170739d its switch's jump table differs (other cases or targets): to investigate
+MW2PREMERCS 0x10085991 UpdateShot db7fd08426df an operand order (a global against a local) the witness search doesn't settle, and its switch's jump table differs: to investigate
+MW2PREMERCS 0x100867d8 SpawnEffectEx 5396af40d056 its switch's jump table differs (other cases or targets): to investigate
 MW2PREMERCS 0x10087070 UpdateEffects 1a5e0a8c948b the original's effect records are of another size (no * 0x2c index; it reads 0x18 first) and it reads three more members: to investigate
 MW2PREMERCS 0x10087b4b HeatMechsNearFires 7ca424f76450 the original walks the shape grid's cells (g_shapeGridLists, MW2_SHAPE_GRID), and a comparison is mirrored: to investigate
+MW2PREMERCS 0x10088133 InitTracers bc9d8e7cf9cb the original widens the face color to a dword before it passes it to AddShapeFace (and eax, 0xffff), as a call without a prototype would: to investigate
 MW2MATROX 0x10001b59 MultiplyRotations b93b7f6a221d the x87 sums of products are added in another term order (a flattened float chain), and the slot map then fails (a22 and a20 overlap): reordering a float sum isn't a rewrite the audit has
 MW2MATROX 0x10001f5f BuildMatrixEx a6d36e87fa9f the x87 products' and sums' operands are in another order (fmul/fadd of chains): reordering a float chain isn't a rewrite the audit has
 MW2MATROX 0x1000d29c UpdateMech 7e2ac1b29f12 the term order of the flattened x87 chains (accelY += m_jumpThrust + drag; dragX and dragZ added to accelX and accelZ) follows the locals' declaration order, now the one tools/declorder.py finds (only slots at pad 5); what's left is slots no renaming reaches: the block-scope midpointStep of IntegrateMidpoint (expanded three times) would have to come before targetZ (tools/witness.py, with pad 4), and a nested scope's locals are allocated after the function's own
