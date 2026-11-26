@@ -660,13 +660,60 @@ void DrawAutopilotPanel(CockpitPanel* p_panel)
 // Shows the local mech's speed in kph, in a different color while it backs up, and its throttle bar.
 // FUNCTION: MW2 0x10006291
 // FUNCTION: MW2GBL 0x100459c5
-// FUNCTION: MW2PREMERCS 0x10041014
 // FUNCTION: MW2MATROX 0x10022d91
 // FUNCTION: MW23DFX 0x10018470
 // FUNCTION: MW2ATI 0x10018830
 // FUNCTION: MW2S3 0x1003aea0
 // FUNCTION: MW2POWERVR 0x10017770
-#ifdef MW2_MFD_PANELS
+#ifndef MW2_MFD_PANELS
+void DrawSpeedPanel(CockpitPanel* p_panel)
+{
+	MechS32 speed;
+	Mech* mech;
+	MechChar text[64];
+	void* font;
+
+	if (!p_panel->m_enabled) {
+		return;
+	}
+
+	mech = g_players[g_localPlayerId]->m_mech;
+#ifdef MW2_FLOAT_SCALARS
+	speed = ApproximateVectorLength(mech->m_velocityX, mech->m_velocityY, mech->m_velocityZ) * 6.516f * 1.5;
+#else
+	speed = ApproximateVectorLength(mech->m_velocityX, mech->m_velocityY, mech->m_velocityZ) / 10002 * 1.5;
+#endif
+	if (mech->m_speed.m_value < 0) {
+		speed = -speed;
+		g_textColors[0xe] = PIXEL_COLOR(6);
+	}
+	else {
+		g_textColors[0xe] = PIXEL_COLOR(0xe);
+	}
+
+	font = LoadCachedResource(g_mw2PrjHandle, HUD_ART_RESOLUTION + 1, g_resTagFont, 0);
+	if (!font) {
+		return;
+	}
+
+	sprintf(text, "%d kph", speed);
+	VFX_string_draw(
+		p_panel->m_target,
+		p_panel->m_textOrigin->m_x,
+		p_panel->m_textOrigin->m_y,
+		font,
+		text,
+		g_textColors
+	);
+	g_textColors[0xe] = PIXEL_COLOR(0xe);
+	UnlockCachedResource(HUD_ART_RESOLUTION + 1, g_resTagFont);
+	DrawThrottleGauge(p_panel->m_target);
+#ifdef MW2_KEY_COLOR
+	FUN_10088280(p_panel->m_target);
+#endif
+}
+#else
+// FUNCTION: MW2PREMERCS 0x10041014
 void DrawSpeedPanel(CockpitPanel* p_panel)
 {
 	MechS32 speed;
@@ -716,53 +763,6 @@ void DrawSpeedPanel(CockpitPanel* p_panel)
 	UnlockCachedResource(HUD_ART_RESOLUTION + 1, g_resTagFont);
 	DrawThrottleGauge(p_panel);
 }
-#else
-void DrawSpeedPanel(CockpitPanel* p_panel)
-{
-	MechS32 speed;
-	Mech* mech;
-	MechChar text[64];
-	void* font;
-
-	if (!p_panel->m_enabled) {
-		return;
-	}
-
-	mech = g_players[g_localPlayerId]->m_mech;
-#ifdef MW2_FLOAT_SCALARS
-	speed = ApproximateVectorLength(mech->m_velocityX, mech->m_velocityY, mech->m_velocityZ) * 6.516f * 1.5;
-#else
-	speed = ApproximateVectorLength(mech->m_velocityX, mech->m_velocityY, mech->m_velocityZ) / 10002 * 1.5;
-#endif
-	if (mech->m_speed.m_value < 0) {
-		speed = -speed;
-		g_textColors[0xe] = PIXEL_COLOR(6);
-	}
-	else {
-		g_textColors[0xe] = PIXEL_COLOR(0xe);
-	}
-
-	font = LoadCachedResource(g_mw2PrjHandle, HUD_ART_RESOLUTION + 1, g_resTagFont, 0);
-	if (!font) {
-		return;
-	}
-
-	sprintf(text, "%d kph", speed);
-	VFX_string_draw(
-		p_panel->m_target,
-		p_panel->m_textOrigin->m_x,
-		p_panel->m_textOrigin->m_y,
-		font,
-		text,
-		g_textColors
-	);
-	g_textColors[0xe] = PIXEL_COLOR(0xe);
-	UnlockCachedResource(HUD_ART_RESOLUTION + 1, g_resTagFont);
-	DrawThrottleGauge(p_panel->m_target);
-#ifdef MW2_KEY_COLOR
-	FUN_10088280(p_panel->m_target);
-#endif
-}
 #endif
 
 // Labels the MASC panel while MASC is available.
@@ -805,56 +805,12 @@ void DrawMascPanel(CockpitPanel* p_panel)
 // Labels the heat panel with the shutdown state and draws the heat bar.
 // FUNCTION: MW2 0x10006484
 // FUNCTION: MW2GBL 0x10045bb8
-// FUNCTION: MW2PREMERCS 0x10041279
 // FUNCTION: MW2MATROX 0x10022fbf
 // FUNCTION: MW23DFX 0x100185e0
 // FUNCTION: MW2ATI 0x100189a0
 // FUNCTION: MW2S3 0x1003b010
 // FUNCTION: MW2POWERVR 0x100178e0
-#ifdef MW2_MFD_PANELS
-void DrawHeatPanel(CockpitPanel* p_panel)
-{
-	Mech* mech;
-	void* font;
-
-	mech = g_players[g_localPlayerId]->m_mech;
-	if (!p_panel->m_enabled) {
-		return;
-	}
-
-	DrawHeatBar(p_panel);
-	font = LoadCachedResource(g_mw2PrjHandle, HUD_ART_RESOLUTION + 1, g_resTagFont, 0);
-	if (!font) {
-		return;
-	}
-
-	if (mech->m_flags & 4) {
-		if (!(mech->m_flags & 8)) {
-			p_panel->m_setName(p_panel, "Shutdown...");
-			g_textColors[0xe] = PIXEL_COLOR(0xb);
-		}
-		else {
-			p_panel->m_setName(p_panel, "Overridden");
-			g_textColors[0xe] = PIXEL_COLOR(0xb);
-		}
-	}
-	else {
-		p_panel->m_setName(p_panel, "Heat");
-		g_textColors[0xe] = PIXEL_COLOR(0xe);
-	}
-
-	VFX_string_draw(
-		p_panel->m_target,
-		p_panel->m_textOrigin->m_x,
-		p_panel->m_textOrigin->m_y,
-		font,
-		p_panel->m_name,
-		g_textColors
-	);
-	g_textColors[0xe] = PIXEL_COLOR(0xe);
-	UnlockCachedResource(HUD_ART_RESOLUTION + 1, g_resTagFont);
-}
-#else
+#ifndef MW2_MFD_PANELS
 void DrawHeatPanel(CockpitPanel* p_panel)
 {
 	Mech* mech;
@@ -899,6 +855,50 @@ void DrawHeatPanel(CockpitPanel* p_panel)
 #ifdef MW2_KEY_COLOR
 	FUN_10088280(p_panel->m_target);
 #endif
+}
+#else
+// FUNCTION: MW2PREMERCS 0x10041279
+void DrawHeatPanel(CockpitPanel* p_panel)
+{
+	Mech* mech;
+	void* font;
+
+	mech = g_players[g_localPlayerId]->m_mech;
+	if (!p_panel->m_enabled) {
+		return;
+	}
+
+	DrawHeatBar(p_panel);
+	font = LoadCachedResource(g_mw2PrjHandle, HUD_ART_RESOLUTION + 1, g_resTagFont, 0);
+	if (!font) {
+		return;
+	}
+
+	if (mech->m_flags & 4) {
+		if (!(mech->m_flags & 8)) {
+			p_panel->m_setName(p_panel, "Shutdown...");
+			g_textColors[0xe] = PIXEL_COLOR(0xb);
+		}
+		else {
+			p_panel->m_setName(p_panel, "Overridden");
+			g_textColors[0xe] = PIXEL_COLOR(0xb);
+		}
+	}
+	else {
+		p_panel->m_setName(p_panel, "Heat");
+		g_textColors[0xe] = PIXEL_COLOR(0xe);
+	}
+
+	VFX_string_draw(
+		p_panel->m_target,
+		p_panel->m_textOrigin->m_x,
+		p_panel->m_textOrigin->m_y,
+		font,
+		p_panel->m_name,
+		g_textColors
+	);
+	g_textColors[0xe] = PIXEL_COLOR(0xe);
+	UnlockCachedResource(HUD_ART_RESOLUTION + 1, g_resTagFont);
 }
 #endif
 
