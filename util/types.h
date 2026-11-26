@@ -888,7 +888,7 @@ double __cdecl fabs(double);
 /* The scene's shapes are filed in a grid of 12 by 12 cells, 25000 units each, around the origin, each shape
    keeping its cell (Shape::m_gridX, m_gridZ; shapelists.c) */
 #define MW2_SHAPE_GRID
-/* Players have 0x46 bytes more than GBL's, in three places (Player::m_unk0xe8 to m_unk0x109, m_unk0x184,
+/* Players have 0x46 bytes more than GBL's, in three places (Player::m_navTargetInfo, m_unk0x184,
    m_unk0x1a0 and m_unk0x1a4) */
 #define MW2_PLAYER_UNK_MEMBERS
 /* Mechs, their weapon slots and their ammunition bins have 0x8f, 0xc and 8 bytes more than GBL's (Mech::m_unk0x114,
@@ -909,6 +909,25 @@ double __cdecl fabs(double);
    starmates' orders (STARMATE_SET_ALL to STARMATE_SHUTDOWN), two more weapon groups and FIRE_CYCLE_WEAPON_GROUP,
    which renumber the others (GAME_KEY_ACTION; g_gameKeyNames) */
 #define MW2_MFD_GAME_KEYS
+/* A network game keeps the difficulty file's heat tracking, ammunition and damage settings (LoadDifficultyCfg
+   doesn't force them) */
+#define MW2_NETWORK_KEEPS_DAMAGE_RULES
+/* SatelliteDrawPolygon takes a polygon's kind from bits 12-15 of its flags, not 12-14, as the 3D editions do */
+#define MW2_SATELLITE_KIND_FOUR_BITS
+/* ReloadPlayerMech presses the torso's reset buttons and clears the mech's NARC mark (Mech::m_unk0x112), and copies
+   its fourth argument over its third */
+#define MW2_RELOAD_RESETS_TORSO
+/* A player keeps a second target, the nav point TargetNavPoint last targeted and CycleTarget chose
+   (Player::m_navTargetInfo), which the local player's autopilot steers for (GetTargetBearing), and retargeting hands
+   the steering to the autopilot only while it has none (CycleTarget, TargetAtReticle) */
+#define MW2_NAV_TARGET_KEPT
+/* A player with Player::m_unk0x1b4 1 targets a mech at its feet: its object's origin less its height
+   (TargetGamePiece) */
+#define MW2_AIM_AT_FEET
+/* AssignStarObjective queues the members' state with the objective's target (the leader they follow), not 2 */
+#define MW2_STAR_QUEUES_TARGET
+/* LeaveAIState releases the group fire button too (PlayerSteering::m_weaponFireGroup) */
+#define MW2_LEAVE_STATE_STOPS_GROUP_FIRE
 /* The weapons are the Clans' (GBL's, renamed and retuned) and 31 of the Inner Sphere (WEAPON_DEF_COUNT 66,
    g_weaponDefs) */
 #define MW2_CLAN_AND_IS_WEAPONS
@@ -935,9 +954,6 @@ double __cdecl fabs(double);
 #define MW2_ERROR_TEXT_RAW
 /* ScatterDebris throws its pieces without showing their objects */
 #define MW2_DEBRIS_NOT_SHOWN
-/* Targeting at the reticle doesn't hand the steering to the autopilot for a player with bit 0 of Player::m_unk0x105
-   set (TargetAtReticle) */
-#define MW2_RETARGET_PLAYER_FLAG
 /* Players of a type 8 bank into their turns (FUN_10037d84 from UpdateAI) */
 #define MW2_BANKING_PLAYER_TYPE
 /* AimTorsoTilt takes the pitch it aims at, which its callers pass (the target's or another) */

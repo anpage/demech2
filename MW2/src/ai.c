@@ -2269,6 +2269,7 @@ MechScalar SteerToTarget(Player* p_player)
 // order.
 // FUNCTION: MW2 0x10053a2e
 // FUNCTION: MW2GBL 0x10078d32
+// FUNCTION: MW2PREMERCS 0x10039987
 // FUNCTION: MW2MATROX 0x10082c85
 // FUNCTION: MW23DFX 0x10013680
 // FUNCTION: MW2ATI 0x10013b10
@@ -2280,6 +2281,9 @@ void LeaveAIState(Player* p_player)
 
 	flags = 0;
 	p_player->m_steering->m_weaponFire = 0;
+#ifdef MW2_LEAVE_STATE_STOPS_GROUP_FIRE
+	p_player->m_steering->m_weaponFireGroup = 0;
+#endif
 
 	switch (p_player->m_ai.m_state) {
 	case c_aiStatePatrol:
@@ -2549,6 +2553,7 @@ MechS16 NextTarget(Player* p_player, MechS16 p_target, MechS16 p_previous)
 // The bearing to p_player's target, 16.16 degrees either way.
 // FUNCTION: MW2 0x1005432f
 // FUNCTION: MW2GBL 0x100795eb
+// FUNCTION: MW2PREMERCS 0x1003a24a
 // FUNCTION: MW2MATROX 0x10083580
 // FUNCTION: MW23DFX 0x10013be0
 // FUNCTION: MW2ATI 0x10014070
@@ -2557,8 +2562,21 @@ MechS16 NextTarget(Player* p_player, MechS16 p_target, MechS16 p_previous)
 MechScalar GetTargetBearing(Player* p_player)
 {
 	MechScalar delta;
+#ifdef MW2_NAV_TARGET_KEPT
+	MechS32 local;
+
+	// The local player's autopilot steers for the nav target.
+	local = p_player->m_index == g_localPlayerId;
+	if (local && p_player->m_mech->m_autopilot) {
+		delta = p_player->m_navTargetInfo.m_heading - p_player->m_heading;
+	}
+	else {
+		delta = p_player->m_targetInfo.m_heading - p_player->m_heading;
+	}
+#else
 
 	delta = p_player->m_targetInfo.m_heading - p_player->m_heading;
+#endif
 	if (delta > FIXED_CONST(180)) {
 		delta -= FIXED_CONST(360);
 	}
@@ -3217,6 +3235,7 @@ void ResetStarOrders(MechS32 p_team)
 // or follow the leader.
 // FUNCTION: MW2 0x100551c6
 // FUNCTION: MW2GBL 0x1007a45d
+// FUNCTION: MW2PREMERCS 0x1003b114
 // FUNCTION: MW2MATROX 0x10084461
 // FUNCTION: MW23DFX 0x10014520
 // FUNCTION: MW2ATI 0x100149b0
@@ -3296,7 +3315,11 @@ void AssignStarObjective(MechS32 p_team)
 			QueueAIState(member, c_aiStateIdle, 0);
 		}
 		else {
+#ifdef MW2_STAR_QUEUES_TARGET
+			QueueAIState(member, state, target);
+#else
 			QueueAIState(member, state, 2);
+#endif
 		}
 
 		member->m_ai.m_flags &= ~3;
@@ -3468,6 +3491,7 @@ void HandleStarOrder(MechS32 p_team, AiMessage* p_order)
 // nearest the target's value (or the leader). Whether one went.
 // FUNCTION: MW2 0x10055811
 // FUNCTION: MW2GBL 0x1007aa86
+// FUNCTION: MW2PREMERCS 0x1003b73f
 // FUNCTION: MW2MATROX 0x10084aac
 // FUNCTION: MW23DFX 0x10014950
 // FUNCTION: MW2ATI 0x10014da0

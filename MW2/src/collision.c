@@ -203,6 +203,7 @@ MechS32 IsBelowFacePlane(
 // g_groundNormal.
 // FUNCTION: MW2 0x10034b30
 // FUNCTION: MW2GBL 0x1003a910
+// FUNCTION: MW2PREMERCS 0x10033ef0
 // FUNCTION: MW2MATROX 0x100239fc
 // FUNCTION: MW23DFX 0x10010080
 // FUNCTION: MW2ATI 0x100105e0
@@ -217,7 +218,51 @@ MechScalar GetTerrainHeight(MechScalar p_x, MechScalar p_y, MechScalar p_z)
 	Shape* shape;
 	MechS32 (*getHeight)(Shape*, MechScalar, MechScalar, MechScalar, MechScalar*);
 	MechS32 type;
+#ifdef MW2_SHAPE_GRID
+	MechS32 i;
+#endif
 
+#ifdef MW2_SHAPE_GRID
+	// The early Mercenaries build looks only at the grid's cells around the point.
+	i = 0;
+	below = best = FIXED_MIN;
+	ListShapeGridCellsAround(p_x, p_z);
+	for (root = g_shapeGridLists[i]; root; root = g_shapeGridLists[i]) {
+		i++;
+		if (!root) {
+			return 0;
+		}
+
+		for (shape = root->m_nextCollider; shape; shape = shape->m_nextCollider) {
+			type = shape->m_collisionType;
+			if (type == 5) {
+				getHeight = GetTerrainShapeTop;
+			}
+			else if (type == 0) {
+				getHeight = GetBoxTop;
+			}
+			else {
+				continue;
+			}
+
+			if (getHeight(shape, p_x, p_y, p_z, &top)) {
+				if (best == FIXED_MIN && top < p_y && below < top) {
+					below = top;
+					g_groundNormalX = g_hitNormalX;
+					g_groundNormalY = g_hitNormalY;
+					g_groundNormalZ = g_hitNormalZ;
+				}
+
+				if (top + 1000 > p_y && top - 1000 < p_y && best < top) {
+					best = top;
+					g_groundNormalX = g_hitNormalX;
+					g_groundNormalY = g_hitNormalY;
+					g_groundNormalZ = g_hitNormalZ;
+				}
+			}
+		}
+	}
+#else
 	root = g_sceneShapes;
 	if (!root) {
 		return 0;
@@ -252,6 +297,7 @@ MechScalar GetTerrainHeight(MechScalar p_x, MechScalar p_y, MechScalar p_z)
 			}
 		}
 	}
+#endif
 
 	if (best > FIXED_MIN) {
 		return best;
@@ -268,6 +314,7 @@ MechScalar GetTerrainHeight(MechScalar p_x, MechScalar p_y, MechScalar p_z)
 // normal goes to g_groundNormal.
 // FUNCTION: MW2 0x10034cbc
 // FUNCTION: MW2GBL 0x1003aa9c
+// FUNCTION: MW2PREMERCS 0x100340bc
 // FUNCTION: MW2MATROX 0x10023bc0
 // FUNCTION: MW23DFX 0x100101f0
 // FUNCTION: MW2ATI 0x10010750
@@ -282,7 +329,16 @@ MechScalar GetHighestSurface(MechScalar p_x, MechScalar p_y, MechScalar p_z)
 	MechS32 (*getHeight)(Shape*, MechScalar, MechScalar, MechScalar, MechScalar*);
 	MechS32 type;
 
+#ifdef MW2_SHAPE_GRID
+	if (g_shapeGridEnabled) {
+		root = GetShapeGridList(p_x, p_z);
+	}
+	else {
+		root = g_sceneShapes;
+	}
+#else
 	root = g_sceneShapes;
+#endif
 	if (!root) {
 		return 0;
 	}
@@ -347,6 +403,7 @@ MechS32 TestPointCollision(MechScalar p_x, MechScalar p_y, MechScalar p_z, Shape
 // Returns the shape under p_root nearest to (p_x, p_y, p_z).
 // FUNCTION: MW2 0x10034e59
 // FUNCTION: MW2GBL 0x1003ac39
+// FUNCTION: MW2PREMERCS 0x1003427e
 // FUNCTION: MW2MATROX 0x10023d71
 // FUNCTION: MW23DFX 0x10010330
 // FUNCTION: MW2ATI 0x10010890
@@ -358,7 +415,33 @@ Shape* FindNearestShape(Shape* p_root, MechScalar p_x, MechScalar p_y, MechScala
 	MechScalar distance;
 	Shape* nearest;
 	Shape* shape;
+#ifdef MW2_SHAPE_GRID
+	Shape* cell;
+	MechS32 i;
+#endif
 
+#ifdef MW2_SHAPE_GRID
+	// The early Mercenaries build goes through p_root's list once for each of the grid's cells
+	// around the point.
+	nearest = NULL;
+	i = 0;
+	best = FIXED_MAX;
+	if (!p_root) {
+		return NULL;
+	}
+
+	ListShapeGridCellsAround(p_x, p_z);
+	for (cell = g_shapeGridLists[i]; cell; cell = g_shapeGridLists[i]) {
+		i++;
+		for (shape = p_root->m_nextCollider; shape; shape = shape->m_nextCollider) {
+			distance = ApproximateShapeDistance(shape, p_x, p_y, p_z);
+			if (distance < best) {
+				best = distance;
+				nearest = shape;
+			}
+		}
+	}
+#else
 	nearest = NULL;
 	best = FIXED_MAX;
 	if (!p_root) {
@@ -372,6 +455,7 @@ Shape* FindNearestShape(Shape* p_root, MechScalar p_x, MechScalar p_y, MechScala
 			nearest = shape;
 		}
 	}
+#endif
 
 	return nearest;
 }
@@ -402,6 +486,7 @@ MechS32 TestShapePoint(Shape* p_shape, MechScalar p_x, MechScalar p_y, MechScala
 // impact; its normal goes to g_segmentNormal.
 // FUNCTION: MW2 0x10034f37
 // FUNCTION: MW2GBL 0x1003ad17
+// FUNCTION: MW2PREMERCS 0x100343a4
 // FUNCTION: MW2MATROX 0x10023e51
 // FUNCTION: MW23DFX 0x100103e0
 // FUNCTION: MW2ATI 0x10010940
@@ -430,8 +515,14 @@ MechS32 TestSegmentCollision(Ray* p_ray, Shape** p_hit, MechS32 p_exclude)
 	Ray ray;
 	Shape* shape;
 #endif
+#ifdef MW2_SHAPE_GRID
+	MechS32 i;
+#endif
 
 	nearest = NULL;
+#ifdef MW2_SHAPE_GRID
+	i = 0;
+#endif
 	best = FIXED_MAX;
 	if (GetRayLength(p_ray) <= 0) {
 		return TestPointCollision(p_ray->m_x0, p_ray->m_y0, p_ray->m_z0, p_hit);
@@ -442,6 +533,35 @@ MechS32 TestSegmentCollision(Ray* p_ray, Shape** p_hit, MechS32 p_exclude)
 		return 0;
 	}
 
+#ifdef MW2_SHAPE_GRID
+	// The early Mercenaries build looks only at the grid's cells around the ray's start.
+	ListShapeGridCellsAround(p_ray->m_x0, p_ray->m_z0);
+	for (root = g_shapeGridLists[i]; root; root = g_shapeGridLists[i]) {
+		i++;
+		for (shape = root->m_nextCollider; shape; shape = shape->m_nextCollider) {
+			surface = shape->m_kind;
+			if ((surface & 0x100) && (shape->m_owner == p_exclude || p_exclude < 0)) {
+				continue;
+			}
+
+			distance = RayShapeDistance(shape, p_ray);
+			if (distance < best) {
+				CopyRay(&ray, p_ray);
+				if (TestShapeRay(shape, &ray, distance)) {
+					length = GetRayLength(&ray);
+					if (length < best) {
+						best = length;
+						CopyRay(&hitRay, &ray);
+						nearest = shape;
+						g_segmentNormalX = g_hitNormalX;
+						g_segmentNormalY = g_hitNormalY;
+						g_segmentNormalZ = g_hitNormalZ;
+					}
+				}
+			}
+		}
+	}
+#else
 	for (shape = root->m_nextCollider; shape; shape = shape->m_nextCollider) {
 		surface = shape->m_kind;
 		if ((surface & 0x100) && (shape->m_owner == p_exclude || p_exclude < 0)) {
@@ -464,6 +584,7 @@ MechS32 TestSegmentCollision(Ray* p_ray, Shape** p_hit, MechS32 p_exclude)
 			}
 		}
 	}
+#endif
 
 	*p_hit = nearest;
 	if (nearest) {
@@ -477,6 +598,7 @@ MechS32 TestSegmentCollision(Ray* p_ray, Shape** p_hit, MechS32 p_exclude)
 // TestSegmentCollision against the world's scenery only: no mechs, nor shapes of type 6.
 // FUNCTION: MW2 0x10035107
 // FUNCTION: MW2GBL 0x1003aee7
+// FUNCTION: MW2PREMERCS 0x100345cd
 // FUNCTION: MW2MATROX 0x10024016
 // FUNCTION: MW23DFX 0x10010530
 // FUNCTION: MW2ATI 0x10010a90
@@ -492,8 +614,14 @@ MechS32 TestSceneryCollision(Ray* p_ray, Shape** p_hit)
 	Shape* nearest;
 	Ray ray;
 	Shape* shape;
+#ifdef MW2_SHAPE_GRID
+	MechS32 i;
+#endif
 
 	nearest = NULL;
+#ifdef MW2_SHAPE_GRID
+	i = 0;
+#endif
 	best = FIXED_MAX;
 	if (GetRayLength(p_ray) <= 0) {
 		return TestPointCollision(p_ray->m_x0, p_ray->m_y0, p_ray->m_z0, p_hit);
@@ -504,6 +632,32 @@ MechS32 TestSceneryCollision(Ray* p_ray, Shape** p_hit)
 		return 0;
 	}
 
+#ifdef MW2_SHAPE_GRID
+	// The early Mercenaries build looks only at the grid's cells around the ray's start.
+	ListShapeGridCellsAround(p_ray->m_x0, p_ray->m_z0);
+	for (root = g_shapeGridLists[i]; root; root = g_shapeGridLists[i]) {
+		i++;
+		for (shape = root->m_nextCollider; shape; shape = shape->m_nextCollider) {
+			surface = shape->m_kind;
+			if ((surface & 0x100) || shape->m_collisionType == 6) {
+				continue;
+			}
+
+			distance = RayShapeDistance(shape, p_ray);
+			if (distance < best) {
+				CopyRay(&ray, p_ray);
+				if (TestShapeRay(shape, &ray, distance)) {
+					best = GetRayLength(&ray);
+					CopyRay(&hitRay, &ray);
+					nearest = shape;
+					g_segmentNormalX = g_hitNormalX;
+					g_segmentNormalY = g_hitNormalY;
+					g_segmentNormalZ = g_hitNormalZ;
+				}
+			}
+		}
+	}
+#else
 	for (shape = root->m_nextCollider; shape; shape = shape->m_nextCollider) {
 		surface = shape->m_kind;
 		if ((surface & 0x100) || shape->m_collisionType == 6) {
@@ -523,6 +677,7 @@ MechS32 TestSceneryCollision(Ray* p_ray, Shape** p_hit)
 			}
 		}
 	}
+#endif
 
 	*p_hit = nearest;
 	if (nearest) {

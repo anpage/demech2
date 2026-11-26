@@ -1726,6 +1726,7 @@ MechU32 SatelliteFaceColor(Face* p_face, undefined4 p_unk0x04, MechU32 p_flags, 
 // (0) twice, the second time outlined (0x2000).
 // FUNCTION: MW2 0x1003f393
 // FUNCTION: MW2GBL 0x1004e6e2
+// FUNCTION: MW2PREMERCS 0x100204a2
 // FUNCTION: MW2MATROX 0x10075097
 // FUNCTION: MW23DFX 0x100042e0
 // FUNCTION: MW2ATI 0x10003f70
@@ -1781,7 +1782,11 @@ void SatelliteDrawPolygon(MechS32 p_count, MechU32* p_points, MechU32 p_flags)
 		return;
 	}
 
+#ifdef MW2_SATELLITE_KIND_FOUR_BITS
+	kind = p_flags & 0xf000;
+#else
 	kind = p_flags & 0x7000;
+#endif
 	point = p_points;
 	switch (kind) {
 	case 0x4000:

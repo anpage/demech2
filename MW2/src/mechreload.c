@@ -29,6 +29,7 @@
 // The player whose mech ReloadPlayerMech is reloading, or -1.
 // GLOBAL: MW2 0x100ba690
 // GLOBAL: MW2GBL 0x1009e6c0
+// GLOBAL: MW2PREMERCS 0x100b2ff8
 // GLOBAL: MW2MATROX 0x100bea18
 // GLOBAL: MW23DFX 0x1024d140
 // GLOBAL: MW2ATI 0x101814c0
@@ -43,6 +44,7 @@ MechS32 g_unk0x100ba694 = 0;
 
 // GLOBAL: MW2 0x100ba698
 // GLOBAL: MW2GBL 0x1009e6c8
+// GLOBAL: MW2PREMERCS 0x100b3000
 // GLOBAL: MW2MATROX 0x100bea20
 // GLOBAL: MW23DFX 0x1024d148
 // GLOBAL: MW2ATI 0x101814c8
@@ -52,6 +54,7 @@ RememberedMech g_rememberedMechs[60] = {0};
 
 // GLOBAL: MW2 0x100babc0
 // GLOBAL: MW2GBL 0x1009ebf0
+// GLOBAL: MW2PREMERCS 0x100b3528
 // GLOBAL: MW2MATROX 0x100bef48
 // GLOBAL: MW23DFX 0x1024d670
 // GLOBAL: MW2ATI 0x101819f0
@@ -64,6 +67,7 @@ MechSegment* g_mechSegments[60] = {NULL};
 // where __fastcall's callee pops them (ret 8), shows that the function takes them.
 // FUNCTION: MW2 0x1007fbe0
 // FUNCTION: MW2GBL 0x10017310
+// FUNCTION: MW2PREMERCS 0x100536a0
 // FUNCTION: MW2MATROX 0x10090fd0
 // FUNCTION: MW23DFX 0x100235e0
 // FUNCTION: MW2ATI 0x100238a0
@@ -75,6 +79,9 @@ MechS32 ReloadPlayerMech(MechS32 p_player, MechS32 p_force, undefined4 p_unk0x08
 	MechS16 flags;
 
 	mech = NULL;
+#ifdef MW2_RELOAD_RESETS_TORSO
+	p_unk0x08 = p_unk0x0c;
+#endif
 	if (p_player >= 0 && p_player < 60) {
 		mech = g_players[p_player]->m_mech;
 	}
@@ -94,6 +101,10 @@ MechS32 ReloadPlayerMech(MechS32 p_player, MechS32 p_force, undefined4 p_unk0x08
 	mech->m_torsoPitch.m_target = mech->m_torsoPitch.m_value = 0;
 	mech->m_player->m_steering->m_throttle = 0;
 	mech->m_player->m_steering->m_throttleSet = 1;
+#ifdef MW2_RELOAD_RESETS_TORSO
+	mech->m_player->m_steering->m_torsoPanReset = 1;
+	mech->m_player->m_steering->m_torsoTiltReset = 1;
+#endif
 	mech->m_player->m_steering->m_jumpJetEnabled = 0;
 	mech->m_player->m_steering->m_jumpJetFireLeft = 0;
 	mech->m_player->m_steering->m_jumpJetFireRight = 0;
@@ -133,6 +144,9 @@ MechS32 ReloadPlayerMech(MechS32 p_player, MechS32 p_force, undefined4 p_unk0x08
 	// gpanim.c's Mech is the player
 	ResetMotion(mech->m_player);
 	FirstMech(mech->m_player);
+#ifdef MW2_RELOAD_RESETS_TORSO
+	mech->m_unk0x112 = 0;
+#endif
 
 	if (g_localPlayerId == p_player) {
 		ResetCockpitPanels();

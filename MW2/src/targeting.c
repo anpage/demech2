@@ -193,6 +193,7 @@ MechS32 RemoveNavPoint(MechU32 p_owner, MechU32 p_nav)
 // turns the autopilot's steering over.
 // FUNCTION: MW2 0x1005ef5e
 // FUNCTION: MW2GBL 0x10070832
+// FUNCTION: MW2PREMERCS 0x100488d2
 // FUNCTION: MW2MATROX 0x100067cc
 // FUNCTION: MW23DFX 0x1001cca0
 // FUNCTION: MW2ATI 0x1001cfd0
@@ -295,12 +296,21 @@ void CycleTarget(Player* p_player, MechS32 p_step, MechU32 p_flags)
 
 	if (found) {
 		p_player->m_targetInfo.m_target = kind | index;
+#ifdef MW2_NAV_TARGET_KEPT
+		if (kind == 0x100) {
+			p_player->m_navTargetInfo.m_target = kind | index;
+		}
+#endif
 	}
 	else {
 		p_player->m_targetInfo.m_target |= 0x1000;
 	}
 
+#ifdef MW2_NAV_TARGET_KEPT
+	if (!(p_player->m_navTargetInfo.m_target & 0x100) && p_player->m_mech->m_autopilot) {
+#else
 	if (kind != 0x100 && p_player->m_mech->m_autopilot) {
+#endif
 		p_player->m_steering->m_autopilot = 1;
 	}
 }
@@ -328,6 +338,7 @@ void ResetTargeting(void)
 // (flag 0x100 accepts only a nav its owner placed).
 // FUNCTION: MW2 0x1005f2ae
 // FUNCTION: MW2GBL 0x10070b82
+// FUNCTION: MW2PREMERCS 0x10048c41
 // FUNCTION: MW2MATROX 0x10006b1c
 // FUNCTION: MW23DFX 0x1001cea0
 // FUNCTION: MW2ATI 0x1001d1d0
@@ -401,6 +412,15 @@ MechS32 TargetNavPoint(MechU32 p_player, MechS32 p_nav, MechU32 p_flags)
 	player->m_targetInfo.m_range = range;
 	player->m_targetInfo.m_distance = distance;
 	player->m_targetInfo.m_pitch = pitch;
+#ifdef MW2_NAV_TARGET_KEPT
+	player->m_navTargetInfo.m_position.m_x = x;
+	player->m_navTargetInfo.m_position.m_y = y;
+	player->m_navTargetInfo.m_position.m_z = z;
+	player->m_navTargetInfo.m_heading = heading;
+	player->m_navTargetInfo.m_range = range;
+	player->m_navTargetInfo.m_distance = distance;
+	player->m_navTargetInfo.m_pitch = pitch;
+#endif
 	return 1;
 }
 
@@ -411,6 +431,7 @@ MechS32 TargetNavPoint(MechU32 p_player, MechS32 p_nav, MechU32 p_flags)
 // pick, and -8 for a player without a shape.
 // FUNCTION: MW2 0x1005f4ac
 // FUNCTION: MW2GBL 0x10070d81
+// FUNCTION: MW2PREMERCS 0x10048e93
 // FUNCTION: MW2MATROX 0x10006d1a
 // FUNCTION: MW23DFX 0x1001d050
 // FUNCTION: MW2ATI 0x1001d380
@@ -493,6 +514,11 @@ MechS32 TargetGamePiece(MechS32 p_player, MechS32 p_index, MechU32 p_flags)
 	x = target->m_position.m_x;
 	y = target->m_position.m_y;
 	z = target->m_position.m_z;
+#ifdef MW2_AIM_AT_FEET
+	if (player->m_unk0x1b4 == 1 && target->m_type == c_playerTypeMech) {
+		y = y - target->m_mech->m_height;
+	}
+#endif
 	dx = x - player->m_position.m_x;
 	dy = y - player->m_position.m_y;
 	dz = z - player->m_position.m_z;
@@ -970,8 +996,8 @@ void TargetAtReticle(void)
 
 		if (target != -1 && player->m_targetInfo.m_target != target) {
 			player->m_targetInfo.m_target = target;
-#ifdef MW2_RETARGET_PLAYER_FLAG
-			if (!(player->m_unk0x105 & 1) && player->m_mech->m_autopilot) {
+#ifdef MW2_NAV_TARGET_KEPT
+			if (!(player->m_navTargetInfo.m_target & 0x100) && player->m_mech->m_autopilot) {
 #else
 			if (player->m_mech->m_autopilot) {
 #endif

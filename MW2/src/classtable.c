@@ -1012,6 +1012,7 @@ void ReleaseObjShape(struct SceneObject* p_obj)
 // Forgets the shape of the entry whose object is p_obj without releasing it.
 // FUNCTION: MW2 0x1001de84
 // FUNCTION: MW2GBL 0x10037214
+// FUNCTION: MW2PREMERCS 0x1005828c
 // FUNCTION: MW2MATROX 0x1006e6ce
 // FUNCTION: MW23DFX 0x100269f0
 // FUNCTION: MW2ATI 0x100266b0
