@@ -106,7 +106,8 @@ struct Player {
 	MechS8 m_gunnery;       // 0x158 — lower is better: it fires on one roll in m_gunnery
 	MechS8 m_piloting;      // 0x159 — 1 (best) to 4: the maneuvers it may make
 #ifdef MW2_PLAYER_UNK_MEMBERS
-	undefined2 m_unk0x184; // 0x184 in the early Mercenaries build
+	MechS8 m_unk0x184;   // 0x184 in the early Mercenaries build — the gpspec's sixth AI parameter: 0 to 2
+	MechS8 m_pilotIndex; // 0x185 in the early Mercenaries build — its entry of the pilot table (InitializePilot)
 #endif
 	MechS32 m_nextFireTime; // 0x15a — the clock when it next rolls to fire
 #ifdef MW2_PILOT_TABLE
@@ -118,12 +119,18 @@ struct Player {
 	MechS32 m_nav;             // 0x16a — a nav target id the AI placed, or 0x1000
 	MechS16 m_nextDetectCheck; // 0x16e — the clock (truncated) when IsTargetDetectable next looks
 #ifdef MW2_PLAYER_UNK_MEMBERS
-	MechS32 m_unk0x1a0; // 0x1a0 in the early Mercenaries build — set, a player in the target state takes the nearest
-						// target (ResolveTarget)
-	undefined m_unk0x1a4[0x1b4 - 0x1a4]; // 0x1a4 in the early Mercenaries build
-	MechS32 m_unk0x1b4;                  // 0x1b4 in the early Mercenaries build — 1: it aims at a mech's feet
-										 // (TargetGamePiece)
-	undefined m_unk0x1b8[0x1bc - 0x1b8]; // 0x1b8 in the early Mercenaries build
+	MechS32 m_unk0x1a0;   // 0x1a0 in the early Mercenaries build — set, a player in the target state takes the nearest
+						  // target (ResolveTarget)
+	MechS32 m_unk0x1a4;   // 0x1a4 in the early Mercenaries build
+	MechS32 m_heatLimit;  // 0x1a8 in the early Mercenaries build — its AI fires only while the weapon's heat
+						  // leaves the mech's below it (DecideAIFire)
+	MechS32 m_lockChance; // 0x1ac in the early Mercenaries build — the percent chance a guided volley locks
+						  // on (RollAILock)
+	MechS32 m_unk0x1b0Mercs; // 0x1b0 in the early Mercenaries build (1.1 has an m_unk0x1b0 of its own)
+	MechS32 m_unk0x1b4;      // 0x1b4 in the early Mercenaries build — 1: it aims at a mech's feet
+							 // (TargetGamePiece)
+	MechS32 m_leadsTarget;   // 0x1b8 in the early Mercenaries build — its AI aims where the target will be
+							 // (RunAIWeapons)
 #endif
 	MechS16 m_maneuver;              // 0x170 — c_maneuver…, or -1
 	MechS16 m_lastManeuver;          // 0x172 — the previous maneuver, or -1

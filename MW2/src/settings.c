@@ -79,6 +79,7 @@ MechChar g_autoEjectItem[] = "Auto Eject";
 
 // GLOBAL: MW2 0x100aa8e8
 // GLOBAL: MW2GBL 0x1009e3e0
+// GLOBAL: MW2PREMERCS 0x100c6548
 // GLOBAL: MW2MATROX 0x100a81e0
 // GLOBAL: MW23DFX 0x10264bf0
 // GLOBAL: MW2ATI 0x10198ee8
@@ -89,6 +90,7 @@ MenuControl g_infraredControl =
 
 // GLOBAL: MW2 0x100aa910
 // GLOBAL: MW2GBL 0x1009e408
+// GLOBAL: MW2PREMERCS 0x100c6570
 // GLOBAL: MW2MATROX 0x100a8208
 // GLOBAL: MW23DFX 0x10264c18
 // GLOBAL: MW2ATI 0x10198f10
@@ -223,11 +225,12 @@ MenuPage* g_systemsMenuPageStack[8];
 // The systems status menu's settings, by the game key that toggles each (GAMEKEY.MAP): 0x13
 // TOGGLE_HUD, 0x3c TOGGLE_AUTOEJECT, 0x40 OVERRIDE_SHUTDOWN, 0xa6 INFRARED (light amplification)
 // and 0xa7 ENHANCED_VISION (image enhancement: outlined polygons); GBL's INFRARED and ENHANCED_VISION are
-// one higher (GAME_KEY_ACTION).
+// one higher, and the early Mercenaries build renumbers all five (GAME_KEY_ACTION).
 
 // Returns the setting p_id, or 0.
 // FUNCTION: MW2 0x1005e9b0
 // FUNCTION: MW2GBL 0x10016a60
+// FUNCTION: MW2PREMERCS 0x10083a60
 // FUNCTION: MW2MATROX 0x10044400
 // FUNCTION: MW23DFX 0x10065030
 // FUNCTION: MW2ATI 0x100626a0
@@ -249,13 +252,13 @@ MechS32 GetSystemSetting(MechS32 p_id)
 			value = 0;
 		}
 		break;
-	case 0x13:
+	case GAME_KEY_ACTION(0x13):
 		value = g_showHud;
 		break;
-	case 0x40:
+	case GAME_KEY_ACTION(0x40):
 		value = g_overrideShutdown;
 		break;
-	case 0x3c:
+	case GAME_KEY_ACTION(0x3c):
 		value = g_autoEject;
 		break;
 	default:
@@ -269,6 +272,7 @@ MechS32 GetSystemSetting(MechS32 p_id)
 // Changes the setting p_id (see GetSystemSetting) to p_value.
 // FUNCTION: MW2 0x1005eb10
 // FUNCTION: MW2GBL 0x10016bc1
+// FUNCTION: MW2PREMERCS 0x10083bc1
 // FUNCTION: MW2MATROX 0x10044560
 // FUNCTION: MW23DFX 0x10065130
 // FUNCTION: MW2ATI 0x100627a0
@@ -289,13 +293,13 @@ void SetSystemSetting(MechS32 p_id, MechS32 p_value)
 			g_renderSettings.m_wireframe = 0;
 		}
 		break;
-	case 0x13:
+	case GAME_KEY_ACTION(0x13):
 		g_showHud = p_value;
 		break;
-	case 0x40:
+	case GAME_KEY_ACTION(0x40):
 		g_overrideShutdown = p_value;
 		break;
-	case 0x3c:
+	case GAME_KEY_ACTION(0x3c):
 		g_autoEject = p_value;
 		break;
 	default:

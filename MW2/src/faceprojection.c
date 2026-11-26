@@ -770,6 +770,7 @@ jmp_10049103:
 // z in depth.
 // FUNCTION: MW2 0x10049155
 // FUNCTION: MW2GBL 0x100291d5
+// FUNCTION: MW2PREMERCS 0x1005fe7d
 void QueueFace(Face* p_face, Vertex* p_vertices)
 {
 #ifdef PORTABLE_C_LABELS

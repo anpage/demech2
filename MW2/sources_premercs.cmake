@@ -3,7 +3,8 @@
 # (bwdkeywords.c, cockpitlayouts.c, weapondata.c and the menus). Like GBL, it has its cockpit panels, its
 # faces' projection and clock.c's tables as objects of their own, built from 1.1's fragments. Its VFX
 # objects come first, after the two MASM units. Of the two objects after shots.c, which GBL doesn't
-# have, the first is premercs/tracers.c (a stub so far); the second has no source yet.
+# have, the first is premercs/tracers.c (its effects) and the second premercs/precipitation.c (rain and
+# snow).
 # Expects DEMECH2_SOURCE_DIR, and asm_or_c and ${vfxa}, ${vfx3d} and ${vfxrend} from cmake/masm.cmake.
 set(mw2premercs_sources
   "${DEMECH2_SOURCE_DIR}/MW2/src/sndunpack.${asm_or_c}"
@@ -172,4 +173,5 @@ set(mw2premercs_sources
   "${DEMECH2_SOURCE_DIR}/MW2/src/menu.c"
   "${DEMECH2_SOURCE_DIR}/MW2/src/shots.c"
   "${DEMECH2_SOURCE_DIR}/MW2/src/premercs/tracers.c"
+  "${DEMECH2_SOURCE_DIR}/MW2/src/premercs/precipitation.c"
 )

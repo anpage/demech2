@@ -974,6 +974,25 @@ double __cdecl fabs(double);
 /* BWD streams have Mercenaries' campaign records, 15 node tags more (CPGN, PILT, TECH, NEWS…), which have no
    names (g_bwdTypeCodes, GetKeywordName) */
 #define MW2_CAMPAIGN_BWD_TAGS
+/* A BWD stream's WTHR record starts rain or snow (StartPrecipitation, premercs/precipitation.c) */
+#define MW2_WEATHER_RECORD
+/* The AI leads its target when Player::m_leadsTarget is set (LeadAITarget: where the target will be when
+   the shot reaches it), fires below its pilot's heat limit and locks on by its lock chance (RollAILock),
+   and decides the group's fire apart (DecideAIGroupFire) */
+#define MW2_AI_LEAD_TARGET
+/* LoadSndCfg makes default sound settings (full volumes, every detail on, mcga.dll) when it can't read
+   MW2SND.CFG, where the later builds clear them */
+#define MW2_SOUND_CONFIG_DEFAULTS
+/* The pilot table is indexed by the gpspec's seventh AI parameter (Player::m_pilotIndex) and gives a mech's AI
+   its maneuver table, range, group fire, heat limit, lock chance and aim (InitializePilot); there are 17
+   maneuver tables, the pilot table's from 9 on */
+#define MW2_PILOT_SKILLS
+/* Maneuver 13 (FUN_1004da17, in player type 7's table) closes on the target as ManeuverCircle does */
+#define MW2_MANEUVER_13
+/* FUN_1006ba63 pauses with 1.1's pause sound and the banner until a key is pressed */
+#define MW2_PAUSE_UNTIL_KEY
+/* The local mech cycles its weapon group only while the group isn't firing (UpdateLocalMech) */
+#define MW2_GROUP_CYCLE_NOT_FIRING
 /* The pause sound is another sound of the PRJ's (PlayPauseSound) */
 #define MW2_PAUSE_SOUND 0x149
 /* FindIniSection and GetIniValue open MW2.INI by that name in capitals */
@@ -986,8 +1005,9 @@ double __cdecl fabs(double);
 #define MW2_BANKING_PLAYER_TYPE
 /* AimTorsoTilt takes the pitch it aims at, which its callers pass (the target's or another) */
 #define MW2_TORSO_TILT_TAKES_PITCH
-/* The class table's entries have 4 bytes more, before m_released (ClassEntry::m_unk0x42) */
-#define MW2_CLASS_ENTRY_UNK_MEMBER
+/* The class table's entries keep their object record's flags (ClassEntry::m_flags, AddClassEntryLevel), which
+   LoadClassEntryShape passes to SetShapeFlags */
+#define MW2_CLASS_ENTRY_FLAGS
 /* JoystickPoll neither clears its JOYINFOEX nor sets its size */
 #define MW2_JOYINFOEX_UNCLEARED
 /* FlushSpeechQueue sets g_speechLocked once it has flushed the queue, and not at all when the queue is empty */
@@ -998,7 +1018,8 @@ double __cdecl fabs(double);
 #define MW2_EYE_POSITION_WIDTH 0x32
 /* Blit draws the timed and debug overlays and advances the palette fade, which the later builds' SimMain does */
 #define MW2_BLIT_DRAWS_OVERLAYS
-/* The banner's palette blends in over this many steps (ShowBanner) */
+/* The palettes blend in over this many steps where 1.1's take 30 (ShowBanner, StartSupAnim's slow fade,
+   StartPalettes without the dissolve) */
 #define MW2_BANNER_BLEND_STEPS 0x3c
 /* FindIniSection's errors are 0x41 and 0x4a, the error codes numbered on from GBL's */
 #define MW2_INI_ERROR_CODES

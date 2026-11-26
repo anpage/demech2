@@ -1062,9 +1062,10 @@ MechS32 g_dorcsTime = 0;
 // GLOBAL: MW2PREMERCS 0x100c2ff4
 MechS32 g_dorcsReverse = 1;
 
-// A menu item's action: ejects the local player (game key 0x3b) without its sound.
+// A menu item's action: ejects the local player (1.1's game key 0x3b) without its sound.
 // FUNCTION: MW2 0x10073af0
 // FUNCTION: MW2GBL 0x100234a0
+// FUNCTION: MW2PREMERCS 0x10081b40
 // FUNCTION: MW2MATROX 0x100758c0
 // FUNCTION: MW23DFX 0x10064280
 // FUNCTION: MW2ATI 0x10061930
@@ -1086,7 +1087,7 @@ void AbortMissionAction(MenuDefinition* p_menu, MenuControl* p_control, MechS32 
 		g_difficulty->m_invulnerable = 0;
 		saved = g_hostileAtmosphere;
 		g_hostileAtmosphere = 0;
-		RunGameKey(0x3b);
+		RunGameKey(GAME_KEY_ACTION(0x3b));
 		g_hostileAtmosphere = saved;
 		FreeMenus();
 	}

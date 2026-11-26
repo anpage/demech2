@@ -596,7 +596,7 @@ void HandleCheatInput(MechS16 p_key)
 	}
 	else if (TypedCodeMatches("s~q|{")) { // "idkfa"
 		ShowInGameMessage("This ain't DOOM, Bub.", 1, 0x16a, 0x50);
-		RunGameKey(0x3b);
+		RunGameKey(GAME_KEY_ACTION(0x3b));
 	}
 	else if (TypedCodeMatches("v{sh~u")) { // "lairdo"
 		g_lairdoCheat = !g_lairdoCheat;
@@ -834,6 +834,7 @@ MechS32 HandleChatKey(MechU32 p_keyCode)
 // steering, through the cheat codes, the chat message and LookupGameKey) to RunGameKey.
 // FUNCTION: MW2 0x1005c2e1
 // FUNCTION: MW2GBL 0x10013f1a
+// FUNCTION: MW2PREMERCS 0x1006d0ea
 // FUNCTION: MW2MATROX 0x10042a17
 // FUNCTION: MW23DFX 0x100374e0
 // FUNCTION: MW2ATI 0x100360a0
@@ -920,7 +921,7 @@ void HandleGameKeys(MechS32 p_unk0x00, MechS32 p_unk0x04, MechU16 p_key)
 				g_shouldQuit = 1;
 				g_quitStage = 0x29a;
 				return;
-			case 0x33:
+			case GAME_KEY_ACTION(0x33):
 				RequestMenu(4);
 				break;
 			case GAME_KEY_ACTION(0x4f):
@@ -947,7 +948,7 @@ void HandleGameKeys(MechS32 p_unk0x00, MechS32 p_unk0x04, MechU16 p_key)
 				g_shouldQuit = 1;
 				g_quitStage = 0x29a;
 				return;
-			case 0x33:
+			case GAME_KEY_ACTION(0x33):
 				RequestMenu(4);
 				break;
 			case GAME_KEY_ACTION(0x4f):
@@ -967,6 +968,7 @@ void HandleGameKeys(MechS32 p_unk0x00, MechS32 p_unk0x04, MechU16 p_key)
 // the mission timer is stopped.
 // FUNCTION: MW2 0x1005c78a
 // FUNCTION: MW2GBL 0x100143c3
+// FUNCTION: MW2PREMERCS 0x1006d593
 // FUNCTION: MW2MATROX 0x10042ec0
 // FUNCTION: MW23DFX 0x10037880
 // FUNCTION: MW2ATI 0x10036440
@@ -1136,7 +1138,7 @@ void RunGameKey(MechS32 p_key)
 	case 0x32:
 		ToggleSatelliteView();
 		break;
-	case 0x33:
+	case GAME_KEY_ACTION(0x33):
 		RequestMenu(4);
 		break;
 	case 0x34:

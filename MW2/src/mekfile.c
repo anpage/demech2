@@ -69,6 +69,7 @@ MechU16 g_weaponValues[30] = {183, 137, 91,  46,  51,  34, 17,  74,  49, 25, 2, 
 // Matches but for the registers, which VC++ 2.2 allocates differently.
 // FUNCTION: MW2 0x1005d6d0
 // FUNCTION: MW2GBL 0x10045e90
+// FUNCTION: MW2PREMERCS 0x1007b890
 // FUNCTION: MW2MATROX 0x1008c850
 // FUNCTION: MW23DFX 0x10041410
 // FUNCTION: MW2ATI 0x1003efc0
@@ -478,6 +479,7 @@ MechS32 LoadMechConfig(Mech* p_mech, MechChar* p_name, MechS32 p_id, MechChar* p
 // armor and the value of each of its weapons (up to ten).
 // FUNCTION: MW2 0x1005e534
 // FUNCTION: MW2GBL 0x10046d28
+// FUNCTION: MW2PREMERCS 0x1007c8f1
 // FUNCTION: MW2MATROX 0x1008d62b
 // FUNCTION: MW23DFX 0x10041c80
 // FUNCTION: MW2ATI 0x1003f830
@@ -486,10 +488,17 @@ MechS32 LoadMechConfig(Mech* p_mech, MechChar* p_name, MechS32 p_id, MechChar* p
 MechU16 GetMechValue(MekHeader* p_header, MechSection* p_sections, MekWeapon* p_weapons)
 {
 	MechS32 armor;
+#ifdef MW2_CLAN_AND_IS_WEAPONS
+	MechS16 kinds[23][3] = {{7000, 1, 0}, {7050, 1, 0}, {7100, -60, 0}, {7150, -60, 0}, {7200, -50, 0}, {7250, 1, 0},
+							{7300, 1, 0}, {7350, 1, 0}, {7400, 1, 0},   {7450, 1, 0},   {7500, 1, 0},   {7550, 1, 0},
+							{7600, 1, 0}, {7650, 1, 0}, {7700, 2, 0},   {7750, 0, 0},   {7800, 2, 0},   {7850, 3, 0},
+							{7900, 2, 0}, {8000, 1, 0}, {8500, 1, 0},   {9000, 0, 0},   {9500, 0, 0}};
+#else
 	MechS16 kinds[23][3] = {{5000, 1, 0}, {5050, 1, 0}, {5100, -60, 0}, {5150, -60, 0}, {5200, -50, 0}, {5250, 1, 0},
 							{5300, 1, 0}, {5350, 1, 0}, {5400, 1, 0},   {5450, 1, 0},   {5500, 1, 0},   {5550, 1, 0},
 							{5600, 1, 0}, {5650, 1, 0}, {5700, 2, 0},   {5750, 0, 0},   {5800, 2, 0},   {5850, 3, 0},
 							{5900, 2, 0}, {6000, 1, 0}, {7000, 1, 0},   {8000, 0, 0},   {9000, 0, 0}};
+#endif
 	MechS32 count;
 	MechS32 i;
 	MechU16 value;

@@ -36,7 +36,7 @@
 extern MechS32 g_a3dInitialized;
 
 DECOMP_SIZE_ASSERT(ClassEntry, 0x58)
-#elif defined(MW2_CLASS_ENTRY_UNK_MEMBER)
+#elif defined(MW2_CLASS_ENTRY_FLAGS)
 DECOMP_SIZE_ASSERT(ClassEntry, 0x48)
 #else
 DECOMP_SIZE_ASSERT(ClassEntry, 0x44)
@@ -143,6 +143,7 @@ MechS32 LoadBaseLevelShapes(Player* p_player)
 // index, or -1.
 // FUNCTION: MW2 0x1001cf93
 // FUNCTION: MW2GBL 0x10036323
+// FUNCTION: MW2PREMERCS 0x100573bb
 // FUNCTION: MW2MATROX 0x1006d653
 // FUNCTION: MW23DFX 0x10026180
 // FUNCTION: MW2ATI 0x10025ef0
@@ -156,7 +157,12 @@ MechS32 AddClassEntryLevel(
 	MechS32 p_unk0x10,
 	MechS32 p_level,
 	MechS32 p_index,
+#ifdef MW2_CLASS_ENTRY_FLAGS
+	MechS16 p_unk0x1c,
+	MechS32 p_flags
+#else
 	MechS16 p_unk0x1c
+#endif
 )
 {
 	MechS32 index;
@@ -189,6 +195,9 @@ MechS32 AddClassEntryLevel(
 		entry->m_obj = NULL;
 		entry->m_partId = 0;
 		entry->m_released = 0;
+#ifdef MW2_CLASS_ENTRY_FLAGS
+		entry->m_flags = p_flags;
+#endif
 		index = g_classEntryCount++;
 	}
 	else {
@@ -216,6 +225,7 @@ MechS32 AddClassEntryLevel(
 
 // FUNCTION: MW2 0x1001d12a
 // FUNCTION: MW2GBL 0x100364ba
+// FUNCTION: MW2PREMERCS 0x10057555
 // FUNCTION: MW2MATROX 0x1006d7ea
 // FUNCTION: MW23DFX 0x10026280
 // FUNCTION: MW2ATI 0x10025ff0
@@ -346,6 +356,7 @@ void ReleaseClassLevel(MechS32 p_owner, MechS32 p_level)
 // p_buffer if given. Returns whether the entry has its shape.
 // FUNCTION: MW2 0x1001d3ff
 // FUNCTION: MW2GBL 0x1003678f
+// FUNCTION: MW2PREMERCS 0x1005781c
 // FUNCTION: MW2MATROX 0x1006dad9
 // FUNCTION: MW23DFX 0x10026430
 // FUNCTION: MW2ATI 0x10026160
@@ -430,7 +441,11 @@ MechS32 LoadClassEntryShape(MechS32 p_index, MechS32 p_level, void* p_buffer)
 
 	entry->m_loadedLevel = -1;
 	SetShapeScale(1, 1, 1);
+#ifdef MW2_CLASS_ENTRY_FLAGS
+	SetShapeFlags(entry->m_flags);
+#else
 	SetShapeFlags(0);
+#endif
 	while (!entry->m_shape) {
 		entry->m_shape = LoadShapes(data, &offset, size, NULL);
 		if (!entry->m_shape && !PurgeOldestCacheEntry()) {

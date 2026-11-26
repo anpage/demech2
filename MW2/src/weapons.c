@@ -691,7 +691,7 @@ MechS32 SpawnShot(Player* p_player, WeaponDef* p_def, WeaponSlot* p_slot)
 			UpdateObj(shot->m_object);
 			GetObjPosition(shot->m_object, &x, &y, &z);
 			if (shot->m_type == 5) {
-				FUN_10089624(
+				StartGunTracer(
 					shot->m_velocity[0] * 2 + x,
 					shot->m_velocity[1] * 2 + y,
 					shot->m_velocity[2] * 2 + z,

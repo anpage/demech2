@@ -28,7 +28,12 @@ extern "C"
 		MechS32 p_unk0x10,
 		MechS32 p_level,
 		MechS32 p_index,
-		MechS16 p_unk0x1c
+#ifdef MW2_CLASS_ENTRY_FLAGS
+		MechS16 p_unk0x1c,
+		MechS32 p_flags
+#else
+	MechS16 p_unk0x1c
+#endif
 	);
 	void ResetClassTable(void);
 	void ClaimNewClassEntries(struct Player* p_player);

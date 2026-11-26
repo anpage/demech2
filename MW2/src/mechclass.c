@@ -236,6 +236,7 @@ MechS32 g_collisionSoundPlayed;
 // player's pose from it. With g_startOnAutopilot the local player starts on the autopilot.
 // FUNCTION: MW2 0x10016ad0
 // FUNCTION: MW2GBL 0x1006d510
+// FUNCTION: MW2PREMERCS 0x10042610
 // FUNCTION: MW2MATROX 0x1000ce80
 // FUNCTION: MW23DFX 0x100190d0
 // FUNCTION: MW2ATI 0x10019460
@@ -837,6 +838,7 @@ void UpdateMech(Mech* p_mech)
 // it down slopes, then poses its objects. Every player type's update (PlayerType::m_updateFn).
 // FUNCTION: MW2 0x10016edf
 // FUNCTION: MW2GBL 0x1006d91f
+// FUNCTION: MW2PREMERCS 0x10042ced
 void UpdateMech(Mech* p_mech)
 {
 	MechScalar velZ;
@@ -1313,6 +1315,7 @@ void UpdateMech(Mech* p_mech)
 // VC++ 2.2 and 4.1 let it share the frame with a scalar local.
 // FUNCTION: MW2 0x100180cd
 // FUNCTION: MW2GBL 0x1006eb4f
+// FUNCTION: MW2PREMERCS 0x10044600
 // FUNCTION: MW2MATROX 0x1000e721
 // FUNCTION: MW23DFX 0x1001a180
 // FUNCTION: MW2ATI 0x1001a530
@@ -1906,6 +1909,7 @@ void LateUpdateMech(Mech* p_mech)
 // mech down, or powers up a shut-down mech that isn't overheating.
 // FUNCTION: MW2 0x10019368
 // FUNCTION: MW2GBL 0x1006fdea
+// FUNCTION: MW2PREMERCS 0x100458c8
 // FUNCTION: MW2MATROX 0x1000fb2d
 // FUNCTION: MW23DFX 0x1001adf0
 // FUNCTION: MW2ATI 0x1001b1a0
@@ -1964,7 +1968,11 @@ void UpdateLocalMech(Mech* p_mech)
 			g_manualWeaponCycle = 0;
 		}
 
+#ifdef MW2_GROUP_CYCLE_NOT_FIRING
+		if (mech->m_player->m_steering->m_weaponCycleGroup && !mech->m_player->m_steering->m_weaponFireGroup) {
+#else
 		if (mech->m_player->m_steering->m_weaponCycleGroup) {
+#endif
 			CycleLocalWeaponGroup();
 		}
 

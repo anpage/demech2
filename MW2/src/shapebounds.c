@@ -11,6 +11,7 @@
 // Sets p_shape's center to the middle of its first model's bounding box, and its radius to the
 // distance from there to the farthest vertex.
 // FUNCTION: MW2 0x1003ae96
+// FUNCTION: MW2PREMERCS 0x1005c048
 // FUNCTION: MW2MATROX 0x10027a60
 // FUNCTION: MW23DFX 0x10029060
 // FUNCTION: MW2ATI 0x10028d20

@@ -672,7 +672,7 @@ void UpdateShot(MechS32 p_index)
 		case 9:
 		case 10:
 		case 0xc:
-			FUN_10088c5c(x0, y0, z0, x - x0, y - y0, z - z0);
+			StartMissileTrail(x0, y0, z0, x - x0, y - y0, z - z0);
 			break;
 		case 5:
 		case 6:

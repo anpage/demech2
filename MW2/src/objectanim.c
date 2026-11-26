@@ -308,6 +308,7 @@ AnimFile g_animFiles[60];
 // the frame it reached, and m_nextMotionState, the one it wants).
 // FUNCTION: MW2 0x10046750
 // FUNCTION: MW2GBL 0x100011c0
+// FUNCTION: MW2PREMERCS 0x10030530
 // FUNCTION: MW2MATROX 0x1006ece0
 // FUNCTION: MW23DFX 0x1000dec0
 // FUNCTION: MW2ATI 0x1000e5b0
@@ -1201,6 +1202,7 @@ MechS32 AmbientSoundTask(MechS32 p_event, MechChar* p_data, MechS32 p_clock, Mec
 // "rotate" to turn the object along the path. Event -1 restarts it.
 // FUNCTION: MW2 0x10047f60
 // FUNCTION: MW2GBL 0x100029d6
+// FUNCTION: MW2PREMERCS 0x10031d47
 // FUNCTION: MW2MATROX 0x100704f2
 // FUNCTION: MW23DFX 0x1000ee10
 // FUNCTION: MW2ATI 0x1000f4f0

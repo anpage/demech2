@@ -215,6 +215,7 @@ struct Player* g_lastPlayer = NULL;
 // animation, 4 loops a sound on a star's object, 5 moves it along a path.
 // GLOBAL: MW2 0x100a8640
 // GLOBAL: MW2GBL 0x100b2d18
+// GLOBAL: MW2PREMERCS 0x100bfab8
 // GLOBAL: MW2MATROX 0x100a8618
 // GLOBAL: MW23DFX 0x1025a630
 // GLOBAL: MW2ATI 0x1018e928
@@ -952,7 +953,21 @@ void CreateObjectNode(
 			parent = MapResourceId(parent);
 			parentIndex = FindThingIdxById(parent);
 			g_thingIndices[g_thingCount] =
+#ifdef MW2_CLASS_ENTRY_FLAGS
+				AddClassEntryLevel(
+					resource,
+					xform.m_x,
+					xform.m_y,
+					xform.m_z,
+					parentIndex,
+					p_level,
+					thing,
+					unk0x34,
+					flags
+				);
+#else
 				AddClassEntryLevel(resource, xform.m_x, xform.m_y, xform.m_z, parentIndex, p_level, thing, unk0x34);
+#endif
 			g_thingCount++;
 			UnlockCachedResource(resource, g_resTagPoly);
 			return;

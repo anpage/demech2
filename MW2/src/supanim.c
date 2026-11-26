@@ -171,6 +171,7 @@ void SupAnimTimerCallback(void);
 // (launch6.shp) and animates it on an AIL timer. On the DisplayDib back end it draws one frame.
 // FUNCTION: MW2 0x10003a70
 // FUNCTION: MW2GBL 0x10053810
+// FUNCTION: MW2PREMERCS 0x10025bf0
 // FUNCTION: MW2MATROX 0x1004a510
 // FUNCTION: MW23DFX 0x100073b0
 // FUNCTION: MW2ATI 0x10007d10
@@ -246,7 +247,11 @@ void StartSupAnim(MechS32 p_slowFade)
 
 	VFX_shape_palette(g_supAnimBackdrop, 0, (MechU8*) palette);
 	if (p_slowFade) {
+#ifdef MW2_BANNER_BLEND_STEPS
+		g_currentDisplayBackend->m_blendPalettes(palette, MW2_BANNER_BLEND_STEPS);
+#else
 		g_currentDisplayBackend->m_blendPalettes(palette, 30);
+#endif
 	}
 	else {
 		g_currentDisplayBackend->m_blendPalettes(palette, 2);

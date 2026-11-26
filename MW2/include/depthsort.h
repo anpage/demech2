@@ -29,7 +29,13 @@ typedef struct DepthEntry {
 	MechScalar m_depth;           // 0x04
 #endif
 #ifdef MW2_DEPTH_ENTRY_UNK_MEMBERS
-	MechU8 m_unk0x08[0x20 - 0x08]; // 0x08 — the early Mercenaries build's entries are 0x20 bytes
+	// The early Mercenaries build's entries are 0x20 bytes, with the polygon's bounds (IsDrawnBefore).
+	MechScalar m_maxX; // 0x08
+	MechScalar m_maxY; // 0x0c
+	MechScalar m_maxZ; // 0x10
+	MechScalar m_minX; // 0x14
+	MechScalar m_minY; // 0x18
+	MechScalar m_minZ; // 0x1c
 #endif
 } DepthEntry;
 

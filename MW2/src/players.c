@@ -22,6 +22,7 @@ DECOMP_SIZE_ASSERT(PlayerSteering, 0x48)
 // callbacks (artillery.c), 7 another (door.c); the others are mechs.
 // GLOBAL: MW2 0x100ad4a0
 // GLOBAL: MW2GBL 0x1009f170
+// GLOBAL: MW2PREMERCS 0x100b1da8
 // GLOBAL: MW2MATROX 0x100aa738
 // GLOBAL: MW23DFX 0x1024c330
 PlayerType g_playerTypes[9] = {
@@ -80,6 +81,7 @@ GameThing g_gameThings[254];
 
 // FUNCTION: MW2 0x1006cf80
 // FUNCTION: MW2GBL 0x1001ce10
+// FUNCTION: MW2PREMERCS 0x100416a0
 // FUNCTION: MW2MATROX 0x10054e10
 // FUNCTION: MW23DFX 0x100187c0
 // FUNCTION: MW2ATI 0x10018b80
@@ -287,6 +289,7 @@ void CreateSimPlayer(MechS32 p_player, PlayerCreatedFn p_fn)
 // Allocates player p_player: a remote player gets room for its steering after it.
 // FUNCTION: MW2 0x1006d340
 // FUNCTION: MW2GBL 0x1001d1d5
+// FUNCTION: MW2PREMERCS 0x10041a63
 // FUNCTION: MW2MATROX 0x100551cf
 // FUNCTION: MW23DFX 0x100189e0
 // FUNCTION: MW2ATI 0x10018da0
@@ -314,6 +317,7 @@ MechS32 AllocPlayer(MechS32 p_player)
 // Sets up a newly allocated player.
 // FUNCTION: MW2 0x1006d3a4
 // FUNCTION: MW2GBL 0x1001d23a
+// FUNCTION: MW2PREMERCS 0x10041ac8
 // FUNCTION: MW2MATROX 0x10055234
 // FUNCTION: MW23DFX 0x10018a20
 // FUNCTION: MW2ATI 0x10018de0

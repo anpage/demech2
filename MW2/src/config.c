@@ -634,6 +634,32 @@ MechS32 SaveDifficultyCfg(MechChar* p_name, DifficultyCfg* p_cfg)
 	return result;
 }
 
+#ifdef MW2_SOUND_CONFIG_DEFAULTS
+// Reads the sound settings, or allocates the defaults: full volumes, the sound flags 0xb, every detail
+// on, brightness 8 and mcga.dll. Returns 1, or -1 if it couldn't read them.
+// FUNCTION: MW2PREMERCS 0x1007aafe
+MechS32 LoadSndCfg(MechChar* p_name, SoundConfig** p_cfg)
+{
+	MechS32 size;
+	MechS32 file;
+	void* data;
+
+	file = LoadFile(BuildGamePath(p_name), &size, &data, NULL);
+	if (file != -1) {
+		*p_cfg = data;
+	}
+	else {
+		SoundConfig defaults = {0x10000, 0x10000, 0x10000, 0x10000, 0xb, 1, 1, 1, 1, 1, 8, "mcga.dll"};
+
+		*p_cfg = HeapAlloc(g_primaryHeap, HEAP_NO_SERIALIZE, sizeof(SoundConfig));
+		**p_cfg = defaults;
+		return -1;
+	}
+
+	close(file);
+	return 1;
+}
+#else
 // Reads the sound settings, or allocates cleared ones. Returns 1, or -1 if it couldn't read them.
 // FUNCTION: MW2 0x100714b3
 // FUNCTION: MW2GBL 0x10043440
@@ -660,6 +686,7 @@ MechS32 LoadSndCfg(MechChar* p_name, SoundConfig** p_cfg)
 	close(file);
 	return 1;
 }
+#endif
 
 // FUNCTION: MW2 0x1007152f
 // FUNCTION: MW2GBL 0x100434bc

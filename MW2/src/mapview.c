@@ -189,9 +189,11 @@ void BeginMapView(MechScalar* p_pose, MechS32 p_slot, MechS32 p_worldSpan, MechS
 }
 
 // Draws the map view's scene: the terrain when bit 0 of p_flags is set, then the shapes. The
-// PowerVR edition has its renderer draw the frame (FUN_10062b10) whatever the flags.
+// PowerVR edition has its renderer draw the frame (FUN_10062b10) whatever the flags, and the early
+// Mercenaries build draws the shape grid's cells ahead of the eyepoint.
 // FUNCTION: MW2 0x1004215f
 // FUNCTION: MW2GBL 0x1008046f
+// FUNCTION: MW2PREMERCS 0x1001b70f
 // FUNCTION: MW2MATROX 0x1001e36d
 // FUNCTION: MW23DFX 0x10001180
 // FUNCTION: MW2ATI 0x10001180
@@ -199,6 +201,11 @@ void BeginMapView(MechScalar* p_pose, MechS32 p_slot, MechS32 p_worldSpan, MechS
 // FUNCTION: MW2POWERVR 0x10001180
 void DrawMapViewScene(MapViewFlags p_flags)
 {
+#ifdef MW2_SHAPE_GRID
+	MechS32 i;
+	Shape* list;
+
+#endif
 #ifdef MW2_POWERVR
 	FUN_10062b10();
 #else
@@ -206,7 +213,16 @@ void DrawMapViewScene(MapViewFlags p_flags)
 		DrawSkyAndGround(g_eyepoint);
 	}
 
+#ifdef MW2_SHAPE_GRID
+	ListShapeGridCellsAhead(g_eyepoint);
+	i = 0;
+	for (list = g_shapeGridLists[i]; list; list = g_shapeGridLists[i]) {
+		DrawShapeList(list);
+		i++;
+	}
+#else
 	DrawShapeList(g_sceneShapes);
+#endif
 	FUN_10069591();
 #endif
 }

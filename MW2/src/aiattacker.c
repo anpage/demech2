@@ -30,7 +30,8 @@
 #include <stdlib.h>
 
 // Turns p_player on a player attacking it (FindAttacker), unless its AI flags hold it (bit 0) or
-// it is busy with that player already, calling off the teammate on it (FindNearestTarget).
+// it is busy with that player already, calling off the teammate on it (FindNearestTarget; in the early
+// Mercenaries build only with m_unk0x1a0 set).
 // FUNCTION: MW2 0x100519b3
 // FUNCTION: MW2GBL 0x100772a4
 // FUNCTION: MW2MATROX 0x10081144
@@ -53,8 +54,12 @@ void TargetAttacker(Player* p_player)
 	if (target != -1 && (p_player->m_ai.m_goal != p_player->m_nav || p_player->m_ai.m_state != c_aiStateGoDirect) &&
 		((p_player->m_ai.m_state != c_aiStateTarget && p_player->m_ai.m_state != c_aiStateAttack) ||
 		 p_player->m_ai.m_goal != target)) {
+#ifdef MW2_RESOLVE_NEAREST_FLAG
+		if (p_player->m_unk0x1a0 && (other = FindNearestTarget(p_player, target, -3, &best, &nearest))) {
+#else
 		other = FindNearestTarget(p_player, target, -3, &best, &nearest);
 		if (other) {
+#endif
 			if (other->m_ai.m_flags & 0x40) {
 				target = -1;
 			}

@@ -31,6 +31,13 @@ enum {
 };
 
 // The functions and globals of maneuvers.c that other units use.
+// The maneuver tables (g_maneuverTables): by player type, then the pilot table's.
+#if defined(MW2_PILOT_SKILLS)
+#define MANEUVER_TABLE_COUNT 17
+#else
+#define MANEUVER_TABLE_COUNT 13
+#endif
+
 #ifdef __cplusplus
 extern "C"
 {
@@ -42,7 +49,7 @@ extern "C"
 	extern MechScalar g_jumpJetDrag;
 	extern MechScalar g_slideSlope;
 #ifdef MW2_STATIC_MANEUVER_TABLES
-	extern ManeuverTable g_maneuverTables[13];
+	extern ManeuverTable g_maneuverTables[MANEUVER_TABLE_COUNT];
 #endif
 
 	void RunManeuver(struct Player* p_player, MechU16 p_target);
@@ -85,6 +92,9 @@ void GetOffsetPoint(
 	MechS32 ManeuverAdfa(struct Player* p_player, MechS16 p_target);
 	void ManeuverAvoid(struct Player* p_player, MechS16 p_target);
 	MechS32 ManeuverCircle(struct Player* p_player, MechS16 p_target);
+#ifdef MW2_MANEUVER_13
+	MechS32 FUN_1004da17(struct Player* p_player, MechS16 p_target);
+#endif
 	MechS32 IsBelowHiddenTarget(struct Player* p_player);
 	MechS32 BrakeFall(struct Player* p_player);
 	void SetJumpJets(struct Player* p_player, MechS8 p_value);

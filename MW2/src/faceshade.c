@@ -97,6 +97,7 @@ MechS32 ComputeShade(MechS32 p_light, MechS32 p_value, MechScalar p_distance);
 // draws untextured faces in mode 0xf000 (an animation's color) rather than 0x1000.
 // FUNCTION: MW2 0x10036230
 // FUNCTION: MW2GBL 0x10075be0
+// FUNCTION: MW2PREMERCS 0x1005e380
 // FUNCTION: MW2MATROX 0x10016b60
 // FUNCTION: MW23DFX 0x1002a4b0
 // FUNCTION: MW2ATI 0x1002a0c0

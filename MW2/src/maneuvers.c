@@ -99,6 +99,7 @@ ManeuverEntry g_mechManeuvers[13] = {
 
 // GLOBAL: MW2 0x100a2a70
 // GLOBAL: MW2GBL 0x100a3c78
+// GLOBAL: MW2PREMERCS 0x100b2858
 // GLOBAL: MW2MATROX 0x100a4c78
 // GLOBAL: MW23DFX 0x1024cee0
 // GLOBAL: MW2ATI 0x10181260
@@ -108,6 +109,7 @@ ManeuverEntry g_stupidManeuvers = {{0, 1, 0, 0, 0, 0, 0, 0, 0}};
 
 // GLOBAL: MW2 0x100a2a88
 // GLOBAL: MW2GBL 0x100a3c90
+// GLOBAL: MW2PREMERCS 0x100b2870
 // GLOBAL: MW2MATROX 0x100a4c90
 // GLOBAL: MW23DFX 0x1024cef8
 // GLOBAL: MW2ATI 0x10181278
@@ -121,6 +123,17 @@ ManeuverEntry g_circleManeuvers = {{12, 1, 12, 0, 0, 0, 0, 0, 0}};
 // GLOBAL: MW2ATI 0x10181290
 // GLOBAL: MW2POWERVR 0x101ac1f0
 ManeuverEntry g_behindManeuvers = {{1, 1, 1, 0, 0, 0, 0, 0, 0}};
+
+#ifdef MW2_PILOT_SKILLS
+// The early Mercenaries build's table of player type 7.
+// GLOBAL: MW2PREMERCS 0x100b2888
+ManeuverEntry g_unk0x100b2888[4] = {
+	{{2, 2, 7, 13, 0, 0, 0, 0, 0}},
+	{{3, 2, 7, 13, 0, 0, 0, 0, 0}},
+	{{7, 3, 13, 2, 3, 0, 0, 0, 0}},
+	{{13, 3, 13, 2, 3, 0, 0, 0, 0}},
+};
+#endif
 
 // The table of a mech whose m_tons is 1 (ChooseManeuver).
 // GLOBAL: MW2 0x100a2ab8
@@ -231,8 +244,29 @@ MechS32 g_maneuverTablesReady = 0;
 // The maneuver table of each player type (m_type, 1 to 8), and in entry 8 the alternative to the
 // first. GBL's are data, with the pilot table's in entries 9 to 12 and the stupid maneuver for every
 // type but the mech.
-#ifdef MW2_STATIC_MANEUVER_TABLES
-ManeuverTable g_maneuverTables[13] = {
+#if defined(MW2_PILOT_SKILLS)
+// GLOBAL: MW2PREMERCS 0x100b2dd0
+ManeuverTable g_maneuverTables[MANEUVER_TABLE_COUNT] = {
+	{14, 7, g_mechManeuvers},
+	{1, 0, &g_stupidManeuvers},
+	{1, 0, &g_stupidManeuvers},
+	{1, 0, &g_stupidManeuvers},
+	{1, 0, &g_stupidManeuvers},
+	{1, 0, &g_stupidManeuvers},
+	{1, 0, &g_stupidManeuvers},
+	{4, 2, g_unk0x100b2888},
+	{14, 7, g_altMechManeuvers},
+	{14, 7, g_mechManeuvers},
+	{14, 7, g_mechManeuvers},
+	{14, 7, g_mechManeuvers},
+	{14, 7, g_mechManeuvers},
+	{14, 7, g_mechManeuvers},
+	{14, 7, g_mechManeuvers},
+	{14, 7, g_mechManeuvers},
+	{0, 0, NULL},
+};
+#elif defined(MW2_STATIC_MANEUVER_TABLES)
+ManeuverTable g_maneuverTables[MANEUVER_TABLE_COUNT] = {
 	{13, 7, g_mechManeuvers},
 	{1, 0, &g_stupidManeuvers},
 	{1, 0, &g_stupidManeuvers},
@@ -761,6 +795,7 @@ MechS16 FindManeuver(ManeuverTable* p_table, MechS16 p_id)
 // ends (m_maneuverEnd).
 // FUNCTION: MW2 0x10014149
 // FUNCTION: MW2GBL 0x1002a26b
+// FUNCTION: MW2PREMERCS 0x1004c602
 // FUNCTION: MW2MATROX 0x10019d3d
 // FUNCTION: MW23DFX 0x1001f290
 // FUNCTION: MW2ATI 0x1001f560
@@ -1570,6 +1605,34 @@ MechS32 ManeuverCircle(Player* p_player, MechS16 p_target)
 
 	return result;
 }
+
+#ifdef MW2_MANEUVER_13
+// The early Mercenaries build's maneuver 13 (player type 7's table): ManeuverCircle's, without giving up
+// the goal.
+// FUNCTION: MW2PREMERCS 0x1004da17
+MechS32 FUN_1004da17(Player* p_player, MechS16 p_target)
+{
+	MechScalar heading;
+	MechS32 result;
+
+	result = 0;
+	SetTarget(p_player, p_player->m_ai.m_goal);
+	heading = GetTargetBearing(p_player);
+	RunAIWeapons(p_player, heading);
+	SetTarget(p_player, p_player->m_ai.m_target);
+	if (!AvoidObstacles(p_player)) {
+		p_player->m_steering->m_throttle = GetApproachThrottle(p_player, 3000);
+		SteerToTarget(p_player);
+	}
+
+	JumpToTurn(p_player);
+	if (p_player->m_targetInfo.m_distance <= 3000) {
+		AdvanceNavTarget(p_player, p_player->m_ai.m_target);
+	}
+
+	return result;
+}
+#endif
 
 // Whether p_player, targeting a player it has no clear line to, is more than 800 below it, with
 // jump jets (its jump fuel not negative).

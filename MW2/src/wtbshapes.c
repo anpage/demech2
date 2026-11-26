@@ -26,6 +26,7 @@
 
 // GLOBAL: MW2 0x1009de38
 // GLOBAL: MW2GBL 0x10098ca0
+// GLOBAL: MW2PREMERCS 0x100a7e38
 // GLOBAL: MW2MATROX 0x100a0414
 // GLOBAL: MW23DFX 0x10248544
 // GLOBAL: MW2ATI 0x1017c4ec
@@ -648,6 +649,7 @@ MechS32 LoadShapeRecord(MechU8* p_data, MechS32* p_offset, Shape** p_shape, Scen
 // set; ids with bit 15 index g_faceIds.
 // FUNCTION: MW2 0x1007fae3
 // FUNCTION: MW2GBL 0x10044090
+// FUNCTION: MW2PREMERCS 0x1007d710
 // FUNCTION: MW2MATROX 0x10025e94
 MechU32 MapFaceId(MechU32 p_id)
 {

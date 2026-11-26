@@ -223,6 +223,7 @@ void SetGridObject(SceneObject* p_obj)
 // Moves the grid object (SetGridObject) to the eyepoint's cell when that changes.
 // FUNCTION: MW2 0x1004b344
 // FUNCTION: MW2GBL 0x10007d44
+// FUNCTION: MW2PREMERCS 0x10035974
 // FUNCTION: MW2MATROX 0x100277fe
 // FUNCTION: MW23DFX 0x10011570
 // FUNCTION: MW2ATI 0x10011ad0
