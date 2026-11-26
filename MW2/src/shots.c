@@ -392,6 +392,7 @@ void UpdateAllShots(void)
 // player's hit feedback while its flag 2 is set.
 // FUNCTION: MW2 0x1006a533
 // FUNCTION: MW2GBL 0x1007c16b
+// FUNCTION: MW2PREMERCS 0x10085991
 // FUNCTION: MW2MATROX 0x1006b033
 // FUNCTION: MW23DFX 0x10044f60
 // FUNCTION: MW2ATI 0x100427b0
@@ -952,6 +953,7 @@ void SpawnLaunchEffect(MechS32 p_type, Player* p_player)
 // object, the effect at its origin) or, failing that, plays for 181 ticks only. Effect types 0x22 and
 // 0x23 are missiles' like 3, and the launch effects are 0x17 to 0x21.
 // FUNCTION: MW2GBL 0x1007cf2a
+// FUNCTION: MW2PREMERCS 0x100867d8
 void SpawnEffectEx(
 	MechS32 p_owner,
 	Shape* p_shape,
@@ -1535,6 +1537,7 @@ void SpawnEffectEx(
 // the nuke's (0x16) and effect 0x23's radius grows as they burn, damaging mechs whatever the splash
 // damage setting.
 // FUNCTION: MW2GBL 0x1007d7bd
+// FUNCTION: MW2PREMERCS 0x10087070
 void UpdateEffects(void)
 {
 	MechS32 release;
@@ -1730,6 +1733,7 @@ void UpdateEffects(void)
 // tick in each of its sections, twice as much when its power is off.
 // FUNCTION: MW2 0x1006bc13
 // FUNCTION: MW2GBL 0x1007db62
+// FUNCTION: MW2PREMERCS 0x100873ba
 // FUNCTION: MW2MATROX 0x1006c803
 // FUNCTION: MW23DFX 0x10046700
 // FUNCTION: MW2ATI 0x10043e30
@@ -2143,6 +2147,7 @@ void SaveCareerRecord(void)
 // by 3.
 // FUNCTION: MW2 0x1006c362
 // FUNCTION: MW2GBL 0x1007e303
+// FUNCTION: MW2PREMERCS 0x10087b4b
 // FUNCTION: MW2MATROX 0x1006cf8d
 // FUNCTION: MW23DFX 0x10046e70
 // FUNCTION: MW2ATI 0x100445a0

@@ -316,6 +316,7 @@ void DestroyMech(MechS32 p_killer, Mech* p_mech)
 // 4525). Its test for a mech shut down past 100 degrees, which would blow it up, comes after the
 // test for 100 degrees and never holds.
 // FUNCTION: MW2GBL 0x1001eeb7
+// FUNCTION: MW2PREMERCS 0x1003d968
 void CalculateHeat(Mech* p_mech)
 {
 	MechS32 delta;
@@ -554,6 +555,7 @@ void CalculateHeat(Mech* p_mech)
 // outcome is 4 unless they ejected, and in a network game only the local mech's death is played
 // out here.
 // FUNCTION: MW2GBL 0x1001f3bd
+// FUNCTION: MW2PREMERCS 0x1003de0d
 void KillMech(MechS32 p_killer, Mech* p_mech)
 {
 	MechS32 leader;
@@ -996,6 +998,7 @@ void DestroySection(MechS32 p_attacker, Mech* p_mech, MechU32 p_section)
 // p_recursing; 8000 and 9000 hit another, random slot instead.
 // FUNCTION: MW2 0x10008c0f
 // FUNCTION: MW2GBL 0x1001fc77
+// FUNCTION: MW2PREMERCS 0x1003e8a1
 // FUNCTION: MW2MATROX 0x100114bd
 // FUNCTION: MW23DFX 0x100167b0
 // FUNCTION: MW2ATI 0x10016bc0
@@ -1393,6 +1396,7 @@ void DestroyCriticalSlot(MechS32 p_attacker, Mech* p_mech, MechU32 p_section, Me
 // GBL's: counts the hit for the player whose shot hit last (g_lastHitShooter), then forgets them,
 // and in a network game damages only the local mech.
 // FUNCTION: MW2GBL 0x10020941
+// FUNCTION: MW2PREMERCS 0x1003f712
 void ApplyDamageToMech(MechS32 p_attacker, Mech* p_mech, MechScalar p_damage, MechS32 p_section)
 {
 	MechS32 side;

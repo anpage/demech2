@@ -75,6 +75,12 @@ MechS32 g_inspectResult = 0;
 // GLOBAL: MW2POWERVR 0x101abb34
 MechS32 g_reticleTargeting = 0;
 
+#ifdef MW2_MFD_PANELS
+// Saved with the MFDs' modes (SaveMfdModes); ResetMfdModes sets it.
+// GLOBAL: MW2PREMERCS 0x100b20f8
+undefined4 g_unk0x100b20f8 = 1;
+#endif
+
 // GLOBAL: MW2 0x10177160
 // GLOBAL: MW2GBL 0x101350f0
 // GLOBAL: MW2PREMERCS 0x101b2a80
@@ -541,6 +547,7 @@ MechS32 TargetGamePiece(MechS32 p_player, MechS32 p_index, MechU32 p_flags)
 // or the same negative codes; its test of flag 0x10000 can never succeed.
 // FUNCTION: MW2 0x1005f798
 // FUNCTION: MW2GBL 0x10071072
+// FUNCTION: MW2PREMERCS 0x100491b3
 // FUNCTION: MW2MATROX 0x10007012
 // FUNCTION: MW23DFX 0x1001d2d0
 // FUNCTION: MW2ATI 0x1001d600
@@ -630,6 +637,7 @@ MechS32 TargetGameThing(MechS32 p_player, MechS32 p_index, MechU32 p_flags)
 // GBL's: only the local player inspects its target, which counts as inspected once anyone has, and
 // the request stays set.
 // FUNCTION: MW2GBL 0x100712ff
+// FUNCTION: MW2PREMERCS 0x10049440
 MechS32 UpdateTarget(Player* p_player)
 {
 	MechS32 isLocal;

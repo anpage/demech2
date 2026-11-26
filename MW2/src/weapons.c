@@ -130,6 +130,7 @@ void ReleaseWeaponTriggers(Mech* p_mech)
 // volley loses as many as it fires), and the launch sound plays at the first shot or every shot as
 // the weapon's flags say.
 // FUNCTION: MW2GBL 0x10047251
+// FUNCTION: MW2PREMERCS 0x1007ed13
 void UpdateWeaponFireState(Mech* p_mech)
 {
 	MechScalar dy;
@@ -1357,6 +1358,7 @@ void CycleLocalWeaponGroup(void)
 // Fires the weapons g_remoteWeaponsFired lists from p_mech.
 // FUNCTION: MW2 0x10045bc8
 // FUNCTION: MW2GBL 0x10048817
+// FUNCTION: MW2PREMERCS 0x10080392
 // FUNCTION: MW2MATROX 0x1002c96e
 // FUNCTION: MW23DFX 0x100443a0
 // FUNCTION: MW2ATI 0x10041bf0

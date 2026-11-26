@@ -106,6 +106,11 @@ void DrawMapIcon(CockpitLayout* p_layout, MapPoint p_pos, MechS32 p_icon);
 	MechS32 IsSatelliteView(void);
 	void LeaveSatelliteView(void);
 	void ToggleSatelliteView(void);
+#ifdef MW2_MFD_PANELS
+	void DrawSatelliteToPane(PANE* p_pane);
+	void DrawFieldOfViewToPane(PANE* p_pane, CockpitLayout* p_layout, MechScalar p_heading);
+	void RequestCockpitLayout(MechS32 p_layout);
+#endif
 	void ZoomMapView(MechS32 p_zoom);
 	MechS32 MapShapeFilter(Shape* p_shape);
 	MechU32 SatelliteFaceColor(struct Face* p_face, undefined4 p_unk0x04, MechU32 p_flags, MechS32 p_depth);

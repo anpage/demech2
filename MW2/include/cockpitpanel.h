@@ -30,12 +30,30 @@ struct CockpitPanel {
 	void* m_view;      // 0x34 — the renderer's A3DView of the panel's inset, or NULL
 #endif
 #ifdef MW2_COCKPIT_PANEL_UNK_MEMBERS
-	// The early Mercenaries build's panels are 0xf0 bytes: a member of their own comes first, set
-	// by a method of its own after m_setTarget (InitCockpitPanels gives the mech views theirs),
-	// then 0x60 bytes nothing decompiled uses, so the members from m_x on sit 0x64 bytes further
-	// than their comments say, and from m_setTextOrigin on 0x68.
-	undefined4 m_unk0x30;                // 0x30 — FUN_100535df sets it
-	undefined m_unk0x34[0x94 - 0x34];    // 0x34
+	// The early Mercenaries build's panels are 0xf0 bytes: an MFD's mode comes first, set by a
+	// method of its own after m_setTarget, then the MFD's gauges, so the members from m_x on sit
+	// 0x64 bytes further than their comments say, and from m_setTextOrigin on 0x68.
+	MechS32 m_mfdMode; // 0x30 — an MFD's mode (DrawMechViewPanel), 0: off
+	// Each MFD's gauges (ScaleBarGauges), in pixels of its pane: the throttle gauge's size and
+	// frame, the left of its bar and its zero; the jump fuel bar's place, size and frame; the heat
+	// and heat rate bars' places and sizes.
+	struct Point m_throttleSize;         // 0x34
+	MechS32 m_throttleFrameLeft;         // 0x3c
+	MechS32 m_throttleFrameTop;          // 0x40
+	MechS32 m_throttleFrameRight;        // 0x44
+	MechS32 m_throttleFrameBottom;       // 0x48
+	MechS32 m_throttleBarLeft;           // 0x4c
+	MechS32 m_throttleZeroY;             // 0x50
+	struct Point m_jumpFuelPosition;     // 0x54
+	struct Point m_jumpFuelSize;         // 0x5c
+	MechS32 m_jumpFuelFrameLeft;         // 0x64
+	MechS32 m_jumpFuelFrameTop;          // 0x68
+	MechS32 m_jumpFuelFrameRight;        // 0x6c
+	MechS32 m_jumpFuelFrameBottom;       // 0x70
+	struct Point m_heatPosition;         // 0x74
+	struct Point m_heatSize;             // 0x7c
+	struct Point m_heatRatePosition;     // 0x84
+	struct Point m_heatRateSize;         // 0x8c
 	PANE* m_target;                      // 0x94
 	struct Point* m_textOrigin;          // 0x98
 	struct RectTransition* m_transition; // 0x9c
@@ -57,7 +75,7 @@ struct CockpitPanel {
 	void (*m_setName)(CockpitPanel*, const MechChar*);   // 0x58
 	void (*m_setTarget)(CockpitPanel*, PANE*);           // 0x5c
 #ifdef MW2_COCKPIT_PANEL_UNK_MEMBERS
-	void (*m_unk0xc4)(CockpitPanel*, undefined4); // 0xc4 in the early Mercenaries build: FUN_100535df
+	void (*m_setMfdMode)(CockpitPanel*, MechS32); // 0xc4 in the early Mercenaries build
 #endif
 	void (*m_setTextOrigin)(CockpitPanel*, struct Point*);                // 0x60
 	void (*m_setTransition)(CockpitPanel*, struct RectTransition*);       // 0x64
@@ -131,7 +149,7 @@ extern "C"
 	void SetCockpitPanelName(CockpitPanel* p_panel, const MechChar* p_name);
 	void SetCockpitPanelTarget(CockpitPanel* p_panel, PANE* p_target);
 #ifdef MW2_COCKPIT_PANEL_UNK_MEMBERS
-	void FUN_100535df(CockpitPanel* p_panel, undefined4 p_unk0x30);
+	void SetCockpitPanelMfdMode(CockpitPanel* p_panel, MechS32 p_mfdMode);
 #endif
 	void SetCockpitPanelTextOrigin(CockpitPanel* p_panel, Point* p_textOrigin);
 	void SetCockpitPanelTransition(CockpitPanel* p_panel, struct RectTransition* p_transition);

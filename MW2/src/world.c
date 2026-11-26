@@ -356,6 +356,7 @@ typedef union BwdTargetId {
 // read). Returns whether every stream it executed loaded.
 // FUNCTION: MW2 0x1000a9f5
 // FUNCTION: MW2GBL 0x10023fc5
+// FUNCTION: MW2PREMERCS 0x10076275
 // FUNCTION: MW2MATROX 0x100461f5
 // FUNCTION: MW23DFX 0x1003de10
 // FUNCTION: MW2ATI 0x1003bb70

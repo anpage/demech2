@@ -29,6 +29,7 @@ MechS32 g_quadtreesDisabled = 0;
 // Builds p_shape's quadtree (m_collisionData) over its model's bounds, unless g_quadtreesDisabled is set.
 // FUNCTION: MW2 0x1001df00
 // FUNCTION: MW2GBL 0x10072380
+// FUNCTION: MW2PREMERCS 0x1002cd80
 // FUNCTION: MW2MATROX 0x100158f0
 // FUNCTION: MW23DFX 0x1000c550
 // FUNCTION: MW2ATI 0x1000ccc0
@@ -102,6 +103,7 @@ void BuildShapeQuadtree(Shape* p_shape)
 // faces; with more, the child is split again.
 // FUNCTION: MW2 0x1001e0a7
 // FUNCTION: MW2GBL 0x10072527
+// FUNCTION: MW2PREMERCS 0x1002cf27
 // FUNCTION: MW2MATROX 0x10015ab5
 // FUNCTION: MW23DFX 0x1000c640
 // FUNCTION: MW2ATI 0x1000cdb0
@@ -313,6 +315,7 @@ void FreeQuadtree(QuadtreeNode* p_node)
 // (p_maxX, p_maxZ), seen from above; if it does, stores the face's height range.
 // FUNCTION: MW2 0x1001e57a
 // FUNCTION: MW2GBL 0x100729f3
+// FUNCTION: MW2PREMERCS 0x1002d3f3
 // FUNCTION: MW2MATROX 0x10016037
 // FUNCTION: MW23DFX 0x1000c9a0
 // FUNCTION: MW2ATI 0x1000d110

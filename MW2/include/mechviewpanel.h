@@ -20,6 +20,24 @@ extern "C"
 	void DrawMechViewFrame(CockpitPanel* p_panel, MechS32 p_color, MechS32 p_shapeId);
 	void DrawMechViewStartup(CockpitPanel* p_panel);
 	void DrawMechViewShutdown(CockpitPanel* p_panel);
+#ifdef MW2_MFD_PANELS
+	extern MechS32 g_mfdModesLoaded;
+	extern MechS32 g_mfdModes[7];
+	extern MechS32 g_savedMfdModes[7];
+	extern undefined4 g_savedUnk0x100b20f8;
+	extern MechS32 g_savedShowCompass;
+	extern MechS32 g_savedCockpitLayout;
+
+	void SaveMfdModes(void);
+	void LoadMfdModes(void);
+	MechS32 ApplyMfdModes(void);
+	void CycleMfdMode(CockpitPanel* p_panel);
+	void ResetMfdModes(void);
+	void ClearMfdModes(void);
+	void RememberMfdModes(void);
+	void RestoreMfdModes(void);
+	void SetEyeViewRenderSettings(RenderSettings* p_saved);
+#endif
 #ifdef MW2_POWERVR
 	// The PowerVR edition's handlers before and after the scene is rendered (CockpitPanel::m_unk0x90
 	// and m_unk0x94), which place the inset's camera and set its qualities.

@@ -988,7 +988,9 @@ void RunGameKey(MechS32 p_key)
 		g_quitStage += 2;
 		break;
 	case 0x2:
+#ifndef MW2_MFD_PANELS
 		CycleMechViewMode();
+#endif
 		if (g_players[g_localPlayerId]->m_flags & 0x2000) {
 			PlaySoundEffect(0xdc, 100, 0x40, 0, 0x32);
 		}

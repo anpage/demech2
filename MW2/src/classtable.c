@@ -709,6 +709,7 @@ void ChoosePlayerDetailLevels(void)
 // The local player's own view (GetViewMode == 0) takes level 4, and dead players 0 or 1.
 // FUNCTION: MW2 0x1001da44
 // FUNCTION: MW2GBL 0x10036dd4
+// FUNCTION: MW2PREMERCS 0x10057e4d
 // FUNCTION: MW2MATROX 0x1006e13f
 // FUNCTION: MW23DFX 0x100267d0
 // FUNCTION: MW2ATI 0x10026490

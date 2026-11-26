@@ -843,6 +843,7 @@ void SendStateMsg(void)
 // everybody (-1). Fails on a line of 80 characters or more.
 // FUNCTION: MW2 0x1000efa4
 // FUNCTION: MW2GBL 0x10050d4d
+// FUNCTION: MW2PREMERCS 0x10069e2e
 // FUNCTION: MW2MATROX 0x10004a71
 // FUNCTION: MW23DFX 0x100344e0
 // FUNCTION: MW2ATI 0x100330e0

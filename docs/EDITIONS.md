@@ -299,7 +299,7 @@ tests an `MW2_` macro the table doesn't define, and when no target compiles a br
 
 ## Features
 
-From the table in `util/types.h` (251 features) and the 1531 conditional sites of the simulators' sources (`MW2/`, `common/`, `3rdparty/vfx`). A feature's cell is its value where it has one.
+From the table in `util/types.h` (252 features) and the 1560 conditional sites of the simulators' sources (`MW2/`, `common/`, `3rdparty/vfx`). A feature's cell is its value where it has one.
 
 ### The ATI, S3, Matrox, PowerVR and 3Dfx editions (`MW2_ACCEL`)
 
@@ -656,6 +656,7 @@ Every edition that has one of these has them all, so no binary separates one fro
 | `MW2_AIM_AT_FEET` |  |  | yes |  |  |  |  |  | 1 | A player with Player::m_unk0x1b4 1 targets a mech at its feet: its object's origin less its height (TargetGamePiece) |
 | `MW2_STAR_QUEUES_TARGET` |  |  | yes |  |  |  |  |  | 1 | AssignStarObjective queues the members' state with the objective's target (the leader they follow), not 2 |
 | `MW2_LEAVE_STATE_STOPS_GROUP_FIRE` |  |  | yes |  |  |  |  |  | 1 | LeaveAIState releases the group fire button too (PlayerSteering::m_weaponFireGroup) |
+| `MW2_MFD_PANELS` |  |  | yes |  |  |  |  |  | 30 | The mech view panel is seven MFDs, each showing one of thirteen modes (CockpitPanel::m_mfdMode) in a pane of its own (m_weapon): the damage outline, armor bars, rear, eye, overhead, satellite and tracked shot views, the target and the speed, jump jet, heat and heat rate panels; SAVE_HUD keeps their modes in MERCS.HUD (mechviewpanel.c) |
 | `MW2_CLAN_AND_IS_WEAPONS` |  |  | yes |  |  |  |  |  | 2 | The weapons are the Clans' (GBL's, renamed and retuned) and 31 of the Inner Sphere (WEAPON_DEF_COUNT 66, g_weaponDefs) |
 | `MW2_SHOT_TRACERS` |  |  | yes |  |  |  |  |  | 4 | SpawnShot fires with no ammunition left under the unlimited-ammunition cheat, and starts a tracer ahead of each machine-gun shot (premercs/tracers.c) |
 | `MW2_SHOT_OWNS_EFFECT` |  |  | yes |  |  |  |  |  | 5 | A shot's effect belongs to its shooter, as 1.1's does: DetonateShot takes no owner (UpdateShot) |
@@ -898,7 +899,7 @@ Every edition that has one of these has them all, so no binary separates one fro
 - `MW2_SHAPE_GRID`: `MW2/include/object.h`: file scope; `MW2/include/shape.h`: `Shape`; `MW2/include/shapelists.h`: file scope (4); `MW2/src/collision.c`: `FindNearestShape` (2), `GetHighestSurface`, `GetTerrainHeight` (2), `TestSceneryCollision` (3), `TestSegmentCollision` (3); `MW2/src/object.c`: the definition of `UpdateObj`, the definitions of `UpdateObj`, `UpdateObjTree`; `MW2/src/shapelists.c`: `AddSceneShape` (3), `EnableShapeCollision`, `FreeSceneShapes`, `InitShapeLists` (2), `ShowDensityShapes` (2), `ShowShape` (2), `UnlinkShape`, file scope (3), the definitions of `DisableShapeGrid`, `EnableShapeGrid`, `InitShapeGridNeighbours`, `ListAllShapeGridCells`, `ListShapeGridCellsAhead`, `ListShapeGridCellsAround`, the definitions of `GetShapeGridHead`, `GetShapeGridList`, `MoveObjTreeOffGrid`, `MoveObjTreeToCell`, `UpdateShapeGridCell`
 - `MW2_PLAYER_UNK_MEMBERS`: `MW2/include/players.h`: `Player` (3); `MW2/src/ai.c`: file scope; `MW2/src/poolsizes.c`: `BuildStaticMemoryTable`
 - `MW2_MECH_UNK_MEMBERS`: `MW2/include/ammobin.h`: `AmmoBin`; `MW2/include/mech.h`: `Mech`; `MW2/include/weaponslot.h`: `WeaponBin`, `WeaponSlot` (2); `MW2/src/mechclass.c`: file scope
-- `MW2_COCKPIT_PANEL_UNK_MEMBERS`: `MW2/include/cockpitpanel.h`: `CockpitPanel` (2), file scope; `MW2/src/cockpitpanel.c`: `InitCockpitPanel`, file scope, the definition of `FUN_100535df`
+- `MW2_COCKPIT_PANEL_UNK_MEMBERS`: `MW2/include/cockpitpanel.h`: `CockpitPanel` (2), file scope; `MW2/src/cockpitpanel.c`: `InitCockpitPanel`, file scope, the definition of `SetCockpitPanelMfdMode`
 - `MW2_THIRTY_FOUR_PANELS`: `MW2/include/cockpitpanel.h`: `enum`; `MW2/src/cockpitpanels.c`: file scope (4)
 - `MW2_MAP_VIEW_WITHOUT_RADAR`: `MW2/src/cockpitpanels.c`: `ShutdownCockpitPanels`, `UpdateCockpit` (3)
 - `MW2_HIDDEN_HUD_HIDES_NETWORK_PANEL`: `MW2/src/cockpitpanels.c`: `UpdateCockpit`
@@ -910,6 +911,7 @@ Every edition that has one of these has them all, so no binary separates one fro
 - `MW2_AIM_AT_FEET`: `MW2/src/targeting.c`: `TargetGamePiece`
 - `MW2_STAR_QUEUES_TARGET`: `MW2/src/ai.c`: `AssignStarObjective`
 - `MW2_LEAVE_STATE_STOPS_GROUP_FIRE`: `MW2/src/ai.c`: `LeaveAIState`
+- `MW2_MFD_PANELS`: `MW2/include/bargauges.h`: file scope (2); `MW2/include/cockpit.h`: file scope; `MW2/include/damagepanel.h`: file scope; `MW2/include/fadepal.h`: file scope; `MW2/include/mechviewpanel.h`: file scope; `MW2/include/targeting.h`: file scope; `MW2/src/bargauges.c`: file scope, the definitions of `DrawDialTick`, `DrawHeatBar`, `DrawHeatRateBar`, `DrawJumpFuelBar`, `DrawThrottleGauge`, `DrawVerticalBar`, `ScaleBarGauges`, `ScaleHeatBar`, `ScaleHeatRateBar`, `ScaleJumpFuelBar`, `ScaleThrottleGauge`; `MW2/src/cockpit.c`: the definition of `DrawFieldOfViewToPane`, the definition of `DrawSatelliteToPane`, the definition of `RequestCockpitLayout`; `MW2/src/cockpitpanels.c`: the definition of `InitCockpitPanels`; `MW2/src/damagepanel.c`: the definitions of `DrawArmorBars`, `DrawDamageOutline`, `InitDamagePanel`; `MW2/src/fadepal.c`: file scope, the definition of `RenderViewToPane`, the definitions of `RenderViewToPane`, `RenderViewToPaneFor`; `MW2/src/gamekeys.c`: `RunGameKey`; `MW2/src/mechviewpanel.c`: file scope (3), the definition of `SetEyeViewRenderSettings`, the definitions of `ApplyMfdModes`, `ClearMfdModes`, `CycleMechViewMode`, `CycleMfdMode`, `DrawMechViewPanel`, `LoadMfdModes`, `RememberMfdModes`, `ResetMfdModes`, `RestoreMfdModes`, `SaveMfdModes`, the definitions of `DrawMechViewPanel`, `FUN_10010b10`, `FUN_10010d50`; `MW2/src/statuspanels.c`: `DrawHeatPanel`, `DrawHeatRatePanel`, `DrawJetsPanel`, `DrawSpeedPanel`; `MW2/src/targeting.c`: file scope; `MW2/src/targetpanel.c`: file scope
 - `MW2_CLAN_AND_IS_WEAPONS`: `MW2/include/weapondata.h`: file scope; `MW2/src/weapondata.c`: file scope
 - `MW2_SHOT_TRACERS`: `MW2/src/shots.c`: `UpdateShot`, file scope; `MW2/src/weapons.c`: file scope, the definition of `SpawnShot`
 - `MW2_SHOT_OWNS_EFFECT`: `MW2/include/shots.h`: file scope; `MW2/src/shots.c`: `DetonateShot` (2), `UpdateShot` (2)
@@ -955,14 +957,21 @@ Where an edition's version of a function differs in its control flow or in more 
 | `DdrawWritePaletteGamma` | `MW2/src/directdraw.c` | `defined(MW2_DDRAW_PALETTE_UNSET)` | ATI, S3 and PowerVR; 1.1, Pre-Mercs and GBL |
 | `DecideAIFire` | `MW2/src/aiweapons.c` | `defined(MW2_PILOT_TABLE)` | Pre-Mercs and GBL; 1.1, ATI, S3, Matrox, PowerVR and 3Dfx |
 | `DestroyMech` | `MW2/src/mechdamage.c` | `defined(MW2_DESTROY_BLOWS_FIRST_BIN)` | GBL; 1.1, ATI, Pre-Mercs, S3, Matrox, PowerVR and 3Dfx |
+| `DrawArmorBars` | `MW2/src/damagepanel.c` | `defined(MW2_MFD_PANELS)` | Pre-Mercs; 1.1, ATI, S3, Matrox, PowerVR, GBL and 3Dfx |
+| `DrawDamageOutline` | `MW2/src/damagepanel.c` | `defined(MW2_MFD_PANELS)` | Pre-Mercs; 1.1, ATI, S3, Matrox, PowerVR, GBL and 3Dfx |
+| `DrawHeatBar` | `MW2/src/bargauges.c` | `defined(MW2_MFD_PANELS)` | Pre-Mercs; 1.1, ATI, S3, Matrox, PowerVR, GBL and 3Dfx |
+| `DrawHeatRateBar` | `MW2/src/bargauges.c` | `defined(MW2_MFD_PANELS)` | Pre-Mercs; 1.1, ATI, S3, Matrox, PowerVR, GBL and 3Dfx |
+| `DrawJumpFuelBar` | `MW2/src/bargauges.c` | `defined(MW2_MFD_PANELS)` | Pre-Mercs; 1.1, ATI, S3, Matrox, PowerVR, GBL and 3Dfx |
 | `DrawMapView` | `MW2/src/cockpit.c` | `defined(MW2_POWERVR)` | PowerVR; 1.1, ATI, Pre-Mercs, S3, Matrox, GBL and 3Dfx |
-| `DrawMechViewPanel` | `MW2/src/mechviewpanel.c` | `defined(MW2_POWERVR)` | PowerVR; 1.1, ATI, Pre-Mercs, S3, Matrox, GBL and 3Dfx |
+| `DrawMechViewPanel` | `MW2/src/mechviewpanel.c` | `defined(MW2_POWERVR)` | PowerVR; 1.1, ATI, S3, Matrox, GBL and 3Dfx |
 | `DrawObjectBrackets` | `MW2/src/hud.c` | `!defined(MW2_HUD_MARKER_LAG)` | 1.1, ATI, Pre-Mercs, S3, Matrox, GBL and 3Dfx; PowerVR |
 | `DrawPlayerBrackets` | `MW2/src/hud.c` | `!defined(MW2_HUD_MARKER_LAG)` | 1.1, ATI, Pre-Mercs, S3, Matrox, GBL and 3Dfx; PowerVR |
 | `DrawScene` | `MW2/src/render.c` | `defined(MW2_POWERVR)` | PowerVR; 1.1, ATI, Pre-Mercs, S3, Matrox, GBL and 3Dfx |
 | `DrawSkyAndGround` | `MW2/src/polydraw.c` | `defined(MW2_A3D)` | ATI, S3, Matrox, PowerVR and 3Dfx; 1.1, Pre-Mercs and GBL |
 | `DrawSkyAndGround` | `MW2/src/polydraw.c` | `defined(MW2_S3)` | S3; ATI, Matrox, PowerVR and 3Dfx |
 | `DrawTargetMarker` | `MW2/src/hud.c` | `!defined(MW2_HUD_MARKER_LAG)` | 1.1, ATI, Pre-Mercs, S3, Matrox, GBL and 3Dfx; PowerVR |
+| `DrawThrottleGauge` | `MW2/src/bargauges.c` | `defined(MW2_MFD_PANELS)` | Pre-Mercs; 1.1, ATI, S3, Matrox, PowerVR, GBL and 3Dfx |
+| `DrawVerticalBar` | `MW2/src/bargauges.c` | `defined(MW2_MFD_PANELS)` | Pre-Mercs; 1.1, ATI, S3, Matrox, PowerVR, GBL and 3Dfx |
 | `FireWeaponGroup` | `MW2/src/weapons.c` | `defined(MW2_WEAPON_FUNCTIONS)` | Pre-Mercs and GBL; 1.1, ATI, S3, Matrox, PowerVR and 3Dfx |
 | `FirstRender` | `MW2/src/render.c` | `defined(MW2_POWERVR)` | PowerVR; 1.1, ATI, Pre-Mercs, S3, Matrox, GBL and 3Dfx |
 | `FUN_100519b0` | `MW2/src/animation.c` | `defined(MW2_POWERVR)` | PowerVR; ATI, S3, Matrox and 3Dfx |
@@ -978,12 +987,15 @@ Where an edition's version of a function differs in its control flow or in more 
 | `FUN_100751a9` | `MW2/src/cockpit.c` | `defined(MW2_S3)` | S3; ATI, Matrox, PowerVR and 3Dfx |
 | `FUN_1008fad0` | `MW2/src/simmain.c` | `defined(MW2_POWERVR)` | PowerVR; ATI, S3, Matrox and 3Dfx |
 | `HandleCheatInput` | `MW2/src/gamekeys.c` | `defined(MW2_CHEAT_TABLE)` | Pre-Mercs and GBL; 1.1, ATI, S3, Matrox, PowerVR and 3Dfx |
+| `InitCockpitPanels` | `MW2/src/cockpitpanels.c` | `defined(MW2_MFD_PANELS)` | Pre-Mercs; 1.1, ATI, S3, Matrox, PowerVR, GBL and 3Dfx |
+| `InitDamagePanel` | `MW2/src/damagepanel.c` | `defined(MW2_MFD_PANELS)` | Pre-Mercs; 1.1, ATI, S3, Matrox, PowerVR, GBL and 3Dfx |
 | `InitializeManeuvers` | `MW2/src/maneuvers.c` | `defined(MW2_STATIC_MANEUVER_TABLES)` | Pre-Mercs and GBL; 1.1, ATI, S3, Matrox, PowerVR and 3Dfx |
 | `JoystickPoll` | `MW2/src/joystick.c` | `defined(MW2_JOYSTICK_AXIS_SUMS)` | Matrox; PowerVR; 1.1, ATI, Pre-Mercs, S3, GBL and 3Dfx |
 | `KillMech` | `MW2/src/mechdamage.c` | `defined(MW2_KILLS_BY_LAST_SHOOTER)` | Pre-Mercs and GBL; 1.1, ATI, S3, Matrox, PowerVR and 3Dfx |
 | `LoadSkyGroundSettings` | `MW2/src/polydraw.c` | `defined(MW2_S3)` | S3; ATI, Matrox, PowerVR and 3Dfx |
 | `PlayPositionalSound` | `MW2/src/soundfx.c` | `defined(MW2_POSITIONAL_SOUND_FLAGS)` | Pre-Mercs and GBL; 1.1, ATI, S3, Matrox, PowerVR and 3Dfx |
 | `RotateTexturePoint` | `MW2/src/animation.c` | `defined(MW2_S3)` | S3; ATI, Matrox, PowerVR and 3Dfx |
+| `ScaleBarGauges` | `MW2/src/bargauges.c` | `defined(MW2_MFD_PANELS)` | Pre-Mercs; 1.1, ATI, S3, Matrox, PowerVR, GBL and 3Dfx |
 | `SetGameResolution` | `MW2/src/simmain.c` | `defined(MW2_RES_800X600)` | 3Dfx; S3; PowerVR; 1.1, ATI, Pre-Mercs, Matrox and GBL |
 | `ShowGridObject` | `MW2/src/gridobject.c` | `defined(MW2_GRID_OBJECT_HIDDEN)` | S3; 1.1, ATI, Pre-Mercs, Matrox, PowerVR, GBL and 3Dfx |
 | `SimMain` | `MW2/src/simmain.c` | `defined(MW2_MATROX)` | Matrox; PowerVR; ATI, S3 and 3Dfx; 1.1, Pre-Mercs and GBL |
@@ -1018,9 +1030,9 @@ What tests `MW2_ACCEL`, `MW2_MATROX` or `MW2_3DFX` itself rather than a feature,
 - Includes (4): `MW2/include/bandpoly.h`: file scope; `MW2/include/directdraw.h`: file scope; `MW2/src/animation.c`: file scope; `MW2/src/bandpoly.c`: file scope
 - Pragmas that reproduce a unit's flags (4): `MW2/src/accel/queueface.c`: file scope (2); `MW2/src/keyboard.c`: file scope (2)
 
-### `MW2_PREMERCS` (16 sites)
+### `MW2_PREMERCS` (17 sites)
 
-- In a function: the edition's back end, what the shared code does for it, or the same computation written another way (10): `MW2/src/audio.c`: `StartMissionMusic`; `MW2/src/bandpoly.c`: `DrawBand`; `MW2/src/cockpitpanels.c`: `UpdateCockpit`; `MW2/src/gbl/ams.c`: `AmsFrame` (2); `MW2/src/menu.c`: `RunMenuItems`; `MW2/src/palette.c`: `ApplyPendingPalette`; `MW2/src/render.c`: `InitDisplayGeometry`; `MW2/src/resource.c`: `GetPointNormalPlane`; `MW2/src/weapons.c`: `SelectNextWeaponInGroup`
+- In a function: the edition's back end, what the shared code does for it, or the same computation written another way (11): `MW2/src/audio.c`: `StartMissionMusic`; `MW2/src/bandpoly.c`: `DrawBand`; `MW2/src/cockpitpanels.c`: `UpdateCockpit`; `MW2/src/gbl/ams.c`: `AmsFrame` (2); `MW2/src/menu.c`: `RunMenuItems`; `MW2/src/overlay.c`: `ShowEyePosition`; `MW2/src/palette.c`: `ApplyPendingPalette`; `MW2/src/render.c`: `InitDisplayGeometry`; `MW2/src/resource.c`: `GetPointNormalPlane`; `MW2/src/weapons.c`: `SelectNextWeaponInGroup`
 - A fragment included at the position of the object that holds it (3): `MW2/src/clock.c`: file scope; `MW2/src/config.c`: file scope; `MW2/src/objectanim.c`: file scope
 - Data and declarations that differ (3): `MW2/src/refreshmode.c`: file scope; `MW2/src/simmain.c`: file scope; `MW2/src/statuspanels.c`: file scope
 

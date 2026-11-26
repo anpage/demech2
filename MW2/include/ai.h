@@ -216,11 +216,14 @@ MechS16 GetEngagementAIFlags(MechS32 p_value);
 // FUNCTION: MW2PREMERCS 0x100373c7
 // CollectAIRules
 
-// The early Mercenaries build places these out of ai.c's order (the last two before LogAIStatus), so they are
-// annotated here, by name.
+// The early Mercenaries build places these out of ai.c's order (LogPlayerSkillLines and LogStarMissionLines among
+// aidist.c's, the last two before LogAIStatus), so they are annotated here, by name.
 
 // FUNCTION: MW2PREMERCS 0x10038035
 // LogPlayerSkillLines
+
+// FUNCTION: MW2PREMERCS 0x10038218
+// LogStarMissionLines
 
 // FUNCTION: MW2PREMERCS 0x10038c7e
 // IsTargetDetectable

@@ -736,6 +736,7 @@ void GetTriangleNormal(
 // The plane of the triangle, scaled by ScalePlane.
 // FUNCTION: MW2 0x1004ffaa
 // FUNCTION: MW2GBL 0x10053041
+// FUNCTION: MW2PREMERCS 0x1007e471
 // FUNCTION: MW2MATROX 0x10049c58
 // FUNCTION: MW23DFX 0x10043130
 void GetTrianglePlane(
@@ -844,6 +845,7 @@ void SetMangleBase(MechS32 p_base)
 // MW2MATROX: the record's transform is converted member by member.
 // FUNCTION: MW2 0x100500ef
 // FUNCTION: MW2GBL 0x10053186
+// FUNCTION: MW2PREMERCS 0x1007e5b8
 // FUNCTION: MW2MATROX 0x10049d9d
 // FUNCTION: MW23DFX 0x10043270
 // FUNCTION: MW2ATI 0x10040ac0

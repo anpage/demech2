@@ -207,6 +207,27 @@ MechU8 g_outlineRemap[0x100];
 // GLOBAL: MW2POWERVR 0x1006f380
 Point g_armorBarSize;
 
+#ifdef MW2_MFD_PANELS
+// The early Mercenaries build lays out and draws the damage outline for each of the MFDs' panes
+// (DrawDamageOutline's p_slot: tables of eight outlines and of eight times sixteen parts).
+// STUB: MW2PREMERCS 0x10046040
+void InitDamagePanel(void)
+{
+	STUB(0x10046040);
+}
+
+// STUB: MW2PREMERCS 0x10046712
+void DrawDamageOutline(Mech* p_mech, PANE* p_target, MechS32 p_slot)
+{
+	STUB(0x10046712);
+}
+
+// STUB: MW2PREMERCS 0x10046a01
+void DrawArmorBars(Mech* p_mech, PANE* p_target)
+{
+	STUB(0x10046a01);
+}
+#else
 // Sets up the damage panel: the identity remap table, the outline's rectangle and parts, the
 // labels and armor bars' places, and the local mech's full armor.
 // FUNCTION: MW2 0x10040020
@@ -569,3 +590,4 @@ void DrawArmorBars(Mech* p_mech, PANE* p_target)
 		}
 	}
 }
+#endif

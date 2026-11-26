@@ -618,6 +618,7 @@ typedef struct CenteredDraw {
 // (16.16 fractions of the target), shows the frame, and returns FALSE if Esc was pressed.
 // FUNCTION: MW2 0x100576e9
 // FUNCTION: MW2GBL 0x10008d45
+// FUNCTION: MW2PREMERCS 0x10024c05
 MechS32 PlotCenteredPixel(CenteredDraw* p_draw, MechS32 p_width, MechS32 p_height)
 {
 	MechS32 result;

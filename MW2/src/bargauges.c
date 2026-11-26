@@ -16,6 +16,13 @@
 #include "targeting.h"
 #include "types.h"
 
+#ifdef MW2_MFD_PANELS
+#include "fixeddiv.h"
+#include "fixedmul.h"
+#include "fixedmul29.h"
+#include "fixedtrig.h"
+#endif
+
 #ifdef MW2_VFX16
 #include "accel/vfx16.h"
 #endif
@@ -26,6 +33,7 @@
 
 // GLOBAL: MW2 0x100a82f0
 // GLOBAL: MW2GBL 0x100b5910
+// GLOBAL: MW2PREMERCS 0x100b20b0
 // GLOBAL: MW2MATROX 0x100bbd50
 // GLOBAL: MW23DFX 0x1024c818
 // GLOBAL: MW2ATI 0x10180b98
@@ -35,11 +43,13 @@ EasedValue g_heatBarLevel = {0, 0, 1};
 
 // GLOBAL: MW2 0x100a82fc
 // GLOBAL: MW2GBL 0x100b591c
+// GLOBAL: MW2PREMERCS 0x100b20bc
 // GLOBAL: MW23DFX 0x1024c824
 undefined4 g_unk0x100a82fc = 0;
 
 // GLOBAL: MW2 0x100a8300
 // GLOBAL: MW2GBL 0x100b5920
+// GLOBAL: MW2PREMERCS 0x100b20c0
 // GLOBAL: MW2MATROX 0x100bbd60
 // GLOBAL: MW23DFX 0x1024c828
 // GLOBAL: MW2ATI 0x10180ba8
@@ -49,11 +59,13 @@ EasedValue g_throttleBarLevel = {0, 0, 1};
 
 // GLOBAL: MW2 0x100a830c
 // GLOBAL: MW2GBL 0x100b592c
+// GLOBAL: MW2PREMERCS 0x100b20cc
 // GLOBAL: MW23DFX 0x1024c834
 undefined4 g_unk0x100a830c = 0;
 
 // GLOBAL: MW2 0x100a8310
 // GLOBAL: MW2GBL 0x100b5930
+// GLOBAL: MW2PREMERCS 0x100b20d0
 // GLOBAL: MW2MATROX 0x100bbd70
 // GLOBAL: MW23DFX 0x1024c838
 // GLOBAL: MW2ATI 0x10180bb8
@@ -63,11 +75,13 @@ EasedValue g_heatRateBarLevel = {0, 0, 4};
 
 // GLOBAL: MW2 0x100a831c
 // GLOBAL: MW2GBL 0x100b593c
+// GLOBAL: MW2PREMERCS 0x100b20dc
 // GLOBAL: MW23DFX 0x1024c844
 undefined4 g_unk0x100a831c = 0;
 
 // GLOBAL: MW2 0x100a8320
 // GLOBAL: MW2GBL 0x100b5940
+// GLOBAL: MW2PREMERCS 0x100b20e0
 // GLOBAL: MW2MATROX 0x100bbd80
 // GLOBAL: MW23DFX 0x1024c848
 // GLOBAL: MW2ATI 0x10180bc8
@@ -80,6 +94,461 @@ EasedValue g_jumpFuelBarLevel = {0, 0, 1};
 // GLOBAL: MW23DFX 0x1024c854
 undefined4 g_unk0x100a832c = 0;
 
+#ifdef MW2_MFD_PANELS
+// The early Mercenaries build keeps each MFD's gauges in the panel (CockpitPanel::m_throttleSize
+// on), draws the heat as a dial of ticks and the jump fuel as a vertical gauge, and draws into the
+// panel's pane.
+// FUNCTION: MW2PREMERCS 0x10047590
+void ScaleHeatBar(CockpitPanel* p_panel)
+{
+	p_panel->m_heatPosition.m_x = 0;
+	p_panel->m_heatPosition.m_y = 0x3333;
+	p_panel->m_heatSize.m_x = 0xea4e;
+	p_panel->m_heatSize.m_y = 0x5555;
+	ScalePointToFrame(p_panel->m_target, &p_panel->m_heatSize, &p_panel->m_heatSize);
+	ScalePointToFrame(p_panel->m_target, &p_panel->m_heatPosition, &p_panel->m_heatPosition);
+}
+
+// FUNCTION: MW2PREMERCS 0x10047606
+void ScaleHeatRateBar(CockpitPanel* p_panel)
+{
+	p_panel->m_heatRatePosition.m_x = 0;
+	p_panel->m_heatRatePosition.m_y = 0x8000;
+	p_panel->m_heatRateSize.m_x = 0x8000;
+	p_panel->m_heatRateSize.m_y = 0x2db7;
+	ScalePointToFrame(p_panel->m_target, &p_panel->m_heatRateSize, &p_panel->m_heatRateSize);
+	ScalePointToFrame(p_panel->m_target, &p_panel->m_heatRatePosition, &p_panel->m_heatRatePosition);
+}
+
+// FUNCTION: MW2PREMERCS 0x1004768d
+void ScaleThrottleGauge(CockpitPanel* p_panel)
+{
+	p_panel->m_throttleSize.m_x = 0x1e7a;
+	p_panel->m_throttleSize.m_y = 0x8dc9;
+	ScalePointToFrame(p_panel->m_target, &p_panel->m_throttleSize, &p_panel->m_throttleSize);
+	p_panel->m_throttleFrameLeft = p_panel->m_width - p_panel->m_throttleSize.m_x - 1;
+	p_panel->m_throttleFrameTop =
+		p_panel->m_height - (p_panel->m_throttleSize.m_y + p_panel->m_throttleSize.m_y / 2) - 3;
+	p_panel->m_throttleFrameRight = p_panel->m_width - 1;
+	p_panel->m_throttleFrameBottom = p_panel->m_height - 1;
+	p_panel->m_throttleBarLeft = p_panel->m_throttleFrameLeft + 1;
+	p_panel->m_throttleZeroY = p_panel->m_height - p_panel->m_throttleSize.m_y / 2 - 2;
+}
+
+// FUNCTION: MW2PREMERCS 0x1004775a
+void ScaleJumpFuelBar(CockpitPanel* p_panel)
+{
+	p_panel->m_jumpFuelSize.m_x = 0x1e7a;
+	p_panel->m_jumpFuelSize.m_y = 0x8dc9;
+	p_panel->m_jumpFuelPosition.m_x = 0;
+	p_panel->m_jumpFuelPosition.m_y = 0;
+	ScalePointToFrame(p_panel->m_target, &p_panel->m_jumpFuelSize, &p_panel->m_jumpFuelSize);
+	ScalePointToFrame(p_panel->m_target, &p_panel->m_jumpFuelPosition, &p_panel->m_jumpFuelPosition);
+	p_panel->m_jumpFuelFrameLeft = 0;
+	p_panel->m_jumpFuelFrameTop =
+		p_panel->m_height - (p_panel->m_jumpFuelSize.m_y + p_panel->m_jumpFuelSize.m_y / 2) - 3;
+	p_panel->m_jumpFuelFrameRight = p_panel->m_jumpFuelSize.m_x;
+	p_panel->m_jumpFuelFrameBottom = p_panel->m_height - 1;
+	p_panel->m_jumpFuelPosition.m_x = p_panel->m_jumpFuelFrameLeft + 1;
+	p_panel->m_jumpFuelPosition.m_y = p_panel->m_height - 2;
+	p_panel->m_jumpFuelSize.m_y = p_panel->m_jumpFuelFrameBottom - p_panel->m_jumpFuelFrameTop - 2;
+}
+
+// Scales every MFD's gauges.
+// FUNCTION: MW2PREMERCS 0x10047851
+void ScaleBarGauges(void)
+{
+	ScaleThrottleGauge(g_cockpitPanels[22]);
+	ScaleThrottleGauge(g_cockpitPanels[2]);
+	ScaleThrottleGauge(g_cockpitPanels[17]);
+	ScaleThrottleGauge(g_cockpitPanels[26]);
+	ScaleThrottleGauge(g_cockpitPanels[31]);
+	ScaleThrottleGauge(g_cockpitPanels[32]);
+	ScaleThrottleGauge(g_cockpitPanels[33]);
+	ScaleHeatBar(g_cockpitPanels[22]);
+	ScaleHeatBar(g_cockpitPanels[2]);
+	ScaleHeatBar(g_cockpitPanels[17]);
+	ScaleHeatBar(g_cockpitPanels[26]);
+	ScaleHeatBar(g_cockpitPanels[31]);
+	ScaleHeatBar(g_cockpitPanels[32]);
+	ScaleHeatBar(g_cockpitPanels[33]);
+	ScaleHeatRateBar(g_cockpitPanels[22]);
+	ScaleHeatRateBar(g_cockpitPanels[2]);
+	ScaleHeatRateBar(g_cockpitPanels[17]);
+	ScaleHeatRateBar(g_cockpitPanels[26]);
+	ScaleHeatRateBar(g_cockpitPanels[31]);
+	ScaleHeatRateBar(g_cockpitPanels[32]);
+	ScaleHeatRateBar(g_cockpitPanels[33]);
+	ScaleJumpFuelBar(g_cockpitPanels[26]);
+	ScaleJumpFuelBar(g_cockpitPanels[2]);
+	ScaleJumpFuelBar(g_cockpitPanels[17]);
+	ScaleJumpFuelBar(g_cockpitPanels[22]);
+	ScaleJumpFuelBar(g_cockpitPanels[31]);
+	ScaleJumpFuelBar(g_cockpitPanels[32]);
+	ScaleJumpFuelBar(g_cockpitPanels[33]);
+}
+
+// Draws a tick of the heat dial at p_angle: from the pane's ellipse in to p_inner's rectangle,
+// centered on the pane, or to the center without p_inner.
+// FUNCTION: MW2PREMERCS 0x100479e4
+void DrawDialTick(PANE* p_pane, MechScalar p_angle, MechS32 p_color, PANE* p_inner)
+{
+	Point end;
+	Point point;
+	Point inner;
+	MechScalar sin;
+	MechScalar cos;
+	MechS32 scale;
+
+	scale = (p_pane->m_y1 - p_pane->m_y0 + 1) << 16;
+	sin = FixedSin(p_angle);
+	cos = FixedCos(p_angle);
+	point.m_x = ((p_pane->m_x1 - p_pane->m_x0 + 1) >> 1) + (FixedMul29(scale, cos) >> 16);
+	point.m_y = ((p_pane->m_y1 - p_pane->m_y0 + 1) >> 1) + (FixedMul29(scale, sin) >> 16);
+	GetEllipseNeedleToward(p_pane, &point, &end);
+	if (p_inner) {
+		scale = (p_inner->m_x1 - p_inner->m_x0 + 1) << 16;
+		point.m_x = ((p_inner->m_x1 - p_inner->m_x0 + 1) >> 1) + (FixedMul29(scale, cos) >> 16);
+		point.m_y = ((p_inner->m_y1 - p_inner->m_y0 + 1) >> 1) + (FixedMul29(scale, sin) >> 16);
+		GetRectNeedleToward(p_inner, &point, &inner);
+		inner.m_x += ((p_pane->m_x1 - p_pane->m_x0 + 1) >> 1) - ((p_inner->m_x1 - p_inner->m_x0 + 1) >> 1);
+		inner.m_y += ((p_pane->m_y1 - p_pane->m_y0 + 1) >> 1) - ((p_inner->m_y1 - p_inner->m_y0 + 1) >> 1);
+		VFX_line_draw(p_pane, end.m_x, end.m_y, inner.m_x, inner.m_y, 0, p_color);
+	}
+	else {
+		VFX_line_draw(
+			p_pane,
+			end.m_x,
+			end.m_y,
+			(p_pane->m_x1 - p_pane->m_x0 + 1) >> 1,
+			(p_pane->m_y1 - p_pane->m_y0 + 1) >> 1,
+			0,
+			p_color
+		);
+	}
+}
+
+// Draws the heat dial: a tick every 15 degrees up to the heat, from 270 degrees on, yellow past
+// a third and red past three quarters. The heat bar's place and height go unused.
+// FUNCTION: MW2PREMERCS 0x10047bab
+void DrawHeatBar(CockpitPanel* p_panel)
+{
+	PANE* pane;
+	Mech* mech;
+	MechS32 heat;
+	MechS32 i;
+	MechS32 color;
+	MechS32 x;
+	MechS32 y;
+	MechS32 width;
+	MechS32 height;
+	MechS32 target;
+	MechS32 level;
+	MechScalar fraction;
+	MechS32 angle;
+	MechScalar tick;
+
+	pane = p_panel->m_target;
+	mech = g_players[g_localPlayerId]->m_mech;
+	heat = mech->m_heat;
+	i = 0;
+	color = 0xe;
+	x = p_panel->m_heatPosition.m_x;
+	y = p_panel->m_heatPosition.m_y;
+	width = p_panel->m_heatSize.m_x;
+	height = p_panel->m_heatSize.m_y - 1;
+	target = MulDiv64(heat, width, 100);
+	g_heatBarLevel.m_target = target;
+	level = UpdateEasedValue(&g_heatBarLevel) >> 16;
+	VFX_line_draw(
+		pane,
+		(pane->m_x1 - pane->m_x0 + 1) >> 1,
+		0,
+		(pane->m_x1 - pane->m_x0 + 1) >> 1,
+		(pane->m_y1 - pane->m_y0 + 1) >> 1,
+		0,
+		2
+	);
+	if (width > level) {
+		fraction = FixedDiv16(level << 16, width << 16);
+		angle = FixedMul16(fraction, FIXED_CONST(360)) >> 16;
+	}
+	else {
+		angle = 0x163;
+	}
+
+	if (angle) {
+		for (i = 0; i < angle; i += 15) {
+			if (i > 0x78 && i < 0x10e) {
+				color = 3;
+			}
+			else if (i >= 0x10e) {
+				color = 10;
+			}
+
+			tick = (i + 0x10e) % 0x168 << 16;
+			DrawDialTick(pane, tick, color, g_cockpitPanels[30]->m_target);
+		}
+
+		if (angle > 0x78 && angle < 0x10e) {
+			color = 3;
+		}
+		else if (angle >= 0x10e) {
+			color = 10;
+		}
+
+		tick = (angle + 0x10e) % 0x168;
+		tick <<= 16;
+		DrawDialTick(pane, tick, color, g_cockpitPanels[30]->m_target);
+	}
+}
+
+// FUNCTION: MW2PREMERCS 0x10047ddb
+void DrawHeatRateBar(CockpitPanel* p_panel)
+{
+	PANE* target;
+	Mech* mech;
+	MechS32 level;
+	MechS32 fill;
+	MechS32 fillColor;
+	MechS32 backColor;
+
+	target = p_panel->m_target;
+	mech = g_players[g_localPlayerId]->m_mech;
+	fill = 0;
+	level = 0;
+	g_heatRateBarLevel.m_target = FIXED_SHR(mech->m_deltaHeat - mech->m_cooling * g_deltaTime, 6);
+	level = UpdateEasedValue(&g_heatRateBarLevel);
+	if (level < 1) {
+		fillColor = 7;
+		backColor = 7;
+		level = 0;
+	}
+	else if (level < 0x300) {
+		fillColor = 3;
+		backColor = 7;
+	}
+	else {
+		fillColor = 0xb;
+		backColor = 3;
+		level -= 0x300;
+	}
+
+	if (level > 0) {
+		fill = MulDiv64(p_panel->m_heatRateSize.m_x, level, 0x300);
+		if (fill < 0) {
+			fill = 0;
+		}
+		else if (fill > p_panel->m_heatRateSize.m_x) {
+			fill = p_panel->m_heatRateSize.m_x;
+		}
+	}
+
+	if (fill > 0) {
+		DrawHorizontalBar(
+			target,
+			p_panel->m_heatRatePosition.m_x,
+			p_panel->m_heatRatePosition.m_y,
+			fill,
+			p_panel->m_heatRateSize.m_y - 1,
+			fillColor
+		);
+	}
+
+	if (fill < p_panel->m_heatRateSize.m_x) {
+		DrawHorizontalBar(
+			target,
+			p_panel->m_heatRatePosition.m_x + fill,
+			p_panel->m_heatRatePosition.m_y,
+			p_panel->m_heatRateSize.m_x - fill,
+			p_panel->m_heatRateSize.m_y - 1,
+			backColor
+		);
+	}
+}
+
+// FUNCTION: MW2PREMERCS 0x10047f8b
+void DrawThrottleGauge(CockpitPanel* p_panel)
+{
+	MechS32 color;
+	Mech* mech;
+	MechS32 width;
+	MechS32 height;
+	MechS32 x;
+	MechS32 y;
+	MechS32 value;
+	PANE* target;
+
+	target = p_panel->m_target;
+	mech = g_players[g_localPlayerId]->m_mech;
+	VFX_line_draw(
+		target,
+		p_panel->m_throttleFrameLeft,
+		p_panel->m_throttleFrameTop,
+		p_panel->m_throttleFrameLeft,
+		p_panel->m_throttleFrameBottom,
+		0,
+		PIXEL_COLOR(10)
+	);
+	VFX_line_draw(
+		target,
+		p_panel->m_throttleFrameRight,
+		p_panel->m_throttleFrameTop,
+		p_panel->m_throttleFrameRight,
+		p_panel->m_throttleFrameBottom,
+		0,
+		PIXEL_COLOR(10)
+	);
+	VFX_line_draw(
+		target,
+		p_panel->m_throttleFrameLeft,
+		p_panel->m_throttleFrameTop,
+		p_panel->m_throttleFrameRight,
+		p_panel->m_throttleFrameTop,
+		0,
+		PIXEL_COLOR(10)
+	);
+	VFX_line_draw(
+		target,
+		p_panel->m_throttleFrameLeft,
+		p_panel->m_throttleFrameBottom,
+		p_panel->m_throttleFrameRight,
+		p_panel->m_throttleFrameBottom,
+		0,
+		PIXEL_COLOR(10)
+	);
+	value = mech->m_player->m_steering->m_throttle << 16;
+	value = MulDiv64(value, p_panel->m_throttleSize.m_y, 0x400);
+	if (mech->m_player->m_steering->m_reverse) {
+		value /= -2;
+	}
+
+	g_throttleBarLevel.m_target = value;
+	value = UpdateEasedValue(&g_throttleBarLevel) >> 16;
+	x = p_panel->m_throttleBarLeft;
+	y = p_panel->m_throttleZeroY;
+	width = p_panel->m_throttleSize.m_x - 1;
+	height = value;
+	color = 0xf;
+	if (mech->m_player->m_steering->m_reverse) {
+		height = -height;
+		if (height > p_panel->m_throttleSize.m_y / 2) {
+			height = p_panel->m_throttleSize.m_y / 2;
+		}
+
+		color = 7;
+		y += height;
+	}
+	else if (height > p_panel->m_throttleSize.m_y) {
+		height = p_panel->m_throttleSize.m_y;
+	}
+
+	height++;
+	DrawVerticalBar(target, x, y, width, height, color);
+}
+
+// FUNCTION: MW2PREMERCS 0x10048184
+void DrawJumpFuelBar(CockpitPanel* p_panel)
+{
+	PANE* target;
+	Mech* mech;
+	MechS32 fill;
+
+	target = p_panel->m_target;
+	mech = g_players[g_localPlayerId]->m_mech;
+	VFX_line_draw(
+		target,
+		p_panel->m_jumpFuelFrameLeft,
+		p_panel->m_jumpFuelFrameTop,
+		p_panel->m_jumpFuelFrameLeft,
+		p_panel->m_jumpFuelFrameBottom,
+		0,
+		10
+	);
+	VFX_line_draw(
+		target,
+		p_panel->m_jumpFuelFrameRight,
+		p_panel->m_jumpFuelFrameTop,
+		p_panel->m_jumpFuelFrameRight,
+		p_panel->m_jumpFuelFrameBottom,
+		0,
+		10
+	);
+	VFX_line_draw(
+		target,
+		p_panel->m_jumpFuelFrameLeft,
+		p_panel->m_jumpFuelFrameTop,
+		p_panel->m_jumpFuelFrameRight,
+		p_panel->m_jumpFuelFrameTop,
+		0,
+		10
+	);
+	VFX_line_draw(
+		target,
+		p_panel->m_jumpFuelFrameLeft,
+		p_panel->m_jumpFuelFrameBottom,
+		p_panel->m_jumpFuelFrameRight,
+		p_panel->m_jumpFuelFrameBottom,
+		0,
+		10
+	);
+	if (mech->m_jumpFuel >= 0) {
+		g_jumpFuelBarLevel.m_target = mech->m_jumpFuel;
+		fill = UpdateEasedValue(&g_jumpFuelBarLevel);
+		fill = MulDiv64(p_panel->m_jumpFuelSize.m_y + 1, fill, 0x712);
+		if (fill > p_panel->m_jumpFuelSize.m_y) {
+			fill = p_panel->m_jumpFuelSize.m_y;
+		}
+
+		DrawVerticalBar(
+			target,
+			p_panel->m_jumpFuelPosition.m_x,
+			p_panel->m_jumpFuelPosition.m_y,
+			p_panel->m_jumpFuelSize.m_x - 1,
+			fill,
+			0xb
+		);
+	}
+}
+
+// FUNCTION: MW2PREMERCS 0x100482ea
+void DrawVerticalBar(PANE* p_target, MechS32 p_x, MechS32 p_y, MechS32 p_width, MechS32 p_height, MechS32 p_color)
+{
+	MechS32 half;
+	MechS32 dark;
+	MechS32 end;
+	MechS32 darker;
+	MechS32 top;
+	MechS32 i;
+
+	half = p_width / 2;
+	end = half / 2;
+	top = p_y - p_height;
+	dark = p_color - 1;
+	darker = p_color - 2;
+	if (p_height <= 0) {
+		return;
+	}
+
+	for (i = 0; i < end; i++) {
+		VFX_line_draw(p_target, i + p_x, p_y, i + p_x, top, 0, PIXEL_COLOR(dark));
+	}
+
+	for (i = end; i < half; i++) {
+		VFX_line_draw(p_target, i + p_x, p_y, i + p_x, top, 0, PIXEL_COLOR(p_color));
+	}
+
+	end = half + (p_width - half) / 2;
+	for (i = half; i < end; i++) {
+		VFX_line_draw(p_target, i + p_x, p_y, i + p_x, top, 0, PIXEL_COLOR(dark));
+	}
+
+	for (i = end; p_width > i; i++) {
+		VFX_line_draw(p_target, i + p_x, p_y, i + p_x, top, 0, PIXEL_COLOR(darker));
+	}
+}
+
+#else
 // The throttle gauge: its size, its frame (left, top, right and bottom), the left of its bar
 // and the level of zero throttle. One block: the 3Dfx edition's ScaleBarGauges reads the panel
 // again after each store to it, as it does only for an object whose address it passed on.
@@ -505,6 +974,8 @@ void DrawVerticalBar(PANE* p_target, MechS32 p_x, MechS32 p_y, MechS32 p_width, 
 		VFX_line_draw(p_target, i + p_x, p_y, i + p_x, top, 0, PIXEL_COLOR(darker));
 	}
 }
+
+#endif
 
 // Draws a bar p_width across from (p_x, p_y), shaded darker towards its edges.
 // FUNCTION: MW2 0x1004d8ae

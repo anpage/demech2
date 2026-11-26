@@ -781,6 +781,7 @@ void EndRayAtShape(Shape* p_shape, Ray* p_ray, MechScalar p_distance)
 // face, ends the ray there and keeps the face's normal as the hit normal.
 // FUNCTION: MW2 0x100354d3
 // FUNCTION: MW2GBL 0x1003b2b3
+// FUNCTION: MW2PREMERCS 0x100349f2
 // FUNCTION: MW2MATROX 0x1002444c
 // FUNCTION: MW23DFX 0x10010830
 // FUNCTION: MW2ATI 0x10010d90

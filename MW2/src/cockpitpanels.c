@@ -796,6 +796,108 @@ void ScaleCockpitLayout(void)
 	}
 }
 
+#ifdef MW2_MFD_PANELS
+// The early Mercenaries build's InitCockpitPanels: panels 1, 24 and 25 start disabled, and panel 17
+// (the target) too in a network game without the radar. The seven MFDs (2, 17, 22, 26, 31, 32
+// and 33) get the mech view's handlers, their panes and their first modes (as ResetMfdModes gives
+// them), and the cockpit takes MERCS.HUD's (LoadMfdModes).
+// FUNCTION: MW2PREMERCS 0x1004a79f
+void InitCockpitPanels(void)
+{
+	Mech* mech;
+	MechS32 i;
+
+	for (i = 0; i < c_panelCount; i++) {
+		g_cockpitPanelEnabled[i] = TRUE;
+	}
+
+	g_cockpitPanelEnabled[1] = FALSE;
+	g_cockpitPanelEnabled[24] = FALSE;
+	g_cockpitPanelEnabled[25] = FALSE;
+	if (!g_difficulty->m_radar && g_isNetworkGame) {
+		g_cockpitPanelEnabled[c_panelTarget] = FALSE;
+	}
+
+	mech = g_players[g_localPlayerId]->m_mech;
+	for (i = 0; i < c_panelCount; i++) {
+		g_cockpitPanels[i] = HeapAlloc(g_primaryHeap, HEAP_NO_SERIALIZE, sizeof(CockpitPanel));
+		InitCockpitPanel(g_cockpitPanels[i]);
+		g_cockpitPanels[i]->m_setLightUpTime(g_cockpitPanels[i], g_cockpitPanelLightUpTimes[i]);
+		g_cockpitPanels[i]->m_setTarget(g_cockpitPanels[i], &g_cockpitPanelPanes[i]);
+		g_cockpitPanels[i]->m_setTextOrigin(g_cockpitPanels[i], &g_cockpitPanelTextOrigins[i]);
+		g_cockpitPanels[i]->m_setTransition(g_cockpitPanels[i], g_cockpitPanelTransitions[i]);
+		g_cockpitPanels[i]->m_setMfdMode(g_cockpitPanels[i], 0);
+		if (g_cockpitPanelEnabled[i]) {
+			g_cockpitPanels[i]->m_enable(g_cockpitPanels[i]);
+		}
+		else {
+			g_cockpitPanels[i]->m_disable(g_cockpitPanels[i]);
+		}
+	}
+
+	LayoutWeaponPanels(mech);
+	g_cockpitPanels[2]->m_draw = DrawMechViewPanel;
+	g_cockpitPanels[2]->m_drawStatic = DrawMechViewStatic;
+	g_cockpitPanels[2]->m_drawStartup = DrawMechViewStartup;
+	g_cockpitPanels[2]->m_drawShutdown = DrawMechViewShutdown;
+	g_cockpitPanels[2]->m_weapon = 5;
+	g_cockpitPanels[2]->m_setMfdMode(g_cockpitPanels[2], 1);
+	g_cockpitPanels[22]->m_draw = DrawMechViewPanel;
+	g_cockpitPanels[22]->m_drawStatic = DrawMechViewStatic;
+	g_cockpitPanels[22]->m_drawStartup = DrawMechViewStartup;
+	g_cockpitPanels[22]->m_drawShutdown = DrawMechViewShutdown;
+	g_cockpitPanels[22]->m_weapon = 6;
+	g_cockpitPanels[22]->m_setMfdMode(g_cockpitPanels[22], 9);
+	g_cockpitPanels[26]->m_draw = DrawMechViewPanel;
+	g_cockpitPanels[26]->m_drawStatic = DrawMechViewStatic;
+	g_cockpitPanels[26]->m_drawStartup = DrawMechViewStartup;
+	g_cockpitPanels[26]->m_drawShutdown = DrawMechViewShutdown;
+	g_cockpitPanels[26]->m_weapon = 4;
+	g_cockpitPanels[26]->m_setMfdMode(g_cockpitPanels[26], 10);
+	g_cockpitPanels[31]->m_draw = DrawMechViewPanel;
+	g_cockpitPanels[31]->m_drawStatic = DrawMechViewStatic;
+	g_cockpitPanels[31]->m_drawStartup = DrawMechViewStartup;
+	g_cockpitPanels[31]->m_drawShutdown = DrawMechViewShutdown;
+	g_cockpitPanels[31]->m_weapon = 3;
+	g_cockpitPanels[31]->m_setMfdMode(g_cockpitPanels[31], 0);
+	g_cockpitPanels[32]->m_draw = DrawMechViewPanel;
+	g_cockpitPanels[32]->m_drawStatic = DrawMechViewStatic;
+	g_cockpitPanels[32]->m_drawStartup = DrawMechViewStartup;
+	g_cockpitPanels[32]->m_drawShutdown = DrawMechViewShutdown;
+	g_cockpitPanels[32]->m_weapon = 2;
+	g_cockpitPanels[32]->m_setMfdMode(g_cockpitPanels[32], 11);
+	g_cockpitPanels[33]->m_draw = DrawMechViewPanel;
+	g_cockpitPanels[33]->m_drawStatic = DrawMechViewStatic;
+	g_cockpitPanels[33]->m_drawStartup = DrawMechViewStartup;
+	g_cockpitPanels[33]->m_drawShutdown = DrawMechViewShutdown;
+	g_cockpitPanels[33]->m_weapon = 1;
+	g_cockpitPanels[33]->m_setMfdMode(g_cockpitPanels[33], 12);
+	g_cockpitPanels[c_panelTarget]->m_draw = DrawTargetPanel;
+	g_cockpitPanels[c_panelTarget]->m_draw = DrawMechViewPanel;
+	g_cockpitPanels[c_panelTarget]->m_drawStatic = DrawTargetStatic;
+	g_cockpitPanels[c_panelTargetText]->m_draw = DrawTargetPanelText;
+	g_cockpitPanels[c_panelTarget]->m_drawStartup = DrawTargetPanelStartup;
+	g_cockpitPanels[c_panelTarget]->m_drawShutdown = DrawTargetPanelShutdown;
+	g_cockpitPanels[c_panelTarget]->m_weapon = 7;
+	g_cockpitPanels[c_panelTarget]->m_setMfdMode(g_cockpitPanels[c_panelTarget], 8);
+	g_cockpitPanels[c_panelObjectives]->m_draw = DrawObjectivesPanel;
+	g_cockpitPanels[c_panelNetwork]->m_draw = DrawNetworkPanel;
+	g_cockpitPanels[c_panelAutopilot]->m_draw = DrawAutopilotPanel;
+	g_cockpitPanels[c_panelMasc]->m_draw = DrawMascPanel;
+	g_cockpitPanels[c_panelHeat]->m_draw = DrawHeatPanel;
+	g_cockpitPanels[c_panelHeatRate]->m_draw = DrawHeatRatePanel;
+	g_cockpitPanels[c_panelKills]->m_draw = DrawKillsPanel;
+	ScaleBarGauges();
+	InitDamagePanel();
+	g_eyeHeightOffset = &mech->m_cockpitHeight;
+	g_eyeTwist = &mech->m_torsoTwist.m_value;
+	LoadMfdModes();
+	InitHudGauges();
+	if (g_difficulty->m_radar || !g_isNetworkGame) {
+		InitCockpitViews();
+	}
+}
+#else
 // Creates the cockpit panels (c_panelCount), all enabled but the second and (in network games) the
 // fourteenth, lays out the local mech's weapon panels (LayoutWeaponPanels) and installs the panels'
 // handlers.
@@ -872,6 +974,7 @@ void InitCockpitPanels(void)
 		InitCockpitViews();
 	}
 }
+#endif
 
 // Lays out the local mech's weapon panels again and resets every panel to its settings.
 // FUNCTION: MW2 0x1006ff7b

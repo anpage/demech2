@@ -876,6 +876,7 @@ void UpdateOrdinanceView(void)
 // p_tilt tilts it. The first call after another view starts its ramps from the current eyepoint.
 // FUNCTION: MW2 0x100118bc
 // FUNCTION: MW2GBL 0x1005531c
+// FUNCTION: MW2PREMERCS 0x10061b9c
 // FUNCTION: MW2MATROX 0x10009653
 // FUNCTION: MW23DFX 0x1002e280
 // FUNCTION: MW2ATI 0x1002d3d0

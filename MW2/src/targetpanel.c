@@ -51,6 +51,14 @@
 MechS32 IsPlayerInView(Player* p_player);
 #endif
 
+// The pane the target's view renders into: the early Mercenaries build's target is an MFD, with
+// a pane of its own (CockpitPanel::m_weapon).
+#ifdef MW2_MFD_PANELS
+#define TARGET_VIEW_SLOT(p_panel) ((p_panel)->m_weapon)
+#else
+#define TARGET_VIEW_SLOT(p_panel) 7
+#endif
+
 // GLOBAL: MW2 0x100ba4bc
 // GLOBAL: MW2GBL 0x1009f0e4
 // GLOBAL: MW2PREMERCS 0x100b2e8c
@@ -64,6 +72,7 @@ MechS32 g_targetPanelMode = 1;
 // Set to announce the target's side with the next name the target panel shows.
 // GLOBAL: MW2 0x100ba4c0
 // GLOBAL: MW2GBL 0x1009f0e8
+// GLOBAL: MW2PREMERCS 0x100b2e90
 // GLOBAL: MW2MATROX 0x100a4a50
 // GLOBAL: MW23DFX 0x1024d050
 // GLOBAL: MW2S3 0x10062ae8
@@ -83,6 +92,7 @@ MechS32 g_targetLodParRead = 0;
 // When the target panel goes from the target's short name to its name.
 // GLOBAL: MW2 0x100ba4c4
 // GLOBAL: MW2GBL 0x1009f0ec
+// GLOBAL: MW2PREMERCS 0x100b2e94
 // GLOBAL: MW2MATROX 0x100a4a5c
 // GLOBAL: MW23DFX 0x1024d054
 // GLOBAL: MW2S3 0x10062aec
@@ -92,6 +102,7 @@ MechS32 g_targetFullNameTime = 0;
 // The target the panel showed last.
 // GLOBAL: MW2 0x100ba4c8
 // GLOBAL: MW2GBL 0x1009f0f0
+// GLOBAL: MW2PREMERCS 0x100b2e98
 // GLOBAL: MW2MATROX 0x100a4a60
 // GLOBAL: MW23DFX 0x1024d058
 // GLOBAL: MW2S3 0x10062af0
@@ -101,6 +112,7 @@ MechS32 g_lastPanelTarget = 0;
 // The target panel flickers to static while set.
 // GLOBAL: MW2 0x100ba4cc
 // GLOBAL: MW2GBL 0x1009f0f4
+// GLOBAL: MW2PREMERCS 0x100b2e9c
 // GLOBAL: MW2MATROX 0x100a4a64
 // GLOBAL: MW23DFX 0x1024d05c
 // GLOBAL: MW2S3 0x10062af4
@@ -138,6 +150,7 @@ MechChar g_anonymousInstallationName[16];
 // panel's bottom line).
 // FUNCTION: MW2 0x1007b930
 // FUNCTION: MW2GBL 0x1001be20
+// FUNCTION: MW2PREMERCS 0x1004ef10
 // FUNCTION: MW2MATROX 0x10017e50
 // FUNCTION: MW23DFX 0x10020e40
 // FUNCTION: MW2ATI 0x10021110
@@ -505,6 +518,7 @@ void FUN_100206e0(CockpitPanel* p_panel)
 // static while the panel is damaged (m_damage).
 // FUNCTION: MW2 0x1007c126
 // FUNCTION: MW2GBL 0x1001c609
+// FUNCTION: MW2PREMERCS 0x1004f732
 // FUNCTION: MW2MATROX 0x10018683
 // FUNCTION: MW23DFX 0x10021300
 // FUNCTION: MW2ATI 0x100215d0
@@ -851,7 +865,7 @@ void DrawTargetPanel(CockpitPanel* p_panel)
 	g_renderSettings.m_drawSky = g_renderSettings.m_drawGround = 0;
 	VFX_pane_wipe(p_panel->m_target, 0);
 	if (g_cockpitPowerState == 2) {
-		RenderViewToPane(7, FIXED_CONST(2), view, object);
+		RenderViewToPane(TARGET_VIEW_SLOT(p_panel), FIXED_CONST(2), view, object);
 	}
 
 	OutlinePane(p_panel->m_target, 8);

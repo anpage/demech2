@@ -172,6 +172,7 @@ MechS32 GetTextWidth(const MechChar* p_text, void* p_font)
 // lines. In a network game whose only listed objective is a secondary one, it counts as primary.
 // FUNCTION: MW2 0x100050d1
 // FUNCTION: MW2GBL 0x10044821
+// FUNCTION: MW2PREMERCS 0x1003fe01
 // FUNCTION: MW2MATROX 0x10021a1d
 // FUNCTION: MW23DFX 0x100176d0
 // FUNCTION: MW2ATI 0x10017a90
@@ -309,6 +310,7 @@ void DrawObjectiveList(CockpitPanel* p_panel, Point* p_pos, void* p_font, MechU8
 // MW2MATROX: the original's longer displacements shift the jump table's offsets.
 // FUNCTION: MW2 0x100056f0
 // FUNCTION: MW2GBL 0x10044e24
+// FUNCTION: MW2PREMERCS 0x1004041f
 // FUNCTION: MW2MATROX 0x100220de
 // FUNCTION: MW23DFX 0x10017b80
 // FUNCTION: MW2ATI 0x10017f40
@@ -658,11 +660,63 @@ void DrawAutopilotPanel(CockpitPanel* p_panel)
 // Shows the local mech's speed in kph, in a different color while it backs up, and its throttle bar.
 // FUNCTION: MW2 0x10006291
 // FUNCTION: MW2GBL 0x100459c5
+// FUNCTION: MW2PREMERCS 0x10041014
 // FUNCTION: MW2MATROX 0x10022d91
 // FUNCTION: MW23DFX 0x10018470
 // FUNCTION: MW2ATI 0x10018830
 // FUNCTION: MW2S3 0x1003aea0
 // FUNCTION: MW2POWERVR 0x10017770
+#ifdef MW2_MFD_PANELS
+void DrawSpeedPanel(CockpitPanel* p_panel)
+{
+	MechS32 speed;
+	Mech* mech;
+	MechChar text[64];
+	void* font;
+
+	// The early Mercenaries build's draws into the MFD it is given, at panel 22's text origin.
+	if (!p_panel->m_enabled) {
+		return;
+	}
+
+	mech = g_players[g_localPlayerId]->m_mech;
+	speed = ApproximateVectorLength(mech->m_velocityX, mech->m_velocityY, mech->m_velocityZ) / 10002 * 1.5;
+	if (mech->m_speed.m_value < 0) {
+		speed = -speed;
+		g_textColors[0xe] = PIXEL_COLOR(6);
+	}
+	else {
+		g_textColors[0xe] = PIXEL_COLOR(0xe);
+	}
+
+	font = LoadCachedResource(g_mw2PrjHandle, HUD_ART_RESOLUTION + 1, g_resTagFont, 0);
+	if (!font) {
+		return;
+	}
+
+	sprintf(text, "Speed:");
+	VFX_string_draw(
+		p_panel->m_target,
+		g_cockpitPanels[22]->m_textOrigin->m_x,
+		g_cockpitPanels[22]->m_textOrigin->m_y,
+		font,
+		text,
+		g_textColors
+	);
+	sprintf(text, "%d kph", speed);
+	VFX_string_draw(
+		p_panel->m_target,
+		g_cockpitPanels[22]->m_textOrigin->m_x,
+		g_cockpitPanels[22]->m_textOrigin->m_y + VFX_font_height(font),
+		font,
+		text,
+		g_textColors
+	);
+	g_textColors[0xe] = PIXEL_COLOR(0xe);
+	UnlockCachedResource(HUD_ART_RESOLUTION + 1, g_resTagFont);
+	DrawThrottleGauge(p_panel);
+}
+#else
 void DrawSpeedPanel(CockpitPanel* p_panel)
 {
 	MechS32 speed;
@@ -709,6 +763,7 @@ void DrawSpeedPanel(CockpitPanel* p_panel)
 	FUN_10088280(p_panel->m_target);
 #endif
 }
+#endif
 
 // Labels the MASC panel while MASC is available.
 // FUNCTION: MW2 0x100063cd
@@ -750,11 +805,56 @@ void DrawMascPanel(CockpitPanel* p_panel)
 // Labels the heat panel with the shutdown state and draws the heat bar.
 // FUNCTION: MW2 0x10006484
 // FUNCTION: MW2GBL 0x10045bb8
+// FUNCTION: MW2PREMERCS 0x10041279
 // FUNCTION: MW2MATROX 0x10022fbf
 // FUNCTION: MW23DFX 0x100185e0
 // FUNCTION: MW2ATI 0x100189a0
 // FUNCTION: MW2S3 0x1003b010
 // FUNCTION: MW2POWERVR 0x100178e0
+#ifdef MW2_MFD_PANELS
+void DrawHeatPanel(CockpitPanel* p_panel)
+{
+	Mech* mech;
+	void* font;
+
+	mech = g_players[g_localPlayerId]->m_mech;
+	if (!p_panel->m_enabled) {
+		return;
+	}
+
+	DrawHeatBar(p_panel);
+	font = LoadCachedResource(g_mw2PrjHandle, HUD_ART_RESOLUTION + 1, g_resTagFont, 0);
+	if (!font) {
+		return;
+	}
+
+	if (mech->m_flags & 4) {
+		if (!(mech->m_flags & 8)) {
+			p_panel->m_setName(p_panel, "Shutdown...");
+			g_textColors[0xe] = PIXEL_COLOR(0xb);
+		}
+		else {
+			p_panel->m_setName(p_panel, "Overridden");
+			g_textColors[0xe] = PIXEL_COLOR(0xb);
+		}
+	}
+	else {
+		p_panel->m_setName(p_panel, "Heat");
+		g_textColors[0xe] = PIXEL_COLOR(0xe);
+	}
+
+	VFX_string_draw(
+		p_panel->m_target,
+		p_panel->m_textOrigin->m_x,
+		p_panel->m_textOrigin->m_y,
+		font,
+		p_panel->m_name,
+		g_textColors
+	);
+	g_textColors[0xe] = PIXEL_COLOR(0xe);
+	UnlockCachedResource(HUD_ART_RESOLUTION + 1, g_resTagFont);
+}
+#else
 void DrawHeatPanel(CockpitPanel* p_panel)
 {
 	Mech* mech;
@@ -800,15 +900,44 @@ void DrawHeatPanel(CockpitPanel* p_panel)
 	FUN_10088280(p_panel->m_target);
 #endif
 }
+#endif
 
 // Labels the heat rate panel and draws its bar.
 // FUNCTION: MW2 0x100065c3
 // FUNCTION: MW2GBL 0x10045cf7
+// FUNCTION: MW2PREMERCS 0x100413c7
 // FUNCTION: MW2MATROX 0x10023131
 // FUNCTION: MW23DFX 0x100186c0
 // FUNCTION: MW2ATI 0x10018a80
 // FUNCTION: MW2S3 0x1003b0f0
 // FUNCTION: MW2POWERVR 0x100179c0
+#ifdef MW2_MFD_PANELS
+void DrawHeatRatePanel(CockpitPanel* p_panel)
+{
+	void* font;
+
+	if (!p_panel->m_enabled) {
+		return;
+	}
+
+	p_panel->m_setName(p_panel, "dH/dT");
+	font = LoadCachedResource(g_mw2PrjHandle, HUD_ART_RESOLUTION + 1, g_resTagFont, 0);
+	if (!font) {
+		return;
+	}
+
+	VFX_string_draw(
+		p_panel->m_target,
+		g_cockpitPanels[25]->m_textOrigin->m_x,
+		g_cockpitPanels[25]->m_textOrigin->m_y,
+		font,
+		p_panel->m_name,
+		g_textColors
+	);
+	UnlockCachedResource(HUD_ART_RESOLUTION + 1, g_resTagFont);
+	DrawHeatRateBar(p_panel);
+}
+#else
 void DrawHeatRatePanel(CockpitPanel* p_panel)
 {
 	void* font;
@@ -837,15 +966,73 @@ void DrawHeatRatePanel(CockpitPanel* p_panel)
 	FUN_10088280(p_panel->m_target);
 #endif
 }
+#endif
 
 // Labels the jump jet panel of a mech with jump jets and draws the fuel bar.
 // FUNCTION: MW2 0x1000667c
 // FUNCTION: MW2GBL 0x10045db0
+// FUNCTION: MW2PREMERCS 0x1004148d
 // FUNCTION: MW2MATROX 0x100231f9
 // FUNCTION: MW23DFX 0x10018730
 // FUNCTION: MW2ATI 0x10018af0
 // FUNCTION: MW2S3 0x1003b160
 // FUNCTION: MW2POWERVR 0x10017a30
+#ifdef MW2_MFD_PANELS
+void DrawJetsPanel(CockpitPanel* p_panel)
+{
+	Mech* mech;
+	void* font;
+	MechChar text[64];
+	MechS32 altitude;
+
+	// The early Mercenaries build's shows the altitude too, below the label (at panel 26's text
+	// origin), and unlocks the font only for a mech with jump jets.
+	mech = g_players[g_localPlayerId]->m_mech;
+	if (!p_panel->m_enabled) {
+		return;
+	}
+
+	font = LoadCachedResource(g_mw2PrjHandle, HUD_ART_RESOLUTION + 1, g_resTagFont, 0);
+	if (!font) {
+		return;
+	}
+
+	altitude = (mech->m_player->m_position.m_y - mech->m_height) * 100;
+	p_panel->m_setName(p_panel, "Alt:");
+	VFX_string_draw(
+		p_panel->m_target,
+		g_cockpitPanels[26]->m_textOrigin->m_x,
+		VFX_font_height(font) + VFX_font_height(font) + g_cockpitPanels[26]->m_textOrigin->m_y,
+		font,
+		p_panel->m_name,
+		g_textColors
+	);
+	sprintf(text, "%.2f m", (MechDouble) altitude / 65536.0);
+	VFX_string_draw(
+		p_panel->m_target,
+		g_cockpitPanels[26]->m_textOrigin->m_x,
+		VFX_font_height(font) + VFX_font_height(font) + VFX_font_height(font) + g_cockpitPanels[26]->m_textOrigin->m_y,
+		font,
+		text,
+		g_textColors
+	);
+	if (g_players[g_localPlayerId]->m_mech->m_jumpFuel < 0) {
+		return;
+	}
+
+	p_panel->m_setName(p_panel, "Jets");
+	VFX_string_draw(
+		p_panel->m_target,
+		g_cockpitPanels[26]->m_textOrigin->m_x,
+		g_cockpitPanels[26]->m_textOrigin->m_y,
+		font,
+		p_panel->m_name,
+		g_textColors
+	);
+	UnlockCachedResource(HUD_ART_RESOLUTION + 1, g_resTagFont);
+	DrawJumpFuelBar(p_panel);
+}
+#else
 void DrawJetsPanel(CockpitPanel* p_panel)
 {
 	void* font;
@@ -878,3 +1065,4 @@ void DrawJetsPanel(CockpitPanel* p_panel)
 	FUN_10088280(p_panel->m_target);
 #endif
 }
+#endif

@@ -928,6 +928,11 @@ double __cdecl fabs(double);
 #define MW2_STAR_QUEUES_TARGET
 /* LeaveAIState releases the group fire button too (PlayerSteering::m_weaponFireGroup) */
 #define MW2_LEAVE_STATE_STOPS_GROUP_FIRE
+/* The mech view panel is seven MFDs, each showing one of thirteen modes (CockpitPanel::m_mfdMode) in a pane of
+   its own (m_weapon): the damage outline, armor bars, rear, eye, overhead, satellite and tracked shot views, the
+   target and the speed, jump jet, heat and heat rate panels; SAVE_HUD keeps their modes in MERCS.HUD
+   (mechviewpanel.c) */
+#define MW2_MFD_PANELS
 /* The weapons are the Clans' (GBL's, renamed and retuned) and 31 of the Inner Sphere (WEAPON_DEF_COUNT 66,
    g_weaponDefs) */
 #define MW2_CLAN_AND_IS_WEAPONS

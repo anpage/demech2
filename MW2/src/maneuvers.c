@@ -262,6 +262,7 @@ ManeuverTable g_maneuverTables[9];
 // runs at the target, or flees) or when its time is up; with no maneuver, chooses and starts one.
 // FUNCTION: MW2 0x10013430
 // FUNCTION: MW2GBL 0x10029630
+// FUNCTION: MW2PREMERCS 0x1004b9c0
 // FUNCTION: MW2MATROX 0x10019000
 // FUNCTION: MW23DFX 0x1001ea40
 // FUNCTION: MW2ATI 0x1001ed10
@@ -1074,6 +1075,7 @@ MechS32 IsSharpTurn(Player* p_player, MechScalar p_turn)
 // Steers p_player at p_target and closes to 15000, asking for c_maneuverAvoid within 4500.
 // FUNCTION: MW2 0x100149e7
 // FUNCTION: MW2GBL 0x1002ab09
+// FUNCTION: MW2PREMERCS 0x1004cebc
 // FUNCTION: MW2MATROX 0x1001a709
 // FUNCTION: MW23DFX 0x1001f950
 // FUNCTION: MW2ATI 0x1001fc20
@@ -1922,6 +1924,7 @@ MechS32 IsStandableShape(Shape* p_shape)
 // negative p_side) in the mech's frame, from its position or, with p_fromEdge, from its side.
 // FUNCTION: MW2 0x10015b9f
 // FUNCTION: MW2GBL 0x1002bd0a
+// FUNCTION: MW2PREMERCS 0x1004e174
 // FUNCTION: MW2MATROX 0x1001b985
 // FUNCTION: MW23DFX 0x100204e0
 // FUNCTION: MW2ATI 0x100207b0

@@ -74,6 +74,7 @@ MechS32 g_satelliteStaticState = 0;
 // The frame callback the satellite view replaces (SwitchCockpitView).
 // GLOBAL: MW2 0x100a5a1c
 // GLOBAL: MW2GBL 0x100b1e5c
+// GLOBAL: MW2PREMERCS 0x100ae81c
 // GLOBAL: MW2MATROX 0x100ae404
 // GLOBAL: MW23DFX 0x1024989c
 // GLOBAL: MW2S3 0x100616cc
@@ -963,6 +964,105 @@ void FUN_10003310(void)
 }
 #endif
 
+#ifdef MW2_MFD_PANELS
+// Draws the satellite view into p_pane, as DrawMapView draws it into its own viewport, without
+// the gauges and readouts: an MFD's mode 6.
+// FUNCTION: MW2PREMERCS 0x1001efbc
+void DrawSatelliteToPane(PANE* p_pane)
+{
+	MechS32 farPlane;
+	MechScalar heading;
+	MechScalar angle;
+	struct SceneObject* obj;
+	MechS32 zoom;
+	MechScalar pose[7];
+	CockpitLayout* layout;
+	MechS32 range;
+	MechScalar z;
+	MechScalar y;
+	MechScalar x;
+	MechS32 slot;
+	Player* player;
+	MapViewFlags flags;
+	MechS32 savedLayout;
+
+	savedLayout = g_cockpitLayoutIndex;
+	g_cockpitLayoutIndex = 4;
+	layout = g_cockpitLayouts[g_cockpitLayoutIndex];
+	if (!layout) {
+		return;
+	}
+
+	player = g_players[g_localPlayerId];
+	slot = layout->m_paneSlot;
+	g_panes[slot] = *p_pane;
+	angle = player->m_mech->m_torsoTwist.m_value;
+	heading = player->m_heading;
+	pose[4] = FIXED_CONST(90);
+	pose[5] = 0;
+	switch (g_cockpitLayoutIndex) {
+	case 1:
+	case 2:
+		pose[3] = heading;
+		break;
+	case 4:
+		pose[3] = 0;
+		angle += heading;
+		break;
+	default:
+		pose[3] = 0;
+		angle = 0;
+		break;
+	}
+
+	if (!g_mapFollowsFreeEye) {
+		x = y = z = 0;
+		obj = player->m_eyeObj;
+		if (obj) {
+			GetObjPosition(obj, &x, &y, &z);
+		}
+
+		pose[0] = x;
+		pose[2] = z;
+	}
+	else {
+		pose[0] = g_eyepoint->m_x;
+		pose[2] = g_eyepoint->m_z;
+	}
+
+	range = layout->m_range;
+	pose[1] = range;
+	if (g_mapShadeBase < 0) {
+		farPlane = range - g_mapShadeBase;
+	}
+	else {
+		farPlane = range;
+	}
+
+	BeginMapView(pose, slot, range, farPlane);
+	if (g_cockpitLayoutIndex == 4) {
+		g_renderSettings.m_shapeFilter = MapShapeFilter;
+		g_renderSettings.m_drawFace = (MechS32 (*)()) SatelliteFaceColor;
+		g_renderSettings.m_drawPolygon = SatelliteDrawPolygon;
+		zoom = GetViewMode();
+		SetViewMode(c_viewSatellite);
+		ChoosePlayerDetailLevels();
+		SetViewMode(zoom);
+		VFX_pane_wipe(p_pane, PIXEL_COLOR(g_groundColor));
+		flags.m_bits = 0;
+		DrawMapViewScene(flags);
+	}
+
+	if (g_cockpitLayoutIndex != 4 || !(player->m_flags & 0x16)) {
+		DrawFieldOfViewToPane(p_pane, layout, angle);
+	}
+
+	DrawMapContents(layout);
+	EndMapView();
+	g_cockpitLayoutIndex = savedLayout;
+}
+#endif
+
 // Draws the map view's contents: the nav points, the center icon and the other players and
 // things, and the target.
 // The original has an unused local (unused).
@@ -1089,6 +1189,7 @@ void DrawMapUnits(CockpitLayout* p_layout)
 // Draws the local player's target: in the view, or clamped to its edge when outside it.
 // FUNCTION: MW2 0x1003e689
 // FUNCTION: MW2GBL 0x1004d9d7
+// FUNCTION: MW2PREMERCS 0x1001f588
 // FUNCTION: MW2MATROX 0x1007432d
 // FUNCTION: MW23DFX 0x10003a60
 // FUNCTION: MW2ATI 0x100036f0
@@ -1348,6 +1449,32 @@ void DrawMapFieldOfView(CockpitLayout* p_layout, MechScalar p_heading)
 	}
 }
 
+#ifdef MW2_MFD_PANELS
+// DrawMapFieldOfView into p_pane (DrawSatelliteToPane).
+// FUNCTION: MW2PREMERCS 0x1001fbc3
+void DrawFieldOfViewToPane(PANE* p_pane, CockpitLayout* p_layout, MechScalar p_heading)
+{
+	MechScalar halfFov;
+	Point end;
+	MechS32 y;
+	MechS32 x;
+	MechS32* colors;
+
+	colors = p_layout->m_colors;
+	p_heading = (p_heading % 0x1680000 + 0x1680000) % 0x1680000;
+	x = (p_pane->m_x1 - p_pane->m_x0 + 1) >> 1;
+	y = (p_pane->m_y1 - p_pane->m_y0 + 1) >> 1;
+	halfFov = FixedAtan2(0x10000, g_eyepoint->m_fovX);
+	p_heading = FIXED_CONST(90) - p_heading;
+	if (p_layout->m_gauges[3]) {
+		p_layout->m_gauges[3](p_pane, p_heading - halfFov, &end);
+		VFX_line_draw(p_pane, x, y, end.m_x, end.m_y, 0, colors[11]);
+		p_layout->m_gauges[3](p_pane, halfFov + p_heading, &end);
+		VFX_line_draw(p_pane, x, y, end.m_x, end.m_y, 0, colors[11]);
+	}
+}
+#endif
+
 // Draws the view's range readout and, in the satellite view, the heading readout, formatting them
 // again only when they change.
 // MW2MATROX: formats the range and heading as floats.
@@ -1492,6 +1619,28 @@ void LeaveSatelliteView(void)
 	}
 }
 
+#ifdef MW2_MFD_PANELS
+// Asks for cockpit layout p_layout (the saved HUD's: ApplyMfdModes): straight from one map view
+// to another, else by way of view 5 (from a layout above 2, back to p_layout after it) or 3.
+// FUNCTION: MW2PREMERCS 0x1001ff48
+void RequestCockpitLayout(MechS32 p_layout)
+{
+	if (g_cockpitLayoutIndex == p_layout) {
+		return;
+	}
+	else if (g_cockpitLayoutIndex <= 2 && p_layout <= 2) {
+		g_requestedCockpitView = p_layout;
+	}
+	else if (g_cockpitLayoutIndex > 2) {
+		g_requestedCockpitView = 5;
+		g_previousCockpitView = p_layout;
+	}
+	else {
+		g_requestedCockpitView = 3;
+	}
+}
+#endif
+
 // Leaves the satellite view, or else enters it from a cockpit view.
 // FUNCTION: MW2 0x1003eeaf
 // FUNCTION: MW2GBL 0x1004e1fe
@@ -1626,6 +1775,7 @@ MechS32 MapShapeFilter(Shape* p_shape)
 // MW2MATROX: also ends the outer default with a break.
 // FUNCTION: MW2 0x1003f0e7
 // FUNCTION: MW2GBL 0x1004e436
+// FUNCTION: MW2PREMERCS 0x100201f6
 // FUNCTION: MW2MATROX 0x10074de6
 // FUNCTION: MW23DFX 0x10004100
 // FUNCTION: MW2ATI 0x10003d90

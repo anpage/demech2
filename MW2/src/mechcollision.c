@@ -456,6 +456,7 @@ MechS32 CollideWithMechs(Mech* p_mech, MechScalar* p_x, MechScalar* p_y, MechSca
 // push and a sound. Returns 1 on a collision, with *p_hit the shape.
 // FUNCTION: MW2 0x10076295
 // FUNCTION: MW2GBL 0x10028475
+// FUNCTION: MW2PREMERCS 0x1002c4d5
 // FUNCTION: MW2MATROX 0x1007649e
 // FUNCTION: MW23DFX 0x1000be60
 // FUNCTION: MW2ATI 0x1000c5d0

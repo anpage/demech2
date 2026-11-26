@@ -737,6 +737,7 @@ MechS32 g_lineEndY;
 // and 0xf are its own (lit textures and animation colors), and it draws through its renderer.
 // FUNCTION: MW2 0x10042e00
 // FUNCTION: MW2GBL 0x100178c0
+// FUNCTION: MW2PREMERCS 0x10058780
 // FUNCTION: MW2MATROX 0x100683ba
 // FUNCTION: MW23DFX 0x10026e80
 // FUNCTION: MW2ATI 0x10026b30

@@ -283,6 +283,7 @@ MechS32 LoadReels(ResourceRef* p_ref)
 // Matches but for the registers, which VC++ 2.2 allocates differently.
 // FUNCTION: MW2 0x10070bda
 // FUNCTION: MW2GBL 0x10042b6a
+// FUNCTION: MW2PREMERCS 0x1007a20a
 // FUNCTION: MW2MATROX 0x1000b1c6
 // FUNCTION: MW23DFX 0x100403a0
 // FUNCTION: MW2ATI 0x1003e100

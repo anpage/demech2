@@ -30,6 +30,9 @@ extern "C"
 	extern MechS32 g_navCount;
 	extern MechS32 g_inspectResult;
 	extern MechS32 g_reticleTargeting;
+#ifdef MW2_MFD_PANELS
+	extern undefined4 g_unk0x100b20f8;
+#endif
 	// g_cockpitReadout and g_cockpitLayouts are cockpitlayouts.c's, declared here for now (to move
 	// later), where they were before it was split from targeting.c: moving them to a header of its
 	// own would shift the code of every unit that includes targeting.h.

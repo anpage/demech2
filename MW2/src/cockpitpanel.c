@@ -45,7 +45,7 @@ void InitCockpitPanel(CockpitPanel* p_panel)
 	p_panel->m_setName = SetCockpitPanelName;
 	p_panel->m_setTarget = SetCockpitPanelTarget;
 #ifdef MW2_COCKPIT_PANEL_UNK_MEMBERS
-	p_panel->m_unk0xc4 = FUN_100535df;
+	p_panel->m_setMfdMode = SetCockpitPanelMfdMode;
 #endif
 	p_panel->m_setTextOrigin = SetCockpitPanelTextOrigin;
 	p_panel->m_setTransition = SetCockpitPanelTransition;
@@ -134,9 +134,9 @@ void SetCockpitPanelTarget(CockpitPanel* p_panel, PANE* p_target)
 
 #ifdef MW2_COCKPIT_PANEL_UNK_MEMBERS
 // FUNCTION: MW2PREMERCS 0x100535df
-void FUN_100535df(CockpitPanel* p_panel, undefined4 p_unk0x30)
+void SetCockpitPanelMfdMode(CockpitPanel* p_panel, MechS32 p_mfdMode)
 {
-	p_panel->m_unk0x30 = p_unk0x30;
+	p_panel->m_mfdMode = p_mfdMode;
 }
 #endif
 

@@ -29,6 +29,10 @@
 #include "types.h"
 #include "view.h"
 
+#ifdef MW2_MFD_PANELS
+#include "hud.h"
+#endif
+
 // The launch sound of the local player's weapon, in the cockpit (p_shotType is unused).
 // FUNCTION: MW2 0x1004c890
 // FUNCTION: MW2GBL 0x1004fa30
@@ -45,11 +49,13 @@ void PlayWeaponLaunchSound(undefined4 p_shotType, MechS32 p_sound, undefined4 p_
 	}
 }
 
+#ifndef MW2_MFD_PANELS
 // Renders the scene into pane p_target from the camera p_view with a field of view of
 // p_fovX (only the objects under p_object, if set), then restores the eyepoint, its field of view
 // and the pending palette.
 // FUNCTION: MW2 0x1004c8bd
 // FUNCTION: MW2GBL 0x1004fa5d
+// FUNCTION: MW2PREMERCS 0x10046dad
 // FUNCTION: MW2MATROX 0x100450ed
 // FUNCTION: MW23DFX 0x1001bc50
 // FUNCTION: MW2ATI 0x1001bfe0
@@ -107,6 +113,74 @@ void RenderViewToPane(MechU32 p_target, MechScalar p_fovX, MechS32* p_view, stru
 	g_projectionDirty = 0;
 }
 
+#endif
+
+#ifdef MW2_MFD_PANELS
+// The early Mercenaries build's RenderViewToPane renders the shape grid's cells ahead of the
+// eyepoint, and over p_mech's view its crosshair (RenderViewToPaneFor).
+void RenderViewToPane(MechU32 p_target, MechScalar p_fovX, MechS32* p_view, struct SceneObject* p_object)
+{
+	RenderViewToPaneFor(p_target, p_fovX, p_view, p_object, NULL);
+}
+
+// FUNCTION: MW2PREMERCS 0x10046dd2
+void RenderViewToPaneFor(
+	MechU32 p_target,
+	MechScalar p_fovX,
+	MechS32* p_view,
+	struct SceneObject* p_object,
+	Mech* p_mech
+)
+{
+	MechScalar fovX;
+	MechS32 palette;
+	MechS32 view[7];
+	MechS32 i;
+	Shape* list;
+
+	fovX = g_eyepoint->m_fovX;
+	palette = g_palettePending;
+	SaveView(g_eyepoint, view);
+	SelectPane(p_target);
+	g_eyepoint->m_fovX = p_fovX;
+	p_view[6] = 1;
+	RestoreView(g_eyepoint, p_view);
+	UpdateProjection(g_eyepoint);
+	UpdateViewMatrix(g_eyepoint);
+	SelectEyepoint(g_eyepoint);
+	if ((g_renderSettings.m_drawSky || g_renderSettings.m_drawGround) && !g_renderSettings.m_wireframe) {
+		DrawSkyAndGround(g_eyepoint);
+	}
+
+	if (p_object) {
+		DrawObjTreeShapes(p_object);
+	}
+	else {
+		ListShapeGridCellsAhead(g_eyepoint);
+		i = 0;
+		for (list = g_shapeGridLists[i]; list; list = g_shapeGridLists[i]) {
+			DrawShapeList(list);
+			i++;
+		}
+	}
+
+	FUN_10069591();
+	if (p_mech) {
+		DrawCrosshair(p_mech, 0, 0, 0);
+	}
+
+	g_palettePending = palette;
+	ResetPane();
+	g_eyepoint->m_fovX = fovX;
+	g_projectionDirty = 1;
+	RestoreView(g_eyepoint, view);
+	UpdateProjection(g_eyepoint);
+	UpdateViewMatrix(g_eyepoint);
+	SelectEyepoint(g_eyepoint);
+	g_projectionDirty = 0;
+}
+
+#endif
 // Flashes palette slot 0x11 (the ZAPPED palette, solid red) over two seconds (0x16a clock ticks).
 // FUNCTION: MW2 0x1004ca0d
 // FUNCTION: MW2GBL 0x1004fbad
