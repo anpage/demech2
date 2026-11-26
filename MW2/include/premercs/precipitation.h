@@ -36,18 +36,19 @@ typedef struct PrecipitationDrop {
 // One of the nine zones of a 3x3 grid around the eyepoint, each starting its drops at m_y.
 // SIZE 0x730
 struct PrecipitationZone {
-	MechScalar m_x;                     // 0x00 — its offset from the eyepoint
-	MechScalar m_y;                     // 0x04 — the height its drops start at
-	MechScalar m_z;                     // 0x08
-	undefined m_unk0x0c[0x20 - 0x0c];   // 0x0c
-	PrecipitationDrop m_drops[45];      // 0x20
-	MechS32 m_dropCount;                // 0x674
-	MechS32 m_usedDrops;                // 0x678 — how many of m_freeDrops are taken
-	MechS32 m_freeDrops[45];            // 0x67c — the free drops' indices, a stack
+	MechScalar m_x;                   // 0x00 — its offset from the eyepoint
+	MechScalar m_y;                   // 0x04 — the height its drops start at
+	MechScalar m_z;                   // 0x08
+	undefined m_unk0x0c[0x20 - 0x0c]; // 0x0c
+	PrecipitationDrop m_drops[45];    // 0x20
+	MechS32 m_dropCount;              // 0x674
+	MechS32 m_usedDrops;              // 0x678 — how many of m_freeDrops are taken
+	MechS32 m_freeDrops[45];          // 0x67c — the free drops' indices, a stack
 };
 
 #ifdef __cplusplus
-extern "C" {
+extern "C"
+{
 #endif
 
 	extern MechS32 g_precipitating;
