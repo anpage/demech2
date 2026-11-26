@@ -76,6 +76,7 @@ MechS32 g_localMechHidden = 0;
 // The kill count the cockpit shows in a network game.
 // GLOBAL: MW2 0x100a15a0
 // GLOBAL: MW2GBL 0x100a04c4
+// GLOBAL: MW2PREMERCS 0x100b1a34
 // GLOBAL: MW2MATROX 0x100a4628
 // GLOBAL: MW23DFX 0x1024bfcc
 // GLOBAL: MW2ATI 0x1018034c
@@ -86,6 +87,7 @@ MechS32 g_killCount = 0;
 // Set while the local player has been warned of critical heat (CalculateHeat).
 // GLOBAL: MW2 0x100a15a4
 // GLOBAL: MW2GBL 0x100a04c8
+// GLOBAL: MW2PREMERCS 0x100b1a38
 // GLOBAL: MW2MATROX 0x100a462c
 // GLOBAL: MW23DFX 0x1024bfd0
 // GLOBAL: MW2S3 0x100621d0
@@ -95,11 +97,19 @@ MechS32 g_criticalHeatWarned = 0;
 // When the warning was given.
 // GLOBAL: MW2 0x100bdff0
 // GLOBAL: MW2GBL 0x100b9118
+// GLOBAL: MW2PREMERCS 0x100caef0
 // GLOBAL: MW2MATROX 0x100c1e24
 // GLOBAL: MW23DFX 0x1007c310
 // GLOBAL: MW2S3 0x1007cab4
 // GLOBAL: MW2POWERVR 0x1006f310
 static MechS32 g_criticalHeatWarningTime;
+
+// The target the autopilot steers for: the early Mercenaries build's nav target.
+#ifdef MW2_NAV_TARGET_KEPT
+#define AUTOPILOT_TARGET m_navTargetInfo
+#else
+#define AUTOPILOT_TARGET m_targetInfo
+#endif
 
 // Runs the autopilot (m_autopilot): mode 1 follows the nav points in order, skipping the ones
 // already reached and marking each one it reaches (turning off after the last); then the AI
@@ -108,6 +118,7 @@ static MechS32 g_criticalHeatWarningTime;
 // they are (the dword, no conversion).
 // FUNCTION: MW2 0x100079d0
 // FUNCTION: MW2GBL 0x1001ea60
+// FUNCTION: MW2PREMERCS 0x1003d4b0
 // FUNCTION: MW2MATROX 0x10010250
 // FUNCTION: MW23DFX 0x10015c00
 // FUNCTION: MW2ATI 0x10016010
@@ -123,24 +134,25 @@ void RunAutopilot(Mech* p_mech)
 	}
 
 	if (p_mech->m_autopilot == 1) {
-		if (!(p_mech->m_player->m_targetInfo.m_target & 0x100) || (p_mech->m_player->m_targetInfo.m_target & 0x1000)) {
+		if (!(p_mech->m_player->AUTOPILOT_TARGET.m_target & 0x100) ||
+			(p_mech->m_player->AUTOPILOT_TARGET.m_target & 0x1000)) {
 			CycleNavTarget(p_mech->m_player, 0, 0);
-			index = p_mech->m_player->m_targetInfo.m_target & 0xff;
+			index = p_mech->m_player->AUTOPILOT_TARGET.m_target & 0xff;
 			first = index;
 			while (g_navTable[index].m_flags & 0x20) {
 				CycleNavTarget(p_mech->m_player, 1, 0);
-				index = p_mech->m_player->m_targetInfo.m_target & 0xff;
+				index = p_mech->m_player->AUTOPILOT_TARGET.m_target & 0xff;
 				if (index == first) {
-					p_mech->m_player->m_targetInfo.m_target |= 0x1000;
+					p_mech->m_player->AUTOPILOT_TARGET.m_target |= 0x1000;
 					return;
 				}
 			}
 		}
 
-		if (p_mech->m_player->m_targetInfo.m_target & 0x100) {
-			index = p_mech->m_player->m_targetInfo.m_target & 0xff;
+		if (p_mech->m_player->AUTOPILOT_TARGET.m_target & 0x100) {
+			index = p_mech->m_player->AUTOPILOT_TARGET.m_target & 0xff;
 			first = index;
-			if (g_navTable[index].m_radius > p_mech->m_player->m_targetInfo.m_distance &&
+			if (g_navTable[index].m_radius > p_mech->m_player->AUTOPILOT_TARGET.m_distance &&
 				p_mech->m_player->m_index == g_localPlayerId) {
 				if (!(g_navTable[index].m_flags & 0x20)) {
 					g_navTable[index].m_flags |= 0x20;
@@ -153,9 +165,9 @@ void RunAutopilot(Mech* p_mech)
 				}
 
 				CycleNavTarget(p_mech->m_player, 1, 0);
-				if ((p_mech->m_player->m_targetInfo.m_target & 0xff) < first) {
+				if ((p_mech->m_player->AUTOPILOT_TARGET.m_target & 0xff) < first) {
 					p_mech->m_autopilot = 0;
-					p_mech->m_player->m_targetInfo.m_target |= 0x1000;
+					p_mech->m_player->AUTOPILOT_TARGET.m_target |= 0x1000;
 					p_mech->m_player->m_steering->m_throttle = 0;
 					p_mech->m_player->m_steering->m_throttleSet = 1;
 					return;
@@ -190,6 +202,7 @@ void RunAutopilot(Mech* p_mech)
 // which the autopilot steers by) to where the torso faces, unless the autopilot is on.
 // FUNCTION: MW2 0x10007cb5
 // FUNCTION: MW2GBL 0x1001ed45
+// FUNCTION: MW2PREMERCS 0x1003d795
 // FUNCTION: MW2MATROX 0x1001053c
 // FUNCTION: MW23DFX 0x10015dd0
 // FUNCTION: MW2ATI 0x100161e0
@@ -209,13 +222,14 @@ void PunchInAutoHeading(Mech* p_mech)
 #else
 	heading = FIXED_MOD360(p_mech->m_player->m_heading + FIXED_CONST(360) + p_mech->m_torsoTwist.m_value);
 #endif
-	p_mech->m_player->m_targetInfo.m_heading = heading;
+	p_mech->m_player->AUTOPILOT_TARGET.m_heading = heading;
 }
 
 #ifdef MW2_DESTROY_BLOWS_FIRST_BIN
 // GBL's: blows the critical slot of the mech's first ammunition bin, whatever its ammunition; failing
 // that, the pilot ejects when auto-eject is on or the mech isn't the local player's.
 // FUNCTION: MW2GBL 0x1001ed96
+// FUNCTION: MW2PREMERCS 0x1003d7e6
 void DestroyMech(MechS32 p_killer, Mech* p_mech)
 {
 	MechS32 i;
@@ -313,6 +327,7 @@ void DestroyMech(MechS32 p_killer, Mech* p_mech)
 // 4525). Its test for a mech shut down past 100 degrees, which would blow it up, comes after the
 // test for 100 degrees and never holds.
 // FUNCTION: MW2GBL 0x1001eeb7
+// FUNCTION: MW2PREMERCS 0x1003d968
 void CalculateHeat(Mech* p_mech)
 {
 	MechS32 delta;
@@ -551,6 +566,7 @@ void CalculateHeat(Mech* p_mech)
 // outcome is 4 unless they ejected, and in a network game only the local mech's death is played
 // out here.
 // FUNCTION: MW2GBL 0x1001f3bd
+// FUNCTION: MW2PREMERCS 0x1003de0d
 void KillMech(MechS32 p_killer, Mech* p_mech)
 {
 	MechS32 leader;
@@ -914,6 +930,117 @@ void DestroySectionSlots(MechS32 p_attacker, Mech* p_mech, MechU32 p_section)
 	}
 }
 
+#ifdef MW2_HEAD_SHUTDOWN
+// The early Mercenaries build's: a hit to the head (section 1) of an AI player's mech shuts it down
+// (power state 5) its first ten times, and the head goes only after that, shutting it down for
+// good (2).
+// FUNCTION: MW2PREMERCS 0x1003e481
+void DestroySection(MechS32 p_attacker, Mech* p_mech, MechU32 p_section)
+{
+	if (p_mech && p_section == 1 && p_mech->m_player->m_index != g_localPlayerId && p_mech->m_headHits < 10) {
+		p_mech->m_powerState = 5;
+		p_mech->m_headHits++;
+	}
+	else {
+		if (p_section == 1) {
+			p_mech->m_powerState = 2;
+		}
+
+		DestroySectionEx(p_attacker, p_mech, p_section, 0);
+	}
+}
+
+// 1.1's DestroySection, which with p_quiet takes the sections' objects out of the scene
+// (DestroyPartTree) instead of blowing them off, and doesn't kill the mech. A leg's first loss
+// cripples an AI mech instead, 95 times in 100, and in a game that isn't a network game gives
+// m_unk0x120 a random value.
+// FUNCTION: MW2PREMERCS 0x1003e50c
+void DestroySectionEx(MechS32 p_attacker, Mech* p_mech, MechU32 p_section, MechS32 p_quiet)
+{
+	MechSection* section;
+	MechS32 roll;
+
+	if (!p_section) {
+		return;
+	}
+
+	section = p_mech->m_sections + p_section - 1;
+	if (section->m_flags & 0x2000) {
+		return;
+	}
+
+	section->m_internal = 0;
+	section->m_flags |= 0x2000;
+	DestroySectionSlots(p_attacker, p_mech, p_section);
+	switch (p_section) {
+	case 2:
+		DestroySectionEx(p_attacker, p_mech, 5, 0);
+		section->m_flags &= ~0x2000;
+		return;
+	case 4:
+		DestroySectionEx(p_attacker, p_mech, 6, 0);
+		section->m_flags &= ~0x2000;
+		return;
+	case 7:
+	case 8:
+		if (!(p_mech->m_flags & 0x20)) {
+			roll = RandomIntBelow(100);
+			if (roll < 0x5f && !p_quiet && p_mech->m_player->m_type == c_playerTypeMech) {
+				section->m_internal = FIXED_CONST(1);
+				section->m_flags &= ~0x2000;
+				p_mech->m_mobility = 0x3333;
+				return;
+			}
+
+			if (!p_quiet) {
+				BlowOffPart(p_mech->m_player->m_obj, p_section);
+			}
+			else {
+				DestroyPartTree(p_mech->m_player->m_obj, p_section);
+			}
+
+			p_mech->m_mobility = 0;
+			p_mech->m_flags |= 0x20;
+			if (p_mech->m_player->m_type == c_playerTypeMech && !g_isNetworkGame) {
+				p_mech->m_unk0x112 |= 4;
+				p_mech->m_unk0x120 = (RandomNormal() << 16) / 1024;
+			}
+			return;
+		}
+		else {
+			DestroySectionEx(p_attacker, p_mech, 3, 0);
+		}
+		break;
+	case 3:
+		DestroySectionEx(p_attacker, p_mech, 5, 0);
+		DestroySectionEx(p_attacker, p_mech, 2, 0);
+		DestroySectionEx(p_attacker, p_mech, 4, 0);
+		DestroySectionEx(p_attacker, p_mech, 6, 0);
+		DestroySectionEx(p_attacker, p_mech, 1, 0);
+		break;
+	case 5:
+	case 6:
+		if (!p_quiet) {
+			BlowOffPart(p_mech->m_player->m_obj, p_section);
+		}
+		else {
+			DestroyPartTree(p_mech->m_player->m_obj, p_section);
+		}
+		return;
+	}
+
+	if (!p_quiet) {
+		BlowOffPart(p_mech->m_player->m_obj, p_section);
+		if (p_mech->m_powerState != 4 && p_mech->m_powerState != 5 &&
+			(p_mech->m_player->m_index == g_localPlayerId || !g_isNetworkGame)) {
+			KillMech(p_attacker, p_mech);
+		}
+	}
+	else {
+		DestroyPartTree(p_mech->m_player->m_obj, p_section);
+	}
+}
+#else
 // Destroys section p_section of p_mech, on behalf of player p_attacker.
 // Destroying section 3 takes sections 1, 2 and 4 to 6 with it; section 2 takes 5, and 4 takes 6.
 // Of sections 7 and 8, the first to go only marks the mech (0x20); the second destroys 1 and 3.
@@ -985,6 +1112,7 @@ void DestroySection(MechS32 p_attacker, Mech* p_mech, MechU32 p_section)
 		KillMech(p_attacker, p_mech);
 	}
 }
+#endif
 
 // Destroys critical slot p_slot of section p_section of p_mech, on behalf of player p_attacker,
 // and drops it from the section: a weapon (ids below 5000) stops working, an ammunition bin (above
@@ -993,6 +1121,7 @@ void DestroySection(MechS32 p_attacker, Mech* p_mech, MechU32 p_section)
 // p_recursing; 8000 and 9000 hit another, random slot instead.
 // FUNCTION: MW2 0x10008c0f
 // FUNCTION: MW2GBL 0x1001fc77
+// FUNCTION: MW2PREMERCS 0x1003e8a1
 // FUNCTION: MW2MATROX 0x100114bd
 // FUNCTION: MW23DFX 0x100167b0
 // FUNCTION: MW2ATI 0x10016bc0
@@ -1390,6 +1519,7 @@ void DestroyCriticalSlot(MechS32 p_attacker, Mech* p_mech, MechU32 p_section, Me
 // GBL's: counts the hit for the player whose shot hit last (g_lastHitShooter), then forgets them,
 // and in a network game damages only the local mech.
 // FUNCTION: MW2GBL 0x10020941
+// FUNCTION: MW2PREMERCS 0x1003f712
 void ApplyDamageToMech(MechS32 p_attacker, Mech* p_mech, MechScalar p_damage, MechS32 p_section)
 {
 	MechS32 side;

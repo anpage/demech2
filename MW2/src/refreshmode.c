@@ -526,6 +526,7 @@ void SelectFastestRefreshMode(void)
 // whole screen, unless g_shouldToggleFullscreen is set.
 // FUNCTION: MW2 0x10077392
 // FUNCTION: MW2GBL 0x1002f570
+// FUNCTION: MW2PREMERCS 0x1001dc6f
 // FUNCTION: MW2MATROX 0x1007b40e
 // FUNCTION: MW23DFX 0x10002aa0
 void ToggleFullScreen(void)

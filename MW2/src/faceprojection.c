@@ -446,6 +446,16 @@ jmp_10048e8f:
 #endif
 }
 
+#ifdef MW2_TILED_SKY
+// ClipEdgeToNearPlane at the far plane (g_viewFar): ClipPolygonDepth's.
+// STUB: MW2PREMERCS 0x1005fa6e
+ProjectedVertex* ClipEdgeToFarPlane(Vertex* p_a, Vertex* p_b)
+{
+	STUB(0x1005fa6e);
+	return NULL;
+}
+
+#endif
 // Projects a view-space vertex onto the screen once per frame (m_projected), with its clip
 // outcodes (m_unk0x1c: 1 left, 2 right, 4 top, 8 bottom), accumulates the outcodes of the
 // polygon being built and adds the vertex to its list (up to 20). The body is an __asm block.

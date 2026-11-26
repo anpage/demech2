@@ -44,6 +44,9 @@ extern "C"
 	MechS32 PathTask(MechS32 p_event, MechChar* p_data, MechS32 p_clock, MechS32 p_period);
 	ProjectedVertex* GetViewVertex(Vertex* p_vertex);
 	ProjectedVertex* ClipEdgeToNearPlane(Vertex* p_a, Vertex* p_b);
+#ifdef MW2_TILED_SKY
+	ProjectedVertex* ClipEdgeToFarPlane(Vertex* p_a, Vertex* p_b);
+#endif
 	ProjectedVertex* ProjectVertex(ProjectedVertex* p_vertex);
 	MechS32 GetFaceShade(Face* p_face, Vertex* p_vertices);
 	void QueueFace(Face* p_face, Vertex* p_vertices);

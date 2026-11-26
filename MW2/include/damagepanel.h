@@ -15,7 +15,11 @@ extern "C"
 	extern MechS32 g_frameOutlineParts;
 
 	void InitDamagePanel(void);
-	void DrawDamageOutline(Mech* p_mech, PANE* p_target);
+#ifdef MW2_MFD_PANELS
+	void DrawDamageOutline(Mech* p_mech, PANE* p_target, MechS32 p_slot);
+#else
+void DrawDamageOutline(Mech* p_mech, PANE* p_target);
+#endif
 	void DrawArmorBars(Mech* p_mech, PANE* p_target);
 
 #ifdef __cplusplus

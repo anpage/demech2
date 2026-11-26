@@ -347,6 +347,7 @@ void RestoreSoundSetting(MechS32 p_setting)
 
 // FUNCTION: MW2 0x10006c5c
 // FUNCTION: MW2GBL 0x100223ec
+// FUNCTION: MW2PREMERCS 0x10066d3c
 // FUNCTION: MW2MATROX 0x10044bcc
 // FUNCTION: MW23DFX 0x10031c30
 // FUNCTION: MW2ATI 0x10030a20
@@ -366,9 +367,22 @@ void StartMissionMusic(void)
 		UnlockCachedResource(g_musicResource, g_resTagMus);
 	}
 
+	// The early Mercenaries build tests each in an else-if of its own.
+#ifdef MW2_PREMERCS
+	if (!IsCdAudioInitialized()) {
+		g_cdTrack = -1;
+	}
+	else if (GetCdStatus() == 1) {
+		g_cdTrack = -1;
+	}
+	else if (!IsCdTrackOnDisc(g_cdTrack)) {
+		g_cdTrack = -1;
+	}
+#else
 	if (!IsCdAudioInitialized() || GetCdStatus() == 1 || !IsCdTrackOnDisc(g_cdTrack)) {
 		g_cdTrack = -1;
 	}
+#endif
 	else if (g_soundConfig.m_simFlags & 8) {
 		PlayCdTrack(g_cdTrack);
 		if (RefreshCdStatus() != 3) {

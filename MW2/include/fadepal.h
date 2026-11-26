@@ -17,6 +17,15 @@ extern "C"
 
 	void PlayWeaponLaunchSound(undefined4 p_shotType, MechS32 p_sound, undefined4 p_pan);
 	void RenderViewToPane(MechU32 p_target, MechScalar p_fovX, MechS32* p_view, struct SceneObject* p_object);
+#ifdef MW2_MFD_PANELS
+	void RenderViewToPaneFor(
+		MechU32 p_target,
+		MechScalar p_fovX,
+		MechS32* p_view,
+		struct SceneObject* p_object,
+		struct Mech* p_mech
+	);
+#endif
 	void FlashZappedPalette(void);
 	void FlashZappedPaletteLevel(MechU32 p_level);
 	void FadeToEndPalette(MechS32 p_alternate);

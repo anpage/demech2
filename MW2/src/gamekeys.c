@@ -76,6 +76,7 @@ MechS32 g_speechFlushTime = 0;
 // A game-key toggle (GetSystemSetting's setting 0x40).
 // GLOBAL: MW2 0x100aa298
 // GLOBAL: MW2GBL 0x1009dae8
+// GLOBAL: MW2PREMERCS 0x100b5810
 // GLOBAL: MW2MATROX 0x100a7cc0
 // GLOBAL: MW23DFX 0x10250514
 // GLOBAL: MW2ATI 0x10184824
@@ -162,6 +163,7 @@ MechS32 g_cheatMessagesDecoded = 0;
 
 // GLOBAL: MW2 0x100aa2c0
 // GLOBAL: MW2GBL 0x1009db14
+// GLOBAL: MW2PREMERCS 0x100b583c
 // GLOBAL: MW2MATROX 0x100a7ce8
 // GLOBAL: MW23DFX 0x1025053c
 // GLOBAL: MW2ATI 0x1018484c
@@ -986,7 +988,9 @@ void RunGameKey(MechS32 p_key)
 		g_quitStage += 2;
 		break;
 	case 0x2:
+#ifndef MW2_MFD_PANELS
 		CycleMechViewMode();
+#endif
 		if (g_players[g_localPlayerId]->m_flags & 0x2000) {
 			PlaySoundEffect(0xdc, 100, 0x40, 0, 0x32);
 		}

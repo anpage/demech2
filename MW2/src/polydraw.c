@@ -33,6 +33,22 @@
 #include <string.h>
 #endif
 
+#ifdef MW2_TILED_SKY
+#include "depthsort.h"
+#include "face.h"
+#include "fixeddot27.h"
+#include "loadres.h"
+#include "mw2prj.h"
+#include "objectanim.h"
+#include "recordstacks.h"
+#include "texpoly.h"
+#include "vertex.h"
+#include "view.h"
+
+#include <stdio.h>
+#include <string.h>
+#endif
+
 #ifdef MW2_A3D
 // The Matrox edition's textured sky and ground (skygnd.par): the sky's texture repeats every
 // g_skyTileU by g_skyTileV, the ground's every g_groundTile, and the sky's texture scrolls from
@@ -99,6 +115,52 @@ MechFloat g_groundUScale = 50.0f / 32000000.0f;
 MechFloat g_skyScroll = 0;
 #endif
 
+#ifdef MW2_TILED_SKY
+// The sky's and ground's settings (LoadSkyGroundSettings): the textures' sizes, how far the quads
+// reach, the ground's clip distances, and the sky's scroll.
+// GLOBAL: MW2PREMERCS 0x100b39f0
+MechS32 g_skyTile = 5000;
+
+// GLOBAL: MW2PREMERCS 0x100b39f4
+undefined4 g_unk0x100b39f4 = 64000;
+
+// GLOBAL: MW2PREMERCS 0x100b39f8
+MechS32 g_skyExtent = 160000;
+
+// GLOBAL: MW2PREMERCS 0x100b39fc
+undefined4 g_unk0x100b39fc = 200000;
+
+// GLOBAL: MW2PREMERCS 0x100b3a00
+MechS32 g_groundTile = 5000;
+
+// GLOBAL: MW2PREMERCS 0x100b3a04
+MechS32 g_groundExtent = 160000;
+
+// GLOBAL: MW2PREMERCS 0x100b3a08
+MechS32 g_groundClipNear = 10000;
+
+// GLOBAL: MW2PREMERCS 0x100b3a0c
+MechS32 g_groundClipMiddle = 30000;
+
+// GLOBAL: MW2PREMERCS 0x100b3a10
+MechS32 g_groundClipFar = 50000;
+
+// GLOBAL: MW2PREMERCS 0x100b3a14
+MechS32 g_skyScroll = 0;
+
+// GLOBAL: MW2PREMERCS 0x100b3a18
+MechS32 g_skyScrollEnd = 320000;
+
+// GLOBAL: MW2PREMERCS 0x100b3a1c
+MechS32 g_skyScrollSpeed = 0;
+
+// GLOBAL: MW2PREMERCS 0x100b3a20
+undefined4 g_unk0x100b3a20 = 1;
+
+// GLOBAL: MW2PREMERCS 0x100b3a24
+undefined4 g_unk0x100b3a24 = 0;
+
+#endif
 // GLOBAL: MW2 0x100a6be0
 // GLOBAL: MW2GBL 0x1009ed48
 // GLOBAL: MW2PREMERCS 0x100b3a28
@@ -169,6 +231,15 @@ RenderSettings g_renderSettings = {
 // GLOBAL: MW2S3 0x10061fe0
 // GLOBAL: MW2POWERVR 0x101ad670
 MechS32 g_horizonBandHeight = 0x24;
+
+#ifdef MW2_TILED_SKY
+// The luma table DrawTiledPolygon draws through, and its step.
+// GLOBAL: MW2PREMERCS 0x100b3b7c
+MechS32 g_tileLuma = 15;
+
+// GLOBAL: MW2PREMERCS 0x100b3b80
+MechS32 g_tileLumaStep = 1;
+#endif
 
 #ifdef MW2_A3D
 // GLOBAL: MW2MATROX 0x100adeec
@@ -737,6 +808,7 @@ MechS32 g_lineEndY;
 // and 0xf are its own (lit textures and animation colors), and it draws through its renderer.
 // FUNCTION: MW2 0x10042e00
 // FUNCTION: MW2GBL 0x100178c0
+// FUNCTION: MW2PREMERCS 0x10058780
 // FUNCTION: MW2MATROX 0x100683ba
 // FUNCTION: MW23DFX 0x10026e80
 // FUNCTION: MW2ATI 0x10026b30
@@ -1801,6 +1873,362 @@ void FUN_100692db(Eyepoint* p_eyepoint)
 #endif
 }
 #endif
+#endif
+
+#ifdef MW2_TILED_SKY
+// The early Mercenaries build's software renderer textures the sky and the ground: skygnd.par
+// gives each mission the sky's texture size (scrolled by g_skyScrollSpeed), the ground's, how far
+// the two quads reach and three clip distances for the ground, which DrawSkyAndGround draws in
+// bands (DrawGroundQuad).
+
+// Reads a line of at most p_size - 1 characters, with its newline, from p_file into p_buffer.
+// Returns its length plus one, or 0 at the end of the file.
+// FUNCTION: MW2PREMERCS 0x10058bae
+MechU32 ReadTextLine(FILE* p_file, MechChar* p_buffer, MechS32 p_size)
+{
+	MechU32 i;
+	size_t read;
+
+	for (i = 0; i < p_size - 1U; i++) {
+		read = fread(&p_buffer[i], 1, 1, p_file);
+		if (!read || p_buffer[i] == '\n') {
+			break;
+		}
+	}
+
+	if (i || read) {
+		i++;
+		p_buffer[i] = '\0';
+	}
+
+	return i;
+}
+
+// Reads the sky's and ground's settings for mission p_mission from skygnd.par, or sets the
+// defaults without the file.
+// FUNCTION: MW2PREMERCS 0x10058c42
+void LoadSkyGroundSettings(const MechChar* p_mission)
+{
+	FILE* file;
+	MechChar mission[4];
+	MechFloat rate;
+	MechChar name[16];
+	MechChar line[0x200];
+
+	strcpy(name, p_mission);
+	file = fopen("skygnd.par", "r");
+	if (file) {
+		for (;;) {
+			if (!ReadTextLine(file, line, 0x100)) {
+				return;
+			}
+
+			sscanf(
+				line,
+				"mission=%4s tile_sky=%d tile_ground=%d anim_rate=%f ground_max=%d sky_max=%d gclip=%d,%d,%d",
+				mission,
+				&g_skyTile,
+				&g_groundTile,
+				&rate,
+				&g_groundExtent,
+				&g_skyExtent,
+				&g_groundClipNear,
+				&g_groundClipMiddle,
+				&g_groundClipFar
+			);
+			if (!strncmp(name, mission, 4)) {
+				g_skyScroll = 0;
+				g_skyScrollEnd = g_skyTile;
+				g_skyScrollSpeed = 0;
+				return;
+			}
+		}
+	}
+
+	g_skyTile = 320000;
+	g_skyScroll = 0;
+	g_skyScrollEnd = 320000;
+	g_skyScrollSpeed = 0;
+	g_skyExtent = 160000;
+	g_groundTile = 5000;
+	g_groundExtent = 160000;
+	g_groundClipNear = 0;
+}
+
+// Draws the projected polygon p_points (p_count points) with texture p_texture + 0x100, through
+// the luma table g_tileLuma (stepped back and forth through the 16 tables with p_animate), clipped
+// to the screen when a point is far off it. Returns 0 when nothing is left to draw.
+// FUNCTION: MW2PREMERCS 0x10058d90
+MechS32 DrawTiledPolygon(MechS32 p_texture, ProjectedVertex** p_points, MechS32 p_count, MechS32 p_animate)
+{
+	MechS16 height;
+	MechS32 x;
+	ProjectedVertex** from;
+	MechS32* point;
+	MechS32 n;
+	MechS32 points[120];
+	MechU8* pixels;
+	ProjectedVertex* vertex;
+	MechS16 width;
+	MechU16* luma;
+
+	pixels = NULL;
+	luma = NULL;
+	p_texture += 0x100;
+	pixels = (MechU8*) FUN_10051dfe(p_texture, &width, &height);
+	if (!pixels) {
+		return 0;
+	}
+
+	if (p_animate && ((g_tileLuma += g_tileLumaStep) < 0 || g_tileLuma > 15)) {
+		g_tileLumaStep = -g_tileLumaStep;
+		g_tileLuma += g_tileLumaStep;
+	}
+
+	if (!g_lumaTables) {
+		g_lumaTables = LoadCachedResource(g_mw2PrjHandle, g_lumaResourceId, g_resTagLuma, 0);
+	}
+
+	luma = g_lumaTables + g_tileLuma * 0x80;
+	n = p_count;
+	point = points;
+	from = p_points;
+	while (n--) {
+		vertex = *from++;
+		x = vertex->m_screenX;
+		if (x < -0x3fff || x > 0x3ffe || vertex->m_screenY < -0x3fff || vertex->m_screenY > 0x3ffe) {
+			p_count = ClipPolygonToScreenEdges(p_points, p_count, points);
+			if (p_count < 3) {
+				return 0;
+			}
+
+			break;
+		}
+
+		point[0] = x;
+		point[1] = vertex->m_screenY;
+		point[3] = vertex->m_u;
+		point[4] = vertex->m_v;
+		point[5] = vertex->m_z;
+		point += 6;
+	}
+
+	point = points;
+	for (n = 0; n < p_count; n++) {
+		point[5] = FixedDivU16(g_eyepoint->m_projectScaleX, point[5]);
+		point[3] = FixedMul30(point[3], point[5]);
+		point[4] = FixedMul30(point[4], point[5]);
+		point[2] = 0;
+		point += 6;
+	}
+
+	DrawTexturedPolygon(&g_currentPane, pixels, width, height, p_count, (MechU32*) points, 0, luma);
+	return 1;
+}
+
+// Projects the polygon p_vertices (p_count vertices) into g_polygonPoints, clipped to depths
+// p_near and p_far (none without p_far). Returns the number of points.
+// FUNCTION: MW2PREMERCS 0x1005907d
+MechS32 ClipPolygonDepth(Vertex* p_vertices, MechU32 p_count, MechS32 p_near, MechS32 p_far)
+{
+	MechS32 savedFar;
+	MechS32 savedNear;
+	Vertex* vertex;
+	MechU32 i;
+	MechS32 dx;
+	MechS32 dy;
+	MechS32 dz;
+	Vertex* previous;
+	ProjectedVertex* point;
+
+	i = 0;
+	g_polygonPointCount = 0;
+	vertex = p_vertices;
+	savedNear = g_viewNear;
+	savedFar = g_viewFar;
+	g_viewNear = p_near << 2;
+	g_viewFar = p_far << 2;
+	for (i = 0; i < p_count; i++) {
+		dx = vertex->m_worldX - g_viewEyeX;
+		dy = vertex->m_worldY - g_viewEyeY;
+		dz = vertex->m_worldZ - g_viewEyeZ;
+		vertex->m_depth = FixedDot27(dx, g_viewProjZ0, dy, g_viewProjZ1, dz, g_viewProjZ2);
+		if ((MechS32) vertex->m_depth <= g_viewNear) {
+			vertex->m_flags = 1;
+		}
+		else if (p_far > 0 && (MechS32) vertex->m_depth >= g_viewFar) {
+			vertex->m_flags = 2;
+		}
+		else {
+			vertex->m_flags = 0;
+		}
+
+		vertex++;
+	}
+
+	vertex = p_vertices;
+	previous = &p_vertices[p_count - 1];
+	for (i = 0; i < p_count; i++) {
+		if (vertex->m_flags != previous->m_flags) {
+			if (vertex->m_flags == 0) {
+				if (previous->m_flags == 1) {
+					point = ClipEdgeToNearPlane(previous, vertex);
+				}
+				else {
+					point = ClipEdgeToFarPlane(previous, vertex);
+				}
+
+				ProjectVertex(point);
+			}
+			else if (previous->m_flags == 0) {
+				if (vertex->m_flags == 1) {
+					point = ClipEdgeToNearPlane(previous, vertex);
+				}
+				else {
+					point = ClipEdgeToFarPlane(previous, vertex);
+				}
+
+				ProjectVertex(point);
+			}
+			else if ((MechS32) vertex->m_depth < (MechS32) previous->m_depth) {
+				point = ClipEdgeToFarPlane(previous, vertex);
+				ProjectVertex(point);
+				point = ClipEdgeToNearPlane(previous, vertex);
+				ProjectVertex(point);
+			}
+			else {
+				point = ClipEdgeToNearPlane(previous, vertex);
+				ProjectVertex(point);
+				point = ClipEdgeToFarPlane(previous, vertex);
+				ProjectVertex(point);
+			}
+		}
+
+		if (vertex->m_flags == 0) {
+			point = GetViewVertex(vertex);
+			ProjectVertex(point);
+		}
+
+		previous = vertex;
+		vertex++;
+	}
+
+	g_viewNear = savedNear;
+	g_viewFar = savedFar;
+	return g_polygonPointCount;
+}
+
+// Draws p_face, its vertices after it, in color 1, clipped to the view's near and far planes.
+// FUNCTION: MW2PREMERCS 0x1005937a
+void DrawFaceFlat(Face* p_face)
+{
+	Vertex* from;
+	MechU32 points[120];
+	Vertex* to;
+	MechU32 i;
+	Vertex vertices[20];
+	MechU32 count;
+	ProjectedVertex** point;
+	MechU32* out;
+
+	g_polygonPointCount = 0;
+	count = p_face->m_indexCount;
+	from = (Vertex*) (p_face + 1);
+	to = vertices;
+	for (i = 0; i < count; i++, to++, from++) {
+		to->m_worldX = from->m_worldX;
+		to->m_worldY = 0;
+		to->m_worldZ = from->m_worldZ;
+		to->m_projection = NULL;
+	}
+
+	count = ClipPolygonDepth(vertices, count, g_viewNearPlane, g_viewFarPlane);
+	if (count) {
+		point = g_polygonPoints;
+		out = points;
+		for (i = 0; i < count; i++) {
+			out[0] = (*point++)->m_screenX;
+			out[1] = point[-1]->m_screenY;
+			out[5] = 1;
+			out[3] = 1;
+			out[4] = 1;
+			out[2] = 0;
+			out += 6;
+		}
+
+		VFX_flat_polygon(&g_currentPane, count, points);
+	}
+}
+
+// FUNCTION: MW2PREMERCS 0x10059503
+void FUN_10059503(void)
+{
+}
+
+// Draws the ground's quad between depths p_near and p_far, with texture p_texture.
+// FUNCTION: MW2PREMERCS 0x1005951e
+void DrawGroundQuad(MechS32 p_near, MechS32 p_far, MechS32 p_texture)
+{
+	MechS32 affine;
+	Vertex vertices[20];
+	MechS32 count;
+
+	ResetDrawBuffer();
+	vertices[0].m_worldX = vertices[3].m_worldX = -g_groundExtent;
+	vertices[1].m_worldX = vertices[2].m_worldX = g_groundExtent;
+	vertices[0].m_worldZ = vertices[1].m_worldZ = -g_groundExtent;
+	vertices[3].m_worldZ = vertices[2].m_worldZ = g_groundExtent;
+	vertices[0].m_worldY = vertices[1].m_worldY = vertices[2].m_worldY = vertices[3].m_worldY = 0;
+	vertices[0].m_u = vertices[3].m_u = 0;
+	vertices[1].m_u = vertices[2].m_u = g_groundTile;
+	vertices[0].m_v = vertices[1].m_v = 0;
+	vertices[3].m_v = vertices[2].m_v = g_groundTile;
+	vertices[0].m_projection = vertices[1].m_projection = vertices[2].m_projection = vertices[3].m_projection = NULL;
+	affine = g_renderSettings.m_affineTextures;
+	g_renderSettings.m_affineTextures = 0;
+	count = ClipPolygonDepth(vertices, 4, p_near, p_far);
+	if (count) {
+		DrawTiledPolygon(p_texture, g_polygonPoints, count, 0);
+	}
+
+	g_renderSettings.m_affineTextures = affine;
+}
+
+// Draws the sky as one quad, its texture scrolled by g_skyScrollSpeed.
+// FUNCTION: MW2PREMERCS 0x100596a7
+void DrawSkyQuad(void)
+{
+	MechS32 affine;
+	Vertex vertices[4];
+	MechS32 count;
+
+	ResetDrawBuffer();
+	vertices[0].m_worldX = vertices[3].m_worldX = -g_skyExtent;
+	vertices[1].m_worldX = vertices[2].m_worldX = g_skyExtent;
+	vertices[0].m_worldZ = vertices[1].m_worldZ = -g_skyExtent;
+	vertices[3].m_worldZ = vertices[2].m_worldZ = g_skyExtent;
+	vertices[0].m_worldY = vertices[1].m_worldY = vertices[2].m_worldY = vertices[3].m_worldY = 200000;
+	g_skyScroll += g_skyScrollSpeed;
+	g_skyScrollEnd += g_skyScrollSpeed;
+	if (g_skyScroll >= 0x80) {
+		g_skyScroll = 0;
+		g_skyScrollEnd = g_skyTile;
+	}
+
+	vertices[0].m_u = vertices[3].m_u = g_skyScroll;
+	vertices[1].m_u = vertices[2].m_u = g_skyScrollEnd;
+	vertices[0].m_v = vertices[1].m_v = g_skyScroll;
+	vertices[3].m_v = vertices[2].m_v = g_skyScrollEnd;
+	vertices[0].m_projection = vertices[1].m_projection = vertices[2].m_projection = vertices[3].m_projection = NULL;
+	affine = g_renderSettings.m_affineTextures;
+	g_renderSettings.m_affineTextures = 0;
+	count = ClipPolygonDepth(vertices, 4, g_viewNearPlane, g_viewFarPlane);
+	if (count) {
+		DrawTiledPolygon(8, g_polygonPoints, count, 0);
+	}
+
+	g_renderSettings.m_affineTextures = affine;
+}
 #endif
 
 #ifdef MW2_S3
@@ -2875,6 +3303,7 @@ void DrawSkyAndGround(Eyepoint* p_eyepoint)
 // which the corner bits written as shifts keep.
 // FUNCTION: MW2 0x1004320b
 // FUNCTION: MW2GBL 0x10017ccb
+// FUNCTION: MW2PREMERCS 0x1005980e
 void DrawSkyAndGround(Eyepoint* p_eyepoint)
 {
 	MechS32 dy;

@@ -130,6 +130,7 @@ void ReleaseWeaponTriggers(Mech* p_mech)
 // volley loses as many as it fires), and the launch sound plays at the first shot or every shot as
 // the weapon's flags say.
 // FUNCTION: MW2GBL 0x10047251
+// FUNCTION: MW2PREMERCS 0x1007ed13
 void UpdateWeaponFireState(Mech* p_mech)
 {
 	MechScalar dy;
@@ -1357,6 +1358,7 @@ void CycleLocalWeaponGroup(void)
 // Fires the weapons g_remoteWeaponsFired lists from p_mech.
 // FUNCTION: MW2 0x10045bc8
 // FUNCTION: MW2GBL 0x10048817
+// FUNCTION: MW2PREMERCS 0x10080392
 // FUNCTION: MW2MATROX 0x1002c96e
 // FUNCTION: MW23DFX 0x100443a0
 // FUNCTION: MW2ATI 0x10041bf0
@@ -1714,6 +1716,7 @@ void BuildAimRay(Player* p_player, Ray* p_ray)
 // The direction the player aims in.
 // FUNCTION: MW2 0x10046466
 // FUNCTION: MW2GBL 0x1004914c
+// FUNCTION: MW2PREMERCS 0x10080cde
 // FUNCTION: MW2MATROX 0x1002d2d7
 // FUNCTION: MW23DFX 0x100449d0
 // FUNCTION: MW2ATI 0x10042220
@@ -1742,7 +1745,16 @@ void GetEyeAimDirection(Player* p_player, MechScalar* p_x, MechScalar* p_y, Mech
 #endif
 	GetObjWorldAngles(p_player->m_eyeObj, &x, &y, &z);
 	mech = p_player->m_mech;
+#ifdef MW2_EYE_AIM_ADDS_PITCH
+	if (mech->m_unk0x112 & 4) {
+		x += mech->m_torsoPitch.m_value;
+	}
+	else {
+		x = mech->m_torsoPitch.m_value;
+	}
+#else
 	x = mech->m_torsoPitch.m_value;
+#endif
 	BuildMatrix(&matrix, x, y, z, 0, 0, 0);
 	RotatePoint(&matrix, p_x, p_y, p_z);
 }

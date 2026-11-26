@@ -36,6 +36,8 @@
 extern MechS32 g_a3dInitialized;
 
 DECOMP_SIZE_ASSERT(ClassEntry, 0x58)
+#elif defined(MW2_CLASS_ENTRY_UNK_MEMBER)
+DECOMP_SIZE_ASSERT(ClassEntry, 0x48)
 #else
 DECOMP_SIZE_ASSERT(ClassEntry, 0x44)
 #endif
@@ -70,6 +72,7 @@ MechFloat g_lodLevel4 = 40000.0f;
 
 // GLOBAL: MW2 0x100a37d4
 // GLOBAL: MW2GBL 0x100ad870
+// GLOBAL: MW2PREMERCS 0x100b39e8
 // GLOBAL: MW2MATROX 0x100ae0e4
 // GLOBAL: MW23DFX 0x1024dbd8
 // GLOBAL: MW2ATI 0x10181ee8
@@ -79,6 +82,7 @@ MechS32 g_classEntryCount = 0;
 
 // GLOBAL: MW2 0x100a37d8
 // GLOBAL: MW2GBL 0x100ad874
+// GLOBAL: MW2PREMERCS 0x100b39ec
 // GLOBAL: MW2MATROX 0x100ae0e8
 // GLOBAL: MW23DFX 0x1024dbdc
 // GLOBAL: MW2ATI 0x10181eec
@@ -88,6 +92,7 @@ MechS32 g_classTableReady = 0;
 
 // GLOBAL: MW2 0x1012b7e0
 // GLOBAL: MW2GBL 0x100e9aa0
+// GLOBAL: MW2PREMERCS 0x1017bad0
 // GLOBAL: MW2MATROX 0x10150690
 // GLOBAL: MW23DFX 0x101b16b0
 // GLOBAL: MW2ATI 0x100e5410
@@ -98,6 +103,7 @@ ClassEntry g_classTable[0x30c];
 // Loads the shapes of p_player's entries for its base level (m_baseLevel) into one pool block.
 // FUNCTION: MW2 0x1001ce90
 // FUNCTION: MW2GBL 0x10036220
+// FUNCTION: MW2PREMERCS 0x100572c0
 // FUNCTION: MW2MATROX 0x1006d550
 // FUNCTION: MW23DFX 0x100260e0
 // FUNCTION: MW2ATI 0x10025e50
@@ -247,6 +253,7 @@ void ResetClassTable(void)
 // Gives the entries added since the last call (owner -2) to p_player.
 // FUNCTION: MW2 0x1001d220
 // FUNCTION: MW2GBL 0x100365b0
+// FUNCTION: MW2PREMERCS 0x10057648
 // FUNCTION: MW2MATROX 0x1006d8e0
 // FUNCTION: MW23DFX 0x100262f0
 // FUNCTION: MW2ATI 0x10026060
@@ -272,6 +279,7 @@ void ClaimNewClassEntries(Player* p_player)
 // shape already loaded. Returns 0 when a shape doesn't load.
 // FUNCTION: MW2 0x1001d292
 // FUNCTION: MW2GBL 0x10036622
+// FUNCTION: MW2PREMERCS 0x100576b7
 // FUNCTION: MW2MATROX 0x1006d952
 // FUNCTION: MW23DFX 0x10026330
 // FUNCTION: MW2ATI 0x100260a0
@@ -319,6 +327,7 @@ MechS32 LoadClassLevel(MechS32 p_owner, MechS32 p_level)
 // Releases the level-p_level shapes of p_owner's entries.
 // FUNCTION: MW2 0x1001d3a4
 // FUNCTION: MW2GBL 0x10036734
+// FUNCTION: MW2PREMERCS 0x100577c6
 // FUNCTION: MW2MATROX 0x1006da7e
 // FUNCTION: MW23DFX 0x100263f0
 void ReleaseClassLevel(MechS32 p_owner, MechS32 p_level)
@@ -542,6 +551,7 @@ void ReleasePendingDetailLevel(void)
 // Releases entry p_index's shape if it is the one loaded for level p_level.
 // FUNCTION: MW2 0x1001d912
 // FUNCTION: MW2GBL 0x10036ca2
+// FUNCTION: MW2PREMERCS 0x10057d29
 // FUNCTION: MW2MATROX 0x1006e00e
 // FUNCTION: MW23DFX 0x10026730
 // FUNCTION: MW2ATI 0x10026410
@@ -566,6 +576,7 @@ void ReleaseClassEntryShape(MechS32 p_index, MechS32 p_level)
 
 // FUNCTION: MW2 0x1001d980
 // FUNCTION: MW2GBL 0x10036d10
+// FUNCTION: MW2PREMERCS 0x10057d94
 // FUNCTION: MW2MATROX 0x1006e07c
 // FUNCTION: MW23DFX 0x10026770
 // FUNCTION: MW2ATI 0x10026450
@@ -585,6 +596,7 @@ struct SceneObject* GetClassObject(MechS32 p_index)
 
 // FUNCTION: MW2 0x1001d9ca
 // FUNCTION: MW2GBL 0x10036d5a
+// FUNCTION: MW2PREMERCS 0x10057dda
 // FUNCTION: MW2MATROX 0x1006e0c6
 // FUNCTION: MW23DFX 0x10026790
 Shape* GetClassShape(MechS32 p_index)
@@ -601,6 +613,7 @@ Shape* GetClassShape(MechS32 p_index)
 
 // FUNCTION: MW2 0x1001da14
 // FUNCTION: MW2GBL 0x10036da4
+// FUNCTION: MW2PREMERCS 0x10057e20
 // FUNCTION: MW2MATROX 0x1006e10f
 // FUNCTION: MW23DFX 0x100267b0
 // FUNCTION: MW2ATI 0x10026470
@@ -700,6 +713,7 @@ void ChoosePlayerDetailLevels(void)
 // The local player's own view (GetViewMode == 0) takes level 4, and dead players 0 or 1.
 // FUNCTION: MW2 0x1001da44
 // FUNCTION: MW2GBL 0x10036dd4
+// FUNCTION: MW2PREMERCS 0x10057e4d
 // FUNCTION: MW2MATROX 0x1006e13f
 // FUNCTION: MW23DFX 0x100267d0
 // FUNCTION: MW2ATI 0x10026490
@@ -956,6 +970,7 @@ void ChoosePlayerDetailLevels(void)
 // Releases the shape of the entry whose object is p_obj.
 // FUNCTION: MW2 0x1001ddf2
 // FUNCTION: MW2GBL 0x10037182
+// FUNCTION: MW2PREMERCS 0x100581fd
 // FUNCTION: MW2MATROX 0x1006e63c
 // FUNCTION: MW23DFX 0x100269a0
 // FUNCTION: MW2ATI 0x10026660
@@ -1003,6 +1018,7 @@ void ReleaseObjShape(struct SceneObject* p_obj)
 // Forgets the shape of the entry whose object is p_obj without releasing it.
 // FUNCTION: MW2 0x1001de84
 // FUNCTION: MW2GBL 0x10037214
+// FUNCTION: MW2PREMERCS 0x1005828c
 // FUNCTION: MW2MATROX 0x1006e6ce
 // FUNCTION: MW23DFX 0x100269f0
 // FUNCTION: MW2ATI 0x100266b0

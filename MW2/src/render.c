@@ -33,6 +33,11 @@
 #include "vfxrend.h"
 #include "view.h"
 
+#ifdef MW2_BLIT_DRAWS_OVERLAYS
+#include "overlay.h"
+#include "timedoverlays.h"
+#endif
+
 #include <string.h>
 #include <windows.h>
 
@@ -352,6 +357,7 @@ MechS32 InitGameWindowGeometry(void)
 
 // FUNCTION: MW2 0x10012802
 // FUNCTION: MW2GBL 0x100229b2
+// FUNCTION: MW2PREMERCS 0x10020cf2
 // FUNCTION: MW2MATROX 0x10017452
 // FUNCTION: MW23DFX 0x10004910
 // FUNCTION: MW2ATI 0x100045a0
@@ -375,6 +381,10 @@ MechS32 InitDisplayGeometry(void)
 		InitPanes(&g_currentPane);
 		ResetTextColors();
 		g_displayReady = 1;
+		// The early Mercenaries build returns here as well.
+#ifdef MW2_PREMERCS
+		return result;
+#endif
 	}
 
 	return result;
@@ -456,6 +466,7 @@ void FirstRender(void)
 // 0x70 and type 4.
 // FUNCTION: MW2 0x100129b7
 // FUNCTION: MW2GBL 0x10022b67
+// FUNCTION: MW2PREMERCS 0x10020eaf
 // FUNCTION: MW2MATROX 0x10017607
 // FUNCTION: MW23DFX 0x10004a90
 // FUNCTION: MW2ATI 0x10004720
@@ -534,6 +545,7 @@ void DrawScene(void)
 // float, and doesn't draw the bounding spheres.
 // FUNCTION: MW2 0x10012afe
 // FUNCTION: MW2GBL 0x10022cae
+// FUNCTION: MW2PREMERCS 0x10021033
 // FUNCTION: MW2MATROX 0x1001774e
 // FUNCTION: MW23DFX 0x10004b30
 // FUNCTION: MW2ATI 0x100047c0
@@ -645,12 +657,19 @@ void ResetPane(void)
 // pending, restoring the pane afterwards.
 // FUNCTION: MW2 0x10012e15
 // FUNCTION: MW2GBL 0x10022fb2
+// FUNCTION: MW2PREMERCS 0x1002137b
 // FUNCTION: MW2MATROX 0x10017a5f
 // FUNCTION: MW23DFX 0x10004db0
 // FUNCTION: MW2ATI 0x10004a20
 // FUNCTION: MW2S3 0x10014780
 void Blit(void)
 {
+#ifdef MW2_BLIT_DRAWS_OVERLAYS
+	DrawTimedOverlays();
+	DrawDebugOverlays();
+	UpdatePaletteFade();
+	ApplyPendingPalette();
+#endif
 	if (g_stretchPending) {
 		g_currentRefreshMode
 			->m_stretchBlit(g_currentPane.m_x0 + 1, g_currentPane.m_y0 + 1, g_currentPane.m_x1, g_currentPane.m_y1);
@@ -720,6 +739,7 @@ void FUN_10012f29(undefined4 p_unk0x00, undefined4 p_value)
 // (g_unk0x1012c1e4).
 // FUNCTION: MW2 0x10012f3c
 // FUNCTION: MW2GBL 0x100230d9
+// FUNCTION: MW2PREMERCS 0x100214b6
 // FUNCTION: MW2MATROX 0x10017b8f
 // FUNCTION: MW23DFX 0x10004ec0
 void ShowBanner(void)
@@ -768,7 +788,11 @@ void ShowBanner(void)
 				}
 
 				VFX_GIF_palette(gif, (MechU8*) palette);
+#ifdef MW2_BANNER_BLEND_STEPS
+				g_currentDisplayBackend->m_blendPalettes(palette, MW2_BANNER_BLEND_STEPS);
+#else
 				g_currentDisplayBackend->m_blendPalettes(palette, 30);
+#endif
 				HeapFree(g_primaryHeap, HEAP_NO_SERIALIZE, palette);
 			}
 

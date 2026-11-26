@@ -32,6 +32,11 @@ extern "C"
 	void StopSpeech(void);
 	void ResumeSpeech(void);
 	void SayLancemateReport(MechS32 p_message, MechS32 p_slot);
+#ifdef MW2_LANCEMATE_VOICES
+	void SayLancemateName(MechS32 p_slot);
+	void SayLancemateAck(MechS32 p_slot, undefined4 p_unused, MechS32 p_name);
+	void SayLancemateKill(MechS32 p_slot, undefined4 p_unused);
+#endif
 	void SayFormation(MechS32 p_formation);
 	void PlayCockpitSound(MechS32 p_message, MechS32 p_engage);
 	void SayCriticalHit(MechS32 p_part);

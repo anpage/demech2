@@ -236,6 +236,7 @@ MechChar g_hatLeftShortName[] = "HatLeft";
 
 // GLOBAL: MW2 0x100a6f58
 // GLOBAL: MW2GBL 0x1009b900
+// GLOBAL: MW2PREMERCS 0x100be8d0
 // GLOBAL: MW2MATROX 0x100a5758
 // GLOBAL: MW23DFX 0x10259220
 // GLOBAL: MW2ATI 0x1018d530
@@ -838,6 +839,7 @@ MechS32 JoystickPoll(JoystickData* p_data, MechS32* p_axes, MechU32* p_buttons)
 // The 3Dfx edition's is 1.1's, without clearing the JOYINFOEX or setting its size.
 // FUNCTION: MW2 0x1004aa6b
 // FUNCTION: MW2GBL 0x10007473
+// FUNCTION: MW2PREMERCS 0x100721b1
 // FUNCTION: MW23DFX 0x1003ae80
 // FUNCTION: MW2ATI 0x10039a40
 // FUNCTION: MW2S3 0x10005b00

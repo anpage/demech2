@@ -981,6 +981,7 @@ MechS32 g_fledToWindows = 0;
 // The frame draw callback ShowDorcs replaces.
 // GLOBAL: MW2 0x100b1354
 // GLOBAL: MW2GBL 0x100a3a04
+// GLOBAL: MW2PREMERCS 0x100c2f54
 void (*g_dorcsPreviousDrawCallback)(void) = DrawScene;
 
 // GLOBAL: MW2 0x100c2d00

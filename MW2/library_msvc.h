@@ -2408,6 +2408,7 @@
 // __rtnospop
 
 // LIBRARY: MW2 0x1008ffec SYMBOL
+// LIBRARY: MW2PREMERCS 0x1009bbcc SYMBOL
 // __rttosnpop
 
 // LIBRARY: MW2 0x1008ffed SYMBOL

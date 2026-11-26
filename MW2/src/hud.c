@@ -30,6 +30,13 @@
 #include "weapondata.h"
 #include "weapons.h"
 
+#ifdef MW2_LOCK_BOXES
+#include "clock.h"
+#include "fixeddiv.h"
+#include "fixedmul29.h"
+#include "fixedtrig.h"
+#endif
+
 #ifdef MW2_VFX16
 #include "accel/vfx16.h"
 #endif
@@ -58,6 +65,7 @@
 // The size of the altimeter's mark shape (InitHudGauges), which spaces its columns.
 // GLOBAL: MW2 0x100a5ed0
 // GLOBAL: MW2GBL 0x100b6930
+// GLOBAL: MW2PREMERCS 0x100b2f18
 // GLOBAL: MW2MATROX 0x100a4de8
 // GLOBAL: MW23DFX 0x1024d0d8
 // GLOBAL: MW2ATI 0x10181458
@@ -67,6 +75,7 @@ MechS32 g_altimeterMarkWidth = 0xf0f;
 
 // GLOBAL: MW2 0x100a5ed4
 // GLOBAL: MW2GBL 0x100b6934
+// GLOBAL: MW2PREMERCS 0x100b2f1c
 // GLOBAL: MW2MATROX 0x100a4dec
 // GLOBAL: MW23DFX 0x1024d0dc
 // GLOBAL: MW2ATI 0x1018145c
@@ -76,6 +85,7 @@ MechS32 g_altimeterMarkHeight = 0xd79;
 // The altimeter's place, in 16.16 fractions of its gauge until InitHudGauges scales it.
 // GLOBAL: MW2 0x100a5ed8
 // GLOBAL: MW2GBL 0x100b6938
+// GLOBAL: MW2PREMERCS 0x100b2f20
 // GLOBAL: MW2MATROX 0x100a4df0
 // GLOBAL: MW23DFX 0x1024d0e0
 // GLOBAL: MW2ATI 0x10181460
@@ -92,6 +102,34 @@ Point g_altimeterOrigin = {0xb333, 0x8000};
 // GLOBAL: MW2S3 0x10060568
 // GLOBAL: MW2POWERVR 0x101ac498
 Point g_compassOrigin = {0x8000, 0x6666};
+
+#ifdef MW2_LOCK_BOXES
+// A square closing in on a target the local player has just picked, turning as it shrinks (UpdateLockBox).
+typedef struct LockBox {
+	MechS32 m_x;          // 0x00 — its center, in pixels
+	MechS32 m_y;          // 0x04
+	MechS32 m_halfWidth;  // 0x08
+	MechS32 m_halfHeight; // 0x0c — it is drawn while positive
+	MechS32 m_shrinkRate; // 0x10 — 16.16 pixels a clock tick (InitHudGauges)
+	MechS32 m_angle;      // 0x14 — in degrees
+	undefined4 m_unk0x18; // 0x18
+	MechS32 m_color;      // 0x1c — the target's side's
+	undefined4 m_unk0x20; // 0x20
+	MechS32 m_target;     // 0x24 — the target it closes in on
+} LockBox;
+
+DECOMP_SIZE_ASSERT(LockBox, 0x28)
+
+// The box and the two places it was drawn at before, which trail it.
+// GLOBAL: MW2PREMERCS 0x100b2f30
+LockBox g_lockBox = {0, 0, 0, 0, 0, 0, 0, 0, 0xffffffff, 0};
+
+// GLOBAL: MW2PREMERCS 0x100b2f58
+LockBox g_lockBoxTrail = {0, 0, 0, 0, 0, 0, 0, 0, 0xffffffff, 0};
+
+// GLOBAL: MW2PREMERCS 0x100b2f80
+LockBox g_lockBoxTrail2 = {0, 0, 0, 0, 0, 0, 0, 0, 0xffffffff, 0};
+#endif
 
 // GLOBAL: MW2 0x100a5ee8
 // GLOBAL: MW2GBL 0x100b6948
@@ -137,6 +175,7 @@ MechS32 g_showTargetMarker = 1;
 
 // GLOBAL: MW2 0x100a5f24
 // GLOBAL: MW2GBL 0x100b6984
+// GLOBAL: MW2PREMERCS 0x100b2fe4
 // GLOBAL: MW2MATROX 0x100a4e3c
 // GLOBAL: MW23DFX 0x1024d12c
 // GLOBAL: MW2ATI 0x101814ac
@@ -199,6 +238,7 @@ static MechS32 g_compassSideArrowHeight;
 
 // GLOBAL: MW2 0x100be5b0
 // GLOBAL: MW2GBL 0x100bb748
+// GLOBAL: MW2PREMERCS 0x100cb0b8
 // GLOBAL: MW2MATROX 0x100c1e48
 // GLOBAL: MW23DFX 0x1007c3d0
 // GLOBAL: MW2ATI 0x100713d0
@@ -208,6 +248,7 @@ static MechS32 g_altimeterGroundX;
 
 // GLOBAL: MW2 0x100be5b4
 // GLOBAL: MW2GBL 0x100bb74c
+// GLOBAL: MW2PREMERCS 0x100cb0bc
 // GLOBAL: MW2MATROX 0x100c1e64
 // GLOBAL: MW23DFX 0x1007c3ec
 // GLOBAL: MW2ATI 0x100713ec
@@ -218,6 +259,7 @@ static MechS32 g_altimeterTargetX;
 // The altimeter's scale: pixels per 16.16 unit of height.
 // GLOBAL: MW2 0x100be5b8
 // GLOBAL: MW2GBL 0x100bb750
+// GLOBAL: MW2PREMERCS 0x100cb0c0
 // GLOBAL: MW2MATROX 0x100c1e6c
 // GLOBAL: MW23DFX 0x1007c3f4
 // GLOBAL: MW2ATI 0x100713f4
@@ -248,6 +290,7 @@ static MechS32 g_compassTapeAbove;
 
 // GLOBAL: MW2 0x100be5c4
 // GLOBAL: MW2GBL 0x100bb75c
+// GLOBAL: MW2PREMERCS 0x100cb0cc
 // GLOBAL: MW2MATROX 0x100c1e40
 // GLOBAL: MW23DFX 0x1007c3c8
 // GLOBAL: MW2ATI 0x100713c8
@@ -326,6 +369,7 @@ static MechS32 g_objectBracketBottomRight;
 // crosshair, the target marker and the altimeter, at the gauge positions.
 // FUNCTION: MW2 0x10040b30
 // FUNCTION: MW2GBL 0x1007eb80
+// FUNCTION: MW2PREMERCS 0x10050fc0
 void DrawHudAt(
 	Mech* p_mech,
 	MechScalar p_heading,
@@ -359,16 +403,19 @@ void DrawHudAt(
 	if (g_showTargetMarker) {
 		DrawTargetMarker(p_mech);
 	}
+#ifndef MW2_NO_HUD_ALTIMETER
 
 	if (g_showAltimeter) {
 		DrawAltimeter(p_mech, g_hudGaugePositions[1].m_x, g_hudGaugePositions[1].m_y);
 	}
+#endif
 }
 
 // DrawHudAt with the overlays at their default places, and the crosshair only with
 // p_drawCrosshair (the view is the cockpit's).
 // FUNCTION: MW2 0x10040bfd
 // FUNCTION: MW2GBL 0x1007ec4d
+// FUNCTION: MW2PREMERCS 0x10051068
 // FUNCTION: MW2MATROX 0x1001ca30
 // FUNCTION: MW23DFX 0x10022230
 // FUNCTION: MW2ATI 0x10022500
@@ -407,11 +454,14 @@ void DrawHud(
 	}
 #endif
 
+#ifndef MW2_NO_HUD_ALTIMETER
 	if (g_showAltimeter) {
 		DrawAltimeter(p_mech, 8, 0x4a);
 	}
+#endif
 }
 
+#ifndef MW2_NO_HUD_ALTIMETER
 // Draws the altimeter: the mech's height, the height of m_player's mark (Player::m_unk0x74) and
 // the height of the target, clamped to the gauge. p_x and p_y go unused.
 // FUNCTION: MW2 0x10040cbc
@@ -538,11 +588,13 @@ void DrawAltimeter(Mech* p_mech, MechS32 p_x, MechS32 p_y)
 	FUN_10088280(target);
 #endif
 }
+#endif
 
 // Lays out the altimeter and the compass from their shapes' extents. Each shape is released by
 // its extent plus its id, not by the id it was loaded with.
 // FUNCTION: MW2 0x10040f91
 // FUNCTION: MW2GBL 0x1007efe1
+// FUNCTION: MW2PREMERCS 0x1005110a
 // FUNCTION: MW2MATROX 0x1001ce3d
 // FUNCTION: MW23DFX 0x10022490
 // FUNCTION: MW2ATI 0x10022760
@@ -636,6 +688,10 @@ void InitHudGauges(void)
 		g_compassSideArrowHeight = extent & 0xffff;
 		UnlockCachedResource(extent + HUD_SHAPE(0x1f), g_resTagShp);
 	}
+#ifdef MW2_LOCK_BOXES
+	g_lockBox.m_shrinkRate = FixedDiv16(g_screenHalfHeight << 16, FIXED_CONST(50));
+	g_lockBox.m_target = -1;
+#endif
 }
 
 // Returns the HUD gauges' positions (the compass's, then the altimeter's).
@@ -723,12 +779,172 @@ MechS32 DrawCrosshair(Mech* p_mech, MechScalar p_bearing, MechScalar p_pitch, Me
 	return result;
 }
 
+#ifdef MW2_LOCK_BOXES
+// Marks p_mech's player's nav target (Player::m_navTargetInfo) as DrawTargetMarker marks its
+// target.
+// FUNCTION: MW2PREMERCS 0x10051652
+void DrawNavTargetMarker(Mech* p_mech)
+{
+	MechS32 index;
+	Player* player;
+	MechScalar x;
+	MechScalar y;
+	MechScalar z;
+	MechS32 onScreen;
+	MechS32 offScreen;
+	MechS32 target;
+	Point point;
+
+	player = p_mech->m_player;
+	target = player->m_navTargetInfo.m_target;
+	if (!target || target & 0x1000) {
+		return;
+	}
+
+	index = target & 0xff;
+	target &= 0xf00;
+	switch (target) {
+	case 0x200:
+		DrawPlayerBrackets(g_players[index], GetPlayerSide(index));
+		return;
+	case 0x400:
+		DrawObjectBrackets(index, GetLocalTargetObject(), GetThingSide(index));
+		return;
+	case 0x100:
+		onScreen = HUD_MARKER_SHAPE(0xe5);
+		offScreen = HUD_MARKER_SHAPE(0xeb);
+		break;
+	default:
+		return;
+	}
+
+	x = player->m_navTargetInfo.m_position.m_x;
+	y = player->m_navTargetInfo.m_position.m_y;
+	z = player->m_navTargetInfo.m_position.m_z;
+	if (ProjectWorldPoint(&x, &y, &z)) {
+		DrawHudShape(x, y, onScreen);
+	}
+	else {
+		point.m_x = x;
+		point.m_y = y;
+		GetRectNeedleToward(&g_currentPane, &point, &point);
+		DrawHudShape(point.m_x, point.m_y, offScreen);
+	}
+}
+
+// Turns (p_x, p_y) by p_angle degrees.
+// FUNCTION: MW2PREMERCS 0x100517ca
+void RotateHudPoint(MechS32* p_outX, MechS32* p_outY, MechS32 p_x, MechS32 p_y, MechS32 p_angle)
+{
+	MechScalar sin;
+	MechScalar cos;
+
+	if (p_angle) {
+		p_x <<= 16;
+		p_y <<= 16;
+		sin = FixedSin(p_angle << 16);
+		cos = FixedCos(p_angle << 16);
+		*p_outX = FixedMul29(p_x, cos) - FixedMul29(p_y, sin);
+		*p_outY = FixedMul29(p_y, cos) + FixedMul29(p_x, sin);
+		*p_outX = *p_outX >> 16;
+		*p_outY = *p_outY >> 16;
+	}
+	else {
+		*p_outX = p_x;
+		*p_outY = p_y;
+	}
+}
+
+// FUNCTION: MW2PREMERCS 0x10051881
+void DrawLockBox(LockBox* p_box)
+{
+	MechS32 y;
+	MechS32 x;
+
+	RotateHudPoint(&x, &y, -p_box->m_halfWidth, -p_box->m_halfHeight, p_box->m_angle);
+	g_lineEndX = p_box->m_x + x;
+	g_lineEndY = p_box->m_y + y;
+	RotateHudPoint(&x, &y, p_box->m_halfWidth, -p_box->m_halfHeight, p_box->m_angle);
+	DrawLineTo(p_box->m_x + x, p_box->m_y + y, p_box->m_color);
+	RotateHudPoint(&x, &y, p_box->m_halfWidth, p_box->m_halfHeight, p_box->m_angle);
+	DrawLineTo(p_box->m_x + x, p_box->m_y + y, p_box->m_color);
+	RotateHudPoint(&x, &y, -p_box->m_halfWidth, p_box->m_halfHeight, p_box->m_angle);
+	DrawLineTo(p_box->m_x + x, p_box->m_y + y, p_box->m_color);
+	RotateHudPoint(&x, &y, -p_box->m_halfWidth, -p_box->m_halfHeight, p_box->m_angle);
+	DrawLineTo(p_box->m_x + x, p_box->m_y + y, p_box->m_color);
+}
+
+// Closes the lock box in on target p_target at (p_x, p_y), starting it from the whole screen
+// for a new target (in p_side's color), and draws it and its trail unless p_hidden. Returns
+// whether the box has closed: the brackets show then (DrawPlayerBrackets, DrawObjectBrackets).
+// FUNCTION: MW2PREMERCS 0x100519f7
+MechS32 UpdateLockBox(MechS32 p_hidden, MechS32 p_target, MechS32 p_x, MechS32 p_y, MechS32 p_side)
+{
+	MechS32 step;
+
+	if (g_lockBox.m_target != p_target) {
+		g_lockBox.m_x = g_screenHalfWidth;
+		g_lockBox.m_y = g_screenHalfHeight;
+		g_lockBox.m_halfWidth = g_screenHalfHeight;
+		g_lockBox.m_halfHeight = g_screenHalfHeight;
+		g_lockBox.m_unk0x20 = 1;
+		switch (p_side) {
+		case 0:
+			g_lockBox.m_color = 0xe;
+			break;
+		case 2:
+			g_lockBox.m_color = 6;
+			break;
+		default:
+			g_lockBox.m_color = 10;
+			break;
+		}
+
+		g_lockBox.m_target = p_target;
+		g_lockBoxTrail2 = g_lockBox;
+		g_lockBoxTrail = g_lockBoxTrail2;
+		if (!p_hidden) {
+			DrawLockBox(&g_lockBox);
+		}
+	}
+	else if (!p_hidden) {
+		g_lockBoxTrail2 = g_lockBoxTrail;
+		g_lockBoxTrail = g_lockBox;
+		if (g_lockBox.m_halfHeight > 0) {
+			step = g_lockBox.m_shrinkRate * g_deltaTime >> 16;
+			g_lockBox.m_angle = (g_lockBox.m_angle + 15) % 360;
+			DrawLockBox(&g_lockBox);
+			g_lockBox.m_halfWidth -= step;
+			g_lockBox.m_halfHeight -= step;
+			g_lockBox.m_x = p_x;
+			g_lockBox.m_y = p_y;
+		}
+
+		if (g_lockBoxTrail.m_halfHeight > 0) {
+			g_lockBoxTrail.m_angle = (g_lockBoxTrail.m_angle + 15) % 360;
+			DrawLockBox(&g_lockBoxTrail);
+		}
+
+		if (g_lockBoxTrail2.m_halfHeight > 0) {
+			g_lockBoxTrail2.m_angle = (g_lockBoxTrail2.m_angle + 30) % 360;
+			DrawLockBox(&g_lockBoxTrail2);
+		}
+		else {
+			return 1;
+		}
+	}
+
+	return 0;
+}
+
+#endif
 #ifndef MW2_HUD_MARKER_LAG
 // Marks the player's target on the screen: a player's or a game thing's mech with its side's
 // markers (DrawPlayerBrackets, DrawObjectBrackets), a nav with shape 0xe5, or 0xeb at the edge when it is
 // off the screen.
 // FUNCTION: MW2 0x100414ab
 // FUNCTION: MW2GBL 0x1007f4fc
+// FUNCTION: MW2PREMERCS 0x10051bf0
 // FUNCTION: MW2MATROX 0x1001d3c9
 // FUNCTION: MW23DFX 0x10022830
 // FUNCTION: MW2ATI 0x10022af0
@@ -758,7 +974,11 @@ void DrawTargetMarker(Mech* p_mech)
 		DrawPlayerBrackets(g_players[index], GetPlayerSide(index));
 		return;
 	case 0x400:
+#ifdef MW2_LOCK_BOXES
+		DrawObjectBrackets(index, GetLocalTargetObject(), GetThingSide(index));
+#else
 		DrawObjectBrackets(GetLocalTargetObject(), GetThingSide(index));
+#endif
 		return;
 	case 0x100:
 		onScreen = HUD_MARKER_SHAPE(0xe5);
@@ -955,6 +1175,7 @@ void DrawCompassMarkers(
 // p_twist as a bar from the center. p_x and p_y go unused.
 // FUNCTION: MW2 0x1004183a
 // FUNCTION: MW2GBL 0x1007f88b
+// FUNCTION: MW2PREMERCS 0x10051f9d
 // FUNCTION: MW2MATROX 0x1001d7b6
 // FUNCTION: MW23DFX 0x10022b10
 // FUNCTION: MW2ATI 0x10022dd0
@@ -1059,6 +1280,7 @@ MechS32 ProjectAimPoint(Mech* p_mech, MechS32* p_x, MechS32* p_y)
 // them one slot.
 // FUNCTION: MW2 0x10041a14
 // FUNCTION: MW2GBL 0x1007fa65
+// FUNCTION: MW2PREMERCS 0x1005216c
 // FUNCTION: MW2MATROX 0x1001d9cd
 // FUNCTION: MW23DFX 0x10022cc0
 // FUNCTION: MW2ATI 0x10022f80
@@ -1102,6 +1324,9 @@ void DrawPlayerBrackets(Player* p_player, MechS32 p_side)
 			break;
 		}
 
+#ifdef MW2_LOCK_BOXES
+		UpdateLockBox(1, p_player->m_index, x, y, p_side);
+#endif
 		DrawHudShape(point.m_x, point.m_y, topLeft);
 	}
 	else {
@@ -1136,6 +1361,22 @@ void DrawPlayerBrackets(Player* p_player, MechS32 p_side)
 			break;
 		}
 
+#ifdef MW2_LOCK_BOXES
+		if (UpdateLockBox(0, p_player->m_index, x, y, p_side)) {
+			sx = x - size;
+			sy = y - size;
+			DrawHudShape(sx, sy, topLeft);
+			sx = x + size;
+			sy = y - size;
+			DrawHudShape(sx, sy, topRight);
+			sx = x - size;
+			sy = y + size;
+			DrawHudShape(sx, sy, bottomLeft);
+			sx = x + size;
+			sy = y + size;
+			DrawHudShape(sx, sy, bottomRight);
+		}
+#else
 		sx = x - size;
 		sy = y - size;
 		DrawHudShape(sx, sy, topLeft);
@@ -1148,6 +1389,7 @@ void DrawPlayerBrackets(Player* p_player, MechS32 p_side)
 		sx = x + size;
 		sy = y + size;
 		DrawHudShape(sx, sy, bottomRight);
+#endif
 	}
 }
 
@@ -1157,11 +1399,16 @@ void DrawPlayerBrackets(Player* p_player, MechS32 p_side)
 // them one slot.
 // FUNCTION: MW2 0x10041c3c
 // FUNCTION: MW2GBL 0x1007fc8d
+// FUNCTION: MW2PREMERCS 0x100523d6
 // FUNCTION: MW2MATROX 0x1001dc23
 // FUNCTION: MW23DFX 0x10022ea0
 // FUNCTION: MW2ATI 0x10023160
 // FUNCTION: MW2S3 0x10001c50
+#ifdef MW2_LOCK_BOXES
+void DrawObjectBrackets(MechS32 p_thing, struct SceneObject* p_object, MechS32 p_side)
+#else
 void DrawObjectBrackets(struct SceneObject* p_object, MechS32 p_side)
+#endif
 {
 #ifndef MW2_BLOCK_SCOPED_LOCALS
 	MechScalar maxSize;
@@ -1205,6 +1452,9 @@ void DrawObjectBrackets(struct SceneObject* p_object, MechS32 p_side)
 			break;
 		}
 
+#ifdef MW2_LOCK_BOXES
+		UpdateLockBox(1, p_thing, x, y, p_side);
+#endif
 		DrawHudShape(point.m_x, point.m_y, topLeft);
 	}
 	else {
@@ -1245,6 +1495,22 @@ void DrawObjectBrackets(struct SceneObject* p_object, MechS32 p_side)
 			break;
 		}
 
+#ifdef MW2_LOCK_BOXES
+		if (UpdateLockBox(0, p_thing, x, y, p_side)) {
+			sx = x - size;
+			sy = y - size;
+			DrawHudShape(sx, sy, topLeft);
+			sx = x + size;
+			sy = y - size;
+			DrawHudShape(sx, sy, topRight);
+			sx = x - size;
+			sy = y + size;
+			DrawHudShape(sx, sy, bottomLeft);
+			sx = x + size;
+			sy = y + size;
+			DrawHudShape(sx, sy, bottomRight);
+		}
+#else
 		sx = x - size;
 		sy = y - size;
 		DrawHudShape(sx, sy, topLeft);
@@ -1257,6 +1523,7 @@ void DrawObjectBrackets(struct SceneObject* p_object, MechS32 p_side)
 		sx = x + size;
 		sy = y + size;
 		DrawHudShape(sx, sy, bottomRight);
+#endif
 	}
 }
 

@@ -85,12 +85,10 @@ struct Player {
 	MechScalar m_headingSin;       // 0xbc — 16.16
 	PlayerTargetInfo m_targetInfo; // 0xc0
 #ifdef MW2_PLAYER_UNK_MEMBERS
-	// The early Mercenaries build has 0x28 bytes here, 0x2 after m_piloting and 0x1c after
-	// m_nextDetectCheck: its players are 0x1fe bytes, and the members after each sit that much
-	// further than their comments say.
-	undefined m_unk0xe8[0x105 - 0xe8];   // 0xe8
-	MechU32 m_unk0x105;                  // 0x105 — bit 0: retargeting leaves the autopilot alone (TargetAtReticle)
-	undefined m_unk0x109[0x110 - 0x109]; // 0x109
+	// The early Mercenaries build has a second target here, 0x2 bytes after m_piloting and 0x1c
+	// after m_nextDetectCheck: its players are 0x1fe bytes, and the members after each sit that
+	// much further than their comments say.
+	PlayerTargetInfo m_navTargetInfo; // 0xe8 — the nav point TargetNavPoint last targeted, and CycleTarget chose
 #endif
 	MechChar m_name[0xfe - 0xe8];       // 0xe8
 	MechChar m_shortName[0x114 - 0xfe]; // 0xfe — for the target panel
@@ -120,7 +118,12 @@ struct Player {
 	MechS32 m_nav;             // 0x16a — a nav target id the AI placed, or 0x1000
 	MechS16 m_nextDetectCheck; // 0x16e — the clock (truncated) when IsTargetDetectable next looks
 #ifdef MW2_PLAYER_UNK_MEMBERS
-	undefined m_unk0x1a0[0x1c]; // 0x1a0 in the early Mercenaries build
+	MechS32 m_unk0x1a0; // 0x1a0 in the early Mercenaries build — set, a player in the target state takes the nearest
+						// target (ResolveTarget)
+	undefined m_unk0x1a4[0x1b4 - 0x1a4]; // 0x1a4 in the early Mercenaries build
+	MechS32 m_unk0x1b4;                  // 0x1b4 in the early Mercenaries build — 1: it aims at a mech's feet
+										 // (TargetGamePiece)
+	undefined m_unk0x1b8[0x1bc - 0x1b8]; // 0x1b8 in the early Mercenaries build
 #endif
 	MechS16 m_maneuver;              // 0x170 — c_maneuver…, or -1
 	MechS16 m_lastManeuver;          // 0x172 — the previous maneuver, or -1

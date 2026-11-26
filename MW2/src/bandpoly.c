@@ -119,6 +119,7 @@ void DrawBandPolygon(MechU32 p_flags, MechS32 p_count, MechU32* p_points, MechS3
 // Its original adds dy first to y0 and x1 (y1 + dy keeps y1 first).
 // FUNCTION: MW2 0x100107de
 // FUNCTION: MW2GBL 0x1001701e
+// FUNCTION: MW2PREMERCS 0x1005ec2e
 // FUNCTION: MW2MATROX 0x100459b0
 // FUNCTION: MW23DFX 0x1002a8e0
 // FUNCTION: MW2ATI 0x1002a530
@@ -238,6 +239,21 @@ MechS32 DrawBand(MechU32 p_color, MechS32 p_count, MechS32* p_points, MechS32 p_
 	DrawAnimatedPolygon(p_color, 4, points, p_luma, 1, 0, p_unk0x14, 1);
 	return dx;
 #else
+#ifdef MW2_PREMERCS
+	// The early Mercenaries build declares these in another order.
+	MechS32 step;
+	MechS32 y1;
+	MechS32 dy;
+	MechS32 x0;
+	MechS32 y0;
+	MechS32 x1;
+	MechS32 flip;
+	MechS32 i;
+	MechS32 haveStart;
+	MechS32 dx;
+	MechS32 haveEnd;
+	MechU32 quad[4][6];
+#else
 	MechS32 step;
 	MechS32 y1;
 	MechS32 x0;
@@ -250,6 +266,7 @@ MechS32 DrawBand(MechU32 p_color, MechS32 p_count, MechS32* p_points, MechS32 p_
 	MechS32 dx;
 	MechS32 haveEnd;
 	MechU32 quad[4][6];
+#endif
 
 	haveStart = FALSE;
 	haveEnd = FALSE;

@@ -44,11 +44,11 @@ void InitCockpitPanel(CockpitPanel* p_panel)
 	p_panel->m_setWeapon = SetCockpitPanelWeapon;
 	p_panel->m_setName = SetCockpitPanelName;
 	p_panel->m_setTarget = SetCockpitPanelTarget;
+#ifdef MW2_COCKPIT_PANEL_UNK_MEMBERS
+	p_panel->m_setMfdMode = SetCockpitPanelMfdMode;
+#endif
 	p_panel->m_setTextOrigin = SetCockpitPanelTextOrigin;
 	p_panel->m_setTransition = SetCockpitPanelTransition;
-#ifdef MW2_COCKPIT_PANEL_UNK_MEMBERS
-	p_panel->m_unk0xcc = FUN_1005360a;
-#endif
 	p_panel->m_setRect = SetCockpitPanelRect;
 	p_panel->m_setDamage = SetCockpitPanelDamage;
 	p_panel->m_enable = EnableCockpitPanel;
@@ -132,9 +132,17 @@ void SetCockpitPanelTarget(CockpitPanel* p_panel, PANE* p_target)
 	p_panel->m_height = p_target->m_y1 - p_target->m_y0 + 1;
 }
 
+#ifdef MW2_COCKPIT_PANEL_UNK_MEMBERS
+// FUNCTION: MW2PREMERCS 0x100535df
+void SetCockpitPanelMfdMode(CockpitPanel* p_panel, MechS32 p_mfdMode)
+{
+	p_panel->m_mfdMode = p_mfdMode;
+}
+#endif
+
 // FUNCTION: MW2 0x10074879
 // FUNCTION: MW2GBL 0x10016eed
-// FUNCTION: MW2PREMERCS 0x100535df
+// FUNCTION: MW2PREMERCS 0x100535f3
 // FUNCTION: MW2MATROX 0x1001c989
 // FUNCTION: MW23DFX 0x10023560
 // FUNCTION: MW2ATI 0x10023820
@@ -147,7 +155,7 @@ void SetCockpitPanelTextOrigin(CockpitPanel* p_panel, Point* p_textOrigin)
 
 // FUNCTION: MW2 0x1007488d
 // FUNCTION: MW2GBL 0x10016f01
-// FUNCTION: MW2PREMERCS 0x100535f3
+// FUNCTION: MW2PREMERCS 0x1005360a
 // FUNCTION: MW2MATROX 0x1001c99d
 // FUNCTION: MW23DFX 0x10023570
 // FUNCTION: MW2ATI 0x10023830
@@ -157,14 +165,6 @@ void SetCockpitPanelTransition(CockpitPanel* p_panel, RectTransition* p_transiti
 {
 	p_panel->m_transition = p_transition;
 }
-
-#ifdef MW2_COCKPIT_PANEL_UNK_MEMBERS
-// FUNCTION: MW2PREMERCS 0x1005360a
-void FUN_1005360a(CockpitPanel* p_panel, undefined4 p_unk0x9c)
-{
-	p_panel->m_unk0x9c = p_unk0x9c;
-}
-#endif
 
 // FUNCTION: MW2 0x100748a1
 // FUNCTION: MW2GBL 0x10016f15

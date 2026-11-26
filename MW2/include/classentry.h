@@ -29,7 +29,12 @@ typedef struct ClassEntry {
 	ClassEntryCoord m_y;       // 0x30
 	ClassEntryCoord m_z;       // 0x34
 	MechU16 m_kinds[5];        // 0x38 — by level; the shape kind in bits 4-7
-	MechS16 m_released;        // 0x42
+#ifdef MW2_CLASS_ENTRY_UNK_MEMBER
+	undefined m_unk0x42[0x46 - 0x42]; // 0x42 — the early Mercenaries build's
+	MechS16 m_released;               // 0x46
+#else
+	MechS16 m_released; // 0x42
+#endif
 #ifdef MW2_POWERVR
 	// The PowerVR edition's entries are 0x58 bytes, with the SGL list of each level's shape, kept
 	// while another level is shown (-1 not converted yet).

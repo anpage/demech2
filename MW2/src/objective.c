@@ -422,6 +422,7 @@ MechS32 IsTeamNearTarget(MechU8* p_target, MechS32 p_team)
 // Announces the local team's objective p_objective as successful (p_state 5) or failed (6), once.
 // FUNCTION: MW2 0x1001b0cb
 // FUNCTION: MW2GBL 0x100344d1
+// FUNCTION: MW2PREMERCS 0x100290c1
 // FUNCTION: MW2MATROX 0x1001f428
 // FUNCTION: MW23DFX 0x10009d60
 // FUNCTION: MW2ATI 0x1000a590
@@ -1038,6 +1039,7 @@ void UpdateObjective(MechS32 p_star, MechS32 p_objective)
 // its current objective, the first whose conditions hold (ResetStarOrders hears of changes).
 // FUNCTION: MW2 0x1001c69e
 // FUNCTION: MW2GBL 0x10035aad
+// FUNCTION: MW2PREMERCS 0x1002a69d
 // FUNCTION: MW2MATROX 0x10020a02
 // FUNCTION: MW23DFX 0x1000a9b0
 // FUNCTION: MW2ATI 0x1000b1e0

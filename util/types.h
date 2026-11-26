@@ -888,15 +888,74 @@ double __cdecl fabs(double);
 /* The scene's shapes are filed in a grid of 12 by 12 cells, 25000 units each, around the origin, each shape
    keeping its cell (Shape::m_gridX, m_gridZ; shapelists.c) */
 #define MW2_SHAPE_GRID
-/* Players have 0x46 bytes more than GBL's, in three places (Player::m_unk0xe8 to m_unk0x109, m_unk0x184,
-   m_unk0x1a0) */
+/* Players have 0x46 bytes more than GBL's, in three places (Player::m_navTargetInfo, m_unk0x184,
+   m_unk0x1a0 and m_unk0x1a4) */
 #define MW2_PLAYER_UNK_MEMBERS
 /* Mechs, their weapon slots and their ammunition bins have 0x8f, 0xc and 8 bytes more than GBL's (Mech::m_unk0x114,
    WeaponSlot::m_unk0x64 and m_unk0x6c, AmmoBin::m_unk0x14 and WeaponBin::m_unk0x14) */
 #define MW2_MECH_UNK_MEMBERS
-/* Cockpit panels are 0xf0 bytes, their text origin first and a member and a setter of their own
-   (CockpitPanel::m_unk0x34, m_unk0x9c, m_unk0xcc) */
+/* Cockpit panels are 0xf0 bytes, with a member and a setter of their own first (CockpitPanel::m_unk0x30,
+   m_unk0xc4) */
 #define MW2_COCKPIT_PANEL_UNK_MEMBERS
+/* The cockpit has 34 panels, not 30, laid out anew: four more at the end, and the mech view's transition on
+   five more of them (c_panelCount; g_cockpitPanelPanes) */
+#define MW2_THIRTY_FOUR_PANELS
+/* Outside network games the cockpit's map views run with the radar off too (DifficultyCfg::m_radar:
+   ShutdownCockpitPanels, UpdateCockpit) */
+#define MW2_MAP_VIEW_WITHOUT_RADAR
+/* While the HUD is hidden (g_showHud), UpdateCockpit doesn't draw the network panel either */
+#define MW2_HIDDEN_HUD_HIDES_NETWORK_PANEL
+/* 21 more game keys: the MFDs' (MFD_CYCLE_A to _F, MFDS_RESET, SAVE_HUD, TOGGLE_COMPASS, TOGGLE_WEAPONS), the
+   starmates' orders (STARMATE_SET_ALL to STARMATE_SHUTDOWN), two more weapon groups and FIRE_CYCLE_WEAPON_GROUP,
+   which renumber the others (GAME_KEY_ACTION; g_gameKeyNames) */
+#define MW2_MFD_GAME_KEYS
+/* A network game keeps the difficulty file's heat tracking, ammunition and damage settings (LoadDifficultyCfg
+   doesn't force them) */
+#define MW2_NETWORK_KEEPS_DAMAGE_RULES
+/* SatelliteDrawPolygon takes a polygon's kind from bits 12-15 of its flags, not 12-14, as the 3D editions do */
+#define MW2_SATELLITE_KIND_FOUR_BITS
+/* ReloadPlayerMech presses the torso's reset buttons and clears the mech's NARC mark (Mech::m_unk0x112), and copies
+   its fourth argument over its third */
+#define MW2_RELOAD_RESETS_TORSO
+/* A player keeps a second target, the nav point TargetNavPoint last targeted and CycleTarget chose
+   (Player::m_navTargetInfo), which the local player's autopilot steers for (GetTargetBearing), and retargeting hands
+   the steering to the autopilot only while it has none (CycleTarget, TargetAtReticle) */
+#define MW2_NAV_TARGET_KEPT
+/* A player with Player::m_unk0x1b4 1 targets a mech at its feet: its object's origin less its height
+   (TargetGamePiece) */
+#define MW2_AIM_AT_FEET
+/* AssignStarObjective queues the members' state with the objective's target (the leader they follow), not 2 */
+#define MW2_STAR_QUEUES_TARGET
+/* LeaveAIState releases the group fire button too (PlayerSteering::m_weaponFireGroup) */
+#define MW2_LEAVE_STATE_STOPS_GROUP_FIRE
+/* The mech view panel is seven MFDs, each showing one of thirteen modes (CockpitPanel::m_mfdMode) in a pane of
+   its own (m_weapon): the damage outline, armor bars, rear, eye, overhead, satellite and tracked shot views, the
+   target and the speed, jump jet, heat and heat rate panels; SAVE_HUD keeps their modes in MERCS.HUD
+   (mechviewpanel.c) */
+#define MW2_MFD_PANELS
+/* The HUD has no altimeter (DrawAltimeter): the jump jet MFD shows the altitude */
+#define MW2_NO_HUD_ALTIMETER
+/* A box closes in on the local player's new target, turning as it shrinks and trailed by two more, before the
+   brackets show (UpdateLockBox, hud.c); the HUD marks the nav target too (DrawNavTargetMarker) */
+#define MW2_LOCK_BOXES
+/* The software renderer textures the sky and the ground (skygnd.par: LoadSkyGroundSettings, DrawSkyQuad,
+   DrawGroundQuad, as the accelerated editions do), clipping their quads to depths (ClipPolygonDepth) */
+#define MW2_TILED_SKY
+/* The gauge ellipse can be drawn and filled at a percentage of its pane (DrawScaledGaugeEllipse) */
+#define MW2_SCALED_GAUGE_ELLIPSES
+/* RememberLoadMech and RememberMechSegments don't log a player index out of range */
+#define MW2_QUIET_MECH_RECORDS
+/* An object turns about a point of its own (RotateObjAbout), and a part's objects can be destroyed with their
+   children (DestroyPartTree, object.c) */
+#define MW2_PART_TREES
+/* A hit to the head of an AI player's mech shuts it down its first ten times (Mech::m_headHits), and a leg's
+   first loss cripples an AI mech 95 times in 100 (DestroySection, DestroySectionEx) */
+#define MW2_HEAD_SHUTDOWN
+/* The lancemates acknowledge orders and report kills in voices of their own (g_lancemateVoices, SayLancemateAck,
+   SayLancemateKill) */
+#define MW2_LANCEMATE_VOICES
+/* The local star starts at -1, as 1.1's does (g_localStar), though the stars count from 0 (MW2_LOCAL_STAR_FROM_ZERO) */
+#define MW2_LOCAL_STAR_UNSET
 /* The weapons are the Clans' (GBL's, renamed and retuned) and 31 of the Inner Sphere (WEAPON_DEF_COUNT 66,
    g_weaponDefs) */
 #define MW2_CLAN_AND_IS_WEAPONS
@@ -917,17 +976,50 @@ double __cdecl fabs(double);
 #define MW2_CAMPAIGN_BWD_TAGS
 /* The pause sound is another sound of the PRJ's (PlayPauseSound) */
 #define MW2_PAUSE_SOUND 0x149
-/* GetIniValue opens MW2.INI by that name in capitals (FindIniSection by mw2.ini) */
-#define MW2_INI_VALUE_UPPER_NAME
+/* FindIniSection and GetIniValue open MW2.INI by that name in capitals */
+#define MW2_INI_UPPER_NAME
 /* An error's text is the raw value of its code in the "SystemError" section, its comment kept (FormatErrorMessage) */
 #define MW2_ERROR_TEXT_RAW
 /* ScatterDebris throws its pieces without showing their objects */
 #define MW2_DEBRIS_NOT_SHOWN
-/* Targeting at the reticle doesn't hand the steering to the autopilot for a player with bit 0 of Player::m_unk0x105
-   set (TargetAtReticle) */
-#define MW2_RETARGET_PLAYER_FLAG
 /* Players of a type 8 bank into their turns (FUN_10037d84 from UpdateAI) */
 #define MW2_BANKING_PLAYER_TYPE
+/* AimTorsoTilt takes the pitch it aims at, which its callers pass (the target's or another) */
+#define MW2_TORSO_TILT_TAKES_PITCH
+/* The class table's entries have 4 bytes more, before m_released (ClassEntry::m_unk0x42) */
+#define MW2_CLASS_ENTRY_UNK_MEMBER
+/* JoystickPoll neither clears its JOYINFOEX nor sets its size */
+#define MW2_JOYINFOEX_UNCLEARED
+/* FlushSpeechQueue sets g_speechLocked once it has flushed the queue, and not at all when the queue is empty */
+#define MW2_SPEECH_LOCKED_AFTER_FLUSH
+/* FadeToEndPalette applies the end palette without blending to it first */
+#define MW2_FADE_TO_END_UNBLENDED
+/* The eye position's overlay line is this many characters wide (HideEyePosition) */
+#define MW2_EYE_POSITION_WIDTH 0x32
+/* Blit draws the timed and debug overlays and advances the palette fade, which the later builds' SimMain does */
+#define MW2_BLIT_DRAWS_OVERLAYS
+/* The banner's palette blends in over this many steps (ShowBanner) */
+#define MW2_BANNER_BLEND_STEPS 0x3c
+/* FindIniSection's errors are 0x41 and 0x4a, the error codes numbered on from GBL's */
+#define MW2_INI_ERROR_CODES
+/* FindIniSection reads only the lines that open with a bracket, as section headers, and looks past the bracket */
+#define MW2_INI_SECTION_HEADERS
+/* A nuke's blast reaches this far, whatever its effect's shape (StartNuke) */
+#define MW2_NUKE_RADIUS 10000
+/* A player in the target state resolves a symbolic target to the nearest one when Player::m_unk0x1a0 is set, else
+   to the best, whatever g_aiSpreadTargets (ResolveTarget) */
+#define MW2_RESOLVE_NEAREST_FLAG
+/* With bit 2 of Mech::m_unk0x112 set the weapons aim along the eye tilted by the torso's pitch, not at the torso's
+   pitch (GetEyeAimDirection) */
+#define MW2_EYE_AIM_ADDS_PITCH
+/* The depth sort's entries are 0x20 bytes, 0x18 nothing decompiled reads (DepthEntry::m_unk0x08) */
+#define MW2_DEPTH_ENTRY_UNK_MEMBERS
+/* DodgeShot takes the shot's pitch from the target's and the torso's, modulo 360 degrees, not the target's alone
+   scaled */
+#define MW2_DODGE_TORSO_PITCH
+/* A shot fells a game thing whose hit shape is of kind 0xb0 at once (DamageGameThing; GBL's MW2_BUILDINGS_FALL_AT_ONCE
+   tests the static object's shape, and adds an effect) */
+#define MW2_SHOTS_FELL_BUILDINGS
 /* Mechs take heat from outside (Mech::m_externalHeat, which the radius damage adds to and
    CalculateHeat adds to the frame's heat) */
 #define MW2_EXTERNAL_HEAT
@@ -1061,8 +1153,15 @@ double __cdecl fabs(double);
 #define MW2_REMOTE_MECHS_STAY
 #endif
 
-/* A game key action's number: with MW2_CHAT_KEY, the actions from 0x42 on are one higher. */
-#ifdef MW2_CHAT_KEY
+/* A game key action's number from 1.1's: with MW2_CHAT_KEY, the actions from 0x42 on are one higher, and with
+   MW2_MFD_GAME_KEYS, those from 3 on 10 higher, from 14 on 18 and from 0x42 on 19. */
+#if defined(MW2_MFD_GAME_KEYS)
+#define GAME_KEY_ACTION(p_action)                                                                                      \
+	((p_action) >= 0x42 ? (p_action) + 19                                                                              \
+	 : (p_action) >= 14 ? (p_action) + 18                                                                              \
+	 : (p_action) >= 3  ? (p_action) + 10                                                                              \
+						: (p_action))
+#elif defined(MW2_CHAT_KEY)
 #define GAME_KEY_ACTION(p_action) ((p_action) >= 0x42 ? (p_action) + 1 : (p_action))
 #else
 #define GAME_KEY_ACTION(p_action) (p_action)

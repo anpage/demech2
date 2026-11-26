@@ -39,7 +39,11 @@
 #ifdef MW2_DEPTH_ENTRY_TAG
 DECOMP_SIZE_ASSERT(DepthEntry, 0xc)
 #else
+#ifdef MW2_DEPTH_ENTRY_UNK_MEMBERS
+DECOMP_SIZE_ASSERT(DepthEntry, 0x20)
+#else
 DECOMP_SIZE_ASSERT(DepthEntry, 0x8)
+#endif
 #endif
 #ifdef MW2_A3D
 DECOMP_SIZE_ASSERT(ProjectedVertex, 0x3c)
@@ -99,6 +103,7 @@ MechScalar g_queueDepth;
 // The list being built: g_depthQueue or g_drawList.
 // GLOBAL: MW2 0x1010b5c4
 // GLOBAL: MW2GBL 0x100e9a70
+// GLOBAL: MW2PREMERCS 0x1017ba94
 // GLOBAL: MW2MATROX 0x101d6980
 // GLOBAL: MW23DFX 0x101b0ee0
 // GLOBAL: MW2ATI 0x100e4ec0
@@ -108,6 +113,7 @@ DepthEntry* g_depthList;
 // The flags of the shape being queued.
 // GLOBAL: MW2 0x1010b5c8
 // GLOBAL: MW2GBL 0x100e9a74
+// GLOBAL: MW2PREMERCS 0x1017ba98
 // GLOBAL: MW2MATROX 0x101d697c
 // GLOBAL: MW23DFX 0x101b0edc
 // GLOBAL: MW2ATI 0x100e4ebc
@@ -346,6 +352,7 @@ void SortDepthEntries(DepthEntry* p_first, DepthEntry* p_last)
 // whole and expanded after the sort (DrawDepthQueue).
 // FUNCTION: MW2 0x100338bb
 // FUNCTION: MW2GBL 0x1003956b
+// FUNCTION: MW2PREMERCS 0x1005d06d
 // FUNCTION: MW2MATROX 0x100235a0
 // FUNCTION: MW23DFX 0x1002a080
 // FUNCTION: MW2ATI 0x10029cb0
@@ -390,6 +397,7 @@ void DrawShapeList(Shape* p_root)
 // each whole shape into its own sorted run of polygons, and draws them.
 // FUNCTION: MW2 0x10033a06
 // FUNCTION: MW2GBL 0x100396b6
+// FUNCTION: MW2PREMERCS 0x1005d1be
 // FUNCTION: MW2MATROX 0x100236a0
 // FUNCTION: MW23DFX 0x1002a170
 // FUNCTION: MW2ATI 0x10029da0
@@ -540,6 +548,28 @@ void DrawQueuedPolygon(QueuedPolygon* p_poly)
 	}
 }
 
+#ifdef MW2_TILED_SKY
+// The early Mercenaries build's clips the polygon's points with ClipPolygonToScreenEdges, which
+// DrawTiledPolygon also calls.
+// FUNCTION: MW2PREMERCS 0x1005d6b7
+MechS32 ClipPolygonToScreen(QueuedPolygon* p_poly, MechU32* p_points)
+{
+	MechS32 count;
+	ProjectedVertex** points;
+
+	count = p_poly->m_count;
+	points = (ProjectedVertex**) (p_poly + 1);
+	return ClipPolygonToScreenEdges(points, count, (MechS32*) p_points);
+}
+
+// 1.1's ClipPolygonToScreen, on p_count points.
+// STUB: MW2PREMERCS 0x1005d6f0
+MechS32 ClipPolygonToScreenEdges(ProjectedVertex** p_points, MechS32 p_count, MechS32* p_out)
+{
+	STUB(0x1005d6f0);
+	return 0;
+}
+#else
 // Clips a queued polygon to the screen (right, left, top and bottom in turn) and stores the
 // result in p_points, six dwords per vertex. Returns the number of vertices.
 // FUNCTION: MW2 0x10033e92
@@ -794,6 +824,7 @@ MechS32 ClipPolygonToScreen(QueuedPolygon* p_poly, MechU32* p_points)
 
 	return n;
 }
+#endif
 
 // Returns the depth where the edge from (p_a0, p_z0) to (p_a1, p_z1), in view space, crosses
 // the screen column (p_isX) or row p_edge.

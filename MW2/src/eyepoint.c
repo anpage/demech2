@@ -241,6 +241,7 @@ MechScalar* g_eyeHeightOffset = NULL;
 
 // GLOBAL: MW2 0x100a2438
 // GLOBAL: MW2GBL 0x100b3998
+// GLOBAL: MW2PREMERCS 0x100b3e78
 // GLOBAL: MW2MATROX 0x100a3678
 // GLOBAL: MW23DFX 0x1024e690
 // GLOBAL: MW2ATI 0x101829a0
@@ -875,6 +876,7 @@ void UpdateOrdinanceView(void)
 // p_tilt tilts it. The first call after another view starts its ramps from the current eyepoint.
 // FUNCTION: MW2 0x100118bc
 // FUNCTION: MW2GBL 0x1005531c
+// FUNCTION: MW2PREMERCS 0x10061b9c
 // FUNCTION: MW2MATROX 0x10009653
 // FUNCTION: MW23DFX 0x1002e280
 // FUNCTION: MW2ATI 0x1002d3d0

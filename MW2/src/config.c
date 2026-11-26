@@ -283,6 +283,7 @@ MechS32 LoadReels(ResourceRef* p_ref)
 // Matches but for the registers, which VC++ 2.2 allocates differently.
 // FUNCTION: MW2 0x10070bda
 // FUNCTION: MW2GBL 0x10042b6a
+// FUNCTION: MW2PREMERCS 0x1007a20a
 // FUNCTION: MW2MATROX 0x1000b1c6
 // FUNCTION: MW23DFX 0x100403a0
 // FUNCTION: MW2ATI 0x1003e100
@@ -565,6 +566,7 @@ MechS32 WriteCareerRecordFile(MechChar* p_name, void* p_data)
 // Returns 1, or -1 if there is no block.
 // FUNCTION: MW2 0x10071326
 // FUNCTION: MW2GBL 0x100432b6
+// FUNCTION: MW2PREMERCS 0x1007a9a4
 // FUNCTION: MW2MATROX 0x1000b912
 // FUNCTION: MW23DFX 0x100408a0
 // FUNCTION: MW2ATI 0x1003e510
@@ -597,6 +599,7 @@ MechS32 LoadDifficultyCfg(MechChar* p_name, DifficultyCfg** p_cfg)
 		(*p_cfg)->m_radar = 1;
 	}
 
+#ifndef MW2_NETWORK_KEEPS_DAMAGE_RULES
 	if (g_isNetworkGame > 1) {
 		(*p_cfg)->m_heatTracking = 1;
 		(*p_cfg)->m_unlimitedAmmo = 0;
@@ -604,6 +607,7 @@ MechS32 LoadDifficultyCfg(MechChar* p_name, DifficultyCfg** p_cfg)
 		(*p_cfg)->m_collisionDamage = 1;
 	}
 
+#endif
 	return 1;
 }
 

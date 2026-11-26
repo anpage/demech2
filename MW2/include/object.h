@@ -95,6 +95,22 @@ extern "C"
 	Matrix* GetObjWorldMatrix(SceneObject* p_obj);
 	void SetObjWorldMatrix(SceneObject* p_obj, Matrix* p_matrix);
 	void DetachObj(SceneObject* p_obj);
+#ifdef MW2_PART_TREES
+	void MultiplyObjMatrix(SceneObject* p_obj, Matrix* p_matrix);
+	void RotateObjAbout(
+		SceneObject* p_obj,
+		MechScalar p_angleX,
+		MechScalar p_angleY,
+		MechScalar p_angleZ,
+		MechU32 p_flags,
+		MechScalar p_x,
+		MechScalar p_y,
+		MechScalar p_z
+	);
+	void DestroyObjPart(SceneObject* p_obj);
+	void DestroyPartObjects(SceneObject* p_obj);
+	void DestroyPartTree(SceneObject* p_obj, MechU32 p_partId);
+#endif
 	void AttachObj(SceneObject* p_obj, SceneObject* p_parent);
 	void DestroyObjTree(SceneObject* p_obj, ShapeCallback p_callback);
 	SceneObject* FindObjByName(SceneObject* p_obj, const MechChar* p_name);

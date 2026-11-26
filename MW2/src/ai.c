@@ -574,6 +574,7 @@ MechS32 g_localStarAssigned = 0;
 
 // GLOBAL: MW2 0x100a90c8
 // GLOBAL: MW2GBL 0x100b6578
+// GLOBAL: MW2PREMERCS 0x100b16a8
 // GLOBAL: MW2MATROX 0x100bb7e0
 // GLOBAL: MW2S3 0x10064988
 // GLOBAL: MW2POWERVR 0x101aad88
@@ -1006,6 +1007,7 @@ void ClearAILog(void)
 
 // FUNCTION: MW2 0x10051b6e
 // FUNCTION: MW2GBL 0x10076d32
+// FUNCTION: MW2PREMERCS 0x100376af
 // FUNCTION: MW2MATROX 0x10080bca
 // FUNCTION: MW23DFX 0x10012150
 // FUNCTION: MW2ATI 0x100126b0
@@ -1250,6 +1252,7 @@ MechS32 ChooseTeamLeader(MechS32 p_team)
 // player p_target instead.
 // FUNCTION: MW2 0x100521e0
 // FUNCTION: MW2GBL 0x100774ce
+// FUNCTION: MW2PREMERCS 0x10038765
 // FUNCTION: MW2MATROX 0x1008131f
 // FUNCTION: MW23DFX 0x100126d0
 // FUNCTION: MW2ATI 0x10012c30
@@ -1272,6 +1275,7 @@ void RetargetGoals(MechS32 p_team, MechS32 p_index, MechS32 p_target)
 // Resolves the symbolic target p_target for p_player (FindNearestTarget).
 // FUNCTION: MW2 0x10052284
 // FUNCTION: MW2GBL 0x10077571
+// FUNCTION: MW2PREMERCS 0x10038808
 // FUNCTION: MW2MATROX 0x100813c2
 // FUNCTION: MW23DFX 0x10012a00
 // FUNCTION: MW2ATI 0x10012f60
@@ -1287,6 +1291,9 @@ MechS16 ResolveTarget(Player* p_player, MechS16 p_target)
 	}
 
 	FindNearestTarget(p_player, p_target, -3, &nearest, &best);
+#ifdef MW2_RESOLVE_NEAREST_FLAG
+	return p_player->m_ai.m_state == c_aiStateTarget && p_player->m_unk0x1a0 ? nearest : best;
+#else
 	if (p_player->m_ai.m_state == c_aiStateTarget) {
 		if (nearest) {
 			return nearest;
@@ -1300,6 +1307,7 @@ MechS16 ResolveTarget(Player* p_player, MechS16 p_target)
 	}
 
 	return best;
+#endif
 }
 
 // The rule message functions (g_aiMessageFns): each returns the target the message matches
@@ -2187,16 +2195,25 @@ MechScalar AimTorsoPan(Player* p_player, MechScalar p_angle, MechS32 p_delta)
 // The torso tilt towards the target, off by p_delta (AddClamped).
 // FUNCTION: MW2 0x10053954
 // FUNCTION: MW2GBL 0x10078c58
+// FUNCTION: MW2PREMERCS 0x100398b3
 // FUNCTION: MW2MATROX 0x10082b8f
 // FUNCTION: MW23DFX 0x100135d0
 // FUNCTION: MW2ATI 0x10013a60
 // FUNCTION: MW2S3 0x10016ce0
 // FUNCTION: MW2POWERVR 0x100129a0
+#ifdef MW2_TORSO_TILT_TAKES_PITCH
+MechScalar AimTorsoTilt(Player* p_player, MechScalar p_pitch, MechS32 p_delta)
+#else
 MechScalar AimTorsoTilt(Player* p_player, MechS32 p_delta)
+#endif
 {
 	MechScalar value;
 
+#ifdef MW2_TORSO_TILT_TAKES_PITCH
+	value = p_pitch / 0xf00;
+#else
 	value = p_player->m_targetInfo.m_pitch / 0xf00;
+#endif
 	return AddClamped(value, p_delta * 2, TRUE);
 }
 
@@ -2253,6 +2270,7 @@ MechScalar SteerToTarget(Player* p_player)
 // order.
 // FUNCTION: MW2 0x10053a2e
 // FUNCTION: MW2GBL 0x10078d32
+// FUNCTION: MW2PREMERCS 0x10039987
 // FUNCTION: MW2MATROX 0x10082c85
 // FUNCTION: MW23DFX 0x10013680
 // FUNCTION: MW2ATI 0x10013b10
@@ -2264,6 +2282,9 @@ void LeaveAIState(Player* p_player)
 
 	flags = 0;
 	p_player->m_steering->m_weaponFire = 0;
+#ifdef MW2_LEAVE_STATE_STOPS_GROUP_FIRE
+	p_player->m_steering->m_weaponFireGroup = 0;
+#endif
 
 	switch (p_player->m_ai.m_state) {
 	case c_aiStatePatrol:
@@ -2302,6 +2323,7 @@ void LeaveAIState(Player* p_player)
 // Enters AI state p_state for p_player, and logs it.
 // FUNCTION: MW2 0x10053be9
 // FUNCTION: MW2GBL 0x10078ecc
+// FUNCTION: MW2PREMERCS 0x10039b2b
 // FUNCTION: MW2MATROX 0x10082e40
 // FUNCTION: MW23DFX 0x10013790
 // FUNCTION: MW2ATI 0x10013c20
@@ -2533,6 +2555,7 @@ MechS16 NextTarget(Player* p_player, MechS16 p_target, MechS16 p_previous)
 // The bearing to p_player's target, 16.16 degrees either way.
 // FUNCTION: MW2 0x1005432f
 // FUNCTION: MW2GBL 0x100795eb
+// FUNCTION: MW2PREMERCS 0x1003a24a
 // FUNCTION: MW2MATROX 0x10083580
 // FUNCTION: MW23DFX 0x10013be0
 // FUNCTION: MW2ATI 0x10014070
@@ -2541,8 +2564,21 @@ MechS16 NextTarget(Player* p_player, MechS16 p_target, MechS16 p_previous)
 MechScalar GetTargetBearing(Player* p_player)
 {
 	MechScalar delta;
+#ifdef MW2_NAV_TARGET_KEPT
+	MechS32 local;
+
+	// The local player's autopilot steers for the nav target.
+	local = p_player->m_index == g_localPlayerId;
+	if (local && p_player->m_mech->m_autopilot) {
+		delta = p_player->m_navTargetInfo.m_heading - p_player->m_heading;
+	}
+	else {
+		delta = p_player->m_targetInfo.m_heading - p_player->m_heading;
+	}
+#else
 
 	delta = p_player->m_targetInfo.m_heading - p_player->m_heading;
+#endif
 	if (delta > FIXED_CONST(180)) {
 		delta -= FIXED_CONST(360);
 	}
@@ -3201,6 +3237,7 @@ void ResetStarOrders(MechS32 p_team)
 // or follow the leader.
 // FUNCTION: MW2 0x100551c6
 // FUNCTION: MW2GBL 0x1007a45d
+// FUNCTION: MW2PREMERCS 0x1003b114
 // FUNCTION: MW2MATROX 0x10084461
 // FUNCTION: MW23DFX 0x10014520
 // FUNCTION: MW2ATI 0x100149b0
@@ -3280,7 +3317,11 @@ void AssignStarObjective(MechS32 p_team)
 			QueueAIState(member, c_aiStateIdle, 0);
 		}
 		else {
+#ifdef MW2_STAR_QUEUES_TARGET
+			QueueAIState(member, state, target);
+#else
 			QueueAIState(member, state, 2);
+#endif
 		}
 
 		member->m_ai.m_flags &= ~3;
@@ -3452,6 +3493,7 @@ void HandleStarOrder(MechS32 p_team, AiMessage* p_order)
 // nearest the target's value (or the leader). Whether one went.
 // FUNCTION: MW2 0x10055811
 // FUNCTION: MW2GBL 0x1007aa86
+// FUNCTION: MW2PREMERCS 0x1003b73f
 // FUNCTION: MW2MATROX 0x10084aac
 // FUNCTION: MW23DFX 0x10014950
 // FUNCTION: MW2ATI 0x10014da0
@@ -3562,6 +3604,7 @@ MechS32 AssignStarTarget(MechS32 p_team, MechU16 p_target)
 // first target of the star's objective that isn't covered yet.
 // FUNCTION: MW2 0x10055bb7
 // FUNCTION: MW2GBL 0x1007ae16
+// FUNCTION: MW2PREMERCS 0x1003bacf
 // FUNCTION: MW2MATROX 0x10084e52
 // FUNCTION: MW23DFX 0x10014ba0
 // FUNCTION: MW2ATI 0x10014ff0

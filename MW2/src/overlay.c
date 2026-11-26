@@ -194,6 +194,7 @@ MechS32 g_sceneInfoShown = 0;
 
 // GLOBAL: MW2 0x100a94e4
 // GLOBAL: MW2GBL 0x100b5afc
+// GLOBAL: MW2PREMERCS 0x100beb4c
 // GLOBAL: MW2MATROX 0x100bcc5c
 // GLOBAL: MW23DFX 0x1025949c
 // GLOBAL: MW2ATI 0x1018d79c
@@ -670,6 +671,7 @@ void HideFrameRate(void)
 
 // FUNCTION: MW2 0x10058b34
 // FUNCTION: MW2GBL 0x10073854
+// FUNCTION: MW2PREMERCS 0x10074454
 // FUNCTION: MW2MATROX 0x1008df9b
 // FUNCTION: MW23DFX 0x1003c800
 // FUNCTION: MW2ATI 0x1003a7d0
@@ -769,6 +771,7 @@ void CountSceneShape(Shape* p_shape)
 
 // FUNCTION: MW2 0x10058d90
 // FUNCTION: MW2GBL 0x10073ab0
+// FUNCTION: MW2PREMERCS 0x100746eb
 void ShowEyePosition(Eyepoint* p_eyepoint)
 {
 	MechChar text[132];
@@ -791,7 +794,12 @@ void ShowEyePosition(Eyepoint* p_eyepoint)
 	if (g_showEyePositionMain) {
 		sprintf(
 			text,
+#ifdef MW2_PREMERCS
+			// The early Mercenaries build pads the numbers with zeros to seven digits.
+			"txyz: %07ld %07ld %07ld\nrxyz: %07d %07d %07d ",
+#else
 			"txyz: %5ld %5ld %5ld\nrxyz: %5d %5d %5d ",
+#endif
 			p_eyepoint->m_x,
 			p_eyepoint->m_y,
 			p_eyepoint->m_z,
@@ -807,12 +815,20 @@ void ShowEyePosition(Eyepoint* p_eyepoint)
 
 // FUNCTION: MW2 0x10058ee0
 // FUNCTION: MW2GBL 0x10073c00
+// FUNCTION: MW2PREMERCS 0x1007483b
 void HideEyePosition(void)
 {
+#ifdef MW2_EYE_POSITION_WIDTH
+	MechChar text[MW2_EYE_POSITION_WIDTH + 2];
+	MechChar format[MW2_EYE_POSITION_WIDTH + 2];
+
+	sprintf(format, "%%%d.%ds", MW2_EYE_POSITION_WIDTH, MW2_EYE_POSITION_WIDTH);
+#else
 	MechChar text[28];
 	MechChar format[28];
 
 	sprintf(format, "%%%d.%ds", 0x18, 0x18);
+#endif
 	sprintf(text, format, g_blankText);
 	DRAW_DEBUG_TEXT();
 	DRAW_DEBUG_TEXT();

@@ -28,6 +28,9 @@ typedef struct DepthEntry {
 	struct QueuedPolygon* m_poly; // 0x00
 	MechScalar m_depth;           // 0x04
 #endif
+#ifdef MW2_DEPTH_ENTRY_UNK_MEMBERS
+	MechU8 m_unk0x08[0x20 - 0x08]; // 0x08 — the early Mercenaries build's entries are 0x20 bytes
+#endif
 } DepthEntry;
 
 // The functions and globals of depthsort.c that other units use.
@@ -54,6 +57,9 @@ extern "C"
 	void DrawShapeListFrom(struct Shape* p_root, struct Eyepoint* p_eyepoint);
 	void DrawQueuedPolygon(struct QueuedPolygon* p_poly);
 	MechS32 ClipPolygonToScreen(struct QueuedPolygon* p_poly, MechU32* p_points);
+#ifdef MW2_TILED_SKY
+	MechS32 ClipPolygonToScreenEdges(struct ProjectedVertex** p_points, MechS32 p_count, MechS32* p_out);
+#endif
 	MechS32 GetEdgeCrossingDepth(MechS32 p_a0, MechS32 p_a1, MechS32 p_edge, MechS32 p_isX, MechS32 p_z0, MechS32 p_z1);
 	void ClipEdgeToColumn(
 		struct ProjectedVertex* p_a,
