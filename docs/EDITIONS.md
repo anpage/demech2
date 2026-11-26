@@ -299,7 +299,7 @@ tests an `MW2_` macro the table doesn't define, and when no target compiles a br
 
 ## Features
 
-From the table in `util/types.h` (238 features) and the 1490 conditional sites of the simulators' sources (`MW2/`, `common/`, `3rdparty/vfx`). A feature's cell is its value where it has one.
+From the table in `util/types.h` (240 features) and the 1493 conditional sites of the simulators' sources (`MW2/`, `common/`, `3rdparty/vfx`). A feature's cell is its value where it has one.
 
 ### The ATI, S3, Matrox, PowerVR and 3Dfx editions (`MW2_ACCEL`)
 
@@ -670,6 +670,8 @@ Every edition that has one of these has them all, so no binary separates one fro
 | `MW2_NUKE_RADIUS` |  |  | 10000 |  |  |  |  |  | 2 | A nuke's blast reaches this far, whatever its effect's shape (StartNuke) |
 | `MW2_RESOLVE_NEAREST_FLAG` |  |  | yes |  |  |  |  |  | 1 | A player in the target state resolves a symbolic target to the nearest one when Player::m_unk0x1a0 is set, else to the best, whatever g_aiSpreadTargets (ResolveTarget) |
 | `MW2_EYE_AIM_ADDS_PITCH` |  |  | yes |  |  |  |  |  | 1 | With bit 2 of Mech::m_unk0x112 set the weapons aim along the eye tilted by the torso's pitch, not at the torso's pitch (GetEyeAimDirection) |
+| `MW2_DEPTH_ENTRY_UNK_MEMBERS` |  |  | yes |  |  |  |  |  | 3 | The depth sort's entries are 0x20 bytes, 0x18 nothing decompiled reads (DepthEntry::m_unk0x08) |
+| `MW2_DODGE_TORSO_PITCH` |  |  | yes |  |  |  |  |  | 1 | DodgeShot takes the shot's pitch from the target's and the torso's, modulo 360 degrees, not the target's alone scaled |
 
 ## Where each feature is tested
 
@@ -911,6 +913,8 @@ Every edition that has one of these has them all, so no binary separates one fro
 - `MW2_NUKE_RADIUS`: `MW2/src/shots.c`: `StartNuke` (2)
 - `MW2_RESOLVE_NEAREST_FLAG`: `MW2/src/ai.c`: `ResolveTarget`
 - `MW2_EYE_AIM_ADDS_PITCH`: `MW2/src/weapons.c`: `GetEyeAimDirection`
+- `MW2_DEPTH_ENTRY_UNK_MEMBERS`: `MW2/include/depthsort.h`: `DepthEntry`; `MW2/src/depthsort.c`: file scope; `MW2/src/recordstacks.c`: `InitializeDrawBuffer`
+- `MW2_DODGE_TORSO_PITCH`: `MW2/src/maneuvers.c`: `DodgeShot`
 
 ## Functions with a definition per edition
 

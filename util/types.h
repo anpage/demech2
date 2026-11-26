@@ -956,6 +956,11 @@ double __cdecl fabs(double);
 /* With bit 2 of Mech::m_unk0x112 set the weapons aim along the eye tilted by the torso's pitch, not at the torso's
    pitch (GetEyeAimDirection) */
 #define MW2_EYE_AIM_ADDS_PITCH
+/* The depth sort's entries are 0x20 bytes, 0x18 nothing decompiled reads (DepthEntry::m_unk0x08) */
+#define MW2_DEPTH_ENTRY_UNK_MEMBERS
+/* DodgeShot takes the shot's pitch from the target's and the torso's, modulo 360 degrees, not the target's alone
+   scaled */
+#define MW2_DODGE_TORSO_PITCH
 /* Mechs take heat from outside (Mech::m_externalHeat, which the radius damage adds to and
    CalculateHeat adds to the frame's heat) */
 #define MW2_EXTERNAL_HEAT

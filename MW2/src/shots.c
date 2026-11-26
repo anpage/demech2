@@ -151,6 +151,7 @@ MechScalar g_nukeMaxRadius;
 // The view that follows a tracked shot: its position, heading and three more angles.
 // GLOBAL: MW2 0x100bee58
 // GLOBAL: MW2GBL 0x100bb708
+// GLOBAL: MW2PREMERCS 0x100cc950
 // GLOBAL: MW2MATROX 0x10124708
 // GLOBAL: MW23DFX 0x1007dc50
 // GLOBAL: MW2ATI 0x10072c50

@@ -780,6 +780,7 @@ MechS32 g_inputDeviceCount = 0;
 // The input driver classes, in the order RegisterInputDevice asks them for a device.
 // GLOBAL: MW2 0x100b7378
 // GLOBAL: MW2GBL 0x100aa678
+// GLOBAL: MW2PREMERCS 0x100bb3b8
 // GLOBAL: MW2MATROX 0x100b6da0
 // GLOBAL: MW23DFX 0x10255f50
 // GLOBAL: MW2ATI 0x1018a260

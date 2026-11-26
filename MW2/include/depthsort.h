@@ -28,6 +28,9 @@ typedef struct DepthEntry {
 	struct QueuedPolygon* m_poly; // 0x00
 	MechScalar m_depth;           // 0x04
 #endif
+#ifdef MW2_DEPTH_ENTRY_UNK_MEMBERS
+	MechU8 m_unk0x08[0x20 - 0x08]; // 0x08 — the early Mercenaries build's entries are 0x20 bytes
+#endif
 } DepthEntry;
 
 // The functions and globals of depthsort.c that other units use.

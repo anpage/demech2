@@ -142,6 +142,7 @@ void ShutdownDrawBuffer(void)
 
 // FUNCTION: MW2 0x1007d150
 // FUNCTION: MW2GBL 0x10001030
+// FUNCTION: MW2PREMERCS 0x10056e00
 // FUNCTION: MW2MATROX 0x100216d0
 // FUNCTION: MW23DFX 0x10025d80
 // FUNCTION: MW2ATI 0x10025af0
@@ -153,7 +154,7 @@ void InitializeDrawBuffer(MechS32 p_kilobytes, MechS32 p_entries)
 
 	g_depthListCapacity = p_entries;
 	g_drawBufferSize = p_kilobytes << 10;
-#ifdef MW2_A3D
+#if defined(MW2_A3D) || defined(MW2_DEPTH_ENTRY_UNK_MEMBERS)
 	size = g_depthListCapacity * (2 * sizeof(DepthEntry)) + (p_kilobytes << 10);
 #else
 	size = (g_depthListCapacity << 4) + (p_kilobytes << 10);

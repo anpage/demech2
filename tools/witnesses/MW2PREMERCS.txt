@@ -135,6 +135,7 @@
 0x10038162 ChooseTeamLeader ai.c pad 13 rename count=zqag i=zqae leader=zqad member=zqai members=zqaf newLeader=zqah
 0x10038765 RetargetGoals ai.c rename i=zqad player=zqae
 0x100389af AiMessageProx ai.c pad 12 rename limit=zqag nearest=zqae nearestTarget=zqah result=zqaf target=zqad
+0x10038b2b AiMessageDist ai.c rename farthest=zqae farthestTarget=zqah limit=zqag result=zqaf target=zqad
 0x10038d52 FindNearestTarget ai.c pad 4 rename blocker=zqai closer=zqan count=zqam i=zqah member=zqag members=zqal mission=zqae nearest=zqaj objective=zqak target=zqad type=zqaf
 0x1003953a FindAttacker ai.c rename i=zqae index=zqad players=zqaf
 0x100398e8 SteerToTarget ai.c rename degrees=zqaf delta=zqad scaled=zqae
@@ -200,6 +201,7 @@
 0x1004e489 HasLineToTarget maneuvers.c rename flags=zqad hit=zqaf ray=zqag target=zqae
 0x1004e5bd IsOutOfAmmo maneuvers.c rename found=zqaf i=zqad slot=zqae
 0x1004e89a GetTargetShape maneuvers.c rename id=zqae index=zqad obj=zqaf
+0x1004e947 DodgeShot maneuvers.c pad 13 rename bearing=zqaj heading=zqab hit=zqaa id=zqai index=zqae j=zqa3 kind=zqag maxAngle=zqad pitch=zqaf range=zqam ray=zqac side=zqas step=zqbo sx=zqan sy=zqap target=zqah x=zqak y=zqal z=zqao
 0x1004ecd2 ChooseFlankPlace maneuvers.c rename angle=zqad found=zqag i=zqae leader=zqah place=zqaf
 0x100502ca LateUpdateArtillery artillery.c rename delta=zqaf mech=zqad twist=zqae
 0x10050617 CreateArtillery artillery.c rename buffer=zqad extra=zqaf i=zqag mech=zqai sections=zqak size=zqah slot=zqae weapons=zqaj

@@ -2336,6 +2336,7 @@ Shape* GetTargetShape(MechS16 p_target)
 // (state 4).
 // FUNCTION: MW2 0x1001632c
 // FUNCTION: MW2GBL 0x1002c49b
+// FUNCTION: MW2PREMERCS 0x1004e947
 // FUNCTION: MW2MATROX 0x1001c1ca
 // FUNCTION: MW23DFX 0x10020ac0
 // FUNCTION: MW2ATI 0x10020d90
@@ -2415,7 +2416,11 @@ void DodgeShot(WeaponSlot* p_slot, Mech* p_mech)
 #endif
 			range = FIXED_CONST(3);
 			maxAngle = 15;
+#ifdef MW2_DODGE_TORSO_PITCH
+			pitch = (p_mech->m_player->m_targetInfo.m_pitch + p_mech->m_torsoPitch.m_value) % 0x1680000;
+#else
 			pitch = p_mech->m_player->m_targetInfo.m_pitch / 0xf00;
+#endif
 #ifdef MW2_FLOAT_SCALARS
 			bearing = fmod(GetTargetBearing(p_mech->m_player), 360.0);
 #else

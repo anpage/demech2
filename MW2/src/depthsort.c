@@ -39,7 +39,11 @@
 #ifdef MW2_DEPTH_ENTRY_TAG
 DECOMP_SIZE_ASSERT(DepthEntry, 0xc)
 #else
+#ifdef MW2_DEPTH_ENTRY_UNK_MEMBERS
+DECOMP_SIZE_ASSERT(DepthEntry, 0x20)
+#else
 DECOMP_SIZE_ASSERT(DepthEntry, 0x8)
+#endif
 #endif
 #ifdef MW2_A3D
 DECOMP_SIZE_ASSERT(ProjectedVertex, 0x3c)
