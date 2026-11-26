@@ -299,7 +299,7 @@ tests an `MW2_` macro the table doesn't define, and when no target compiles a br
 
 ## Features
 
-From the table in `util/types.h` (240 features) and the 1493 conditional sites of the simulators' sources (`MW2/`, `common/`, `3rdparty/vfx`). A feature's cell is its value where it has one.
+From the table in `util/types.h` (241 features) and the 1495 conditional sites of the simulators' sources (`MW2/`, `common/`, `3rdparty/vfx`). A feature's cell is its value where it has one.
 
 ### The ATI, S3, Matrox, PowerVR and 3Dfx editions (`MW2_ACCEL`)
 
@@ -672,6 +672,7 @@ Every edition that has one of these has them all, so no binary separates one fro
 | `MW2_EYE_AIM_ADDS_PITCH` |  |  | yes |  |  |  |  |  | 1 | With bit 2 of Mech::m_unk0x112 set the weapons aim along the eye tilted by the torso's pitch, not at the torso's pitch (GetEyeAimDirection) |
 | `MW2_DEPTH_ENTRY_UNK_MEMBERS` |  |  | yes |  |  |  |  |  | 3 | The depth sort's entries are 0x20 bytes, 0x18 nothing decompiled reads (DepthEntry::m_unk0x08) |
 | `MW2_DODGE_TORSO_PITCH` |  |  | yes |  |  |  |  |  | 1 | DodgeShot takes the shot's pitch from the target's and the torso's, modulo 360 degrees, not the target's alone scaled |
+| `MW2_SHOTS_FELL_BUILDINGS` |  |  | yes |  |  |  |  |  | 1 | A shot fells a game thing whose hit shape is of kind 0xb0 at once (DamageGameThing; GBL's MW2_BUILDINGS_FALL_AT_ONCE tests the static object's shape, and adds an effect) |
 
 ## Where each feature is tested
 
@@ -915,6 +916,7 @@ Every edition that has one of these has them all, so no binary separates one fro
 - `MW2_EYE_AIM_ADDS_PITCH`: `MW2/src/weapons.c`: `GetEyeAimDirection`
 - `MW2_DEPTH_ENTRY_UNK_MEMBERS`: `MW2/include/depthsort.h`: `DepthEntry`; `MW2/src/depthsort.c`: file scope; `MW2/src/recordstacks.c`: `InitializeDrawBuffer`
 - `MW2_DODGE_TORSO_PITCH`: `MW2/src/maneuvers.c`: `DodgeShot`
+- `MW2_SHOTS_FELL_BUILDINGS`: `MW2/src/shots.c`: `DamageGameThing`
 
 ## Functions with a definition per edition
 
@@ -996,9 +998,9 @@ What tests `MW2_ACCEL`, `MW2_MATROX` or `MW2_3DFX` itself rather than a feature,
 - Includes (4): `MW2/include/bandpoly.h`: file scope; `MW2/include/directdraw.h`: file scope; `MW2/src/animation.c`: file scope; `MW2/src/bandpoly.c`: file scope
 - Pragmas that reproduce a unit's flags (4): `MW2/src/accel/queueface.c`: file scope (2); `MW2/src/keyboard.c`: file scope (2)
 
-### `MW2_PREMERCS` (12 sites)
+### `MW2_PREMERCS` (13 sites)
 
-- In a function: the edition's back end, what the shared code does for it, or the same computation written another way (7): `MW2/src/audio.c`: `StartMissionMusic`; `MW2/src/gbl/ams.c`: `AmsFrame` (2); `MW2/src/menu.c`: `RunMenuItems`; `MW2/src/palette.c`: `ApplyPendingPalette`; `MW2/src/render.c`: `InitDisplayGeometry`; `MW2/src/weapons.c`: `SelectNextWeaponInGroup`
+- In a function: the edition's back end, what the shared code does for it, or the same computation written another way (8): `MW2/src/audio.c`: `StartMissionMusic`; `MW2/src/gbl/ams.c`: `AmsFrame` (2); `MW2/src/menu.c`: `RunMenuItems`; `MW2/src/palette.c`: `ApplyPendingPalette`; `MW2/src/render.c`: `InitDisplayGeometry`; `MW2/src/resource.c`: `GetPointNormalPlane`; `MW2/src/weapons.c`: `SelectNextWeaponInGroup`
 - A fragment included at the position of the object that holds it (3): `MW2/src/clock.c`: file scope; `MW2/src/config.c`: file scope; `MW2/src/objectanim.c`: file scope
 - Data and declarations that differ (2): `MW2/src/refreshmode.c`: file scope; `MW2/src/simmain.c`: file scope
 

@@ -779,6 +779,7 @@ void GetTrianglePlane(
 
 // FUNCTION: MW2 0x1005005e
 // FUNCTION: MW2GBL 0x100530f5
+// FUNCTION: MW2PREMERCS 0x1007e528
 // FUNCTION: MW2MATROX 0x10049d0f
 // FUNCTION: MW23DFX 0x100431f0
 void GetPointNormalPlane(
@@ -802,7 +803,12 @@ void GetPointNormalPlane(
 	a = p_nx;
 	b = -p_ny;
 	c = p_nz;
+	// The early Mercenaries build sums the distance in another order.
+#ifdef MW2_PREMERCS
+	d = -(c * p_z + b * p_y + a * p_x);
+#else
 	d = -(p_x * a + p_y * b + p_z * c);
+#endif
 	ScalePlane(a, b, c, d, p_planeX, p_planeY, p_planeZ, p_planeW);
 }
 

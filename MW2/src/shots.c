@@ -1997,6 +1997,7 @@ void KillGameThing(MechU32 p_index)
 // blows it up and counts it destroyed.
 // FUNCTION: MW2 0x1006c11c
 // FUNCTION: MW2GBL 0x1007e076
+// FUNCTION: MW2PREMERCS 0x100878e8
 // FUNCTION: MW2MATROX 0x1006cd40
 // FUNCTION: MW23DFX 0x10046c20
 // FUNCTION: MW2ATI 0x10044350
@@ -2055,7 +2056,16 @@ void DamageGameThing(
 		KillGameThing(index);
 	}
 #else
+#ifdef MW2_SHOTS_FELL_BUILDINGS
+	if ((p_shape->m_kind & 0xf0) == 0xb0) {
+		thing->m_hitPoints = 0;
+	}
+	else {
+		thing->m_hitPoints -= (MechS32) p_damage;
+	}
+#else
 	thing->m_hitPoints -= (MechS32) p_damage;
+#endif
 	if (thing->m_hitPoints <= 0) {
 		thing->m_hitPoints = 0;
 		if ((p_shape->m_kind & 0xf0) == 0xb0) {

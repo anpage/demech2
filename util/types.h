@@ -961,6 +961,9 @@ double __cdecl fabs(double);
 /* DodgeShot takes the shot's pitch from the target's and the torso's, modulo 360 degrees, not the target's alone
    scaled */
 #define MW2_DODGE_TORSO_PITCH
+/* A shot fells a game thing whose hit shape is of kind 0xb0 at once (DamageGameThing; GBL's MW2_BUILDINGS_FALL_AT_ONCE
+   tests the static object's shape, and adds an effect) */
+#define MW2_SHOTS_FELL_BUILDINGS
 /* Mechs take heat from outside (Mech::m_externalHeat, which the radius damage adds to and
    CalculateHeat adds to the frame's heat) */
 #define MW2_EXTERNAL_HEAT
