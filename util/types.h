@@ -976,6 +976,13 @@ double __cdecl fabs(double);
 #define MW2_CAMPAIGN_BWD_TAGS
 /* A BWD stream's WTHR record starts rain or snow (StartPrecipitation, premercs/precipitation.c) */
 #define MW2_WEATHER_RECORD
+/* The AI leads its target when Player::m_leadsTarget is set (LeadAITarget: where the target will be when
+   the shot reaches it), fires below its pilot's heat limit and locks on by its lock chance (RollAILock),
+   and decides the group's fire apart (DecideAIGroupFire) */
+#define MW2_AI_LEAD_TARGET
+/* LoadSndCfg makes default sound settings (full volumes, every detail on, mcga.dll) when it can't read
+   MW2SND.CFG, where the later builds clear them */
+#define MW2_SOUND_CONFIG_DEFAULTS
 /* The pause sound is another sound of the PRJ's (PlayPauseSound) */
 #define MW2_PAUSE_SOUND 0x149
 /* FindIniSection and GetIniValue open MW2.INI by that name in capitals */
@@ -988,8 +995,9 @@ double __cdecl fabs(double);
 #define MW2_BANKING_PLAYER_TYPE
 /* AimTorsoTilt takes the pitch it aims at, which its callers pass (the target's or another) */
 #define MW2_TORSO_TILT_TAKES_PITCH
-/* The class table's entries have 4 bytes more, before m_released (ClassEntry::m_unk0x42) */
-#define MW2_CLASS_ENTRY_UNK_MEMBER
+/* The class table's entries keep their object record's flags (ClassEntry::m_flags, AddClassEntryLevel), which
+   LoadClassEntryShape passes to SetShapeFlags */
+#define MW2_CLASS_ENTRY_FLAGS
 /* JoystickPoll neither clears its JOYINFOEX nor sets its size */
 #define MW2_JOYINFOEX_UNCLEARED
 /* FlushSpeechQueue sets g_speechLocked once it has flushed the queue, and not at all when the queue is empty */

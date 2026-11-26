@@ -952,7 +952,21 @@ void CreateObjectNode(
 			parent = MapResourceId(parent);
 			parentIndex = FindThingIdxById(parent);
 			g_thingIndices[g_thingCount] =
+#ifdef MW2_CLASS_ENTRY_FLAGS
+				AddClassEntryLevel(
+					resource,
+					xform.m_x,
+					xform.m_y,
+					xform.m_z,
+					parentIndex,
+					p_level,
+					thing,
+					unk0x34,
+					flags
+				);
+#else
 				AddClassEntryLevel(resource, xform.m_x, xform.m_y, xform.m_z, parentIndex, p_level, thing, unk0x34);
+#endif
 			g_thingCount++;
 			UnlockCachedResource(resource, g_resTagPoly);
 			return;

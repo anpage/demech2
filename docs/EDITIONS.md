@@ -299,7 +299,7 @@ tests an `MW2_` macro the table doesn't define, and when no target compiles a br
 
 ## Features
 
-From the table in `util/types.h` (262 features) and the 1605 conditional sites of the simulators' sources (`MW2/`, `common/`, `3rdparty/vfx`). A feature's cell is its value where it has one.
+From the table in `util/types.h` (264 features) and the 1618 conditional sites of the simulators' sources (`MW2/`, `common/`, `3rdparty/vfx`). A feature's cell is its value where it has one.
 
 ### The ATI, S3, Matrox, PowerVR and 3Dfx editions (`MW2_ACCEL`)
 
@@ -641,7 +641,7 @@ Every edition that has one of these has them all, so no binary separates one fro
 
 | Feature | 1.1 | ATI | Pre-Mercs | S3 | Matrox | PowerVR | GBL | 3Dfx | Sites | What it does |
 |---|:-:|:-:|:-:|:-:|:-:|:-:|:-:|:-:|--:|---|
-| `MW2_SHAPE_GRID` |  |  | yes |  |  |  |  |  | 36 | The scene's shapes are filed in a grid of 12 by 12 cells, 25000 units each, around the origin, each shape keeping its cell (Shape::m_gridX, m_gridZ; shapelists.c) |
+| `MW2_SHAPE_GRID` |  |  | yes |  |  |  |  |  | 40 | The scene's shapes are filed in a grid of 12 by 12 cells, 25000 units each, around the origin, each shape keeping its cell (Shape::m_gridX, m_gridZ; shapelists.c) |
 | `MW2_PLAYER_UNK_MEMBERS` |  |  | yes |  |  |  |  |  | 5 | Players have 0x46 bytes more than GBL's, in three places (Player::m_navTargetInfo, m_unk0x184, m_unk0x1a0 and m_unk0x1a4) |
 | `MW2_MECH_UNK_MEMBERS` |  |  | yes |  |  |  |  |  | 6 | Mechs, their weapon slots and their ammunition bins have 0x8f, 0xc and 8 bytes more than GBL's (Mech::m_unk0x114, WeaponSlot::m_unk0x64 and m_unk0x6c, AmmoBin::m_unk0x14 and WeaponBin::m_unk0x14) |
 | `MW2_COCKPIT_PANEL_UNK_MEMBERS` |  |  | yes |  |  |  |  |  | 6 | Cockpit panels are 0xf0 bytes, with a member and a setter of their own first (CockpitPanel::m_unk0x30, m_unk0xc4) |
@@ -674,13 +674,15 @@ Every edition that has one of these has them all, so no binary separates one fro
 | `MW2_RANDOM_INDEX_RESET` |  |  | yes |  |  |  |  |  | 2 | RandomIntBelow and RandomNormal set their table's index back to 0 at 127, where the later builds take it modulo 127 (RandomIntBelow2 and RandomNormal2 already do) |
 | `MW2_CAMPAIGN_BWD_TAGS` |  |  | yes |  |  |  |  |  | 3 | BWD streams have Mercenaries' campaign records, 15 node tags more (CPGN, PILT, TECH, NEWS…), which have no names (g_bwdTypeCodes, GetKeywordName) |
 | `MW2_WEATHER_RECORD` |  |  | yes |  |  |  |  |  | 3 | A BWD stream's WTHR record starts rain or snow (StartPrecipitation, premercs/precipitation.c) |
+| `MW2_AI_LEAD_TARGET` |  |  | yes |  |  |  |  |  | 3 | The AI leads its target when Player::m_leadsTarget is set (LeadAITarget: where the target will be when the shot reaches it), fires below its pilot's heat limit and locks on by its lock chance (RollAILock), and decides the group's fire apart (DecideAIGroupFire) |
+| `MW2_SOUND_CONFIG_DEFAULTS` |  |  | yes |  |  |  |  |  | 1 | LoadSndCfg makes default sound settings (full volumes, every detail on, mcga.dll) when it can't read MW2SND.CFG, where the later builds clear them |
 | `MW2_PAUSE_SOUND` |  |  | 0x149 |  |  |  |  |  | 1 | The pause sound is another sound of the PRJ's (PlayPauseSound) |
 | `MW2_INI_UPPER_NAME` |  |  | yes |  |  |  |  |  | 2 | FindIniSection and GetIniValue open MW2.INI by that name in capitals |
 | `MW2_ERROR_TEXT_RAW` |  |  | yes |  |  |  |  |  | 1 | An error's text is the raw value of its code in the "SystemError" section, its comment kept (FormatErrorMessage) |
 | `MW2_DEBRIS_NOT_SHOWN` |  |  | yes |  |  |  |  |  | 1 | ScatterDebris throws its pieces without showing their objects |
 | `MW2_BANKING_PLAYER_TYPE` |  |  | yes |  |  |  |  |  | 3 | Players of a type 8 bank into their turns (FUN_10037d84 from UpdateAI) |
-| `MW2_TORSO_TILT_TAKES_PITCH` |  |  | yes |  |  |  |  |  | 4 | AimTorsoTilt takes the pitch it aims at, which its callers pass (the target's or another) |
-| `MW2_CLASS_ENTRY_UNK_MEMBER` |  |  | yes |  |  |  |  |  | 2 | The class table's entries have 4 bytes more, before m_released (ClassEntry::m_unk0x42) |
+| `MW2_TORSO_TILT_TAKES_PITCH` |  |  | yes |  |  |  |  |  | 3 | AimTorsoTilt takes the pitch it aims at, which its callers pass (the target's or another) |
+| `MW2_CLASS_ENTRY_FLAGS` |  |  | yes |  |  |  |  |  | 7 | The class table's entries keep their object record's flags (ClassEntry::m_flags, AddClassEntryLevel), which LoadClassEntryShape passes to SetShapeFlags |
 | `MW2_SPEECH_LOCKED_AFTER_FLUSH` |  |  | yes |  |  |  |  |  | 2 | FlushSpeechQueue sets g_speechLocked once it has flushed the queue, and not at all when the queue is empty |
 | `MW2_FADE_TO_END_UNBLENDED` |  |  | yes |  |  |  |  |  | 1 | FadeToEndPalette applies the end palette without blending to it first |
 | `MW2_EYE_POSITION_WIDTH` |  |  | 0x32 |  |  |  |  |  | 1 | The eye position's overlay line is this many characters wide (HideEyePosition) |
@@ -906,7 +908,7 @@ Every edition that has one of these has them all, so no binary separates one fro
 - `MW2_SOUND_INFO_FILL_MINUS_ONE`: `MW2/src/soundlimits.c`: `InitSoundInfo`
 - `MW2_DDRAW_STOP_KEEPS_MODE`: `MW2/src/directdraw.c`: `DdrawStop`
 - `MW2_REMOTE_MECHS_STAY`: `MW2/src/mechclass.c`: `UpdateMech`
-- `MW2_SHAPE_GRID`: `MW2/include/object.h`: file scope; `MW2/include/shape.h`: `Shape`; `MW2/include/shapelists.h`: file scope (4); `MW2/src/collision.c`: `FindNearestShape` (2), `GetHighestSurface`, `GetTerrainHeight` (2), `TestSceneryCollision` (3), `TestSegmentCollision` (3); `MW2/src/object.c`: the definition of `UpdateObj`, the definitions of `UpdateObj`, `UpdateObjTree`; `MW2/src/shapelists.c`: `AddSceneShape` (3), `EnableShapeCollision`, `FreeSceneShapes`, `InitShapeLists` (2), `ShowDensityShapes` (2), `ShowShape` (2), `UnlinkShape`, file scope (3), the definitions of `DisableShapeGrid`, `EnableShapeGrid`, `InitShapeGridNeighbours`, `ListAllShapeGridCells`, `ListShapeGridCellsAhead`, `ListShapeGridCellsAround`, the definitions of `GetShapeGridHead`, `GetShapeGridList`, `MoveObjTreeOffGrid`, `MoveObjTreeToCell`, `UpdateShapeGridCell`
+- `MW2_SHAPE_GRID`: `MW2/include/object.h`: file scope; `MW2/include/shape.h`: `Shape`; `MW2/include/shapelists.h`: file scope (4); `MW2/src/collision.c`: `FindNearestShape` (2), `GetHighestSurface`, `GetTerrainHeight` (2), `TestSceneryCollision` (3), `TestSegmentCollision` (3); `MW2/src/depthsort.c`: file scope, the definition of `DrawShapeListFrom`; `MW2/src/mapview.c`: `DrawMapViewScene` (2); `MW2/src/object.c`: the definition of `UpdateObj`, the definitions of `UpdateObj`, `UpdateObjTree`; `MW2/src/shapelists.c`: `AddSceneShape` (3), `EnableShapeCollision`, `FreeSceneShapes`, `InitShapeLists` (2), `ShowDensityShapes` (2), `ShowShape` (2), `UnlinkShape`, file scope (3), the definitions of `DisableShapeGrid`, `EnableShapeGrid`, `InitShapeGridNeighbours`, `ListAllShapeGridCells`, `ListShapeGridCellsAhead`, `ListShapeGridCellsAround`, the definitions of `GetShapeGridHead`, `GetShapeGridList`, `MoveObjTreeOffGrid`, `MoveObjTreeToCell`, `UpdateShapeGridCell`
 - `MW2_PLAYER_UNK_MEMBERS`: `MW2/include/players.h`: `Player` (3); `MW2/src/ai.c`: file scope; `MW2/src/poolsizes.c`: `BuildStaticMemoryTable`
 - `MW2_MECH_UNK_MEMBERS`: `MW2/include/ammobin.h`: `AmmoBin`; `MW2/include/mech.h`: `Mech`; `MW2/include/weaponslot.h`: `WeaponBin`, `WeaponSlot` (2); `MW2/src/mechclass.c`: file scope
 - `MW2_COCKPIT_PANEL_UNK_MEMBERS`: `MW2/include/cockpitpanel.h`: `CockpitPanel` (2), file scope; `MW2/src/cockpitpanel.c`: `InitCockpitPanel`, file scope, the definition of `SetCockpitPanelMfdMode`
@@ -939,13 +941,15 @@ Every edition that has one of these has them all, so no binary separates one fro
 - `MW2_RANDOM_INDEX_RESET`: `MW2/src/random.c`: `RandomIntBelow`, `RandomNormal`
 - `MW2_CAMPAIGN_BWD_TAGS`: `MW2/include/bwdkeywords.h`: `enum`, file scope; `MW2/src/bwdkeywords.c`: `g_bwdTypeCodes`
 - `MW2_WEATHER_RECORD`: `MW2/src/world.c`: `BwdExecuteStream`, file scope (2)
+- `MW2_AI_LEAD_TARGET`: `MW2/include/aiweapons.h`: file scope; `MW2/src/aiweapons.c`: file scope, the definitions of `DecideAIFire`, `DecideAIGroupFire`, `LeadAITarget`, `RollAILock`, `RunAIWeapons`, `RunAIWeaponsDirect`, `RunAIWeaponsLeading`
+- `MW2_SOUND_CONFIG_DEFAULTS`: `MW2/src/config.c`: the definition of `LoadSndCfg`
 - `MW2_PAUSE_SOUND`: `MW2/src/pausebanner.c`: `PlayPauseSound`
 - `MW2_INI_UPPER_NAME`: `MW2/src/inifile.c`: `FindIniSection`, `GetIniValue`
 - `MW2_ERROR_TEXT_RAW`: `MW2/src/error.c`: `FormatErrorMessage`
 - `MW2_DEBRIS_NOT_SHOWN`: `MW2/src/shots.c`: `ScatterDebris`
 - `MW2_BANKING_PLAYER_TYPE`: `MW2/src/ai.c`: `UpdateAI`, file scope, the definitions of `FUN_10037d84`, `FUN_10037da7`
-- `MW2_TORSO_TILT_TAKES_PITCH`: `MW2/include/ai.h`: file scope; `MW2/src/ai.c`: `AimTorsoTilt` (2); `MW2/src/aiweapons.c`: `RunAIWeapons`
-- `MW2_CLASS_ENTRY_UNK_MEMBER`: `MW2/include/classentry.h`: `ClassEntry`; `MW2/src/classtable.c`: file scope
+- `MW2_TORSO_TILT_TAKES_PITCH`: `MW2/include/ai.h`: file scope; `MW2/src/ai.c`: `AimTorsoTilt` (2)
+- `MW2_CLASS_ENTRY_FLAGS`: `MW2/include/classentry.h`: `ClassEntry`; `MW2/include/classtable.h`: file scope; `MW2/src/classtable.c`: `AddClassEntryLevel` (2), `LoadClassEntryShape`, file scope; `MW2/src/resource.c`: `CreateObjectNode`
 - `MW2_SPEECH_LOCKED_AFTER_FLUSH`: `MW2/src/speech.c`: `FlushSpeechQueue` (2)
 - `MW2_FADE_TO_END_UNBLENDED`: `MW2/src/fadepal.c`: `FadeToEndPalette`
 - `MW2_EYE_POSITION_WIDTH`: `MW2/src/overlay.c`: `HideEyePosition`
@@ -976,7 +980,8 @@ Where an edition's version of a function differs in its control flow or in more 
 | `DdrawPaletteFade` | `MW2/src/directdraw.c` | `defined(MW2_FADE_STEPS_ONLY)` | ATI and S3; 1.1, Pre-Mercs, PowerVR and GBL |
 | `DdrawWritePaletteEntries` | `MW2/src/directdraw.c` | `defined(MW2_DDRAW_PALETTE_UNSET)` | ATI, S3 and PowerVR; 1.1, Pre-Mercs and GBL |
 | `DdrawWritePaletteGamma` | `MW2/src/directdraw.c` | `defined(MW2_DDRAW_PALETTE_UNSET)` | ATI, S3 and PowerVR; 1.1, Pre-Mercs and GBL |
-| `DecideAIFire` | `MW2/src/aiweapons.c` | `defined(MW2_PILOT_TABLE)` | Pre-Mercs and GBL; 1.1, ATI, S3, Matrox, PowerVR and 3Dfx |
+| `DecideAIFire` | `MW2/src/aiweapons.c` | `defined(MW2_AI_LEAD_TARGET)` | Pre-Mercs; 1.1, ATI, S3, Matrox, PowerVR, GBL and 3Dfx |
+| `DecideAIFire` | `MW2/src/aiweapons.c` | `defined(MW2_PILOT_TABLE)` | GBL; 1.1, ATI, S3, Matrox, PowerVR and 3Dfx |
 | `DestroyMech` | `MW2/src/mechdamage.c` | `defined(MW2_DESTROY_BLOWS_FIRST_BIN)` | GBL; 1.1, ATI, Pre-Mercs, S3, Matrox, PowerVR and 3Dfx |
 | `DestroySection` | `MW2/src/mechdamage.c` | `defined(MW2_HEAD_SHUTDOWN)` | Pre-Mercs; 1.1, ATI, S3, Matrox, PowerVR, GBL and 3Dfx |
 | `DrawArmorBars` | `MW2/src/damagepanel.c` | `defined(MW2_MFD_PANELS)` | Pre-Mercs; 1.1, ATI, S3, Matrox, PowerVR, GBL and 3Dfx |
@@ -989,6 +994,7 @@ Where an edition's version of a function differs in its control flow or in more 
 | `DrawObjectBrackets` | `MW2/src/hud.c` | `!defined(MW2_HUD_MARKER_LAG)` | 1.1, ATI, Pre-Mercs, S3, Matrox, GBL and 3Dfx; PowerVR |
 | `DrawPlayerBrackets` | `MW2/src/hud.c` | `!defined(MW2_HUD_MARKER_LAG)` | 1.1, ATI, Pre-Mercs, S3, Matrox, GBL and 3Dfx; PowerVR |
 | `DrawScene` | `MW2/src/render.c` | `defined(MW2_POWERVR)` | PowerVR; 1.1, ATI, Pre-Mercs, S3, Matrox, GBL and 3Dfx |
+| `DrawShapeListFrom` | `MW2/src/depthsort.c` | `defined(MW2_SHAPE_GRID)` | Pre-Mercs; 1.1, ATI, S3, Matrox, PowerVR, GBL and 3Dfx |
 | `DrawSkyAndGround` | `MW2/src/polydraw.c` | `defined(MW2_A3D)` | ATI, S3, Matrox, PowerVR and 3Dfx; 1.1, Pre-Mercs and GBL |
 | `DrawSkyAndGround` | `MW2/src/polydraw.c` | `defined(MW2_S3)` | S3; ATI, Matrox, PowerVR and 3Dfx |
 | `DrawTargetMarker` | `MW2/src/hud.c` | `!defined(MW2_HUD_MARKER_LAG)` | 1.1, ATI, Pre-Mercs, S3, Matrox, GBL and 3Dfx; PowerVR |
@@ -1015,8 +1021,10 @@ Where an edition's version of a function differs in its control flow or in more 
 | `JoystickPoll` | `MW2/src/joystick.c` | `defined(MW2_JOYSTICK_AXIS_SUMS)` | Matrox; PowerVR; 1.1, ATI, Pre-Mercs, S3, GBL and 3Dfx |
 | `KillMech` | `MW2/src/mechdamage.c` | `defined(MW2_KILLS_BY_LAST_SHOOTER)` | Pre-Mercs and GBL; 1.1, ATI, S3, Matrox, PowerVR and 3Dfx |
 | `LoadSkyGroundSettings` | `MW2/src/polydraw.c` | `defined(MW2_S3)` | S3; ATI, Matrox, PowerVR and 3Dfx |
+| `LoadSndCfg` | `MW2/src/config.c` | `defined(MW2_SOUND_CONFIG_DEFAULTS)` | Pre-Mercs; 1.1, ATI, S3, Matrox, PowerVR, GBL and 3Dfx |
 | `PlayPositionalSound` | `MW2/src/soundfx.c` | `defined(MW2_POSITIONAL_SOUND_FLAGS)` | Pre-Mercs and GBL; 1.1, ATI, S3, Matrox, PowerVR and 3Dfx |
 | `RotateTexturePoint` | `MW2/src/animation.c` | `defined(MW2_S3)` | S3; ATI, Matrox, PowerVR and 3Dfx |
+| `RunAIWeapons` | `MW2/src/aiweapons.c` | `defined(MW2_AI_LEAD_TARGET)` | Pre-Mercs; 1.1, ATI, S3, Matrox, PowerVR, GBL and 3Dfx |
 | `SayLancemateReport` | `MW2/src/speech.c` | `defined(MW2_LANCEMATE_VOICES)` | Pre-Mercs; 1.1, ATI, S3, Matrox, PowerVR, GBL and 3Dfx |
 | `ScaleBarGauges` | `MW2/src/bargauges.c` | `defined(MW2_MFD_PANELS)` | Pre-Mercs; 1.1, ATI, S3, Matrox, PowerVR, GBL and 3Dfx |
 | `SetGameResolution` | `MW2/src/simmain.c` | `defined(MW2_RES_800X600)` | 3Dfx; S3; PowerVR; 1.1, ATI, Pre-Mercs, Matrox and GBL |

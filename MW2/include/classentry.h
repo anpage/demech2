@@ -15,7 +15,8 @@ struct Shape;
 #define ClassEntryCoord undefined4
 #endif
 
-// SIZE 0x44 (0x58 in the PowerVR edition)
+// SIZE 0x44 (0x58 in the PowerVR edition, 0x48 in the early Mercenaries build, whose members from m_x
+// on are 4 bytes further than the comments give)
 // An entry of g_classTable: a shape a player's mech uses, with up to five levels of detail.
 typedef struct ClassEntry {
 	MechS32 m_owner;           // 0x00 — a player index; -1 free, -2 until ClaimNewClassEntries
@@ -25,16 +26,14 @@ typedef struct ClassEntry {
 	MechS32 m_partId;          // 0x20
 	struct Shape* m_shape;     // 0x24
 	struct SceneObject* m_obj; // 0x28
-	ClassEntryCoord m_x;       // 0x2c
-	ClassEntryCoord m_y;       // 0x30
-	ClassEntryCoord m_z;       // 0x34
-	MechU16 m_kinds[5];        // 0x38 — by level; the shape kind in bits 4-7
-#ifdef MW2_CLASS_ENTRY_UNK_MEMBER
-	undefined m_unk0x42[0x46 - 0x42]; // 0x42 — the early Mercenaries build's
-	MechS16 m_released;               // 0x46
-#else
-	MechS16 m_released; // 0x42
+#ifdef MW2_CLASS_ENTRY_FLAGS
+	MechS32 m_flags; // 0x2c in the early Mercenaries build — the object record's (SetShapeFlags)
 #endif
+	ClassEntryCoord m_x; // 0x2c
+	ClassEntryCoord m_y; // 0x30
+	ClassEntryCoord m_z; // 0x34
+	MechU16 m_kinds[5];  // 0x38 — by level; the shape kind in bits 4-7
+	MechS16 m_released;  // 0x42
 #ifdef MW2_POWERVR
 	// The PowerVR edition's entries are 0x58 bytes, with the SGL list of each level's shape, kept
 	// while another level is shown (-1 not converted yet).

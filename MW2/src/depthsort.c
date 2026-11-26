@@ -22,6 +22,9 @@
 #include "scaledelta.h"
 #include "shape.h"
 #include "shapegeom.h"
+#ifdef MW2_SHAPE_GRID
+#include "shapelists.h"
+#endif
 #include "types.h"
 #include "vertex.h"
 #include "view.h"
@@ -494,6 +497,24 @@ void QueueObjTree(SceneObject* p_object)
 #include "drawobjtreeshapes.c"
 #endif
 
+#ifdef MW2_SHAPE_GRID
+// The early Mercenaries build's draws the shape grid's cells ahead of the eyepoint, not p_root.
+// FUNCTION: MW2PREMERCS 0x1005d4e7
+void DrawShapeListFrom(Shape* p_root, Eyepoint* p_eyepoint)
+{
+	MechS32 i;
+	Shape* list;
+
+	SelectEyepoint(p_eyepoint);
+	list = p_root;
+	ListShapeGridCellsAhead(p_eyepoint);
+	i = 0;
+	for (list = g_shapeGridLists[i]; list; list = g_shapeGridLists[i]) {
+		DrawShapeList(list);
+		i++;
+	}
+}
+#else
 // FUNCTION: MW2 0x10033d0f
 // FUNCTION: MW2GBL 0x100399d9
 // FUNCTION: MW2MATROX 0x100238f0
@@ -503,6 +524,7 @@ void DrawShapeListFrom(Shape* p_root, Eyepoint* p_eyepoint)
 	SelectEyepoint(p_eyepoint);
 	DrawShapeList(p_root);
 }
+#endif
 
 #ifndef MW2_A3D
 // Draws a queued polygon, clipping it to the screen first if a vertex lies far outside it.

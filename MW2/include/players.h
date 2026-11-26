@@ -118,12 +118,18 @@ struct Player {
 	MechS32 m_nav;             // 0x16a — a nav target id the AI placed, or 0x1000
 	MechS16 m_nextDetectCheck; // 0x16e — the clock (truncated) when IsTargetDetectable next looks
 #ifdef MW2_PLAYER_UNK_MEMBERS
-	MechS32 m_unk0x1a0; // 0x1a0 in the early Mercenaries build — set, a player in the target state takes the nearest
-						// target (ResolveTarget)
-	undefined m_unk0x1a4[0x1b4 - 0x1a4]; // 0x1a4 in the early Mercenaries build
-	MechS32 m_unk0x1b4;                  // 0x1b4 in the early Mercenaries build — 1: it aims at a mech's feet
-										 // (TargetGamePiece)
-	undefined m_unk0x1b8[0x1bc - 0x1b8]; // 0x1b8 in the early Mercenaries build
+	MechS32 m_unk0x1a0;    // 0x1a0 in the early Mercenaries build — set, a player in the target state takes the nearest
+						   // target (ResolveTarget)
+	undefined4 m_unk0x1a4; // 0x1a4 in the early Mercenaries build
+	MechS32 m_heatLimit;   // 0x1a8 in the early Mercenaries build — its AI fires only while the weapon's heat
+						   // leaves the mech's below it (DecideAIFire)
+	MechS32 m_lockChance;  // 0x1ac in the early Mercenaries build — the percent chance a guided volley locks
+						   // on (RollAILock)
+	undefined4 m_unk0x1b0Mercs; // 0x1b0 in the early Mercenaries build (1.1 has an m_unk0x1b0 of its own)
+	MechS32 m_unk0x1b4;         // 0x1b4 in the early Mercenaries build — 1: it aims at a mech's feet
+								// (TargetGamePiece)
+	MechS32 m_leadsTarget;      // 0x1b8 in the early Mercenaries build — its AI aims where the target will be
+								// (RunAIWeapons)
 #endif
 	MechS16 m_maneuver;              // 0x170 — c_maneuver…, or -1
 	MechS16 m_lastManeuver;          // 0x172 — the previous maneuver, or -1
