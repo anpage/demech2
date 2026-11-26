@@ -299,7 +299,7 @@ tests an `MW2_` macro the table doesn't define, and when no target compiles a br
 
 ## Features
 
-From the table in `util/types.h` (241 features) and the 1495 conditional sites of the simulators' sources (`MW2/`, `common/`, `3rdparty/vfx`). A feature's cell is its value where it has one.
+From the table in `util/types.h` (245 features) and the 1507 conditional sites of the simulators' sources (`MW2/`, `common/`, `3rdparty/vfx`). A feature's cell is its value where it has one.
 
 ### The ATI, S3, Matrox, PowerVR and 3Dfx editions (`MW2_ACCEL`)
 
@@ -642,9 +642,13 @@ Every edition that has one of these has them all, so no binary separates one fro
 | Feature | 1.1 | ATI | Pre-Mercs | S3 | Matrox | PowerVR | GBL | 3Dfx | Sites | What it does |
 |---|:-:|:-:|:-:|:-:|:-:|:-:|:-:|:-:|--:|---|
 | `MW2_SHAPE_GRID` |  |  | yes |  |  |  |  |  | 25 | The scene's shapes are filed in a grid of 12 by 12 cells, 25000 units each, around the origin, each shape keeping its cell (Shape::m_gridX, m_gridZ; shapelists.c) |
-| `MW2_PLAYER_UNK_MEMBERS` |  |  | yes |  |  |  |  |  | 4 | Players have 0x46 bytes more than GBL's, in three places (Player::m_unk0xe8 to m_unk0x109, m_unk0x184, m_unk0x1a0 and m_unk0x1a4) |
+| `MW2_PLAYER_UNK_MEMBERS` |  |  | yes |  |  |  |  |  | 5 | Players have 0x46 bytes more than GBL's, in three places (Player::m_unk0xe8 to m_unk0x109, m_unk0x184, m_unk0x1a0 and m_unk0x1a4) |
 | `MW2_MECH_UNK_MEMBERS` |  |  | yes |  |  |  |  |  | 6 | Mechs, their weapon slots and their ammunition bins have 0x8f, 0xc and 8 bytes more than GBL's (Mech::m_unk0x114, WeaponSlot::m_unk0x64 and m_unk0x6c, AmmoBin::m_unk0x14 and WeaponBin::m_unk0x14) |
-| `MW2_COCKPIT_PANEL_UNK_MEMBERS` |  |  | yes |  |  |  |  |  | 6 | Cockpit panels are 0xf0 bytes, their text origin first and a member and a setter of their own (CockpitPanel::m_unk0x34, m_unk0x9c, m_unk0xcc) |
+| `MW2_COCKPIT_PANEL_UNK_MEMBERS` |  |  | yes |  |  |  |  |  | 6 | Cockpit panels are 0xf0 bytes, with a member and a setter of their own first (CockpitPanel::m_unk0x30, m_unk0xc4) |
+| `MW2_THIRTY_FOUR_PANELS` |  |  | yes |  |  |  |  |  | 5 | The cockpit has 34 panels, not 30, laid out anew: four more at the end, and the mech view's transition on five more of them (c_panelCount; g_cockpitPanelPanes) |
+| `MW2_MAP_VIEW_WITHOUT_RADAR` |  |  | yes |  |  |  |  |  | 4 | Outside network games the cockpit's map views run with the radar off too (DifficultyCfg::m_radar: ShutdownCockpitPanels, UpdateCockpit) |
+| `MW2_HIDDEN_HUD_HIDES_NETWORK_PANEL` |  |  | yes |  |  |  |  |  | 1 | While the HUD is hidden (g_showHud), UpdateCockpit doesn't draw the network panel either |
+| `MW2_MFD_GAME_KEYS` |  |  | yes |  |  |  |  |  | 4 | 21 more game keys: the MFDs' (MFD_CYCLE_A to _F, MFDS_RESET, SAVE_HUD, TOGGLE_COMPASS, TOGGLE_WEAPONS), the starmates' orders (STARMATE_SET_ALL to STARMATE_SHUTDOWN), two more weapon groups and FIRE_CYCLE_WEAPON_GROUP, which renumber the others (GAME_KEY_ACTION; g_gameKeyNames) |
 | `MW2_CLAN_AND_IS_WEAPONS` |  |  | yes |  |  |  |  |  | 2 | The weapons are the Clans' (GBL's, renamed and retuned) and 31 of the Inner Sphere (WEAPON_DEF_COUNT 66, g_weaponDefs) |
 | `MW2_SHOT_TRACERS` |  |  | yes |  |  |  |  |  | 4 | SpawnShot fires with no ammunition left under the unlimited-ammunition cheat, and starts a tracer ahead of each machine-gun shot (premercs/tracers.c) |
 | `MW2_SHOT_OWNS_EFFECT` |  |  | yes |  |  |  |  |  | 5 | A shot's effect belongs to its shooter, as 1.1's does: DetonateShot takes no owner (UpdateShot) |
@@ -659,7 +663,7 @@ Every edition that has one of these has them all, so no binary separates one fro
 | `MW2_RETARGET_PLAYER_FLAG` |  |  | yes |  |  |  |  |  | 1 | Targeting at the reticle doesn't hand the steering to the autopilot for a player with bit 0 of Player::m_unk0x105 set (TargetAtReticle) |
 | `MW2_BANKING_PLAYER_TYPE` |  |  | yes |  |  |  |  |  | 3 | Players of a type 8 bank into their turns (FUN_10037d84 from UpdateAI) |
 | `MW2_TORSO_TILT_TAKES_PITCH` |  |  | yes |  |  |  |  |  | 4 | AimTorsoTilt takes the pitch it aims at, which its callers pass (the target's or another) |
-| `MW2_CLASS_ENTRY_UNK_MEMBER` |  |  | yes |  |  |  |  |  | 2 | The class table's entries have a member more (ClassEntry::m_unk0x44) |
+| `MW2_CLASS_ENTRY_UNK_MEMBER` |  |  | yes |  |  |  |  |  | 2 | The class table's entries have 4 bytes more, before m_released (ClassEntry::m_unk0x42) |
 | `MW2_SPEECH_LOCKED_AFTER_FLUSH` |  |  | yes |  |  |  |  |  | 2 | FlushSpeechQueue sets g_speechLocked once it has flushed the queue, and not at all when the queue is empty |
 | `MW2_FADE_TO_END_UNBLENDED` |  |  | yes |  |  |  |  |  | 1 | FadeToEndPalette applies the end palette without blending to it first |
 | `MW2_EYE_POSITION_WIDTH` |  |  | 0x32 |  |  |  |  |  | 1 | The eye position's overlay line is this many characters wide (HideEyePosition) |
@@ -886,9 +890,13 @@ Every edition that has one of these has them all, so no binary separates one fro
 - `MW2_DDRAW_STOP_KEEPS_MODE`: `MW2/src/directdraw.c`: `DdrawStop`
 - `MW2_REMOTE_MECHS_STAY`: `MW2/src/mechclass.c`: `UpdateMech`
 - `MW2_SHAPE_GRID`: `MW2/include/object.h`: file scope; `MW2/include/shape.h`: `Shape`; `MW2/include/shapelists.h`: file scope (4); `MW2/src/object.c`: the definition of `UpdateObj`, the definitions of `UpdateObj`, `UpdateObjTree`; `MW2/src/shapelists.c`: `AddSceneShape` (3), `EnableShapeCollision`, `FreeSceneShapes`, `InitShapeLists` (2), `ShowDensityShapes` (2), `ShowShape` (2), `UnlinkShape`, file scope (3), the definitions of `DisableShapeGrid`, `EnableShapeGrid`, `InitShapeGridNeighbours`, `ListAllShapeGridCells`, `ListShapeGridCellsAhead`, `ListShapeGridCellsAround`, the definitions of `GetShapeGridHead`, `GetShapeGridList`, `MoveObjTreeOffGrid`, `MoveObjTreeToCell`, `UpdateShapeGridCell`
-- `MW2_PLAYER_UNK_MEMBERS`: `MW2/include/players.h`: `Player` (3); `MW2/src/ai.c`: file scope
+- `MW2_PLAYER_UNK_MEMBERS`: `MW2/include/players.h`: `Player` (3); `MW2/src/ai.c`: file scope; `MW2/src/poolsizes.c`: `BuildStaticMemoryTable`
 - `MW2_MECH_UNK_MEMBERS`: `MW2/include/ammobin.h`: `AmmoBin`; `MW2/include/mech.h`: `Mech`; `MW2/include/weaponslot.h`: `WeaponBin`, `WeaponSlot` (2); `MW2/src/mechclass.c`: file scope
-- `MW2_COCKPIT_PANEL_UNK_MEMBERS`: `MW2/include/cockpitpanel.h`: `CockpitPanel` (2), file scope; `MW2/src/cockpitpanel.c`: `InitCockpitPanel`, file scope, the definition of `FUN_1005360a`
+- `MW2_COCKPIT_PANEL_UNK_MEMBERS`: `MW2/include/cockpitpanel.h`: `CockpitPanel` (2), file scope; `MW2/src/cockpitpanel.c`: `InitCockpitPanel`, file scope, the definition of `FUN_100535df`
+- `MW2_THIRTY_FOUR_PANELS`: `MW2/include/cockpitpanel.h`: `enum`; `MW2/src/cockpitpanels.c`: file scope (4)
+- `MW2_MAP_VIEW_WITHOUT_RADAR`: `MW2/src/cockpitpanels.c`: `ShutdownCockpitPanels`, `UpdateCockpit` (3)
+- `MW2_HIDDEN_HUD_HIDES_NETWORK_PANEL`: `MW2/src/cockpitpanels.c`: `UpdateCockpit`
+- `MW2_MFD_GAME_KEYS`: `MW2/src/inputmap.c`: `g_gameKeyNames` (4)
 - `MW2_CLAN_AND_IS_WEAPONS`: `MW2/include/weapondata.h`: file scope; `MW2/src/weapondata.c`: file scope
 - `MW2_SHOT_TRACERS`: `MW2/src/shots.c`: `UpdateShot`, file scope; `MW2/src/weapons.c`: file scope, the definition of `SpawnShot`
 - `MW2_SHOT_OWNS_EFFECT`: `MW2/include/shots.h`: file scope; `MW2/src/shots.c`: `DetonateShot` (2), `UpdateShot` (2)
@@ -998,11 +1006,11 @@ What tests `MW2_ACCEL`, `MW2_MATROX` or `MW2_3DFX` itself rather than a feature,
 - Includes (4): `MW2/include/bandpoly.h`: file scope; `MW2/include/directdraw.h`: file scope; `MW2/src/animation.c`: file scope; `MW2/src/bandpoly.c`: file scope
 - Pragmas that reproduce a unit's flags (4): `MW2/src/accel/queueface.c`: file scope (2); `MW2/src/keyboard.c`: file scope (2)
 
-### `MW2_PREMERCS` (13 sites)
+### `MW2_PREMERCS` (15 sites)
 
-- In a function: the edition's back end, what the shared code does for it, or the same computation written another way (8): `MW2/src/audio.c`: `StartMissionMusic`; `MW2/src/gbl/ams.c`: `AmsFrame` (2); `MW2/src/menu.c`: `RunMenuItems`; `MW2/src/palette.c`: `ApplyPendingPalette`; `MW2/src/render.c`: `InitDisplayGeometry`; `MW2/src/resource.c`: `GetPointNormalPlane`; `MW2/src/weapons.c`: `SelectNextWeaponInGroup`
+- In a function: the edition's back end, what the shared code does for it, or the same computation written another way (9): `MW2/src/audio.c`: `StartMissionMusic`; `MW2/src/cockpitpanels.c`: `UpdateCockpit`; `MW2/src/gbl/ams.c`: `AmsFrame` (2); `MW2/src/menu.c`: `RunMenuItems`; `MW2/src/palette.c`: `ApplyPendingPalette`; `MW2/src/render.c`: `InitDisplayGeometry`; `MW2/src/resource.c`: `GetPointNormalPlane`; `MW2/src/weapons.c`: `SelectNextWeaponInGroup`
 - A fragment included at the position of the object that holds it (3): `MW2/src/clock.c`: file scope; `MW2/src/config.c`: file scope; `MW2/src/objectanim.c`: file scope
-- Data and declarations that differ (2): `MW2/src/refreshmode.c`: file scope; `MW2/src/simmain.c`: file scope
+- Data and declarations that differ (3): `MW2/src/refreshmode.c`: file scope; `MW2/src/simmain.c`: file scope; `MW2/src/statuspanels.c`: file scope
 
 ### `MW2_S3` (64 sites)
 

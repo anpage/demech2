@@ -64,6 +64,7 @@ BwdTag g_staticPoolTags[10] =
 
 // GLOBAL: MW2 0x100e9da8
 // GLOBAL: MW2GBL 0x100bbb98
+// GLOBAL: MW2PREMERCS 0x10156d28
 // GLOBAL: MW2MATROX 0x1012c308
 // GLOBAL: MW23DFX 0x101597c8
 // GLOBAL: MW2ATI 0x1008d7d8
@@ -73,6 +74,7 @@ MechS16 g_missionPlayers;
 
 // GLOBAL: MW2 0x100e9daa
 // GLOBAL: MW2GBL 0x100bbb9a
+// GLOBAL: MW2PREMERCS 0x10156d2a
 // GLOBAL: MW2MATROX 0x1012c30a
 // GLOBAL: MW23DFX 0x101597ca
 // GLOBAL: MW2ATI 0x1008d7da
@@ -82,6 +84,7 @@ MechS16 g_unk0x100e9daa;
 
 // GLOBAL: MW2 0x100e9dac
 // GLOBAL: MW2GBL 0x100bbb9c
+// GLOBAL: MW2PREMERCS 0x10156d2c
 // GLOBAL: MW2MATROX 0x1012c30c
 // GLOBAL: MW23DFX 0x101597cc
 // GLOBAL: MW2ATI 0x1008d7dc
@@ -91,6 +94,7 @@ MechS16 g_missionObjects;
 
 // GLOBAL: MW2 0x100e9dae
 // GLOBAL: MW2GBL 0x100bbb9e
+// GLOBAL: MW2PREMERCS 0x10156d2e
 // GLOBAL: MW2MATROX 0x1012c30e
 // GLOBAL: MW23DFX 0x101597ce
 // GLOBAL: MW2ATI 0x1008d7de
@@ -100,6 +104,7 @@ MechS16 g_missionClassEntries;
 
 // GLOBAL: MW2 0x100e9db0
 // GLOBAL: MW2GBL 0x100bbba0
+// GLOBAL: MW2PREMERCS 0x10156d30
 // GLOBAL: MW2MATROX 0x1012c310
 // GLOBAL: MW23DFX 0x101597d0
 // GLOBAL: MW2ATI 0x1008d7e0
@@ -109,6 +114,7 @@ MechS16 g_unk0x100e9db0;
 
 // GLOBAL: MW2 0x100e9db2
 // GLOBAL: MW2GBL 0x100bbba2
+// GLOBAL: MW2PREMERCS 0x10156d32
 // GLOBAL: MW2MATROX 0x1012c312
 // GLOBAL: MW23DFX 0x101597d2
 // GLOBAL: MW2ATI 0x1008d7e2
@@ -118,6 +124,7 @@ MechS16 g_unk0x100e9db2;
 
 // GLOBAL: MW2 0x100e9db4
 // GLOBAL: MW2GBL 0x100bbba4
+// GLOBAL: MW2PREMERCS 0x10156d34
 // GLOBAL: MW2MATROX 0x1012c314
 // GLOBAL: MW23DFX 0x101597d4
 // GLOBAL: MW2ATI 0x1008d7e4
@@ -127,6 +134,7 @@ MechS16 g_missionAnims;
 
 // GLOBAL: MW2 0x100e9db6
 // GLOBAL: MW2GBL 0x100bbba6
+// GLOBAL: MW2PREMERCS 0x10156d36
 // GLOBAL: MW2MATROX 0x1012c316
 // GLOBAL: MW23DFX 0x101597d6
 // GLOBAL: MW2ATI 0x1008d7e6
@@ -136,6 +144,7 @@ MechS16 g_missionAnimTracks;
 
 // GLOBAL: MW2 0x100e9db8
 // GLOBAL: MW2GBL 0x100bbba8
+// GLOBAL: MW2PREMERCS 0x10156d38
 // GLOBAL: MW2MATROX 0x1012c318
 // GLOBAL: MW23DFX 0x101597d8
 // GLOBAL: MW2ATI 0x1008d7e8
@@ -303,6 +312,7 @@ MechS32 CountMissionStream(BwdStream* p_stream)
 // Fills the static memory table from the mission's counts: each pool's tag and size.
 // FUNCTION: MW2 0x100567ed
 // FUNCTION: MW2GBL 0x1007ba2d
+// FUNCTION: MW2PREMERCS 0x1007b753
 // FUNCTION: MW2MATROX 0x10085aac
 // FUNCTION: MW23DFX 0x100412e0
 // FUNCTION: MW2ATI 0x1003ee90
@@ -310,7 +320,9 @@ MechS32 CountMissionStream(BwdStream* p_stream)
 // FUNCTION: MW2POWERVR 0x10039bf0
 StaticPoolSize* BuildStaticMemoryTable(void)
 {
-#ifdef MW2_PILOT_TABLE
+#if defined(MW2_PLAYER_UNK_MEMBERS)
+	g_staticPoolSizes[0].m_size = g_missionPlayers * 0x246; // the early Mercenaries build's are larger still
+#elif defined(MW2_PILOT_TABLE)
 	g_staticPoolSizes[0].m_size = g_missionPlayers * 0x200; // GBL's players are larger
 #else
 	g_staticPoolSizes[0].m_size = g_missionPlayers * 0x1f2;

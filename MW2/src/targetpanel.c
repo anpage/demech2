@@ -53,6 +53,7 @@ MechS32 IsPlayerInView(Player* p_player);
 
 // GLOBAL: MW2 0x100ba4bc
 // GLOBAL: MW2GBL 0x1009f0e4
+// GLOBAL: MW2PREMERCS 0x100b2e8c
 // GLOBAL: MW2MATROX 0x100a4a4c
 // GLOBAL: MW23DFX 0x1024d04c
 // GLOBAL: MW2ATI 0x101813cc
@@ -907,6 +908,7 @@ void DrawTargetStatic(CockpitPanel* p_panel)
 // rectangle (g_panes[7] and the panel's target) for the frame.
 // FUNCTION: MW2 0x1007c71e
 // FUNCTION: MW2GBL 0x1001cc05
+// FUNCTION: MW2PREMERCS 0x1004fd6f
 // FUNCTION: MW2MATROX 0x10018def
 // FUNCTION: MW23DFX 0x10021730
 // FUNCTION: MW2ATI 0x10021a00
@@ -951,6 +953,7 @@ void DrawTargetPanelStartup(CockpitPanel* p_panel)
 // 4) already had it closed.
 // FUNCTION: MW2 0x1007c81c
 // FUNCTION: MW2GBL 0x1001cd03
+// FUNCTION: MW2PREMERCS 0x1004fe7f
 // FUNCTION: MW2MATROX 0x10018eed
 // FUNCTION: MW23DFX 0x100217f0
 // FUNCTION: MW2ATI 0x10021ac0

@@ -15,6 +15,7 @@ MechChar g_bwdVersion[4] = "1.22";
 #else
 // GLOBAL: MW2 0x100a66b8
 // GLOBAL: MW2GBL 0x100afb40
+// GLOBAL: MW2PREMERCS 0x100bf4e8
 MechChar g_bwdVersion[] = "1.22";
 #endif
 

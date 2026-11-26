@@ -894,9 +894,21 @@ double __cdecl fabs(double);
 /* Mechs, their weapon slots and their ammunition bins have 0x8f, 0xc and 8 bytes more than GBL's (Mech::m_unk0x114,
    WeaponSlot::m_unk0x64 and m_unk0x6c, AmmoBin::m_unk0x14 and WeaponBin::m_unk0x14) */
 #define MW2_MECH_UNK_MEMBERS
-/* Cockpit panels are 0xf0 bytes, their text origin first and a member and a setter of their own
-   (CockpitPanel::m_unk0x34, m_unk0x9c, m_unk0xcc) */
+/* Cockpit panels are 0xf0 bytes, with a member and a setter of their own first (CockpitPanel::m_unk0x30,
+   m_unk0xc4) */
 #define MW2_COCKPIT_PANEL_UNK_MEMBERS
+/* The cockpit has 34 panels, not 30, laid out anew: four more at the end, and the mech view's transition on
+   five more of them (c_panelCount; g_cockpitPanelPanes) */
+#define MW2_THIRTY_FOUR_PANELS
+/* Outside network games the cockpit's map views run with the radar off too (DifficultyCfg::m_radar:
+   ShutdownCockpitPanels, UpdateCockpit) */
+#define MW2_MAP_VIEW_WITHOUT_RADAR
+/* While the HUD is hidden (g_showHud), UpdateCockpit doesn't draw the network panel either */
+#define MW2_HIDDEN_HUD_HIDES_NETWORK_PANEL
+/* 21 more game keys: the MFDs' (MFD_CYCLE_A to _F, MFDS_RESET, SAVE_HUD, TOGGLE_COMPASS, TOGGLE_WEAPONS), the
+   starmates' orders (STARMATE_SET_ALL to STARMATE_SHUTDOWN), two more weapon groups and FIRE_CYCLE_WEAPON_GROUP,
+   which renumber the others (GAME_KEY_ACTION; g_gameKeyNames) */
+#define MW2_MFD_GAME_KEYS
 /* The weapons are the Clans' (GBL's, renamed and retuned) and 31 of the Inner Sphere (WEAPON_DEF_COUNT 66,
    g_weaponDefs) */
 #define MW2_CLAN_AND_IS_WEAPONS
@@ -930,7 +942,7 @@ double __cdecl fabs(double);
 #define MW2_BANKING_PLAYER_TYPE
 /* AimTorsoTilt takes the pitch it aims at, which its callers pass (the target's or another) */
 #define MW2_TORSO_TILT_TAKES_PITCH
-/* The class table's entries have a member more (ClassEntry::m_unk0x44) */
+/* The class table's entries have 4 bytes more, before m_released (ClassEntry::m_unk0x42) */
 #define MW2_CLASS_ENTRY_UNK_MEMBER
 /* JoystickPoll neither clears its JOYINFOEX nor sets its size */
 #define MW2_JOYINFOEX_UNCLEARED
@@ -1097,8 +1109,15 @@ double __cdecl fabs(double);
 #define MW2_REMOTE_MECHS_STAY
 #endif
 
-/* A game key action's number: with MW2_CHAT_KEY, the actions from 0x42 on are one higher. */
-#ifdef MW2_CHAT_KEY
+/* A game key action's number from 1.1's: with MW2_CHAT_KEY, the actions from 0x42 on are one higher, and with
+   MW2_MFD_GAME_KEYS, those from 3 on 10 higher, from 14 on 18 and from 0x42 on 19. */
+#if defined(MW2_MFD_GAME_KEYS)
+#define GAME_KEY_ACTION(p_action)                                                                                      \
+	((p_action) >= 0x42 ? (p_action) + 19                                                                              \
+	 : (p_action) >= 14 ? (p_action) + 18                                                                              \
+	 : (p_action) >= 3  ? (p_action) + 10                                                                              \
+						: (p_action))
+#elif defined(MW2_CHAT_KEY)
 #define GAME_KEY_ACTION(p_action) ((p_action) >= 0x42 ? (p_action) + 1 : (p_action))
 #else
 #define GAME_KEY_ACTION(p_action) (p_action)

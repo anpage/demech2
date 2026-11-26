@@ -76,6 +76,7 @@ MechS32 g_localMechHidden = 0;
 // The kill count the cockpit shows in a network game.
 // GLOBAL: MW2 0x100a15a0
 // GLOBAL: MW2GBL 0x100a04c4
+// GLOBAL: MW2PREMERCS 0x100b1a34
 // GLOBAL: MW2MATROX 0x100a4628
 // GLOBAL: MW23DFX 0x1024bfcc
 // GLOBAL: MW2ATI 0x1018034c

@@ -159,6 +159,8 @@
 0x1003d2dc DamageChunksInRadius debris.c pad 4 rename chunk=zqam dx=zqai dy=zqak dz=zqal i=zqaf radius=zqae reach=zqad x=zqag y=zqah z=zqaj
 0x1003e41c DestroySectionSlots mechdamage.c rename count=zqaf i=zqad section=zqae
 0x1003fdad GetTextWidth statuspanels.c rename c=zqad width=zqae
+0x1004081b DrawNetworkPanel statuspanels.c rename color=zqah cursor=zqaj font=zqal gap=zqae height=zqag player=zqaf pos=zqai state=zqak text=zqad
+0x10040f03 DrawAutopilotPanel statuspanels.c rename font=zqaf mech=zqae text=zqad
 0x10041719 UpdateAllPlayers players.c pad 4
 0x10041787 LateUpdateAllPlayers players.c pad 4
 0x100418ab ShutdownAllPlayers players.c pad 4 rename i=zqae shutdown=zqad
@@ -183,6 +185,8 @@
 0x10049a2e TargetAtReticle targeting.c rename autopilot=zqad player=zqae previous=zqag shape=zqah target=zqaf
 0x10049bc5 GetBearingAndRange targeting.c rename cosine=zqae ground=zqaf heading=zqag length=zqai pitch=zqad pitchCosine=zqaj sine=zqah
 0x10049de4 TargetNearestEnemy targeting.c pad 1 rename autopilot=zqad best=zqag bestDistance=zqaj distance=zqai player=zqaf saved=zqah target=zqae
+0x1004a69d ScaleCockpitLayout cockpitpanels.c rename i=zqag rect=zqad target=zqaf transition=zqae
+0x1004ae5f UpdateCockpit cockpitpanels.c rename bearing=zqah distance=zqag i=zqaf pitch=zqad twistBearing=zqae
 0x1004b8b5 DrawWeaponPanelStartup weaponpanel.c rename clock=zqaf font=zqag mech=zqae weapon=zqad
 0x1004c257 ChooseManeuver maneuvers.c rename choice=zqae index=zqad mech=zqag table=zqaf
 0x1004c59d FindManeuver maneuvers.c pad 5
@@ -203,6 +207,8 @@
 0x1004e89a GetTargetShape maneuvers.c rename id=zqae index=zqad obj=zqaf
 0x1004e947 DodgeShot maneuvers.c pad 13 rename bearing=zqaj heading=zqab hit=zqaa id=zqai index=zqae j=zqa3 kind=zqag maxAngle=zqad pitch=zqaf range=zqam ray=zqac side=zqas step=zqbo sx=zqan sy=zqap target=zqah x=zqak y=zqal z=zqao
 0x1004ecd2 ChooseFlankPlace maneuvers.c rename angle=zqad found=zqag i=zqae leader=zqah place=zqaf
+0x1004fd6f DrawTargetPanelStartup targetpanel.c rename rect=zqad savedTarget=zqag savedView=zqaf transition=zqae
+0x1004fe7f DrawTargetPanelShutdown targetpanel.c rename rect=zqad savedTarget=zqag savedView=zqaf transition=zqae
 0x100502ca LateUpdateArtillery artillery.c rename delta=zqaf mech=zqad twist=zqae
 0x10050617 CreateArtillery artillery.c rename buffer=zqad extra=zqaf i=zqag mech=zqai sections=zqak size=zqah slot=zqae weapons=zqaj
 0x10050b2e LateUpdateDoor door.c rename dx=zqap dy=zqaa dz=zqag mech=zqad nav=zqah navX=zqaj navY=zqam navZ=zqao objective=zqaf step=zqak team=zqae x=zqai y=zqal z=zqan
@@ -329,11 +335,13 @@
 0x1006ce5a HandleChatKey gamekeys.c rename c=zqae text=zqad to=zqaf
 0x1006e900 ProcessCmdLineArgs cmdline.c rename arg=zqae rate=zqag result=zqad value=zqaf
 0x1006ee50 RegisterInputDevice inputmap.c rename count=zqag driver=zqae i=zqaf index=zqad
-0x1006f082 FindInputDevice inputmap.c pad 5 rename i=zqae index=zqad
+0x1006f082 FindInputDevice inputmap.c pad 2 rename i=zqae index=zqad
 0x1006f592 GetOrCreateInputAxis inputmap.c pad 1 rename i=zqad name=zqag sink=zqaf suffix=zqae
-0x1006f9c4 AddAnalogBinding inputmap.c pad 2 rename device=zqad found=zqag i=zqaf index=zqae
+0x1006f9c4 AddAnalogBinding inputmap.c pad 9 early int~g_analogBindingCount 0 rename device=zqad found=zqag i=zqaf index=zqae
 0x1006fbbb ParseInputConditions inputmap.c rename button=zqai buttonName=zqaf device=zqad deviceName=zqag line=zqae name=zqaj sign=zqah
+0x1006fd83 CheckInputConditions inputmap.c pad 2
 0x1006fe24 ParseInputMap inputmap.c rename channel=zqai channelName=zqag deviceName=zqah index=zqaf line=zqad name=zqaj sign=zqak sink=zqae suffix=zqal
+0x100705ac LoadGamekeyMap inputmap.c rename action=zqai code=zqak file=zqaj i=zqag keyCode=zqaf keys=zqah line=zqad token=zqae
 0x100708cf UpdateAxisFromKeys inputmap.c rename axis=zqad channel=zqag device=zqaf driven=zqae position=zqah
 0x10071519 NetReceive netio.c rename from=zqad result=zqae size=zqaf to=zqag
 0x10071636 FillJoystickDeviceInfo joystick.c rename axisNames=zqah axisShortNames=zqae buttonNames=zqaf buttonShortNames=zqai caps=zqad data=zqaj i=zqag

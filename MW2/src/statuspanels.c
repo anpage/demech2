@@ -34,6 +34,19 @@
 #include "accel/vfx16.h"
 #endif
 
+// DrawNetworkPanel's chat hints: the early Mercenaries build spaces them otherwise.
+#ifdef MW2_PREMERCS
+#define CHAT_HINT_FRIENDLY " CTRL-F Send to friendly mechs"
+#define CHAT_HINT_ENEMY " CTRL-E Send to enemy mechs"
+#define CHAT_HINT_ALL " [Enter] Send to all,     [Esc] to abort"
+#define CHAT_HINT_SEND " [Enter] to send,     [ESC] to abort"
+#else
+#define CHAT_HINT_FRIENDLY " CTRL-F  Send to friendly mechs"
+#define CHAT_HINT_ENEMY " CTRL-E  Send to enemy mechs"
+#define CHAT_HINT_ALL " [Enter] Send to all,    [Esc] to abort"
+#define CHAT_HINT_SEND " [Enter] to send,    [ESC] to abort"
+#endif
+
 // Who the chat message goes to: 0 nobody (no message is being typed), -1 everybody, or a
 // player.
 // GLOBAL: MW2 0x100a116c
@@ -376,6 +389,7 @@ void DrawObjectivesPanel(CockpitPanel* p_panel)
 // a cursor.
 // FUNCTION: MW2 0x10005add
 // FUNCTION: MW2GBL 0x10045211
+// FUNCTION: MW2PREMERCS 0x1004081b
 // FUNCTION: MW2MATROX 0x100224b9
 // FUNCTION: MW23DFX 0x10017e10
 // FUNCTION: MW2ATI 0x100181d0
@@ -472,25 +486,11 @@ void DrawNetworkPanel(CockpitPanel* p_panel)
 				g_textColors[0xe] = PIXEL_COLOR(0xe);
 				cursor->m_y += height;
 				g_textColors[0xe] = PIXEL_COLOR(0xe);
-				VFX_string_draw(
-					p_panel->m_target,
-					cursor->m_x,
-					cursor->m_y,
-					font,
-					" CTRL-F  Send to friendly mechs",
-					g_textColors
-				);
+				VFX_string_draw(p_panel->m_target, cursor->m_x, cursor->m_y, font, CHAT_HINT_FRIENDLY, g_textColors);
 				g_textColors[0xe] = PIXEL_COLOR(0xe);
 				cursor->m_y += height;
 				g_textColors[0xe] = PIXEL_COLOR(0xe);
-				VFX_string_draw(
-					p_panel->m_target,
-					cursor->m_x,
-					cursor->m_y,
-					font,
-					" CTRL-E  Send to enemy mechs",
-					g_textColors
-				);
+				VFX_string_draw(p_panel->m_target, cursor->m_x, cursor->m_y, font, CHAT_HINT_ENEMY, g_textColors);
 				g_textColors[0xe] = PIXEL_COLOR(0xe);
 				cursor->m_y += height;
 				g_textColors[0xe] = PIXEL_COLOR(0xe);
@@ -499,14 +499,7 @@ void DrawNetworkPanel(CockpitPanel* p_panel)
 			}
 			else {
 				g_textColors[0xe] = PIXEL_COLOR(0xe);
-				VFX_string_draw(
-					p_panel->m_target,
-					cursor->m_x,
-					cursor->m_y,
-					font,
-					" [Enter] Send to all,    [Esc] to abort",
-					g_textColors
-				);
+				VFX_string_draw(p_panel->m_target, cursor->m_x, cursor->m_y, font, CHAT_HINT_ALL, g_textColors);
 				g_textColors[0xe] = PIXEL_COLOR(0xe);
 			}
 
@@ -547,14 +540,7 @@ void DrawNetworkPanel(CockpitPanel* p_panel)
 			UnderlineText(p_panel->m_target, text, pos, font, 2);
 			cursor->m_y += gap + height;
 			g_textColors[0xe] = PIXEL_COLOR(0xe);
-			VFX_string_draw(
-				p_panel->m_target,
-				cursor->m_x,
-				cursor->m_y,
-				font,
-				" [Enter] to send,    [ESC] to abort",
-				g_textColors
-			);
+			VFX_string_draw(p_panel->m_target, cursor->m_x, cursor->m_y, font, CHAT_HINT_SEND, g_textColors);
 			g_textColors[0xe] = PIXEL_COLOR(0xe);
 			cursor->m_y += gap + height;
 			break;
@@ -577,6 +563,7 @@ void DrawNetworkPanel(CockpitPanel* p_panel)
 // Shows the local player's kill count in a network game.
 // FUNCTION: MW2 0x100060b6
 // FUNCTION: MW2GBL 0x100457ea
+// FUNCTION: MW2PREMERCS 0x10040e27
 // FUNCTION: MW2MATROX 0x10022b98
 // FUNCTION: MW23DFX 0x10018330
 // FUNCTION: MW2ATI 0x100186f0
@@ -617,6 +604,7 @@ void DrawKillsPanel(CockpitPanel* p_panel)
 // Shows the autopilot's state.
 // FUNCTION: MW2 0x10006189
 // FUNCTION: MW2GBL 0x100458bd
+// FUNCTION: MW2PREMERCS 0x10040f03
 // FUNCTION: MW2MATROX 0x10022c7a
 // FUNCTION: MW23DFX 0x100183d0
 // FUNCTION: MW2ATI 0x10018790
@@ -725,6 +713,7 @@ void DrawSpeedPanel(CockpitPanel* p_panel)
 // Labels the MASC panel while MASC is available.
 // FUNCTION: MW2 0x100063cd
 // FUNCTION: MW2GBL 0x10045b01
+// FUNCTION: MW2PREMERCS 0x100411b6
 // FUNCTION: MW2MATROX 0x10022ef9
 // FUNCTION: MW23DFX 0x10018570
 // FUNCTION: MW2ATI 0x10018930
